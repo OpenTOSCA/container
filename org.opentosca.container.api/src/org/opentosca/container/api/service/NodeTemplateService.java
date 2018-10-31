@@ -14,8 +14,10 @@ import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.core.engine.IToscaEngineService;
-import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.eclipse.winery.model.tosca.TBoolean;
 import org.slf4j.Logger;
@@ -36,7 +38,7 @@ import com.google.common.collect.Lists;
 public class NodeTemplateService {
     private static Logger logger = LoggerFactory.getLogger(InstanceService.class);
 
-    private CsarService csarService;
+    private CsarStorageService storage;
     private IToscaEngineService toscaEngineService;
 
     /**
@@ -48,15 +50,15 @@ public class NodeTemplateService {
      */
     public List<NodeTemplateDTO> getNodeTemplatesOfServiceTemplate(final String csarId,
                                                                    final String serviceTemplateQName) {
-        final CSARContent csarContent = this.csarService.findById(csarId);
+        final Csar csar = storage.findById(new CsarId(csarId));
         final List<String> nodeTemplateIds =
-            this.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarContent.getCSARID(),
+            this.toscaEngineService.getNodeTemplatesOfServiceTemplate(csar.id().toOldCsarId(),
                                                                       QName.valueOf(serviceTemplateQName));
         final List<NodeTemplateDTO> nodeTemplates = new ArrayList<>();
         NodeTemplateDTO currentNodeTemplate;
 
         for (final String id : nodeTemplateIds) {
-            currentNodeTemplate = createNodeTemplate(csarContent.getCSARID(), QName.valueOf(serviceTemplateQName), id);
+            currentNodeTemplate = createNodeTemplate(csar.id().toOldCsarId(), QName.valueOf(serviceTemplateQName), id);
             nodeTemplates.add(currentNodeTemplate);
         }
 
@@ -75,8 +77,8 @@ public class NodeTemplateService {
      */
     public NodeTemplateDTO getNodeTemplateById(final String csarId, final QName serviceTemplateQName,
                                                final String nodeTemplateId) throws NotFoundException {
-        final CSARContent csarContent = this.csarService.findById(csarId);
-        final CSARID idOfCsar = csarContent.getCSARID();
+        final Csar csar = storage.findById(new CsarId(csarId));
+        final CSARID idOfCsar = csar.id().toOldCsarId();
 
         if (!this.toscaEngineService.getNodeTemplatesOfServiceTemplate(idOfCsar, serviceTemplateQName)
                                     .contains(nodeTemplateId)) {
@@ -97,7 +99,10 @@ public class NodeTemplateService {
      *         contains the node template, otherwise <code>false</code>
      */
     public boolean hasNodeTemplate(final String csarId, final QName serviceTemplateQName, final String nodeTemplateId) {
-        return getNodeTemplateIdsOfServiceTemplate(csarId, serviceTemplateQName.toString()).contains(nodeTemplateId);
+        final Csar csarContent = this.storage.findById(new CsarId(csarId));
+        final List<String> nodeTemplateIds = this.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarContent.id().toOldCsarId(),
+                                                                                                       QName.valueOf(serviceTemplateQName.toString()));
+        return nodeTemplateIds.contains(nodeTemplateId);
     }
 
 
@@ -111,8 +116,8 @@ public class NodeTemplateService {
      */
     public Document getPropertiesOfNodeTemplate(final String csarId, final QName serviceTemplateQName,
                                                 final String nodeTemplateId) {
-        final CSARContent csarContent = this.csarService.findById(csarId);
-        final CSARID idOfCsar = csarContent.getCSARID();
+        final Csar csarContent = storage.findById(new CsarId(csarId));
+        final CSARID idOfCsar = csarContent.id().toOldCsarId();
 
         if (!this.toscaEngineService.getNodeTemplatesOfServiceTemplate(idOfCsar, serviceTemplateQName)
                                     .contains(nodeTemplateId)) {
@@ -209,24 +214,10 @@ public class NodeTemplateService {
         return tParams;
     }
 
-    /**
-     * Gets a collection of node template ids associated to a given service template.
-     *
-     * @param csarId The id of the CSAR
-     * @param serviceTemplateQName the QName of the service template within the given CSAR
-     * @return A collection of node template ids stored within the given service template.
-     */
-    private List<String> getNodeTemplateIdsOfServiceTemplate(final String csarId, final String serviceTemplateQName) {
-        final CSARContent csarContent = this.csarService.findById(csarId);
-
-        return this.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarContent.getCSARID(),
-                                                                         QName.valueOf(serviceTemplateQName));
-    }
-
     /* Service Injection */
     /*********************/
-    public void setCsarService(final CsarService csarService) {
-        this.csarService = csarService;
+    public void setCsarStorageService(final CsarStorageService storageService) {
+        this.storage = storageService;
     }
 
     public void setToscaEngineService(final IToscaEngineService toscaEngineService) {

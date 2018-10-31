@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 // FIXME: check whether Serializability is cargo-cult programming
 // TODO: 983 references work with this. We shouldn't break it!
+@Deprecated
 public class CSARID implements Comparable<CSARID>, Serializable {
 
     private static final long serialVersionUID = 1889149925607823116L;

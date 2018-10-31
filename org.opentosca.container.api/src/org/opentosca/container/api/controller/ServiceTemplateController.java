@@ -55,8 +55,6 @@ public class ServiceTemplateController {
 
     private RelationshipTemplateService relationshipTemplateService;
 
-    private CsarService csarService;
-
     private DeploymentTestService deploymentTestService;
 
     private CsarStorageService storage;
@@ -183,11 +181,6 @@ public class ServiceTemplateController {
     public void setRelationshipTemplateService(final RelationshipTemplateService relationshipTemplateService) {
         logger.debug("Binding RelationshipTemplateService");
         this.relationshipTemplateService = relationshipTemplateService;
-    }
-
-    public void setCsarService(final CsarService csarService) {
-        logger.debug("Binding CsarService");
-        this.csarService = csarService;
     }
 
     public void setDeploymentTestService(final DeploymentTestService deploymentTestService) {

@@ -193,7 +193,7 @@ public class ManagementPlanController {
     public Response changeManagementPlanInstanceState(@PathParam("plan") final String plan,
                                                       @PathParam("instance") final String instance,
                                                       @Context final UriInfo uriInfo, final String request) {
-                                                        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
+        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
         return planService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request)) 
             ? Response.ok().build()
             : Response.status(Status.BAD_REQUEST).build();
