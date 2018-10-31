@@ -15,7 +15,7 @@ public class JaxbGenerator {
      * @param args
      */
     public static void main(final String[] args) {
-        final Class[] classes = new Class[4];
+        final Class<?>[] classes = new Class<?>[4];
         classes[0] = org.opentosca.container.portability.model.Artifacts.class;
         classes[1] = org.opentosca.container.portability.model.DeploymentArtifact.class;
         classes[2] = org.opentosca.container.portability.model.ImplementationArtifact.class;

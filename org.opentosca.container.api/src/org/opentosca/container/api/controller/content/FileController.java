@@ -15,8 +15,6 @@ import org.opentosca.container.core.model.AbstractFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
-
 public class FileController {
 
     private static Logger logger = LoggerFactory.getLogger(FileController.class);

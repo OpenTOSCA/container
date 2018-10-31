@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
-import org.eclipse.winery.provenance.exceptions.ProvenanceException;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.eclipse.winery.repository.configuration.FileBasedRepositoryConfiguration;

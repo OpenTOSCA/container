@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -165,6 +164,7 @@ public class CsarImpl implements Csar {
                 exporter.writeCsar(wineryRepo, entryServiceTemplate.get(), out, exportConfiguration);
             }
             catch (RepositoryCorruptException | InterruptedException | AccountabilityException | ExecutionException e) {
+                LOGGER.warn("Exporting the csar failed with an exception", e);
                 throw new IOException("Failed to export CSAR", e);
             }
         }

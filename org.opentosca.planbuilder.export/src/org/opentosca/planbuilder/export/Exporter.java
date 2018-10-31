@@ -411,8 +411,8 @@ public class Exporter extends AbstractExporter {
      */
     private IFileAccessService getFileAccessService() {
         final BundleContext ctx = FrameworkUtil.getBundle(Exporter.class).getBundleContext();
-        final ServiceReference serviceReference = ctx.getServiceReference(IFileAccessService.class.getName());
-        final IFileAccessService service = (IFileAccessService) ctx.getService(serviceReference);
+        final ServiceReference<IFileAccessService> serviceReference = ctx.getServiceReference(IFileAccessService.class);
+        final IFileAccessService service = ctx.getService(serviceReference);
         return service;
     }
 
