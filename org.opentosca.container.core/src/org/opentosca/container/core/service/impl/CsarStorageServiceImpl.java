@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.provenance.exceptions.ProvenanceException;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
@@ -118,8 +119,8 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             FileUtils.forceDelete(permanentLocation);
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
         }
-        catch (ProvenanceException e) {
-            LOGGER.debug("Provenance for imported CSAR could not be checked", e);
+        catch (AccountabilityException e) {
+            LOGGER.debug("Accountability for imported CSAR could not be checked", e);
             FileUtils.forceDelete(permanentLocation);
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
         }

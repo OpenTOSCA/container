@@ -12,12 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.common.ids.definitions.NodeTypeId;
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
@@ -157,12 +159,12 @@ public class CsarImpl implements Csar {
         CsarExporter exporter = new CsarExporter();
         Map<String, Object> exportConfiguration = new HashMap<>();
         exportConfiguration.put(CsarExportConfiguration.INCLUDE_HASHES.name(), false);
-        exportConfiguration.put(CsarExportConfiguration.INCLUDE_PROVENANCE.name(), false);
+        exportConfiguration.put(CsarExportConfiguration.STORE_IMMUTABLY.name(), true);
         try (OutputStream out = Files.newOutputStream(targetPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
             try {
                 exporter.writeCsar(wineryRepo, entryServiceTemplate.get(), out, exportConfiguration);
             }
-            catch (RepositoryCorruptException | JAXBException e) {
+            catch (RepositoryCorruptException | InterruptedException | AccountabilityException | ExecutionException e) {
                 throw new IOException("Failed to export CSAR", e);
             }
         }
