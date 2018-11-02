@@ -19,6 +19,9 @@ ENV ENGINE_IA_HOSTNAME localhost
 ENV ENGINE_PLAN ODE
 ENV ENGINE_PLAN_ROOT_URL http://localhost:9763/ode
 ENV ENGINE_PLAN_SERVICES_URL http://localhost:9763/ode/processes
+ENV COLLABORATION_MODE false
+ENV COLLABORATION_MASTER_HOSTNAME ""
+ENV COLLABORATION_MASTER_PORT ""
 
 RUN rm /dev/random && ln -s /dev/urandom /dev/random \
     && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
