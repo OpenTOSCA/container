@@ -1,18 +1,18 @@
 package org.opentosca.container.api.service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
-import org.opentosca.container.core.engine.IToscaEngineService;
-import org.opentosca.container.core.model.csar.CSARContent;
-import org.opentosca.container.core.model.csar.id.CSARID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 // TODO it is assumed that the name of the node template is the same as its id.
 /**
@@ -24,10 +24,8 @@ import org.w3c.dom.Document;
  *
  */
 public class RelationshipTemplateService {
-    private static final Logger logger = LoggerFactory.getLogger(InstanceService.class);
 
-    private CsarService csarService;
-    private IToscaEngineService toscaEngineService;
+    private CsarStorageService storage;
 
     /**
      * Gets a collection of relationship templates associated to a given service template.
@@ -38,20 +36,17 @@ public class RelationshipTemplateService {
      */
     public List<RelationshipTemplateDTO> getRelationshipTemplatesOfServiceTemplate(final String csarId,
                                                                                    final String serviceTemplateQName) {
-        final CSARContent csarContent = this.csarService.findById(csarId);
-        final List<String> relationshipTemplateIds =
-            this.toscaEngineService.getRelationshipTemplatesOfServiceTemplate(csarContent.getCSARID(),
-                                                                              QName.valueOf(serviceTemplateQName));
-        final List<RelationshipTemplateDTO> relationshipTemplates = new ArrayList<>();
-        RelationshipTemplateDTO currentRelationshipTemplate;
-
-        for (final String id : relationshipTemplateIds) {
-            currentRelationshipTemplate =
-                createRelationshipTemplate(csarContent.getCSARID(), QName.valueOf(serviceTemplateQName), id);
-            relationshipTemplates.add(currentRelationshipTemplate);
-        }
-
-        return relationshipTemplates;
+        final Csar csar = storage.findById(new CsarId(csarId));
+        List<TRelationshipTemplate> relationshipTemplates = csar.serviceTemplates().stream()
+            .filter(st -> st.getName().equals(serviceTemplateQName))
+            .findFirst()
+            .get()
+            .getTopologyTemplate()
+            .getRelationshipTemplates();
+        
+        return relationshipTemplates.stream()
+            .map(RelationshipTemplateDTO::fromToscaObject)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -67,16 +62,17 @@ public class RelationshipTemplateService {
      */
     public RelationshipTemplateDTO getRelationshipTemplateById(final String csarId, final QName serviceTemplateQName,
                                                                final String relationshipTemplateId) throws NotFoundException {
-        final CSARContent csarContent = this.csarService.findById(csarId);
-        final CSARID idOfCsar = csarContent.getCSARID();
+        final Csar csar = storage.findById(new CsarId(csarId));
 
-        if (!this.toscaEngineService.getRelationshipTemplatesOfServiceTemplate(idOfCsar, serviceTemplateQName)
-                                    .contains(relationshipTemplateId)) {
-            logger.info("Relationship template \"" + relationshipTemplateId + "\" could not be found");
-            throw new NotFoundException("Relationship template \"" + relationshipTemplateId + "\" could not be found");
-        }
-
-        return createRelationshipTemplate(idOfCsar, serviceTemplateQName, relationshipTemplateId);
+        TRelationshipTemplate template = csar.serviceTemplates().stream()
+            // FIXME check semantic correctness here!
+            .filter(st -> st.getId().equals(serviceTemplateQName.toString()))
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException("Relationship template \"" + relationshipTemplateId + "\" could not be found"))
+            .getTopologyTemplate()
+            .getRelationshipTemplate(relationshipTemplateId);
+        
+        return RelationshipTemplateDTO.fromToscaObject(template);
     }
 
 
@@ -105,41 +101,18 @@ public class RelationshipTemplateService {
      */
     public Document getPropertiesOfRelationshipTemplate(final String csarId, final QName serviceTemplateQName,
                                                         final String relationshipTemplateId) {
-        final CSARContent csarContent = this.csarService.findById(csarId);
-        final CSARID idOfCsar = csarContent.getCSARID();
+        final Csar csar = storage.findById(new CsarId(csarId));
 
-        if (!this.toscaEngineService.getRelationshipTemplatesOfServiceTemplate(idOfCsar, serviceTemplateQName)
-                                    .contains(relationshipTemplateId)) {
-            logger.info("Relationship template \"" + relationshipTemplateId + "\" could not be found");
-            throw new NotFoundException("Relationship template \"" + relationshipTemplateId + "\" could not be found");
-        }
-
-        final Document properties =
-            this.toscaEngineService.getPropertiesOfRelationshipTemplate(idOfCsar, serviceTemplateQName,
-                                                                        relationshipTemplateId);
-
-        return properties;
-    }
-
-    /**
-     * Creates a new instance of the RelationshipTemplateDTO class.
-     *
-     * @param csarId
-     * @param serviceTemplateQName
-     * @param relationshipTemplateId
-     * @return
-     */
-    private RelationshipTemplateDTO createRelationshipTemplate(final CSARID csarId, final QName serviceTemplateQName,
-                                                               final String relationshipTemplateId) {
-        final RelationshipTemplateDTO currentRelationshipTemplate = new RelationshipTemplateDTO();
-        currentRelationshipTemplate.setId(relationshipTemplateId);
-        currentRelationshipTemplate.setName(relationshipTemplateId);
-        currentRelationshipTemplate.setRelationshipType(this.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId,
-                                                                                                                          serviceTemplateQName,
-                                                                                                                          relationshipTemplateId)
-                                                                               .toString());
-
-        return currentRelationshipTemplate;
+        TRelationshipTemplate.Properties props = csar.serviceTemplates().stream()
+            // FIXME check qname equality to id?
+            .filter(st -> st.getId().equals(serviceTemplateQName.toString()))
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException("Relationship template \"" + relationshipTemplateId + "\" could not be found"))
+            .getTopologyTemplate()
+            .getRelationshipTemplate(relationshipTemplateId)
+            .getProperties();
+        // FIXME do null- and typechecking. possibly do not even return a Document here!
+        return ((Element)props.getAny()).getOwnerDocument();
     }
 
     /**
@@ -151,19 +124,20 @@ public class RelationshipTemplateService {
      */
     private List<String> getRelationshipTemplateIdsOfServiceTemplate(final String csarId,
                                                                      final String serviceTemplateQName) {
-        final CSARContent csarContent = this.csarService.findById(csarId);
-
-        return this.toscaEngineService.getRelationshipTemplatesOfServiceTemplate(csarContent.getCSARID(),
-                                                                                 QName.valueOf(serviceTemplateQName));
+        final Csar csar = storage.findById(new CsarId(csarId));
+        return csar.serviceTemplates().stream()
+            .filter(st -> st.getId().equals(serviceTemplateQName))
+            .findFirst()
+            .orElseThrow(NotFoundException::new)
+            .getTopologyTemplate()
+            .getRelationshipTemplates().stream()
+            .map(tosca -> tosca.getId())
+            .collect(Collectors.toList());
     }
 
     /* Service Injection */
     /*********************/
-    public void setCsarService(final CsarService csarService) {
-        this.csarService = csarService;
-    }
-
-    public void setToscaEngineService(final IToscaEngineService toscaEngineService) {
-        this.toscaEngineService = toscaEngineService;
+    public void setCsarStorageService(final CsarStorageService storage) {
+        this.storage = storage;
     }
 }

@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -47,5 +49,13 @@ public class RelationshipTemplateDTO extends ResourceSupport {
 
     public void setRelationshipType(final String relationshipType) {
         this.relationshipType = relationshipType;
+    }
+    
+    public static RelationshipTemplateDTO fromToscaObject(TRelationshipTemplate toscaObject) {
+        RelationshipTemplateDTO dto = new RelationshipTemplateDTO();
+        dto.id = toscaObject.getId();
+        dto.name = toscaObject.getName();
+        dto.relationshipType = toscaObject.getType().toString();
+        return dto;
     }
 }
