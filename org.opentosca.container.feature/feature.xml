@@ -21,7 +21,6 @@
          version="0.0.0"/>
 
    <requires>
-      <import plugin="org.slf4j.api" version="1.7.10" match="equivalent"/>
       <import plugin="com.google.inject" version="3.0.0" match="compatible"/>
       <import plugin="org.eclipse.equinox.preferences" version="3.2.0" match="compatible"/>
       <import plugin="org.eclipse.equinox.registry" version="3.2.0" match="compatible"/>
@@ -40,10 +39,16 @@
       <import plugin="org.eclipse.equinox.supplement"/>
       <import plugin="org.opentosca.bus.management" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="org.opentosca.bus.management.plugins.service" version="2.0.0" match="greaterOrEqual"/>
-      <import plugin="com.eclipsesource.jaxrs.jersey-all"/>
       <import plugin="javax.persistence" version="2.1.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.persistence.core" version="2.6.3" match="greaterOrEqual"/>
       <import plugin="org.h2" version="1.3.168" match="greaterOrEqual"/>
+      <import plugin="org.opentosca.container.connector.bps" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.opentosca.container.connector.ode" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.opentosca.container.core.tosca" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.opentosca.planbuilder.model" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.opentosca.planbuilder" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.opentosca.planbuilder.core.bpel" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.opentosca.planbuilder.provphase.plugin.invoker" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="org.apache.felix.gogo.runtime" version="0.10.0" match="greaterOrEqual"/>
       <import plugin="org.apache.felix.gogo.shell" version="0.10.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.osgi" version="3.10.0" match="greaterOrEqual"/>
@@ -53,10 +58,12 @@
       <import plugin="org.eclipse.persistence.core" version="2.4.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.persistence.jpa" version="2.4.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.persistence.jpa.jpql" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.opentosca.planbuilder.model" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.runtime" version="3.12.0" match="greaterOrEqual"/>
       <import plugin="javax.xml" version="1.3.4" match="compatible"/>
       <import plugin="org.apache.xml.resolver" version="1.2.0" match="compatible"/>
       <import plugin="org.apache.xml.serializer" version="2.7.1" match="compatible"/>
+      <import plugin="com.eclipsesource.jaxrs.jersey-all"/>
    </requires>
 
    <plugin
@@ -68,13 +75,6 @@
 
    <plugin
          id="ch.qos.logback.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.eclipsesource.jaxrs.jersey-min"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -201,27 +201,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.sun.jersey.client"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.sun.jersey.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="filesystem"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="javax.annotation"
          download-size="0"
          install-size="0"
@@ -265,27 +244,6 @@
 
    <plugin
          id="javax.xml.stream"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jclouds-blobstore"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jclouds-core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jclouds-slf4j"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1732,6 +1690,27 @@
 
    <plugin
          id="org.opentosca.planbuilder.type.plugin.patternbased"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.accountability"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="javax.ws.rs"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.eclipsesource.jaxrs.jersey-min"
          download-size="0"
          install-size="0"
          version="0.0.0"

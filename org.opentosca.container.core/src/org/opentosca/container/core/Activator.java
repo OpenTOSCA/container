@@ -88,9 +88,6 @@ public class Activator implements BundleActivator {
 
         // Container Capabilities
         Settings.setSetting("containerCapabilities", Settings.containerCapabilities);
-        
-        // FIXME FUGLY HACK FOR RulesChecker being a very special snowflake
-        RulesChecker.handler = bundleContext.getService(bundleContext.getServiceReference(ICoreFileService.class));
     }
 
     @Override
