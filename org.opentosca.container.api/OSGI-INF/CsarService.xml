@@ -5,5 +5,4 @@
    <service>
       <provide interface="org.opentosca.container.api.service.CsarService"/>
    </service>
-   <reference bind="setEngineService" cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static"/>
 </scr:component>
