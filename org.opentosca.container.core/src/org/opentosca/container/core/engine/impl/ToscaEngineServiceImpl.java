@@ -395,7 +395,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         return false;
     }
-    
+
     /**
      * Get the TOperation object for a given interface and operation name from a list of interfaces.
      *
@@ -542,7 +542,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         return listOfNames;
     }
-    
+
     /**
      * Return all ImplementationArtifacts for a given NodeTypeImplementation or
      * RelationshipTypeImplementation
@@ -2124,7 +2124,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
     @Override
     public List<String> getRelationshipTemplatesOfServiceTemplate(final CSARID csarID, final QName serviceTemplate) {
-    	final Map<QName, List<String>> map = toscaReferenceMapper.getServiceTemplate2RelationshipTemplateMap(csarID);
+        final Map<QName, List<String>> map = toscaReferenceMapper.getServiceTemplate2RelationshipTemplateMap(csarID);
 
         if (map != null) {
             return map.get(serviceTemplate);
@@ -2374,17 +2374,15 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     }
 
     @Override
-    public List<String> getInputParametersOfNodeTypeOperation(final CSARID csarID, final QName nodeTypeId,
-                                                              final String interfaceName, final String operationName) {
-        return parseParameters(getInputParametersOfANodeTypeOperation(csarID, nodeTypeId, interfaceName,
-                                                                      operationName));
+    public List<String> getInputParametersOfTypeOperation(final CSARID csarID, final QName typeId,
+                                                          final String interfaceName, final String operationName) {
+        return parseParameters(getInputParametersOfATypeOperation(csarID, typeId, interfaceName, operationName));
     }
 
     @Override
-    public List<String> getOutputParametersOfNodeTypeOperation(final CSARID csarID, final QName nodeTypeId,
-                                                               final String interfaceName, final String operationName) {
-        return parseParameters(getOutputParametersOfANodeTypeOperation(csarID, nodeTypeId, interfaceName,
-                                                                       operationName));
+    public List<String> getOutputParametersOfTypeOperation(final CSARID csarID, final QName typeId,
+                                                           final String interfaceName, final String operationName) {
+        return parseParameters(getOutputParametersOfATypeOperation(csarID, typeId, interfaceName, operationName));
     }
 
     private List<String> parseParameters(final Node node) {
@@ -2410,129 +2408,8 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         return params;
     }
-    
-    @Override
-    public Node getInputParametersOfANodeTypeOperation(final CSARID csarID, final QName nodeTypeID,
-                                                       final String interfaceName, final String operationName) {
 
-        for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarID, nodeTypeID)) {
-
-            final TNodeType nodeType =
-                (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                         nodeTypeHierarchyMember);
-
-            if (nodeType.getInterfaces() != null) {
-
-                for (final TInterface iface : nodeType.getInterfaces().getInterface()) {
-
-                    for (final TOperation operation : iface.getOperation()) {
-
-                        if (operation.getName().equals(operationName)
-                            && (iface.getName().equals(interfaceName) || interfaceName == null)) {
-
-                            if (operation.getInputParameters() != null
-                                && operation.getInputParameters().getInputParameter() != null) {
-
-                                return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                                          .marshalToNode(operation.getInputParameters());
-
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        ToscaEngineServiceImpl.LOG.debug("The requested operation was not found.");
-        return null;
-
-    }
-
-
-    @Override
-    public Node getInputParametersOfARelationshipTypeOperation(final CSARID csarID, final QName relationshipTypeID,
-                                                               final String interfaceName, final String operationName) {
-
-        final TRelationshipType relationshipType =
-            (TRelationshipType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                             relationshipTypeID);
-
-        if (relationshipType.getSourceInterfaces() != null) {
-
-            for (final TInterface iface : relationshipType.getSourceInterfaces().getInterface()) {
-
-                for (final TOperation operation : iface.getOperation()) {
-
-                    if (operation.getName().equals(operationName)
-                        && (iface.getName().equals(interfaceName) || interfaceName == null)) {
-
-                        if (operation.getInputParameters() != null
-                            && operation.getInputParameters().getInputParameter() != null) {
-
-                            return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                                      .marshalToNode(operation.getInputParameters());
-
-                        }
-                    }
-                }
-            }
-        }
-
-        if (relationshipType.getTargetInterfaces() != null) {
-
-            for (final TInterface iface : relationshipType.getTargetInterfaces().getInterface()) {
-
-                for (final TOperation operation : iface.getOperation()) {
-
-                    if (operation.getName().equals(operationName)
-                        && (iface.getName().equals(interfaceName) || interfaceName == null)) {
-
-                        if (operation.getInputParameters() != null
-                            && operation.getInputParameters().getInputParameter() != null) {
-
-                            return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                                      .marshalToNode(operation.getInputParameters());
-
-                        }
-                    }
-                }
-            }
-        }
-        ToscaEngineServiceImpl.LOG.debug("The requested operation was not found.");
-        return null;
-
-    }
-
-	@Override
-	public Node getOutputParametersOfANodeTypeOperation(CSARID csarID, QName nodeTypeID, String interfaceName,
-			String operationName) {
-		final TNodeType nodeType =
-	            (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeID);
-
-	        if (nodeType.getInterfaces() != null) {
-
-	            for (final TInterface iface : nodeType.getInterfaces().getInterface()) {
-
-	                for (final TOperation operation : iface.getOperation()) {
-
-	                    if (operation.getName().equals(operationName)
-	                        && (iface.getName().equals(interfaceName) || interfaceName == null)) {
-
-	                        if (operation.getOutputParameters() != null
-	                            && operation.getOutputParameters().getOutputParameter() != null) {
-
-	                            return ServiceHandler.xmlSerializerService.getXmlSerializer()
-	                                                                      .marshalToNode(operation.getOutputParameters());
-
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	        ToscaEngineServiceImpl.LOG.debug("The requested operation was not found.");
-	        return null;
-	}
-
-	 /**
+    /**
      * Retrieve all ImplementationArtifacts for a given NodeTypeImplementation or
      * RelationshipTypeImplementation and return the one that matches the given name.
      *

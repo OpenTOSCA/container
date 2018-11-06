@@ -163,11 +163,11 @@ public class NodeTemplateService {
 
             for (final String operationName : operationNames) {
                 final List<String> inputParamNames =
-                    this.toscaEngineService.getInputParametersOfNodeTypeOperation(csarId, nodeTypeId, interfaceName,
-                                                                                  operationName);
+                    this.toscaEngineService.getInputParametersOfTypeOperation(csarId, nodeTypeId, interfaceName,
+                                                                              operationName);
                 final List<String> outputParamNames =
-                    this.toscaEngineService.getOutputParametersOfNodeTypeOperation(csarId, nodeTypeId, interfaceName,
-                                                                                   operationName);
+                    this.toscaEngineService.getOutputParametersOfTypeOperation(csarId, nodeTypeId, interfaceName,
+                                                                               operationName);
                 final OperationDTO operationDto = new OperationDTO();
 
                 operationDto.setName(operationName);
