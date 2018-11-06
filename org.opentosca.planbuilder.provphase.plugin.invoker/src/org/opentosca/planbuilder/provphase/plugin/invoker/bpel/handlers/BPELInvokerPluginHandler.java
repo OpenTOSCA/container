@@ -401,7 +401,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 
         if (context.getNodeTemplate() != null) {
 
-            appendLOGMessageActivity(context, "Executing operation " + operation + " of NodeTemplate "
+            appendLOGMessageActivity(context, "Executing operation " + operationName + " of NodeTemplate "
                 + context.getNodeTemplate().getId(), BPELPlanContext.Phase.PROV);
         } else {
             appendLOGMessageActivity(context,
