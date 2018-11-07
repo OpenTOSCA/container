@@ -350,8 +350,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractDefinitions> getImportedDefinitions() {
-        return (List<AbstractDefinitions>) (List<?>) this.referencedDefinitions;
+    public List<? extends AbstractDefinitions> getImportedDefinitions() {
+        return this.referencedDefinitions;
     }
 
     /**

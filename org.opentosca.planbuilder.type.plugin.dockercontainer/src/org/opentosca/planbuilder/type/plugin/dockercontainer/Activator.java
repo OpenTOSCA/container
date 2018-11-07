@@ -11,8 +11,10 @@ public class Activator implements BundleActivator {
 
     private static BundleContext context;
 
-    private ServiceRegistration registrationDockerContainerPlugin;
-    private ServiceRegistration registrationOpenMTCDockerContainerPlugin;
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration<IPlanBuilderTypePlugin> registrationDockerContainerPlugin;
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration<IPlanBuilderTypePlugin> registrationOpenMTCDockerContainerPlugin;
 
     static BundleContext getContext() {
         return Activator.context;
@@ -27,10 +29,10 @@ public class Activator implements BundleActivator {
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
         this.registrationDockerContainerPlugin =
-            Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(),
+            Activator.context.registerService(IPlanBuilderTypePlugin.class,
                                               new BPELDockerContainerTypePlugin(), null);
         this.registrationOpenMTCDockerContainerPlugin =
-            Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(),
+            Activator.context.registerService(IPlanBuilderTypePlugin.class,
                                               new BPELOpenMTCDockerContainerTypePlugin(), null);
 
     }

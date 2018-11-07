@@ -42,7 +42,6 @@ import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.backwards.FileSystemDirectory;

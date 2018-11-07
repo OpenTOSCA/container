@@ -10,7 +10,8 @@ public class Activator implements BundleActivator {
 
     private static BundleContext context;
 
-    private ServiceRegistration registration;
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration<IScalingPlanBuilderSelectionPlugin> registration;
 
     static BundleContext getContext() {
         return Activator.context;
@@ -24,7 +25,7 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
-        this.registration = Activator.context.registerService(IScalingPlanBuilderSelectionPlugin.class.getName(),
+        this.registration = Activator.context.registerService(IScalingPlanBuilderSelectionPlugin.class,
                                                               new BPELMosquittoSelectionPlugin(), null);
 
     }

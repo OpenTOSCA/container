@@ -250,10 +250,6 @@ public class CSARResource {
         CSARResource.LOG.info("Deleting CSAR \"{}\".", csarID);
         final List<String> errors = IOpenToscaControlServiceHandler.getOpenToscaControlService().deleteCSAR(csarID);
 
-        // if (errors.contains("CSAR has instances.")) {
-        // return Response.notModified("CSAR has instances.").build();
-        // }
-
         if (errors.isEmpty()) {
             return Response.ok("Deletion of CSAR " + "\"" + csarID + "\" was sucessful.").build();
         } else {

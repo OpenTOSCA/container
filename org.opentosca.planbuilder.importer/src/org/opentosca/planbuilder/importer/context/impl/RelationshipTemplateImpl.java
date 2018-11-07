@@ -182,7 +182,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
                 definitionsToLookTrough.addAll(definitions.getImportedDefinitions());
             }
         }
-        // FIXME: this is cleary an error in definitions, but no mechanism to
+        // FIXME: this is clearly an error in definitions, but no mechanism to
         // handle this right now, e.g. NoRelationshipTypeFoundException
         return null;
     }

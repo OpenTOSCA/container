@@ -10,8 +10,10 @@ import org.osgi.framework.ServiceRegistration;
 public class Activator implements BundleActivator {
 
     private static BundleContext context;
-    private ServiceRegistration registration;
-    private ServiceRegistration registration2;
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration<IPlanBuilderPostPhasePlugin> registration;
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration<IPlanBuilderPolicyAwarePrePhasePlugin> registration2;
     private BPELInstanceDataPlugin plugin = null;
 
     static BundleContext getContext() {
@@ -28,9 +30,9 @@ public class Activator implements BundleActivator {
         Activator.context = bundleContext;
         this.plugin = new BPELInstanceDataPlugin();
         this.registration =
-            Activator.context.registerService(IPlanBuilderPostPhasePlugin.class.getName(), this.plugin, null);
+            Activator.context.registerService(IPlanBuilderPostPhasePlugin.class, this.plugin, null);
         this.registration2 =
-            Activator.context.registerService(IPlanBuilderPolicyAwarePrePhasePlugin.class.getName(), this.plugin, null);
+            Activator.context.registerService(IPlanBuilderPolicyAwarePrePhasePlugin.class, this.plugin, null);
 
     }
 

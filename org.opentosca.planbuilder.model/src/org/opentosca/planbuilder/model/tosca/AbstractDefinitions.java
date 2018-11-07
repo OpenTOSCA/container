@@ -78,7 +78,7 @@ public abstract class AbstractDefinitions {
      *
      * @return a List of AbstractDefinitions
      */
-    public abstract List<AbstractDefinitions> getImportedDefinitions();
+    public abstract List<? extends AbstractDefinitions> getImportedDefinitions();
 
     /**
      * Returns an absolute Path for the given AbstractArtifactReference

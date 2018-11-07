@@ -9,6 +9,7 @@ import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.core.model.csar.Csar;
 
+@SuppressWarnings("serial")
 public class ToscaMetaFileReplacement extends TOSCAMetaFile {
 
     private final Csar wrappedCsar;
