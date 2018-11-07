@@ -43,7 +43,6 @@ public class PlanInstances {
 
     UriInfo uriInfo;
 
-
     public PlanInstances(final CSARID csarID, final QName serviceTemplateID, final int serviceTemplateInstanceId) {
         this.csarID = csarID;
         this.serviceTemplateID = serviceTemplateID;
@@ -77,28 +76,19 @@ public class PlanInstances {
     }
 
     public References getReferences() {
-
         PlanInstances.LOG.debug("Access plan instance list at " + this.uriInfo.getAbsolutePath().toString());
-
         if (this.csarID == null) {
             PlanInstances.LOG.debug("The CSAR does not exist.");
             return null;
         }
-
         final References refs = new References();
-
-        final IOpenToscaControlService control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
-
         final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
-
         final Optional<ServiceTemplateInstance> o = repo.find(Long.valueOf(this.serviceTemplateInstanceId));
         final ServiceTemplateInstance sit = o.get();
-
         for (final org.opentosca.container.core.next.model.PlanInstance p : sit.getPlanInstances()) {
             refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, p.getCorrelationId()),
                 XLinkConstants.SIMPLE, p.getCorrelationId()));
         }
-
         // selflink
         refs.getReference()
             .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));

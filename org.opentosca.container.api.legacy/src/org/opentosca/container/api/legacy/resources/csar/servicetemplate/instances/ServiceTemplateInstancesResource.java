@@ -1,5 +1,7 @@
 package org.opentosca.container.api.legacy.resources.csar.servicetemplate.instances;
 
+import static org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler.getOpenToscaControlService;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,7 +28,6 @@ import org.opentosca.container.api.legacy.instancedata.ExistenceChecker;
 import org.opentosca.container.api.legacy.instancedata.exception.GenericRestException;
 import org.opentosca.container.api.legacy.instancedata.model.SimpleXLink;
 import org.opentosca.container.api.legacy.instancedata.utilities.Constants;
-import org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler;
 import org.opentosca.container.api.legacy.osgi.servicegetter.InstanceDataServiceHandler;
 import org.opentosca.container.api.legacy.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.container.api.legacy.resources.utilities.JSONUtils;
@@ -76,9 +77,7 @@ public class ServiceTemplateInstancesResource {
     @Produces(ResourceConstants.LINKED_XML)
     public Response doGetXML(@Context final UriInfo uriInfo,
                              @QueryParam("BuildPlanCorrelationId") final String buildPlanCorrId) {
-
         final References refs = this.getRefs(uriInfo, buildPlanCorrId);
-
         return Response.ok(refs.getXMLString()).build();
     }
 
@@ -86,69 +85,30 @@ public class ServiceTemplateInstancesResource {
     @Produces(ResourceConstants.LINKED_JSON)
     public Response doGetJSON(@Context final UriInfo uriInfo,
                               @QueryParam("BuildPlanCorrelationId") final String buildPlanCorrId) {
-
         final References refs = this.getRefs(uriInfo, buildPlanCorrId);
-
         return Response.ok(refs.getJSONString()).build();
     }
 
     public References getRefs(final UriInfo uriInfo, final String buildPlanCorrId) {
-
-        // URI serviceInstanceIdURI = null;
-        // QName serviceTemplateIDQName = null;
-        // try {
-        // if (serviceInstanceID != null) {
-        // serviceInstanceIdURI = new URI(serviceInstanceID);
-        // if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
-        // throw new Exception("Error converting serviceInstanceID: invalid
-        // format!");
-        // }
-        // }
-        // if (serviceTemplateID != null) {
-        // serviceTemplateIDQName = QName.valueOf(serviceTemplateID);
-        // }
-        // } catch (Exception e1) {
-        // throw new GenericRestException(Status.BAD_REQUEST, "Bad Request due
-        // to bad variable content: " + e1.getMessage());
-        // }
-
-        // try {
-
         final References refs = new References();
-
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-
         final List<ServiceInstance> serviceInstances =
             service.getServiceInstancesWithDetails(this.csarId, this.serviceTemplateID, null);
 
         // get all instance ids
         if (null == buildPlanCorrId || buildPlanCorrId.isEmpty()) {
 
-            // List<ServiceInstance> serviceInstances =
-            // service.getServiceInstances(serviceInstanceIdURI,
-            // serviceTemplateName, serviceTemplateIDQName);
             this.log.debug("Returning all known Service Template instance IDs ({}).", serviceInstances.size());
-
             for (final ServiceInstance serviceInstance : serviceInstances) {
-
                 this.log.debug("ST ID of service \"{}\":\"{}\" vs. path \"{}\":\"{}\"",
                                serviceInstance.getServiceTemplateID().getNamespaceURI(),
                                serviceInstance.getServiceTemplateID().getLocalPart(),
                                this.serviceTemplateID.getNamespaceURI(), this.serviceTemplateID.getLocalPart());
                 if (serviceInstance.getServiceTemplateID().equals(this.serviceTemplateID)) {
-
                     final int instanceId = serviceInstance.getDBId();
                     refs.getReference().add(new Reference(serviceInstance.getServiceInstanceID().toString(),
                         XLinkConstants.SIMPLE, Integer.toString(instanceId)));
                 }
-                // URI urlToServiceInstance =
-                // LinkBuilder.linkToServiceInstance(uriInfo,
-                // serviceInstance.getDBId());
-                //
-                // // build simpleXLink with the internalID as LinkText
-                // // TODO: is the id the correct linkText?
-                // links.add(new SimpleXLink(urlToServiceInstance,
-                // serviceInstance.getDBId() + ""));
             }
         }
         // get instance id of plan correlation only
@@ -160,39 +120,15 @@ public class ServiceTemplateInstancesResource {
 
             final ServiceInstance si = Converters.convert(sti);
 
-            // final int instanceId = BuildCorrelationToInstanceMapping.instance
-            // .getServiceTemplateInstanceIdForBuildPlanCorrelation(buildPlanCorrId);
-            // for (ServiceInstance serviceInstance : serviceInstances) {
-            // if (serviceInstance.getDBId() == instanceId) {
             refs.getReference().add(new Reference(si.getServiceInstanceID().toString(), XLinkConstants.SIMPLE,
                 Integer.toString(si.getDBId())));
-            // }
-            // }
             this.log.debug("Returning only the Service Template instance ID for correlation {} ({}).", buildPlanCorrId,
                            si.getServiceInstanceID());
-
-            // URI urlToServiceInstance =
-            // LinkBuilder.linkToServiceInstance(uriInfo, instanceId);
-            //
-            // // build simpleXLink with the internalID as LinkText
-            // // TODO: is the id the correct linkText?
-            // links.add(new SimpleXLink(urlToServiceInstance, instanceId +
-            // ""));
-
         }
-
         // selflink
         refs.getReference()
             .add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-
-        // ServiceInstanceList sil = new
-        // ServiceInstanceList(LinkBuilder.selfLink(uriInfo), links);
         return refs;
-        // } catch (Exception e) {
-        // throw new GenericRestException(Status.INTERNAL_SERVER_ERROR,
-        // e.getMessage());
-        // }
-
     }
 
     @POST
@@ -211,21 +147,13 @@ public class ServiceTemplateInstancesResource {
 
             // create xlink with the link to the newly created serviceInstance,
             // the link text is the internal serviceInstanceID
-
             final String corr = xml.substring(xml.indexOf(">") + 1, xml.indexOf("</"));
 
             final int serviceTemplateInstanceId = createdServiceInstance.getDBId();
             final String instanceURL = createdServiceInstance.getServiceInstanceID().toString();
-            // this.log.debug(corr + " : " + corr + " - " + instanceURL);
             this.log.debug("serviceTemplateInstanceId={}", serviceTemplateInstanceId);
             this.log.debug("instanceURL={}", instanceURL);
             this.log.debug("correlationId={}", corr);
-
-            // correlate true Service Template instance id with temporary one
-            // BuildCorrelationToInstanceMapping.instance.correlateCorrelationIdToServiceTemplateInstanceId(corr,
-            // serviceTemplateInstanceId);
-            // PlanInvocationEngineHandler.planInvocationEngine.correctCorrelationToServiceTemplateInstanceIdMapping(
-            // this.csarId, this.serviceTemplateID, corr, serviceTemplateInstanceId);
 
             // Link the service template instance with the plan instance
             final PlanInstanceRepository repository = new PlanInstanceRepository();
@@ -370,9 +298,8 @@ public class ServiceTemplateInstancesResource {
 
         this.log.debug("Post of the Plan " + plan.getId());
 
-        final String correlationID =
-            IOpenToscaControlServiceHandler.getOpenToscaControlService()
-                                           .invokePlanInvocation(this.csarId, this.serviceTemplateID, -1, plan);
+        final String correlationID = getOpenToscaControlService()
+            .invokePlanInvocation(this.csarId, this.serviceTemplateID, -1, plan);
 
         this.log.debug("Return correlation ID of running plan: " + correlationID);
 

@@ -1,5 +1,7 @@
 package org.opentosca.container.api.legacy.resources.csar;
 
+import static org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler.getOpenToscaControlService;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -17,7 +19,6 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.container.api.legacy.osgi.servicegetter.FileRepositoryServiceHandler;
-import org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler;
 import org.opentosca.container.api.legacy.resources.csar.content.ContentResource;
 import org.opentosca.container.api.legacy.resources.csar.content.DirectoryResource;
 import org.opentosca.container.api.legacy.resources.csar.content.FileResource;
@@ -40,7 +41,6 @@ import org.slf4j.LoggerFactory;
  * Resource represents a CSAR.<br />
  * <br />
  *
- *
  * Copyright 2013 IAAS University of Stuttgart<br />
  * <br />
  *
@@ -50,13 +50,11 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CSARResource {
-
     private static final Logger LOG = LoggerFactory.getLogger(ContentResource.class);
 
     // If csar is null, CSAR is not stored
     private final CSARContent CSAR;
     UriInfo uriInfo;
-
 
     public CSARResource(final CSARContent csar) {
         Objects.requireNonNull(csar);
@@ -80,19 +78,12 @@ public class CSARResource {
     }
 
     public References getRefs() {
-
         if (this.CSAR == null) {
             return null;
         }
-
         final References refs = new References();
-
         refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "Content"),
             XLinkConstants.SIMPLE, "Content"));
-        // refs.getReference().add(new
-        // Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
-        // "BoundaryDefinitions"), XLinkConstants.SIMPLE,
-        // "BoundaryDefinitions"));
         refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "MetaData"),
             XLinkConstants.SIMPLE, "MetaData"));
         refs.getReference()
@@ -102,18 +93,6 @@ public class CSARResource {
             .add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "TopologyPicture"),
                 XLinkConstants.SIMPLE, "TopologyPicture"));
 
-        // TODO both following links (PlanInstances, PlanResults) have to be
-        // replaced as soon as the instance data api is merged into here
-        // refs.getReference().add(new
-        // Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
-        // "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
-        // refs.getReference().add(new
-        // Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
-        // "PlanResults"), XLinkConstants.SIMPLE, "PlanResults"));
-
-        // refs.getReference().add(new
-        // Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
-        // "Instances"), XLinkConstants.SIMPLE, "Instances"));
         CSARResource.LOG.info("Number of References in Root: {}", refs.getReference().size());
 
         // selflink
@@ -129,25 +108,6 @@ public class CSARResource {
 
     }
 
-    // @Path("BoundaryDefinitions")
-    // public BoundsResource getBoundaryDefs() {
-    // return new BoundsResource(CSAR.getCSARID());
-    // }
-
-    // @Path("Plans")
-    // public CSARPlansResource getPuplicPlans() {
-    // return new CSARPlansResource(CSAR.getCSARID());
-    // }
-
-    // @Path("Instances")
-    // public InstancesResource getInstances() {
-    // return new InstancesResource(CSAR.getCSARID());
-    // }
-
-    // "image/*" will be preferred over "text/xml" when requesting an image.
-    // This is a fix for Webkit Browsers who are too dumb for content
-    // negotiation.
-
     @Produces("image/*; qs=2.0")
     @GET
     @Path("TopologyPicture")
@@ -158,15 +118,10 @@ public class CSARResource {
         if (topologyPicture != null) {
             final MediaType mt = new MediaType("image", "*");
 
-            // try {
             final InputStream is = topologyPicture.getFileAsInputStream();
             return Response.ok(is, mt)
                            .header("Content-Disposition", "attachment; filename=\"" + topologyPicture.getName() + "\"")
                            .build();
-            // } catch (SystemException exc) {
-            // CSARResource.LOG.error("An System Exception occured.", exc);
-            // }
-
         }
         return Response.status(Status.NOT_FOUND).type(MediaType.TEXT_PLAIN)
                        .entity("No Topology Picture exists in CSAR \"" + this.CSAR.getCSARID() + "\".").build();
@@ -176,8 +131,6 @@ public class CSARResource {
     @Path("MetaData")
     @Produces(ResourceConstants.APPLICATION_JSON)
     public Response getMetaDataJSON() throws SystemException {
-        // /containerapi/CSARs/MongoDB_On_VSphere.csar/Content/SELFSERVICE-Metadata/data.json
-
         final DirectoryResource dir =
             (DirectoryResource) new ContentResource(this.CSAR).getDirectoryOrFile("SELFSERVICE-Metadata");
         final FileResource file = (FileResource) dir.getDirectoryOrFile("data.json");
@@ -185,22 +138,11 @@ public class CSARResource {
 
         CSARResource.LOG.trace("Metadata file is of class: {}", file.getClass());
 
-        return Response.status(Status.OK).type(MediaType.APPLICATION_JSON).entity(file.getAsJSONString()).build();// .type(MediaType.TEXT_PLAIN).entity("No
-        // Topology
-        // Picture
-        // exists
-        // in
-        // CSAR
-        // \""
-        // +
-        // CSAR.getCSARID()
-        // +
-        // "\".").build();
+        return Response.status(Status.OK).type(MediaType.APPLICATION_JSON).entity(file.getAsJSONString()).build();
     }
 
     @Path("ServiceTemplates")
     public ServiceTemplatesResource getServiceTemplates() {
-
         return new ServiceTemplatesResource(this.CSAR);
     }
 
@@ -218,18 +160,13 @@ public class CSARResource {
     @GET
     @Produces(ResourceConstants.OCTET_STREAM)
     public Response downloadCSAR() throws SystemException, UserException {
-
         final CSARID csarID = this.CSAR.getCSARID();
-
-        // try {
 
         final java.nio.file.Path csarFile = FileRepositoryServiceHandler.getFileHandler().exportCSAR(csarID);
         InputStream csarFileInputStream;
-
         try {
             csarFileInputStream = Files.newInputStream(csarFile);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             throw new SystemException("Retrieving input stream of file \"" + csarFile.toString() + "\" failed.", e);
         }
 
@@ -244,23 +181,18 @@ public class CSARResource {
     @DELETE
     @Produces("text/plain")
     public Response delete() {
-
         final CSARID csarID = this.CSAR.getCSARID();
-
         CSARResource.LOG.info("Deleting CSAR \"{}\".", csarID);
-        final List<String> errors = IOpenToscaControlServiceHandler.getOpenToscaControlService().deleteCSAR(csarID);
+        final List<String> errors = getOpenToscaControlService().deleteCSAR(csarID);
 
         if (errors.isEmpty()) {
             return Response.ok("Deletion of CSAR " + "\"" + csarID + "\" was sucessful.").build();
-        } else {
-            String errorList = "";
-            for (final String err : errors) {
-                errorList = errorList + err + "\\n";
-            }
-            return Response.status(Status.INTERNAL_SERVER_ERROR)
-                           .entity("Deletion of CSAR \"" + csarID + "\" failed with errors: " + errorList).build();
+        } 
+        String errorList = "";
+        for (final String err : errors) {
+            errorList = errorList + err + "\\n";
         }
-
+        return Response.status(Status.INTERNAL_SERVER_ERROR)
+                       .entity("Deletion of CSAR \"" + csarID + "\" failed with errors: " + errorList).build();
     }
-
 }
