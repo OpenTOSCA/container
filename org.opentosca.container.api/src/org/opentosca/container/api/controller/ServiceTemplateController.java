@@ -15,7 +15,6 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
-import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;

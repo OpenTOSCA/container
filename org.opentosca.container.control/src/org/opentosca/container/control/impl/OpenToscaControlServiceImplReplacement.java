@@ -139,14 +139,14 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
     }
 
     @Override
-    public String invokePlanInvocation(CsarId csar, ServiceTemplateId serviceTemplate, long instanceId,
+    public String invokePlanInvocation(CsarId csar, TServiceTemplate serviceTemplate, long instanceId,
                                        TPlanDTO plan) throws UnsupportedEncodingException {
         if (planInvocationEngine == null) {
             LOGGER.error("PlanInvocationEngine is not available!");
             return null;
         }
         LOGGER.info("Invoking Plan [{}]", plan.getName());
-        final String correlationId = planInvocationEngine.invokePlan(csar.toOldCsarId(), serviceTemplate.getQName(), instanceId, plan);
+        final String correlationId = planInvocationEngine.invokePlan(csar.toOldCsarId(), new QName(serviceTemplate.getId()), instanceId, plan);
         if (correlationId != null) {
             LOGGER.info("Plan Invocation was sucessful.");
         } else {
@@ -188,11 +188,11 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         return coreDeploymentTracker.getDeploymentState(csar.toOldCsarId());
     }
 
-    @Override
+     @Override
     // FIXME investigate why old ControlService sometimes took long instanceIds
-    public List<String> correlationsForServiceTemplateInstance(CsarId csar, ServiceTemplateId serviceTemplate,
+    public List<String> correlationsForServiceTemplateInstance(CsarId csar, TServiceTemplate serviceTemplate,
                                                                long instanceId) {
-        return planInvocationEngine.getActiveCorrelationsOfInstance(new ServiceTemplateInstanceID(csar.toOldCsarId(), serviceTemplate.getQName(), (int)instanceId));
+        return planInvocationEngine.getActiveCorrelationsOfInstance(new ServiceTemplateInstanceID(csar.toOldCsarId(), new QName(serviceTemplate.getId()), (int)instanceId));
     }
 
     @Override

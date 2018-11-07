@@ -13,9 +13,8 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.api.dto.plan.PlanDTO;
-import org.opentosca.container.control.IOpenToscaControlService;
+import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
@@ -36,10 +35,7 @@ public class PlanService {
 
     private static final PlanTypes[] ALL_PLAN_TYPES = PlanTypes.values();
 
-    // To retrieve a reference to IToscaReferenceMapper
-    private IToscaEngineService engineService;
-
-    private IOpenToscaControlService controlService;
+    private OpenToscaControlService controlService;
 
     private DeploymentTestService deploymentTestService;
 
@@ -119,8 +115,9 @@ public class PlanService {
         dto.setInputParameters(parameters);
     
         try {
-            final String correlationId = this.controlService.invokePlanInvocation(csar.id().toOldCsarId(), new QName(serviceTemplate.getId()), 
-                                                                                  serviceTemplateInstanceId, PlanDTO.Converter.convert(dto));
+            final String correlationId = controlService.invokePlanInvocation(csar.id(), serviceTemplate, 
+                                                                             serviceTemplateInstanceId,
+                                                                             PlanDTO.Converter.convert(dto));
             if (PlanTypes.isPlanTypeURI(plan.getPlanType()).equals(PlanTypes.BUILD)
                 && Boolean.parseBoolean(Settings.OPENTOSCA_DEPLOYMENT_TESTS)) {
                 logger.debug("Plan \"{}\" is a build plan, so we schedule deployment tests...", plan.getName());
@@ -133,12 +130,7 @@ public class PlanService {
         }
     }
     
-    
-    public void setEngineService(final IToscaEngineService engineService) {
-        this.engineService = engineService;
-    }
-
-    public void setControlService(final IOpenToscaControlService controlService) {
+    public void setControlService(final OpenToscaControlService controlService) {
         this.controlService = controlService;
     }
 
