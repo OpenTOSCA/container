@@ -69,8 +69,6 @@ public class CsarController {
 
     private CsarStorageService storage;
 
-    private IToscaEngineService engineService;
-
     private OpenToscaControlService controlService;
 
     @GET
@@ -332,11 +330,6 @@ public class CsarController {
     public void setStorageService(final CsarStorageService storageService) {
         logger.debug("Binding CsarStorageService");
         this.storage = storageService;
-    }
-
-    public void setEngineService(final IToscaEngineService engineService) {
-        logger.debug("Binding ToscaEngineService");
-        this.engineService = engineService;
     }
 
     public void setControlService(final OpenToscaControlService controlService) {

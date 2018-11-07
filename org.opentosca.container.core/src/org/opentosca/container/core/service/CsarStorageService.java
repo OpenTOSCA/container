@@ -7,16 +7,15 @@ import java.util.Set;
 
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 
 public interface CsarStorageService {
 
     /**
-     * Loads all available CSARs as {@link CSARContent} from storage.
+     * Loads all available CSARs as {@link Csar} from storage.
      * 
-     * @return Set of {@link CSARContent} objects
+     * @return Set of {@link Csar} objects
      */
     public Set<Csar> findAll();
 
@@ -24,7 +23,7 @@ public interface CsarStorageService {
      * Loads the data of the CSAR associated with the given {@link CsarId} from storage.
      * 
      * @param id The unique {@link CsarId} of the CSAR to retrieve.
-     * @return A {@link CSARContent} instance representing the CSAR identified by the ID.
+     * @return A {@link Csar} instance representing the CSAR identified by the ID.
      * 
      * @throws NoSuchElementException in case the CSARID was unknown.
      */

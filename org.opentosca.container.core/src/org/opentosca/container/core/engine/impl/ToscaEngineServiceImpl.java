@@ -1353,41 +1353,8 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                     }
                     catch (final SystemException exc) {
                         LOG.warn("A System Exception occured.", exc);
-
                     }
-
-                    // all files pointed to by the reference
-                    // List<AbstractFile> abstractFiles =
-                    // csarContent.resolveFileRef(artifactReference.getReference());
-
-                    // adapt the patterns
-                    // for (Object patternObj :
-                    // artifactReference.getIncludeOrExclude()) {
-                    //
-                    // List<AbstractFile> subset =
-                    // this.getSubsetMatchingWithPattern(abstractFiles,
-                    // patternObj);
-                    //
-                    // // take new subset or remove all inside the subset
-                    // if (patternObj instanceof Include) {
-                    // this.LOG.debug("Use subset as new list of files
-                    // (Include).");
-                    // abstractFiles = subset;
-                    // } else {
-                    // this.LOG.debug("Remove subset from used list of files
-                    // (Exclude).");
-                    // abstractFiles.removeAll(subset);
-                    // }
-                    //
-                    // }
-                    //
-                    // // remember the remaining files
-                    // for (AbstractFile file : abstractFiles) {
-                    // returnFiles.add(file.getFile());
-                    // }
-
                 }
-
             } else {
                 LOG.debug("There are no ArtifactReferences in ArtifactTemplate \"" + artifactTemplateID + "\".");
             }
@@ -1399,48 +1366,6 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         return artifacts;
     }
-
-    // /**
-    // *
-    // * @param abstractFiles
-    // * @param patternObj
-    // * @return
-    // */
-    // private List<AbstractFile>
-    // getSubsetMatchingWithPattern(List<AbstractFile> abstractFiles, Object
-    // patternObj) {
-    //
-    // List<AbstractFile> returnFiles = new ArrayList<AbstractFile>();
-    //
-    // // get the pattern String
-    // String patternString = null;
-    // if (patternObj instanceof Include) {
-    // patternString = ((Include) patternObj).getPattern();
-    // } else {
-    // patternString = ((Exclude) patternObj).getPattern();
-    // }
-    //
-    // // regex
-    // Pattern pattern = Pattern.compile(patternString);
-    // Matcher matcher = null;
-    //
-    // // match regex with files
-    // for (AbstractFile file : abstractFiles) {
-    // this.LOG.debug("Try to match the pattern \"" + patternString +
-    // "\" to a file with a relative path \"" + file.getRelPath() + "\".");
-    // matcher = pattern.matcher(file.getRelPath());
-    //
-    // // shall the file be included?
-    // if (matcher.matches()) {
-    // returnFiles.add(file);
-    // this.LOG.debug("Include this file to subset to return!");
-    // } else {
-    // this.LOG.debug("Exclude this file to subset to return!");
-    // }
-    // }
-    //
-    // return returnFiles;
-    // }
 
     @Override
     public QName getNodeTypeOfNodeTemplate(final CSARID csarID, final QName serviceTemplateID,
@@ -1466,31 +1391,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         LOG.error("The requested NodeTemplate was not found.");
         return null;
-
     }
-
-    // @Override
-    // public QName getNodeTypeOfNodeTemplate(CSARID csarID, QName
-    // nodeTemplateID) {
-    // // get the NodeTypeImplementation
-    // Object obj = toscaReferenceMapper
-    // .getJAXBReference(csarID, nodeTemplateID);
-    // if (obj == null) {
-    // this.LOG.error("The requested NodeTemplate was not found.");
-    // return null;
-    // }
-    //
-    // if (obj instanceof TNodeTemplate) {
-    // return ((TNodeTemplate) obj).getType();
-    // } else if (obj instanceof TNodeType) {
-    // // funny case with Moodle, since {ns}ApacheWebServer denotes a
-    // // NodeTemplate AND a NodeType, here we return the given QName
-    // return nodeTemplateID;
-    // }
-    //
-    // this.LOG.error("The requested NodeTemplate was not found.");
-    // return null;
-    // }
 
     @Override
     public QName getRelationshipTypeOfRelationshipTemplate(final CSARID csarID, final QName serviceTemplateID,
