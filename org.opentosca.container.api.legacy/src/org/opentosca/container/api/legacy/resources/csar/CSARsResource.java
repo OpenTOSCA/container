@@ -1,7 +1,9 @@
 package org.opentosca.container.api.legacy.resources.csar;
 
+import static org.opentosca.container.api.legacy.osgi.servicegetter.FileRepositoryServiceHandler.getFileHandler;
+import static org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler.getOpenToscaControlService;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,8 +35,6 @@ import javax.xml.namespace.QName;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.legacy.osgi.servicegetter.FileAccessServiceHandler;
-import org.opentosca.container.api.legacy.osgi.servicegetter.FileRepositoryServiceHandler;
-import org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler;
 import org.opentosca.container.api.legacy.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.container.api.legacy.resources.utilities.ModelUtils;
 import org.opentosca.container.api.legacy.resources.utilities.ResourceConstants;
@@ -43,12 +43,10 @@ import org.opentosca.container.api.legacy.resources.xlink.Reference;
 import org.opentosca.container.api.legacy.resources.xlink.References;
 import org.opentosca.container.api.legacy.resources.xlink.XLinkConstants;
 import org.opentosca.container.connector.winery.WineryConnector;
-import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -68,13 +66,10 @@ import com.google.gson.JsonParser;
  * @author Christian Endres - endrescn@studi.informatik.uni-stuttgart.de
  *
  */
-@Path("/CSARs")
+@javax.ws.rs.Path("/CSARs")
 public class CSARsResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(CSARsResource.class);
-
-    private final ICoreFileService fileHandler;
-    private final IOpenToscaControlService control;
 
     @Context
     UriInfo uriInfo;
@@ -83,8 +78,6 @@ public class CSARsResource {
 
 
     public CSARsResource() {
-        this.fileHandler = FileRepositoryServiceHandler.getFileHandler();
-        this.control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
         CSARsResource.LOG.debug("{} created: {}", this.getClass(), this);
     }
 
@@ -102,14 +95,13 @@ public class CSARsResource {
 
     public References getRefs() {
         final References refs = new References();
-        for (final CSARID csarID : this.fileHandler.getCSARIDs()) {
+        for (final CSARID csarID : getFileHandler().getCSARIDs()) {
             final Reference ref =
                 new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString()),
                     XLinkConstants.SIMPLE, csarID.toString());
             refs.getReference().add(ref);
 
             CSARsResource.LOG.debug("CSAR \"{}\" added as Reference.", csarID);
-
         }
         refs.getReference()
             .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
@@ -134,20 +126,11 @@ public class CSARsResource {
         CSARsResource.LOG.info("Upload file from location: {}", fileLocation);
 
         try {
-
             final java.nio.file.Path csarFile = Paths.get(fileLocation.trim());
-
-            // try {
             return this.handleCSAR(csarFile.getFileName().toString(), Files.newInputStream(csarFile));
-
-        }
-        catch (final java.nio.file.InvalidPathException exc) {
-
+        } catch (final java.nio.file.InvalidPathException exc) {
             final java.nio.file.Path csarFile = Paths.get(fileLocation.trim());
-
-            // try {
             return this.handleCSAR(csarFile.getFileName().toString(), Files.newInputStream(csarFile));
-
         }
     }
 
@@ -164,22 +147,9 @@ public class CSARsResource {
         String urlStr = jsonObj.get("URL").toString();
         urlStr = urlStr.substring(1, urlStr.length() - 1);
 
-        // if ((null == url) || url.equals("")) {
-        // CSARsResource.LOG.error("The url is null or empty.");
-        // return Response.serverError().build();
-        // }
-
         String fileName = "";
         URL url = null;
         try {
-
-            // http://ds/joomla/images/a%25.txt to
-            // http://ds/joomla/images/a%2525.txt
-
-            // String urlStr = url.toExternalForm();
-            // urlStr = urlStr.substring(0, urlStr.lastIndexOf("/") + 1) +
-            // Utilities.encodeURIPath((urlStr.substring(urlStr.lastIndexOf("/")
-            // + 1)));
             url = new URL(urlStr);
             CSARsResource.LOG.trace("\n{}\n{}", urlStr, url);
 
@@ -188,11 +158,7 @@ public class CSARsResource {
             fileName = fileName.replace("?", ".");
 
             CSARsResource.LOG.debug("Recieved URL " + urlStr);
-            // } catch (UnsupportedEncodingException e1) {
-            // CSARsResource.LOG.error("Encoding of recieved URL failed.");
-            // e1.printStackTrace();
-        }
-        catch (final MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             CSARsResource.LOG.error("Generation of URL of encoded URL failed.");
             e.printStackTrace();
         }
@@ -207,22 +173,10 @@ public class CSARsResource {
 
         try {
             return this.handleCSAR(fileName, url.openStream());
-        }
-        catch (final IOException e) {
-            CSARsResource.LOG.error("There was an error while opening the input stream.");
-            e.printStackTrace();
-        }
-        catch (final URISyntaxException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (final UserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (final SystemException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (final IOException e) {
+            CSARsResource.LOG.error("There was an error while opening the input stream.", e);
+        } catch (final URISyntaxException | UserException | SystemException e) {
+            LOG.error("Handling the csar upload failed with an exception.", e);
         }
 
         return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -249,7 +203,6 @@ public class CSARsResource {
                                                                                                           URISyntaxException,
                                                                                                           UserException,
                                                                                                           SystemException {
-
         CSARsResource.LOG.info("Try to upload a new CSAR.");
 
         if (null == uploadedInputStream) {
@@ -263,35 +216,27 @@ public class CSARsResource {
 
         CSARsResource.LOG.debug("Post for uploading a new CSAR as file with name \"" + fileDetail.getFileName()
             + "\" with size " + fileDetail.getSize() + ".");
-
         final String fileName = fileDetail.getFileName();
-
         return this.handleCSAR(fileName, uploadedInputStream);
-
     }
 
+    // FIXME EURGH
     private File storeTemporaryFile(final String fileName, final InputStream uploadedInputStream) throws IOException {
         final File tmpDir = FileAccessServiceHandler.getFileAccessService().getTemp();
         tmpDir.mkdir();
 
         final File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + fileName);
-
-        OutputStream out;
-
-        out = new FileOutputStream(uploadFile);
+        final OutputStream out = new FileOutputStream(uploadFile);
 
         int read = 0;
         final byte[] bytes = new byte[1024];
-
         while ((read = uploadedInputStream.read(bytes)) != -1) {
             out.write(bytes, 0, read);
         }
-
         uploadedInputStream.close();
 
         CSARsResource.LOG.debug("Temporary file: " + uploadFile.getAbsolutePath() + " with size "
             + uploadFile.getTotalSpace());
-
         out.flush();
         out.close();
         return uploadFile;
@@ -301,53 +246,34 @@ public class CSARsResource {
         try {
             final File uploadFile = this.storeTemporaryFile(fileName, uploadedInputStream);
             CSARID csarID = null;
-            csarID = this.fileHandler.storeCSAR(uploadFile.toPath());
+            csarID = getFileHandler().storeCSAR(uploadFile.toPath());
 
             csarID = this.startPlanBuilder(csarID);
 
             if (csarID != null) {
                 CSARsResource.LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());
-                CSARsResource.LOG.trace("Control is bound: " + (null != this.control));
-                this.control.setDeploymentProcessStateStored(csarID);
-
-                if (this.control.invokeTOSCAProcessing(csarID)) {
-
+                CSARsResource.LOG.trace("Control is bound: " + (null != getOpenToscaControlService()));
+                getOpenToscaControlService().setDeploymentProcessStateStored(csarID);
+                if (getOpenToscaControlService().invokeTOSCAProcessing(csarID)) {
                     final List<QName> serviceTemplates =
                         ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
                                            .getServiceTemplateIDsContainedInCSAR(csarID);
-
                     for (final QName serviceTemplate : serviceTemplates) {
-
                         CSARsResource.LOG.debug("Invoke IADeployment for ServiceTemplate \"" + serviceTemplate
                             + "\" of CSAR \"" + csarID + "\".");
-                        if (!this.control.invokeIADeployment(csarID, serviceTemplate)) {
-
+                        if (!getOpenToscaControlService().invokeIADeployment(csarID, serviceTemplate)) {
                             break;
                         }
-
-                        if (!this.control.invokePlanDeployment(csarID, serviceTemplate)) {
-
+                        if (!getOpenToscaControlService().invokePlanDeployment(csarID, serviceTemplate)) {
                             break;
                         }
-
                     }
                     return csarID;
                 }
             }
+        } catch (IOException | UserException | SystemException e) {
+            LOG.error("Failed to store CSAR with the following exception", e);
         }
-        catch (final FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (final IOException e) {
-            e.printStackTrace();
-        }
-        catch (final UserException e) {
-            e.printStackTrace();
-        }
-        catch (final SystemException e) {
-            e.printStackTrace();
-        }
-
         return null;
     }
 
@@ -356,87 +282,61 @@ public class CSARsResource {
                                                                       UserException, SystemException {
 
         final File uploadFile = this.storeTemporaryFile(fileName, uploadedInputStream);
-
-        CSARID csarID = this.fileHandler.storeCSAR(uploadFile.toPath());
-
-        this.control.invokeTOSCAProcessing(csarID);
-
+        CSARID csarID = getFileHandler().storeCSAR(uploadFile.toPath());
+        getOpenToscaControlService().invokeTOSCAProcessing(csarID);
         boolean toscaProcessed = true;
-
         if (ModelUtils.hasOpenRequirements(csarID)) {
             // return a 406 with location to ServiceTemplate in local Winery in
             // Body
             // winery instance
             final WineryConnector winCon = new WineryConnector();
-
             if (winCon.isWineryRepositoryAvailable()) {
-
                 final QName serviceTemplate = winCon.uploadCSAR(uploadFile);
-
-                this.control.deleteCSAR(csarID);
+                getOpenToscaControlService().deleteCSAR(csarID);
                 // TODO
                 return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
                     + winCon.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
-                // return
-                // Response.status(Response.Status.SEE_OTHER).location(new
-                // URI(winCon.getServiceTemplateURI(serviceTemplate).toString()+"/injector/options")).build();
             } else {
-                this.fileHandler.deleteCSAR(csarID);
+                getFileHandler().deleteCSAR(csarID);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
         }
 
         if (!ModelUtils.hasBuildPlan(csarID) | !ModelUtils.hasTerminationPlan(csarID)) {
-            // looks dumb, and it is. But the "TOSCA Processing" must be done
-            // again
-            // here
-            this.control.deleteCSAR(csarID);
-            csarID = this.fileHandler.storeCSAR(uploadFile.toPath());
-
+            // looks dumb, and it is. But the "TOSCA Processing" must be done again here
+            getOpenToscaControlService().deleteCSAR(csarID);
+            csarID = getFileHandler().storeCSAR(uploadFile.toPath());
             csarID = this.startPlanBuilder(csarID);
-
             toscaProcessed = false;
-
         }
 
         this.processTOSCA(csarID, toscaProcessed);
-
-        if (csarID != null) {
-            CSARsResource.LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());
-            final String path = Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString());
-            final JsonObject retObj = new JsonObject();
-            retObj.addProperty("csarPath", path);
-            return Response.created(URI.create(path)).entity(retObj.toString()).build();
-
-        } else {
+        if (csarID == null) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-
+        CSARsResource.LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());
+        final String path = Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString());
+        final JsonObject retObj = new JsonObject();
+        retObj.addProperty("csarPath", path);
+        return Response.created(URI.create(path)).entity(retObj.toString()).build();
     }
 
     @Path("{csarID}")
     public CSARResource getCSAR(@PathParam("csarID") final String csarIDAsString) throws UserException {
-
         CSARsResource.LOG.debug("Searching for CSAR \"{}\".", csarIDAsString);
-
-        final CSARContent csar = this.fileHandler.getCSAR(new CSARID(csarIDAsString));
-
+        final CSARContent csar = getFileHandler().getCSAR(new CSARID(csarIDAsString));
         return new CSARResource(csar);
     }
 
     @DELETE
     @Produces("text/plain")
     public Response deleteCSARs() throws SystemException, UserException {
-
         final List<String> notDeleted = new ArrayList<>();
-
-        for (final CSARID csarID : this.fileHandler.getCSARIDs()) {
-
+        for (final CSARID csarID : getFileHandler().getCSARIDs()) {
             CSARsResource.LOG.info("Deleting CSAR \"{}\".", csarID);
-            if (!IOpenToscaControlServiceHandler.getOpenToscaControlService().deleteCSAR(csarID).isEmpty()) {
+            if (!getOpenToscaControlService().deleteCSAR(csarID).isEmpty()) {
                 notDeleted.add(csarID.toString());
             }
-
         }
         return Response.ok(notDeleted).build();
     }
@@ -444,33 +344,26 @@ public class CSARsResource {
     public CSARID processTOSCA(final CSARID csarID, final boolean toscaProcessed) {
         if (csarID != null) {
             CSARsResource.LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());
-            CSARsResource.LOG.trace("Control is bound: " + (null != this.control));
-            this.control.setDeploymentProcessStateStored(csarID);
+            CSARsResource.LOG.trace("Control is bound: " + (null != getOpenToscaControlService()));
+            getOpenToscaControlService().setDeploymentProcessStateStored(csarID);
 
             if (!toscaProcessed) {
-                this.control.invokeTOSCAProcessing(csarID);
+                getOpenToscaControlService().invokeTOSCAProcessing(csarID);
             }
 
             final List<QName> serviceTemplates = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
                                                                     .getServiceTemplateIDsContainedInCSAR(csarID);
-
             for (final QName serviceTemplate : serviceTemplates) {
-
                 CSARsResource.LOG.debug("Invoke IADeployment for ServiceTemplate \"" + serviceTemplate + "\" of CSAR \""
                     + csarID + "\".");
-                if (!this.control.invokeIADeployment(csarID, serviceTemplate)) {
-
+                if (!getOpenToscaControlService().invokeIADeployment(csarID, serviceTemplate)) {
                     break;
                 }
-
-                if (!this.control.invokePlanDeployment(csarID, serviceTemplate)) {
-
+                if (!getOpenToscaControlService().invokePlanDeployment(csarID, serviceTemplate)) {
                     break;
                 }
-
             }
             return csarID;
-
         }
         return null;
     }
@@ -495,18 +388,12 @@ public class CSARsResource {
 
         final File repackagedCsar = planBuilderExporter.export(buildPlans, csarId);
         try {
-            this.fileHandler.deleteCSAR(csarId);
-            return this.fileHandler.storeCSAR(repackagedCsar.toPath());
+            getFileHandler().deleteCSAR(csarId);
+            return getFileHandler().storeCSAR(repackagedCsar.toPath());
         }
-        catch (final SystemException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        catch (SystemException | UserException e) {
+            LOG.error("Failed to store CSAR when starting plan builder", e);
         }
-        catch (final UserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         return null;
     }
 
@@ -544,7 +431,6 @@ public class CSARsResource {
         // ID is visible only in the URL, this quick hack should be OK
         // ID is visible only in the URL, this quick hack should be OK
         id = id.replaceAll(REGEX_INVALIDNCNAMESCHAR, "_");
-
         return id;
     }
 

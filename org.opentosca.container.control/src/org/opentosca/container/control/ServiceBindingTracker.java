@@ -6,10 +6,13 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.opentosca.container.core.service.ICoreDeploymentTrackerService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -38,8 +41,8 @@ public class ServiceBindingTracker {
     ICoreFileService coreFileService;
     ICoreModelRepositoryService coreModelRepositoryService;
     IFileAccessService fileAccessService;
+    private CsarStorageService csarStorageService;
     IHTTPService httpService;
-    IOpenToscaControlService openToscaControlService;
     OpenToscaControlService openToscaControlServiceReplacement;
     IPlanEngineService planEngineService;
     IToscaEngineService toscaEngineService;
@@ -89,13 +92,12 @@ public class ServiceBindingTracker {
     private void logContainerIsAvailable() {
 
         this.LOG.info("Start of the OpenTOSCA Container, now invoke the resolving and consolidation of TOSCA data inside of stored CSARs.");
-        for (final CSARID csarID : this.coreFileService.getCSARIDs()) {
-            this.openToscaControlService.invokeTOSCAProcessing(csarID);
+        for (final Csar csar : this.csarStorageService.findAll()) {
+            this.openToscaControlServiceReplacement.invokeToscaProcessing(csar.id());
 
-            for (final QName serviceTemplateID : this.toscaEngineService.getToscaReferenceMapper()
-                                                                        .getServiceTemplateIDsContainedInCSAR(csarID)) {
-                this.openToscaControlService.invokeIADeployment(csarID, serviceTemplateID);
-                this.openToscaControlService.invokePlanDeployment(csarID, serviceTemplateID);
+            for (final TServiceTemplate serviceTemplate : csar.serviceTemplates()) {
+                this.openToscaControlServiceReplacement.invokeIADeployment(csar.id(), serviceTemplate);
+                this.openToscaControlServiceReplacement.invokePlanDeployment(csar.id(), serviceTemplate);
             }
         }
 
@@ -324,33 +326,6 @@ public class ServiceBindingTracker {
      *
      * @param service The service to bind.
      */
-    protected void bindIOpenToscaControlService(final IOpenToscaControlService service) {
-        if (service == null) {
-            this.LOG.error("Service IOpenToscaControlService is null.");
-        } else {
-            this.LOG.debug("Bind of the IOpenToscaControlService.");
-            this.openToscaControlService = service;
-            log_online(service.getClass().getSimpleName());
-            checkAvailability();
-        }
-    }
-
-    /**
-     * Unbind method for a service.
-     *
-     * @param service The service to unbind.
-     */
-    protected void unbindIOpenToscaControlService(final IOpenToscaControlService service) {
-        this.LOG.debug("Unbind of the IOpenToscaControlService.");
-        this.openToscaControlService = null;
-        log_offline(service.getClass().getSimpleName());
-    }
-
-    /**
-     * Bind method for a service.
-     *
-     * @param service The service to bind.
-     */
     protected void bindIPlanEngineService(final IPlanEngineService service) {
         if (service == null) {
             this.LOG.error("Service IPlanEngineService is null.");
@@ -533,6 +508,23 @@ public class ServiceBindingTracker {
         log_offline(service.getClass().getSimpleName());
     }
 
+    /**
+     * Unbind method for Csar Storage.
+     *
+     * @param service The service to unbind.
+     */
+    protected void bindCsarStorage(final CsarStorageService service) {
+        this.LOG.debug("Bind of the CsarStorageService.");
+        this.csarStorageService = service;
+        this.log_online(service.getClass().getSimpleName());
+    }
+    
+    protected void unbindCsarStorage(final CsarStorageService service) {
+        this.LOG.debug("Unbind of the CsarStorageService.");
+        this.csarStorageService = null;
+        log_offline(service.getClass().getSimpleName());
+    }
+    
     private void log_online(final String servicename) {
         // this.LOG.info("+++ Service is online: {}", servicename);
     }
