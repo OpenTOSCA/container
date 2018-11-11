@@ -12,13 +12,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler;
 import org.opentosca.container.api.legacy.resources.utilities.ResourceConstants;
 import org.opentosca.container.api.legacy.resources.utilities.Utilities;
 import org.opentosca.container.api.legacy.resources.xlink.Reference;
 import org.opentosca.container.api.legacy.resources.xlink.References;
 import org.opentosca.container.api.legacy.resources.xlink.XLinkConstants;
-import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;

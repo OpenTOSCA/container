@@ -1,6 +1,6 @@
 package org.opentosca.container.api.legacy.resources.csar.servicetemplate.instances;
 
-import static org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler.getOpenToscaControlService;
+import static org.opentosca.container.api.legacy.osgi.servicegetter.OpenToscaControlServiceHandler.getOpenToscaControlService;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -37,6 +37,7 @@ import org.opentosca.container.api.legacy.resources.xlink.Reference;
 import org.opentosca.container.api.legacy.resources.xlink.References;
 import org.opentosca.container.api.legacy.resources.xlink.XLinkConstants;
 import org.opentosca.container.core.impl.persistence.Converters;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.ServiceInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -299,7 +300,7 @@ public class ServiceTemplateInstancesResource {
         this.log.debug("Post of the Plan " + plan.getId());
 
         final String correlationID = getOpenToscaControlService()
-            .invokePlanInvocation(this.csarId, this.serviceTemplateID, -1, plan);
+            .invokePlanInvocation(new CsarId(this.csarId), this.serviceTemplateID, -1, plan);
 
         this.log.debug("Return correlation ID of running plan: " + correlationID);
 

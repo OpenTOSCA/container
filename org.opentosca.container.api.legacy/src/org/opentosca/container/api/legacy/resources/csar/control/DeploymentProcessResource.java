@@ -1,6 +1,6 @@
 package org.opentosca.container.api.legacy.resources.csar.control;
 
-import static org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler.getOpenToscaControlService;
+import static org.opentosca.container.api.legacy.osgi.servicegetter.OpenToscaControlServiceHandler.getOpenToscaControlService;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -14,6 +14,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.api.legacy.resources.csar.control.jaxb.DeploymentProcessJaxb;
 import org.opentosca.container.api.legacy.resources.csar.control.jaxb.JaxbFactoryControl;
 import org.opentosca.container.api.legacy.resources.utilities.ResourceConstants;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.slf4j.Logger;
@@ -48,8 +49,8 @@ public class DeploymentProcessResource {
     public Response getDeploymentProcess() {
         DeploymentProcessResource.LOG.info("Get Request on DeploymentProcessResource with ID: {}", this.processID);
         String res = "DeploymentProcessID=" + this.processID + this.sep + "DeploymentState="
-            + getOpenToscaControlService().getDeploymentProcessState(this.processID);
-        for (final DeploymentProcessOperation operation : getOpenToscaControlService().getExecutableDeploymentProcessOperations(this.processID)) {
+            + getOpenToscaControlService().currentDeploymentProcessState(new CsarId(this.processID));
+        for (final DeploymentProcessOperation operation : getOpenToscaControlService().executableDeploymentProcessOperations(new CsarId(this.processID))) {
             final String o = "OPERATION=" + operation.toString();
             res = res + this.sep + o;
         }
@@ -69,13 +70,14 @@ public class DeploymentProcessResource {
         final String params[] = input.split("&");
         final DeploymentProcessOperation operation = DeploymentProcessOperation.valueOf(params[0]);
         final CSARID csarID = this.processID;
+        final CsarId bridge = new CsarId(csarID);
         DeploymentProcessResource.LOG.info("POST method called on DeploymentProcess: {}, Parameter: {}",
                                            csarID.toString(), operation);
-        if (getOpenToscaControlService().getExecutableDeploymentProcessOperations(this.processID).contains(operation)) {
+        if (getOpenToscaControlService().executableDeploymentProcessOperations(bridge).contains(operation)) {
             switch (operation) {
                 case PROCESS_TOSCA:
                     DeploymentProcessResource.LOG.info("OPERATION: {}", DeploymentProcessOperation.PROCESS_TOSCA);
-                    if (getOpenToscaControlService().invokeTOSCAProcessing(csarID)) {
+                    if (getOpenToscaControlService().invokeToscaProcessing(bridge)) {
                         return Response.ok().build();
                     }
                     break;
@@ -87,7 +89,7 @@ public class DeploymentProcessResource {
                     } else {
                         this.serviceTemplateId = QName.valueOf(params[1]);
                     }
-                    if (getOpenToscaControlService().invokeIADeployment(csarID, this.serviceTemplateId)) {
+                    if (getOpenToscaControlService().invokeIADeployment(bridge, this.serviceTemplateId)) {
                         return Response.ok().build();
                     }
                     break;
@@ -100,7 +102,7 @@ public class DeploymentProcessResource {
                     } else {
                         this.serviceTemplateId = QName.valueOf(params[1]);
                     }
-                    if (getOpenToscaControlService().invokePlanDeployment(csarID, this.serviceTemplateId)) {
+                    if (getOpenToscaControlService().invokePlanDeployment(bridge, this.serviceTemplateId)) {
                         return Response.ok().build();
                     }
                     break;
@@ -116,12 +118,12 @@ public class DeploymentProcessResource {
 
     @Path("/DeploymentState")
     public DeploymentProcessStateResource getCSARFile() {
-        return new DeploymentProcessStateResource(getOpenToscaControlService().getDeploymentProcessState(this.processID));
+        return new DeploymentProcessStateResource(getOpenToscaControlService().currentDeploymentProcessState(new CsarId(this.processID)));
     }
 
     @Path("/Operations")
     public DeploymentProcessOperationsResource getMethods() {
-        return new DeploymentProcessOperationsResource(getOpenToscaControlService().getExecutableDeploymentProcessOperations(this.processID));
+        return new DeploymentProcessOperationsResource(getOpenToscaControlService().executableDeploymentProcessOperations(new CsarId(this.processID)));
     }
 
     @Path("/ServiceTemplates")

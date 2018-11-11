@@ -1,7 +1,7 @@
 package org.opentosca.container.api.legacy.resources.csar;
 
 import static org.opentosca.container.api.legacy.osgi.servicegetter.FileRepositoryServiceHandler.getFileHandler;
-import static org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler.getOpenToscaControlService;
+import static org.opentosca.container.api.legacy.osgi.servicegetter.OpenToscaControlServiceHandler.getOpenToscaControlService;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,6 +46,7 @@ import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
@@ -241,18 +242,19 @@ public class CSARsResource {
 
             if (csarID != null) {
                 LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());
-                getOpenToscaControlService().setDeploymentProcessStateStored(csarID);
-                if (getOpenToscaControlService().invokeTOSCAProcessing(csarID)) {
+                CsarId bridge = new CsarId(csarID);
+                getOpenToscaControlService().declareStored(bridge);
+                if (getOpenToscaControlService().invokeToscaProcessing(bridge)) {
                     final List<QName> serviceTemplates =
                         ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
                                            .getServiceTemplateIDsContainedInCSAR(csarID);
                     for (final QName serviceTemplate : serviceTemplates) {
                         LOG.debug("Invoke IADeployment for ServiceTemplate \"{}\" of CSAR \"{}\".",
                                   serviceTemplate, csarID);
-                        if (!getOpenToscaControlService().invokeIADeployment(csarID, serviceTemplate)) {
+                        if (!getOpenToscaControlService().invokeIADeployment(bridge, serviceTemplate)) {
                             break;
                         }
-                        if (!getOpenToscaControlService().invokePlanDeployment(csarID, serviceTemplate)) {
+                        if (!getOpenToscaControlService().invokePlanDeployment(bridge, serviceTemplate)) {
                             break;
                         }
                     }
@@ -271,7 +273,8 @@ public class CSARsResource {
 
         final File uploadFile = this.storeTemporaryFile(fileName, uploadedInputStream);
         CSARID csarID = getFileHandler().storeCSAR(uploadFile.toPath());
-        getOpenToscaControlService().invokeTOSCAProcessing(csarID);
+        CsarId bridge = new CsarId(csarID);
+        getOpenToscaControlService().invokeToscaProcessing(bridge);
         boolean toscaProcessed = true;
         if (ModelUtils.hasOpenRequirements(csarID)) {
             // return a 406 with location to ServiceTemplate in local Winery in Body
@@ -279,7 +282,7 @@ public class CSARsResource {
             final WineryConnector winCon = new WineryConnector();
             if (winCon.isWineryRepositoryAvailable()) {
                 final QName serviceTemplate = winCon.uploadCSAR(uploadFile);
-                getOpenToscaControlService().deleteCSAR(csarID);
+                getOpenToscaControlService().deleteCsar(bridge);
                 // TODO
                 return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
                     + winCon.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
@@ -291,7 +294,7 @@ public class CSARsResource {
 
         if (!ModelUtils.hasBuildPlan(csarID) | !ModelUtils.hasTerminationPlan(csarID)) {
             // looks dumb, and it is. But the "TOSCA Processing" must be done again here
-            getOpenToscaControlService().deleteCSAR(csarID);
+            getOpenToscaControlService().deleteCsar(bridge);
             csarID = getFileHandler().storeCSAR(uploadFile.toPath());
             csarID = this.startPlanBuilder(csarID);
             toscaProcessed = false;
@@ -321,7 +324,7 @@ public class CSARsResource {
         final List<String> notDeleted = new ArrayList<>();
         for (final CSARID csarID : getFileHandler().getCSARIDs()) {
             LOG.info("Deleting CSAR \"{}\".", csarID);
-            if (!getOpenToscaControlService().deleteCSAR(csarID).isEmpty()) {
+            if (!getOpenToscaControlService().deleteCsar(new CsarId(csarID)).isEmpty()) {
                 notDeleted.add(csarID.toString());
             }
         }
@@ -330,19 +333,20 @@ public class CSARsResource {
 
     public CSARID processTOSCA(final CSARID csarID, final boolean toscaProcessed) {
         if (csarID != null) {
+            CsarId bridge = new CsarId(csarID);
             LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());
-            getOpenToscaControlService().setDeploymentProcessStateStored(csarID);
+            getOpenToscaControlService().declareStored(bridge);
             if (!toscaProcessed) {
-                getOpenToscaControlService().invokeTOSCAProcessing(csarID);
+                getOpenToscaControlService().invokeToscaProcessing(bridge);
             }
             final List<QName> serviceTemplates = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
                                                                     .getServiceTemplateIDsContainedInCSAR(csarID);
             for (final QName serviceTemplate : serviceTemplates) {
                 LOG.debug("Invoke IADeployment for ServiceTemplate \"{}\" of CSAR \"{}\".", serviceTemplate, csarID);
-                if (!getOpenToscaControlService().invokeIADeployment(csarID, serviceTemplate)) {
+                if (!getOpenToscaControlService().invokeIADeployment(bridge, serviceTemplate)) {
                     break;
                 }
-                if (!getOpenToscaControlService().invokePlanDeployment(csarID, serviceTemplate)) {
+                if (!getOpenToscaControlService().invokePlanDeployment(bridge, serviceTemplate)) {
                     break;
                 }
             }

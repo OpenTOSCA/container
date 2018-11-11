@@ -1,6 +1,6 @@
 package org.opentosca.container.api.legacy.resources.csar.control;
 
-import static org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler.getOpenToscaControlService;
+import static org.opentosca.container.api.legacy.osgi.servicegetter.OpenToscaControlServiceHandler.getOpenToscaControlService;
 
 import java.util.List;
 
@@ -10,6 +10,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.legacy.resources.utilities.ResourceConstants;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class DeploymentProcessServiceTemplatesResource {
     public Response getServiceTemplates() {
         DeploymentProcessServiceTemplatesResource.LOG.info("Get Request on DeploymentProcessOperationsResource");
         String sTemplates = "";
-        final List<QName> ServiceTemplates = getOpenToscaControlService().getAllContainedServiceTemplates(this.csarid);
+        final List<QName> ServiceTemplates = getOpenToscaControlService().getAllContainedServiceTemplates(new CsarId(this.csarid));
         for (final QName serviceTemplate : ServiceTemplates) {
             sTemplates = sTemplates + this.sep + serviceTemplate.toString();
         }

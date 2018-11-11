@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.core.model.csar.CsarId;
@@ -56,6 +58,12 @@ public interface OpenToscaControlService {
     public boolean declareStored(CsarId csar);
     public DeploymentProcessState currentDeploymentProcessState(CsarId csar);
     
+    /**
+     * @throws UnsupportedEncodingException 
+     * @deprecated {@link #invokePlanInvocation(CsarId, TServiceTemplate, int, TPlanDTO)}
+     */
+    @Deprecated
+    public String invokePlanInvocation(CsarId csar, QName serviceTemplateID, int instanceId, TPlanDTO plan) throws UnsupportedEncodingException;
     // FIXME evaluate using winery's TPlan instead
     public String invokePlanInvocation(CsarId csar, TServiceTemplate serviceTemplate, long instanceId, TPlanDTO plan) throws UnsupportedEncodingException;
     
@@ -63,7 +71,21 @@ public interface OpenToscaControlService {
     // FIXME evaluate using winery's TPlan instead
     public TPlanDTO getActivePlanOfInstance(CsarId csar, ServiceTemplateId serviceTemplate, long instanceId, String correlationId);
     long instanceIdOfCorrelation(String correlationId);
-    
+
+    /**
+     * @deprecated {@link #invokeIADeployment(CsarId, TServiceTemplate)}
+     */
+    @Deprecated
+    public boolean invokeIADeployment(CsarId csarId, QName serviceTemplate);
     boolean invokeIADeployment(CsarId csarId, TServiceTemplate serviceTemplate);
+    /**
+     * @deprecated {@link #invokePlanDeployment(CsarId, TServiceTemplate)} 
+     */
+    @Deprecated
+    public boolean invokePlanDeployment(CsarId csarId, QName serviceTemplateId);
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate);
+
+    @Deprecated
+    public List<QName> getAllContainedServiceTemplates(CsarId csarid);
+    
 }

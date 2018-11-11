@@ -1,7 +1,7 @@
 package org.opentosca.container.api.legacy.resources.csar;
 
 import static org.opentosca.container.api.legacy.osgi.servicegetter.FileRepositoryServiceHandler.getFileHandler;
-import static org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler.getOpenToscaControlService;
+import static org.opentosca.container.api.legacy.osgi.servicegetter.OpenToscaControlServiceHandler.getOpenToscaControlService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +33,7 @@ import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.ICoreFileService;
 import org.slf4j.Logger;
@@ -174,7 +175,7 @@ public class CSARResource {
     public Response delete() {
         final CSARID csarID = this.CSAR.getCSARID();
         LOG.info("Deleting CSAR \"{}\".", csarID);
-        final List<String> errors = getOpenToscaControlService().deleteCSAR(csarID);
+        final List<String> errors = getOpenToscaControlService().deleteCsar(new CsarId(csarID));
 
         if (errors.isEmpty()) {
             return Response.ok("Deletion of CSAR " + "\"" + csarID + "\" was sucessful.").build();

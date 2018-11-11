@@ -6,7 +6,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
@@ -354,7 +356,7 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
             : plans.getTargetNamespace();
 
         for (final TPlan plan : plans.getPlan()) {
-            if (!planEngine.deployPlan(plan, namespace, bridge)) {
+            if (!planEngine.deployPlan(plan, namespace, csar.toOldCsarId())) {
                 undeployedPlans.add(plan);
             }
         }
@@ -370,6 +372,44 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         
         // there used to be a debug print for all endpoints here. We just don't because that's another dependency
         return true;
+    }
+
+    @Deprecated
+    @Override
+    public boolean invokeIADeployment(CsarId csarId, QName qname) {
+        Csar csar = storage.findById(csarId);
+        final Optional<TServiceTemplate> serviceTemplate = csar.serviceTemplates().stream()
+            .filter(st -> st.getId().equals(qname.toString()))
+            .findFirst();
+        return serviceTemplate.isPresent() ? invokeIADeployment(csarId, serviceTemplate.get()) : false;
+    }
+
+    @Deprecated
+    @Override
+    public String invokePlanInvocation(CsarId csarId, QName qname, int instanceId, TPlanDTO plan) throws UnsupportedEncodingException {
+        Csar csar = storage.findById(csarId);
+        final Optional<TServiceTemplate> serviceTemplate = csar.serviceTemplates().stream()
+            .filter(st -> st.getId().equals(qname.toString()))
+            .findFirst();
+        return serviceTemplate.isPresent() ? invokePlanInvocation(csarId, serviceTemplate.get(), instanceId, plan) : "";
+    }
+
+    @Deprecated
+    @Override
+    public boolean invokePlanDeployment(CsarId csarId, QName qname) {
+        Csar csar = storage.findById(csarId);
+        final Optional<TServiceTemplate> serviceTemplate = csar.serviceTemplates().stream()
+            .filter(st -> st.getId().equals(qname.toString()))
+            .findFirst();
+        return serviceTemplate.isPresent() ? invokeIADeployment(csarId, serviceTemplate.get()) : false;
+    }
+
+    @Deprecated
+    @Override
+    public List<QName> getAllContainedServiceTemplates(CsarId csarid) {
+        return storage.findById(csarid).serviceTemplates().stream()
+            .map(TServiceTemplate::getId)
+            .map(QName::new).collect(Collectors.toList());
     }
 }
 
