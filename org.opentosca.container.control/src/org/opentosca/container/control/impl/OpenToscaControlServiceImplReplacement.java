@@ -27,8 +27,8 @@ import org.opentosca.container.core.model.deployment.process.DeploymentProcessOp
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.DeploymentTracker;
 import org.opentosca.container.core.service.ICSARInstanceManagementService;
-import org.opentosca.container.core.service.ICoreDeploymentTrackerService;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
 import org.opentosca.container.engine.ia.IIAEngineService;
@@ -42,7 +42,7 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
     
     private static IToscaEngineService toscaEngine;
     private static IIAEngineService iAEngine;
-    private static ICoreDeploymentTrackerService coreDeploymentTracker;
+    private static DeploymentTracker deploymentTracker;
     private static IPlanEngineService planEngine;
     private static IPlanInvocationEngine planInvocationEngine;
     private static CsarStorageService storage;
@@ -52,18 +52,18 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
     @Override
     public boolean invokeToscaProcessing(CsarId csar) {
         LOGGER.debug("Start resolving ServiceTemplates of [{}]", csar.csarName());
-        CSARID bridge = csar.toOldCsarId(); 
-        coreDeploymentTracker.storeDeploymentState(bridge, TOSCAPROCESSING_ACTIVE);
+        deploymentTracker.storeDeploymentState(csar, TOSCAPROCESSING_ACTIVE);
         // FIXME: We cannot resolve definitions based on the bridge, because the definitions resolution
         // accesses the ToscaMetaFile. That file is not in the imported CSAR representation.
         // Additionally the CsarImporter largely takes care of definitions resolution for us!
-        if (/*toscaEngine.resolveDefinitions(bridge)*/ true) {
+        // use new ToscaMetaFileReplacement(csar); to obtain a suitable toscametafile
+        if (true || toscaEngine.resolveDefinitions(csar.toOldCsarId())) {
             LOGGER.info("Processing of Definitions completed successfully for [{}]", csar.csarName());
-            coreDeploymentTracker.storeDeploymentState(bridge, TOSCA_PROCESSED);
+            deploymentTracker.storeDeploymentState(csar, TOSCA_PROCESSED);
             return true;
         } else {
             LOGGER.info("Processing of Definitions failed for [{}]", csar.csarName());
-            coreDeploymentTracker.storeDeploymentState(bridge, STORED);
+            deploymentTracker.storeDeploymentState(csar, STORED);
             return false;
         }
     }
@@ -71,10 +71,10 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
     @Override
     public boolean registerImplementationArtifacts(CsarId csar, ServiceTemplateId serviceTemplate) {
         CSARID bridge = csar.toOldCsarId();
-        coreDeploymentTracker.storeDeploymentState(bridge, IA_DEPLOYMENT_ACTIVE);
+        deploymentTracker.storeDeploymentState(csar, IA_DEPLOYMENT_ACTIVE);
         if (iAEngine == null) {
             LOGGER.error("IA Engine is not alive!");
-            coreDeploymentTracker.storeDeploymentState(bridge, TOSCA_PROCESSED);
+            deploymentTracker.storeDeploymentState(csar, TOSCA_PROCESSED);
             return false;
         }
         
@@ -82,10 +82,10 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         final List<String> undeployedIAs = iAEngine.deployImplementationArtifacts(bridge, serviceTemplate.getQName());
         if (undeployedIAs == null) {
             LOGGER.error("Deployment of [{}] for CSAR [{}] failed", serviceTemplate, csar);
-            coreDeploymentTracker.storeDeploymentState(bridge, TOSCA_PROCESSED);
+            deploymentTracker.storeDeploymentState(csar, TOSCA_PROCESSED);
             return false;
         } 
-        coreDeploymentTracker.storeDeploymentState(bridge, IAS_DEPLOYED);
+        deploymentTracker.storeDeploymentState(csar, IAS_DEPLOYED);
         if (!undeployedIAs.isEmpty()) {
             for (final String failedIA : undeployedIAs) {
                 LOGGER.error("Could not deploy ImplementationArtifact {}", failedIA);
@@ -111,7 +111,7 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
             LOGGER.error("No EntryServiceTemplate defined for CSAR [{}]. Aborting plan generation", csarId);
             return false;
         }
-        coreDeploymentTracker.storeDeploymentState(bridge, PLAN_DEPLOYMENT_ACTIVE);
+        deploymentTracker.storeDeploymentState(csarId, PLAN_DEPLOYMENT_ACTIVE);
         TPlans plans = entryServiceTemplate.getPlans();
         if (plans == null) {
             LOGGER.info("No Plans to process");
@@ -124,18 +124,18 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         }
         List<TPlan> undeployed = new ArrayList<>();
         for (final TPlan plan : plans.getPlan()) {
-            if (!planEngine.deployPlan(plan, namespace, bridge)) {
+            if (!planEngine.deployPlan(plan, namespace, csarId.toOldCsarId())) {
                 undeployed.add(plan);
             }
         }
         
         if (!undeployed.isEmpty()) {
             LOGGER.error("Plan deployment failed");
-            coreDeploymentTracker.storeDeploymentState(bridge, IAS_DEPLOYED);
+            deploymentTracker.storeDeploymentState(csarId, IAS_DEPLOYED);
             return false;
         }
         LOGGER.info("Successfully deployeed management plans of [{}] in CSAR [{}]", serviceTemplate, csarId);
-        coreDeploymentTracker.storeDeploymentState(bridge, PLANS_DEPLOYED);
+        deploymentTracker.storeDeploymentState(csarId, PLANS_DEPLOYED);
         // endpointService.printPlanEndpoints();
         return true;
     }
@@ -161,7 +161,7 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
     public Set<DeploymentProcessOperation> executableDeploymentProcessOperations(CsarId csar) {
         final Set<DeploymentProcessOperation> operations = new HashSet<>();
         
-        switch (coreDeploymentTracker.getDeploymentState(csar.toOldCsarId())) {
+        switch (deploymentTracker.getDeploymentState(csar)) {
             case IAS_DEPLOYED:
             case PLANS_DEPLOYED:
                 operations.add(DeploymentProcessOperation.INVOKE_PLAN_DEPL);
@@ -182,12 +182,13 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
     @Override
     public boolean declareStored(CsarId csar) {
         LOGGER.trace("Forcibly marking csar {} as STORED", csar.csarName());
-        return coreDeploymentTracker.storeDeploymentState(csar.toOldCsarId(), STORED);
+        deploymentTracker.storeDeploymentState(csar, STORED);
+        return true;
     }
 
     @Override
     public DeploymentProcessState currentDeploymentProcessState(CsarId csar) {
-        return coreDeploymentTracker.getDeploymentState(csar.toOldCsarId());
+        return deploymentTracker.getDeploymentState(csar);
     }
 
      @Override
@@ -221,7 +222,7 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
             LOGGER.warn("Could not clear CSAR information about {} from ToscaEngine!", csar.csarName());
             errors.add("Could not delete TOSCA data.");
         }
-         coreDeploymentTracker.deleteDeploymentState(csar.toOldCsarId());
+         deploymentTracker.deleteDeploymentState(csar);
         // FIXME removeEndpoints
         try {
             storage.deleteCSAR(csar);
@@ -251,14 +252,14 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         toscaEngine = null;
     }
     
-    public void bindCoreDeploymentTrackerService(ICoreDeploymentTrackerService service) {
+    public void bindCoreDeploymentTrackerService(DeploymentTracker service) {
         LOGGER.debug("Binding CoreDeploymentTrackerService");
-        coreDeploymentTracker = service;
+        deploymentTracker = service;
     }
     
-    public void unbindCoreDeploymentTrackerService(ICoreDeploymentTrackerService service) {
+    public void unbindCoreDeploymentTrackerService(DeploymentTracker service) {
         LOGGER.debug("Unbinding CoreDeploymentTrackerService");
-        coreDeploymentTracker = null;
+        deploymentTracker = null;
     }
     
     public void bindPlanEngineService(IPlanEngineService service) {
@@ -302,19 +303,18 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
     }
 
     @Override
-    public boolean invokeIADeployment(CsarId csarId, TServiceTemplate serviceTemplate) {
-        CSARID bridge = csarId.toOldCsarId();
-        coreDeploymentTracker.storeDeploymentState(bridge, DeploymentProcessState.IA_DEPLOYMENT_ACTIVE);
+    public boolean invokeIADeployment(CsarId csar, TServiceTemplate serviceTemplate) {
+        deploymentTracker.storeDeploymentState(csar, DeploymentProcessState.IA_DEPLOYMENT_ACTIVE);
         if (iAEngine == null) {
             LOGGER.error("IAEngine is not alive!");
-            coreDeploymentTracker.storeDeploymentState(bridge, TOSCA_PROCESSED);
+            deploymentTracker.storeDeploymentState(csar, TOSCA_PROCESSED);
             return false;
         }
-        LOGGER.trace("Invoking IAEngine for processing ServiceTemplate [{}] for CSAR [{}]", serviceTemplate.getId(), csarId.csarName());
-        final List<String> undeployedIAs = iAEngine.deployImplementationArtifacts(bridge, new QName(serviceTemplate.getId()));
+        LOGGER.trace("Invoking IAEngine for processing ServiceTemplate [{}] for CSAR [{}]", serviceTemplate.getId(), csar.csarName());
+        final List<String> undeployedIAs = iAEngine.deployImplementationArtifacts(csar.toOldCsarId(), new QName(serviceTemplate.getId()));
         if (undeployedIAs == null) {
-            LOGGER.info("Failed to deploy ServiceTemplate [{}] for CSAR [{}]", serviceTemplate.getId(), csarId.csarName());
-            coreDeploymentTracker.storeDeploymentState(bridge, TOSCA_PROCESSED);
+            LOGGER.info("Failed to deploy ServiceTemplate [{}] for CSAR [{}]", serviceTemplate.getId(), csar.csarName());
+            deploymentTracker.storeDeploymentState(csar, TOSCA_PROCESSED);
             return false;
         }
         if (!undeployedIAs.isEmpty()) {
@@ -322,25 +322,24 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         } else {
             LOGGER.trace("Deployment of ImplementationArtifacts was successful");
         }
-        coreDeploymentTracker.storeDeploymentState(bridge, IAS_DEPLOYED);
+        deploymentTracker.storeDeploymentState(csar, IAS_DEPLOYED);
         return true;
     }
 
     @Override
-    public boolean invokePlanDeployment(CsarId csarId, TServiceTemplate serviceTemplate) {
-        CSARID bridge = csarId.toOldCsarId();
-        coreDeploymentTracker.storeDeploymentState(bridge, PLAN_DEPLOYMENT_ACTIVE);
+    public boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate) {
+        deploymentTracker.storeDeploymentState(csar, PLAN_DEPLOYMENT_ACTIVE);
         final List<TPlan> undeployedPlans = new ArrayList<>();
         LOGGER.trace("Invoking PlanEngine to process Plans");
         if (planEngine == null) {
             LOGGER.error("PlanEngine is not alive!");
-            coreDeploymentTracker.storeDeploymentState(bridge, IAS_DEPLOYED);
+            deploymentTracker.storeDeploymentState(csar, IAS_DEPLOYED);
             return false;
         }
         
         if (serviceTemplate == null) {
             LOGGER.warn("Could not find the main ServiceTemplate");
-            coreDeploymentTracker.storeDeploymentState(bridge, IAS_DEPLOYED);
+            deploymentTracker.storeDeploymentState(csar, IAS_DEPLOYED);
             return false;
         }
         
@@ -363,14 +362,12 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         
         if (!undeployedPlans.isEmpty()) {
             LOGGER.warn("Plan deployment failed!");
-            coreDeploymentTracker.storeDeploymentState(bridge, IAS_DEPLOYED);
+            deploymentTracker.storeDeploymentState(csar, IAS_DEPLOYED);
             return false;
         }
         
-        LOGGER.trace("The deployment of management plans for ServiceTemplate \"{}\" inside CSAR [{}] was successful", serviceTemplate.getId(), csarId.csarName());
-        coreDeploymentTracker.storeDeploymentState(bridge, PLANS_DEPLOYED);
-        
-        // there used to be a debug print for all endpoints here. We just don't because that's another dependency
+        LOGGER.trace("The deployment of management plans for ServiceTemplate \"{}\" inside CSAR [{}] was successful", serviceTemplate.getId(), csar.csarName());
+        deploymentTracker.storeDeploymentState(csar, PLANS_DEPLOYED);
         return true;
     }
 

@@ -12,7 +12,10 @@ import org.opentosca.container.core.model.deployment.process.DeploymentProcessSt
 /**
  * Interface that provides methods for storing and getting the deployment states of CSAR files, IAs
  * and Plans.
+ * 
+ * @deprecated @see {@link DeploymentTracker}
  */
+@Deprecated
 public interface ICoreDeploymentTrackerService {
 
     /**
