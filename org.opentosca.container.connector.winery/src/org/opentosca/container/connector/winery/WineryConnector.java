@@ -107,10 +107,14 @@ public class WineryConnector {
     }
 
     public QName uploadCSAR(final File file) throws URISyntaxException, IOException {
+        return uploadCSAR(file, false);
+    }
+
+    public QName uploadCSAR(final File file, final boolean overwrite) throws URISyntaxException, IOException {
         final MultipartEntity entity = new MultipartEntity();
 
         final ContentBody fileBody = new FileBody(file);
-        final ContentBody overwriteBody = new StringBody("false");
+        final ContentBody overwriteBody = new StringBody(String.valueOf(overwrite));
 
         final FormBodyPart filePart = new FormBodyPart("file", fileBody);
         final FormBodyPart overwritePart = new FormBodyPart("overwrite", overwriteBody);

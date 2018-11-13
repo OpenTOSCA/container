@@ -216,7 +216,7 @@ public class CsarController {
             if (ModelUtil.hasOpenRequirements(csarId, this.engineService)) {
                 final WineryConnector wc = new WineryConnector();
                 if (wc.isWineryRepositoryAvailable()) {
-                    final QName serviceTemplate = wc.uploadCSAR(file);
+                    final QName serviceTemplate = wc.uploadCSAR(file, true);
                     this.controlService.deleteCSAR(csarId);
                     return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
                         + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
