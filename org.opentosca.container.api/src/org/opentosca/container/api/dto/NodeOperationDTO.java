@@ -72,13 +72,17 @@ public class NodeOperationDTO {
 
     public static class Converter {
 
-        public static NodeOperationDTO convert(final TExportedOperation.NodeOperation dto) {
-            final NodeOperationDTO o = new NodeOperationDTO();
+        public static NodeOperationDTO convert(final TExportedOperation.NodeOperation o) {
+            if (o == null) {
+                return null;
+            }
 
-            o.setInterfaceName(dto.getInterfaceName());
-            o.setName(dto.getOperationName());
+            final NodeOperationDTO dto = new NodeOperationDTO();
 
-            return o;
+            dto.setInterfaceName(o.getInterfaceName());
+            dto.setName(o.getOperationName());
+
+            return dto;
         }
 
         public static TExportedOperation.NodeOperation convert(final NodeOperationDTO dto) {

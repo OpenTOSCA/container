@@ -175,29 +175,26 @@ public class BoundaryDefinitionController {
 
         final Map<String, OperationDTO> ops = operations.stream().map(o -> {
 
-            final OperationDTO op = new OperationDTO();
+            final OperationDTO dto = new OperationDTO();
 
-            op.setName(o.getName());
-            op.setNodeOperation(NodeOperationDTO.Converter.convert(o.getNodeOperation()));
-            op.setRelationshipOperation(o.getRelationshipOperation());
+            dto.setName(o.getName());
+            dto.setNodeOperation(NodeOperationDTO.Converter.convert(o.getNodeOperation()));
+            dto.setRelationshipOperation(o.getRelationshipOperation());
 
             if (o.getPlan() != null) {
                 final PlanDTO plan = new PlanDTO((TPlan) o.getPlan().getPlanRef());
-                op.setPlan(plan);
+                dto.setPlan(plan);
 
                 // Compute the according URL for the Build or Management Plan
                 final URI planUrl;
                 if (PlanTypes.BUILD.toString().equals(plan.getPlanType())) {
-
                     // If it's a build plan
-
                     planUrl =
                         this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
                                     .build(csar, servicetemplate, plan.getId());
                 } else {
                     // ... else we assume it's a management plan
-
                     planUrl =
                         this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/:id/managementplans/{managementplan}")
@@ -205,17 +202,16 @@ public class BoundaryDefinitionController {
                 }
 
                 plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
-                op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
+                dto.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
             }
 
-            return op;
+            return dto;
         }).collect(Collectors.toMap(OperationDTO::getName, t -> t));
 
         final InterfaceDTO dto = new InterfaceDTO();
         dto.setName(name);
         dto.setOperations(ops);
         dto.add(UriUtil.generateSelfLink(this.uriInfo));
-
 
         return Response.ok(dto).build();
     }
@@ -224,10 +220,12 @@ public class BoundaryDefinitionController {
                                                            final String interfaceName) {
         final Map<QName, List<TExportedInterface>> exportedInterfacesOfCsar =
             this.referenceMapper.getExportedInterfacesOfCSAR(csarId);
-        final List<TExportedInterface> exportedInterfaces = exportedInterfacesOfCsar.get(serviceTemplate);
-        for (final TExportedInterface exportedInterface : exportedInterfaces) {
-            if (exportedInterface.getName().equalsIgnoreCase(interfaceName)) {
-                return exportedInterface.getOperation();
+        if (exportedInterfacesOfCsar.containsKey(serviceTemplate)) {
+            final List<TExportedInterface> exportedInterfaces = exportedInterfacesOfCsar.get(serviceTemplate);
+            for (final TExportedInterface exportedInterface : exportedInterfaces) {
+                if (exportedInterface.getName().equalsIgnoreCase(interfaceName)) {
+                    return exportedInterface.getOperation();
+                }
             }
         }
         return null;
