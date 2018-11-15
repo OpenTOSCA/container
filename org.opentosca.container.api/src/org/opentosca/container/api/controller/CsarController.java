@@ -35,6 +35,7 @@ import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.IOpenToscaControlService;
+import org.opentosca.container.core.common.EntityExistsException;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
@@ -199,6 +200,10 @@ public class CsarController {
         try {
             csarId = this.fileService.storeCSAR(file.toPath());
         }
+        catch (final EntityExistsException e) {
+            logger.error("Failed to store CSAR: {}", e.getMessage(), e);
+            return Response.status(Status.CONFLICT).build();
+        }
         catch (final Exception e) {
             logger.error("Failed to store CSAR: {}", e.getMessage(), e);
             return Response.serverError().build();
@@ -211,7 +216,7 @@ public class CsarController {
             if (ModelUtil.hasOpenRequirements(csarId, this.engineService)) {
                 final WineryConnector wc = new WineryConnector();
                 if (wc.isWineryRepositoryAvailable()) {
-                    final QName serviceTemplate = wc.uploadCSAR(file);
+                    final QName serviceTemplate = wc.uploadCSAR(file, true);
                     this.controlService.deleteCSAR(csarId);
                     return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
                         + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
