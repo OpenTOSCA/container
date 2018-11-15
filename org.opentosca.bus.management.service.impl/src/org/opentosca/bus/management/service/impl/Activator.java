@@ -1,5 +1,7 @@
 package org.opentosca.bus.management.service.impl;
 
+import java.util.concurrent.TimeoutException;
+
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -36,6 +38,7 @@ public class Activator implements BundleActivator {
     public void start(final BundleContext bundleContext) throws Exception {
         camelContext = new OsgiDefaultCamelContext(bundleContext);
         camelContext.setUseBreadcrumb(false);
+        camelContext.start();
 
         // the camel routes are only needed if collaboration is turned on
         if (Boolean.parseBoolean(Settings.OPENTOSCA_COLLABORATION_MODE)) {
@@ -74,14 +77,18 @@ public class Activator implements BundleActivator {
                     for (int i = 0; i < collaborationHosts.length; i++) {
                         final String brokerURL = "tcp://" + collaborationHosts[i] + ":" + collaborationPorts[i];
                         LOG.debug("Connecting to broker at {}", brokerURL);
-                        camelContext.addRoutes(new ReceiveRequestRoute(brokerURL, Constants.REQUEST_TOPIC,
-                            Settings.OPENTOSCA_BROKER_MQTT_USERNAME, Settings.OPENTOSCA_BROKER_MQTT_PASSWORD));
+                        try {
+                            camelContext.addRoutes(new ReceiveRequestRoute(brokerURL, Constants.REQUEST_TOPIC,
+                                Settings.OPENTOSCA_BROKER_MQTT_USERNAME, Settings.OPENTOSCA_BROKER_MQTT_PASSWORD));
+                        }
+                        catch (final TimeoutException e) {
+                            LOG.error("Timeout while connecting to broker at {}. Unable to start route.", brokerURL);
+                        }
                     }
                 }
             }
         }
 
-        camelContext.start();
         LOG.info("Management Bus started!");
     }
 
