@@ -652,10 +652,26 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
         String paramsString = "";
         for (final Entry<String, String> param : paramsMap.entrySet()) {
-            paramsString += param.getKey() + "='" + param.getValue() + "' ";
+            // info: https://stackoverflow.com/questions/3005963/how-can-i-have-a-newline-in-a-string-in-sh
+            // https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
+            // we have to escape single quotes in the parameter values and properly pipe newlines
+            // TODO(?) There is still the issue if you use commands in scipt which don't interpret backslashes
+            paramsString += param.getKey() + "=$'" + escapeSingleQuotes(param.getValue()) + "' ";
         }
 
         return paramsString;
+    }
+
+    /**
+     * Escapes single quotes (') inside the given string conforming to bash argument values. Each ' gets
+     * transformed to '"'"'
+     *
+     * @see https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
+     *
+     * @return a String with escaped singles quotes
+     */
+    private String escapeSingleQuotes(final String unenscapedString) {
+        return unenscapedString.replace("'", "'\"'\"'").replace("\n", "'\"\\n\"'");
     }
 
     /**
