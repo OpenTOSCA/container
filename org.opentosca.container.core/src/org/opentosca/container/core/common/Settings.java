@@ -38,10 +38,10 @@ public class Settings {
 
     public final static String OPENTOSCA_COLLABORATION_MODE =
         System.getProperty("org.opentosca.container.collaboration.mode", "false");
-    public final static String OPENTOSCA_COLLABORATION_MASTER =
-        System.getProperty("org.opentosca.container.collaboration.master.hostname");
-    public final static String OPENTOSCA_COLLABORATION_MASTER_PORT =
-        System.getProperty("org.opentosca.container.collaboration.master.port", "1883");
+    public final static String OPENTOSCA_COLLABORATION_HOSTNAMES =
+        System.getProperty("org.opentosca.container.collaboration.hostnames");
+    public final static String OPENTOSCA_COLLABORATION_PORTS =
+        System.getProperty("org.opentosca.container.collaboration.ports");
 
     public final static String OPENTOSCA_BROKER_MQTT_PORT =
         System.getProperty("org.opentosca.container.broker.mqtt.port", "1883");

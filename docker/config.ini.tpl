@@ -29,5 +29,5 @@ org.opentosca.container.broker.mqtt.port=1883
 org.opentosca.container.broker.mqtt.username=admin
 org.opentosca.container.broker.mqtt.password=admin
 org.opentosca.container.collaboration.mode={{ .Env.COLLABORATION_MODE }}
-org.opentosca.container.collaboration.master.hostname={{ .Env.COLLABORATION_MASTER_HOSTNAME }}
-org.opentosca.container.collaboration.master.port={{ .Env.COLLABORATION_MASTER_PORT }}
+org.opentosca.container.collaboration.hostnames={{ .Env.COLLABORATION_HOSTNAMES }}
+org.opentosca.container.collaboration.ports={{ .Env.COLLABORATION_PORTS }}

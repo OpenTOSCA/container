@@ -8,7 +8,6 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.impl.collaboration.processor.OutgoingProcessor;
-import org.opentosca.container.core.common.Settings;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -23,24 +22,32 @@ import org.slf4j.LoggerFactory;
  * be defined in the config.ini and passed to this route via header fields.<br>
  * <br>
  *
- * Copyright 2018 IAAS University of Stuttgart <br>
- * <br>
- *
- * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
+ * Copyright 2018 IAAS University of Stuttgart
  */
 public class SendRequestResponseRoute extends RouteBuilder {
+
+    // MQTT broker credentials
+    final private String username;
+    final private String password;
+
+    /**
+     * Creates a Camel Route which can be used to send messages to other collaborating OpenTOSCA
+     * Container nodes via MQTT.
+     *
+     * @param username the user name to authenticate at the MQTT broker
+     * @param password the password to authenticate at the MQTT broker
+     */
+    public SendRequestResponseRoute(final String username, final String password) {
+        this.username = username;
+        this.password = password;
+    }
 
     @Override
     public void configure() throws Exception {
 
-        // MQTT broker credentials
-        final String username = Settings.OPENTOSCA_BROKER_MQTT_USERNAME;
-        final String password = Settings.OPENTOSCA_BROKER_MQTT_PASSWORD;
-
         // MQTT endpoint where this route publishes messages
         final String producerEndpoint = "mqtt:send?host=${header." + MBHeader.MQTTBROKERHOSTNAME_STRING.toString()
-            + "}&userName=" + username + "&password=" + password + "&publishTopicName=${header."
+            + "}&userName=" + this.username + "&password=" + this.password + "&publishTopicName=${header."
             + MBHeader.MQTTTOPIC_STRING.toString() + "}&qualityOfService=ExactlyOnce";
 
         // print broker host name and topic for incoming messages

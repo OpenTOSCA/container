@@ -7,16 +7,13 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.opentosca.bus.management.header.MBHeader;
-import org.opentosca.bus.management.service.impl.collaboration.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.model.RemoteOperations;
 import org.opentosca.bus.management.service.impl.collaboration.processor.IncomingProcessor;
-import org.opentosca.container.core.common.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This route is intended to receive requests made by other OpenTOSCA Containers. It is only started
- * if another Container is defined in the config.ini.<br>
+ * This route is intended to receive requests made by other OpenTOSCA Containers.<br>
  * <br>
  *
  * This route assumes that all interacting OpenTOSCA Containers use the <b>same</b> user name and
@@ -25,29 +22,40 @@ import org.slf4j.LoggerFactory;
  * be defined in the config.ini and passed to this route via header fields.<br>
  * <br>
  *
- * Copyright 2018 IAAS University of Stuttgart <br>
- * <br>
- *
- * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
+ * Copyright 2018 IAAS University of Stuttgart
  */
 public class ReceiveRequestRoute extends RouteBuilder {
 
     final private static Logger LOG = LoggerFactory.getLogger(ReceiveResponseRoute.class);
 
+    // MQTT broker credentials
+    final private String host;
+    final private String topic;
+    final private String username;
+    final private String password;
+
+    /**
+     * Creates a Camel Route which can be used to receive requests from other collaborating
+     * OpenTOSCA Container nodes via MQTT.
+     *
+     * @param host the URL of the MQTT broker where the responses arrive
+     * @param topic the topic of the MQTT broker
+     * @param username the user name to authenticate at the MQTT broker
+     * @param password the password to authenticate at the MQTT broker
+     */
+    public ReceiveRequestRoute(final String host, final String topic, final String username, final String password) {
+        this.host = host;
+        this.topic = topic;
+        this.username = username;
+        this.password = password;
+    }
+
     @Override
     public void configure() throws Exception {
 
-        // MQTT broker credentials
-        final String host =
-            "tcp://" + Settings.OPENTOSCA_COLLABORATION_MASTER + ":" + Settings.OPENTOSCA_COLLABORATION_MASTER_PORT;
-        final String topic = Constants.REQUEST_TOPIC;
-        final String username = Settings.OPENTOSCA_BROKER_MQTT_USERNAME;
-        final String password = Settings.OPENTOSCA_BROKER_MQTT_PASSWORD;
-
         // MQTT endpoint where this route waits for messages
-        final String consumerEndpoint = "mqtt:request?host=" + host + "&userName=" + username + "&password=" + password
-            + "&subscribeTopicNames=" + topic + "&qualityOfService=ExactlyOnce";
+        final String consumerEndpoint = "mqtt:request?host=" + this.host + "&userName=" + this.username + "&password="
+            + this.password + "&subscribeTopicNames=" + this.topic + "&qualityOfService=ExactlyOnce";
 
         // endpoints to invoke the methods corresponding to requests
         final String instanceMatchingEndpoint =

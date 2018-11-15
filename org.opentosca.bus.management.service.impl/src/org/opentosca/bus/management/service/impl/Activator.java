@@ -3,6 +3,7 @@ package org.opentosca.bus.management.service.impl;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.opentosca.bus.management.service.impl.collaboration.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveResponseRoute;
 import org.opentosca.bus.management.service.impl.collaboration.route.SendRequestResponseRoute;
@@ -22,12 +23,6 @@ import org.slf4j.LoggerFactory;
  * The activator is needed to start the camel context and add the routes for collaboration between
  * different OpenTOSCA instances. Additionally, a producer template is created which can be used by
  * all classes of this bundle to send camel messages.
- *
- *
- *
- * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
  */
 public class Activator implements BundleActivator {
 
@@ -39,37 +34,55 @@ public class Activator implements BundleActivator {
 
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
-        Activator.camelContext = new OsgiDefaultCamelContext(bundleContext);
+        camelContext = new OsgiDefaultCamelContext(bundleContext);
         camelContext.setUseBreadcrumb(false);
 
         // the camel routes are only needed if collaboration is turned on
         if (Boolean.parseBoolean(Settings.OPENTOSCA_COLLABORATION_MODE)) {
-            Activator.LOG.info("Collaboration mode is turned on. Starting camel routes...");
+            LOG.info("Collaboration mode is turned on. Starting camel routes...");
 
             // Create a producer template for all components of the Management Bus implementation.
             // This is recommended by camel to avoid the usage of too many threads.
-            producer = Activator.camelContext.createProducerTemplate();
+            producer = camelContext.createProducerTemplate();
 
             // route to send requests/responses to other OpenTOSCA Containers
-            Activator.camelContext.addRoutes(new SendRequestResponseRoute());
+            camelContext.addRoutes(new SendRequestResponseRoute(Settings.OPENTOSCA_BROKER_MQTT_USERNAME,
+                Settings.OPENTOSCA_BROKER_MQTT_PASSWORD));
 
             // route to receive responses by other OpenTOSCA Containers
-            Activator.camelContext.addRoutes(new ReceiveResponseRoute());
+            camelContext.addRoutes(new ReceiveResponseRoute(Constants.LOCAL_MQTT_BROKER, Constants.RESPONSE_TOPIC,
+                Settings.OPENTOSCA_BROKER_MQTT_USERNAME, Settings.OPENTOSCA_BROKER_MQTT_PASSWORD));
 
             // if the setting is null or equals the empty string, this Container does not subscribe
             // for requests of other Containers (acts as 'master')
-            if (Settings.OPENTOSCA_COLLABORATION_MASTER == null || Settings.OPENTOSCA_COLLABORATION_MASTER.equals("")) {
-                Activator.LOG.info("No other Container defined to subscribe for requests. Only started route to send own requests and receive replies.");
-            } else {
-                Activator.LOG.info("'Master' Container defined: {}. Starting route to receive requests from this Container...",
-                                   Settings.OPENTOSCA_COLLABORATION_MASTER);
+            if (Settings.OPENTOSCA_COLLABORATION_HOSTNAMES == null
+                || Settings.OPENTOSCA_COLLABORATION_HOSTNAMES.equals("")
+                || Settings.OPENTOSCA_COLLABORATION_PORTS == null
+                || Settings.OPENTOSCA_COLLABORATION_PORTS.equals("")) {
+                LOG.debug("No other Container defined to subscribe for requests. Only started route to send own requests and receive replies.");
 
-                Activator.camelContext.addRoutes(new ReceiveRequestRoute());
+            } else {
+                final String[] collaborationHosts = Settings.OPENTOSCA_COLLABORATION_HOSTNAMES.split(",");
+                final String[] collaborationPorts = Settings.OPENTOSCA_COLLABORATION_PORTS.split(",");
+
+                if (collaborationHosts.length != collaborationPorts.length) {
+                    LOG.error("The number of hostnames and ports of the collaborating hosts must be equal. Hosts: {} Ports: {}",
+                              collaborationHosts.length, collaborationPorts.length);
+                } else {
+
+                    // one route per collaborating Container is needed
+                    for (int i = 0; i < collaborationHosts.length; i++) {
+                        final String brokerURL = "tcp://" + collaborationHosts[i] + ":" + collaborationPorts[i];
+                        LOG.debug("Connecting to broker at {}", brokerURL);
+                        camelContext.addRoutes(new ReceiveRequestRoute(brokerURL, Constants.REQUEST_TOPIC,
+                            Settings.OPENTOSCA_BROKER_MQTT_USERNAME, Settings.OPENTOSCA_BROKER_MQTT_PASSWORD));
+                    }
+                }
             }
         }
 
-        Activator.camelContext.start();
-        Activator.LOG.info("Management Bus started!");
+        camelContext.start();
+        LOG.info("Management Bus started!");
     }
 
     @Override
@@ -87,9 +100,9 @@ public class Activator implements BundleActivator {
             }
         }
         catch (final Exception e) {
-            Activator.LOG.warn("Execption while releasing resources: {}", e.getMessage());
+            LOG.warn("Execption while releasing resources: {}", e.getMessage());
         }
 
-        Activator.LOG.info("Management Bus stopped!");
+        LOG.info("Management Bus stopped!");
     }
 }

@@ -8,9 +8,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.direct.DirectConsumerNotAvailableException;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.opentosca.bus.management.header.MBHeader;
-import org.opentosca.bus.management.service.impl.collaboration.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.processor.IncomingProcessor;
-import org.opentosca.container.core.common.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,31 +17,43 @@ import org.slf4j.LoggerFactory;
  * corresponding callback methods.<br>
  * <br>
  *
- * Copyright 2018 IAAS University of Stuttgart <br>
- * <br>
- *
- * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
+ * Copyright 2018 IAAS University of Stuttgart
  */
 public class ReceiveResponseRoute extends RouteBuilder {
 
     final private static Logger LOG = LoggerFactory.getLogger(ReceiveResponseRoute.class);
 
+    // MQTT broker credentials
+    final private String host;
+    final private String topic;
+    final private String username;
+    final private String password;
+
+    /**
+     * Creates a Camel Route which can be used to receive responses from other collaborating
+     * OpenTOSCA Container nodes via MQTT.
+     *
+     * @param host the URL of the MQTT broker where the responses arrive
+     * @param topic the topic of the MQTT broker
+     * @param username the user name to authenticate at the MQTT broker
+     * @param password the password to authenticate at the MQTT broker
+     */
+    public ReceiveResponseRoute(final String host, final String topic, final String username, final String password) {
+        this.host = host;
+        this.topic = topic;
+        this.username = username;
+        this.password = password;
+    }
+
     @Override
     public void configure() throws Exception {
-
-        // MQTT broker credentials
-        final String host = Constants.LOCAL_MQTT_BROKER;
-        final String topic = Constants.RESPONSE_TOPIC;
-        final String username = Settings.OPENTOSCA_BROKER_MQTT_USERNAME;
-        final String password = Settings.OPENTOSCA_BROKER_MQTT_PASSWORD;
 
         // header field which is used as routing criteria
         final String correlationHeader = MBHeader.CORRELATIONID_STRING.toString();
 
         // MQTT endpoint where this route waits for messages
-        final String consumerEndpoint = "mqtt:response?host=" + host + "&userName=" + username + "&password=" + password
-            + "&subscribeTopicNames=" + topic + "&qualityOfService=ExactlyOnce";
+        final String consumerEndpoint = "mqtt:response?host=" + this.host + "&userName=" + this.username + "&password="
+            + this.password + "&subscribeTopicNames=" + this.topic + "&qualityOfService=ExactlyOnce";
 
         final String producerEndpoint = "direct:Callback-${header." + correlationHeader + "}";
 
