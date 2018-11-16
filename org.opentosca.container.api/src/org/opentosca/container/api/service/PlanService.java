@@ -307,7 +307,8 @@ public class PlanService {
         for (final ServiceTemplateInstance sti : serviceInstances) {
             final List<PlanInstanceDTO> dto = sti.getPlanInstances().stream().filter(p -> {
                 final PlanTypes currType = PlanTypes.isPlanTypeURI(p.getType().toString());
-                return Arrays.asList(planTypes).contains(currType) && QName.valueOf(plan).equals(p.getTemplateId());
+                return Arrays.asList(planTypes).contains(currType)
+                    && plan.equalsIgnoreCase(p.getTemplateId().getLocalPart());
             }).map(p -> PlanInstanceDTO.Converter.convert(p)).collect(Collectors.toList());
             planInstances.addAll(dto);
         }
