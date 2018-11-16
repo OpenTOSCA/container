@@ -4,17 +4,13 @@ import java.lang.reflect.Field;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.xml.namespace.QName;
-
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreCapabilityService;
-import org.opentosca.container.core.service.ICoreDeploymentTrackerService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.service.ICoreModelRepositoryService;
@@ -36,7 +32,6 @@ public class ServiceBindingTracker {
 
     IIAEngineService iaEngineService;
     ICoreCapabilityService coreCapabilityService;
-    ICoreDeploymentTrackerService coreDeploymentTrackerService;
     ICoreEndpointService coreEndpointService;
     ICoreFileService coreFileService;
     ICoreModelRepositoryService coreModelRepositoryService;
@@ -156,33 +151,6 @@ public class ServiceBindingTracker {
     protected void unbindICoreCapabilityService(final ICoreCapabilityService service) {
         this.LOG.debug("Unbind of the ICoreCapabilityService.");
         this.coreCapabilityService = null;
-        log_offline(service.getClass().getSimpleName());
-    }
-
-    /**
-     * Bind method for a service.
-     *
-     * @param service The service to bind.
-     */
-    protected void bindICoreDeploymentTrackerService(final ICoreDeploymentTrackerService service) {
-        if (service == null) {
-            this.LOG.error("Service ICoreDeploymentTrackerService is null.");
-        } else {
-            this.LOG.debug("Bind of the ICoreDeploymentTrackerService.");
-            this.coreDeploymentTrackerService = service;
-            log_online(service.getClass().getSimpleName());
-            checkAvailability();
-        }
-    }
-
-    /**
-     * Unbind method for a service.
-     *
-     * @param service The service to unbind.
-     */
-    protected void unbindICoreDeploymentTrackerService(final ICoreDeploymentTrackerService service) {
-        this.LOG.debug("Unbind of the ICoreDeploymentTrackerService.");
-        this.coreDeploymentTrackerService = null;
         log_offline(service.getClass().getSimpleName());
     }
 

@@ -30,6 +30,7 @@ import org.w3c.dom.Node;
  * org.opentosca.opentoscacontrol.service.impl which implements the control for the OpenTosca
  * Container.
  */
+@Deprecated
 public interface IToscaEngineService {
 
     /**

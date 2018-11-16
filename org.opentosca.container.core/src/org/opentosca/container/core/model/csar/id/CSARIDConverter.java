@@ -9,6 +9,7 @@ import org.eclipse.persistence.sessions.Session;
  * when persisting {@link CSARID} fields with JPA. The conversion needs to be done, as we cannot
  * directly query for {@link CSARID} in JPQL.
  */
+@Deprecated
 public class CSARIDConverter implements Converter {
 
     private static final long serialVersionUID = -3390146119281040955L;
