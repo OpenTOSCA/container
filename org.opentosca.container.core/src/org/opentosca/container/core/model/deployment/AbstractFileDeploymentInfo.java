@@ -3,7 +3,7 @@ package org.opentosca.container.core.model.deployment;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 
 /**
  * Abstract class for the deployment information of a file inside a CSAR file.
@@ -25,12 +25,10 @@ public abstract class AbstractFileDeploymentInfo extends AbstractDeploymentInfo 
     @Column(name = "Attempt")
     private int attempt = 0;
 
+    // 0-args ctor for JPA
+    protected AbstractFileDeploymentInfo() { }
 
-    protected AbstractFileDeploymentInfo() {
-
-    }
-
-    public AbstractFileDeploymentInfo(final CSARID csarID, final String relPath) {
+    public AbstractFileDeploymentInfo(final CsarId csarID, final String relPath) {
         super(csarID);
         this.relPath = relPath;
     }

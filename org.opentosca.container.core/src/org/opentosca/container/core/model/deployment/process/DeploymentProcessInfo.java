@@ -11,11 +11,11 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import org.eclipse.persistence.annotations.PrimaryKey;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.AbstractDeploymentInfo;
 
 /**
- * Deployment information of a CSAR file. It is used for tracking its deploy progress.
+ * Deployment information of a Csar file. It is used for tracking its deploy progress.
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -35,12 +35,10 @@ public class DeploymentProcessInfo extends AbstractDeploymentInfo {
     @Column(name = "DeploymentProcessState")
     private DeploymentProcessState deploymentProcessState;
 
+    // 0-args ctor for JPA
+    protected DeploymentProcessInfo() { }
 
-    protected DeploymentProcessInfo() {
-
-    }
-
-    public DeploymentProcessInfo(final CSARID csarID, final DeploymentProcessState deploymentProcessState) {
+    public DeploymentProcessInfo(final CsarId csarID, final DeploymentProcessState deploymentProcessState) {
         super(csarID);
         this.deploymentProcessState = deploymentProcessState;
     }

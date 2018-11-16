@@ -5,43 +5,39 @@ import javax.persistence.MappedSuperclass;
 
 import org.eclipse.persistence.annotations.Convert;
 import org.eclipse.persistence.annotations.Converter;
-import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.model.csar.id.CSARIDConverter;
+import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.model.csar.persistence.CsarIdConverter;
 
 /**
  * Abstract class for deployment information that belongs to a CSAR file.
  */
 @MappedSuperclass
-@Converter(name = "CSARIDConverter", converterClass = CSARIDConverter.class)
+@Converter(name = AbstractDeploymentInfo.converterName, converterClass = CsarIdConverter.class)
 public abstract class AbstractDeploymentInfo {
 
+    static final String converterName = "CsarIdConverter";
+    
     // TODO: Rename property to csarId
-    @Convert("CSARIDConverter")
+    @Convert(converterName)
     @Column(name = "csarID")
-    private CSARID csarID;
+    private CsarId csarID;
 
 
-    protected AbstractDeploymentInfo() {
-
-    }
+    // 0-args ctor for JPA 
+    protected AbstractDeploymentInfo() { }
 
     /**
      * @param csarID that uniquely identifies a CSAR file
      */
-    public AbstractDeploymentInfo(final CSARID csarID) {
+    public AbstractDeploymentInfo(final CsarId csarID) {
         this.csarID = csarID;
     }
 
-    public CSARID getCsarID() {
+    public CsarId getCsarID() {
         return this.csarID;
     }
 
-    public void setCsarID(final CSARID csarID) {
+    public void setCsarID(final CsarId csarID) {
         this.csarID = csarID;
-    }
-
-    // TODO: Remove this method
-    public CSARID getCSARID() {
-        return this.csarID;
     }
 }

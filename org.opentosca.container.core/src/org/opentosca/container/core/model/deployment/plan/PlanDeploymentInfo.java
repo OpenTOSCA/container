@@ -11,7 +11,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import org.eclipse.persistence.annotations.PrimaryKey;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo;
 
 /**
@@ -52,7 +52,7 @@ public class PlanDeploymentInfo extends AbstractFileDeploymentInfo {
 
     }
 
-    public PlanDeploymentInfo(final CSARID csarID, final String relPath, final PlanDeploymentState deploymentState) {
+    public PlanDeploymentInfo(final CsarId csarID, final String relPath, final PlanDeploymentState deploymentState) {
         super(csarID, relPath);
         this.deploymentState = deploymentState;
     }
