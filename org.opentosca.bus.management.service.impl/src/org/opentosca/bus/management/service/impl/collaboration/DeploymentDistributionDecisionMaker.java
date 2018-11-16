@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
@@ -54,11 +55,7 @@ import org.slf4j.LoggerFactory;
  * increased by disabling this setting if distributed IA deployment is not needed.<br>
  * <br>
  *
- * Copyright 2018 IAAS University of Stuttgart <br>
- * <br>
- *
- * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
+ * Copyright 2018 IAAS University of Stuttgart
  */
 public class DeploymentDistributionDecisionMaker {
 
@@ -257,72 +254,32 @@ public class DeploymentDistributionDecisionMaker {
             // get the infrastructure properties without 'state' property for comparison
             final Set<Entry<String, String>> infrastructureEntrySet = getEntrySetWithoutState(infrastructureProperties);
 
-            // retrieve all instances with matching type from instance data
-            final Collection<NodeTemplateInstance> typeMatchingInstances =
-                nodeTemplateInstanceRepository.findByTemplateType(infrastructureNodeType);
+            // search NodeTemplateInstance with matching NodeType and Properties which is already
+            // provisioned completely
+            final NodeTemplateInstance matchingInstance =
+                nodeTemplateInstanceRepository.findByTemplateType(infrastructureNodeType).stream()
+                                              .filter((instance) -> instance.getServiceTemplateInstance().getState()
+                                                                            .equals(ServiceTemplateInstanceState.CREATED))
+                                              .filter((instance) -> instance.getState()
+                                                                            .equals(NodeTemplateInstanceState.STARTED))
+                                              .filter((instance) -> isBuildPlanFinished(instance))
+                                              .filter((instance) -> getEntrySetWithoutState(instance.getPropertiesAsMap()).equals(infrastructureEntrySet))
+                                              .findFirst().orElse(null);
 
-            for (final NodeTemplateInstance typeMatchingInstance : typeMatchingInstances) {
-
-                DeploymentDistributionDecisionMaker.LOG.debug("Found NodeTemplateInstance with matching type. ID: {}",
-                                                              typeMatchingInstance.getId());
-
-                // avoid matching with currently starting or already deleted NodeTemplateInstances
-                if (typeMatchingInstance.getServiceTemplateInstance().getState()
-                                        .equals(ServiceTemplateInstanceState.CREATED)) {
-                    if (typeMatchingInstance.getState().equals(NodeTemplateInstanceState.STARTED)) {
-
-                        // get the build plan instance that belongs to this NodeTemplateInstance
-                        PlanInstance buildPlan = null;
-                        for (final PlanInstance plan : typeMatchingInstance.getServiceTemplateInstance()
-                                                                           .getPlanInstances()) {
-                            if (plan.getType().equals(PlanType.BUILD)) {
-                                buildPlan = plan;
-                                break;
-                            }
-                        }
-
-                        // only match with NodeTemplateInstances for which the build process is
-                        // already finished
-                        if (isBuildPlanFinished(buildPlan)) {
-
-                            DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is valid candidate for property matching...");
-
-                            // get the properties without 'state' property for comparison
-                            final Set<Entry<String, String>> matchingEntrySet =
-                                getEntrySetWithoutState(typeMatchingInstance.getPropertiesAsMap());
-
-                            // match the two entry sets
-                            if (matchingEntrySet.equals(infrastructureEntrySet)) {
-
-                                DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance matches with given type and properties!");
-
-                                // Check if the NodeTemplateInstances is managed by this Container.
-                                if (isInstanceManagedLocally(typeMatchingInstance, true)) {
-
-                                    DeploymentDistributionDecisionMaker.LOG.debug("Matched NodeTemplateInstance is managed locally!");
-                                    return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-                                } else {
-                                    DeploymentDistributionDecisionMaker.LOG.debug("Matched NodeTemplateInstance is managed remotely: {}",
-                                                                                  typeMatchingInstance.getManagingContainer());
-                                    return typeMatchingInstance.getManagingContainer();
-                                }
-                            } else {
-                                DeploymentDistributionDecisionMaker.LOG.debug("Properties have different entry sets.");
-                            }
-                        } else {
-                            DeploymentDistributionDecisionMaker.LOG.debug("No build plan instance found or not yet finished!");
-                        }
-                    } else {
-                        DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance state is not appropriate for matching: {}",
-                                                                      typeMatchingInstance.getState());
-                    }
+            if (matchingInstance != null) {
+                // check whether the matching NodeTemplateInstance is managed by this Container
+                if (matchingInstance.getManagingContainer() == null) {
+                    // If no Container is set and the build plan is finished, this means that there
+                    // was no IA invocation in the build plan and therefore also no remote
+                    // deployment which means it is managed locally.
+                    return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
                 } else {
-                    DeploymentDistributionDecisionMaker.LOG.debug("Corresponding ServiceTemplateInstance is not in state 'CREATED'!");
+                    return matchingInstance.getManagingContainer();
                 }
             }
         }
 
-        // no matching found
+        // no matching found or type is null
         return null;
     }
 
@@ -348,10 +305,8 @@ public class DeploymentDistributionDecisionMaker {
         // transform infrastructureProperties for the message body
         final KeyValueMap properties = new KeyValueMap();
         final List<KeyValueType> propertyList = properties.getKeyValuePair();
-
-        for (final Entry<String, String> entry : infrastructureProperties.entrySet()) {
-            propertyList.add(new KeyValueType(entry.getKey(), entry.getValue()));
-        }
+        infrastructureProperties.entrySet().forEach((entry) -> propertyList.add(new KeyValueType(entry.getKey(),
+            entry.getValue())));
 
         // create collaboration message
         final BodyType content = new BodyType(new InstanceDataMatchingRequest(infrastructureNodeType, properties));
@@ -428,54 +383,26 @@ public class DeploymentDistributionDecisionMaker {
      * @return the properties as entry Set without 'State' property
      */
     private static Set<Entry<String, String>> getEntrySetWithoutState(final Map<String, String> properties) {
+        return properties.entrySet().stream().filter((entry) -> !entry.getKey().equals("State"))
+                         .collect(Collectors.toSet());
+    }
 
-        final Set<Entry<String, String>> entrySet = properties.entrySet();
+    /**
+     * Check whether the build plan that corresponds to the given NodeTemplateInstance is finished.
+     *
+     * @param nodeTemplateInstance the NodeTemplateInstance for which the build plan is checked
+     * @return <tt>true</tt> if the build plan is found and terminated, <tt>false</tt> otherwise
+     */
+    private static boolean isBuildPlanFinished(final NodeTemplateInstance nodeTemplateInstance) {
+        if (nodeTemplateInstance != null) {
+            final PlanInstance buildPlan =
+                nodeTemplateInstance.getServiceTemplateInstance().getPlanInstances().stream()
+                                    .filter((plan) -> plan.getType().equals(PlanType.BUILD)).findFirst().orElse(null);
 
-        // remove 'state' property entry from the entry set if contained
-        if (properties.containsKey("State")) {
-            Entry<String, String> stateEntry = null;
-            for (final Entry<String, String> entry : entrySet) {
-                if (entry.getKey().equals("State")) {
-                    stateEntry = entry;
-                    break;
-                }
-            }
-            entrySet.remove(stateEntry);
+            return buildPlan != null && buildPlan.getState().equals(PlanInstanceState.FINISHED);
+        } else {
+            return false;
         }
-
-        return entrySet;
-    }
-
-    /**
-     * Check if a given build plan has the state 'finished'.
-     *
-     * @param buildPlan The build plan to check
-     * @return <tt>true</tt> if the build plan is not null and the state is 'finished',
-     *         <tt>false</tt> otherwise
-     */
-    private static boolean isBuildPlanFinished(final PlanInstance buildPlan) {
-        return buildPlan != null && buildPlan.getState().equals(PlanInstanceState.FINISHED);
-    }
-
-    /**
-     * Check whether the given NodeTemplateInstance is managed by this Container. It is managed by
-     * this Container if the corresponding attribute is set accordingly. However, it is also managed
-     * by this Container, if the corresponding attribute is null and the build plan is finished.
-     * This means that there was no IA invocation in the build plan and therefore also no remote
-     * deployment which means it is managed locally.
-     *
-     * @param instance The instance to check if it is managed locally
-     * @param buildPlanFinished Whether the build plan of the instance is finished
-     * @return <tt>true</tt> if the instance is managed locally, <tt>false</tt> otherwise
-     */
-    private static boolean isInstanceManagedLocally(final NodeTemplateInstance instance,
-                                                    final boolean buildPlanFinished) {
-        final boolean noIAInvocation = buildPlanFinished && instance.getManagingContainer() == null;
-
-        final boolean managingContainerIsSetLocally = instance.getManagingContainer() != null
-            && instance.getManagingContainer().equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-
-        return noIAInvocation || managingContainerIsSetLocally;
     }
 
     /**
