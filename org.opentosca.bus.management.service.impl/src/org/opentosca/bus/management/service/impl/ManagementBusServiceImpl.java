@@ -670,7 +670,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         if (!expectedParams.isEmpty()) {
 
-            while (update == true) {
+            while (update) {
 
                 // Check if instanceID is set and merge input params with
                 // instance data. Priority on instance data.
