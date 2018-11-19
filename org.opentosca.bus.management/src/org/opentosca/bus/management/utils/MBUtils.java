@@ -72,16 +72,10 @@ public class MBUtils {
                     nodeTemplateID =
                         ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
                                                                                    nodeTemplateID,
-                                                                                   Types.deployedOnRelationType);
-
-                    if (nodeTemplateID == null) {
-                        nodeTemplateID =
-                            ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                                                                                       nodeTemplateID,
-                                                                                       Types.dependsOnRelationType);
-                    }
+                                                                                   Types.dependsOnRelationType);
                 }
             }
+
 
             if (nodeTemplateID != null) {
                 MBUtils.LOG.debug("Checking if the underneath Node: {} is the OperatingSystemNode.", nodeTemplateID);
@@ -99,6 +93,41 @@ public class MBUtils {
 
         return nodeTemplateID;
     }
+
+
+
+    /**
+     *
+     * Returns the NodeTemplate connected with a HostedOn/DeployedOn/... Relation.
+     *
+     * @param csarID
+     * @param serviceTemplateID
+     * @param nodeTemplateID
+     *
+     * @return name of the related NodeTemplate.
+     */
+    public static String getHostedOnNodeTemplateID(final CSARID csarID, final QName serviceTemplateID,
+                                                   String nodeTemplateID) {
+
+        MBUtils.LOG.debug("Searching the Node, on which the NodeTemplate: {} of ServiceTemplate: {} & CSAR: {} is hosted on ...",
+                          nodeTemplateID, serviceTemplateID, csarID);
+
+        MBUtils.LOG.debug("Getting the underneath Node...");
+
+        nodeTemplateID =
+            ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID,
+                                                                       Types.hostedOnRelationType);
+
+        if (nodeTemplateID == null) {
+            nodeTemplateID =
+                ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID,
+                                                                           Types.deployedOnRelationType);
+
+        }
+
+        return nodeTemplateID;
+    }
+
 
     /**
      *
