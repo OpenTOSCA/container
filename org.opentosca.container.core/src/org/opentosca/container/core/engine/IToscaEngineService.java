@@ -527,12 +527,13 @@ public interface IToscaEngineService {
     public String getPlanName(CSARID csarID, QName planId);
 
     /**
-     * Returns the defined references of an ArtifacTtemplate.
+     * Returns the defined references of an ArtifacTemplate.
      *
      * @param csarID
      * @param artifactTemplate
      *
-     * @return references or null if ArtifacTemplate can not be found or hasn't specified references
+     * @return list of references or empty list if ArtifacTemplate can not be found or has no
+     *         specified references
      */
     public List<String> getArtifactReferenceWithinArtifactTemplate(CSARID csarID, QName artifactTemplate);
 
