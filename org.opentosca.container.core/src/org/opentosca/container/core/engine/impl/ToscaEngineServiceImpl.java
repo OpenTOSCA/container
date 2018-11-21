@@ -203,43 +203,16 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     public boolean hasOperationOfATypeSpecifiedInputParams(final CSARID csarID, final QName typeID,
                                                            final String interfaceName, final String operationName) {
 
-        final Object type = toscaReferenceMapper.getJAXBReference(csarID, typeID);
+        // only look for operation which have a input parameter list defined
+        final Predicate<TOperation> inputParamListDefined =
+            (op) -> op.getInputParameters() != null && op.getInputParameters().getInputParameter() != null;
 
-        final Predicate<TOperation> inputParamListDefined = (op) -> op != null && op.getInputParameters() != null
-            && op.getInputParameters().getInputParameter() != null;
+        // get the searched operation if available
+        final Optional<TOperation> operation =
+            getOperationForType(csarID, typeID, interfaceName, operationName, inputParamListDefined);
 
-        if (type instanceof TNodeType) {
-
-            return getNodeTypeHierarchy(csarID, typeID).stream()
-                                                       .map(qname -> toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                                           qname))
-                                                       .filter((jaxb) -> jaxb != null && jaxb instanceof TNodeType)
-                                                       .map((jaxb) -> (TNodeType) jaxb)
-                                                       .filter(nt -> nt.getInterfaces() != null)
-                                                       .map((nt) -> getOperationFromInterfaces(nt.getInterfaces()
-                                                                                                 .getInterface(),
-                                                                                               interfaceName,
-                                                                                               operationName))
-                                                       .filter(inputParamListDefined)
-                                                       .findFirst().map(op -> !op.getInputParameters()
-                                                                                 .getInputParameter().isEmpty())
-                                                       .orElse(false);
-
-        } else if (type instanceof TRelationshipType) {
-
-            final TRelationshipType relationshipType = (TRelationshipType) type;
-
-            return Stream.of(Optional.ofNullable(relationshipType.getSourceInterfaces()).map(i -> i.getInterface()),
-                             Optional.ofNullable(relationshipType.getTargetInterfaces()).map(i -> i.getInterface()))
-                         .filter(ol -> ol.isPresent()).map((ol) -> ol.get())
-                         .map(interfaces -> getOperationFromInterfaces(interfaces, interfaceName, operationName))
-                         .filter(inputParamListDefined).findFirst()
-                         .map(op -> !op.getInputParameters().getInputParameter().isEmpty()).orElse(false);
-
-        } else {
-            LOG.warn("Given typeID does not identifiy a NodeType or RelationshipType: {}", typeID);
-            return false;
-        }
+        // check if parameters are defined
+        return operation.map((op) -> !op.getInputParameters().getInputParameter().isEmpty()).orElse(false);
     }
 
     /**
@@ -249,43 +222,52 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     public boolean hasOperationOfATypeSpecifiedOutputParams(final CSARID csarID, final QName typeID,
                                                             final String interfaceName, final String operationName) {
 
-        final Object type = toscaReferenceMapper.getJAXBReference(csarID, typeID);
+        // only look for operation which have a output parameter list defined
+        final Predicate<TOperation> outputParamListDefined =
+            (op) -> op.getOutputParameters() != null && op.getOutputParameters().getOutputParameter() != null;
 
-        final Predicate<TOperation> outputParamListDefined = (op) -> op != null && op.getOutputParameters() != null
-            && op.getOutputParameters().getOutputParameter() != null;
+        // get the searched operation if available
+        final Optional<TOperation> operation =
+            getOperationForType(csarID, typeID, interfaceName, operationName, outputParamListDefined);
 
-        if (type instanceof TNodeType) {
+        // check if parameters are defined
+        return operation.map((op) -> !op.getInputParameters().getInputParameter().isEmpty()).orElse(false);
+    }
 
-            return getNodeTypeHierarchy(csarID, typeID).stream()
-                                                       .map(qname -> toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                                           qname))
-                                                       .filter((jaxb) -> jaxb != null && jaxb instanceof TNodeType)
-                                                       .map((jaxb) -> (TNodeType) jaxb)
-                                                       .filter(nt -> nt.getInterfaces() != null)
-                                                       .map((nt) -> getOperationFromInterfaces(nt.getInterfaces()
-                                                                                                 .getInterface(),
-                                                                                               interfaceName,
-                                                                                               operationName))
-                                                       .filter(outputParamListDefined)
-                                                       .findFirst().map(op -> !op.getOutputParameters()
-                                                                                 .getOutputParameter().isEmpty())
-                                                       .orElse(false);
+    @Override
+    public Node getInputParametersOfATypeOperation(final CSARID csarID, final QName typeID, final String interfaceName,
+                                                   final String operationName) {
 
-        } else if (type instanceof TRelationshipType) {
+        // only use operation which have a input parameter list defined
+        final Predicate<TOperation> inputParamListDefined =
+            (op) -> op.getInputParameters() != null && op.getInputParameters().getInputParameter() != null;
 
-            final TRelationshipType relationshipType = (TRelationshipType) type;
+        // get the defined operation if available
+        final Optional<TOperation> operation =
+            getOperationForType(csarID, typeID, interfaceName, operationName, inputParamListDefined);
 
-            return Stream.of(Optional.ofNullable(relationshipType.getSourceInterfaces()).map(i -> i.getInterface()),
-                             Optional.ofNullable(relationshipType.getTargetInterfaces()).map(i -> i.getInterface()))
-                         .filter(ol -> ol.isPresent()).map((ol) -> ol.get())
-                         .map(interfaces -> getOperationFromInterfaces(interfaces, interfaceName, operationName))
-                         .filter(outputParamListDefined).findFirst()
-                         .map(op -> !op.getOutputParameters().getOutputParameter().isEmpty()).orElse(false);
+        // parse parameters to Node
+        return operation.map((op) -> ServiceHandler.xmlSerializerService.getXmlSerializer()
+                                                                        .marshalToNode(op.getInputParameters()))
+                        .orElse(null);
+    }
 
-        } else {
-            LOG.warn("Given typeID does not identifiy a NodeType or RelationshipType: {}", typeID);
-            return false;
-        }
+    @Override
+    public Node getOutputParametersOfATypeOperation(final CSARID csarID, final QName typeID, final String interfaceName,
+                                                    final String operationName) {
+
+        // only use operation which have a output parameter list defined
+        final Predicate<TOperation> inputParamListDefined =
+            (op) -> op.getOutputParameters() != null && op.getOutputParameters().getOutputParameter() != null;
+
+        // get the defined operation if available
+        final Optional<TOperation> operation =
+            getOperationForType(csarID, typeID, interfaceName, operationName, inputParamListDefined);
+
+        // parse parameters to Node
+        return operation.map((op) -> ServiceHandler.xmlSerializerService.getXmlSerializer()
+                                                                        .marshalToNode(op.getInputParameters()))
+                        .orElse(null);
     }
 
     /**
@@ -295,53 +277,8 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     public boolean doesInterfaceOfTypeContainOperation(final CSARID csarID, final QName typeID,
                                                        final String interfaceName, final String operationName) {
 
-        final Object type = toscaReferenceMapper.getJAXBReference(csarID, typeID);
-
-        if (type instanceof TNodeType) {
-
-            return getNodeTypeHierarchy(csarID, typeID).stream()
-                                                       .map(qname -> toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                                           qname))
-                                                       .filter((jaxb) -> jaxb != null && jaxb instanceof TNodeType)
-                                                       .map((jaxb) -> (TNodeType) jaxb)
-                                                       .filter(nt -> nt.getInterfaces() != null)
-                                                       .map((nt) -> getOperationFromInterfaces(nt.getInterfaces()
-                                                                                                 .getInterface(),
-                                                                                               interfaceName,
-                                                                                               operationName))
-                                                       .filter((op) -> op != null).findFirst().isPresent();
-
-        } else if (type instanceof TRelationshipType) {
-
-            final TRelationshipType relationshipType = (TRelationshipType) type;
-
-            return Stream.of(Optional.ofNullable(relationshipType.getSourceInterfaces()).map(i -> i.getInterface()),
-                             Optional.ofNullable(relationshipType.getTargetInterfaces()).map(i -> i.getInterface()))
-                         .filter(ol -> ol.isPresent()).map((ol) -> ol.get())
-                         .map(interfaces -> getOperationFromInterfaces(interfaces, interfaceName, operationName))
-                         .filter((op) -> op != null).findFirst().isPresent();
-
-        } else {
-            LOG.warn("Given typeID does not identifiy a NodeType or RelationshipType: {}", typeID);
-            return false;
-        }
-    }
-
-    /**
-     * Get the TOperation object for a given interface and operation name from a list of interfaces.
-     *
-     * @param ifaces the List of interfaces
-     * @param interfaceName the name of the interface of the operation
-     * @param operationName the name of the operation
-     * @return The TOperation object if one was found with the given properties, else
-     *         <code>null</code>.
-     */
-    private TOperation getOperationFromInterfaces(final List<TInterface> ifaces, final String interfaceName,
-                                                  final String operationName) {
-
-        return ifaces.stream().filter((iface) -> (interfaceName == null || iface.getName().equals(interfaceName)))
-                     .flatMap((iface) -> iface.getOperation().stream())
-                     .filter((op) -> op.getName().equals(operationName)).findFirst().orElse(null);
+        // lock for all operations with the given name/interface without further filtering
+        return getOperationForType(csarID, typeID, interfaceName, operationName, (op) -> true).isPresent();
     }
 
     /**
@@ -657,142 +594,6 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         }
     }
 
-    @Override
-    public Node getInputParametersOfATypeOperation(final CSARID csarID, final QName typeID, final String interfaceName,
-                                                   final String operationName) {
-
-        final Object type = toscaReferenceMapper.getJAXBReference(csarID, typeID);
-
-        if (type instanceof TNodeType) {
-
-            // handle NodeType operations
-            for (final QName nodeTypeHierarchyMember : getNodeTypeHierarchy(csarID, typeID)) {
-
-                final TNodeType nodeType =
-                    (TNodeType) toscaReferenceMapper.getJAXBReference(csarID, nodeTypeHierarchyMember);
-
-                if (nodeType.getInterfaces() != null) {
-
-                    final TOperation operation = getOperationFromInterfaces(nodeType.getInterfaces().getInterface(),
-                                                                            interfaceName, operationName);
-
-                    if (operation != null && operation.getInputParameters() != null
-                        && operation.getInputParameters().getInputParameter() != null) {
-
-                        return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                                  .marshalToNode(operation.getInputParameters());
-                    }
-                }
-            }
-        } else if (type instanceof TRelationshipType) {
-
-            // handle RelationshipType operations
-            final TRelationshipType relationshipType = (TRelationshipType) type;
-
-            if (relationshipType.getSourceInterfaces() != null) {
-
-                final TOperation operation =
-                    getOperationFromInterfaces(relationshipType.getSourceInterfaces().getInterface(), interfaceName,
-                                               operationName);
-
-                if (operation != null && operation.getInputParameters() != null
-                    && operation.getInputParameters().getInputParameter() != null) {
-
-                    return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                              .marshalToNode(operation.getInputParameters());
-                }
-            }
-
-            if (relationshipType.getTargetInterfaces() != null) {
-
-                final TOperation operation =
-                    getOperationFromInterfaces(relationshipType.getTargetInterfaces().getInterface(), interfaceName,
-                                               operationName);
-
-                if (operation != null && operation.getInputParameters() != null
-                    && operation.getInputParameters().getInputParameter() != null) {
-
-                    return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                              .marshalToNode(operation.getInputParameters());
-                }
-            }
-
-        } else {
-            LOG.warn("Given typeID does not identifiy a NodeType or RelationshipType: {}", typeID);
-        }
-
-        LOG.debug("The requested operation was not found.");
-        return null;
-    }
-
-    @Override
-    public Node getOutputParametersOfATypeOperation(final CSARID csarID, final QName typeID, final String interfaceName,
-                                                    final String operationName) {
-
-        final Object type = toscaReferenceMapper.getJAXBReference(csarID, typeID);
-
-        if (type instanceof TNodeType) {
-
-            // handle NodeType operations
-            for (final QName nodeTypeHierarchyMember : getNodeTypeHierarchy(csarID, typeID)) {
-
-                final TNodeType nodeType =
-                    (TNodeType) toscaReferenceMapper.getJAXBReference(csarID, nodeTypeHierarchyMember);
-
-                if (nodeType.getInterfaces() != null) {
-
-                    final TOperation operation = getOperationFromInterfaces(nodeType.getInterfaces().getInterface(),
-                                                                            interfaceName, operationName);
-
-                    if (operation != null && operation.getOutputParameters() != null
-                        && operation.getOutputParameters().getOutputParameter() != null) {
-
-                        return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                                  .marshalToNode(operation.getOutputParameters());
-                    }
-                }
-            }
-        } else if (type instanceof TRelationshipType) {
-
-            // handle RelationshipType operations
-            final TRelationshipType relationshipType = (TRelationshipType) type;
-
-            if (relationshipType.getSourceInterfaces() != null) {
-
-                final TOperation operation =
-                    getOperationFromInterfaces(relationshipType.getSourceInterfaces().getInterface(), interfaceName,
-                                               operationName);
-
-                if (operation != null && operation.getOutputParameters() != null
-                    && operation.getOutputParameters().getOutputParameter() != null) {
-
-                    return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                              .marshalToNode(operation.getOutputParameters());
-                }
-            }
-
-            if (relationshipType.getTargetInterfaces() != null) {
-
-                final TOperation operation =
-                    getOperationFromInterfaces(relationshipType.getTargetInterfaces().getInterface(), interfaceName,
-                                               operationName);
-
-                if (operation != null && operation.getOutputParameters() != null
-                    && operation.getOutputParameters().getOutputParameter() != null) {
-
-                    return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                              .marshalToNode(operation.getOutputParameters());
-                }
-            }
-
-        } else {
-            LOG.warn("Given typeID does not identifiy a NodeType or RelationshipType: {}", typeID);
-        }
-
-        LOG.debug("The requested operation was not found.");
-        return null;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -1073,7 +874,6 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         final TRelationshipTemplate relationshipTemplate =
             (TRelationshipTemplate) toscaReferenceMapper.getJAXBReference(csarID, RelationshipTemplateReference);
 
-        // if there are ImplementationArtifacts
         if (relationshipTemplate != null) {
             return relationshipTemplate.getType();
         }
@@ -2171,5 +1971,72 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                          .filter((ia) -> ia.getName()
                                                                            .equals(implementationArtifactName))
                                                          .findFirst().orElse(null);
+    }
+
+    /**
+     * Get the TOperation object for a given interface and operation name from a list of interfaces.
+     *
+     * @param ifaces the List of interfaces
+     * @param interfaceName the name of the interface of the operation
+     * @param operationName the name of the operation
+     * @return An Optional containing the TOperation object if one was found with the given
+     *         properties, an empty Optional otherwise.
+     */
+    private Optional<TOperation> getOperationFromInterfaces(final List<TInterface> ifaces, final String interfaceName,
+                                                            final String operationName) {
+
+        return ifaces.stream().filter((iface) -> (interfaceName == null || iface.getName().equals(interfaceName)))
+                     .flatMap((iface) -> iface.getOperation().stream())
+                     .filter((op) -> op.getName().equals(operationName)).findFirst();
+    }
+
+    /**
+     * Get a TOperation object for a NodeType or RelationshipType which has the given ID and is part
+     * of the given CSAR. The operation must have the given name and either a <tt>null</tt>
+     * interface or an interface with a matching name. The filter parameter allows to further track
+     * down a certain operation. It can e.g. be used to search only for operations with a defined
+     * input parameter list.
+     *
+     * @param csarID the ID of the CSAR in which the NodeType or RelationshipType is defined
+     * @param typeID the ID of the NodeType or RelationshipType
+     * @param interfaceName the name of the interface in which the operation is located. Can be
+     *        <tt>null</tt> if the operation name is unique in the Type.
+     * @param operationName the name of the searched operation
+     * @param operationFilter a filter to limit the result
+     * @return An Optional containing the found operation, if one is found or an empty Optional
+     *         otherwise.
+     */
+    private Optional<TOperation> getOperationForType(final CSARID csarID, final QName typeID,
+                                                     final String interfaceName, final String operationName,
+                                                     final Predicate<TOperation> operationFilter) {
+
+        final Object type = toscaReferenceMapper.getJAXBReference(csarID, typeID);
+
+        if (type instanceof TNodeType) {
+
+            return getNodeTypeHierarchy(csarID, typeID).stream()
+                                                       .map(qname -> (TNodeType) toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                                                       qname))
+                                                       .filter((nt) -> nt != null && nt.getInterfaces() != null)
+                                                       .map((nt) -> getOperationFromInterfaces(nt.getInterfaces()
+                                                                                                 .getInterface(),
+                                                                                               interfaceName,
+                                                                                               operationName))
+                                                       .filter(Optional::isPresent).map(Optional::get)
+                                                       .filter(operationFilter).findFirst();
+
+        } else if (type instanceof TRelationshipType) {
+
+            final TRelationshipType relationshipType = (TRelationshipType) type;
+
+            return Stream.of(Optional.ofNullable(relationshipType.getSourceInterfaces()).map(i -> i.getInterface()),
+                             Optional.ofNullable(relationshipType.getTargetInterfaces()).map(i -> i.getInterface()))
+                         .filter(ol -> ol.isPresent()).map((ol) -> ol.get())
+                         .map(interfaces -> getOperationFromInterfaces(interfaces, interfaceName, operationName))
+                         .filter(Optional::isPresent).map(Optional::get).filter(operationFilter).findFirst();
+        } else {
+            LOG.warn("Given typeID does not identifiy a NodeType or RelationshipType: {}", typeID);
+            return null;
+        }
     }
 }
