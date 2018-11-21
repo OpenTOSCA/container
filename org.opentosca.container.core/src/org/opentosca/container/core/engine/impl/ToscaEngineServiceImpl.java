@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
@@ -41,7 +42,6 @@ import org.opentosca.container.core.tosca.model.TDeploymentArtifact;
 import org.opentosca.container.core.tosca.model.TDeploymentArtifacts;
 import org.opentosca.container.core.tosca.model.TEntityTemplate;
 import org.opentosca.container.core.tosca.model.TEntityTemplate.Properties;
-import org.opentosca.container.core.tosca.model.TExtensibleElements;
 import org.opentosca.container.core.tosca.model.TImplementationArtifact;
 import org.opentosca.container.core.tosca.model.TInterface;
 import org.opentosca.container.core.tosca.model.TNodeTemplate;
@@ -376,57 +376,43 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
             // search in all Definitions inside a certain CSAR
             for (final TDefinitions definitions : toscaReferenceMapper.getDefinitionsOfCSAR(csarID)) {
 
-                for (final QName nodeTypeHierachyMember : getNodeTypeHierarchy(csarID, typeID)) {
+                // add all NodeTypeImpls which are part of the NodeType hierarchy
+                definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().stream()
+                           .filter((entity) -> entity instanceof TNodeTypeImplementation)
+                           .map((entity) -> (TNodeTypeImplementation) entity).forEach((impl) -> {
+                               for (final QName nodeTypeHierachyMember : getNodeTypeHierarchy(csarID, typeID)) {
+                                   if (impl.getNodeType().equals(nodeTypeHierachyMember)) {
 
-                    // search for NodeTypeImplementations
-                    for (final TExtensibleElements entity : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
-                        if (entity instanceof TNodeTypeImplementation) {
-
-                            final TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) entity;
-                            if (nodeTypeImplementation.getNodeType().equals(nodeTypeHierachyMember)) {
-
-                                String targetNamespace;
-                                if (nodeTypeImplementation.getTargetNamespace() != null
-                                    && !nodeTypeImplementation.getTargetNamespace().equals("")) {
-                                    targetNamespace = nodeTypeImplementation.getTargetNamespace();
-                                } else {
-                                    targetNamespace = definitions.getTargetNamespace();
-                                }
-                                listOfTypeImplementationQNames.add(new QName(targetNamespace,
-                                    nodeTypeImplementation.getName()));
-                            }
-                        }
-                    }
-                }
+                                       String targetNamespace;
+                                       if (impl.getTargetNamespace() != null && !impl.getTargetNamespace().equals("")) {
+                                           targetNamespace = impl.getTargetNamespace();
+                                       } else {
+                                           targetNamespace = definitions.getTargetNamespace();
+                                       }
+                                       listOfTypeImplementationQNames.add(new QName(targetNamespace, impl.getName()));
+                                   }
+                               }
+                           });
             }
-
         } else if (type instanceof TRelationshipType) {
 
             // search in all Definitions inside a certain CSAR
             for (final TDefinitions definitions : toscaReferenceMapper.getDefinitionsOfCSAR(csarID)) {
 
-                // search for RelationshipTypeImplementations
-                for (final TExtensibleElements entity : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
-                    if (entity instanceof TRelationshipTypeImplementation) {
-
-                        final TRelationshipTypeImplementation relationshipTypeImplementation =
-                            (TRelationshipTypeImplementation) entity;
-                        if (relationshipTypeImplementation.getRelationshipType().equals(typeID)) {
-
-                            String targetNamespace;
-                            if (relationshipTypeImplementation.getTargetNamespace() != null
-                                && !relationshipTypeImplementation.getTargetNamespace().equals("")) {
-                                targetNamespace = relationshipTypeImplementation.getTargetNamespace();
-                            } else {
-                                targetNamespace = definitions.getTargetNamespace();
-                            }
-                            listOfTypeImplementationQNames.add(new QName(targetNamespace,
-                                relationshipTypeImplementation.getName()));
-                        }
-                    }
-                }
+                // add all RelationshipTypeImpl for the type to the list
+                definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().stream()
+                           .filter((entity) -> entity instanceof TRelationshipTypeImplementation)
+                           .map((entity) -> (TRelationshipTypeImplementation) entity)
+                           .filter((impl) -> impl.getRelationshipType().equals(typeID)).forEach((impl) -> {
+                               String targetNamespace;
+                               if (impl.getTargetNamespace() != null && !impl.getTargetNamespace().equals("")) {
+                                   targetNamespace = impl.getTargetNamespace();
+                               } else {
+                                   targetNamespace = definitions.getTargetNamespace();
+                               }
+                               listOfTypeImplementationQNames.add(new QName(targetNamespace, impl.getName()));
+                           });
             }
-
         } else {
             LOG.warn("Given typeID does not identifiy a NodeType or RelationshipType: {}", typeID);
         }
@@ -441,13 +427,8 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     public List<String> getImplementationArtifactNamesOfTypeImplementation(final CSARID csarID,
                                                                            final QName typeImplementationID) {
 
-        final List<String> listOfNames = new ArrayList<>();
-
-        for (final TImplementationArtifact ia : getImplementationArtifactsOfType(csarID, typeImplementationID)) {
-            listOfNames.add(ia.getName());
-        }
-
-        return listOfNames;
+        return getIAsOfType(csarID, typeImplementationID).stream().map((ia) -> ia.getName())
+                                                         .collect(Collectors.toList());
     }
 
     /**
@@ -460,96 +441,50 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
      *        containing the ImplementationArtifacts.
      * @return List with all ImplementationArtifacts for the given type.
      */
-    private List<TImplementationArtifact> getImplementationArtifactsOfType(final CSARID csarID,
-                                                                           final QName typeImplementationID) {
-        final List<TImplementationArtifact> listOfIAs = new ArrayList<>();
+    private List<TImplementationArtifact> getIAsOfType(final CSARID csarID, final QName typeImplementationID) {
 
         final Object typeImplementation = toscaReferenceMapper.getJAXBReference(csarID, typeImplementationID);
 
         if (typeImplementation instanceof TNodeTypeImplementation) {
 
-            // handle NodeTypeImplementations
-            for (final QName nodeTypeImplHierarchyMember : getNodeTypeImplementationTypeHierarchy(csarID,
-                                                                                                  typeImplementationID)) {
-
-                final TNodeTypeImplementation nodeTypeImplementation =
-                    (TNodeTypeImplementation) toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                    nodeTypeImplHierarchyMember);
-
-                // add all IAs to the list
-                if (nodeTypeImplementation.getImplementationArtifacts() != null
-                    && nodeTypeImplementation.getImplementationArtifacts().getImplementationArtifact() != null) {
-                    listOfIAs.addAll(nodeTypeImplementation.getImplementationArtifacts().getImplementationArtifact());
-                }
-            }
-
+            return getNodeTypeImplementationTypeHierarchy(csarID, typeImplementationID).stream()
+                                                                                       .map(qname -> (TNodeTypeImplementation) toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                                                                                                     qname))
+                                                                                       .filter(impl -> impl.getImplementationArtifacts() != null)
+                                                                                       .flatMap(impl -> impl.getImplementationArtifacts()
+                                                                                                            .getImplementationArtifact().stream())
+                                                                                       .collect(Collectors.toList());
         } else if (typeImplementation instanceof TRelationshipTypeImplementation) {
 
-            // handle RelationshipTypeImplementations
-            final TRelationshipTypeImplementation relationshipTypeImplementation =
-                (TRelationshipTypeImplementation) typeImplementation;
-
-            // add all IAs to the list
-            if (relationshipTypeImplementation.getImplementationArtifacts() != null
-                && relationshipTypeImplementation.getImplementationArtifacts().getImplementationArtifact() != null) {
-                listOfIAs.addAll(relationshipTypeImplementation.getImplementationArtifacts()
-                                                               .getImplementationArtifact());
-            }
-
+            return Stream.of((TRelationshipTypeImplementation) typeImplementation)
+                         .filter((impl) -> impl.getImplementationArtifacts() != null
+                             && impl.getImplementationArtifacts().getImplementationArtifact() != null)
+                         .flatMap((impl) -> impl.getImplementationArtifacts().getImplementationArtifact().stream())
+                         .collect(Collectors.toList());
         } else {
             LOG.warn("Given typeImplementationID does not identifiy a NodeTypeImplementation or RelationshipTypeImplementation: {}",
                      typeImplementationID);
+            return new ArrayList<>();
         }
-
-        return listOfIAs;
     }
 
     @Override
     public String getRelatedNodeTemplateID(final CSARID csarID, final QName serviceTemplateID,
                                            final String nodeTemplateID, final QName relationshipType) {
 
-        // get the ServiceTemplate
         final TServiceTemplate serviceTemplate =
             (TServiceTemplate) toscaReferenceMapper.getJAXBReference(csarID, serviceTemplateID);
 
-        final List<TEntityTemplate> templateList =
-            serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate();
-
-        for (final TEntityTemplate template : templateList) {
-
-            if (template instanceof TRelationshipTemplate) {
-
-                final TRelationshipTemplate relationshipTemplate = (TRelationshipTemplate) template;
-
-                final Object sourceElement = relationshipTemplate.getSourceElement().getRef();
-
-                if (sourceElement instanceof TNodeTemplate) {
-
-                    final TNodeTemplate sourceNodeTemplate = (TNodeTemplate) sourceElement;
-
-                    if (sourceNodeTemplate.getId().equals(nodeTemplateID)) {
-
-                        if (relationshipTemplate.getType().equals(relationshipType)) {
-
-                            final Object targetElement = relationshipTemplate.getTargetElement().getRef();
-
-                            if (targetElement instanceof TNodeTemplate) {
-
-                                return ((TNodeTemplate) targetElement).getId();
-
-                            }
-
-                        }
-                    }
-                }
-
-            }
-        }
-
-        LOG.error("The NodeTemplate \"" + nodeTemplateID + "\" has no related NodeTemplate with RelationshipType \""
-            + relationshipType + "\" or it isn't a NodeTemplate.");
-        return null;
-
+        return serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
+                              .filter(template -> template instanceof TRelationshipTemplate)
+                              .map(relation -> (TRelationshipTemplate) relation)
+                              .filter((relation) -> relation.getType().equals(relationshipType)).filter(relation -> {
+                                  final Object source = relation.getSourceElement().getRef();
+                                  return source instanceof TNodeTemplate
+                                      && ((TNodeTemplate) source).getId().equals(nodeTemplateID);
+                              }).map(relation -> relation.getTargetElement().getRef())
+                              .filter((target) -> target instanceof TNodeTemplate)
+                              .map(target -> ((TNodeTemplate) target).getId()).findFirst().orElse(null);
     }
 
     /**
@@ -559,39 +494,17 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     public String getTargetNodeTemplateIDOfRelationshipTemplate(final CSARID csarID, final QName serviceTemplateID,
                                                                 final String relationshipTemplateID) {
 
-        // get the ServiceTemplate
         final TServiceTemplate serviceTemplate =
             (TServiceTemplate) toscaReferenceMapper.getJAXBReference(csarID, serviceTemplateID);
 
-        final List<TEntityTemplate> templateList =
-            serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate();
-
-        for (final TEntityTemplate template : templateList) {
-
-            if (template instanceof TRelationshipTemplate) {
-
-                final TRelationshipTemplate relationshipTemplate = (TRelationshipTemplate) template;
-
-                if (relationshipTemplate.getId().equals(relationshipTemplateID)) {
-
-                    // if there is a target element
-                    if (relationshipTemplate.getTargetElement() != null) {
-
-                        final Object targetElement = relationshipTemplate.getTargetElement().getRef();
-
-                        if (targetElement instanceof TNodeTemplate) {
-
-                            return ((TNodeTemplate) targetElement).getId();
-
-                        }
-                    }
-                }
-            }
-        }
-
-        LOG.error("The Relationship Template \"" + relationshipTemplateID
-            + "\" has no target element or it isn't a NodeTemplate.");
-        return null;
+        return serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
+                              .filter(template -> template instanceof TRelationshipTemplate)
+                              .map(template -> (TRelationshipTemplate) template)
+                              .filter(relation -> relation.getId().equals(relationshipTemplateID)
+                                  && relation.getTargetElement() != null)
+                              .map(relation -> relation.getTargetElement().getRef())
+                              .filter(target -> target instanceof TNodeTemplate).findFirst()
+                              .map(target -> ((TNodeTemplate) target).getId()).orElse(null);
     }
 
     /**
@@ -602,39 +515,17 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     public String getSourceNodeTemplateIDOfRelationshipTemplate(final CSARID csarID, final QName serviceTemplateID,
                                                                 final String relationshipTemplateID) {
 
-        // get the ServiceTemplate
         final TServiceTemplate serviceTemplate =
             (TServiceTemplate) toscaReferenceMapper.getJAXBReference(csarID, serviceTemplateID);
 
-        final List<TEntityTemplate> templateList =
-            serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate();
-
-        for (final TEntityTemplate template : templateList) {
-
-            if (template instanceof TRelationshipTemplate) {
-
-                final TRelationshipTemplate relationshipTemplate = (TRelationshipTemplate) template;
-
-                if (relationshipTemplate.getId().equals(relationshipTemplateID)) {
-
-                    // if there is a target element
-                    if (relationshipTemplate.getSourceElement() != null) {
-
-                        final Object sourceElement = relationshipTemplate.getSourceElement().getRef();
-
-                        if (sourceElement instanceof TNodeTemplate) {
-
-                            return ((TNodeTemplate) sourceElement).getId();
-
-                        }
-                    }
-                }
-            }
-        }
-
-        LOG.error("The Relationship Template \"" + relationshipTemplateID
-            + "\" has no source element or it isn't a NodeTemplate.");
-        return null;
+        return serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
+                              .filter(template -> template instanceof TRelationshipTemplate)
+                              .map(template -> (TRelationshipTemplate) template)
+                              .filter(relation -> relation.getId().equals(relationshipTemplateID)
+                                  && relation.getSourceElement() != null)
+                              .map(relation -> relation.getSourceElement().getRef())
+                              .filter(source -> source instanceof TNodeTemplate).findFirst()
+                              .map(source -> ((TNodeTemplate) source).getId()).orElse(null);
     }
 
     /**
@@ -729,15 +620,10 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                                                final QName typeImplementationID,
                                                                                final String implementationArtifactName) {
 
-        for (final TImplementationArtifact ia : getImplementationArtifactsOfType(csarID, typeImplementationID)) {
-            if (ia.getName().equals(implementationArtifactName)) {
-                return ia.getArtifactType();
-            }
-        }
-
-        LOG.error("The requested ArtifactType for CSARID: {}; TypeImplementation: {}; IA name: {}; was not found.",
-                  csarID, typeImplementationID, implementationArtifactName);
-        return null;
+        return getIAsOfType(csarID, typeImplementationID).stream()
+                                                         .filter((ia) -> ia.getName()
+                                                                           .equals(implementationArtifactName))
+                                                         .findFirst().map((ia) -> ia.getArtifactType()).orElse(null);
     }
 
     /**
@@ -748,15 +634,10 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                                                    final QName typeImplementationID,
                                                                                    final String implementationArtifactName) {
 
-        for (final TImplementationArtifact ia : getImplementationArtifactsOfType(csarID, typeImplementationID)) {
-            if (ia.getName().equals(implementationArtifactName)) {
-                return ia.getArtifactRef();
-            }
-        }
-
-        LOG.error("The requested ArtifactTemplate for CSARID: {}; TypeImplementation: {}; IA name: {}; was not found.",
-                  csarID, typeImplementationID, implementationArtifactName);
-        return null;
+        return getIAsOfType(csarID, typeImplementationID).stream()
+                                                         .filter((ia) -> ia.getName()
+                                                                           .equals(implementationArtifactName))
+                                                         .findFirst().map((ia) -> ia.getArtifactRef()).orElse(null);
     }
 
     /**
@@ -766,14 +647,11 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     public Node getReferenceAsNode(final CSARID csarID, final QName reference) {
 
         // get the ArtifactTemplate
-        final Node artifactTemplateDoc = (Node) toscaReferenceMapper.getReferenceAsNode(csarID, reference);
+        final Object artifactTemplateDoc = toscaReferenceMapper.getReferenceAsNode(csarID, reference);
 
-        if (artifactTemplateDoc != null) {
-
-            return artifactTemplateDoc;
-
+        if (artifactTemplateDoc != null && artifactTemplateDoc instanceof Node) {
+            return (Node) artifactTemplateDoc;
         } else {
-
             LOG.error("The requested ArtifactTemplate was not found.");
             return null;
         }
@@ -2289,13 +2167,9 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                                      final QName typeImplementationID,
                                                                      final String implementationArtifactName) {
 
-        for (final TImplementationArtifact ia : getImplementationArtifactsOfType(csarID, typeImplementationID)) {
-            if (ia.getName().equals(implementationArtifactName)) {
-                return ia;
-            }
-        }
-
-        LOG.error("The requested ImplementationArtifact was not found.");
-        return null;
+        return getIAsOfType(csarID, typeImplementationID).stream()
+                                                         .filter((ia) -> ia.getName()
+                                                                           .equals(implementationArtifactName))
+                                                         .findFirst().orElse(null);
     }
 }
