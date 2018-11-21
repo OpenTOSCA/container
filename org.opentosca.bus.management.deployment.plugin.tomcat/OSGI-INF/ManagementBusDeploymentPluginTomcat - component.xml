@@ -4,4 +4,5 @@
    <service>
       <provide interface="org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService"/>
    </service>
+   <reference bind="bindHTTPService" cardinality="1..1" interface="org.opentosca.container.core.service.IHTTPService" name="HTTPPluginInterface" policy="static" unbind="unbindHTTPService"/>
 </scr:component>

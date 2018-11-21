@@ -23,10 +23,10 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
-import org.opentosca.bus.management.deployment.plugin.tomcat.servicehandler.ServiceHandler;
 import org.opentosca.bus.management.deployment.plugin.tomcat.util.Messages;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.service.IHTTPService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +73,8 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
     // In messages.properties defined plugin types and capabilities
     static final private String TYPES = Messages.DeploymentPluginTomcat_types;
     static final private String CAPABILITIES = Messages.DeploymentPluginTomcat_capabilities;
+
+    private IHTTPService httpService;
 
     static final private Logger LOG = LoggerFactory.getLogger(ManagementBusDeploymentPluginTomcat.class);
 
@@ -201,8 +203,8 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             try {
                 // perform undeployment request on Tomcat
                 final HttpResponse httpResponse =
-                    ServiceHandler.httpService.Get(undeploymentURL, Settings.ENGINE_IA_TOMCAT_USERNAME,
-                                                   Settings.ENGINE_IA_TOMCAT_PASSWORD);
+                    this.httpService.Get(undeploymentURL, Settings.ENGINE_IA_TOMCAT_USERNAME,
+                                         Settings.ENGINE_IA_TOMCAT_PASSWORD);
                 final String response = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
 
                 ManagementBusDeploymentPluginTomcat.LOG.debug("Tomcat response: {}", response);
@@ -272,8 +274,8 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
 
         // execute HTPP GET on URL and check the response
         try {
-            final HttpResponse httpResponse = ServiceHandler.httpService.Get(url, Settings.ENGINE_IA_TOMCAT_USERNAME,
-                                                                             Settings.ENGINE_IA_TOMCAT_PASSWORD);
+            final HttpResponse httpResponse =
+                this.httpService.Get(url, Settings.ENGINE_IA_TOMCAT_USERNAME, Settings.ENGINE_IA_TOMCAT_PASSWORD);
 
             final String response = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
 
@@ -383,8 +385,8 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
                 try {
                     // perform deployment request on Tomcat
                     final HttpResponse httpResponse =
-                        ServiceHandler.httpService.Put(deploymentURL, entity, Settings.ENGINE_IA_TOMCAT_USERNAME,
-                                                       Settings.ENGINE_IA_TOMCAT_PASSWORD);
+                        this.httpService.Put(deploymentURL, entity, Settings.ENGINE_IA_TOMCAT_USERNAME,
+                                             Settings.ENGINE_IA_TOMCAT_PASSWORD);
 
                     final String response = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
 
@@ -456,5 +458,29 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             }
         }
         return uri;
+    }
+
+    /**
+     * Register IHTTPService.
+     *
+     * @param service - A IHTTPService to register.
+     */
+    public void bindHTTPService(final IHTTPService httpService) {
+        if (httpService != null) {
+            this.httpService = httpService;
+            LOG.debug("Register IHTTPService: {} registered.", httpService.toString());
+        } else {
+            LOG.error("Register IHTTPService: Supplied parameter is null!");
+        }
+    }
+
+    /**
+     * Unregister IHTTPService.
+     *
+     * @param service - A IHTTPService to unregister.
+     */
+    public void unbindHTTPService(final IHTTPService httpService) {
+        this.httpService = null;
+        LOG.debug("Unregister IHTTPService: {} unregistered.", httpService.toString());
     }
 }

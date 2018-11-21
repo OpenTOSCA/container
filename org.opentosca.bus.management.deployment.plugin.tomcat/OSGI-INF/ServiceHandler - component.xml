@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.opentosca.bus.management.deployment.plugin.tomcat.servicehandler.ServiceHandler">
-   <implementation class="org.opentosca.bus.management.deployment.plugin.tomcat.servicehandler.ServiceHandler"/>
-   <reference bind="bindHTTPService" cardinality="1..1" interface="org.opentosca.container.core.service.IHTTPService" name="HTTPPluginInterface" policy="static" unbind="unbindHTTPService"/>
-</scr:component>
