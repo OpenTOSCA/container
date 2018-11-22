@@ -336,7 +336,7 @@
 <plugin id="org.apache.commons.codec" version="1.9.0.v20170208-1614"/>
 <plugin id="org.apache.commons.codec" version="1.6.0.v201305230611"/>
 <plugin id="org.apache.commons.codec.source" version="1.11.0"/>
-<plugin id="org.apache.commons.codec.source" version="1.9.0.v20170208-1614"/>
+<plugin id="org.apache.commons.codec.source" version="1.6.0.v201305230611"/>
 <plugin id="org.apache.commons.collections" version="3.2.2"/>
 <plugin id="org.apache.commons.collections" version="3.2.2.v201511171945"/>
 <plugin id="org.apache.commons.collections.source" version="3.2.2.v201511171945"/>
@@ -911,8 +911,7 @@
 <plugin id="xerces.Impl"/>
 <plugin id="xml-apis" version="1.3.04"/>
 <plugin id="xml-apis.source" version="1.3.04"/>
-	<plugin id="org.eclipse.winery.provenance"/>
-	<plugin id="org.apache.httpcomponents.httpclient.source" version="4.5.2.v20170210-0925"/>
+	<plugin id="org.apache.httpcomponents.httpclient.source" version="4.5.2"/>
 	<plugin id="org.apache.httpcomponents.httpcore.source" version="4.4.6.v20170210-0925"/>
 	<plugin id="com.google.guava" version="15.0.0.v201403281430"/>
 	<plugin id="io.swagger.annotations" version="1.5.13"/>
@@ -950,5 +949,6 @@
 	<plugin id="org.apache.commons.commons-configuration2"/>
 	<plugin id="org.apache.commons.commons-configuration2.source"/>
 	<plugin id="jcl.over.slf4j" version="1.7.25"/>
+	<plugin id="org.eclipse.winery.accountability"/>
 </includeBundles>
 </target>
