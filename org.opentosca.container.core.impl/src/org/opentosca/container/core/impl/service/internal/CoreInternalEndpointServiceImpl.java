@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -28,13 +29,9 @@ import org.slf4j.LoggerFactory;
  */
 public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointService, CommandProvider {
 
-
-    // Logging
     private final static Logger LOG = LoggerFactory.getLogger(CoreInternalEndpointServiceImpl.class);
 
-
     private EntityManager em;
-
 
     public CoreInternalEndpointServiceImpl() {
         init();
@@ -88,8 +85,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 
         // Hack, to get endpoints stored from the container e.g. the SI-Invoker
         // endpoint.
-        // Set Parameters for the Query
-        getWSDLEndpointsQuery.setParameter("portType", portType);
         getWSDLEndpointsQuery.setParameter("csarId", new CSARID("***"));
 
         // Get Query-Results (WSDLEndpoints) and add them to the result list.
@@ -137,70 +132,24 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
      * @return true, if the Endpoint already exists.
      */
     private boolean existsWSDLEndpoint(final WSDLEndpoint endpoint) {
+        // get all available WSDL endpoints
         final List<WSDLEndpoint> endpoints =
             getWSDLEndpointsForCSARID(endpoint.getTriggeringContainer(), endpoint.getCSARId());
 
-        for (final WSDLEndpoint wsdlEndpoint : endpoints) {
-
-            if (!endpoint.getCSARId().equals(wsdlEndpoint.getCSARId())) {
-                continue;
-            }
-
-            if (!endpoint.getTriggeringContainer().equals(wsdlEndpoint.getTriggeringContainer())) {
-                continue;
-            }
-
-            if (!endpoint.getManagingContainer().equals(wsdlEndpoint.getManagingContainer())) {
-                continue;
-            }
-
-            if (!endpoint.getURI().equals(wsdlEndpoint.getURI())) {
-                continue;
-            }
-
-            if (endpoint.getPortType() != null) {
-                if (!endpoint.getPortType().equals(wsdlEndpoint.getPortType())) {
-                    continue;
-                }
-            } else if (wsdlEndpoint.getPortType() != null) {
-                // at this point the given endpoint is null, if wsdlEndpoint
-                // is
-                // != null -> not the same endpoint
-                continue;
-            }
-
-            if (endpoint.getServiceTemplateInstanceID() != null) {
-                if (!endpoint.getServiceTemplateInstanceID().equals(wsdlEndpoint.getServiceTemplateInstanceID())) {
-                    continue;
-                }
-            } else if (wsdlEndpoint.getServiceTemplateInstanceID() != null) {
-                // see above
-                continue;
-            }
-
-            if (endpoint.getTypeImplementation() != null) {
-                if (!endpoint.getTypeImplementation().equals(wsdlEndpoint.getTypeImplementation())) {
-                    continue;
-                }
-            } else if (wsdlEndpoint.getTypeImplementation() != null) {
-                // see above
-                continue;
-            }
-
-            if (endpoint.getIaName() != null) {
-                if (!endpoint.getIaName().equals(wsdlEndpoint.getIaName())) {
-                    continue;
-                }
-            } else if (wsdlEndpoint.getIaName() != null) {
-                continue;
-            }
-
-            // if we didn't skip the endpoint until now, we found an equal
-            // endpoint
-            return true;
-        }
-
-        return false;
+        // search for an equivalent endpoint
+        return endpoints.stream().filter(wsdlEndpoint -> Objects.equals(endpoint.getCSARId(), wsdlEndpoint.getCSARId()))
+                        .filter(wsdlEndpoint -> Objects.equals(endpoint.getTriggeringContainer(),
+                                                               wsdlEndpoint.getTriggeringContainer()))
+                        .filter(wsdlEndpoint -> Objects.equals(endpoint.getManagingContainer(),
+                                                               wsdlEndpoint.getManagingContainer()))
+                        .filter(wsdlEndpoint -> Objects.equals(endpoint.getURI(), wsdlEndpoint.getURI()))
+                        .filter(wsdlEndpoint -> Objects.equals(endpoint.getPortType(), wsdlEndpoint.getPortType()))
+                        .filter(wsdlEndpoint -> Objects.equals(endpoint.getServiceTemplateInstanceID(),
+                                                               wsdlEndpoint.getServiceTemplateInstanceID()))
+                        .filter(wsdlEndpoint -> Objects.equals(endpoint.getTypeImplementation(),
+                                                               wsdlEndpoint.getTypeImplementation()))
+                        .filter(wsdlEndpoint -> Objects.equals(endpoint.getIaName(), wsdlEndpoint.getIaName()))
+                        .findFirst().isPresent();
     }
 
     @Override
