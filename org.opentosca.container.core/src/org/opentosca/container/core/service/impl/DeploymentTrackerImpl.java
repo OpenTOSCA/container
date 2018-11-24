@@ -3,7 +3,6 @@ package org.opentosca.container.core.service.impl;
 import java.util.Collection;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.TypedQuery;

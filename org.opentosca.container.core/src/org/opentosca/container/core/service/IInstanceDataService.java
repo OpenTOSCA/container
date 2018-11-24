@@ -23,40 +23,6 @@ public interface IInstanceDataService {
     // TODO: remove deprecated methods!
 
     /**
-     * Sets a property.
-     *
-     * @param key of the property to identify it.
-     * @param value of the property.
-     *
-     *
-     *
-     */
-    @Deprecated
-    public void setProperty(String key, String value);
-
-    /**
-     * Returns a property.
-     *
-     * @param key that identifies a property.
-     *
-     * @return a property as String.
-     *
-     */
-    @Deprecated
-    public String getProperty(String key);
-
-    /**
-     * Returns a HashMap of properties.
-     *
-     * @param key that identifies the properties.
-     *
-     * @return properties in a HashMap.
-     *
-     */
-    @Deprecated
-    public HashMap<String, String> getProperties(String key);
-
-    /**
      * Creates a <code>ServiceInstance</code> of the specified serviceTemplate (specified by the given
      * ID and TemplateNamespace)
      *

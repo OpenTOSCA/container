@@ -70,7 +70,6 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
 
     @Override
     public boolean registerImplementationArtifacts(CsarId csar, ServiceTemplateId serviceTemplate) {
-        CSARID bridge = csar.toOldCsarId();
         deploymentTracker.storeDeploymentState(csar, IA_DEPLOYMENT_ACTIVE);
         if (iAEngine == null) {
             LOGGER.error("IA Engine is not alive!");
@@ -79,6 +78,7 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         }
         
         LOGGER.info("Invoking IAEngine to process [{}] in CSAR [{}]", serviceTemplate, csar);
+        CSARID bridge = csar.toOldCsarId();
         final List<String> undeployedIAs = iAEngine.deployImplementationArtifacts(bridge, serviceTemplate.getQName());
         if (undeployedIAs == null) {
             LOGGER.error("Deployment of [{}] for CSAR [{}] failed", serviceTemplate, csar);

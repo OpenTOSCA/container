@@ -801,44 +801,6 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
     }
 
-
-    // TODO: remove this when deprecated methods are removed
-    static HashMap<String, String> instanceData = new HashMap<>();
-
-
-    @Override
-    @WebMethod
-    public void setProperty(@WebParam(name = "key") final String key, @WebParam(name = "value") final String value) {
-        System.out.println("Setting key: " + key + " with value: " + value);
-        InstanceDataServiceImpl.instanceData.put(key, value);
-    }
-
-    @Override
-    @WebMethod
-    public String getProperty(@WebParam(name = "key") final String key) {
-        System.out.println("Getting value for key: " + key);
-
-        return InstanceDataServiceImpl.instanceData.get(key);
-    }
-
-    @Override
-    public HashMap<String, String> getProperties(final String keyPrefix) {
-        System.out.println("Getting values for key beginning with: " + keyPrefix);
-
-        final HashMap<String, String> properties = new HashMap<>();
-
-        for (final Map.Entry<String, String> entry : InstanceDataServiceImpl.instanceData.entrySet()) {
-
-            final String key = entry.getKey();
-            if (key.startsWith(keyPrefix)) {
-                final String value = entry.getValue();
-                properties.put(key, value);
-            }
-        }
-
-        return properties;
-    }
-
     @WebMethod(exclude = true)
     private void updateServiceInstanceProperties(final ServiceInstance serviceInstance) {
         // check if the serviceInstance has properties
