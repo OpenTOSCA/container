@@ -17,7 +17,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.FormBodyPart;
@@ -35,26 +34,29 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Copyright 2016 IAAS University of Stuttgart <br>
- * <br>
+ * Copyright 2016 IAAS University of Stuttgart
  *
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public class WineryConnector {
 
     final private static Logger LOG = LoggerFactory.getLogger(WineryConnector.class);
 
-    private final DefaultHttpClient client = new DefaultHttpClient();;
-    String wineryPath;
-
+    private final DefaultHttpClient client = new DefaultHttpClient();
+    final String wineryPath;
 
     public WineryConnector() {
-        this.wineryPath = Settings.getSetting("org.opentosca.container.connector.winery.url");
-        LOG.debug("Initialized Winery Connector for endpoint " + this.wineryPath);
-        if (!this.wineryPath.endsWith("/")) {
-            this.wineryPath = this.wineryPath + "/";
+        String configurationValue = Settings.getSetting("org.opentosca.container.connector.winery.url");
+        if (!configurationValue.endsWith("/")) {
+            configurationValue = configurationValue + "/";
         }
+        try {
+            new URI(configurationValue);
+        } catch (URISyntaxException e) {
+            LOG.error("Winery Connector configuration is not valid", e);
+        }
+        this.wineryPath = configurationValue;
+        LOG.debug("Initialized Winery Connector for endpoint " + this.wineryPath);
     }
 
     public boolean isWineryRepositoryAvailable() {
@@ -71,20 +73,9 @@ public class WineryConnector {
             if (resp.getStatusLine().getStatusCode() < 400) {
                 return true;
             }
-        }
-        catch (final URISyntaxException e) {
-            // TODO Auto-generated catch block
+        } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }
-        catch (final ClientProtocolException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         return false;
     }
 
@@ -95,15 +86,14 @@ public class WineryConnector {
     public URI getServiceTemplateURI(final QName serviceTemplateId) {
         try {
             LOG.debug("Trying to fetch URI to Service Template" + serviceTemplateId.toString());
-            return new URI(this.wineryPath + "servicetemplates/"
-                + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI())) + "/"
-                + serviceTemplateId.getLocalPart());
-        }
-        catch (final URISyntaxException e) {
-            // TODO Auto-generated catch block
+            String uri = String.format("%sservicetemplates/%s/%s", wineryPath,
+                                       URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI())),
+                                       serviceTemplateId.getLocalPart());
+            return new URI(uri);
+        } catch (final URISyntaxException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     public QName uploadCSAR(final File file) throws URISyntaxException, IOException {
@@ -217,19 +207,16 @@ public class WineryConnector {
         if (url.endsWith("/")) {
             return this.getLastPathFragment(url.subSequence(0, url.length() - 1).toString());
         } else {
-
             return url.substring(url.lastIndexOf("/") + 1);
         }
     }
 
     private String getHeaderValue(final HttpResponse response, final String headerName) {
-
         for (final Header header : response.getAllHeaders()) {
             if (header.getName().equals(headerName)) {
                 return header.getValue();
             }
         }
-
         return null;
     }
 
@@ -244,10 +231,10 @@ public class WineryConnector {
 
                 final HttpGet serviceTemplateTagsGET = new HttpGet();
                 serviceTemplateTagsGET.setHeader("Accept", "application/json");
-
                 serviceTemplateTagsGET.setURI(new URI(this.wineryPath + "servicetemplates/"
                     + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI())) + "/"
                     + serviceTemplateId.getLocalPart() + "/tags"));
+                
                 final HttpResponse serviceTemplateTagsGETResp = this.client.execute(serviceTemplateTagsGET);
                 final String tagsJsonResponse = EntityUtils.toString(serviceTemplateTagsGETResp.getEntity());
 
@@ -255,63 +242,45 @@ public class WineryConnector {
 
                 int matched = 0;
 
-                if (tagsJsonNode.isArray()) {
-
-                    for (final Iterator<JsonNode> iter = tagsJsonNode.elements(); iter.hasNext();) {
-                        final JsonNode key = iter.next();
-
-                        final HttpGet serviceTemplateTagGET = new HttpGet();
-                        serviceTemplateTagGET.setHeader("Accept", "application/json");
-                        serviceTemplateTagGET.setURI(new URI(
-                            serviceTemplateTagsGET.getURI().toString() + "/" + key.textValue()));
-                        final HttpResponse serviceTemplateTagGETResp = this.client.execute(serviceTemplateTagGET);
-                        final String tagJsonResponse = EntityUtils.toString(serviceTemplateTagGETResp.getEntity());
-
-                        final JsonNode tagJsonNode = mapper.readTree(tagJsonResponse);
-
-                        if (tagJsonNode.isObject() && tagJsonNode.has("name")) {
-                            if (tags.contains(tagJsonNode.get("name").textValue())) {
-                                matched++;
-
-                            }
-                        } else {
-                            continue;
-                        }
-
-                    }
-                } else {
+                if (!tagsJsonNode.isArray()) {
                     continue;
+                }
+                for (final Iterator<JsonNode> iter = tagsJsonNode.elements(); iter.hasNext();) {
+                    final JsonNode key = iter.next();
+
+                    final HttpGet serviceTemplateTagGET = new HttpGet();
+                    serviceTemplateTagGET.setHeader("Accept", "application/json");
+                    serviceTemplateTagGET.setURI(new URI(
+                        serviceTemplateTagsGET.getURI().toString() + "/" + key.textValue()));
+                    
+                    final HttpResponse serviceTemplateTagGETResp = this.client.execute(serviceTemplateTagGET);
+                    final String tagJsonResponse = EntityUtils.toString(serviceTemplateTagGETResp.getEntity());
+
+                    final JsonNode tagJsonNode = mapper.readTree(tagJsonResponse);
+
+                    if (!tagJsonNode.isObject() || !tagJsonNode.has("name")) {
+                        continue;
+                    }
+                    if (tags.contains(tagJsonNode.get("name").textValue())) {
+                        matched++;
+                    }
                 }
 
                 if (matched == tags.size()) {
                     qnames.add(serviceTemplateId);
                 }
-
             }
-            catch (final URISyntaxException e) {
-                // TODO Auto-generated catch block
+            catch (URISyntaxException | IOException e) {
                 e.printStackTrace();
             }
-            catch (final ClientProtocolException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (final IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
         }
-
         return qnames;
-
     }
 
     public List<QName> getServiceTemplates() {
         final List<QName> qnames = new ArrayList<>();
 
         try {
-
             final HttpGet get = new HttpGet();
             get.setHeader("Accept", "application/json");
             get.setURI(new URI(this.wineryPath + "servicetemplates"));
@@ -319,10 +288,9 @@ public class WineryConnector {
             final String jsonResponse = EntityUtils.toString(resp.getEntity());
 
             final ObjectMapper mapper = new ObjectMapper();
-
-            final ArrayList<Object> obj = mapper.readValue(jsonResponse, ArrayList.class);
-
+            final List<Object> obj = mapper.readValue(jsonResponse, ArrayList.class);
             for (final Object jsonObj : obj) {
+                // FIXME this depends on the internal representation of json objects in the deserializer
                 final LinkedHashMap<String, String> hashMap = (LinkedHashMap<String, String>) jsonObj;
 
                 final String id = hashMap.get("id");
@@ -330,17 +298,7 @@ public class WineryConnector {
 
                 qnames.add(new QName(namespace, id));
             }
-
-        }
-        catch (final ClientProtocolException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (final IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (final URISyntaxException e) {
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
 
