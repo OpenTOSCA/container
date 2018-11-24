@@ -191,7 +191,7 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         return deploymentTracker.getDeploymentState(csar);
     }
 
-     @Override
+    @Override
     // FIXME investigate why old ControlService sometimes took long instanceIds
     public List<String> correlationsForServiceTemplateInstance(CsarId csar, TServiceTemplate serviceTemplate,
                                                                long instanceId) {
@@ -222,7 +222,7 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
             LOGGER.warn("Could not clear CSAR information about {} from ToscaEngine!", csar.csarName());
             errors.add("Could not delete TOSCA data.");
         }
-         deploymentTracker.deleteDeploymentState(csar);
+        deploymentTracker.deleteDeploymentState(csar);
         // FIXME removeEndpoints
         try {
             storage.deleteCSAR(csar);

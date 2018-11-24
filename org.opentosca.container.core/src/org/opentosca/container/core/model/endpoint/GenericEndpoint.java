@@ -11,9 +11,9 @@ import javax.persistence.MappedSuperclass;
 import org.eclipse.persistence.annotations.Convert;
 import org.eclipse.persistence.annotations.Converter;
 import org.eclipse.persistence.annotations.Converters;
+import org.opentosca.container.core.common.jpa.CSARIDConverter;
 import org.opentosca.container.core.common.jpa.UriConverter;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.model.csar.id.CSARIDConverter;
 
 /**
  * This abstract class is used as a super-class for WSDL and REST Endpoints.

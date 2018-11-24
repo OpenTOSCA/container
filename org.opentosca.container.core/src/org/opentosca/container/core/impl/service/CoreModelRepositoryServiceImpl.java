@@ -16,8 +16,6 @@ import org.eclipse.winery.model.tosca.TDefinitions;
  * This implementation currently acts as a Proxy to the Internal Core Model Repository service. It
  * can in future be used to modify the incoming parameters to fit another backend
  * interface/implementation
- *
- * @see ICoreInternalModelRepositoryService
  */
 public class CoreModelRepositoryServiceImpl implements ICoreModelRepositoryService, CommandProvider {
 

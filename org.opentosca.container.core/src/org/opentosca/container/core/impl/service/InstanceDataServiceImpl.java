@@ -187,30 +187,13 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
         serviceInstance.setProperties(properties);
 
-        serviceInstance = this.siDAO.storeServiceInstance(serviceInstance);
         // store serviceInstance so we can use nodeInstanceDAO to create
         // nodeInstances (they need an existing object because its working in
         // another transaction)
+        serviceInstance = this.siDAO.storeServiceInstance(serviceInstance);
         // TODO: or is it better to get the alternative route? to do it in one
         // transaction? and have duplicate code? need to fetch nodeTemplateName
         // from toscaEngine f.ex.?
-
-        // this creates required Node Templates of a Service Template, but this
-        // functionality is out dated
-        // HashMap<QName, InstanceCount> occurenceInformationMap =
-        // instanceCounts.getOccurenceInformationMap();
-        // Set<QName> qNamesOfNodeTemplates = occurenceInformationMap.keySet();
-        // // create for each nodeTemplate the minimum amount of instances
-        // // specified
-        // for (QName qName : qNamesOfNodeTemplates) {
-        // InstanceCount instanceCount = occurenceInformationMap.get(qName);
-        // // create "instanceCount".min instances
-        // for (int i = 0; i < instanceCount.min; i++) {
-        // // new nodeInstance
-        // createNodeInstance(qName, serviceInstance.getServiceInstanceID());
-        // }
-        // }
-        // create associated nodeInstances
 
         return serviceInstance;
     }

@@ -1,8 +1,9 @@
-package org.opentosca.container.core.model.csar.id;
+package org.opentosca.container.core.common.jpa;
 
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.mappings.converters.Converter;
 import org.eclipse.persistence.sessions.Session;
+import org.opentosca.container.core.model.csar.id.CSARID;
 
 /**
  * This class is used to convert {@link CSARID} to String, and {@link String} back to {@link CSARID}

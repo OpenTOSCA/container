@@ -1,4 +1,4 @@
-package org.opentosca.container.core.model.csar.persistence;
+package org.opentosca.container.core.common.jpa;
 
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.mappings.converters.Converter;
@@ -8,6 +8,7 @@ import org.opentosca.container.core.model.csar.CsarId;
 public class CsarIdConverter implements Converter {
 
     private static final long serialVersionUID = -2552365749611257786L;
+    public static final String name = "CsarIdConverter";
 
     @Override
     public Object convertObjectValueToDataValue(Object objectValue, Session session) {

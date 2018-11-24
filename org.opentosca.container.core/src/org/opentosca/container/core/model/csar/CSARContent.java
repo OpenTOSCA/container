@@ -30,6 +30,7 @@ import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.common.jpa.CSARIDConverter;
 import org.opentosca.container.core.common.jpa.PathConverter;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractDirectory;
@@ -38,7 +39,6 @@ import org.opentosca.container.core.model.CSARArtifact;
 import org.opentosca.container.core.model.CSARDirectory;
 import org.opentosca.container.core.model.IBrowseable;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.model.csar.id.CSARIDConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -12,6 +12,7 @@ import org.eclipse.persistence.sessions.Session;
 public class QNameConverter implements org.eclipse.persistence.mappings.converters.Converter {
 
     private static final long serialVersionUID = 5695923859083900495L;
+    public static final String name = "QNameConverter";
 
 
     @Override

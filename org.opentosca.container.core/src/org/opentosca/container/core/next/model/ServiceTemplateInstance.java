@@ -19,7 +19,9 @@ import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.common.jpa.CsarIdConverter;
+import org.opentosca.container.core.common.jpa.QNameConverter;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.xml.PropertyParser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -43,11 +45,11 @@ public class ServiceTemplateInstance extends PersistenceObject {
     @OneToMany(mappedBy = "serviceTemplateInstance")
     private Collection<NodeTemplateInstance> nodeTemplateInstances = new ArrayList<>();
 
-    @Convert("CSARIDConverter")
+    @Convert(CsarIdConverter.name)
     @Column(name = "CSAR_ID", nullable = false)
-    private CSARID csarId;
+    private CsarId csarId;
 
-    @Convert("QNameConverter")
+    @Convert(QNameConverter.name)
     @Column(name = "TEMPLATE_ID", nullable = false)
     private QName templateId;
 
@@ -62,9 +64,8 @@ public class ServiceTemplateInstance extends PersistenceObject {
     private List<DeploymentTest> deploymentTests = new ArrayList<>();
 
 
-    public ServiceTemplateInstance() {
-
-    }
+    // 0-args constructor for JPA
+    public ServiceTemplateInstance() {}
 
     public ServiceTemplateInstanceState getState() {
         return this.state;
@@ -104,11 +105,11 @@ public class ServiceTemplateInstance extends PersistenceObject {
         }
     }
 
-    public CSARID getCsarId() {
+    public CsarId getCsarId() {
         return this.csarId;
     }
 
-    public void setCsarId(final CSARID csarId) {
+    public void setCsarId(final CsarId csarId) {
         this.csarId = csarId;
     }
 

@@ -5,20 +5,18 @@ import javax.persistence.MappedSuperclass;
 
 import org.eclipse.persistence.annotations.Convert;
 import org.eclipse.persistence.annotations.Converter;
+import org.opentosca.container.core.common.jpa.CsarIdConverter;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.persistence.CsarIdConverter;
 
 /**
  * Abstract class for deployment information that belongs to a CSAR file.
  */
 @MappedSuperclass
-@Converter(name = AbstractDeploymentInfo.converterName, converterClass = CsarIdConverter.class)
+@Converter(name = CsarIdConverter.name, converterClass = CsarIdConverter.class)
 public abstract class AbstractDeploymentInfo {
 
-    static final String converterName = "CsarIdConverter";
-    
     // TODO: Rename property to csarId
-    @Convert(converterName)
+    @Convert(CsarIdConverter.name)
     @Column(name = "csarID")
     private CsarId csarID;
 

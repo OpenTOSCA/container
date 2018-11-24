@@ -83,17 +83,17 @@ public class SituationTriggerInstanceListener {
             if (nodeInstance == null) {
                 // plan invocation
                 final QName planId = this.toscaEngine.getToscaReferenceMapper()
-                                                     .getBoundaryPlanOfCSARInterface(servInstance.getCsarId(),
+                                                     .getBoundaryPlanOfCSARInterface(servInstance.getCsarId().toOldCsarId(),
                                                                                      interfaceName, operationName);
                 final TPlan plan = this.toscaEngine.getToscaReferenceMapper()
-                                                   .getPlanForCSARIDAndPlanID(servInstance.getCsarId(), planId);
+                                                   .getPlanForCSARIDAndPlanID(servInstance.getCsarId().toOldCsarId(), planId);
 
                 final TPlanDTO planDTO = new TPlanDTO(plan, planId.getNamespaceURI());
 
                 for (final TParameterDTO param : planDTO.getInputParameters().getInputParameter()) {
                     if (param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
                         String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + servInstance.getId();
-                        url = url.replace("{csarid}", servInstance.getCsarId().getFileName());
+                        url = url.replace("{csarid}", servInstance.getCsarId().toOldCsarId().getFileName());
                         url = url.replace("{servicetemplateid}",
                                           UriComponent.encode(servInstance.getTemplateId().toString(),
                                                               UriComponent.Type.PATH_SEGMENT));
@@ -116,14 +116,14 @@ public class SituationTriggerInstanceListener {
 
                 try {
                     final String correlationId =
-                        this.planInvocEngine.invokePlan(servInstance.getCsarId(), servInstance.getTemplateId(),
+                        this.planInvocEngine.invokePlan(servInstance.getCsarId().toOldCsarId(), servInstance.getTemplateId(),
                                                         servInstance.getId(), planDTO);
 
                     // now wait for finished execution
 
 
                     final ServiceTemplateInstanceID servInstanceId = new ServiceTemplateInstanceID(
-                        servInstance.getCsarId(), servInstance.getTemplateId(), servInstance.getId().intValue());
+                        servInstance.getCsarId().toOldCsarId(), servInstance.getTemplateId(), servInstance.getId().intValue());
 
                     TPlanDTO runningPlan =
                         this.planInvocEngine.getActivePublicPlanOfInstance(servInstanceId, correlationId);
