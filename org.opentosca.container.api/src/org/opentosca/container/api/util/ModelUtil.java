@@ -51,35 +51,6 @@ public abstract class ModelUtil {
         return false;
     }
     
-    // FIXME move onto IToscaEngineService? Only makes sense in 
-    public static boolean hasOpenRequirements(final CSARID csarId,
-                                              final IToscaEngineService service) throws UserException, SystemException {
-        final QName serviceTemplateId = service.getServiceTemplatesInCSAR(csarId).get(0);
-
-        final List<String> nodeTemplateIds = service.getNodeTemplatesOfServiceTemplate(csarId, serviceTemplateId);
-        final List<String> relationshipTemplateIds =
-            service.getRelationshipTemplatesOfServiceTemplate(csarId, serviceTemplateId);
-
-        for (final String nodeTemplateId : nodeTemplateIds) {
-            final List<QName> nodeReqs = service.getNodeTemplateRequirements(csarId, serviceTemplateId, nodeTemplateId);
-            int foundRelations = 0;
-
-            for (final String relationshipTemplateId : relationshipTemplateIds) {
-                final QName relationReq =
-                    service.getRelationshipTemplateSource(csarId, serviceTemplateId, relationshipTemplateId);
-                if (relationReq.getLocalPart().equals(nodeTemplateId)) {
-                    foundRelations++;
-                }
-            }
-
-            if (foundRelations < nodeReqs.size()) {
-                return true;
-            }
-
-        }
-        return false;
-    }
-
     public static Element fetchFirstChildElement(final Document doc, final String childElementLocalName) {
         final NodeList childe = doc.getDocumentElement().getElementsByTagName(childElementLocalName);
         for (int i = 0; i < childe.getLength(); i++) {

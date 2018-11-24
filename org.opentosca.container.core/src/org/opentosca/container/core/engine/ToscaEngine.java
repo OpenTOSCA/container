@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TInterfaces;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
@@ -34,6 +35,17 @@ public final class ToscaEngine {
             throw new NotFoundException("Node template \"" + nodeTemplate + "\" could not be found");
         }
         return nullable;
+    }
+    
+    public static List<TInterface> getInterfaces(TNodeTemplate nodeTemplate, Csar csar) {
+        TNodeType nodeType = csar.nodeTypes().stream()
+            .filter(type -> type.getName().equals(nodeTemplate.getType().getLocalPart()))
+            .findFirst().orElse(null);
+        if (nodeType == null) {
+            return Collections.emptyList();
+        }
+        TInterfaces nullable = nodeType.getInterfaces();
+        return nullable == null ? Collections.emptyList() : nullable.getInterface();
     }
     
     public static List<TNodeType> getNodeTypeHierarchy(Csar csar, String nodeTypeId) throws NotFoundException {

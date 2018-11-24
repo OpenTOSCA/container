@@ -1,5 +1,6 @@
 package org.opentosca.container.api.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -8,27 +9,27 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.model.tosca.TBoolean;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
+import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.core.common.NotFoundException;
-import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
-import com.google.common.collect.Lists;
+import org.w3c.dom.Element;
 
 // TODO it is assumed that the name of the node template is the same as its id.
 /**
@@ -40,10 +41,10 @@ import com.google.common.collect.Lists;
  *
  */
 public class NodeTemplateService {
-    private static Logger logger = LoggerFactory.getLogger(InstanceService.class);
+    // TODO add some trace logging
+    private static Logger LOGGER = LoggerFactory.getLogger(NodeTemplateService.class);
 
     private CsarStorageService storage;
-    private IToscaEngineService toscaEngineService;
 
     /**
      * Gets a collection of node templates associated to a given service template.
@@ -62,12 +63,12 @@ public class NodeTemplateService {
                 .getTopologyTemplate()
                 .getNodeTemplates();
         }
-        catch (org.opentosca.container.core.common.NotFoundException e) {
+        catch (NotFoundException e) {
             return Collections.emptyList();
         }
 
         return nodeTemplates.stream()
-            .map(toscaNodeTemplate -> createNodeTemplate(toscaNodeTemplate, csar.id()))
+            .map(toscaNodeTemplate -> createNodeTemplate(toscaNodeTemplate, csar))
             .collect(Collectors.toList());
     }
 
@@ -87,7 +88,7 @@ public class NodeTemplateService {
         TServiceTemplate serviceTemplate = ToscaEngine.findServiceTemplate(csar, serviceTemplateQName);
         TNodeTemplate nodeTemplate = ToscaEngine.findNodeTemplate(serviceTemplate, nodeTemplateId);
 
-        return createNodeTemplate(nodeTemplate, csar.id());
+        return createNodeTemplate(nodeTemplate, csar);
     }
 
     /**
@@ -107,7 +108,7 @@ public class NodeTemplateService {
             TNodeTemplate indicator = ToscaEngine.findNodeTemplate(serviceTemplate, nodeTemplateId);
             return true;
         }
-        catch (org.opentosca.container.core.common.NotFoundException e) {
+        catch (NotFoundException e) {
             return false;
         }
     }
@@ -129,9 +130,10 @@ public class NodeTemplateService {
         TServiceTemplate serviceTemplate = ToscaEngine.findServiceTemplate(csar, serviceTemplateQName);
         TNodeTemplate nodeTemplate = ToscaEngine.findNodeTemplate(serviceTemplate, nodeTemplateId);
 
-        // TEntityTemplate.Properties ntProps = nodeTemplate.getProperties();
-        final Document properties =
-            this.toscaEngineService.getPropertiesOfNodeTemplate(csar.id().toOldCsarId(), serviceTemplateQName, nodeTemplateId);
+        TEntityTemplate.Properties ntProps = nodeTemplate.getProperties();
+        final Document properties = ModelUtil.createDocumentFromElement((Element)ntProps.getAny());
+        // final Document properties =
+        //      this.toscaEngineService.getPropertiesOfNodeTemplate(csar.id().toOldCsarId(), serviceTemplateQName, nodeTemplateId);
         return properties;
     }
 
@@ -146,7 +148,7 @@ public class NodeTemplateService {
      * @param nodeTemplateIde
      * @return
      */
-    private NodeTemplateDTO createNodeTemplate(final TNodeTemplate toscaObject, final CsarId csar) {
+    private NodeTemplateDTO createNodeTemplate(final TNodeTemplate toscaObject, final Csar csar) {
         final QName nodeTypeId = toscaObject.getType();
         final NodeTemplateDTO currentNodeTemplate = new NodeTemplateDTO();
         currentNodeTemplate.setId(toscaObject.getId());
@@ -154,35 +156,18 @@ public class NodeTemplateService {
         currentNodeTemplate.setNodeType(nodeTypeId.toString());
 
         final InterfaceListDTO interfaces = new InterfaceListDTO();
-
-        final CSARID bridge = csar.toOldCsarId();
-        final List<String> interfaceNames = this.toscaEngineService.getInterfaceNamesOfNodeType(bridge, nodeTypeId);
-
-        for (final String interfaceName : interfaceNames) {
+        final List<TInterface> ifaces = ToscaEngine.getInterfaces(toscaObject, csar);
+        for (final TInterface toscaInterface : ifaces) {
             final InterfaceDTO interfaceDto = new InterfaceDTO();
-            interfaceDto.setName(interfaceName);
+            interfaceDto.setName(toscaInterface.getName());
             
             final Map<String, OperationDTO> operations = new HashMap<>();
-            final List<String> operationNames =
-                this.toscaEngineService.getOperationNamesOfNodeTypeInterface(bridge, nodeTypeId, interfaceName);
-
-            for (final String operationName : operationNames) {
-                final List<String> inputParamNames =
-                    this.toscaEngineService.getInputParametersOfNodeTypeOperation(bridge, nodeTypeId, interfaceName,
-                                                                                  operationName);
-                final List<String> outputParamNames =
-                    this.toscaEngineService.getOutputParametersOfNodeTypeOperation(bridge, nodeTypeId, interfaceName,
-                                                                                   operationName);
+            final List<TOperation> interfaceOperations = toscaInterface.getOperation();
+            for (final TOperation operation : interfaceOperations) {
                 final OperationDTO operationDto = new OperationDTO();
-                operationDto.setName(operationName);
-
-                final NodeOperationDTO nodeOperationDTO = new NodeOperationDTO();
-                nodeOperationDTO.setName(operationName);
-                nodeOperationDTO.setInputParameters(transform(inputParamNames));
-                nodeOperationDTO.setOutputParameters(transform(outputParamNames));
-
-                operationDto.setNodeOperation(nodeOperationDTO);
-                operations.put(operationName, operationDto);
+                operationDto.setName(operation.getName());
+                operationDto.setNodeOperation(transformNodeOperations(operation));
+                operations.put(operation.getName(), operationDto);
             }
             interfaceDto.setOperations(operations);
             interfaces.add(interfaceDto);
@@ -191,27 +176,34 @@ public class NodeTemplateService {
         return currentNodeTemplate;
     }
 
-    private List<TParameter> transform(final List<String> params) {
-        final List<TParameter> tParams = Lists.newArrayList();
-
-        for (final String param : params) {
+    private NodeOperationDTO transformNodeOperations(TOperation operation) {
+        TOperation.InputParameters inputParams = operation.getInputParameters();
+        TOperation.OutputParameters outputParams = operation.getOutputParameters();
+        
+        final NodeOperationDTO nodeOperationDTO = new NodeOperationDTO();
+        nodeOperationDTO.setName(operation.getName());
+        nodeOperationDTO.setInputParameters(inputParams == null ? Collections.emptyList() 
+                                                                : wrap(inputParams.getInputParameter()));
+        nodeOperationDTO.setOutputParameters(outputParams == null ? Collections.emptyList()
+                                                                  : wrap(outputParams.getOutputParameter()));
+        return nodeOperationDTO;
+    }
+    
+    private List<TParameter> wrap(final List<org.eclipse.winery.model.tosca.TParameter> params) {
+        final List<TParameter> wrapped = new ArrayList<>();
+        for (final org.eclipse.winery.model.tosca.TParameter param : params) {
             final TParameter tParam = new TParameter();
-            tParam.setName(param);
-            // TODO currently hard to get
-            tParam.setRequired(TBoolean.YES);
-            tParams.add(tParam);
+            tParam.setName(param.getName());
+            tParam.setType(param.getType());
+            tParam.setRequired(param.getRequired());
+            wrapped.add(tParam);
         }
-
-        return tParams;
+        return wrapped;
     }
 
     /* Service Injection */
     /*********************/
     public void setCsarStorageService(final CsarStorageService storageService) {
         this.storage = storageService;
-    }
-
-    public void setToscaEngineService(final IToscaEngineService toscaEngineService) {
-        this.toscaEngineService = toscaEngineService;
     }
 }
