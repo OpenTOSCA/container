@@ -195,7 +195,7 @@ public class InstanceService {
                                                                                              InstantiationException,
                                                                                              IllegalAccessException,
                                                                                              IllegalArgumentException {
-        final CSARID csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateQName).toOldCsarId();
+        final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateQName);
         final PlanInstanceRepository repository = new PlanInstanceRepository();
         PlanInstance pi = null;
 
@@ -222,7 +222,7 @@ public class InstanceService {
         }
     }
 
-    private ServiceTemplateInstance createServiceTemplateInstance(final CSARID csarId, final QName serviceTemplateQName,
+    private ServiceTemplateInstance createServiceTemplateInstance(final CsarId csarId, final QName serviceTemplateQName,
                                                                   final PlanInstance buildPlanInstance) throws InstantiationException,
                                                                                                         IllegalAccessException,
                                                                                                         IllegalArgumentException {
@@ -243,11 +243,11 @@ public class InstanceService {
         return instance;
     }
 
-    private Document createServiceInstanceInitialPropertiesFromServiceTemplate(final CSARID csarId,
+    private Document createServiceInstanceInitialPropertiesFromServiceTemplate(final CsarId csarId,
                                                                                final QName serviceTemplateQName) {
 
         final Document existingProperties =
-            this.serviceTemplateService.getPropertiesOfServiceTemplate(new CsarId(csarId), serviceTemplateQName);
+            this.serviceTemplateService.getPropertiesOfServiceTemplate(csarId, serviceTemplateQName);
 
         if (existingProperties != null) {
             return existingProperties;
