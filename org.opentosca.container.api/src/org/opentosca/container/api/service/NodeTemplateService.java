@@ -1,29 +1,29 @@
 package org.opentosca.container.api.service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TBoolean;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
+import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.tosca.extension.TParameter;
-import org.eclipse.winery.model.tosca.TBoolean;
-import org.eclipse.winery.model.tosca.TEntityTemplate;
-import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -56,11 +56,15 @@ public class NodeTemplateService {
                                                                    final String serviceTemplateQName) {
         final Csar csar = storage.findById(new CsarId(csarId));
         
-        List<TNodeTemplate> nodeTemplates = csar.serviceTemplates().stream()
-            .filter(st -> st.getId().equals(serviceTemplateQName.toString()))
-            .findFirst()
-            .map(st -> st.getTopologyTemplate().getNodeTemplates())
-            .orElse(Collections.emptyList());
+        List<TNodeTemplate> nodeTemplates;
+        try {
+            nodeTemplates = ToscaEngine.findServiceTemplate(csar, new QName(serviceTemplateQName))
+                .getTopologyTemplate()
+                .getNodeTemplates();
+        }
+        catch (org.opentosca.container.core.common.NotFoundException e) {
+            return Collections.emptyList();
+        }
 
         return nodeTemplates.stream()
             .map(toscaNodeTemplate -> createNodeTemplate(toscaNodeTemplate, csar.id()))
@@ -80,16 +84,9 @@ public class NodeTemplateService {
     public NodeTemplateDTO getNodeTemplateById(final String csarId, final QName serviceTemplateQName,
                                                final String nodeTemplateId) throws NotFoundException {
         final Csar csar = storage.findById(new CsarId(csarId));
-        TNodeTemplate nodeTemplate = csar.serviceTemplates().stream()
-            .filter(st -> st.getId().equals(serviceTemplateQName.getLocalPart()))
-            .findFirst()
-            .orElseThrow(() -> new NotFoundException("Service template \"" + serviceTemplateQName + "\" could not be found"))
-            .getTopologyTemplate()
-            .getNodeTemplate(nodeTemplateId);
-        if (nodeTemplate == null) {
-            logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
-            throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
-        }
+        TServiceTemplate serviceTemplate = ToscaEngine.findServiceTemplate(csar, serviceTemplateQName);
+        TNodeTemplate nodeTemplate = ToscaEngine.findNodeTemplate(serviceTemplate, nodeTemplateId);
+
         return createNodeTemplate(nodeTemplate, csar.id());
     }
 
@@ -104,12 +101,15 @@ public class NodeTemplateService {
      */
     public boolean hasNodeTemplate(final String csarId, final QName serviceTemplateQName, final String nodeTemplateId) {
         final Csar csar = this.storage.findById(new CsarId(csarId));
-        TNodeTemplate nodeTemplate = csar.serviceTemplates().stream()
-            .filter(st -> st.getId().equals(serviceTemplateQName.getLocalPart()))
-            .findFirst()
-            .map(st -> st.getTopologyTemplate().getNodeTemplate(nodeTemplateId))
-            .orElse(null);
-        return nodeTemplate != null;
+        try {
+            TServiceTemplate serviceTemplate = ToscaEngine.findServiceTemplate(csar, serviceTemplateQName);
+            @SuppressWarnings("unused")
+            TNodeTemplate indicator = ToscaEngine.findNodeTemplate(serviceTemplate, nodeTemplateId);
+            return true;
+        }
+        catch (org.opentosca.container.core.common.NotFoundException e) {
+            return false;
+        }
     }
 
 
@@ -120,18 +120,18 @@ public class NodeTemplateService {
      * @param serviceTemplateQName
      * @param nodeTemplateId
      * @return
+     * @throws NotFoundException  
      */
     public Document getPropertiesOfNodeTemplate(final String csarId, final QName serviceTemplateQName,
-                                                final String nodeTemplateId) {
-        final Csar csarContent = storage.findById(new CsarId(csarId));
-        if (!hasNodeTemplate(csarId, serviceTemplateQName, nodeTemplateId)) {
-            logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
-            throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
-        }
+                                                final String nodeTemplateId) throws NotFoundException {
+        final Csar csar = storage.findById(new CsarId(csarId));
+        
+        TServiceTemplate serviceTemplate = ToscaEngine.findServiceTemplate(csar, serviceTemplateQName);
+        TNodeTemplate nodeTemplate = ToscaEngine.findNodeTemplate(serviceTemplate, nodeTemplateId);
 
         // TEntityTemplate.Properties ntProps = nodeTemplate.getProperties();
         final Document properties =
-            this.toscaEngineService.getPropertiesOfNodeTemplate(csarContent.id().toOldCsarId(), serviceTemplateQName, nodeTemplateId);
+            this.toscaEngineService.getPropertiesOfNodeTemplate(csar.id().toOldCsarId(), serviceTemplateQName, nodeTemplateId);
         return properties;
     }
 

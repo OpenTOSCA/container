@@ -87,8 +87,12 @@ public class NodeTemplateController {
                                     @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
                                     @ApiParam("ID of node template") @PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
 
-        final NodeTemplateDTO result =
-            this.nodeTemplateService.getNodeTemplateById(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId);
+        NodeTemplateDTO result;
+        try {
+            result = this.nodeTemplateService.getNodeTemplateById(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId);
+        } catch (org.opentosca.container.core.common.NotFoundException e) {
+            throw new NotFoundException(e.getMessage(), e);
+        }
 
         result.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
         result.add(UriUtil.generateSelfLink(this.uriInfo));

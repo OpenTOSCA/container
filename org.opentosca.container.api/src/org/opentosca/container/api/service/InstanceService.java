@@ -15,7 +15,6 @@ import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
@@ -379,15 +378,19 @@ public class InstanceService {
                                                                                                     IllegalAccessException,
                                                                                                     IllegalArgumentException {
         final QName serviceTemplateQName = QName.valueOf(serviceTemplateQNameAsString);
-        final NodeTemplateInstance newInstance = new NodeTemplateInstance();
-        final NodeTemplateDTO dto =
-            this.nodeTemplateService.getNodeTemplateById(csarId, serviceTemplateQName, nodeTemplateId);
+        final NodeTemplateDTO dto;
+        final Document propertiesAsDocument;
+        try {
+            dto = this.nodeTemplateService.getNodeTemplateById(csarId, serviceTemplateQName, nodeTemplateId);
+            propertiesAsDocument = this.nodeTemplateService.getPropertiesOfNodeTemplate(csarId, serviceTemplateQName, nodeTemplateId);
+        } catch (org.opentosca.container.core.common.NotFoundException e) {
+            throw new NotFoundException(e.getMessage(), e);
+        }
 
         // Properties
         // We set the properties of the template as initial properties
-        final Document propertiesAsDocument =
-            this.nodeTemplateService.getPropertiesOfNodeTemplate(csarId, serviceTemplateQName, nodeTemplateId);
 
+        final NodeTemplateInstance newInstance = new NodeTemplateInstance();
         if (propertiesAsDocument != null) {
             final NodeTemplateInstanceProperty properties =
                 this.convertDocumentToProperty(propertiesAsDocument, NodeTemplateInstanceProperty.class);
@@ -484,12 +487,10 @@ public class InstanceService {
                                                      final String relationshipTemplateId, final Long id,
                                                      final String state) throws NotFoundException,
                                                                          IllegalArgumentException {
-
         RelationshipTemplateInstanceState newState;
         try {
             newState = RelationshipTemplateInstanceState.valueOf(state);
-        }
-        catch (final Exception e) {
+        } catch (final Exception e) {
             final String msg =
                 String.format("The given state %s is an illegal relationship template instance state.", state);
             logger.debug(msg);
@@ -531,8 +532,7 @@ public class InstanceService {
                 this.convertDocumentToProperty(properties, RelationshipTemplateInstanceProperty.class);
             relationship.addProperty(property);
             this.relationshipTemplateInstanceRepository.update(relationship);
-        }
-        catch (InstantiationException | IllegalAccessException e) {// This is not supposed to happen at all!
+        } catch (InstantiationException | IllegalAccessException e) {// This is not supposed to happen at all!
             final String msg = String.format("An error occurred while instantiating an instance of the %s class.",
                                              RelationshipTemplateInstanceProperty.class);
             logger.debug(msg);
@@ -684,14 +684,8 @@ public class InstanceService {
     }
 
     public SituationTriggerInstance getSituationTriggerInstance(final Long id) {
-
-        final Optional<SituationTriggerInstance> opt = this.sitTrigInst.find(id);
-
-        if (opt.isPresent()) {
-            return opt.get();
-        }
-
-        throw new RuntimeException("SituationTriggerInstance <" + id + "> not found.");
+        return this.sitTrigInst.find(id)
+            .orElseThrow(() -> new RuntimeException("SituationTriggerInstance <" + id + "> not found."));
     }
 
     /* Service Injection */

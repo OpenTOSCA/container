@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.opentosca.container.core.common.jpa.DocumentConverter;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.instance.NodeInstance;
 import org.opentosca.container.core.model.instance.RelationInstance;
 import org.opentosca.container.core.model.instance.ServiceInstance;
@@ -35,7 +36,7 @@ public abstract class Converters {
 
 
     public static ServiceInstance convert(final ServiceTemplateInstance object) {
-        final ServiceInstance si = new ServiceInstance(object.getCsarId(), object.getTemplateId(), "");
+        final ServiceInstance si = new ServiceInstance(object.getCsarId().toOldCsarId(), object.getTemplateId(), "");
         if (object.getId() != null) {
             si.setId(object.getId().intValue());
         }
@@ -59,7 +60,7 @@ public abstract class Converters {
                 sti = o.get();
             } else {
                 sti = new ServiceTemplateInstance();
-                sti.setCsarId(object.getCSAR_ID());
+                sti.setCsarId(new CsarId(object.getCSAR_ID()));
                 sti.setTemplateId(object.getServiceTemplateID());
                 sti.setState(ServiceTemplateInstanceState.INITIAL);
             }
