@@ -74,5 +74,4 @@ public abstract class UriUtil {
 
         return finalUri;
     }
-
 }

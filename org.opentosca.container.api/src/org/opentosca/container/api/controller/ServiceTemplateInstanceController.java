@@ -341,7 +341,12 @@ public class ServiceTemplateInstanceController {
             final InterfaceDTO dto = new InterfaceDTO();
             dto.setName(name);
             dto.setOperations(ops);
-            dto.add(UriUtil.generateSubResourceLink(this.uriInfo, name, false, "self"));
+
+            final URI selfLink =
+                this.uriInfo.getBaseUriBuilder()
+                            .path("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions/interfaces/{name}")
+                            .build(this.csarId, this.serviceTemplateId, name);
+            dto.add(Link.fromUri(UriUtil.encode(selfLink)).rel("self").build());
 
             return dto;
         }).collect(Collectors.toList()).toArray(new InterfaceDTO[] {}));
