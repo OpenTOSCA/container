@@ -649,9 +649,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      *
      * @return the updated input parameters.
      */
-    private HashMap<String, String> updateInputParams(final HashMap<String, String> inputParams, final CSARID csarID,
+    private HashMap<String, String> updateInputParams(HashMap<String, String> inputParams, final CSARID csarID,
                                                       final QName serviceTemplateID, QName nodeTypeID,
-                                                      final String nodeTemplateID, final String neededInterface,
+                                                      String nodeTemplateID, final String neededInterface,
                                                       final String neededOperation, final URI serviceInstanceID) {
 
         ManagementBusServiceImpl.LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(),
@@ -666,97 +666,119 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         ManagementBusServiceImpl.LOG.debug("Operation: {} expects {} parameters: {}", neededOperation,
                                            expectedParams.size(), expectedParams.toString());
 
+        boolean update = true;
+
         if (!expectedParams.isEmpty()) {
 
-            // Check if instanceID is set and merge input params with
-            // instance data. Priority on instance data.
-            if (serviceInstanceID != null && !serviceInstanceID.toString().equals("?")) {
+            while (update) {
 
-                ManagementBusServiceImpl.LOG.debug("Getting InstanceData from InstanceDataService for ServiceInstanceID: {} ...",
-                                                   serviceInstanceID);
+                // Check if instanceID is set and merge input params with
+                // instance data. Priority on instance data.
+                if (serviceInstanceID != null && !serviceInstanceID.toString().equals("?")) {
 
-                final HashMap<String, String> propertiesMap =
-                    MBUtils.getInstanceDataProperties(csarID, serviceTemplateID, nodeTemplateID.trim(),
-                                                      serviceInstanceID);
+                    ManagementBusServiceImpl.LOG.debug("Getting InstanceData for NodeTemplate: {} and ServiceInstanceID: {} ...",
+                                                       nodeTemplateID.trim(), serviceInstanceID);
 
-                ManagementBusServiceImpl.LOG.debug("Found following properties: ");
+                    final HashMap<String, String> propertiesMap =
+                        MBUtils.getInstanceDataProperties(csarID, serviceTemplateID, nodeTemplateID.trim(),
+                                                          serviceInstanceID);
 
-                for (final String key : propertiesMap.keySet()) {
-                    ManagementBusServiceImpl.LOG.debug("Prop: " + key + " Val: " + propertiesMap.get(key));
-                }
+                    ManagementBusServiceImpl.LOG.debug("Found following properties: ");
 
-                if (propertiesMap != null) {
-
-                    final List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
-                    final List<String> supportedInstanceIdPropertyNames =
-                        Utils.getSupportedVirtualMachineInstanceIdPropertyNames();
-                    final List<String> supportedPasswordPropertyNames =
-                        Utils.getSupportedVirtualMachineLoginPasswordPropertyNames();
-                    final List<String> supportedUsernamePropertyNames =
-                        Utils.getSupportedVirtualMachineLoginUserNamePropertyNames();
-
-                    ManagementBusServiceImpl.LOG.debug("The stored properties from InstanceDataService for ServiceInstanceID: {} and NodeTemplateID: {} are: {}",
-                                                       serviceInstanceID, nodeTemplateID, propertiesMap.toString());
-
-                    String prop;
-                    // Check for property convention
-                    for (final String expectedParam : expectedParams) {
-
-                        if (supportedIPPropertyNames.contains(expectedParam)) {
-                            ManagementBusServiceImpl.LOG.debug("Supported IP-Property found.");
-                            prop = getSupportedProperty(supportedIPPropertyNames, propertiesMap);
-
-                            if (prop != null) {
-                                putOnlyIfNotSet(inputParams, expectedParam, prop);
-                            }
-
-                        } else if (supportedInstanceIdPropertyNames.contains(expectedParam)) {
-                            ManagementBusServiceImpl.LOG.debug("Supported InstanceID-Property found.");
-                            prop = getSupportedProperty(supportedInstanceIdPropertyNames, propertiesMap);
-
-                            if (prop != null) {
-                                putOnlyIfNotSet(inputParams, expectedParam, prop);
-                            }
-
-                        } else if (supportedPasswordPropertyNames.contains(expectedParam)) {
-                            ManagementBusServiceImpl.LOG.debug("Supported Password-Property found.");
-                            prop = getSupportedProperty(supportedPasswordPropertyNames, propertiesMap);
-
-                            if (prop != null) {
-                                putOnlyIfNotSet(inputParams, expectedParam, prop);
-                            }
-
-                        } else if (supportedUsernamePropertyNames.contains(expectedParam)) {
-                            ManagementBusServiceImpl.LOG.debug("Supported Username-Property found.");
-                            prop = getSupportedProperty(supportedUsernamePropertyNames, propertiesMap);
-
-                            if (prop != null) {
-                                putOnlyIfNotSet(inputParams, expectedParam, prop);
-                            }
-
-                        } else {
-
-                            for (final String propName : propertiesMap.keySet()) {
-                                if (expectedParam.equals(propName)) {
-                                    putOnlyIfNotSet(inputParams, expectedParam, propertiesMap.get(propName));
-                                }
-                            }
-
-                        }
-
+                    for (final String key : propertiesMap.keySet()) {
+                        ManagementBusServiceImpl.LOG.debug("Prop: " + key + " Val: " + propertiesMap.get(key));
                     }
 
-                    ManagementBusServiceImpl.LOG.debug("Final {} input parameters for operation {} : {}",
-                                                       inputParams.size(), neededOperation, inputParams.toString());
+                    if (propertiesMap != null) {
 
-                } else {
-                    ManagementBusServiceImpl.LOG.debug("No stored InstanceData found.");
+                        inputParams = updateInputParams(expectedParams, inputParams, propertiesMap);
+
+                    }
                 }
-            } else {
-                ManagementBusServiceImpl.LOG.debug("No InstanceDataID specified.");
+
+
+                // If not all params are filled, check if properties of nodes below are matching.
+                if (expectedParams.size() != inputParams.size()) {
+                    ManagementBusServiceImpl.LOG.debug("Not all expected Params are filled. Checking for nodes below...");
+                    nodeTemplateID = MBUtils.getHostedOnNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID);
+                    if (nodeTemplateID != null) {
+                        ManagementBusServiceImpl.LOG.debug("Node found: {}", nodeTemplateID);
+                    } else {
+                        ManagementBusServiceImpl.LOG.debug("No operating system node found.");
+                        update = false;
+                    }
+                } else {
+                    update = false;
+                }
             }
         }
 
+        ManagementBusServiceImpl.LOG.debug("Final {} input parameters for operation {} : {}", inputParams.size(),
+                                           neededOperation, inputParams.toString());
+
+        return inputParams;
+    }
+
+
+
+    private HashMap<String, String> updateInputParams(final List<String> expectedParams,
+                                                      final HashMap<String, String> inputParams,
+                                                      final HashMap<String, String> propertiesMap) {
+
+        final List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
+        final List<String> supportedInstanceIdPropertyNames = Utils.getSupportedVirtualMachineInstanceIdPropertyNames();
+        final List<String> supportedPasswordPropertyNames =
+            Utils.getSupportedVirtualMachineLoginPasswordPropertyNames();
+        final List<String> supportedUsernamePropertyNames =
+            Utils.getSupportedVirtualMachineLoginUserNamePropertyNames();
+
+        String prop;
+        // Check for property convention
+        for (final String expectedParam : expectedParams) {
+
+            if (supportedIPPropertyNames.contains(expectedParam)) {
+                ManagementBusServiceImpl.LOG.debug("Supported IP-Property found.");
+                prop = getSupportedProperty(supportedIPPropertyNames, propertiesMap);
+
+                if (prop != null) {
+                    putOnlyIfNotSet(inputParams, expectedParam, prop);
+                }
+
+            } else if (supportedInstanceIdPropertyNames.contains(expectedParam)) {
+                ManagementBusServiceImpl.LOG.debug("Supported InstanceID-Property found.");
+                prop = getSupportedProperty(supportedInstanceIdPropertyNames, propertiesMap);
+
+                if (prop != null) {
+                    putOnlyIfNotSet(inputParams, expectedParam, prop);
+                }
+
+            } else if (supportedPasswordPropertyNames.contains(expectedParam)) {
+                ManagementBusServiceImpl.LOG.debug("Supported Password-Property found.");
+                prop = getSupportedProperty(supportedPasswordPropertyNames, propertiesMap);
+
+                if (prop != null) {
+                    putOnlyIfNotSet(inputParams, expectedParam, prop);
+                }
+
+            } else if (supportedUsernamePropertyNames.contains(expectedParam)) {
+                ManagementBusServiceImpl.LOG.debug("Supported Username-Property found.");
+                prop = getSupportedProperty(supportedUsernamePropertyNames, propertiesMap);
+
+                if (prop != null) {
+                    putOnlyIfNotSet(inputParams, expectedParam, prop);
+                }
+
+            } else {
+
+                for (final String propName : propertiesMap.keySet()) {
+                    if (expectedParam.equals(propName)) {
+                        putOnlyIfNotSet(inputParams, expectedParam, propertiesMap.get(propName));
+                    }
+                }
+
+            }
+
+        }
         return inputParams;
     }
 
