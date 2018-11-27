@@ -21,6 +21,8 @@ import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.service.ServiceTemplateService;
 import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.deployment.tests.DeploymentTestService;
 
@@ -54,6 +56,10 @@ public class ServiceTemplateController {
     private CsarService csarService;
 
     private DeploymentTestService deploymentTestService;
+
+    private IToscaEngineService engineService;
+
+    private IToscaReferenceMapper referenceMapper;
 
 
     @GET
@@ -128,7 +134,7 @@ public class ServiceTemplateController {
                                                           @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
         this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId);
         final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(this.instanceService,
-            this.planService, this.csarService, this.deploymentTestService);
+            this.planService, this.csarService, this.deploymentTestService, this.referenceMapper);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
@@ -159,5 +165,13 @@ public class ServiceTemplateController {
 
     public void setDeploymentTestService(final DeploymentTestService deploymentTestService) {
         this.deploymentTestService = deploymentTestService;
+    }
+
+    public void setEngineService(final IToscaEngineService engineService) {
+        this.engineService = engineService;
+        // We cannot inject an instance of {@link IToscaReferenceMapper} since
+        // it is manually created in our default implementation of {@link
+        // IToscaEngineService}
+        this.referenceMapper = this.engineService.getToscaReferenceMapper();
     }
 }
