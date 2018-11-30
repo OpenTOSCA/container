@@ -128,7 +128,7 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         }
         List<TPlan> undeployed = new ArrayList<>();
         for (final TPlan plan : plans.getPlan()) {
-            if (!planEngine.deployPlan(plan, namespace, csarId.toOldCsarId())) {
+            if (!planEngine.deployPlan(plan, namespace, csarId)) {
                 undeployed.add(plan);
             }
         }
@@ -358,7 +358,7 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
             : plans.getTargetNamespace();
 
         for (final TPlan plan : plans.getPlan()) {
-            if (!planEngine.deployPlan(plan, namespace, csar.toOldCsarId())) {
+            if (!planEngine.deployPlan(plan, namespace, csar)) {
                 undeployedPlans.add(plan);
             }
         }
