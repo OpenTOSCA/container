@@ -146,7 +146,6 @@
     <module>org.opentosca.bus.application.plugin.service</module>
     <module>org.opentosca.bus.application.service</module>
     <module>org.opentosca.bus.application.service.impl</module>
-    <module>org.opentosca.container.api.legacy</module>
     <module>org.opentosca.container.api</module>
     <module>org.opentosca.planbuilder</module>
     <module>org.opentosca.planbuilder.core.bpel</module>
