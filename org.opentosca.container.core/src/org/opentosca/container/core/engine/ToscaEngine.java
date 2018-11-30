@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.HasType;
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
@@ -55,6 +56,7 @@ public final class ToscaEngine {
     }
     
     public static List<TInterface> getInterfaces(TNodeTemplate nodeTemplate, Csar csar) {
+        @Nullable
         TNodeType nodeType = csar.nodeTypes().stream()
             .filter(type -> type.getName().equals(nodeTemplate.getType().getLocalPart()))
             .findFirst().orElse(null);

@@ -14,6 +14,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class PolicyConsolidation {
 
     private final Logger LOG = LoggerFactory.getLogger(PolicyConsolidation.class);

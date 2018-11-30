@@ -90,11 +90,6 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         }
         LOGGER.info("Invoking IAEngine to process [{}] in CSAR [{}]", serviceTemplate, csarId);
         final List<String> undeployedIAs = iAEngine.deployImplementationArtifacts(csar, serviceTemplate);
-        if (undeployedIAs == null) {
-            LOGGER.error("Deployment of [{}] for CSAR [{}] failed", serviceTemplate, csarId);
-            deploymentTracker.storeDeploymentState(csarId, TOSCA_PROCESSED);
-            return false;
-        } 
         deploymentTracker.storeDeploymentState(csarId, IAS_DEPLOYED);
         if (!undeployedIAs.isEmpty()) {
             for (final String failedIA : undeployedIAs) {
@@ -325,11 +320,6 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         Csar csar= storage.findById(csarId);
         LOGGER.trace("Invoking IAEngine for processing ServiceTemplate [{}] for CSAR [{}]", serviceTemplate.getId(), csarId.csarName());
         final List<String> undeployedIAs = iAEngine.deployImplementationArtifacts(csar, serviceTemplate);
-        if (undeployedIAs == null) {
-            LOGGER.info("Failed to deploy ServiceTemplate [{}] for CSAR [{}]", serviceTemplate.getId(), csarId.csarName());
-            deploymentTracker.storeDeploymentState(csarId, TOSCA_PROCESSED);
-            return false;
-        }
         if (!undeployedIAs.isEmpty()) {
             undeployedIAs.forEach(s -> LOGGER.info("ImplementationArtifact \"{}\" was not deployed", s));
         } else {

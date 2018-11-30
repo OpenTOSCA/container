@@ -75,6 +75,7 @@ import com.google.common.collect.Lists;
  * @see org.opentosca.container.core.engine.IToscaEngineService
  */
 @SuppressWarnings("null")
+@Deprecated
 public class ToscaEngineServiceImpl implements IToscaEngineService {
 
     // FIXME check the necessity of this being static?

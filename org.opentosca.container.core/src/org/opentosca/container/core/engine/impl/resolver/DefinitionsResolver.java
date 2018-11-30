@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
  *
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  */
+@Deprecated
 public class DefinitionsResolver {
 
     private final Logger LOG = LoggerFactory.getLogger(DefinitionsResolver.class);

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TDefinitions;
@@ -16,6 +18,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.backwards.ToscaMetaFileReplacement;
 
+@NonNullByDefault
 public interface Csar {
 
     public CsarId id();
@@ -24,6 +27,7 @@ public interface Csar {
 
     public List<TServiceTemplate> serviceTemplates();
 
+    @Nullable
     public TServiceTemplate entryServiceTemplate();
 
     public List<TDefinitions> definitions();

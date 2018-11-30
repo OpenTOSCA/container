@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * if an artifact reference is a CSAR artifact (relative artifact reference), and browsing the
  * content of the CSAR artifact (this is the artifact root).
  */
+@Deprecated
 public class CSARArtifact extends AbstractArtifact {
 
     final private static Logger LOG = LoggerFactory.getLogger(CSARArtifact.class);

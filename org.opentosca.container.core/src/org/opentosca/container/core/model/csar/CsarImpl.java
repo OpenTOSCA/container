@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.common.ids.definitions.NodeTypeId;
@@ -52,6 +53,7 @@ public class CsarImpl implements Csar {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsarImpl.class);
     
+    @NonNull
     private final CsarId id;
     private final Optional<ServiceTemplateId> entryServiceTemplate;
     // TODO evaluate putting the savelocation into an additional field here!
@@ -64,7 +66,7 @@ public class CsarImpl implements Csar {
         entryServiceTemplate = readEntryServiceTemplate(id.getSaveLocation());
     }
     
-    public CsarImpl(CsarId id, Path location) {
+    public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;
         wineryRepo = RepositoryFactory.getRepository(location);
         entryServiceTemplate = readEntryServiceTemplate(location);

@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.bus.application.model.constants.ApplicationBusConstants;
 import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
 import org.opentosca.bus.application.service.impl.ContainerProxy;
@@ -41,27 +42,30 @@ public class InvocationRequestProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) throws Exception {
-
-        InvocationRequestProcessor.LOG.info("InvokeOperation request processing started...");
-
+        LOG.debug("InvokeOperation request processing started...");
         final Message message = exchange.getIn();
-
+        
+        @Nullable
         final Integer serviceInstanceID =
             message.getHeader(ApplicationBusConstants.SERVICE_INSTANCE_ID_INT.toString(), Integer.class);
-        InvocationRequestProcessor.LOG.debug("serviceInstanceID: {}", serviceInstanceID);
+        LOG.trace("serviceInstanceID: {}", serviceInstanceID);
 
+        @Nullable
         String nodeTemplateID = message.getHeader(ApplicationBusConstants.NODE_TEMPLATE_ID.toString(), String.class);
-        InvocationRequestProcessor.LOG.debug("nodeTemplateID: {}", nodeTemplateID);
+        LOG.trace("nodeTemplateID: {}", nodeTemplateID);
 
+        @Nullable
         final Integer nodeInstanceID =
             message.getHeader(ApplicationBusConstants.NODE_INSTANCE_ID_INT.toString(), Integer.class);
-        InvocationRequestProcessor.LOG.debug("nodeInstanceID: {}", nodeInstanceID);
+        LOG.trace("nodeInstanceID: {}", nodeInstanceID);
 
+        @Nullable
         final String interfaceName = message.getHeader(ApplicationBusConstants.INTERFACE_NAME.toString(), String.class);
-        InvocationRequestProcessor.LOG.debug("interfaceName: {}", interfaceName);
+        LOG.trace("interfaceName: {}", interfaceName);
 
+        @Nullable
         final String operationName = message.getHeader(ApplicationBusConstants.OPERATION_NAME.toString(), String.class);
-        InvocationRequestProcessor.LOG.debug("operationName: {}", operationName);
+        LOG.trace("operationName: {}", operationName);
 
         String invocationType = null;
         String className = null;
@@ -69,19 +73,17 @@ public class InvocationRequestProcessor implements Processor {
 
         final NodeInstance nodeInstance =
             ContainerProxy.getNodeInstance(serviceInstanceID, nodeInstanceID, nodeTemplateID);
-
         if (nodeInstance != null) {
-
             final QName nodeType = nodeInstance.getNodeType();
             final ServiceInstance serviceInstance = nodeInstance.getServiceInstance();
             final CSARID csarID = serviceInstance.getCSAR_ID();
             final QName serviceTemplateID = serviceInstance.getServiceTemplateID();
-
+            
             if (nodeTemplateID == null) {
                 nodeTemplateID = nodeInstance.getNodeTemplateID().getLocalPart();
             }
 
-            InvocationRequestProcessor.LOG.debug("Matching NodeInstance found: ID: " + nodeInstance.getNodeInstanceID()
+            LOG.trace("Matching NodeInstance found: ID: " + nodeInstance.getNodeInstanceID()
                 + " CSAR-ID: " + csarID + " ServiceTemplateID: " + serviceTemplateID + " NodeTemplateID: "
                 + nodeTemplateID + " of type: " + nodeType);
 
@@ -113,16 +115,16 @@ public class InvocationRequestProcessor implements Processor {
 
                         if (hostedOnNodeURL != null) {
 
-                            InvocationRequestProcessor.LOG.debug("Generating endpoint for Node: {}", nodeTemplateID);
+                            LOG.debug("Generating endpoint for Node: {}", nodeTemplateID);
 
                             try {
                                 endpoint = new URL(hostedOnNodeURL.getProtocol(), hostedOnNodeURL.getAuthority(), port,
                                     relativeHostEndpoint);
-                                InvocationRequestProcessor.LOG.debug("Generated endpoint: " + endpoint);
+                                LOG.debug("Generated endpoint: " + endpoint);
 
                             }
                             catch (final MalformedURLException e) {
-                                InvocationRequestProcessor.LOG.error("Generating endpoint for Node: {} failed!",
+                                LOG.error("Generating endpoint for Node: {} failed!",
                                                                      nodeTemplateID);
                                 e.printStackTrace();
                             }
@@ -138,7 +140,7 @@ public class InvocationRequestProcessor implements Processor {
 
             message.setHeader(ApplicationBusConstants.INVOCATION_ENDPOINT_URL.toString(), endpoint.toString());
 
-            InvocationRequestProcessor.LOG.debug("Searching an Application Bus Plugin for InvocationType: {}",
+            LOG.debug("Searching an Application Bus Plugin for InvocationType: {}",
                                                  invocationType);
             // set ID of the matching Application Bus Plugin bundle. Needed for
             // routing.
@@ -147,7 +149,7 @@ public class InvocationRequestProcessor implements Processor {
 
             if (appBusPluginEndpoint != null) {
 
-                InvocationRequestProcessor.LOG.debug("Application Bus Plugin with matching InvocationType: {} found. Endpoint: {}",
+                LOG.debug("Application Bus Plugin with matching InvocationType: {} found. Endpoint: {}",
                                                      invocationType, appBusPluginEndpoint);
                 exchange.getIn().setHeader(InvokeOperationRoute.APPLICATION_BUS_PLUGIN_ENDPOINT_HEADER,
                                            appBusPluginEndpoint);

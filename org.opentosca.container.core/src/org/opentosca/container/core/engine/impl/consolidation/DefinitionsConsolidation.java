@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  */
+@Deprecated
 public class DefinitionsConsolidation {
 
     private final Logger LOG = LoggerFactory.getLogger(ExportedInterfacesConsolidation.class);

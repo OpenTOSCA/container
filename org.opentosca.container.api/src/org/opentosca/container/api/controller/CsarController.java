@@ -224,6 +224,7 @@ public class CsarController {
             return Response.serverError().entity(e).build();
         }
 
+        // FIXME I'm pretty sure that invoking ToscaProcessing is unnecessary with the new model
         this.controlService.invokeToscaProcessing(csarId);
         Csar storedCsar = storage.findById(csarId);
         if (ModelUtil.hasOpenRequirements(storedCsar)) {

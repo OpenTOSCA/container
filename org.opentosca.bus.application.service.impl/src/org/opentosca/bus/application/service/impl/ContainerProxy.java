@@ -69,6 +69,7 @@ public class ContainerProxy {
      * @param nodeTemplateID
      * @return NodeInstance with specified ID
      */
+    @Nullable
     public static NodeInstance getNodeInstance(final Integer serviceInstanceID, final Integer nodeInstanceID,
                                                final String nodeTemplateID) {
         LOG.debug("Searching NodeInstance with serviceInstanceID: " + serviceInstanceID + " nodeInstanceID: "
@@ -115,6 +116,7 @@ public class ContainerProxy {
      * @param id
      * @return ServiceInstance with specified ID
      */
+    @Nullable
     protected static ServiceInstance getServiceInstance(final Integer id) {
         LOG.trace("Searching ServiceInstance with ID: {}", id);
         final URI serviceInstanceID;
@@ -149,6 +151,7 @@ public class ContainerProxy {
      * @param interfaceName
      * @return specified properties as Node
      */
+    @Nullable
     public static Node getPropertiesNode(final CSARID csarID, final QName nodeTypeName, final String interfaceName) {
         LOG.trace("Searching ArtifactTemplate defining needed properties for Interface [{}] of NodeType [{}] inside Csar {}",
                   interfaceName, nodeTypeName, csarID);
@@ -260,6 +263,7 @@ public class ContainerProxy {
      * @param propNode
      * @return relative endpoint, specified in properties (as <tt>Endpoint</tt> property).
      */
+    @Nullable
     public static String getRelativeEndpoint(final Node propNode) {
 
         // get properties like endpoint or
@@ -288,6 +292,7 @@ public class ContainerProxy {
      * @param propNode
      * @return port, specified in properties (as <tt>Port</tt> property).
      */
+    @Nullable
     public static Integer getPort(final Node propNode) {
 
         // get properties like endpoint or
@@ -316,6 +321,7 @@ public class ContainerProxy {
      * @param propNode
      * @return invocationType, specified in properties (as <tt>InvocationType</tt> property).
      */
+    @Nullable
     public static String getInvocationType(final Node propNode) {
 
         // get properties like endpoint or
@@ -344,6 +350,7 @@ public class ContainerProxy {
      * @param interfaceName
      * @return implementing class specified in the properties of the specified interface
      */
+    @Nullable
     public static String getClass(final Node propNode, final String interfaceName) {
 
         // get properties like endpoint or
@@ -498,6 +505,7 @@ public class ContainerProxy {
      * @param nodeTemplateQName
      * @return IP property
      */
+    @Nullable
     public static URL getIpFromInstanceDataProperties(final URI serviceInstanceID, final QName nodeTemplateQName) {
 
         LOG.debug("Getting IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateQName
