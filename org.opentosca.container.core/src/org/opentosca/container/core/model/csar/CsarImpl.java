@@ -21,14 +21,18 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.common.ids.definitions.NodeTypeId;
+import org.eclipse.winery.common.ids.definitions.NodeTypeImplementationId;
+import org.eclipse.winery.common.ids.definitions.RelationshipTypeImplementationId;
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
+import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
@@ -37,6 +41,7 @@ import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataI
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.eclipse.winery.repository.export.CsarExportConfiguration;
 import org.eclipse.winery.repository.export.CsarExporter;
+import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.backwards.FileSystemFile;
 import org.opentosca.container.core.model.csar.backwards.ToscaMetaFileReplacement;
@@ -121,10 +126,12 @@ public class CsarImpl implements Csar {
 
     @Override
     public List<TPlan> plans() {
-        return Optional.ofNullable(entryServiceTemplate())
+        @SuppressWarnings("null")
+        List<TPlan> plans = Optional.ofNullable(entryServiceTemplate())
             .map(TServiceTemplate::getPlans)
             .map(TPlans::getPlan)
             .orElse(Collections.emptyList());
+        return plans;
     }
 
     @Override
@@ -141,7 +148,21 @@ public class CsarImpl implements Csar {
         .map(wineryRepo::getElement)
         .collect(Collectors.toList());
     }
+    
+    @Override
+    public List<TNodeTypeImplementation> nodeTypeImplementations() {
+        return wineryRepo.getAllDefinitionsChildIds(NodeTypeImplementationId.class).stream()
+        .map(wineryRepo::getElement)
+        .collect(Collectors.toList());
+    }
 
+    @Override
+    public List<TRelationshipTypeImplementation> relationshipTypeImplementations() {
+        return wineryRepo.getAllDefinitionsChildIds(RelationshipTypeImplementationId.class).stream()
+        .map(wineryRepo::getElement)
+        .collect(Collectors.toList());
+    }
+    
     @Override
     public String description() {
         return selfserviceMetadata().getDescription();
@@ -174,4 +195,5 @@ public class CsarImpl implements Csar {
     public ToscaMetaFileReplacement metafileReplacement() {
         return new ToscaMetaFileReplacement(this);
     }
+
 }

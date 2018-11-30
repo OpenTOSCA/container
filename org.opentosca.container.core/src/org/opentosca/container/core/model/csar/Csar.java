@@ -9,7 +9,9 @@ import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.backwards.ToscaMetaFileReplacement;
@@ -30,6 +32,9 @@ public interface Csar {
     public List<TPlan> plans();
     public List<TNodeType> nodeTypes();
 
+    public List<TNodeTypeImplementation> nodeTypeImplementations();
+    public List<TRelationshipTypeImplementation> relationshipTypeImplementations();
+    
     public String description();
     // FIXME decide on Path / File / Binary Representation / ??
     public AbstractFile topologyPicture();

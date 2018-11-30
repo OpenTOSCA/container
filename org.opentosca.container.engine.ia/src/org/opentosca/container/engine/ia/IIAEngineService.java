@@ -2,9 +2,9 @@ package org.opentosca.container.engine.ia;
 
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.opentosca.container.core.model.csar.Csar;
 
 /**
  * Copyright 2012 IAAS University of Stuttgart <br>
@@ -17,7 +17,7 @@ import org.opentosca.container.core.model.csar.id.CSARID;
  * Artifact are evaluated and if they are met by the Container and/or matching plug-ins the
  * Implementation Artifact is then passed to a bound plug-in supporting the specified operation.
  *
- * If the plug-in succeeds in deploying the Implemenation Artifact, it will return an Endpoint URL
+ * If the plug-in succeeds in deploying the Implementation Artifact, it will return an Endpoint URL
  * which is then passed to the Endpoint Service which stores the Endpoint in a database.
  *
  * @see org.opentosca.container.engine.ia.impl.IAEngineServiceImpl
@@ -45,7 +45,8 @@ public interface IIAEngineService {
      * @return Name of Implementation Artifacts that where not successfully deployed, <code>empty</code>
      *         if all Artifacts were deployed or <code>null</code> if TNodeType Object was null.
      */
-    public List<String> deployImplementationArtifacts(CSARID csarID, QName serviceTemplateID);
+    @NonNull
+    public List<String> deployImplementationArtifacts(Csar csar, TServiceTemplate serviceTemplate);
 
     /**
      * Undeploy Implementation Artifacts.<br>
@@ -57,5 +58,5 @@ public interface IIAEngineService {
      * @param csarID - ID of the CSAR file of which the IAs should be undeployed.
      * @return <code>true</code> if all IAs were undeployed successfully. Otherwise <code>null</code>.
      */
-    public boolean undeployImplementationArtifacts(CSARID csarID);
+    public boolean undeployImplementationArtifacts(Csar csar);
 }
