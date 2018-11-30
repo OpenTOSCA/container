@@ -18,6 +18,7 @@ import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -184,7 +185,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         }
 
         final WSDLEndpoint point = new WSDLEndpoint();
-        point.setCSARId(csarId);
+        point.setCsarId(new CsarId(csarId));
         point.setPlanId(planId);
         // point.setIaName(planName);
         point.setURI(endpointURI);

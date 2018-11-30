@@ -18,8 +18,9 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
 import org.eclipse.persistence.annotations.Converter;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.model.endpoint.GenericEndpoint;
+import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
 
 /**
  * This class Represents a REST-Endpoint (an endpoint with a REST-Operation). For the fields of this
@@ -33,7 +34,7 @@ import org.opentosca.container.core.model.endpoint.GenericEndpoint;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = RESTEndpoint.tableName, uniqueConstraints = @UniqueConstraint(columnNames = {"path", "method", "csarId"}))
-public class RESTEndpoint extends GenericEndpoint {
+public class RESTEndpoint extends AbstractEndpoint {
 
     protected static final String tableName = "RESTEndpoint";
 
@@ -87,20 +88,20 @@ public class RESTEndpoint extends GenericEndpoint {
         super();
     }
 
-    public RESTEndpoint(final URI uri, final restMethod method, final CSARID csarId) {
+    public RESTEndpoint(final URI uri, final restMethod method, final CsarId csarId) {
         super(uri, csarId);
         this.method = method;
         this.path = uri.getPath();
     }
 
     public RESTEndpoint(final String host, final String path, final restMethod method,
-                        final CSARID csarId) throws URISyntaxException {
+                        final CsarId csarId) throws URISyntaxException {
         // Check if the path starts with a "/", if not we prepend a "/".
         this(new URI(host + (path.charAt(0) == '/' ? path : '/' + path)), method, csarId);
     }
 
     public RESTEndpoint(final URI uri, final restMethod method, final QName requestPayload, final QName responsePayload,
-                        final CSARID csarId) {
+                        final CsarId csarId) {
         this(uri, method, csarId);
         this.requestPayload = requestPayload;
         this.responsePayload = responsePayload;

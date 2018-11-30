@@ -24,6 +24,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -120,8 +121,7 @@ public class BPELRESTLightUpdater {
 
         if (BPELRESTLightUpdater.endpointService != null) {
             for (final URI localUri : localURIs) {
-                for (final RESTEndpoint endpoint : BPELRESTLightUpdater.endpointService.getRestEndpoints(localUri,
-                                                                                                         this.csarId)) {
+                for (final RESTEndpoint endpoint : BPELRESTLightUpdater.endpointService.getRestEndpoints(localUri, new CsarId(csarId))) {
                     notChanged.addAll(changeAddress(endpoint, elements));
                 }
             }

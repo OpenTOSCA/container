@@ -13,6 +13,7 @@ import org.eclipse.persistence.sessions.Session;
  */
 public class UriConverter implements Converter {
 
+    public static final String name = "URIConverter";
     private static final long serialVersionUID = 5695923859083900495L;
 
 

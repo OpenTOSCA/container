@@ -4,12 +4,13 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.sessions.Session;
+import org.eclipse.persistence.mappings.converters.Converter;
 
 /**
  * This class is used to convert QNames to String, and Strings back to QNames when persisting QName
  * fields with JPA. The conversion needs to be done, as we cannot directly query for QNames in JPQL.
  */
-public class QNameConverter implements org.eclipse.persistence.mappings.converters.Converter {
+public class QNameConverter implements Converter {
 
     private static final long serialVersionUID = 5695923859083900495L;
     public static final String name = "QNameConverter";

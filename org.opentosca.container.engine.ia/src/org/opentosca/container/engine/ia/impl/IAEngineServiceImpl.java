@@ -202,7 +202,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
             if (serviceURI != null) {
                 // Maybe should be located somewhere else.
                 QName portType = this.getPortType(XMLHelper.fromRootNode((Element)properties.getAny()));
-                final WSDLEndpoint endpoint = new WSDLEndpoint(serviceURI, portType, csar.id().toOldCsarId(), null, QName.valueOf(typeImplementation.getIdFromIdOrNameField()),
+                final WSDLEndpoint endpoint = new WSDLEndpoint(serviceURI, portType, csar.id(), null, QName.valueOf(typeImplementation.getIdFromIdOrNameField()),
                                                                artifact.getName());
                 this.endpointService.storeWSDLEndpoint(endpoint);
                 LOG.info("ImplementationArtifact: {} of NodeTypeImplementation: {} of CSAR: "
@@ -267,7 +267,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
         LOG.debug("Undeploying all ImplementationArtifacts of CSAR: {}", csar.id().csarName());
         LOG.trace("Getting stored endpoints of CSAR: {}", csar.id().csarName());
         CSARID bridge = csar.id().toOldCsarId();
-        final List<WSDLEndpoint> csarEndpoints = this.endpointService.getWSDLEndpointsForCSARID(bridge);
+        final List<WSDLEndpoint> csarEndpoints = this.endpointService.getWSDLEndpointsForCsarId(csar.id());
 
         boolean allUndeployed = true;
         IIAEnginePluginService plugin;
@@ -286,7 +286,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
                 // not undeploy IA
                 if (endpoints != null && endpoints.size() > 1) {
 
-                    this.endpointService.removeWSDLEndpoint(bridge, endpoint);
+                    this.endpointService.removeWSDLEndpoint(csar.id(), endpoint);
                     LOG.debug("IA: {} was not undeployed because it is used in other CSARs too. Only its DB entry was removed.",
                                                   iaName);
 
@@ -312,7 +312,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
 
                             if (wasUndeployed) {
 
-                                this.endpointService.removeWSDLEndpoint(bridge, endpoint);
+                                this.endpointService.removeWSDLEndpoint(csar.id(), endpoint);
                                 LOG.debug("Undeploying of IA: {} was successful!", iaName);
 
                             } else {

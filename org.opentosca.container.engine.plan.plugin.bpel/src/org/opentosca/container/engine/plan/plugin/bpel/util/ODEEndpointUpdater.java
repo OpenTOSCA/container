@@ -29,6 +29,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.ode.schemas.dd._2007._03.TDeployment;
 import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -594,7 +595,7 @@ public class ODEEndpointUpdater {
                                          port.getBinding().getPortType().getQName().toString());
             final List<WSDLEndpoint> temp =
                 ODEEndpointUpdater.endpointService.getWSDLEndpoints(port.getBinding().getPortType().getQName(),
-                                                                    this.csarId);
+                                                                    new CsarId(csarId));
             for (final WSDLEndpoint endpoint : temp) {
                 ODEEndpointUpdater.LOG.debug("Found endpoint: {}", endpoint.getURI().toString());
                 endpoints.add(endpoint);

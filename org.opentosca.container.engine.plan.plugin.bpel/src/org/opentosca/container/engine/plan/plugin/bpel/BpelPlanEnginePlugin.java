@@ -23,6 +23,7 @@ import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -339,7 +340,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             BpelPlanEnginePlugin.LOG.info("Deployment of Plan was successfull: {}", tempPlan.getName());
 
             // save endpoint
-            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType, csarId, planId, null, null);
+            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType, new CsarId(csarId), planId, null, null);
 
             if (this.endpointService != null) {
                 BpelPlanEnginePlugin.LOG.debug("Store new endpoint!");
@@ -436,14 +437,14 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             if (this.endpointService != null) {
                 BpelPlanEnginePlugin.LOG.debug("Starting to remove endpoint!");
                 // this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-                endpoint = this.endpointService.getWSDLEndpointForPlanId(csarId, planId);
+                endpoint = this.endpointService.getWSDLEndpointForPlanId(new CsarId(csarId), planId);
 
                 if (endpoint == null) {
                     BpelPlanEnginePlugin.LOG.warn("Couldn't remove endpoint for plan {}, because endpoint service didn't find any endpoint associated with the plan to remove",
                                                   planRef.getReference());
                 }
 
-                if (this.endpointService.removeWSDLEndpoint(csarId, endpoint)) {
+                if (this.endpointService.removeWSDLEndpoint(new CsarId(csarId), endpoint)) {
                     BpelPlanEnginePlugin.LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
                                                    planRef.getReference());
                 }

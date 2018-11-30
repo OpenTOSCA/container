@@ -11,32 +11,26 @@ import javax.persistence.MappedSuperclass;
 import org.eclipse.persistence.annotations.Convert;
 import org.eclipse.persistence.annotations.Converter;
 import org.eclipse.persistence.annotations.Converters;
-import org.opentosca.container.core.common.jpa.CSARIDConverter;
+import org.opentosca.container.core.common.jpa.CsarIdConverter;
 import org.opentosca.container.core.common.jpa.UriConverter;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 
 /**
  * This abstract class is used as a super-class for WSDL and REST Endpoints.
  */
 @MappedSuperclass
-@Converters({@Converter(converterClass = CSARIDConverter.class, name = "CSARIDConverter"),
-             @Converter(converterClass = UriConverter.class, name = "URIConverter")})
-public abstract class GenericEndpoint {
+@Converters({@Converter(converterClass = CsarIdConverter.class, name = CsarIdConverter.name),
+             @Converter(converterClass = UriConverter.class, name = UriConverter.name)})
+public abstract class AbstractEndpoint {
 
     @Basic
-    @Convert("URIConverter")
+    @Convert(UriConverter.name)
     @Column(name = "uri")
     private URI uri;
 
-    // @Convert("QNameConverter")
-    // @Column(name = "thorID")
-
-    // The ThorID ID is used to distinguish endpoints between
-    // different Thors
-    // private QName thorID;
-    @Convert("CSARIDConverter")
+    @Convert(CsarIdConverter.name)
     @Column(name = "csarID")
-    private CSARID csarId;
+    private CsarId csarId;
 
     @Id
     @GeneratedValue
@@ -49,12 +43,12 @@ public abstract class GenericEndpoint {
      * @param uri
      * @param thorID
      */
-    public GenericEndpoint(final URI uri, final CSARID csarId) {
-        this.setCSARId(csarId);
+    public AbstractEndpoint(final URI uri, final CsarId csarId) {
+        this.setCsarId(csarId);
         this.setURI(uri);
     }
 
-    public void setCSARId(final CSARID csarId) {
+    public void setCsarId(final CsarId csarId) {
         this.csarId = csarId;
     }
 
@@ -66,7 +60,7 @@ public abstract class GenericEndpoint {
         this.id = id;
     }
 
-    public GenericEndpoint() {
+    public AbstractEndpoint() {
         super();
     }
 
@@ -78,15 +72,7 @@ public abstract class GenericEndpoint {
         this.uri = uri;
     }
 
-    // public QName getThorID() {
-    // return this.thorID;
-    // }
-
-    public CSARID getCSARId() {
+    public CsarId getCsarId() {
         return this.csarId;
     }
-
-    // public void setThorID(QName thorID) {
-    // this.thorID = thorID;
-    // }
 }

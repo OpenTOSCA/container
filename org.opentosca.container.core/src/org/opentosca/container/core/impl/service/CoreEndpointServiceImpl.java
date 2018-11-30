@@ -12,7 +12,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint.restMethod;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
@@ -26,45 +26,20 @@ import org.slf4j.LoggerFactory;
  *
  * For the JPA-Queries refer to: {@link RESTEndpoint}, {@link WSDLEndpoint}
  */
-public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandProvider {
-
-
-    // Logging
+public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandProvider, AutoCloseable {
     private final static Logger LOG = LoggerFactory.getLogger(CoreEndpointServiceImpl.class);
-
 
     private EntityManager em;
 
-
     public CoreEndpointServiceImpl() {
-        init();
-    }
-
-    @Override
-    /**
-     * This method is called when the garbage collector destroys the class. We will then manually close
-     * the EntityManager/Factory, and pass control back.
-     */
-    protected void finalize() throws Throwable {
-        this.em.close();
-        super.finalize();
-    }
-
-    /**
-     * This method initializes the EntityManager/Factory in case it is not connected/setup yet. It is
-     * called by each method, to ensure that a connection exists. (Robustness!)
-     */
-    private void init() {
-        if (this.em == null) {
-            this.em = EntityManagerProvider.createEntityManager();
-        }
+        em = EntityManagerProvider.createEntityManager();
     }
 
     @Override
     /**
      * {@Inheritdoc}
      */
-    public List<WSDLEndpoint> getWSDLEndpoints(final QName portType, final CSARID csarId) {
+    public List<WSDLEndpoint> getWSDLEndpoints(final QName portType, final CsarId csarId) {
         final ArrayList<WSDLEndpoint> results = new ArrayList<>();
 
         /**
@@ -90,7 +65,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
         // endpoint.
         // Set Parameters for the Query
         getWSDLEndpointsQuery.setParameter("portType", portType);
-        getWSDLEndpointsQuery.setParameter("csarId", new CSARID("***"));
+        getWSDLEndpointsQuery.setParameter("csarId", new CsarId("***"));
 
         // Get Query-Results (WSDLEndpoints) and add them to the result list.
         final
@@ -107,7 +82,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     /**
      * {@Inheritdoc}
      */
-    public WSDLEndpoint getWSDLEndpoint(final QName portType, final CSARID csarId) {
+    public WSDLEndpoint getWSDLEndpoint(final QName portType, final CsarId csarId) {
         /**
          * Create Query to retrieve WSDLEndpoint
          *
@@ -130,7 +105,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
      * {@Inheritdoc}
      */
     public void storeWSDLEndpoint(final WSDLEndpoint endpoint) {
-        LOG.debug("Storing WSDL Endpoint with CSARID: \"" + endpoint.getCSARId()
+        LOG.debug("Storing WSDL Endpoint with CsarId: \"" + endpoint.getCsarId()
             + "\", portType: \"" + endpoint.getPortType() + "\", IAName: \"" + endpoint.getIaName()
             + "\", NodeTypeImplementation: \"" + endpoint.getNodeTypeImplementation() + "\", URI: \""
             + endpoint.getURI().toString() + "\"");
@@ -156,7 +131,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
      * @return true, if the Endpoint already exists.
      */
     private boolean existsWSDLEndpoint(final WSDLEndpoint endpoint) {
-        final List<WSDLEndpoint> endpoints = getWSDLEndpointsForCSARID(endpoint.getCSARId());
+        final List<WSDLEndpoint> endpoints = getWSDLEndpointsForCsarId(endpoint.getCsarId());
 
         for (final WSDLEndpoint wsdlEndpoint : endpoints) {
             // (serviceURI, portType, csarID, null, nodeTypeImplementationID,
@@ -176,7 +151,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
                 continue;
             }
 
-            if (!endpoint.getCSARId().equals(wsdlEndpoint.getCSARId())) {
+            if (!endpoint.getCsarId().equals(wsdlEndpoint.getCsarId())) {
                 continue;
             }
 
@@ -209,7 +184,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     /**
      * {@Inheritdoc}
      */
-    public List<RESTEndpoint> getRestEndpoints(final URI anyURI, final CSARID csarId) {
+    public List<RESTEndpoint> getRestEndpoints(final URI anyURI, final CsarId csarId) {
         final ArrayList<RESTEndpoint> results = new ArrayList<>();
 
         /**
@@ -237,7 +212,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     /**
      * {@Inheritdoc}
      */
-    public RESTEndpoint getRestEndpoint(final URI anyURI, final restMethod method, final CSARID csarId) {
+    public RESTEndpoint getRestEndpoint(final URI anyURI, final restMethod method, final CsarId csarId) {
         /**
          * Create Query to retrieve a RestEndpoint
          *
@@ -260,7 +235,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
      * {@Inheritdoc}
      */
     public void storeRESTEndpoint(final RESTEndpoint endpoint) {
-        LOG.debug("Storing REST Endpoint with Path : \"{}\", STID: \"{}\"", endpoint.getPath(), endpoint.getCSARId().getFileName());
+        LOG.debug("Storing REST Endpoint with Path : \"{}\", STID: \"{}\"", endpoint.getPath(), endpoint.getCsarId());
         if (!this.em.getTransaction().isActive()) {
             this.em.getTransaction().begin();
         }
@@ -272,7 +247,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     /**
      * {@Inheritdoc}
      */
-    public boolean endpointExists(final URI uri, final CSARID csarId) {
+    public boolean endpointExists(final URI uri, final CsarId csarId) {
         final Query existsRestEndpointQuery = this.em.createNamedQuery(RESTEndpoint.getEndpointForUri);
         existsRestEndpointQuery.setParameter("uri", uri);
         existsRestEndpointQuery.setParameter("csarId", csarId);
@@ -331,7 +306,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     public void _endpoint_add_dummy_rest(final CommandInterpreter commandInterpreter) {
         try {
             final RESTEndpoint endpoint = new RESTEndpoint(new URI("http://www.balbla.com/xyz"), restMethod.GET,
-                new CSARID("mockup.example.test"));
+                new CsarId("mockup.example.test"));
             storeRESTEndpoint(endpoint);
         }
         catch (final URISyntaxException e) {
@@ -344,10 +319,10 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     public void _endpoint_add_dummy_wsdl(final CommandInterpreter commandInterpreter) {
         try {
 
-            // URI uri, QName portType, CSARID csarId, String planid, QName
+            // URI uri, QName portType, CsarId csarId, String planid, QName
             // nodeTypeImplementation, String iaName
             final WSDLEndpoint endpoint = new WSDLEndpoint(new URI("http://blabla/"), new QName("somePort"),
-                new CSARID("mockup.example.test"), new QName("{someNamespace}someplanid"),
+                new CsarId("mockup.example.test"), new QName("{someNamespace}someplanid"),
                 new QName("{someNamespace}someNodeTypeImplId"), "some ia name");
             storeWSDLEndpoint(endpoint);
         }
@@ -362,7 +337,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
         final Query query = this.em.createQuery("SELECT e FROM RESTEndpoint e");
         final List<RESTEndpoint> queryResults = query.getResultList();
         for (final RESTEndpoint e : queryResults) {
-            commandInterpreter.println("SeriviceTemplateID: " + e.getCSARId().getFileName() + " URI: " + e.getURI());
+            commandInterpreter.println("SeriviceTemplateID: " + e.getCsarId() + " URI: " + e.getURI());
         }
 
     }
@@ -371,7 +346,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
         final Query query = this.em.createQuery("SELECT e FROM WSDLEndpoint e");
         final List<WSDLEndpoint> queryResults = query.getResultList();
         for (final WSDLEndpoint e : queryResults) {
-            commandInterpreter.println("CSARId: " + e.getCSARId());
+            commandInterpreter.println("CSARId: " + e.getCsarId());
 
             if (e.getPortType() != null) {
                 commandInterpreter.println("PortType: " + e.getPortType().toString());
@@ -387,7 +362,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     }
 
     @Override
-    public void removeEndpoints(final CSARID csarId) {
+    public void removeEndpoints(final CsarId csarId) {
         if (!this.em.getTransaction().isActive()) {
             this.em.getTransaction().begin();
         }
@@ -416,7 +391,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     }
 
     @Override
-    public WSDLEndpoint getWSDLEndpointForPlanId(final CSARID csarId, final QName planId) {
+    public WSDLEndpoint getWSDLEndpointForPlanId(final CsarId csarId, final QName planId) {
         WSDLEndpoint endpoint = null;
         final Query queryWSDLEndpoint =
             this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.PlanId = :planId");
@@ -435,7 +410,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     }
 
     @Override
-    public WSDLEndpoint getWSDLEndpointForIa(final CSARID csarId, final QName nodeTypeImpl, final String iaName) {
+    public WSDLEndpoint getWSDLEndpointForIa(final CsarId csarId, final QName nodeTypeImpl, final String iaName) {
         WSDLEndpoint endpoint = null;
         final Query queryWSDLEndpoint =
             this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl");
@@ -448,7 +423,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
         final List<WSDLEndpoint> results = endpoints.getResultList();
         for (final WSDLEndpoint e : results) {
             LOG.info("WSDL Endpoints:" + e.getIaName() + "	" + e.getId() + "	"
-                + e.getCSARId() + "	" + e.getNodeTypeImplementation() + "	" + e.getURI());
+                + e.getCsarId() + "	" + e.getNodeTypeImplementation() + "	" + e.getURI());
         }
 
         try {
@@ -460,7 +435,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     }
 
     @Override
-    public List<WSDLEndpoint> getWSDLEndpointsForCSARID(final CSARID csarId) {
+    public List<WSDLEndpoint> getWSDLEndpointsForCsarId(final CsarId csarId) {
         final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
         final Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId");
         queryWSDLEndpoint.setParameter("csarId", csarId);
@@ -514,16 +489,16 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
         builder.append("debug output for stored endpoints of management plans, flags: csarid, planid, ianame, porttype "
             + ls);
         for (final WSDLEndpoint endpoint : endpoints) {
-            builder.append("endpoint: " + endpoint.getCSARId() + " " + endpoint.getPlanId() 
+            builder.append("endpoint: " + endpoint.getCsarId() + " " + endpoint.getPlanId() 
                 + " " + endpoint.getIaName() + " " + endpoint.getPortType() + ls);
         }
         LOG.debug(builder.toString());
     }
 
     @Override
-    public boolean removeWSDLEndpoint(final CSARID csarId, final WSDLEndpoint endpoint) {
+    public boolean removeWSDLEndpoint(final CsarId csarId, final WSDLEndpoint endpoint) {
         // get all wsdlendpoints
-        final List<WSDLEndpoint> endpoints = getWSDLEndpointsForCSARID(csarId);
+        final List<WSDLEndpoint> endpoints = getWSDLEndpointsForCsarId(csarId);
 
         if (!this.em.getTransaction().isActive()) {
             this.em.getTransaction().begin();
@@ -537,6 +512,11 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
         }
         this.em.getTransaction().commit();
         return check;
+    }
+
+    @Override
+    public void close() throws Exception {
+        em.close();
     }
 
 }

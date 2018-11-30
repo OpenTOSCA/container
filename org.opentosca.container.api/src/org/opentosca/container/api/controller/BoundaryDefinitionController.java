@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceSupport;
@@ -27,6 +28,7 @@ import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.PropertiesDTO;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -65,12 +67,13 @@ public class BoundaryDefinitionController {
                                            @PathParam("servicetemplate") final String servicetemplate) {
 
         final Csar csar = this.storage.findById(new CsarId(csarId));
-        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-            .filter(template -> template.getId().equals(servicetemplate))
-            .findFirst().orElse(null);
-        if (serviceTemplate == null) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
-            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+
+        final TServiceTemplate serviceTemplate;
+        try {
+            serviceTemplate = ToscaEngine.findServiceTemplate(csar, QName.valueOf(servicetemplate));
+        }
+        catch (org.opentosca.container.core.common.NotFoundException e) {
+            throw new NotFoundException(e);
         }
 
         final ResourceSupport links = new ResourceSupport();
@@ -95,24 +98,22 @@ public class BoundaryDefinitionController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get properties of a service tempate", response = PropertiesDTO.class)
     public Response getBoundaryDefinitionProperties(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
-    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
-            final Csar csar = this.storage.findById(new CsarId(csarId));
-            final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-                .filter(template -> template.getId().equals(servicetemplate))
-                .findFirst().orElse(null);
-            if (serviceTemplate == null) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
-            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+                                                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+        final Csar csar = this.storage.findById(new CsarId(csarId));
+        final TServiceTemplate serviceTemplate;
+        try {
+            serviceTemplate = ToscaEngine.findServiceTemplate(csar, QName.valueOf(servicetemplate));
         }
-
+        catch (org.opentosca.container.core.common.NotFoundException e) {
+            throw new NotFoundException(e);
+        }
         // using optional to condense nullchecks
         @SuppressWarnings("null")
-        List<TPropertyMapping> propertyMappings = Optional.ofNullable(serviceTemplate)
-            .map(TServiceTemplate::getBoundaryDefinitions)
-            .map(TBoundaryDefinitions::getProperties)
-            .map(TBoundaryDefinitions.Properties::getPropertyMappings)
-            .map(TBoundaryDefinitions.Properties.PropertyMappings::getPropertyMapping)
-            .orElse(Collections.emptyList());
+        List<TPropertyMapping> propertyMappings =
+            Optional.ofNullable(serviceTemplate).map(TServiceTemplate::getBoundaryDefinitions)
+                    .map(TBoundaryDefinitions::getProperties).map(TBoundaryDefinitions.Properties::getPropertyMappings)
+                    .map(TBoundaryDefinitions.Properties.PropertyMappings::getPropertyMapping)
+                    .orElse(Collections.emptyList());
         final PropertiesDTO dto = new PropertiesDTO();
         dto.setXmlFragment(""); // we're not really exposing these in the winery-model
         if (propertyMappings != null) {
@@ -131,22 +132,20 @@ public class BoundaryDefinitionController {
                                                     @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
 
         final Csar csar = this.storage.findById(new CsarId(csarId));
-        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-            .filter(template -> template.getId().equals(servicetemplate))
-            .findFirst().orElse(null);
-        if (serviceTemplate == null) {
-            // TODO consider collapsing into `orElseThrow`
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
-            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+        final TServiceTemplate serviceTemplate;
+        try {
+            serviceTemplate = ToscaEngine.findServiceTemplate(csar, QName.valueOf(servicetemplate));
+        }
+        catch (org.opentosca.container.core.common.NotFoundException e) {
+            throw new NotFoundException(e);
         }
 
         // we're hacking ourselves an elvis operator here, allowing us to condense nullchecks
         @SuppressWarnings("null")
-        final List<TExportedInterface> interfaces = Optional.ofNullable(serviceTemplate)
-            .map(TServiceTemplate::getBoundaryDefinitions)
-            .map(TBoundaryDefinitions::getInterfaces)
-            .map(TBoundaryDefinitions.Interfaces::getInterface)
-            .orElse(Collections.emptyList());
+        final List<TExportedInterface> interfaces =
+            Optional.ofNullable(serviceTemplate).map(TServiceTemplate::getBoundaryDefinitions)
+                    .map(TBoundaryDefinitions::getInterfaces).map(TBoundaryDefinitions.Interfaces::getInterface)
+                    .orElse(Collections.emptyList());
         this.logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", interfaces.size(),
                           servicetemplate, csar);
 
@@ -171,25 +170,21 @@ public class BoundaryDefinitionController {
                                                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
 
         final Csar csar = this.storage.findById(new CsarId(csarId));
-        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-            .filter(template -> template.getId().equals(servicetemplate))
-            .findFirst().orElse(null);
-        if (serviceTemplate == null) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
-            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+        final TServiceTemplate serviceTemplate;
+        try {
+            serviceTemplate = ToscaEngine.findServiceTemplate(csar, QName.valueOf(servicetemplate));
         }
-        
+        catch (org.opentosca.container.core.common.NotFoundException e) {
+            throw new NotFoundException(e);
+        }
+
         @SuppressWarnings("null")
-        final List<TExportedOperation> operations= Optional.ofNullable(serviceTemplate)
-            .map(TServiceTemplate::getBoundaryDefinitions)
-            .map(TBoundaryDefinitions::getInterfaces)
-            .map(TBoundaryDefinitions.Interfaces::getInterface)
-            .map(List::stream)
-            .orElse(Collections.<TExportedInterface>emptyList().stream())
-            .filter(iface -> iface.getIdFromIdOrNameField().equals(name))
-            .findFirst()
-            .map(iface -> iface.getOperation())
-            .orElse(Collections.emptyList());
+        final List<TExportedOperation> operations =
+            Optional.ofNullable(serviceTemplate).map(TServiceTemplate::getBoundaryDefinitions)
+                    .map(TBoundaryDefinitions::getInterfaces).map(TBoundaryDefinitions.Interfaces::getInterface)
+                    .map(List::stream).orElse(Collections.<TExportedInterface>emptyList().stream())
+                    .filter(iface -> iface.getIdFromIdOrNameField().equals(name)).findFirst()
+                    .map(iface -> iface.getOperation()).orElse(Collections.emptyList());
 
         this.logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
                           operations.size(), name, servicetemplate, csar);
@@ -209,12 +204,14 @@ public class BoundaryDefinitionController {
                 final URI planUrl;
                 if (PlanTypes.BUILD.toString().equals(plan.getPlanType())) {
                     // If it's a build plan
-                    planUrl = this.uriInfo.getBaseUriBuilder()
+                    planUrl =
+                        this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
                                     .build(csar, servicetemplate, plan.getId());
                 } else {
                     // ... else we assume it's a management plan
-                    planUrl = this.uriInfo.getBaseUriBuilder()
+                    planUrl =
+                        this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/:id/managementplans/{managementplan}")
                                     .build(csar, servicetemplate, plan.getId());
                 }

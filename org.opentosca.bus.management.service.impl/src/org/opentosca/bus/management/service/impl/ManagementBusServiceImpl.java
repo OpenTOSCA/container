@@ -18,6 +18,7 @@ import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -164,7 +165,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                             // Distinction of WSDL &
                             // REST Endpoints is obsolete.
                             final WSDLEndpoint wsdlEndpoint =
-                                ServiceHandler.endpointService.getWSDLEndpointForIa(csarID, nodeTypeImplementationID,
+                                ServiceHandler.endpointService.getWSDLEndpointForIa(new CsarId(csarID), nodeTypeImplementationID,
                                                                                     implementationArtifactName);
 
                             // Check if implementation artifact has a stored
@@ -287,7 +288,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                             // Distinction of WSDL &
                             // REST Endpoints is obsolete.
                             final WSDLEndpoint wsdlEndpoint =
-                                ServiceHandler.endpointService.getWSDLEndpointForIa(csarID,
+                                ServiceHandler.endpointService.getWSDLEndpointForIa(new CsarId(csarID),
                                                                                     relationshipTypeImplementationID,
                                                                                     implementationArtifactName);
 
@@ -379,7 +380,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         ManagementBusServiceImpl.LOG.debug("Getting Endpoint for Plan {} from CSAR: {}", planID, csarID);
         ServiceHandler.endpointService.printPlanEndpoints();
-        final WSDLEndpoint WSDLendpoint = ServiceHandler.endpointService.getWSDLEndpointForPlanId(csarID, planID);
+        final WSDLEndpoint WSDLendpoint = ServiceHandler.endpointService.getWSDLEndpointForPlanId(new CsarId(csarID), planID);
 
         final String planLanguage = message.getHeader("PlanLanguage", String.class);
         ManagementBusServiceImpl.LOG.debug("plan language is: {}", planLanguage);
