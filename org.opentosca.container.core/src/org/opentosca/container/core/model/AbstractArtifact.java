@@ -18,7 +18,7 @@ import org.opentosca.container.core.common.UserException;
  * check if an artifact reference belongs to this type of artifact, and browsing the artifact
  * content (this is the artifact root).
  */
-@Deprecated // FIXME this is relying on the old csar representation for it's only implementation
+// FIXME remove the abomination that is IBrowseable
 public abstract class AbstractArtifact implements IBrowseable {
 
     /**

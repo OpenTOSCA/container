@@ -13,19 +13,21 @@ Import-Package:
  org.apache.http.entity.mime.content;version="4.5.2",
  org.apache.http.util;version="4.4.6",
  org.eclipse.osgi.util;version="1.1.0",
+ org.eclipse.winery.model.tosca,
  org.opentosca.container.core;version="2.0.0",
  org.opentosca.container.core.common;version="2.0.0",
  org.opentosca.container.core.engine;version="2.0.0",
  org.opentosca.container.core.model;version="2.0.0",
  org.opentosca.container.core.model.csar;version="2.0.0",
+ org.opentosca.container.core.model.csar.backwards;version="2.0.0",
  org.opentosca.container.core.model.csar.id;version="2.0.0",
  org.opentosca.container.core.model.endpoint;version="2.0.0",
  org.opentosca.container.core.model.endpoint.wsdl;version="2.0.0",
  org.opentosca.container.core.service;version="2.0.0",
- org.eclipse.winery.model.tosca,
  org.opentosca.container.engine.plan.plugin;version="2.0.0",
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.6.4"
+Require-Bundle: org.eclipse.jdt.annotation;bundle-version="2.1.0"
 Bundle-Activator: org.opentosca.container.engine.plan.plugin.camunda.Activator
 Service-Component: OSGI-INF/*
 Bundle-ActivationPolicy: lazy

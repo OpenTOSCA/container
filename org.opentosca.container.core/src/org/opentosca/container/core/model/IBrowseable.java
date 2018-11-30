@@ -9,6 +9,7 @@ import java.util.Set;
 /**
  * Provides methods for getting the directories and files in a directory respectively root.
  */
+@Deprecated
 public interface IBrowseable {
 
     /**

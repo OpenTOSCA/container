@@ -12,11 +12,14 @@ import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.winery.model.tosca.Definitions;
 import org.eclipse.winery.model.tosca.HasType;
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactTemplate.ArtifactReferences;
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TEntityType.DerivedFrom;
 import org.eclipse.winery.model.tosca.TEntityTypeImplementation;
 import org.eclipse.winery.model.tosca.TImplementationArtifacts;
@@ -27,6 +30,7 @@ import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
@@ -303,6 +307,30 @@ public final class ToscaEngine {
             })
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
+    }
+
+    @NonNull
+    public static TPlan resolvePlanReference(Csar csar, QName planId) throws NotFoundException {
+        TPlan plan = csar.serviceTemplates().stream()
+            .flatMap(st -> {
+                TPlans plans = st.getPlans();
+                return plans == null ? Stream.empty() : plans.getPlan().stream();
+            })
+            .filter(tplan -> QName.valueOf(tplan.getId()).equals(planId))
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException("No plan matching " + planId + " was found in csar" + csar.id().csarName()));
+        return plan;
+    }
+
+    @Nullable
+    public static TServiceTemplate containingServiceTemplate(Csar csar, TPlan toscaPlan) {
+        return csar.serviceTemplates().stream()
+            .filter(st -> {
+                TPlans plans = st.getPlans();
+                return plans == null ? false : plans.getPlan().stream().anyMatch(toscaPlan::equals);
+            })
+            .findFirst()
+            .orElse(null);
     }
     
     

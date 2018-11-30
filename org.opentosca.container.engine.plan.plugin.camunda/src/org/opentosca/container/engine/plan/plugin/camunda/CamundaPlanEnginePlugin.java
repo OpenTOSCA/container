@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,20 +13,24 @@ import javax.xml.namespace.QName;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TArtifactTemplate.ArtifactReferences;
+import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractFile;
-import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.backwards.ArtifactResolver;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.service.ICoreFileService;
-import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.container.core.service.IHTTPService;
-import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
 import org.opentosca.container.engine.plan.plugin.camunda.iaenginecopies.CopyOfIAEnginePluginWarTomcatServiceImpl;
 import org.opentosca.container.engine.plan.plugin.camunda.util.Messages;
@@ -38,11 +43,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 
     final private static Logger LOG = LoggerFactory.getLogger(CamundaPlanEnginePlugin.class);
 
-    private ICoreFileService fileService = null;
-    private IFileAccessService fileAccessService = null;
-    private IToscaEngineService toscaEngineService;
     private ICoreEndpointService endpointService;
-
+    private CsarStorageService storage;
 
     @Override
     public String getLanguageUsed() {
@@ -52,7 +54,6 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
     @Override
     public List<String> getCapabilties() {
         final List<String> capabilities = new ArrayList<>();
-
         for (final String capability : Messages.CamundaPlanEnginePlugin_capabilities.split("[,;]")) {
             capabilities.add(capability.trim());
         }
@@ -61,94 +62,72 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 
     @Override
     public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
-
-        this.bindServices();
-
-        Path fetchedPlan;
-
-        String planName = "";
-
-        // retrieve process
-        if (this.fileService != null) {
-
-            CSARContent csar = null;
-
-            try {
-                csar = this.fileService.getCSAR(csarId.toOldCsarId());
-            }
-            catch (final UserException exc) {
-                CamundaPlanEnginePlugin.LOG.error("Could not get the CSAR from file service. An User Exception occured.",
-                                                  exc);
-                return false;
-            }
-
-            AbstractArtifact planReference = null;
-
-            planReference = this.toscaEngineService.getPlanModelReferenceAbstractArtifact(csar, planId);
-
-            if (planReference == null) {
-                CamundaPlanEnginePlugin.LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
-                                                  planRef.getReference());
-                return false;
-            }
-
-            if (!planReference.isFileArtifact()) {
-                CamundaPlanEnginePlugin.LOG.warn("Only plan references pointing to a file are supported!");
-                return false;
-            }
-
-            final AbstractFile plan = planReference.getFile("");
-
-            if (plan == null) {
-                CamundaPlanEnginePlugin.LOG.error("ArtifactReference resulted in null AbstractFile.");
-                return false;
-            }
-
-            if (!plan.getName().substring(plan.getName().lastIndexOf('.') + 1).equals("war")) {
-                CamundaPlanEnginePlugin.LOG.debug("Plan reference is not a WAR file. It was '{}'.", plan.getName());
-                return false;
-            }
-
-            try {
-                fetchedPlan = plan.getFile();
-
-                if (null == fetchedPlan || fetchedPlan.equals("")) {
-                    CamundaPlanEnginePlugin.LOG.error("No path for plan.");
-                    return false;
-                } else {
-                    LOG.debug("Plan should be located at {}", fetchedPlan.toString());
-                }
-
-                if (fetchedPlan.toFile().exists()) {
-                    LOG.debug("Plan file exists at {}", fetchedPlan.toString());
-                }
-            }
-            catch (final SystemException exc) {
-                CamundaPlanEnginePlugin.LOG.error("An System Exception occured. File could not be fetched.", exc);
-                return false;
-            }
-
-        } else {
-            CamundaPlanEnginePlugin.LOG.error("Can't fetch relevant files from FileService: FileService not available");
+        if (planRef == null) {
+            return false;
+        }
+        Csar csar = storage.findById(csarId);
+        TPlan toscaPlan;
+        try {
+            toscaPlan = ToscaEngine.resolvePlanReference(csar, planId);
+        } catch (NotFoundException e) {
+            LOG.error("Could not find plan with id [{}] in csar {}", planId, csarId.csarName());
+            return false;
+        }
+        TServiceTemplate containingServiceTemplate = ToscaEngine.containingServiceTemplate(csar, toscaPlan);
+        assert(containingServiceTemplate != null); // shouldn't be null, since we have a plan from it
+        
+        AbstractArtifact planArtifact;
+        try {
+            planArtifact = ArtifactResolver.resolveArtifact(csar, 
+                                               ArtifactResolver.resolveServiceTemplate.apply(containingServiceTemplate), 
+                                               Paths.get(planRef.getReference()));
+        }
+        catch (UserException e) {
+            LOG.error("Could not resolve planArtifact", e);
+            return false;
+        }
+        if (!planArtifact.isFileArtifact()) {
+            LOG.warn("Only plan references pointing to a file are supported!");
             return false;
         }
 
-        // ##################################################################################################################################################
-        // ### dirty copy of IAEngine War Tomcat Plugin
-        // ### TODO make this pretty
-        // ##################################################################################################################################################
+        final AbstractFile plan = planArtifact.getFile("");
+        if (plan == null) {
+            LOG.error("ArtifactReference resulted in null AbstractFile.");
+            return false;
+        }
+        if (!plan.getName().substring(plan.getName().lastIndexOf('.') + 1).equals("war")) {
+            LOG.debug("Plan reference is not a WAR file. It was '{}'.", plan.getName());
+            return false;
+        }
+
+        Path fetchedPlan;
+        try {
+            fetchedPlan = plan.getFile();
+            if (null == fetchedPlan || fetchedPlan.startsWith("")) {
+                LOG.error("No path for plan.");
+                return false;
+            } else {
+                LOG.debug("Plan should be located at {}", fetchedPlan.toString());
+            }
+
+            if (fetchedPlan.toFile().exists()) {
+                LOG.debug("Plan file exists at {}", fetchedPlan.toString());
+            }
+        }
+        catch (final SystemException exc) {
+            LOG.error("An System Exception occured. File could not be fetched.", exc);
+            return false;
+        }
 
         final CopyOfIAEnginePluginWarTomcatServiceImpl deployer = new CopyOfIAEnginePluginWarTomcatServiceImpl();
         deployer.deployImplementationArtifact(csarId.toOldCsarId(), fetchedPlan.toFile());
         // POST http://localhost:8080/engine-rest/process-definition/{id}/start
         URI endpointURI = null;
         try {
-            planName = this.toscaEngineService.getPlanName(csarId.toOldCsarId(), planId);
             final int retries = 100;
-
             for (int iteration = retries; iteration > 0; iteration--) {
-                endpointURI = this.searchForEndpoint(planName);
-
+                endpointURI = this.searchForEndpoint(toscaPlan.getName());
                 if (null == endpointURI) {
                     try {
                         LOG.debug("Endpoint not set yet, Camunda might be still processing it.");
@@ -164,18 +143,11 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             LOG.debug("Endpoint URI is {}", endpointURI.getPath());
         }
         catch (final URISyntaxException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        catch (final NullPointerException e) {
-
-        }
-
-        // ##################################################################################################################################################
-        // ##################################################################################################################################################
 
         if (endpointURI == null) {
-            CamundaPlanEnginePlugin.LOG.warn("No endpoint for Plan {} could be determined, container won't be able to instantiate it",
+            LOG.warn("No endpoint for Plan {} could be determined, container won't be able to instantiate it",
                                              planRef.getReference());
             return false;
         }
@@ -187,7 +159,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         final WSDLEndpoint point = new WSDLEndpoint();
         point.setCsarId(csarId);
         point.setPlanId(planId);
-        // point.setIaName(planName);
+        point.setIaName(toscaPlan.getName());
         point.setURI(endpointURI);
 
         this.endpointService.storeWSDLEndpoint(point);
@@ -259,23 +231,33 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         endpointURI = new URI(processDefinitions + "key/" + planID + "/start");
         return endpointURI;
     }
+    
+    public void bindStorageService(CsarStorageService storageService) {
+        if (storageService == null) {
+            LOG.warn("Trying to bind null storage service. Aborting binding");
+            return;
+        }
+        this.storage = storageService;
+        LOG.info("Bound storage service");
+    }
+    
+    
+    public void unbindStorageService(CsarStorageService storageService) {
+        LOG.info("Unbinding storage service");
+        this.storage = null;
+    }
 
-    private void bindServices() {
-        final BundleContext context = Activator.getContext();
-
-        final ServiceReference<ICoreFileService> coreRef = context.getServiceReference(ICoreFileService.class);
-        this.fileService = context.getService(coreRef);
-
-        final ServiceReference<IFileAccessService> fileAccess = context.getServiceReference(IFileAccessService.class);
-        this.fileAccessService = context.getService(fileAccess);
-
-        final ServiceReference<IToscaEngineService> toscaEngine =
-            context.getServiceReference(IToscaEngineService.class);
-        this.toscaEngineService = context.getService(toscaEngine);
-
-        final ServiceReference<ICoreEndpointService> endpointService =
-            context.getServiceReference(ICoreEndpointService.class);
-        this.endpointService = context.getService(endpointService);
+    public void bindEndpointService(ICoreEndpointService endpointService) {
+        if (endpointService == null) {
+            LOG.error("Attempted to bind null endpoint service. Aborting");
+        }
+        this.endpointService = endpointService;
+        LOG.info("Bound endpoint service");
+    }
+    
+    public void unbindEndpointService(ICoreEndpointService endpointService) {
+        LOG.info("Unbinding endpoint service");
+        this.endpointService = null;
     }
 
     @Override
