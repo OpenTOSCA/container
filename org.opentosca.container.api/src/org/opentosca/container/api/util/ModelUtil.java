@@ -2,7 +2,6 @@ package org.opentosca.container.api.util;
 
 import java.util.List;
 
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -12,11 +11,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
