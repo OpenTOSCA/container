@@ -58,7 +58,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         final Variable containerPortVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerPort");
         final Variable portVar = templateContext.getPropertyVariable(nodeTemplate, "Port");
 
-        if (containerPortVar == null | portVar == null) {
+        if (containerPortVar == null || portVar == null) {
             BPELOpenMTCDockerContainerTypePluginHandler.LOG.error("Couldn't fetch Property variables ContainerPort or Port");
             return false;
         }
@@ -73,7 +73,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         final Variable instanceIdVar = templateContext.getPropertyVariable(nodeTemplate, "InstanceID");
         final Variable onem2mspIdVar = templateContext.getPropertyVariable(nodeTemplate, "ONEM2MSPID");
 
-        if (tenantIdVar == null | instanceIdVar == null | onem2mspIdVar == null) {
+        if (tenantIdVar == null || instanceIdVar == null || onem2mspIdVar == null) {
             return false;
         }
 
@@ -232,11 +232,11 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         final Variable containerPortVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerPort");
         final Variable portVar = templateContext.getPropertyVariable(nodeTemplate, "Port");
 
-        if (containerPortVar == null | portVar == null) {
+        if (containerPortVar == null || portVar == null) {
             BPELOpenMTCDockerContainerTypePluginHandler.LOG.error("Couldn't fetch Property variables ContainerPort or Port");
             return false;
         }
-
+        
         /*
          * Find Tenant and Instance id properties to be set as ONEM2M_CSE_ID="TenantID~InstanceID" for
          * OpenMTC Adapter

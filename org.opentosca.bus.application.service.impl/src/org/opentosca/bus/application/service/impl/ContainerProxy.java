@@ -15,6 +15,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TDeploymentArtifacts;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
@@ -390,6 +391,7 @@ public class ContainerProxy {
      * @return name of a NodeTemplate of the specified NodeType inside of the specified serviceTemplate
      *         & csar
      */
+    @Nullable
     protected static String getANodeTemplateNameOfNodeType(final CSARID csarID, final QName serviceTemplateID,
                                                            final QName nodeTypeQName) {
 

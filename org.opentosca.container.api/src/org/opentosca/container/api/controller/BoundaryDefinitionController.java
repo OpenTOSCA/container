@@ -106,6 +106,7 @@ public class BoundaryDefinitionController {
         }
 
         // using optional to condense nullchecks
+        @SuppressWarnings("null")
         List<TPropertyMapping> propertyMappings = Optional.ofNullable(serviceTemplate)
             .map(TServiceTemplate::getBoundaryDefinitions)
             .map(TBoundaryDefinitions::getProperties)
@@ -140,6 +141,7 @@ public class BoundaryDefinitionController {
         }
 
         // we're hacking ourselves an elvis operator here, allowing us to condense nullchecks
+        @SuppressWarnings("null")
         final List<TExportedInterface> interfaces = Optional.ofNullable(serviceTemplate)
             .map(TServiceTemplate::getBoundaryDefinitions)
             .map(TBoundaryDefinitions::getInterfaces)
@@ -177,6 +179,7 @@ public class BoundaryDefinitionController {
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
         
+        @SuppressWarnings("null")
         final List<TExportedOperation> operations= Optional.ofNullable(serviceTemplate)
             .map(TServiceTemplate::getBoundaryDefinitions)
             .map(TBoundaryDefinitions::getInterfaces)

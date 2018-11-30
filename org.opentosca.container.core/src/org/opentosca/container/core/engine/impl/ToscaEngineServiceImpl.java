@@ -46,6 +46,7 @@ import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TImplementationArtifacts.ImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate.Capabilities;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
@@ -57,6 +58,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TRequiredContainerFeature;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -72,6 +74,7 @@ import com.google.common.collect.Lists;
  *
  * @see org.opentosca.container.core.engine.IToscaEngineService
  */
+@SuppressWarnings("null")
 public class ToscaEngineServiceImpl implements IToscaEngineService {
 
     // FIXME check the necessity of this being static?
@@ -2291,11 +2294,13 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         final TServiceTemplate serviceTemplate =
             (TServiceTemplate) toscaReferenceMapper.getJAXBReference(csarId, serviceTemplateId);
 
-        for (final TEntityTemplate entity : serviceTemplate.getTopologyTemplate()
-                                                           .getNodeTemplateOrRelationshipTemplate()) {
+        final TTopologyTemplate topologyTemplate = serviceTemplate.getTopologyTemplate();
+        assert(topologyTemplate != null);
+        for (final TEntityTemplate entity : topologyTemplate.getNodeTemplateOrRelationshipTemplate()) {
             if (entity instanceof TNodeTemplate && entity.getId().equals(nodeTemplateId)) {
-                if (((TNodeTemplate) entity).getCapabilities() != null) {
-                    for (final TCapability cap : ((TNodeTemplate) entity).getCapabilities().getCapability()) {
+                final Capabilities capabilities = ((TNodeTemplate) entity).getCapabilities();
+                if (capabilities != null) {
+                    for (final TCapability cap : capabilities.getCapability()) {
                         caps.add(new QName(serviceTemplate.getTargetNamespace(), cap.getId()));
                     }
                 }

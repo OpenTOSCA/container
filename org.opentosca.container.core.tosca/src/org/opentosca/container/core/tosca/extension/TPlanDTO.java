@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.w3c.dom.Element;
@@ -46,16 +47,18 @@ public class TPlanDTO {
         this.planType = plan.getPlanType();
         this.planLanguage = plan.getPlanLanguage();
 
-        if (null != plan.getInputParameters()) {
+        final org.eclipse.winery.model.tosca.TPlan.InputParameters serializedInputParams = plan.getInputParameters();
+        if (null != serializedInputParams) {
             this.inputParameters = new InputParameters();
-            for (final TParameter param : plan.getInputParameters().getInputParameter()) {
+            for (final TParameter param : serializedInputParams.getInputParameter()) {
                 this.inputParameters.getInputParameter().add(new TParameterDTO(param));
             }
         }
 
-        if (null != plan.getOutputParameters()) {
+        final org.eclipse.winery.model.tosca.TPlan.OutputParameters serializedOutputParams = plan.getOutputParameters();
+        if (null != serializedOutputParams) {
             this.outputParameters = new OutputParameters();
-            for (final TParameter param : plan.getOutputParameters().getOutputParameter()) {
+            for (final TParameter param : serializedOutputParams.getOutputParameter()) {
                 this.outputParameters.getOutputParameter().add(new TParameterDTO(param));
             }
         }
@@ -77,7 +80,7 @@ public class TPlanDTO {
      * @return possible object is {@link TPlanDTO.InputParameters }
      *
      */
-    public TPlanDTO.InputParameters getInputParameters() {
+    public TPlanDTO.@Nullable InputParameters getInputParameters() {
         if (null == this.inputParameters) {
             this.inputParameters = new TPlanDTO.InputParameters();
         }
