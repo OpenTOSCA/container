@@ -25,7 +25,6 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
@@ -60,14 +59,12 @@ import org.xml.sax.SAXException;
  */
 public class BPELRESTLightUpdater {
 
-    private static ICoreEndpointService endpointService;
-    private static ICoreEndpointService oldEndpointService;
+    private ICoreEndpointService endpointService;
     private final DocumentBuilder builder;
     private final DocumentBuilderFactory domFactory;
     private final XPathFactory factory;
     private final TransformerFactory transformerFactory;
     private final Transformer transformer;
-    private CSARID csarId;
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELRESTLightUpdater.class);
 
@@ -100,17 +97,16 @@ public class BPELRESTLightUpdater {
      * @throws IOException is thrown when access of BPEL file failed
      * @throws SAXException is thrown when parsing of BPEL file failed
      */
-    public boolean changeEndpoints(final List<File> processFiles, final CSARID csarId) throws IOException,
+    public boolean changeEndpoints(final List<File> processFiles, final CsarId csarId) throws IOException,
                                                                                        SAXException {
-        this.csarId = csarId;
         final File bpelFile = getBPELFile(processFiles);
 
         if (bpelFile == null) {
-            BPELRESTLightUpdater.LOG.debug("No bpel file found");
+            LOG.debug("No bpel file found");
             return false;
         }
 
-        BPELRESTLightUpdater.LOG.debug("Parsing bpel file {} ", bpelFile.getAbsoluteFile());
+        LOG.debug("Parsing bpel file {} ", bpelFile.getAbsoluteFile());
         final Document document = this.builder.parse(bpelFile);
 
         // get the elements
@@ -119,14 +115,14 @@ public class BPELRESTLightUpdater {
         final Set<URI> localURIs = getRESTURI(elements);
         final Set<BPELRESTLightElement> notChanged = new HashSet<>();
 
-        if (BPELRESTLightUpdater.endpointService != null) {
+        if (endpointService != null) {
             for (final URI localUri : localURIs) {
-                for (final RESTEndpoint endpoint : BPELRESTLightUpdater.endpointService.getRestEndpoints(localUri, new CsarId(csarId))) {
+                for (final RESTEndpoint endpoint : endpointService.getRestEndpoints(localUri, csarId)) {
                     notChanged.addAll(changeAddress(endpoint, elements));
                 }
             }
         } else {
-            BPELRESTLightUpdater.LOG.warn("No EndpointService available");
+            LOG.warn("No EndpointService available");
         }
 
         if (notChanged.isEmpty()) {
@@ -144,9 +140,9 @@ public class BPELRESTLightUpdater {
             return wroteFile;
         } else {
             // log couldn't change all uris inside bpel --> isn't valid anymore
-            BPELRESTLightUpdater.LOG.warn("Chouldn't change all URIs in bpel file");
+            LOG.warn("Chouldn't change all URIs in bpel file");
             for (final BPELRESTLightElement element : notChanged) {
-                BPELRESTLightUpdater.LOG.warn("Could'nt change address in element {}", element.toString());
+                LOG.warn("Could'nt change address in element {}", element.toString());
             }
 
             // just return true
@@ -161,14 +157,14 @@ public class BPELRESTLightUpdater {
      * @return a List of BPELRESTLightElements
      */
     public List<BPELRESTLightElement> getAllBPELRESTLightElements(final Document document) {
-        BPELRESTLightUpdater.LOG.debug("Retrieving all BPEL4RESTLight elements");
-        BPELRESTLightUpdater.LOG.debug("Retrieving PUT elements");
+        LOG.debug("Retrieving all BPEL4RESTLight elements");
+        LOG.debug("Retrieving PUT elements");
         final List<BPELRESTLightElement> elements = getBPELRESTLightElements(BPELRESTLightElementType.PUT, document);
-        BPELRESTLightUpdater.LOG.debug("Retrieving POST elements");
+        LOG.debug("Retrieving POST elements");
         elements.addAll(getBPELRESTLightElements(BPELRESTLightElementType.POST, document));
-        BPELRESTLightUpdater.LOG.debug("Retrieving GET elements");
+        LOG.debug("Retrieving GET elements");
         elements.addAll(getBPELRESTLightElements(BPELRESTLightElementType.GET, document));
-        BPELRESTLightUpdater.LOG.debug("Retrieving DELETE elements");
+        LOG.debug("Retrieving DELETE elements");
         elements.addAll(getBPELRESTLightElements(BPELRESTLightElementType.DELETE, document));
         return elements;
     }
@@ -205,14 +201,14 @@ public class BPELRESTLightUpdater {
         final XPath xpath = this.factory.newXPath();
         XPathExpression expr;
         try {
-            BPELRESTLightUpdater.LOG.debug("Querying document with {} ", xpathExp);
+            LOG.debug("Querying document with {} ", xpathExp);
             expr = xpath.compile(xpathExp);
             result = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
         }
         catch (final XPathExpressionException e) {
-            BPELRESTLightUpdater.LOG.error("Internal Error: XPath expression wasn't valid", e);
+            LOG.error("Internal Error: XPath expression wasn't valid", e);
         }
-        BPELRESTLightUpdater.LOG.debug("Found Elements: {} ", String.valueOf(result.getLength()));
+        LOG.debug("Found Elements: {} ", String.valueOf(result.getLength()));
         for (int i = 0; i < result.getLength(); i++) {
             // in this block the BPELRESTLightElement class assures that we
             // change only elements which should be changed.
@@ -223,7 +219,7 @@ public class BPELRESTLightUpdater {
                 element = new BPELRESTLightElement(node);
             }
             catch (final org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightElement.NoBPELRESTLightElementException e) {
-                BPELRESTLightUpdater.LOG.warn(e.getMessage());
+                LOG.warn(e.getMessage());
             }
             finally {
                 if (element != null) {
@@ -266,8 +262,7 @@ public class BPELRESTLightUpdater {
         final Set<BPELRESTLightElement> notChanged = new HashSet<>();
         for (final BPELRESTLightElement element : elements) {
             // the following check is pretty unstable, if the path isn't exactly
-            // the
-            // same. this could really happen if the service was deployed in
+            // the same. this could really happen if the service was deployed in
             // some "nested" environment.
             // Example:
             // {serviceroot}/{somepath} are URIs of the REST service and after
@@ -280,13 +275,13 @@ public class BPELRESTLightUpdater {
             final String elementPath = normalizePath(element.getURI().getPath());
             if (endpointPath.equals(elementPath)) {
                 try {
-                    BPELRESTLightUpdater.LOG.debug("Setting address in bpel4RestLight element ");
+                    LOG.debug("Setting address in bpel4RestLight element ");
                     if (element.setURI(endpoint.getURI())) {
                         toRemove.add(element);
                     }
                 }
                 catch (final URISyntaxException e) {
-                    BPELRESTLightUpdater.LOG.debug("Setting address failed (URISyntaxException): URI {}",
+                    LOG.debug("Setting address failed (URISyntaxException): URI {}",
                                                    endpoint.getURI().toString());
                 }
             }
@@ -341,14 +336,9 @@ public class BPELRESTLightUpdater {
      */
     public void bindEndpointService(final ICoreEndpointService endpointService) {
         if (endpointService != null) {
-            BPELRESTLightUpdater.LOG.debug("Registering EndpointService {}", endpointService.toString());
-            if (BPELRESTLightUpdater.endpointService == null) {
-                BPELRESTLightUpdater.endpointService = endpointService;
-            } else {
-                BPELRESTLightUpdater.oldEndpointService = endpointService;
-                BPELRESTLightUpdater.endpointService = endpointService;
-            }
-            BPELRESTLightUpdater.LOG.debug("Registered EndpointService {}", endpointService.toString());
+            LOG.trace("Registering EndpointService {}", endpointService.toString());
+            this.endpointService = endpointService;
+            LOG.trace("Registered EndpointService {}", endpointService.toString());
         }
     }
 
@@ -358,12 +348,8 @@ public class BPELRESTLightUpdater {
      * @param endpointService the EndpointService to unbind
      */
     public void unbindEndpointService(final ICoreEndpointService endpointService) {
-        BPELRESTLightUpdater.LOG.debug("Unregistering EndpointService {}", endpointService.toString());
-        if (BPELRESTLightUpdater.oldEndpointService == null) {
-            BPELRESTLightUpdater.endpointService = null;
-        } else {
-            BPELRESTLightUpdater.oldEndpointService = null;
-        }
-        BPELRESTLightUpdater.LOG.debug("Unregistered EndpointService {}", endpointService.toString());
+        LOG.trace("Unregistering EndpointService {}", endpointService.toString());
+        this.endpointService = null;
+        LOG.trace("Unregistered EndpointService {}", endpointService.toString());
     }
 }

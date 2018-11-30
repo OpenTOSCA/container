@@ -60,7 +60,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
     }
 
     @Override
-    public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CSARID csarId) {
+    public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
 
         this.bindServices();
 
@@ -74,7 +74,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             CSARContent csar = null;
 
             try {
-                csar = this.fileService.getCSAR(csarId);
+                csar = this.fileService.getCSAR(csarId.toOldCsarId());
             }
             catch (final UserException exc) {
                 CamundaPlanEnginePlugin.LOG.error("Could not get the CSAR from file service. An User Exception occured.",
@@ -139,11 +139,11 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         // ##################################################################################################################################################
 
         final CopyOfIAEnginePluginWarTomcatServiceImpl deployer = new CopyOfIAEnginePluginWarTomcatServiceImpl();
-        deployer.deployImplementationArtifact(csarId, fetchedPlan.toFile());
+        deployer.deployImplementationArtifact(csarId.toOldCsarId(), fetchedPlan.toFile());
         // POST http://localhost:8080/engine-rest/process-definition/{id}/start
         URI endpointURI = null;
         try {
-            planName = this.toscaEngineService.getPlanName(csarId, planId);
+            planName = this.toscaEngineService.getPlanName(csarId.toOldCsarId(), planId);
             final int retries = 100;
 
             for (int iteration = retries; iteration > 0; iteration--) {
@@ -185,7 +185,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         }
 
         final WSDLEndpoint point = new WSDLEndpoint();
-        point.setCsarId(new CsarId(csarId));
+        point.setCsarId(csarId);
         point.setPlanId(planId);
         // point.setIaName(planName);
         point.setURI(endpointURI);
@@ -279,7 +279,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
     }
 
     @Override
-    public boolean undeployPlanReference(final QName planId, final PlanModelReference planRef, final CSARID csarId) {
+    public boolean undeployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
         LOG.warn("The undeploy method for the Camunda plan engine is not implemented yet.");
         return false;
     }

@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.capability.provider.ProviderType;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.eclipse.winery.model.tosca.TPlan;
@@ -71,7 +72,7 @@ public class PlanEngineImpl implements IPlanEngineService {
             final IPlanEnginePlanRefPluginService plugin = this.getRefPlugin(language);
             if (plugin != null) {
                 PlanEngineImpl.LOG.info("Found PlanReferencePlugin for plan {} ", plan.getId());
-                planCheck = plugin.deployPlanReference(planId, plan.getPlanModelReference(), csarId);
+                planCheck = plugin.deployPlanReference(planId, plan.getPlanModelReference(), new CsarId(csarId));
             } else {
                 PlanEngineImpl.LOG.warn("No PlanReferencePlugin available for plan {} ", plan.getId());
                 planCheck = false;
@@ -107,7 +108,7 @@ public class PlanEngineImpl implements IPlanEngineService {
             final IPlanEnginePlanRefPluginService plugin = this.getRefPlugin(language);
             if (plugin != null) {
                 PlanEngineImpl.LOG.info("Found PlanReferencePlugin for plan {} ", plan.getId());
-                planCheck = plugin.undeployPlanReference(planId, plan.getPlanModelReference(), csarId);
+                planCheck = plugin.undeployPlanReference(planId, plan.getPlanModelReference(), new CsarId(csarId));
             } else {
                 PlanEngineImpl.LOG.warn("No PlanReferencePlugin available for plan {} ", plan.getId());
                 planCheck = false;

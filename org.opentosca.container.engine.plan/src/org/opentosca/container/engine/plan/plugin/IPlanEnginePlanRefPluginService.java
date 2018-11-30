@@ -1,8 +1,7 @@
 package org.opentosca.container.engine.plan.plugin;
 
 import javax.xml.namespace.QName;
-
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
 
 /**
@@ -33,7 +32,7 @@ public interface IPlanEnginePlanRefPluginService extends IPlanEnginePluginServic
      * @param csarId the identifier of the CSAR the PlanReference element belongs to
      * @return true if deployment was successful, else false
      */
-    public boolean deployPlanReference(QName planId, PlanModelReference planRef, CSARID csarId);
+    public boolean deployPlanReference(QName planId, PlanModelReference planRef, CsarId csarId);
 
     /**
      * <p>
@@ -51,6 +50,6 @@ public interface IPlanEnginePlanRefPluginService extends IPlanEnginePluginServic
      * @param csarId the identifier of the CSAR the PlanReference element belongs to
      * @return true if undeployment was successful, else false
      */
-    public boolean undeployPlanReference(QName planId, PlanModelReference planRef, CSARID csarId);
+    public boolean undeployPlanReference(QName planId, PlanModelReference planRef, CsarId csarId);
 
 }
