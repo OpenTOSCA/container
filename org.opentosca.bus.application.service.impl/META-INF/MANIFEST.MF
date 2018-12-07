@@ -13,6 +13,7 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.impl;version="2.10.4",
  org.apache.camel.model;version="2.10.4",
  org.apache.camel.spi;version="2.10.4",
+ org.eclipse.jdt.annotation,
  org.eclipse.winery.model.tosca,
  org.opentosca.bus.application.model.constants;version="2.0.0",
  org.opentosca.bus.application.model.exception;version="2.0.0",
@@ -29,4 +30,3 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.slf4j;version="1.6.4"
 Service-Component: OSGI-INF/*
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.jdt.annotation;bundle-version="2.1.0"

@@ -12,10 +12,4 @@ Bundle-ClassPath: .,
  META-INF/resources/
 Export-Package: org.opentosca.planbuilder.prephase.plugin.fileupload.core;version="2.0.0",
  org.opentosca.planbuilder.prephase.plugin.fileupload.core.handler;version="2.0.0"
-Require-Bundle: org.opentosca.container.core;bundle-version="2.0.0",
- org.opentosca.container.core.tosca;bundle-version="2.0.0",
- org.opentosca.planbuilder;bundle-version="2.0.0",
- org.opentosca.planbuilder.model;bundle-version="2.0.0",
- org.opentosca.planbuilder.core.bpel;bundle-version="2.0.0",
- org.opentosca.planbuilder.provphase.plugin.invoker;bundle-version="2.0.0"
 Bundle-Activator: org.opentosca.planbuilder.prephase.plugin.fileupload.Activator

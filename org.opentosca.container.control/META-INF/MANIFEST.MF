@@ -6,7 +6,8 @@ Automatic-Module-Name: org.opentosca.container.control
 Bundle-Version: 2.0.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.eclipse.winery.common.ids.definitions,
+Import-Package: org.eclipse.jdt.annotation,
+ org.eclipse.winery.common.ids.definitions,
  org.eclipse.winery.model.tosca,
  org.opentosca.bus.management.service;version="2.0.0",
  org.opentosca.container.core.common;version="2.0.0",
@@ -23,6 +24,5 @@ Import-Package: org.eclipse.winery.common.ids.definitions,
  org.osgi.framework;version="1.8.0",
  org.osgi.service.event;version="1.2.0",
  org.slf4j;version="1.7.10"
-Require-Bundle: org.eclipse.jdt.annotation;bundle-version="2.1.0"
 Export-Package: org.opentosca.container.control;version="2.0.0"
 Service-Component: OSGI-INF/*

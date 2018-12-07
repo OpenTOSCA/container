@@ -15,13 +15,14 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.spi;version="2.10.4",
  org.json.simple,
  org.json.simple.parser,
+ org.opentosca.bus.application.model.constants;version="2.0.0",
+ org.opentosca.bus.application.model.exception;version="2.0.0",
+ org.opentosca.bus.application.service;version="2.0.0",
+ org.opentosca.container.core;version="2.0.0",
  org.osgi.framework;version="1.6.0",
  org.restlet,
  org.restlet.data,
  org.restlet.util,
  org.slf4j;version="1.7.5"
-Require-Bundle: org.opentosca.container.core;bundle-version="2.0.0",
- org.opentosca.bus.application.model;bundle-version="2.0.0",
- org.opentosca.bus.application.service;bundle-version="2.0.0"
 Service-Component: OSGI-INF/ApplicationBusServiceHandler_component.xml
 Bundle-ActivationPolicy: lazy

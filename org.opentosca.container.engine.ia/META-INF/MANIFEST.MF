@@ -6,6 +6,7 @@ Automatic-Module-Name: org.opentosca.container.engine.ia
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.jgit.annotations;version="4.11.0",
+ org.eclipse.jdt.annotation,
  org.eclipse.winery.model.tosca,
  org.opentosca.container.core.common;version="2.0.0",
  org.opentosca.container.core.common.xml,
@@ -20,7 +21,6 @@ Import-Package: org.eclipse.jgit.annotations;version="4.11.0",
  org.opentosca.planbuilder.model.utils;version="2.0.0",
  org.osgi.framework;version="1.8.0",
  org.slf4j;version="1.6.4"
-Require-Bundle: org.eclipse.jdt.annotation;bundle-version="2.1.0"
 Export-Package: org.opentosca.container.engine.ia;version="2.0.0",
  org.opentosca.container.engine.ia.impl;version="2.0.0",
  org.opentosca.container.engine.ia.plugin;version="2.0.0"
