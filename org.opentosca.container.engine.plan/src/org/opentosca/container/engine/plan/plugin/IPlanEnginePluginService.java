@@ -2,6 +2,8 @@ package org.opentosca.container.engine.plan.plugin;
 
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * This interface is the superinterface for all plugins used by
  * {@link org.opentosca.planengine.service.impl.PlanEngineImpl}.
@@ -21,6 +23,7 @@ import java.util.List;
  * Deployment of Plans is completely plugin dependend, this means the PlanEngine doesn't say where
  * to deploy/install the plan, this must be handled by the plugin itself.
  */
+@NonNullByDefault
 public interface IPlanEnginePluginService {
 
     /**

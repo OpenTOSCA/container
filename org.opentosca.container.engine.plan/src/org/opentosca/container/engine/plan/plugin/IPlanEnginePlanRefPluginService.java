@@ -2,6 +2,7 @@ package org.opentosca.container.engine.plan.plugin;
 
 import javax.xml.namespace.QName;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
 
 /**
@@ -14,6 +15,7 @@ import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
  * service implementing {@link org.opentosca.core.file.service.ICoreFileService} should be called
  * for the raw data.
  */
+@NonNullByDefault
 public interface IPlanEnginePlanRefPluginService extends IPlanEnginePluginService {
 
     /**

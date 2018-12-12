@@ -14,7 +14,7 @@ import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
-import org.eclipse.jdt.annotation.NonNull;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.TPlan;
@@ -25,19 +25,15 @@ import org.opentosca.container.connector.ode.OdeConnector;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.AbstractArtifact;
-import org.opentosca.container.core.model.AbstractFile;
-import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.backwards.ArtifactResolver;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
 import org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightUpdater;
@@ -154,71 +150,27 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
      */
     @Override
     public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
-        List<File> planContents;
-        File tempDir;
-        File tempPlan;
-
-        // variable for the (inbound) portType of the process, if this is null
-        // till end the process can't be instantiated by the container
-        QName portType = null;
-        
-        Csar csar = storage.findById(csarId);
-        TPlan toscaPlan;
-        try {
-            toscaPlan = ToscaEngine.resolvePlanReference(csar, planId);
-        }
-        catch (NotFoundException e) {
-            LOG.error("Plan [{}] could not be found in csar {}", planId, csarId.csarName());
-            return false;
-        }
-        TServiceTemplate containingServiceTemplate = ToscaEngine.containingServiceTemplate(csar, toscaPlan);
-        if (containingServiceTemplate == null) {
-            LOG.error("Plan {} was not contained in a service template belonging to csar {}", planId, csarId.csarName());
+        Path planLocation = planLocationOnDisk(csarId, planId, planRef);
+        if (planLocation == null) {
+            // diagnostics already in planLocationOnDisk
             return false;
         }
         
-        // FIXME resolve by planRef instead.
-        // planRef.getReference() is overencoded. It's also not relative to the Csar root (but to one level below it)
-        Path planLocation = ArtifactResolver.resolvePlan.apply(containingServiceTemplate, toscaPlan);
-        AbstractArtifact planReference = ArtifactResolver.resolveArtifact(csar, planLocation, Paths.get(toscaPlan.getId() + ".zip"));
-        if (planReference == null) {
-            LOG.error("Plan reference '{}' resulted in a null ArtifactReference.", planRef.getReference());
-            return false;
-        }
-        if (!planReference.isFileArtifact()) {
-            LOG.warn("Only plan references pointing to a file are supported!");
-            return false;
-        }
-
-        final AbstractFile plan = planReference.getFile("");
-        if (plan == null) {
-            LOG.error("ArtifactReference resulted in null AbstractFile.");
-            return false;
-        }
-        if (!plan.getName().substring(plan.getName().lastIndexOf('.') + 1).equals("zip")) {
-            LOG.debug("Plan reference is not a ZIP file. It was '{}'.", plan.getName());
-            return false;
-        }
-
-        Path fetchedPlan;
-        try {
-            fetchedPlan = plan.getFile();
-        }
-        catch (final SystemException exc) {
-            LOG.error("An System Exception occured. File could not be fetched.", exc);
-            return false;
-        }
-
-        if (this.fileAccessService == null) {
+        IFileAccessService localCopy = this.fileAccessService;
+        if (localCopy == null) {
             LOG.error("FileAccessService is not available, can't create needed temporary space on disk");
             return false;
         }   
+
         // creating temporary dir for update
-        tempDir = this.fileAccessService.getTemp();
-        tempPlan = new File(tempDir, fetchedPlan.getFileName().toString());
-        LOG.debug("Unzipping Plan '{}' to '{}'.", fetchedPlan.getFileName().toString(),
+        File tempDir = localCopy.getTemp();
+        File tempPlan = new File(tempDir, planLocation.getFileName().toString());
+        LOG.debug("Unzipping Plan '{}' to '{}'.", planLocation.getFileName().toString(),
                                        tempDir.getAbsolutePath());
-        planContents = this.fileAccessService.unzip(fetchedPlan.toFile(), tempDir);
+        List<File> planContents = localCopy.unzip(planLocation.toFile(), tempDir);
+        // variable for the (inbound) portType of the process, if this is null
+        // till end the process can't be instantiated by the container
+        QName portType = null;
 
         // changing endpoints in WSDLs
         ODEEndpointUpdater odeUpdater;
@@ -264,7 +216,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 }
                 // package the updated files
                 LOG.debug("Packaging plan to {} ", tempPlan.getAbsolutePath());
-                tempPlan = this.fileAccessService.zip(tempDir, tempPlan);
+                tempPlan = localCopy.zip(tempDir, tempPlan);
             }
             catch (final IOException e) {
                 LOG.error("Can't package temporary plan for deployment", e);
@@ -345,61 +297,19 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     @Override
     public boolean undeployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
         // retrieve process
-        Csar csar = storage.findById(csarId);
-        TPlan toscaPlan;
-        try {
-            toscaPlan = ToscaEngine.resolvePlanReference(csar, planId);
-        }
-        catch (NotFoundException e) {
-            LOG.error("Plan [{}] could not be found in csar {}", planId, csarId.csarName());
-            return false;
-        }
-        TServiceTemplate containingServiceTemplate = ToscaEngine.containingServiceTemplate(csar, toscaPlan);
-        if (containingServiceTemplate == null) {
-            LOG.error("Plan {} was not contained in a service template belonging to csar {}", planId, csarId.csarName());
-            return false;
-        }
-        
-        // FIXME resolve by planRef instead.
-        // planRef.getReference() is overencoded. It's also not relative to the Csar root (but to one level below it)
-        Path planLocation = ArtifactResolver.resolvePlan.apply(containingServiceTemplate, toscaPlan);
-        AbstractArtifact planReference = ArtifactResolver.resolveArtifact(csar, planLocation, Paths.get(toscaPlan.getId() + ".zip"));
-        if (planReference == null) {
-            LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
-                                           planRef.getReference());
-            return false;
-        }
-        if (!planReference.isFileArtifact()) {
-            LOG.warn("Only plan references pointing to a file are supported!");
-            return false;
-        }
-
-        final AbstractFile plan = planReference.getFile("");
-        if (plan == null) {
-            LOG.error("ArtifactReference resulted in null AbstractFile.");
-            return false;
-        }
-        if (!plan.getName().substring(plan.getName().lastIndexOf('.') + 1).equals("zip")) {
-            LOG.debug("Plan reference is not a ZIP file. It was '{}'.", plan.getName());
-            return false;
-        }
-
-        Path fetchedPlan;
-        try {
-            fetchedPlan = plan.getFile();
-        }
-        catch (final SystemException exc) {
-            LOG.error("An System Exception occured. File could not be fetched.", exc);
+        Path planLocation = planLocationOnDisk(csarId, planId, planRef);
+        if (planLocation == null) {
+            // diagnostics already in planLocationOnDisk
             return false;
         }
 
         boolean wasUndeployed = false;
         if (ENGINE.equalsIgnoreCase(BPS_ENGINE)) {
             final BpsConnector connector = new BpsConnector();
-            wasUndeployed = connector.undeploy(fetchedPlan.toFile(), URL, USERNAME, PASSWORD);
+            wasUndeployed = connector.undeploy(planLocation.toFile(), URL, USERNAME, PASSWORD);
         } else {
             final OdeConnector connector = new OdeConnector();
-            wasUndeployed = connector.undeploy(fetchedPlan.toFile(), URL);
+            wasUndeployed = connector.undeploy(planLocation.toFile(), URL);
         }
 
         // remove endpoint from core
@@ -425,6 +335,52 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             LOG.warn("Undeployment of Plan " + planRef.getReference() + " was unsuccessful");
         }
         return wasUndeployed;
+    }
+
+    @Nullable
+    private Path planLocationOnDisk(CsarId csarId, QName planId, PlanModelReference planRef) {
+        if (storage == null) { return null; }
+        @SuppressWarnings("null") // ignore MT implications
+        Csar csar = storage.findById(csarId);
+        TPlan toscaPlan;
+        try {
+            toscaPlan = ToscaEngine.resolvePlanReference(csar, planId);
+        }
+        catch (NotFoundException e) {
+            LOG.error("Plan [{}] could not be found in csar {}", planId, csarId.csarName());
+            return null;
+        }
+        TServiceTemplate containingServiceTemplate = ToscaEngine.containingServiceTemplate(csar, toscaPlan);
+        assert(containingServiceTemplate != null); // shouldn't be null, since we have a plan from it
+        
+        // planRef.getReference() is overencoded. It's also not relative to the Csar root (but to one level below it)
+        Path planLocation = ArtifactResolver.resolvePlan.apply(containingServiceTemplate, toscaPlan);
+        // FIXME get rid of AbstractArtifact!
+        AbstractArtifact planReference = ArtifactResolver.resolveArtifact(csar, planLocation,
+                                                                          // just use the last segment, determining the filename.
+                                                                          Paths.get(planRef.getReference().substring(planRef.getReference().lastIndexOf('/') + 1)));
+        if (planReference == null) {
+            LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
+                                           planRef.getReference());
+            return null;
+        }
+        if (!planReference.isFileArtifact()) {
+            LOG.warn("Only plan references pointing to a file are supported!");
+            return null;
+        }
+        Path artifact;
+        try {
+            artifact = planReference.getFile("").getFile();
+        }
+        catch (SystemException e) {
+            LOG.warn("ugh... SystemException when getting a path we already had", e);
+            return null;
+        }
+        if (!artifact.getFileName().endsWith(".zip")) {
+            LOG.debug("Plan reference is not a ZIP file. It was '{}'.", artifact.getFileName());
+            return null;
+        }
+        return artifact;
     }
 
     /**
