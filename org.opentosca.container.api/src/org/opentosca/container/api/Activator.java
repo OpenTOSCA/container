@@ -97,8 +97,9 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
         final ServiceReference<ConfigurationAdmin> configAdminRef = 
             bundleContext.getServiceReference(ConfigurationAdmin.class);
 
+        // Depends on org.eclipse.equinox.cm to be present and loaded in the bundle
         if (configAdminRef == null) {
-            logger.warn("Reference to <ConfigurationAdmin> service could not be found, did you activate the bundle?");
+            logger.error("Reference to <ConfigurationAdmin> service could not be found, did you activate org.eclipse.equinox.cm or equivalent?");
             return;
         }
 

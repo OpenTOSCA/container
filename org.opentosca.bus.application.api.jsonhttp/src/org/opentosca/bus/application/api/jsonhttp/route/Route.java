@@ -66,19 +66,19 @@ public class Route extends RouteBuilder {
             .process(exceptionProcessor);
 
         // invoke route
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT + "?restletMethods=post")
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT + "?restletMethod=post")
             .process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
             .when(property(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor).removeHeaders("*")
             .otherwise().process(exceptionProcessor);
 
 
         // isFinished route
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT + "?restletMethods=get")
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT + "?restletMethod=get")
             .process(isFinishedRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).process(isFinishedResponseProcessor)
             .removeHeaders("*");
 
         // getResult route
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT + "?restletMethods=get")
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT + "?restletMethod=get")
             .process(getResultRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).process(getResultResponseProcessor)
             .removeHeaders("*");
 

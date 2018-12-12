@@ -62,7 +62,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         if (Files.exists(id.getSaveLocation())) {
             return new CsarImpl(id);
         }
-        LOGGER.info("CSAR '{}' could not be found", id.toString());
+        LOGGER.info("CSAR '{}' could not be found", id.csarName());
         throw new NoSuchElementException();
     }
 

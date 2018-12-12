@@ -33,7 +33,7 @@ public class IsFinishedRoute extends RouteBuilder {
                                     .process(exceptionProcessor);
 
         from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
-            + "?restletMethods=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
+            + "?restletMethod=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
                                     .process(isFinishedResponseProcessor).removeHeaders("*");
     }
 }

@@ -34,7 +34,7 @@ public class GetResultRoute extends RouteBuilder {
                                     .process(exceptionProcessor);
 
         from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
-            + "?restletMethods=get").process(getResultRequestProcessor).process(getResultProcessor)
+            + "?restletMethod=get").process(getResultRequestProcessor).process(getResultProcessor)
                                     .process(getResultResponseProcessor).removeHeaders("*");
     }
 }

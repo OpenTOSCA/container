@@ -58,8 +58,8 @@ import org.slf4j.LoggerFactory;
                   query = CSARContent.storeStorageProviderIDByFileAndCSARIDQuery)
 @Entity(name = CSARContent.CSAR_TABLE_NAME)
 @Table(name = CSARContent.CSAR_TABLE_NAME)
-@Converters({@Converter(name = "CSARIDConverter", converterClass = CsarIdConverter.class),
-             @Converter(name = "PathConverter", converterClass = PathConverter.class)})
+@Converters({@Converter(name = CsarIdConverter.name, converterClass = CsarIdConverter.class),
+             @Converter(name = PathConverter.name, converterClass = PathConverter.class)})
 @Deprecated
 public class CSARContent implements IBrowseable {
 
@@ -121,9 +121,9 @@ public class CSARContent implements IBrowseable {
      * Identifies this CSAR file.
      */
     @Id
-    @Convert("CSARIDConverter")
+    @Convert(CsarIdConverter.name)
     @Column(name = "csarID")
-    private CSARID csarID;
+    private CsarId csarID;
 
     /**
      * File to storage provider ID mapping of all files in this CSAR. Each file path is given relative
@@ -132,7 +132,7 @@ public class CSARContent implements IBrowseable {
     @ElementCollection
     @CollectionTable(name = CSARContent.CSAR_FILES_TABLE_NAME, joinColumns = @JoinColumn(name = "csarID"))
     @MapKeyColumn(name = "file")
-    @MapKeyConvert("PathConverter")
+    @MapKeyConvert(PathConverter.name)
     @Column(name = "storageProviderID")
     private Map<Path, String> fileToStorageProviderIDMap;
 
@@ -143,7 +143,7 @@ public class CSARContent implements IBrowseable {
     @ElementCollection
     @CollectionTable(name = CSARContent.CSAR_DIRECTORIES_TABLE_NAME, joinColumns = @JoinColumn(name = "csarID"))
     @Column(name = "directory")
-    @Convert("PathConverter")
+    @Convert(PathConverter.name)
     private Set<Path> directories;
 
     /**
@@ -172,7 +172,7 @@ public class CSARContent implements IBrowseable {
         this.directories = Collections.emptySet();
         this.fileToStorageProviderIDMap = Collections.emptyMap();
         this.toscaMetaFile = toscaMetaFile;
-        this.csarID = csarID;
+        this.csarID = new CsarId(csarID);
         this.csarRoot = csarRoot;
     }
 
@@ -183,14 +183,14 @@ public class CSARContent implements IBrowseable {
      */
     @PostLoad
     private void setUpBrowsing() {
-        this.csarRoot = new CSARDirectory("", this.csarID, this.directories, this.fileToStorageProviderIDMap);
+        this.csarRoot = new CSARDirectory("", this.csarID.toOldCsarId(), this.directories, this.fileToStorageProviderIDMap);
     }
 
     /**
      * @return CSAR ID of this CSAR.
      */
     public CSARID getCSARID() {
-        return this.csarID;
+        return this.csarID.toOldCsarId();
     }
 
     @Override
@@ -316,7 +316,7 @@ public class CSARContent implements IBrowseable {
             AbstractArtifact artifact = null;
 
             if (CSARArtifact.fitsArtifactReference(artifactReferenceTrimed)) {
-                artifact = new CSARArtifact(artifactReferenceTrimed, includePatterns, excludePatterns, this.csarID,
+                artifact = new CSARArtifact(artifactReferenceTrimed, includePatterns, excludePatterns, this.csarID.toOldCsarId(),
                     this.directories, this.fileToStorageProviderIDMap);
                 // if further AbstractArtifact implementations exists, we
                 // can check here if they fits

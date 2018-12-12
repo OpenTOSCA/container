@@ -67,7 +67,7 @@ public class InvocationRoute extends RouteBuilder {
             .process(exceptionProcessor);
 
         // invoke main route
-        this.from("restlet:" + BASE_ENDPOINT + INVOKE_ENDPOINT + "?restletMethods=post").doTry()
+        this.from("restlet:" + BASE_ENDPOINT + INVOKE_ENDPOINT + "?restletMethod=post").doTry()
             .process(invocationRequestProcessor).doCatch(Exception.class).end().choice()
             .when(property(Exchange.EXCEPTION_CAUGHT).isNull()).to("direct:invoke").otherwise().to("direct:exception")
             .end().removeHeaders("*");

@@ -59,6 +59,8 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         // accesses the ToscaMetaFile. That file is not in the imported CSAR representation.
         // Additionally the CsarImporter largely takes care of definitions resolution for us!
         // use new ToscaMetaFileReplacement(csar); to obtain a suitable toscametafile
+        // FIXME: resolving definitions doesn't actually resolve the definitions. Well it does, but it stores them into
+        // the ToscaReferenceMapper in addition to resolving them. As such this method should become unnecessar
         if (true || toscaEngine.resolveDefinitions(csar.toOldCsarId())) {
             LOGGER.info("Processing of Definitions completed successfully for [{}]", csar.csarName());
             deploymentTracker.storeDeploymentState(csar, TOSCA_PROCESSED);

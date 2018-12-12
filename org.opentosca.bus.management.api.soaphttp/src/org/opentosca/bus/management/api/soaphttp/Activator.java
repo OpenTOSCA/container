@@ -56,7 +56,6 @@ public class Activator implements BundleActivator {
 
     @Override
     public void stop(final BundleContext arg0) throws Exception {
-
         Activator.LOG.info("SI-SOAP/HTTP-Management Bus-API stopped!");
     }
 

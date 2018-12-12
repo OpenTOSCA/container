@@ -16,6 +16,7 @@ public class PathConverter implements Converter {
 
     private static final long serialVersionUID = 3747978557147488965L;
 
+    public static final String name = "PathConverter";
 
     @Override
     public Object convertDataValueToObjectValue(final Object arg0, final Session arg1) {

@@ -39,7 +39,7 @@ public abstract class AbstractArtifact implements IBrowseable {
      * @throws UserException if artifact reference points a non-existent file / directory.
      */
     public AbstractArtifact(final String artifactReference, final Set<String> includePatterns,
-                            final Set<String> excludePatterns) throws UserException {
+                            final Set<String> excludePatterns) {
 
         this.ARTIFACT_REFERENCE = artifactReference;
         this.INCLUDE_PATTERNS = includePatterns;

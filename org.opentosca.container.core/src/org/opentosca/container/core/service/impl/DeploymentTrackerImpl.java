@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentTracker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentTrackerImpl.class);
 
     private final EntityManager em = EntityManagerProvider.createEntityManager();
     
@@ -41,17 +41,17 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
             em.persist(currentInformation);
         }
         em.getTransaction().commit();
-        LOGGER.debug("Completed storing deployment state {} for Csar {}", state, csar);
+        LOGGER.debug("Completed storing deployment state {} for Csar {}", state, csar.csarName());
     }
 
     @Override
     public synchronized DeploymentProcessState getDeploymentState(CsarId csar) {
         final DeploymentProcessInfo info = getDeploymentInfo(csar);
         if (info == null) {
-            LOGGER.warn("No deployment state for Csar {} found", csar);
+            LOGGER.warn("No deployment state for Csar {} found", csar.csarName());
             return null;
         }
-        LOGGER.trace("Deployment state of Csar {} is {}", csar, info.getDeploymentProcessState());
+        LOGGER.trace("Deployment state of Csar {} is {}", csar.csarName(), info.getDeploymentProcessState());
         return info.getDeploymentProcessState();
     }
 
@@ -62,11 +62,11 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
         try {
             return select.getSingleResult();
         } catch (NoResultException e) {
-            LOGGER.debug("No deployment information associated with Csar {} found", csar);
+            LOGGER.debug("No deployment information associated with Csar {} found", csar.csarName());
             return null;
         }
         catch (NonUniqueResultException e) {
-            LOGGER.warn("Multiple deployment information results found for Csar {}", csar);
+            LOGGER.warn("Multiple deployment information results found for Csar {}", csar.csarName());
             return null;
         }
     }
@@ -74,7 +74,7 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
     @Override
     public synchronized void storeIADeploymentInfo(IADeploymentInfo info) {
         LOGGER.trace("Storing deployment state {} for IA \"{}\" of CSAR \"{}\"...", 
-                     info.getDeploymentState(), info.getRelPath(), info.getCsarID());
+                     info.getDeploymentState(), info.getRelPath(), info.getCsarID().csarName());
         em.getTransaction().begin();
 
         // check if deployment info for this IA already exists
@@ -82,7 +82,7 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
 
         // deployment info already exists
         if (storedIA != null) {
-            LOGGER.info("Updating IA deployment info for IA [{}] of CSAR [{}].", info.getRelPath(), info.getCsarID());
+            LOGGER.info("Updating IA deployment info for IA [{}] of CSAR [{}].", info.getRelPath(), info.getCsarID().csarName());
 
             final IADeploymentState storedIADeployState = storedIA.getDeploymentState();
             final IADeploymentState newIADeployState = info.getDeploymentState();
@@ -90,7 +90,7 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
             // if IA is deployed and will be now undeployed, reset the attempt counter to 0
             if (storedIADeployState.equals(IADeploymentState.IA_DEPLOYED)
                 && newIADeployState.equals(IADeploymentState.IA_UNDEPLOYING)) {
-                LOGGER.trace("Deployed IA [{}] of CSAR [{}] is now undeploying. Resetting attempt count.", info.getRelPath(), info.getCsarID());
+                LOGGER.trace("Deployed IA [{}] of CSAR [{}] is now undeploying. Resetting attempt count.", info.getRelPath(), info.getCsarID().csarName());
                 storedIA.setAttempt(0);
             }
             storedIA.setDeploymentState(newIADeployState);
@@ -106,7 +106,7 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
 
         this.em.persist(info);
         this.em.getTransaction().commit();
-        LOGGER.debug("Stored deployment state {} for IA [{}] of CSAR [{}].", info.getDeploymentState(), info.getRelPath(), info.getCsarID());
+        LOGGER.debug("Stored deployment state {} for IA [{}] of CSAR [{}].", info.getDeploymentState(), info.getRelPath(), info.getCsarID().csarName());
     }
 
     @Override
@@ -142,14 +142,14 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
 
     @Override
     public synchronized void storePlanDeploymentInfo(PlanDeploymentInfo info) {
-        LOGGER.trace("Storing deployment state {} for Plan [{}] of Csar {}", info.getDeploymentState(), info.getRelPath(), info.getCsarID());
+        LOGGER.trace("Storing deployment state {} for Plan [{}] of Csar {}", info.getDeploymentState(), info.getRelPath(), info.getCsarID().csarName());
         this.em.getTransaction().begin();
 
         // check if deployment info for this Plan already exists
         final PlanDeploymentInfo storedPlan = this.getPlanDeploymentInfo(info.getCsarID(), info.getRelPath());
         // deployment info already exists
         if (storedPlan != null) {
-            LOGGER.debug("Overwriting Plan deployment info for Plan [{}] of Csar [{}].", info.getRelPath(), info.getCsarID());
+            LOGGER.debug("Overwriting Plan deployment info for Plan [{}] of Csar [{}].", info.getRelPath(), info.getCsarID().csarName());
 
             final PlanDeploymentState storedPlanDeployState = storedPlan.getDeploymentState();
             final PlanDeploymentState newPlanDeployState = info.getDeploymentState();
@@ -157,7 +157,7 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
             // if Plan is deployed and will be now undeployed, reset the attempt counter to 0
             if (storedPlanDeployState.equals(PlanDeploymentState.PLAN_DEPLOYED)
                 && newPlanDeployState.equals(PlanDeploymentState.PLAN_UNDEPLOYING)) {
-                LOGGER.debug("Deployed Plan [{}] of Csar [{}] is now undeploying. Resetting attempt count.", info.getRelPath(), info.getCsarID());
+                LOGGER.debug("Deployed Plan [{}] of Csar [{}] is now undeploying. Resetting attempt count.", info.getRelPath(), info.getCsarID().csarName());
                 storedPlan.setAttempt(0);
             }
 
@@ -168,14 +168,14 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
         // if Plan is now deploying or undeploying, increment attempt counter
         if (info.getDeploymentState().equals(PlanDeploymentState.PLAN_DEPLOYING)
             || info.getDeploymentState().equals(PlanDeploymentState.PLAN_UNDEPLOYING)) {
-            LOGGER.debug("Plan [{}] of CSAR [{}] is now deploying / undeploying. Increase attempt count.", info.getRelPath(), info.getCsarID());
+            LOGGER.debug("Plan [{}] of CSAR [{}] is now deploying / undeploying. Increase attempt count.", info.getRelPath(), info.getCsarID().csarName());
             info.setAttempt(info.getAttempt() + 1);
         }
 
         this.em.persist(info);
         this.em.getTransaction().commit();
 
-        LOGGER.info("Stored deployment state {} for Plan [{}] of Csar [{}].", info.getDeploymentState(), info.getRelPath(), info.getCsarID());
+        LOGGER.info("Stored deployment state {} for Plan [{}] of Csar [{}].", info.getDeploymentState(), info.getRelPath(), info.getCsarID().csarName());
     }
 
     @Override

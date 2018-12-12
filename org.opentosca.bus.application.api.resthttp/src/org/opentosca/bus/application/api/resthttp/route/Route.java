@@ -84,11 +84,11 @@ public class Route extends RouteBuilder {
 
         // INVOKE ROUTES
         // invoke route (for ServiceInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_SI + "?restletMethods=post")
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_SI + "?restletMethod=post")
             .to("direct:invoke");
 
         // invoke route (for NodeInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_NI + "?restletMethods=post")
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_NI + "?restletMethod=post")
             .to("direct:invoke");
 
         // invoke route
@@ -99,11 +99,11 @@ public class Route extends RouteBuilder {
 
         // IS FINISHED ROUTES
         // isFinished route (for ServiceInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_SI + "?restletMethods=get")
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_SI + "?restletMethod=get")
             .to("direct:isFinished");
 
         // isFinished route (for NodeInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_NI + "?restletMethods=get")
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_NI + "?restletMethod=get")
             .to("direct:isFinished");
 
         // isFinished route
@@ -112,11 +112,11 @@ public class Route extends RouteBuilder {
 
         // GET RESULT ROUTES
         // getResult route (for ServiceInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_SI + "?restletMethods=get")
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_SI + "?restletMethod=get")
             .to("direct:getResult");
 
         // getResult route (for NodeInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_NI + "?restletMethods=get")
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_NI + "?restletMethod=get")
             .to("direct:getResult");
 
         // getResult route

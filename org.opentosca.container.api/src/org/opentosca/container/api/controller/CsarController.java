@@ -275,14 +275,14 @@ public class CsarController {
         if (success) {
             final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
             for (final TServiceTemplate serviceTemplate : serviceTemplates) {
-                logger.trace("Invoke IA deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate, csarId.csarName());
+                logger.trace("Invoke IA deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
                 if (!this.controlService.invokeIADeployment(csarId, serviceTemplate)) {
-                    logger.info("Error deploying IA for service template \"{}\" of CSAR \"{}\"", serviceTemplate, csarId.csarName());
+                    logger.info("Error deploying IA for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
                     success = false;
                 }
-                logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate, csarId.csarName());
+                logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
                 if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
-                    logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate, csarId.csarName());
+                    logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
                     success = false;
                 }
             }
