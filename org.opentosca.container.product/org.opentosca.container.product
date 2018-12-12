@@ -74,7 +74,6 @@
       <plugin id="org.opentosca.bus.management.service" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.service.impl" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.container.api" autoStart="true" startLevel="6" />
-      <plugin id="org.opentosca.container.api.legacy" autoStart="true" startLevel="6" />
       <plugin id="org.opentosca.container.control" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.container.core" autoStart="true" startLevel="3" />
       <plugin id="org.opentosca.container.core.tosca" autoStart="true" startLevel="3" />
@@ -107,10 +106,6 @@
       <plugin id="org.opentosca.planbuilder.type.plugin.ubuntuvm" autoStart="true" startLevel="0" />
       <plugin id="org.restlet.jee.org.restlet" autoStart="true" startLevel="0" />
       <plugin id="org.restlet.jee.org.restlet.ext.httpclient" autoStart="true" startLevel="0" />
-      <plugin id="org.slf4j.api" autoStart="true" startLevel="0" />
-      <plugin id="org.slf4j.apis.jcl" autoStart="true" startLevel="0" />
-      <plugin id="org.slf4j.apis.log4j" autoStart="true" startLevel="0" />
-      <plugin id="org.slf4j.bridge.jul" autoStart="true" startLevel="0" />
       <plugin id="osgi.enterprise" autoStart="true" startLevel="2" />
       <property name="org.opentosca.container.connector.winery.url" value="http://localhost:8080/winery" />
       <property name="org.opentosca.container.engine.ia.hostname" value="localhost" />
