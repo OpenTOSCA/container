@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.container.api.dto.ResourceSupport;
-import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.AbstractDirectory;
 import org.opentosca.container.core.model.AbstractFile;
 import org.slf4j.Logger;

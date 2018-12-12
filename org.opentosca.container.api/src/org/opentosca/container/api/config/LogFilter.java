@@ -22,7 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.io.IOUtils;
-import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.common.uri.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

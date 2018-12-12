@@ -14,12 +14,10 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.winery.model.tosca.Definitions;
 import org.eclipse.winery.model.tosca.HasType;
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactTemplate.ArtifactReferences;
-import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TEntityType.DerivedFrom;
 import org.eclipse.winery.model.tosca.TEntityTypeImplementation;
 import org.eclipse.winery.model.tosca.TImplementationArtifacts;

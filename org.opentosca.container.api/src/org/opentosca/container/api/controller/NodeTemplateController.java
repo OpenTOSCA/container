@@ -20,7 +20,7 @@ import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
-import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.common.uri.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

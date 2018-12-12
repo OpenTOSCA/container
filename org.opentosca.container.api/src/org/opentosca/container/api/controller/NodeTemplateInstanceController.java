@@ -24,7 +24,7 @@ import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.util.ModelUtil;
-import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;

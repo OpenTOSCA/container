@@ -28,7 +28,7 @@ import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.service.PlanService;
-import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;

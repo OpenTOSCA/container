@@ -1,4 +1,4 @@
-package org.opentosca.container.api.util;
+package org.opentosca.container.core.common.uri;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;

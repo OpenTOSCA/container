@@ -41,6 +41,7 @@ Import-Package: com.eclipsesource.jaxrs.publisher;version="5.3.1",
  org.opentosca.container.control;version="2.0.0",
  org.opentosca.container.core.common;version="2.0.0",
  org.opentosca.container.core.common.jpa;version="2.0.0",
+ org.opentosca.container.core.common.uri;version="2.0.0",
  org.opentosca.container.core.engine;version="2.0.0",
  org.opentosca.container.core.model;version="2.0.0",
  org.opentosca.container.core.model.csar;version="2.0.0",
@@ -63,4 +64,5 @@ Service-Component: OSGI-INF/*
 Export-Package: org.opentosca.container.api.controller;version="2.0.0",
  org.opentosca.container.api.dto;version="2.0.0",
  org.opentosca.container.api.dto.request;version="2.0.0",
- org.opentosca.container.api.service;version="2.0.0"
+ org.opentosca.container.api.service;version="2.0.0",
+ org.opentosca.container.api.util

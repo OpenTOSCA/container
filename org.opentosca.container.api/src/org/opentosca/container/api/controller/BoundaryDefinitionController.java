@@ -27,7 +27,7 @@ import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.PropertiesDTO;
 import org.opentosca.container.api.dto.plan.PlanDTO;
-import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;

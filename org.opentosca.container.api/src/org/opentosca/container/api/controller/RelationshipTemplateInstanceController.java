@@ -24,7 +24,7 @@ import org.opentosca.container.api.dto.RelationshipTemplateInstanceDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateInstanceListDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState;
 import org.slf4j.Logger;

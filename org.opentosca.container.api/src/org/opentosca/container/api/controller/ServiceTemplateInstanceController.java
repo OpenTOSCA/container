@@ -29,7 +29,7 @@ import org.opentosca.container.api.dto.ServiceTemplateInstanceListDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
-import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.DeploymentTest;
 import org.opentosca.container.core.next.model.PlanInstance;

@@ -19,7 +19,7 @@ import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
-import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
