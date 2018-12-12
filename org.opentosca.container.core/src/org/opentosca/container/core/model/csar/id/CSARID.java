@@ -14,10 +14,7 @@ public class CSARID implements Comparable<CSARID>, Serializable {
 
     protected String fileName;
 
-
-    protected CSARID() {
-
-    }
+    protected CSARID() {}
 
     public CSARID(final String fileName) {
         this.fileName = fileName;

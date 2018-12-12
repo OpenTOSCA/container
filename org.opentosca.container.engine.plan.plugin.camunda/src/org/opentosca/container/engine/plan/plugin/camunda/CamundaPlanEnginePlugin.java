@@ -76,16 +76,9 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         TServiceTemplate containingServiceTemplate = ToscaEngine.containingServiceTemplate(csar, toscaPlan);
         assert(containingServiceTemplate != null); // shouldn't be null, since we have a plan from it
         
-        AbstractArtifact planArtifact;
-        try {
-            planArtifact = ArtifactResolver.resolveArtifact(csar, 
-                                               ArtifactResolver.resolveServiceTemplate.apply(containingServiceTemplate), 
-                                               Paths.get(planRef.getReference()));
-        }
-        catch (UserException e) {
-            LOG.error("Could not resolve planArtifact", e);
-            return false;
-        }
+        AbstractArtifact planArtifact = ArtifactResolver.resolveArtifact(csar, 
+                                           ArtifactResolver.resolveServiceTemplate.apply(containingServiceTemplate), 
+                                           Paths.get(planRef.getReference()));
         if (!planArtifact.isFileArtifact()) {
             LOG.warn("Only plan references pointing to a file are supported!");
             return false;

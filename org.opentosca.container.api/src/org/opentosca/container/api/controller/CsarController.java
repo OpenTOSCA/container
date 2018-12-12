@@ -254,8 +254,7 @@ public class CsarController {
         }
         
         try {
-            CSARID plannedCsar = this.csarService.generatePlans(csarId.toOldCsarId());
-            if (plannedCsar == null) {
+            if (!this.csarService.generatePlans(storedCsar)) {
                 logger.warn("Planning the CSAR failed");
                 return Response.serverError().build();
             }

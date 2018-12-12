@@ -314,7 +314,7 @@ public final class ToscaEngine {
                 TPlans plans = st.getPlans();
                 return plans == null ? Stream.empty() : plans.getPlan().stream();
             })
-            .filter(tplan -> QName.valueOf(tplan.getId()).equals(planId))
+            .filter(tplan -> tplan.getId().equals(planId.getLocalPart()))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("No plan matching " + planId + " was found in csar" + csar.id().csarName()));
         return plan;

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,19 +14,28 @@ import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
-
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.connector.bps.BpsConnector;
 import org.opentosca.container.connector.ode.OdeConnector;
+import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.model.csar.backwards.ArtifactResolver;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.service.IFileAccessService;
@@ -69,14 +79,20 @@ import org.xml.sax.SAXException;
  * @see org.opentosca.container.engine.plan.plugin.bpel.util.Messages
  * @see org.opentosca.core.endpoint.service.ICoreEndpointService
  */
+@NonNullByDefault
 public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
     final private static Logger LOG = LoggerFactory.getLogger(BpelPlanEnginePlugin.class);
 
-    private ICoreFileService fileService = null;
+    @Nullable
     private IFileAccessService fileAccessService = null;
+    @Nullable
     private ICoreEndpointService endpointService;
+    @Nullable
     private IToscaEngineService toscaEngine;
+    @Nullable
+    private CsarStorageService storage;
+
 
     public static final String BPS_ENGINE = "BPS";
 
@@ -145,25 +161,26 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         // variable for the (inbound) portType of the process, if this is null
         // till end the process can't be instantiated by the container
         QName portType = null;
-
-        // retrieve process
-        if (this.fileService == null) {
-            LOG.error("Can't fetch relevant files from FileService: FileService not available");
-            return false;
-        }
-        CSARContent csar = null;
-
+        
+        Csar csar = storage.findById(csarId);
+        TPlan toscaPlan;
         try {
-            csar = this.fileService.getCSAR(csarId.toOldCsarId());
+            toscaPlan = ToscaEngine.resolvePlanReference(csar, planId);
         }
-        catch (final UserException exc) {
-            LOG.error("An User Exception occured.", exc);
+        catch (NotFoundException e) {
+            LOG.error("Plan [{}] could not be found in csar {}", planId, csarId.csarName());
             return false;
         }
-
-        AbstractArtifact planReference = null;
-
-        planReference = this.toscaEngine.getPlanModelReferenceAbstractArtifact(csar, planId);
+        TServiceTemplate containingServiceTemplate = ToscaEngine.containingServiceTemplate(csar, toscaPlan);
+        if (containingServiceTemplate == null) {
+            LOG.error("Plan {} was not contained in a service template belonging to csar {}", planId, csarId.csarName());
+            return false;
+        }
+        
+        // FIXME resolve by planRef instead.
+        // planRef.getReference() is overencoded. It's also not relative to the Csar root (but to one level below it)
+        Path planLocation = ArtifactResolver.resolvePlan.apply(containingServiceTemplate, toscaPlan);
+        AbstractArtifact planReference = ArtifactResolver.resolveArtifact(csar, planLocation, Paths.get(toscaPlan.getId() + ".zip"));
         if (planReference == null) {
             LOG.error("Plan reference '{}' resulted in a null ArtifactReference.", planRef.getReference());
             return false;
@@ -328,20 +345,25 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     @Override
     public boolean undeployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
         // retrieve process
-        if (this.fileService == null) {
-            LOG.error("Can't fetch relevant files from FileService: FileService not available");
-            return false;
-        } 
-        CSARContent csar = null;
+        Csar csar = storage.findById(csarId);
+        TPlan toscaPlan;
         try {
-            csar = this.fileService.getCSAR(csarId.toOldCsarId());
+            toscaPlan = ToscaEngine.resolvePlanReference(csar, planId);
         }
-        catch (final UserException exc) {
-            LOG.error("An User Exception occured.", exc);
+        catch (NotFoundException e) {
+            LOG.error("Plan [{}] could not be found in csar {}", planId, csarId.csarName());
             return false;
         }
-
-        AbstractArtifact planReference = this.toscaEngine.getPlanModelReferenceAbstractArtifact(csar, planId);
+        TServiceTemplate containingServiceTemplate = ToscaEngine.containingServiceTemplate(csar, toscaPlan);
+        if (containingServiceTemplate == null) {
+            LOG.error("Plan {} was not contained in a service template belonging to csar {}", planId, csarId.csarName());
+            return false;
+        }
+        
+        // FIXME resolve by planRef instead.
+        // planRef.getReference() is overencoded. It's also not relative to the Csar root (but to one level below it)
+        Path planLocation = ArtifactResolver.resolvePlan.apply(containingServiceTemplate, toscaPlan);
+        AbstractArtifact planReference = ArtifactResolver.resolveArtifact(csar, planLocation, Paths.get(toscaPlan.getId() + ".zip"));
         if (planReference == null) {
             LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
                                            planRef.getReference());
@@ -403,30 +425,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             LOG.warn("Undeployment of Plan " + planRef.getReference() + " was unsuccessful");
         }
         return wasUndeployed;
-    }
-
-    /**
-     * Bind method for IFileServices
-     *
-     * @param fileService the file service to bind
-     */
-    public void registerFileService(final ICoreFileService fileService) {
-        if (fileService != null) {
-            LOG.debug("Registering FileService {}", fileService.toString());
-            this.fileService = fileService;
-            LOG.debug("Registered FileService {}", fileService.toString());
-        }
-    }
-
-    /**
-     * Unbind method for IFileServices
-     *
-     * @param fileService the file service to unbind
-     */
-    protected void unregisterFileService(final ICoreFileService fileService) {
-        LOG.debug("Unregistering FileService {}", fileService.toString());
-        this.fileService = null;
-        LOG.debug("Unregistered FileService {}", fileService.toString());
     }
 
     /**
@@ -499,6 +497,16 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         LOG.debug("Unregistered IToscaEngineService {}", endpointService.toString());
     }
 
+    public void bindStorageService(final CsarStorageService storage) {
+        this.storage = storage;
+        LOG.debug("Bound storage service");
+    }
+    
+    public void unbindStorageService(final CsarStorageService storage) {
+        this.storage = null;
+        LOG.debug("Unbound storage service");
+    }
+    
     @Override
     public String toString() {
         return Messages.BpelPlanEnginePlugin_description;
