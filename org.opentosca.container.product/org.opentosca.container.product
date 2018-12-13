@@ -41,10 +41,26 @@
    </features>
 
    <configurations>
-      <plugin id="com.eclipsesource.jaxrs.jersey-min" autoStart="true" startLevel="1" />
+      <plugin id="com.eclipsesource.jaxrs.jersey-min" autoStart="true" startLevel="0" />
+      <plugin id="com.eclipsesource.jaxrs.provider.swagger" autoStart="true" startLevel="0" />
+      <plugin id="com.eclipsesource.jaxrs.publisher" autoStart="true" startLevel="0" />
+      <plugin id="com.eclipsesource.jaxrs.swagger-all" autoStart="true" startLevel="0" />
       <plugin id="javax.persistence" autoStart="true" startLevel="1" />
+      <plugin id="org.apache.camel.camel-core" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-core-osgi" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-core-xml" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.app" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.cm" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.console" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.http.jetty" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.http.servlet" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.preferences" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.registry" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.equinox.util" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.gemini.dbaccess.h2" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.gemini.dbaccess.util" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.gemini.jpa" autoStart="true" startLevel="3" />
@@ -74,16 +90,25 @@
       <plugin id="org.opentosca.bus.management.service" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.service.impl" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.container.api" autoStart="true" startLevel="6" />
+      <plugin id="org.opentosca.container.application" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.connector.bps" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.connector.ode" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.connector.winery" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.control" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.container.core" autoStart="true" startLevel="3" />
       <plugin id="org.opentosca.container.core.tosca" autoStart="true" startLevel="3" />
       <plugin id="org.opentosca.container.engine.ia" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.container.engine.ia.plugin.aar" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.ia.plugin.dockercompose" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.ia.plugin.script" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.ia.plugin.tomcat" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.engine.plan" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.container.engine.plan.plugin.bpel" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.engine.plan.plugin.camunda" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.portability" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.deployment.checks" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.planbuilder" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.core.bpel" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.csarhandler" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.export" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.importer" autoStart="true" startLevel="0" />
