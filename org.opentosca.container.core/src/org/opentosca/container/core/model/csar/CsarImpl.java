@@ -19,6 +19,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.common.ids.definitions.NodeTypeId;
@@ -137,6 +138,7 @@ public class CsarImpl implements Csar {
     }
 
     @Override
+    @Nullable
     public Application selfserviceMetadata() {
         // FIXME stop bridging optional to null
         if (!entryServiceTemplate.isPresent()) { return null; }
@@ -167,7 +169,8 @@ public class CsarImpl implements Csar {
     
     @Override
     public String description() {
-        return selfserviceMetadata().getDescription();
+        Application metadata = selfserviceMetadata();
+        return metadata == null ? "" : metadata.getDescription();
     }
 
     @Override

@@ -147,7 +147,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             LOG.warn("ugh... SystemException when getting a path we already had", e);
             return null;
         }
-        if (!artifact.getFileName().endsWith(".war")) {
+        if (!artifact.getFileName().toString().endsWith(".war")) {
             LOG.debug("Plan reference is not a WAR file. It was '{}'.", artifact.getFileName());
             return null;
         }

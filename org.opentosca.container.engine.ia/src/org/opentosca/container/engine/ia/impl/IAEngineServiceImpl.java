@@ -17,6 +17,7 @@ import org.eclipse.winery.model.tosca.TEntityTypeImplementation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TImplementationArtifacts;
 import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPropertyConstraint;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
@@ -96,14 +97,20 @@ public class IAEngineServiceImpl implements IIAEngineService {
     
     private void deployServiceTemplate(final Csar csar, TServiceTemplate serviceTemplate) {
         LOG.trace("Deploying ServiceTemplate [{}] of Csar {}", serviceTemplate.getId(), csar.id().csarName());
-        for (final TNodeType nodeType : ToscaEngine.referencedNodeTypes(csar, serviceTemplate)) {
-            deployNodeType(csar, nodeType);
+        for (final TNodeTypeImplementation nti : csar.nodeTypeImplementations()) {
+            TImplementationArtifacts artifacts = nti.getImplementationArtifacts();
+            if (artifacts == null) { continue; }
+            for (final TImplementationArtifact ia : artifacts.getImplementationArtifact()) {
+                // filtering is performed by plugin
+                deployImplementationArtifact(csar, nti, ia, Collections.emptyList());
+            }
         }
-        for (final TRelationshipTemplate relationshipTemplate : ToscaEngine.relationshipTemplates(serviceTemplate)) {
-            for (final TRelationshipTypeImplementation typeImpl : ToscaEngine.relationshipTypeImplementations(csar, relationshipTemplate)) {
-                for (final TImplementationArtifact ia : ToscaEngine.implementationArtifacts(csar, relationshipTemplate, typeImpl)) {
-                    deployImplementationArtifact(csar, typeImpl, ia, Collections.emptyList());
-                }
+        for (final TRelationshipTypeImplementation typeImpl :csar.relationshipTypeImplementations()) {
+            TImplementationArtifacts artifacts = typeImpl.getImplementationArtifacts();
+            if (artifacts == null) { continue; }
+            for (final TImplementationArtifact ia : artifacts.getImplementationArtifact()) {
+                // filtering is performed by plugin
+                deployImplementationArtifact(csar, typeImpl, ia, Collections.emptyList());
             }
         }
     }
