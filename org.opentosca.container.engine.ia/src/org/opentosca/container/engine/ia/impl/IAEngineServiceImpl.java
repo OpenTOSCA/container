@@ -16,6 +16,7 @@ import org.eclipse.winery.model.tosca.TEntityTemplate.Properties;
 import org.eclipse.winery.model.tosca.TEntityTypeImplementation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TImplementationArtifacts;
+import org.eclipse.winery.model.tosca.TImplementationArtifacts.ImplementationArtifact;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPropertyConstraint;
@@ -196,10 +197,10 @@ public class IAEngineServiceImpl implements IIAEngineService {
                           artifact.getName(), typeImplementation.getIdFromIdOrNameField(), csar.id().csarName());
                 serviceURI = endpoints.get(0).getURI();
             } else {
-                final Document artifactSpecificContent =
-                    this.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csar.id().toOldCsarId(),
-                                                                                                                         QName.valueOf(typeImplementation.getIdFromIdOrNameField()),
-                                                                                                                         artifact.getName());
+                final Document artifactSpecificContent = XMLHelper.withRootNode((Element)artifact.getAny(), "ImplementationArtifactSpecificContent");
+//                    this.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csar.id().toOldCsarId(),
+//                                                                                                                         QName.valueOf(typeImplementation.getIdFromIdOrNameField()),
+//                                                                                                                         artifact.getName());
                 serviceURI = deployThroughPlugin(csar.id().toOldCsarId(), QName.valueOf(typeImplementation.getIdFromIdOrNameField()),
                                                  artifactType, artifactSpecificContent, XMLHelper.fromRootNode((Element)properties.getAny()), 
                                                  propertyConstraints, artifacts,
