@@ -1,13 +1,10 @@
 
 # Custom
 
-### Intellij ###
 .idea
-
-### Eclipse ###
 .project
 .classpath
-
+.vscode
 
 # Created by https://www.gitignore.io/api/java,maven,eclipse,intellij,visualstudiocode
 

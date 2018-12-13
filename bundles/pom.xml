@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.opentosca.container</groupId>
+	<artifactId>bundles</artifactId>
+	<version>2.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<winery.version>2.0.0-SNAPSHOT</winery.version>
+		<camel.version>2.23.0</camel.version>
+		<tycho-version>1.2.0</tycho-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<manifest-location>META-INF</manifest-location>
+	</properties>
+
+	<modules>
+		<module>org.opentosca.container.common</module>
+	</modules>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.1.0</version>
+					<configuration>
+						<archive>
+							<manifestFile>${manifest-location}/MANIFEST.MF</manifestFile>
+						</archive>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>4.1.0</version>
+					<configuration>
+						<manifestLocation>${manifest-location}</manifestLocation>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Spring Boot Dependencies -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>2.1.1.RELEASE</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- Winery -->
+			<dependency>
+				<groupId>org.eclipse.winery</groupId>
+				<artifactId>org.eclipse.winery.common</artifactId>
+				<version>${winery.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.winery</groupId>
+				<artifactId>org.eclipse.winery.repository</artifactId>
+				<version>${winery.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.winery</groupId>
+				<artifactId>org.eclipse.winery.model.csar.toscametafile</artifactId>
+				<version>${winery.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.winery</groupId>
+				<artifactId>org.eclipse.winery.model.selfservice</artifactId>
+				<version>${winery.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.winery</groupId>
+				<artifactId>org.eclipse.winery.model.tosca</artifactId>
+				<version>${winery.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<repositories>
+		<repository>
+			<id>opentosca-mvn-repo</id>
+			<url>https://raw.github.com/OpenTOSCA/mvn-repo/ustutt/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
+</project>

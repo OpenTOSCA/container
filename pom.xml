@@ -8,30 +8,13 @@
   <packaging>pom</packaging>
 
   <properties>
-    <tycho-version>1.0.0</tycho-version>
+    <tycho-version>1.2.0</tycho-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.tycho</groupId>
-          <artifactId>tycho-surefire-plugin</artifactId>
-          <version>${tycho-version}</version>
-          <configuration>
-            <useUIHarness>true</useUIHarness>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.eclipse.tycho</groupId>
-          <artifactId>tycho-p2-repository-plugin</artifactId>
-          <version>${tycho-version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
@@ -63,23 +46,10 @@
             </artifact>
           </target>
           <environments>
-        	<!--  
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86</arch>
-            </environment>
-             -->
             <environment>
               <os>linux</os>
               <ws>gtk</ws>
               <arch>x86_64</arch>
-            </environment>
-            <!-- 
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86</arch>
             </environment>
             <environment>
               <os>win32</os>
@@ -91,7 +61,6 @@
               <ws>cocoa</ws>
               <arch>x86_64</arch>
             </environment>
-             -->
           </environments>
         </configuration>
       </plugin>
@@ -112,6 +81,7 @@
   </build>
 
   <modules>
+    <module>bundles</module>
     <module>target-definition</module>
     <module>org.opentosca.container.application</module>
     <module>org.opentosca.container.config.logging</module>
@@ -161,7 +131,7 @@
     <module>org.opentosca.planbuilder.service</module>
     <module>org.opentosca.planbuilder.postphase.plugin.instancedata</module>
     <module>org.opentosca.planbuilder.postphase.plugin.vinothek</module>
-    <module>org.opentosca.planbuilder.postphase.plugin.monitoring</module>    
+    <module>org.opentosca.planbuilder.postphase.plugin.monitoring</module>
     <module>org.opentosca.planbuilder.provphase.plugin.ansibleoperation</module>
     <module>org.opentosca.planbuilder.prephase.plugin.fileupload</module>
     <module>org.opentosca.planbuilder.provphase.plugin.invoker</module>
