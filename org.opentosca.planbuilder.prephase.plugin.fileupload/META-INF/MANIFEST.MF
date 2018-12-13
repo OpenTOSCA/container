@@ -6,6 +6,14 @@ Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;version="2.2.0",
  org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)",
+ org.opentosca.container.core.tosca.convention;version="2.0.0",
+ org.opentosca.planbuilder.core.bpel.context;version="2.0.0",
+ org.opentosca.planbuilder.model.plan.bpel;version="2.0.0",
+ org.opentosca.planbuilder.model.tosca;version="2.0.0",
+ org.opentosca.planbuilder.model.utils;version="2.0.0",
+ org.opentosca.planbuilder.plugins;version="2.0.0",
+ org.opentosca.planbuilder.plugins.context;version="2.0.0",
+ org.opentosca.planbuilder.provphase.plugin.invoker.bpel;version="2.0.0",
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.5"
 Bundle-ClassPath: .,
