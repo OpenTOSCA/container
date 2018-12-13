@@ -197,10 +197,11 @@ public class IAEngineServiceImpl implements IIAEngineService {
                           artifact.getName(), typeImplementation.getIdFromIdOrNameField(), csar.id().csarName());
                 serviceURI = endpoints.get(0).getURI();
             } else {
-                final Document artifactSpecificContent = XMLHelper.withRootNode((Element)artifact.getAny(), "ImplementationArtifactSpecificContent");
+                final Document artifactSpecificContent = XMLHelper.withRootNode(artifact.getAny().stream().filter(o -> o instanceof Element).map(o -> (Element)o).collect(Collectors.toList()), "ImplementationArtifactSpecificContent");
 //                    this.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csar.id().toOldCsarId(),
 //                                                                                                                         QName.valueOf(typeImplementation.getIdFromIdOrNameField()),
 //                                                                                                                         artifact.getName());
+
                 serviceURI = deployThroughPlugin(csar.id().toOldCsarId(), QName.valueOf(typeImplementation.getIdFromIdOrNameField()),
                                                  artifactType, artifactSpecificContent, XMLHelper.fromRootNode((Element)properties.getAny()), 
                                                  propertyConstraints, artifacts,

@@ -1,5 +1,7 @@
 package org.opentosca.container.core.common.xml;
 
+import java.util.Collection;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,7 +32,7 @@ public final class XMLHelper {
         return result;
     }
 
-    public static Document withRootNode(Element any, String string) {
+    public static Document withRootNode(Collection<Element> any, String string) {
         if (any == null) {
             return null;
         }
@@ -46,7 +48,7 @@ public final class XMLHelper {
         }
         Document result = builder.newDocument();
         Node root = result.createElement(string);
-        root.appendChild(any);
+        any.forEach(root::appendChild);
         Node imported = result.importNode(root, true);
         result.appendChild(imported);
         return result;

@@ -65,7 +65,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
         // endpoint.
         // Set Parameters for the Query
         getWSDLEndpointsQuery.setParameter("portType", portType);
-        getWSDLEndpointsQuery.setParameter("csarId", new CsarId("***"));
+        getWSDLEndpointsQuery.setParameter("csarId", new CsarId(""));
 
         // Get Query-Results (WSDLEndpoints) and add them to the result list.
         final
