@@ -5,7 +5,9 @@ Bundle-SymbolicName: org.opentosca.container.engine.plan.plugin.bpel
 Automatic-Module-Name: org.opentosca.container.engine.plan.plugin.bpel
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: javax.wsdl;version="1.6.0",
+Import-Package: com.ibm.wsdl.extensions.http,
+ com.ibm.wsdl.extensions.soap,
+ javax.wsdl;version="1.6.0",
  javax.wsdl.extensions;version="1.6.0",
  javax.wsdl.extensions.http;version="1.6.0",
  javax.wsdl.extensions.soap;version="1.6.0",

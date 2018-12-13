@@ -7,7 +7,9 @@ Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Test-Suite: org.opentosca.bpsconnector.test.BpsConnectorTestSuite
 Bundle-ActivationPolicy: lazy
-Import-Package: javax.mail.internet;version="1.4.0",
+Import-Package: com.ibm.wsdl.extensions.http,
+ com.ibm.wsdl.extensions.soap,
+ javax.mail.internet;version="1.4.0",
  org.apache.commons.httpclient;version="3.1.0",
  org.apache.commons.httpclient.auth;version="3.1.0",
  org.apache.commons.httpclient.cookie;version="3.1.0",
@@ -82,17 +84,5 @@ Bundle-ClassPath: .,
  META-INF/libs/org.apache.servicemix.bundles.wsdl4j-1.6.3_1.jar,
  META-INF/libs/org.apache.axis2.osgi-1.6.2.jar,
  META-INF/libs/apache-mime4j-core-0.7.2.jar
-Export-Package: com.ibm.wsdl.extensions.http;
-  uses:="org.w3c.dom,
-   javax.xml.namespace,
-   javax.wsdl.extensions,
-   javax.wsdl.extensions.http,
-   javax.wsdl",
- com.ibm.wsdl.extensions.soap;
-  uses:="org.w3c.dom,
-   javax.xml.namespace,
-   javax.wsdl.extensions.soap,
-   javax.wsdl.extensions,
-   javax.wsdl",
- org.opentosca.container.connector.bps;version="2.0.0";uses:="org.osgi.framework"
+Export-Package: org.opentosca.container.connector.bps;version="2.0.0";uses:="org.osgi.framework"
 Bundle-Activator: org.opentosca.container.connector.bps.Activator
