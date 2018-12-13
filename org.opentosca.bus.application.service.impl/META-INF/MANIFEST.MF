@@ -8,6 +8,7 @@ Bundle-Activator: org.opentosca.bus.application.service.impl.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.builder;version="2.10.4",
+ org.apache.camel.component.direct;version="2.18.3",
  org.apache.camel.component.directvm;version="2.10.4",
  org.apache.camel.core.osgi;version="2.10.4",
  org.apache.camel.impl;version="2.10.4",

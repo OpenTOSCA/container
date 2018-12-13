@@ -1,5 +1,9 @@
 package org.opentosca.bus.management.plugins.soaphttp.service.impl;
 
+
+import org.apache.camel.component.direct.DirectComponent;
+import org.apache.camel.component.jetty9.JettyHttpComponent9;
+import org.apache.camel.component.stream.StreamComponent;
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.opentosca.bus.management.plugins.soaphttp.service.impl.route.AsyncRoute;
@@ -39,6 +43,12 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.camelContext = new OsgiDefaultCamelContext(bundleContext);
+
+        // This explicitly binds the required components, fixing the OSGI startup
+        Activator.camelContext.addComponent("direct", new DirectComponent());
+        Activator.camelContext.addComponent("jetty", new JettyHttpComponent9());
+        Activator.camelContext.addComponent("stream", new StreamComponent());
+        
         Activator.camelContext.addRoutes(new SyncRoute());
         Activator.camelContext.addRoutes(new AsyncRoute());
         Activator.camelContext.addRoutes(new RequestOnlyRoute());

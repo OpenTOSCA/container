@@ -1,5 +1,7 @@
 package org.opentosca.bus.application.service.impl;
 
+import org.apache.camel.component.direct.DirectComponent;
+import org.apache.camel.component.directvm.DirectVmComponent;
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.core.osgi.OsgiServiceRegistry;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -49,7 +51,11 @@ public class Activator implements BundleActivator {
 
         final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
         camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
-
+        
+        // This explicitly binds the required components, fixing the OSGI startup
+        camelContext.addComponent("direct", new DirectComponent());
+        camelContext.addComponent("direct-vm", new DirectVmComponent());
+        
         // register routes
         camelContext.addRoutes(new MainRoute());
         camelContext.addRoutes(new InvokeOperationRoute());

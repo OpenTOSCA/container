@@ -8,7 +8,9 @@ Bundle-Activator: org.opentosca.bus.application.api.soaphttp.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.builder;version="2.10.4",
+ org.apache.camel.component.cxf;version="2.18.3",
  org.apache.camel.component.cxf.common.message;version="2.10.4",
+ org.apache.camel.component.direct;version="2.18.3",
  org.apache.camel.converter.jaxb;version="2.10.4",
  org.apache.camel.core.osgi;version="2.10.4",
  org.apache.camel.impl;version="2.10.4",
@@ -19,6 +21,7 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.opentosca.bus.application.model.constants;version="2.0.0",
  org.opentosca.bus.application.model.exception;version="2.0.0",
  org.opentosca.bus.application.service;version="2.0.0",
+ org.opentosca.bus.management.extensions;version="2.0.0",
  org.opentosca.container.core;version="2.0.0",
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.5"

@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.opentosca.deployment.checks;
 
+import org.apache.camel.component.bean.BeanComponent;
+import org.apache.camel.component.direct.DirectComponent;
+import org.apache.camel.component.directvm.DirectVmComponent;
+import org.apache.camel.component.stream.StreamComponent;
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.opentosca.deployment.checks.camel.RouteConfiguration;
@@ -29,6 +33,13 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         camelContext = new OsgiDefaultCamelContext(bundleContext);
+
+        // This explicitly binds the required components, fixing the OSGI startup
+        camelContext.addComponent("direct", new DirectComponent());
+        camelContext.addComponent("direct-vm", new DirectVmComponent());
+        camelContext.addComponent("stream", new StreamComponent());
+        camelContext.addComponent("bean", new BeanComponent());
+        
         camelContext.addRoutes(new RouteConfiguration());
         camelContext.start();
     }

@@ -1,5 +1,7 @@
 package org.opentosca.bus.management.api.osgievent;
 
+import org.apache.camel.component.direct.DirectComponent;
+import org.apache.camel.component.stream.StreamComponent;
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.core.osgi.OsgiServiceRegistry;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -39,6 +41,13 @@ public class Activator implements BundleActivator {
 
         final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
         Activator.camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
+        
+        // This explicitly binds the direct component, which should fix the OSGI startup
+        Activator.camelContext.addComponent("direct", new DirectComponent());
+        Activator.camelContext.addComponent("stream", new StreamComponent());
+        
+        
+        
         Activator.camelContext.addRoutes(new Route());
         Activator.camelContext.start();
         Activator.LOG.info("Management Bus-OSGI-Event API started!");
