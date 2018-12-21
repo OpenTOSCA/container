@@ -105,7 +105,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
      * {@Inheritdoc}
      */
     public void storeWSDLEndpoint(final WSDLEndpoint endpoint) {
-        LOG.debug("Storing WSDL Endpoint with CsarId: \"" + endpoint.getCsarId()
+        LOG.debug("Storing WSDL Endpoint with CsarId: \"" + endpoint.getCsarId().csarName()
             + "\", portType: \"" + endpoint.getPortType() + "\", IAName: \"" + endpoint.getIaName()
             + "\", NodeTypeImplementation: \"" + endpoint.getNodeTypeImplementation() + "\", URI: \""
             + endpoint.getURI().toString() + "\"");
