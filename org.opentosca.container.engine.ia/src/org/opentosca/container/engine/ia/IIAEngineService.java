@@ -2,7 +2,7 @@ package org.opentosca.container.engine.ia;
 
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.core.model.csar.Csar;
 
@@ -30,6 +30,7 @@ import org.opentosca.container.core.model.csar.Csar;
  * @see org.opentosca.core.endpoint.service.ICoreEndpointService
  */
 
+@NonNullByDefault
 public interface IIAEngineService {
 
     /**
@@ -45,7 +46,6 @@ public interface IIAEngineService {
      * @return Name of Implementation Artifacts that where not successfully deployed, <code>empty</code>
      *         if all Artifacts were deployed or <code>null</code> if TNodeType Object was null.
      */
-    @NonNull
     public List<String> deployImplementationArtifacts(Csar csar, TServiceTemplate serviceTemplate);
 
     /**

@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import javax.xml.namespace.QName;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.HasType;
 import org.eclipse.winery.model.tosca.TArtifactReference;
@@ -40,6 +41,7 @@ import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.CSARArtifact;
 import org.opentosca.container.core.model.csar.Csar;
 
+@NonNullByDefault
 public final class ToscaEngine {
 
     public static TServiceTemplate findServiceTemplate(Csar csar, QName serviceTemplate) throws NotFoundException {
@@ -242,7 +244,7 @@ public final class ToscaEngine {
         List<TEntityTypeImplementation> typeRefs = new ArrayList<>();
         
         // this stub acts as base element to compare against for binary search
-        @SuppressWarnings("serial")
+        @SuppressWarnings({"serial", "null"})
         final TEntityTypeImplementation stub = new TEntityTypeImplementation() {
             @Override public HasType getDerivedFrom() { return null; /* noop */ }
             @Override public void setDerivedFrom(HasType value) { /* noop */ }

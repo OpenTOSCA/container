@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
  *
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  */
+@Deprecated
 public class ExportedInterfacesConsolidation {
     /**
      * NamespaceContext

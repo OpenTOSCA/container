@@ -7,12 +7,15 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.TPropertyConstraint;
 import org.w3c.dom.Document;
 
 /**
  * Interface for IAEnginePlugins.
  */
+@NonNullByDefault
 public interface IIAEnginePluginService {
 
     /**
@@ -31,7 +34,7 @@ public interface IIAEnginePluginService {
      *         failed).
      */
     public URI deployImplementationArtifact(CSARID csarID, QName nodeTypeImpl, QName artifactType,
-                                            Document artifactContent, Document properties,
+                                            Document artifactContent, @Nullable Document properties,
                                             List<TPropertyConstraint> propertyConstraints,
                                             List<AbstractArtifact> artifacts, List<String> requiredFeatures);
 
