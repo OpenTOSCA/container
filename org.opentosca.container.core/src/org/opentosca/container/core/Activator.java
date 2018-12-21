@@ -80,7 +80,7 @@ public class Activator implements BundleActivator {
         Settings.setSetting("toscaFileExtensions", "xml;tosca;ste");
         
         // storage basepath for csars
-        Settings.setSetting(Settings.CONTAINER_STORAGE_BASEPATH, System.getProperty("java.io.tmpdir") + "/container-storage");
+        Settings.setSetting(Settings.CONTAINER_STORAGE_BASEPATH, System.getProperty("java.io.tmpdir") + "/opentosca/container/csar-storage");
 
         // /////////////////// OTHERS ///////////////////
 

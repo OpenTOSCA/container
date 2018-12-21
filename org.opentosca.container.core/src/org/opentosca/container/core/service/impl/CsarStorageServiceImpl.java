@@ -37,9 +37,18 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsarStorageServiceImpl.class);
 
-    // FIXME obtain from settings or otherwise
     private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
 
+    public CsarStorageServiceImpl() {
+        try {
+            Files.createDirectories(CSAR_BASE_PATH);
+        }
+        catch (IOException e) {
+            LOGGER.error("Could not set up storage for Csars", e);
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+    
     @Override
     public Set<Csar> findAll() {
         LOGGER.debug("Requesting all CSARs");

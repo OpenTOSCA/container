@@ -11,7 +11,7 @@ public class CsarId implements Comparable<CsarId> {
     // FIXME check whether we can fall back to a String instead of a file as in id.CSARID
 
     // FIXME move this out of CsarId, and don't make it public
-    public static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
+    private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
     
     private Path saveLocation;
     
