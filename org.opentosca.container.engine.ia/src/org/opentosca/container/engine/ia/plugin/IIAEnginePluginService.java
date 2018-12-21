@@ -33,6 +33,7 @@ public interface IIAEnginePluginService {
      * @return endpoint of deployed ImplementationArtifact ( <tt>endpoint == null</tt>, if deployment
      *         failed).
      */
+    @Nullable
     public URI deployImplementationArtifact(CSARID csarID, QName nodeTypeImpl, QName artifactType,
                                             Document artifactContent, @Nullable Document properties,
                                             List<TPropertyConstraint> propertyConstraints,
