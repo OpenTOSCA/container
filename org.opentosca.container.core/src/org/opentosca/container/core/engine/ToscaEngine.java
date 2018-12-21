@@ -217,11 +217,17 @@ public final class ToscaEngine {
             .filter(rtImpl -> rtImpl.getRelationshipType().equals(type))
             .collect(Collectors.toList());
     }
-
-    public static List<TImplementationArtifacts.ImplementationArtifact> implementationArtifacts(Csar csar, TRelationshipTemplate relationshipTemplate,
-                                                 TRelationshipTypeImplementation typeImpl) {
-        TImplementationArtifacts nullable = typeImpl.getImplementationArtifacts();
+    
+    public static List<TImplementationArtifacts.ImplementationArtifact> implementationArtifacts(TEntityTypeImplementation impl) {
+        TImplementationArtifacts nullable = impl.getImplementationArtifacts();
         return nullable == null ? Collections.emptyList() : nullable.getImplementationArtifact();
+    }
+    
+    public static TImplementationArtifacts.ImplementationArtifact implementationArtifact(TEntityTypeImplementation impl, String iaName) throws NotFoundException {
+        return implementationArtifacts(impl).stream()
+            .filter(ia -> ia.getName().equals(iaName))
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException("No implementation Artifact matching " + iaName + "found in EntityTypeImplementation " + impl.getIdFromIdOrNameField()));
     }
 
     public static List<TNodeTypeImplementation> nodeTypeImplementations(Csar csar, TNodeType superType) {
@@ -331,6 +337,13 @@ public final class ToscaEngine {
             })
             .findFirst()
             .orElse(null);
+    }
+
+    public static TNodeTypeImplementation findNodeTypeImplementation(Csar csar, QName nodeTypeImplQname) throws NotFoundException {
+        return csar.nodeTypeImplementations().stream()
+            .filter(nti -> QName.valueOf(nti.getIdFromIdOrNameField()).equals(nodeTypeImplQname))
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException("No node type implementation was found for the QName " + nodeTypeImplQname));
     }
     
     
