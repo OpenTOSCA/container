@@ -6,9 +6,9 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Policies;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicies;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class PolicyConsolidation {
             // Policies contained in the Service Template itself
             if (null != serviceTemplate.getBoundaryDefinitions()) {
                 this.LOG.debug("Search inside of the Boundary Definitions.");
-                final Policies policies = serviceTemplate.getBoundaryDefinitions().getPolicies();
+                final TPolicies policies = serviceTemplate.getBoundaryDefinitions().getPolicies();
                 if (null != policies) {
                     this.createAndStorePolicies(csarID, serviceTemplateID, policies.getPolicy());
                 }
@@ -88,7 +88,7 @@ public class PolicyConsolidation {
      */
     private void createAndStorePolicies(final CSARID csarID, final QName templateID, final List<TPolicy> policies) {
 
-        final Policies pols = new Policies();
+        final TPolicies pols = new TPolicies();
         pols.getPolicy().addAll(policies);
 
         this.LOG.debug("Store the Consolidated Policies for template ID \"" + templateID + "\".");

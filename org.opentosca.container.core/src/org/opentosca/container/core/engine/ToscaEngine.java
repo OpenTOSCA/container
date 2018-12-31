@@ -246,7 +246,6 @@ public final class ToscaEngine {
                                                                                Comparator.comparing(QName::getNamespaceURI).thenComparing(QName::getLocalPart));
         Collections.sort(allImplementations, byTypeRef);
         
-        
         List<TEntityTypeImplementation> typeRefs = new ArrayList<>();
         
         // this stub acts as base element to compare against for binary search

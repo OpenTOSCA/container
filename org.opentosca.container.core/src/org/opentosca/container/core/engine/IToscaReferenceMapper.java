@@ -8,11 +8,11 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
-import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Policies;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Properties.PropertyMappings;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPolicies;
 import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -207,7 +207,7 @@ public interface IToscaReferenceMapper {
      * @param templateID The QName pointing to the template.
      * @return the Consolidated Policies or null of none are found.
      */
-    public Policies getPolicies(CSARID csarID, QName templateID);
+    public TPolicies getPolicies(CSARID csarID, QName templateID);
 
     /**
      * Puts the Consolidated Policies of a ServiceTemplate or NodeTemplate into the storage.
@@ -216,7 +216,7 @@ public interface IToscaReferenceMapper {
      * @param templateID the QName of a ServiceTemplate or NodeTemplate
      * @param policies the ConsolidatedPolicies object
      */
-    public void storeConsolidatedPolicies(CSARID csarID, QName templateID, Policies policies);
+    public void storeConsolidatedPolicies(CSARID csarID, QName templateID, TPolicies policies);
 
     /**
      * Stores the location inside of a CSAR for a Definitions file.

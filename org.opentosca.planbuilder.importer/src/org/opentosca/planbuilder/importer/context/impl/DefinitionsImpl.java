@@ -269,7 +269,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
     }
 
     /**
-     * <<<<<<< HEAD ======= Adds an AbstractPolicyTemplate to this DefinitionsImpl
+     * Adds an AbstractPolicyTemplate to this DefinitionsImpl
      *
      * @param policyTemplate an AbstractPolicyTemplate to add to this DefinitionsImpl
      */
@@ -278,7 +278,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
     }
 
     /**
-     * >>>>>>> master Adds an AbstractArtifactTemplate to this DefinitionsImpl
+     * Adds an AbstractArtifactTemplate to this DefinitionsImpl
      *
      * @param artifactTemplate an AbstractArtifactTemplate to add to this DefinitionsImpl
      */

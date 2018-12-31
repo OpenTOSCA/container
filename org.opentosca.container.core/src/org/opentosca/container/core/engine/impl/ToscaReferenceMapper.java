@@ -20,7 +20,7 @@ import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
-import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Policies;
+import org.eclipse.winery.model.tosca.TPolicies;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Properties.PropertyMappings;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TExportedInterface;
@@ -60,7 +60,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
     private Map<CSARID, Map<QName, List<QName>>> csarIDToServiceTemplateIDToPlanID = new HashMap<>();
     private final Map<CSARID, Map<QName, Boolean>> csarIDToPlanIDToSynchronousBoolean = new HashMap<>();
     private final Map<CSARID, Map<QName, List<TExportedInterface>>> csarIDToExportedInterface = new HashMap<>();
-    private final Map<CSARID, Map<QName, Policies>> csarIDToPolicies = new HashMap<>();
+    private final Map<CSARID, Map<QName, TPolicies>> csarIDToPolicies = new HashMap<>();
     private final Map<CSARID, Map<QName, String>> mapDefinitionsIDToLocationString = new HashMap<>();
     private final Map<CSARID, Map<QName, QName>> mapElementIDToDefinitionsID = new HashMap<>();
     private final Map<CSARID, Map<QName, QName>> mapCSARIDToPlanIDToInputMessageID = new HashMap<>();
@@ -114,7 +114,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      * {@inheritDoc}
      */
     @Override
-    public TBoundaryDefinitions.Policies getPolicies(final CSARID csarID, final QName templateID) {
+    public TPolicies getPolicies(final CSARID csarID, final QName templateID) {
         return this.csarIDToPolicies.get(csarID).get(templateID);
     }
 
@@ -122,7 +122,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      * {@inheritDoc}
      */
     @Override
-    public void storeConsolidatedPolicies(final CSARID csarID, final QName templateID, final Policies policies) {
+    public void storeConsolidatedPolicies(final CSARID csarID, final QName templateID, final TPolicies policies) {
         this.csarIDToPolicies.computeIfAbsent(csarID, id -> new HashMap<>()).put(templateID, policies);
     }
 
@@ -486,7 +486,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
             log.append(System.lineSeparator() + "Print list of the mapping of a TemplateID to Consolidated Policies"
                 + System.lineSeparator());
             for (final QName templateID : this.csarIDToPolicies.get(csarID).keySet()) {
-                final TBoundaryDefinitions.Policies pols = this.csarIDToPolicies.get(csarID).get(templateID);
+                final TPolicies pols = this.csarIDToPolicies.get(csarID).get(templateID);
                 log.append("   " + templateID + " mapps to following policies." + System.lineSeparator());
                 for (final TPolicy pol : pols.getPolicy()) {
                     log.append("      policy name=\"" + pol.getName() + "\"");
