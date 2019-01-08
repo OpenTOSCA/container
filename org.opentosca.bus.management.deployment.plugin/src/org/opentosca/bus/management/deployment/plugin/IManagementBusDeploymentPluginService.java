@@ -12,13 +12,10 @@ import org.opentosca.bus.management.header.MBHeader;
  * Copyright 2018 IAAS University of Stuttgart <br>
  * <br>
  *
- * The interface specifies three methods. One for invoking the deployment of an Implementation
+ * The interface specifies four methods. One for invoking the deployment of an Implementation
  * Artifact, another for invoking the undeployment of a previously deployed Implementation Artifact
- * and one method that returns the supported deployment types of the specific plugin.
- *
- *
- *
- * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
+ * and two methods that return the supported deployment types and the capabilities of the specific
+ * plug-in.
  *
  */
 public interface IManagementBusDeploymentPluginService {
