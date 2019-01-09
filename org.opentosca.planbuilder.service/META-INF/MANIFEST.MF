@@ -31,7 +31,5 @@ Export-Package: org.eclipse.winery.model.selfservice,
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.container.core.tosca;bundle-version="1.0.0",
- org.opentosca.planbuilder.export;bundle-version="1.0.0",
- org.opentosca.planbuilder.importer;bundle-version="1.0.0",
  org.opentosca.planbuilder.integration;bundle-version="1.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0"
