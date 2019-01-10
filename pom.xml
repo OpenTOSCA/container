@@ -150,8 +150,6 @@
     <module>org.opentosca.planbuilder</module>
     <module>org.opentosca.planbuilder.core.bpel</module>
     <module>org.opentosca.planbuilder.csarhandler</module>
-    <module>org.opentosca.planbuilder.export</module>
-    <module>org.opentosca.planbuilder.importer</module>
     <module>org.opentosca.planbuilder.integration</module>
     <module>org.opentosca.planbuilder.model</module>
     <module>org.opentosca.planbuilder.service</module>
