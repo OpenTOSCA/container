@@ -58,4 +58,11 @@ public class RootController {
 
         return Response.ok(links).build();
     }
+    
+    @GET
+    @Path("favicon.ico")
+    // this just stubs out the favicon endpoint to shut error-logging for requests to it up
+    public Response faviconStub() {
+        return Response.noContent().build();
+    }
 }

@@ -14,6 +14,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
@@ -33,6 +36,7 @@ import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@NonNullByDefault
 public class CsarStorageServiceImpl implements CsarStorageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsarStorageServiceImpl.class);
@@ -66,7 +70,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         LOGGER.debug("Requesting all CSARs");
         final Set<Csar> csars = new HashSet<>();
         try {
-            for (Path csarId : Files.newDirectoryStream(CSAR_BASE_PATH, Files::isDirectory)) {
+            for (@NonNull Path csarId : Files.newDirectoryStream(basePath, Files::isDirectory)) {
                 // FIXME make CsarId a name and put the path somewhere else
                 csars.add(new CsarImpl(new CsarId(csarId), csarId));
             }
@@ -89,6 +93,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     }
 
     @Override
+    @Nullable
     public Path storeCSARTemporarily(String filename, InputStream is) {
         try {
             Path tempLocation = Paths.get(Consts.TMPDIR, filename);

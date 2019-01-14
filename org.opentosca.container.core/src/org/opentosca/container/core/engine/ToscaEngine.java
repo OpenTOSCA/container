@@ -195,11 +195,6 @@ public final class ToscaEngine {
         return outputParams != null && !outputParams.getOutputParameter().isEmpty();
     }
 
-    public static String getPlanNamespace(TPlan p, Csar csar) {
-        // FIXME implement!
-        return "";
-    }
-
     public static List<TRelationshipTemplate> relationshipTemplates(TServiceTemplate serviceTemplate) {
         return serviceTemplate.getTopologyTemplate().getRelationshipTemplates();
     }

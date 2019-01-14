@@ -18,7 +18,8 @@
 
    <includes
          id="winery"
-         version="0.0.0"/>
+         version="0.0.0"
+         name="Winery"/>
 
    <requires>
       <import plugin="com.google.inject" version="3.0.0" match="compatible"/>
