@@ -2,7 +2,7 @@ package org.opentosca.bus.management.api.osgievent.route;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.api.osgievent.Activator;
-import org.opentosca.bus.management.api.osgievent.model.Operations;
+import org.opentosca.bus.management.api.osgievent.OsgiEventOperations;
 import org.opentosca.bus.management.header.MBHeader;
 
 /**
@@ -44,8 +44,9 @@ public class Route extends RouteBuilder {
                 exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), true);
             }
 
-        }).to("stream:out").choice().when(header("OPERATION").isEqualTo(Operations.invokeIA)).to("direct:invokeIA")
-            .when(header("OPERATION").isEqualTo(Operations.invokePlan)).to("direct:invokePlan").end();
+        }).to("stream:out").choice().when(header("OPERATION").isEqualTo(OsgiEventOperations.INVOKE_IA.getHeaderValue()))
+            .to("direct:invokeIA").when(header("OPERATION").isEqualTo(OsgiEventOperations.INVOKE_PLAN.getHeaderValue()))
+            .to("direct:invokePlan").end();
 
         this.from("direct:invokeIA").to("stream:out").wireTap(MANAGEMENT_BUS_IA);
         this.from("direct:invokePlan").to("stream:out").to(MANAGEMENT_BUS_PLAN).end();

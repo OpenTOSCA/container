@@ -3,6 +3,7 @@ package org.opentosca.bus.management.service.impl.collaboration.processor;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -44,75 +45,77 @@ public class IncomingProcessor implements Processor {
         final Message message = exchange.getIn();
 
         // only exchanges with body class CollaborationMessage are valid
-        if (message.getBody() instanceof CollaborationMessage) {
+        if (!(message.getBody() instanceof CollaborationMessage)) {
+            LOG.warn("Received response of invalid class: {}", exchange.getIn().getBody().getClass().toString());
+            return;
+        }
 
-            // get headers and map them to the camel message
-            final CollaborationMessage collaborationMessage = (CollaborationMessage) message.getBody();
-            final KeyValueMap headers = collaborationMessage.getHeaderMap();
+        // get headers and map them to the camel message
+        final CollaborationMessage collaborationMessage = (CollaborationMessage) message.getBody();
+        final KeyValueMap headers = collaborationMessage.getHeaderMap();
 
-            IncomingProcessor.LOG.debug("Incoming message contains the following headers:");
-            if (headers != null) {
-                for (final KeyValueType header : headers.getKeyValuePair()) {
-                    IncomingProcessor.LOG.debug("Key: {} Value: {}", header.getKey(), header.getValue());
+        if (Objects.isNull(headers)) {
+            LOG.warn("No headers contained in the incoming exchange.");
+            return;
+        }
 
-                    // extract type of the header (must be added to the header name (see MBHeader))
-                    String type = "";
-                    if (header.getKey().contains("_")) {
-                        type = StringUtils.substringAfterLast(header.getKey(), "_");
-                    } else {
-                        type = header.getKey();
-                    }
+        LOG.debug("Incoming message contains the following headers:");
+        for (final KeyValueType header : headers.getKeyValuePair()) {
+            LOG.debug("Key: {} Value: {}", header.getKey(), header.getValue());
 
-                    // convert to the corresponding type if possible
-                    switch (type) {
-                        case "STRING":
-                            message.setHeader(header.getKey(), header.getValue());
-                            break;
-                        case "BOOLEAN":
-                            message.setHeader(header.getKey(), Boolean.parseBoolean(header.getValue()));
-                            break;
-                        case "CSARID":
-                            message.setHeader(header.getKey(), new CSARID(header.getValue()));
-                            break;
-                        case "QNAME":
-                            try {
-                                message.setHeader(header.getKey(), QName.valueOf(header.getValue()));
-                            }
-                            catch (final IllegalArgumentException e) {
-                                IncomingProcessor.LOG.warn("Unable to parse header to type QName. Ignoring it.");
-                            }
-                            break;
-                        case "URI":
-                            try {
-                                message.setHeader(header.getKey(), new URI(header.getValue()));
-                            }
-                            catch (final Exception e) {
-                                IncomingProcessor.LOG.warn("Unable to parse header to type URI. Ignoring it.");
-                            }
-                            break;
-                        case "LISTSTRING":
-                            final String array[] = header.getValue().replace("[", "").replace("]", "").split(",");
-                            message.setHeader(header.getKey(), Arrays.asList(array));
-                            break;
-                        case "DOCUMENT":
-                            try {
-                                final DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                                final Document document =
-                                    db.parse(new ByteArrayInputStream(header.getValue().getBytes("UTF-8")));
-                                message.setHeader(header.getKey(), document);
-                            }
-                            catch (final Exception e) {
-                                IncomingProcessor.LOG.warn("Unable to parse header to type Document. Ignoring it.");
-                            }
-                            break;
-                        default:
-                            IncomingProcessor.LOG.warn("Header has unknown type and can not be added to the exchange!");
-                    }
-                }
+            // extract type of the header (must be added to the header name (see MBHeader))
+            String type = "";
+            if (header.getKey().contains("_")) {
+                type = StringUtils.substringAfterLast(header.getKey(), "_");
+            } else {
+                type = header.getKey();
             }
-        } else {
-            IncomingProcessor.LOG.warn("Received response of invalid class: {}",
-                                       exchange.getIn().getBody().getClass().toString());
+
+            // convert to the corresponding type if possible
+            switch (type) {
+                case "STRING":
+                    message.setHeader(header.getKey(), header.getValue());
+                    break;
+                case "BOOLEAN":
+                    message.setHeader(header.getKey(), Boolean.parseBoolean(header.getValue()));
+                    break;
+                case "CSARID":
+                    message.setHeader(header.getKey(), new CSARID(header.getValue()));
+                    break;
+                case "QNAME":
+                    try {
+                        message.setHeader(header.getKey(), QName.valueOf(header.getValue()));
+                    }
+                    catch (final IllegalArgumentException e) {
+                        LOG.warn("Unable to parse header to type QName. Ignoring it.");
+                    }
+                    break;
+                case "URI":
+                    try {
+                        message.setHeader(header.getKey(), new URI(header.getValue()));
+                    }
+                    catch (final Exception e) {
+                        LOG.warn("Unable to parse header to type URI. Ignoring it.");
+                    }
+                    break;
+                case "LISTSTRING":
+                    final String array[] = header.getValue().replace("[", "").replace("]", "").split(",");
+                    message.setHeader(header.getKey(), Arrays.asList(array));
+                    break;
+                case "DOCUMENT":
+                    try {
+                        final DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                        final Document document =
+                            db.parse(new ByteArrayInputStream(header.getValue().getBytes("UTF-8")));
+                        message.setHeader(header.getKey(), document);
+                    }
+                    catch (final Exception e) {
+                        LOG.warn("Unable to parse header to type Document. Ignoring it.");
+                    }
+                    break;
+                default:
+                    LOG.warn("Header has unknown type and can not be added to the exchange!");
+            }
         }
     }
 }

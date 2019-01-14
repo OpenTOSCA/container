@@ -35,28 +35,68 @@ public class ParameterHandler {
     private final static Logger LOG = LoggerFactory.getLogger(ParameterHandler.class);
 
     /**
-     * Updates missing input parameters with instance data. The provided input parameters have
-     * priority, which means if one parameter is provided and found in the instance data, then the
-     * provided parameter is used.
+     * Updates missing input parameters for a operation on a NodeTemplate or RelationshipTemplate
+     * with instance data. The provided input parameters have priority, which means if one parameter
+     * is provided and found in the instance data, then the provided parameter is used. <br>
+     * <br>
      *
-     * @param inputParams the set of input parameters
-     * @param csarID
-     * @param nodeTemplateInstance
-     * @param neededInterface
-     * @param neededOperation
+     * If nodeTemplateInstance and relationshipTemplateInstance are provided, the update will be
+     * performed based on the RelationshipTemplate. If one of the parameters is <tt>null</tt> the
+     * other one is used to perform the update. If both are <tt>null</tt> an update is not possible.
+     *
+     * @param inputParams the set of provided input parameters
+     * @param csarID of the CSAR containing the NodeTemplate/RelationshipTemplate
+     * @param nodeTemplateInstance the NodeTemplateInstance object which is used as entry point to
+     *        the stored instance data. If it does not contain all needed parameters the search is
+     *        continued downwards in the topology
+     * @param relationshipTemplateInstance the RelationshipTemplateInstance object which is used as
+     *        entry point to the stored instance data. The update is performed based on the
+     *        RelationshipTemplate and the source/target stack of the topology
+     * @param neededInterface the interface of the operation for which the update is performed
+     * @param neededOperation the operation for which the update is performed
      *
      * @return the updated input parameters.
      */
-    public static HashMap<String, String> updateInputParamsForNodeTemplate(final HashMap<String, String> inputParams,
-                                                                           final CSARID csarID,
-                                                                           NodeTemplateInstance nodeTemplateInstance,
-                                                                           final String neededInterface,
-                                                                           final String neededOperation) {
+    public static HashMap<String, String> updateInputParams(final HashMap<String, String> inputParams,
+                                                            final CSARID csarID,
+                                                            final NodeTemplateInstance nodeTemplateInstance,
+                                                            final RelationshipTemplateInstance relationshipTemplateInstance,
+                                                            final String neededInterface,
+                                                            final String neededOperation) {
 
-        if (Objects.isNull(nodeTemplateInstance)) {
-            LOG.warn("Unable to update input parameters with nodeTemplateInstance equal to null!");
+        if (Objects.nonNull(relationshipTemplateInstance)) {
+            return updateInputParamsForRelationshipTemplate(inputParams, csarID, relationshipTemplateInstance,
+                                                            neededInterface, neededOperation);
+
+        } else if (Objects.nonNull(nodeTemplateInstance)) {
+            return updateInputParamsForNodeTemplate(inputParams, csarID, nodeTemplateInstance, neededInterface,
+                                                    neededOperation);
+        } else {
+            LOG.warn("Unable to update input parameters with nodeTemplateInstance and relationshipTemplateInstance equal to null!");
             return inputParams;
         }
+    }
+
+    /**
+     * Updates missing input parameters for a operation on a NodeTemplate with instance data. The
+     * provided input parameters have priority, which means if one parameter is provided and found
+     * in the instance data, then the provided parameter is used.
+     *
+     * @param inputParams the set of provided input parameters
+     * @param csarID of the CSAR containing the NodeTemplate
+     * @param nodeTemplateInstance the NodeTemplate instance object
+     * @param neededInterface the interface of the operation for which the update is performed
+     * @param neededOperation the operation for which the update is performed
+     *
+     * @return the updated input parameters.
+     */
+    private static HashMap<String, String> updateInputParamsForNodeTemplate(final HashMap<String, String> inputParams,
+                                                                            final CSARID csarID,
+                                                                            NodeTemplateInstance nodeTemplateInstance,
+                                                                            final String neededInterface,
+                                                                            final String neededOperation) {
+
+        Objects.requireNonNull(nodeTemplateInstance);
 
         LOG.debug("Updating input params for NodeTemplateInstance ID: {}", nodeTemplateInstance.getId());
 
@@ -162,24 +202,21 @@ public class ParameterHandler {
      * Input parameters with prefix "TRG_" are searched on the NodeTemplateInstance which is the
      * target of the RelationshipTemplate.
      *
-     * @param inputParams the set of input parameters
+     * @param inputParams the set of provided input parameters
      * @param csarID of the CSAR containing the RelationshipTemplate
      * @param relationshipTemplateInstance the RelationshipTemplate instance object
-     * @param neededInterface
-     * @param neededOperation
+     * @param neededInterface the interface of the operation for which the update is performed
+     * @param neededOperation the operation for which the update is performed
      *
      * @return the updated input parameters.
      */
-    public static HashMap<String, String> updateInputParamsForRelationshipTemplate(final HashMap<String, String> inputParams,
-                                                                                   final CSARID csarID,
-                                                                                   final RelationshipTemplateInstance relationshipTemplateInstance,
-                                                                                   final String neededInterface,
-                                                                                   final String neededOperation) {
+    private static HashMap<String, String> updateInputParamsForRelationshipTemplate(final HashMap<String, String> inputParams,
+                                                                                    final CSARID csarID,
+                                                                                    final RelationshipTemplateInstance relationshipTemplateInstance,
+                                                                                    final String neededInterface,
+                                                                                    final String neededOperation) {
 
-        if (Objects.isNull(relationshipTemplateInstance)) {
-            LOG.warn("Unable to update input parameters with nodeTemplateInstance equal to null!");
-            return inputParams;
-        }
+        Objects.requireNonNull(relationshipTemplateInstance);
 
         LOG.debug("Updating input params for RelationshipTemplate ID: {}", relationshipTemplateInstance.getId());
 

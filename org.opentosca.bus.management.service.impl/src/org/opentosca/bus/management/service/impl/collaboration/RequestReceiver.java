@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -40,11 +41,7 @@ import org.w3c.dom.Element;
  * consumer endpoints of the collaboration request route ({@link ReceiveRequestRoute}).<br>
  * <br>
  *
- * Copyright 2018 IAAS University of Stuttgart <br>
- * <br>
- *
- * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
+ * Copyright 2018 IAAS University of Stuttgart
  */
 public class RequestReceiver {
 
@@ -62,65 +59,66 @@ public class RequestReceiver {
      */
     public void invokeInstanceDataMatching(final Exchange exchange) {
 
-        RequestReceiver.LOG.debug("Received remote operation call for instance data matching.");
+        LOG.debug("Received remote operation call for instance data matching.");
         final Message message = exchange.getIn();
 
         // check whether the request contains the needed header fields to send a response
         final Map<String, Object> headers = getResponseHeaders(message);
+        if (Objects.isNull(headers)) {
+            LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
+            return;
+        }
 
-        if (headers != null) {
-            if (message.getBody() instanceof CollaborationMessage) {
-                final CollaborationMessage collMsg = (CollaborationMessage) message.getBody();
-                final BodyType body = collMsg.getBody();
+        if (!(message.getBody() instanceof CollaborationMessage)) {
+            LOG.error("Message body has invalid class: {}. Aborting operation!", message.getBody().getClass());
+            return;
+        }
 
-                if (body != null) {
-                    final InstanceDataMatchingRequest request = body.getInstanceDataMatchingRequest();
+        final CollaborationMessage collMsg = (CollaborationMessage) message.getBody();
+        final BodyType body = collMsg.getBody();
 
-                    if (request != null) {
-                        RequestReceiver.LOG.debug("InstanceDataMatchingRequest contained in incoming message. Processing it...");
+        if (Objects.isNull(body)) {
+            LOG.error("Collaboration message contains no body. Aborting operation!");
+            return;
+        }
 
-                        // get NodeType and properties from the request
-                        final QName nodeType = request.getNodeType();
-                        final Map<String, String> properties = new HashMap<>();
-                        for (final KeyValueType property : request.getProperties().getKeyValuePair()) {
-                            properties.put(property.getKey(), property.getValue());
-                        }
+        final InstanceDataMatchingRequest request = body.getInstanceDataMatchingRequest();
 
-                        RequestReceiver.LOG.debug("Performing matching with NodeType: {} and properties: {}", nodeType,
-                                                  properties.toString());
+        if (Objects.isNull(request)) {
+            LOG.error("Body contains no InstanceDataMatchingRequest. Aborting operation!");
+            return;
+        }
 
-                        // perform instance data matching
-                        final String deploymentLocation =
-                            DeploymentDistributionDecisionMaker.performInstanceDataMatching(nodeType, properties);
-                        if (deploymentLocation != null) {
-                            RequestReceiver.LOG.debug("Instance data matching was successful. Sending response to requestor...");
-                            RequestReceiver.LOG.debug("Broker: {} Topic: {} Correlation: {}",
-                                                      headers.get(MBHeader.MQTTBROKERHOSTNAME_STRING.toString()),
-                                                      headers.get(MBHeader.MQTTTOPIC_STRING.toString()),
-                                                      headers.get(MBHeader.CORRELATIONID_STRING.toString()));
+        LOG.debug("InstanceDataMatchingRequest contained in incoming message. Processing it...");
 
-                            // add the deployment location as operation result to the headers
-                            headers.put(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
+        // get NodeType and properties from the request
+        final QName nodeType = request.getNodeType();
+        final Map<String, String> properties = new HashMap<>();
+        for (final KeyValueType property : request.getProperties().getKeyValuePair()) {
+            properties.put(property.getKey(), property.getValue());
+        }
 
-                            // create empty reply message and transmit it with the headers
-                            final CollaborationMessage replyBody = new CollaborationMessage(new KeyValueMap(), null);
-                            Activator.producer.sendBodyAndHeaders("direct:SendMQTT", replyBody, headers);
-                        } else {
-                            // if matching is not successful, no response is needed
-                            RequestReceiver.LOG.debug("Instance data matching was not successful.");
-                        }
-                    } else {
-                        RequestReceiver.LOG.error("Body contains no InstanceDataMatchingRequest. Aborting operation!");
-                    }
-                } else {
-                    RequestReceiver.LOG.error("Collaboration message contains no body. Aborting operation!");
-                }
-            } else {
-                RequestReceiver.LOG.error("Message body has invalid class: {}. Aborting operation!",
-                                          message.getBody().getClass());
-            }
+        LOG.debug("Performing matching with NodeType: {} and properties: {}", nodeType, properties.toString());
+
+        // perform instance data matching
+        final String deploymentLocation =
+            DeploymentDistributionDecisionMaker.performInstanceDataMatching(nodeType, properties);
+        if (deploymentLocation != null) {
+            LOG.debug("Instance data matching was successful. Sending response to requestor...");
+            LOG.debug("Broker: {} Topic: {} Correlation: {}",
+                      headers.get(MBHeader.MQTTBROKERHOSTNAME_STRING.toString()),
+                      headers.get(MBHeader.MQTTTOPIC_STRING.toString()),
+                      headers.get(MBHeader.CORRELATIONID_STRING.toString()));
+
+            // add the deployment location as operation result to the headers
+            headers.put(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
+
+            // create empty reply message and transmit it with the headers
+            final CollaborationMessage replyBody = new CollaborationMessage(new KeyValueMap(), null);
+            Activator.producer.sendBodyAndHeaders("direct:SendMQTT", replyBody, headers);
         } else {
-            RequestReceiver.LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
+            // if matching is not successful, no response is needed
+            LOG.debug("Instance data matching was not successful.");
         }
     }
 
@@ -132,108 +130,102 @@ public class RequestReceiver {
      */
     public void invokeIADeployment(Exchange exchange) {
 
-        RequestReceiver.LOG.debug("Received remote operation call for IA deployment.");
+        LOG.debug("Received remote operation call for IA deployment.");
         final Message message = exchange.getIn();
 
-        // check whether the request is directed to this OpenTOSCA Container
-        if (isDestinationLocal(message)) {
-
-            // check whether the request contains the needed header fields to send a response
-            final Map<String, Object> headers = getResponseHeaders(message);
-            if (headers != null) {
-
-                // create IA unique String from given message
-                final String identifier = getUniqueSynchronizationString(message);
-                if (identifier != null) {
-
-                    // URI of the deployed IA
-                    URI endpointURI = null;
-
-                    // retrieve needed data from the headers
-                    final String triggeringContainer =
-                        message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
-                    final String deploymentLocation = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-                    final QName typeImplementationID =
-                        message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
-                    final String implementationArtifactName =
-                        message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
-                    final URI serviceInstanceID =
-                        message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
-                    final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
-                    final QName portType = message.getHeader(MBHeader.PORTTYPE_QNAME.toString(), QName.class);
-                    final String artifactType =
-                        message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), String.class);
-                    final Long serviceTemplateInstanceID =
-                        Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
-
-                    logInformation(triggeringContainer, deploymentLocation, typeImplementationID,
-                                   implementationArtifactName, csarID, portType, artifactType,
-                                   serviceTemplateInstanceID);
-
-                    // Prevent two threads from trying to deploy the same IA
-                    // concurrently and avoid the deletion of an IA after
-                    // successful checking that an IA is already deployed.
-                    synchronized (ManagementBusServiceImpl.getLockForString(identifier)) {
-
-                        RequestReceiver.LOG.debug("Got lock for operations on the given IA. Checking if IA is already deployed...");
-
-                        final List<WSDLEndpoint> endpoints =
-                            ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer,
-                                                                                              deploymentLocation,
-                                                                                              typeImplementationID,
-                                                                                              implementationArtifactName);
-
-                        if (endpoints != null && endpoints.size() > 0) {
-
-                            // This case should not happen, as the 'master' Container sends only one
-                            // deployment request per IA and intercepts all other deployment actions
-                            // if there is already an endpoint.
-                            endpointURI = endpoints.get(0).getURI();
-
-                            RequestReceiver.LOG.warn("IA is already deployed. Storing only one endpoint at the remote side. Endpoint URI: {}",
-                                                     endpointURI);
-                        } else {
-                            RequestReceiver.LOG.debug("IA not yet deployed. Trying to deploy...");
-
-                            final IManagementBusDeploymentPluginService deploymentPlugin =
-                                ServiceHandler.deploymentPluginServices.get(artifactType);
-
-                            if (deploymentPlugin != null) {
-                                RequestReceiver.LOG.debug("Deployment plug-in: {}. Deploying IA...",
-                                                          deploymentPlugin.toString());
-
-                                // execute deployment via corresponding plug-in
-                                exchange = deploymentPlugin.invokeImplementationArtifactDeployment(exchange);
-                                endpointURI = exchange.getIn().getHeader(MBHeader.ENDPOINT_URI.toString(), URI.class);
-
-                                // store new endpoint for the IA
-                                final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType,
-                                    triggeringContainer, deploymentLocation, csarID, serviceTemplateInstanceID, null,
-                                    typeImplementationID, implementationArtifactName);
-                                ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
-                            } else {
-                                RequestReceiver.LOG.error("No matching deployment plug-in found. Aborting deployment!");
-                            }
-                        }
-                    }
-
-                    RequestReceiver.LOG.debug("Sending response message containing endpoint URI: {}", endpointURI);
-
-                    // add the endpoint URI as operation result to the headers
-                    headers.put(MBHeader.ENDPOINT_URI.toString(), endpointURI);
-
-                    // create empty reply message and transmit it with the headers
-                    final CollaborationMessage replyBody = new CollaborationMessage(new KeyValueMap(), null);
-                    Activator.producer.sendBodyAndHeaders("direct:SendMQTT", replyBody, headers);
-                } else {
-                    RequestReceiver.LOG.error("Request does not contain all needed header fields to deploy the IA. Aborting operation!");
-                }
-            } else {
-                RequestReceiver.LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
-            }
-        } else {
-            RequestReceiver.LOG.debug("Request is directed to another OpenTOSCA Container. Ignoring request!");
+        if (!isDestinationLocal(message)) {
+            LOG.debug("Request is directed to another OpenTOSCA Container. Ignoring request!");
+            return;
         }
+
+        // check whether the request contains the needed header fields to send a response
+        final Map<String, Object> headers = getResponseHeaders(message);
+        if (Objects.isNull(headers)) {
+            LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
+            return;
+        }
+
+        // create IA unique String from given message
+        final String identifier = getUniqueSynchronizationString(message);
+        if (Objects.isNull(identifier)) {
+            LOG.error("Request does not contain all needed header fields to deploy the IA. Aborting operation!");
+            return;
+        }
+
+        // URI of the deployed IA
+        URI endpointURI = null;
+
+        // retrieve needed data from the headers
+        final String triggeringContainer =
+            message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
+        final String deploymentLocation = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+        final QName typeImplementationID =
+            message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
+        final String implementationArtifactName =
+            message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
+        final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
+        final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
+        final QName portType = message.getHeader(MBHeader.PORTTYPE_QNAME.toString(), QName.class);
+        final String artifactType = message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), String.class);
+        final Long serviceTemplateInstanceID =
+            Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
+
+        logInformation(triggeringContainer, deploymentLocation, typeImplementationID, implementationArtifactName,
+                       csarID, portType, artifactType, serviceTemplateInstanceID);
+
+        // Prevent two threads from trying to deploy the same IA concurrently and avoid the deletion
+        // of an IA after successful checking that an IA is already deployed.
+        synchronized (ManagementBusServiceImpl.getLockForString(identifier)) {
+
+            LOG.debug("Got lock for operations on the given IA. Checking if IA is already deployed...");
+
+            final List<WSDLEndpoint> endpoints =
+                ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer,
+                                                                                  deploymentLocation,
+                                                                                  typeImplementationID,
+                                                                                  implementationArtifactName);
+
+            if (endpoints != null && endpoints.size() > 0) {
+
+                // This case should not happen, as the 'master' Container sends only one deployment
+                // request per IA and intercepts all other deployment actions if there is already an
+                // endpoint.
+                endpointURI = endpoints.get(0).getURI();
+
+                LOG.warn("IA is already deployed. Storing only one endpoint at the remote side. Endpoint URI: {}",
+                         endpointURI);
+            } else {
+                LOG.debug("IA not yet deployed. Trying to deploy...");
+
+                final IManagementBusDeploymentPluginService deploymentPlugin =
+                    ServiceHandler.deploymentPluginServices.get(artifactType);
+
+                if (deploymentPlugin != null) {
+                    LOG.debug("Deployment plug-in: {}. Deploying IA...", deploymentPlugin.toString());
+
+                    // execute deployment via corresponding plug-in
+                    exchange = deploymentPlugin.invokeImplementationArtifactDeployment(exchange);
+                    endpointURI = exchange.getIn().getHeader(MBHeader.ENDPOINT_URI.toString(), URI.class);
+
+                    // store new endpoint for the IA
+                    final WSDLEndpoint endpoint =
+                        new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, csarID,
+                            serviceTemplateInstanceID, null, typeImplementationID, implementationArtifactName);
+                    ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
+                } else {
+                    LOG.error("No matching deployment plug-in found. Aborting deployment!");
+                }
+            }
+        }
+
+        LOG.debug("Sending response message containing endpoint URI: {}", endpointURI);
+
+        // add the endpoint URI as operation result to the headers
+        headers.put(MBHeader.ENDPOINT_URI.toString(), endpointURI);
+
+        // create empty reply message and transmit it with the headers
+        final CollaborationMessage replyBody = new CollaborationMessage(new KeyValueMap(), null);
+        Activator.producer.sendBodyAndHeaders("direct:SendMQTT", replyBody, headers);
     }
 
     /**
@@ -244,94 +236,89 @@ public class RequestReceiver {
      */
     public void invokeIAUndeployment(Exchange exchange) {
 
-        RequestReceiver.LOG.debug("Received remote operation call for IA undeployment.");
+        LOG.debug("Received remote operation call for IA undeployment.");
         final Message message = exchange.getIn();
 
-        // check whether the request is directed to this OpenTOSCA Container
-        if (isDestinationLocal(message)) {
+        if (!isDestinationLocal(message)) {
+            LOG.debug("Request is directed to another OpenTOSCA Container. Ignoring request!");
+            return;
+        }
 
-            // check whether the request contains the needed header fields to send a response
-            final Map<String, Object> headers = getResponseHeaders(message);
-            if (headers != null) {
+        // check whether the request contains the needed header fields to send a response
+        final Map<String, Object> headers = getResponseHeaders(message);
+        if (Objects.isNull(headers)) {
+            LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
+            return;
+        }
 
-                // create IA unique String from given message
-                final String identifier = getUniqueSynchronizationString(message);
-                if (identifier != null) {
+        // create IA unique String from given message
+        final String identifier = getUniqueSynchronizationString(message);
+        if (Objects.isNull(identifier)) {
+            LOG.error("Request does not contain all needed header fields to deploy the IA. Aborting operation!");
+            return;
+        }
 
-                    boolean undeploymentState = false;
+        boolean undeploymentState = false;
 
-                    // retrieve needed data from the headers
-                    final String triggeringContainer =
-                        message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
-                    final String deploymentLocation = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-                    final QName typeImplementationID =
-                        message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
-                    final String implementationArtifactName =
-                        message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
-                    final String artifactType =
-                        message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), String.class);
+        // retrieve needed data from the headers
+        final String triggeringContainer =
+            message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
+        final String deploymentLocation = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+        final QName typeImplementationID =
+            message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
+        final String implementationArtifactName =
+            message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
+        final String artifactType = message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), String.class);
 
-                    RequestReceiver.LOG.debug("Undeployment of IA: Triggering Container: {}, Deployment location: {}, NodeTypeImplementation ID: {}, IA name: {}, Type: {}",
-                                              triggeringContainer, deploymentLocation, typeImplementationID,
-                                              implementationArtifactName, artifactType);
+        LOG.debug("Undeployment of IA: Triggering Container: {}, Deployment location: {}, NodeTypeImplementation ID: {}, IA name: {}, Type: {}",
+                  triggeringContainer, deploymentLocation, typeImplementationID, implementationArtifactName,
+                  artifactType);
 
-                    // Prevent two threads from trying to deploy the same IA
-                    // concurrently and avoid the deletion of an IA after
-                    // successful checking that an IA is already deployed.
-                    synchronized (ManagementBusServiceImpl.getLockForString(identifier)) {
+        // Prevent two threads from trying to deploy the same IA concurrently and avoid the deletion
+        // of an IA after successful checking that an IA is already deployed.
+        synchronized (ManagementBusServiceImpl.getLockForString(identifier)) {
 
-                        RequestReceiver.LOG.debug("Got lock for operations on the given IA. Getting endpoints fot the IA...");
+            LOG.debug("Got lock for operations on the given IA. Getting endpoints fot the IA...");
 
-                        // get all endpoints for the given parameters
-                        final List<WSDLEndpoint> endpoints =
-                            ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer,
-                                                                                              deploymentLocation,
-                                                                                              typeImplementationID,
-                                                                                              implementationArtifactName);
+            // get all endpoints for the given parameters
+            final List<WSDLEndpoint> endpoints =
+                ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer,
+                                                                                  deploymentLocation,
+                                                                                  typeImplementationID,
+                                                                                  implementationArtifactName);
 
-                        if (endpoints != null && endpoints.size() > 0) {
+            if (endpoints != null && endpoints.size() > 0) {
 
-                            // only one endpoint is stored for remote IAs
-                            final WSDLEndpoint endpoint = endpoints.get(0);
-                            ServiceHandler.endpointService.removeWSDLEndpoint(endpoint);
+                // only one endpoint is stored for remote IAs
+                final WSDLEndpoint endpoint = endpoints.get(0);
+                ServiceHandler.endpointService.removeWSDLEndpoint(endpoint);
 
-                            final IManagementBusDeploymentPluginService deploymentPlugin =
-                                ServiceHandler.deploymentPluginServices.get(artifactType);
+                final IManagementBusDeploymentPluginService deploymentPlugin =
+                    ServiceHandler.deploymentPluginServices.get(artifactType);
 
-                            if (deploymentPlugin != null) {
+                if (deploymentPlugin != null) {
 
-                                RequestReceiver.LOG.debug("Undeploying IA...");
+                    LOG.debug("Undeploying IA...");
 
-                                exchange = deploymentPlugin.invokeImplementationArtifactUndeployment(exchange);
-                                undeploymentState =
-                                    exchange.getIn().getHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(),
-                                                               boolean.class);
-                            } else {
-                                RequestReceiver.LOG.error("No matching plug-in found. Aborting deployment!");
-                            }
-                        } else {
-                            RequestReceiver.LOG.error("No enpoint found for this IA. Undeployment not possible!");
-                        }
-                    }
-
-                    RequestReceiver.LOG.debug("Sending response message containing undeployment state: {}",
-                                              undeploymentState);
-
-                    // add the undeployment state as operation result to the headers
-                    headers.put(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), undeploymentState);
-
-                    // create empty reply message and transmit it with the headers
-                    final CollaborationMessage replyBody = new CollaborationMessage(new KeyValueMap(), null);
-                    Activator.producer.sendBodyAndHeaders("direct:SendMQTT", replyBody, headers);
+                    exchange = deploymentPlugin.invokeImplementationArtifactUndeployment(exchange);
+                    undeploymentState =
+                        exchange.getIn().getHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), boolean.class);
                 } else {
-                    RequestReceiver.LOG.error("Request does not contain all needed header fields to undeploy the IA. Aborting operation!");
+                    LOG.error("No matching plug-in found. Aborting deployment!");
                 }
             } else {
-                RequestReceiver.LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
+                LOG.error("No enpoint found for this IA. Undeployment not possible!");
             }
-        } else {
-            RequestReceiver.LOG.debug("Request is directed to another OpenTOSCA Container. Ignoring request!");
         }
+
+        LOG.debug("Sending response message containing undeployment state: {}", undeploymentState);
+
+        // add the undeployment state as operation result to the headers
+        headers.put(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), undeploymentState);
+
+        // create empty reply message and transmit it with the headers
+        final CollaborationMessage replyBody = new CollaborationMessage(new KeyValueMap(), null);
+        Activator.producer.sendBodyAndHeaders("direct:SendMQTT", replyBody, headers);
     }
 
     /**
@@ -343,137 +330,129 @@ public class RequestReceiver {
      */
     public void invokeIAOperation(final Exchange exchange) {
 
-        RequestReceiver.LOG.debug("Received remote operation call for invocation of an IA operation.");
+        LOG.debug("Received remote operation call for invocation of an IA operation.");
         final Message message = exchange.getIn();
 
-        // check whether the request is directed to this OpenTOSCA Container
-        if (isDestinationLocal(message)) {
+        if (!isDestinationLocal(message)) {
+            LOG.debug("Request is directed to another OpenTOSCA Container. Ignoring request!");
+            return;
+        }
 
-            // check whether the request contains the needed header fields to send a response
-            final Map<String, Object> headers = getResponseHeaders(message);
-            if (headers != null) {
+        // check whether the request contains the needed header fields to send a response
+        final Map<String, Object> headers = getResponseHeaders(message);
+        if (Objects.isNull(headers)) {
+            LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
+            return;
+        }
 
-                if (message.getBody() instanceof CollaborationMessage) {
-                    final CollaborationMessage collMsg = (CollaborationMessage) message.getBody();
-                    final BodyType body = collMsg.getBody();
+        if (!(message.getBody() instanceof CollaborationMessage)) {
+            LOG.error("Message body has invalid class: {}. Aborting operation!", message.getBody().getClass());
+            return;
+        }
 
-                    if (body != null) {
-                        final IAInvocationRequest request = body.getIAInvocationRequest();
+        final CollaborationMessage collMsg = (CollaborationMessage) message.getBody();
+        final BodyType body = collMsg.getBody();
 
-                        if (request != null) {
+        if (Objects.isNull(body)) {
+            LOG.error("Collaboration message contains no body. Aborting operation!");
+            return;
+        }
 
-                            RequestReceiver.LOG.debug("Request is valid. Checking for input parameters...");
+        final IAInvocationRequest request = body.getIAInvocationRequest();
 
-                            if (request.getParams() != null) {
-                                RequestReceiver.LOG.debug("Request contains input parameters as HashMap:");
+        if (Objects.isNull(request)) {
+            LOG.error("Body contains no IAInvocationRequest. Aborting operation!");
+            return;
+        }
 
-                                final HashMap<String, String> inputParamMap = new HashMap<>();
+        LOG.debug("Request is valid. Checking for input parameters...");
 
-                                for (final KeyValueType inputParam : request.getParams().getKeyValuePair()) {
-                                    RequestReceiver.LOG.debug("Key: {}, Value: {}", inputParam.getKey(),
-                                                              inputParam.getValue());
-                                    inputParamMap.put(inputParam.getKey(), inputParam.getValue());
-                                }
+        if (request.getParams() != null) {
+            LOG.debug("Request contains input parameters as HashMap:");
 
-                                message.setBody(inputParamMap, HashMap.class);
-                            } else {
-                                if (request.getDoc() != null) {
-                                    RequestReceiver.LOG.debug("Request contains input parameters a Document");
+            final HashMap<String, String> inputParamMap = new HashMap<>();
 
-                                    try {
-                                        final DocumentBuilderFactory dFact = DocumentBuilderFactory.newInstance();
-                                        final DocumentBuilder build = dFact.newDocumentBuilder();
-                                        final Document document = build.newDocument();
+            for (final KeyValueType inputParam : request.getParams().getKeyValuePair()) {
+                LOG.debug("Key: {}, Value: {}", inputParam.getKey(), inputParam.getValue());
+                inputParamMap.put(inputParam.getKey(), inputParam.getValue());
+            }
 
-                                        final Element element = request.getDoc().getAny();
+            message.setBody(inputParamMap, HashMap.class);
+        } else {
+            if (request.getDoc() != null) {
+                LOG.debug("Request contains input parameters a Document");
 
-                                        document.adoptNode(element);
-                                        document.appendChild(element);
+                try {
+                    final DocumentBuilderFactory dFact = DocumentBuilderFactory.newInstance();
+                    final DocumentBuilder build = dFact.newDocumentBuilder();
+                    final Document document = build.newDocument();
 
-                                        message.setBody(document, Document.class);
-                                    }
-                                    catch (final Exception e) {
-                                        RequestReceiver.LOG.error("Unable to parse Document: {}", e.getMessage());
-                                    }
-                                } else {
-                                    RequestReceiver.LOG.warn("Request contains no input parameters.");
-                                    message.setBody(null);
-                                }
-                            }
+                    final Element element = request.getDoc().getAny();
 
-                            final String invocationType =
-                                message.getHeader(MBHeader.INVOCATIONTYPE_STRING.toString(), String.class);
+                    document.adoptNode(element);
+                    document.appendChild(element);
 
-                            if (invocationType != null) {
-
-                                // call the operation with the related invocation plug-in
-                                final IManagementBusInvocationPluginService invocationPlugin =
-                                    ServiceHandler.invocationPluginServices.get(invocationType);
-                                if (invocationPlugin != null) {
-                                    RequestReceiver.LOG.debug("Invoking IA with plug-in: {}",
-                                                              invocationPlugin.getClass());
-                                    final Exchange response = invocationPlugin.invoke(exchange);
-
-                                    final Object responseBody = response.getIn().getBody();
-
-                                    // object to transmitt output parameters to the calling
-                                    // Container
-                                    final IAInvocationRequest invocationResponse = new IAInvocationRequest();
-
-                                    if (responseBody instanceof HashMap) {
-                                        RequestReceiver.LOG.debug("Response contains output parameters as HashMap");
-
-                                        @SuppressWarnings("unchecked")
-                                        final HashMap<String, String> paramsMap =
-                                            (HashMap<String, String>) responseBody;
-
-                                        final KeyValueMap invocationResponseMap = new KeyValueMap();
-                                        final List<KeyValueType> invocationResponsePairs =
-                                            invocationResponseMap.getKeyValuePair();
-
-                                        for (final Entry<String, String> param : paramsMap.entrySet()) {
-                                            invocationResponsePairs.add(new KeyValueType(param.getKey(),
-                                                param.getValue()));
-                                        }
-
-                                        invocationResponse.setParams(invocationResponseMap);
-                                    } else {
-                                        if (body instanceof Document) {
-                                            RequestReceiver.LOG.debug("Response contains output parameters as Document.");
-
-                                            final Document document = (Document) body;
-                                            invocationResponse.setDoc(new Doc(document.getDocumentElement()));
-                                        } else {
-                                            RequestReceiver.LOG.warn("No output parameters defined!");
-                                        }
-                                    }
-
-                                    // send response to calling Container
-                                    final CollaborationMessage reply =
-                                        new CollaborationMessage(new KeyValueMap(), new BodyType(invocationResponse));
-                                    Activator.producer.sendBodyAndHeaders("direct:SendMQTT", reply, headers);
-                                } else {
-                                    RequestReceiver.LOG.error("No invocation plug-in found for invocation type: {}",
-                                                              invocationType);
-                                }
-                            } else {
-                                RequestReceiver.LOG.error("No invocation type specified for the IA!");
-                            }
-                        } else {
-                            RequestReceiver.LOG.error("Body contains no IAInvocationRequest. Aborting operation!");
-                        }
-                    } else {
-                        RequestReceiver.LOG.error("Collaboration message contains no body. Aborting operation!");
-                    }
-                } else {
-                    RequestReceiver.LOG.error("Message body has invalid class: {}. Aborting operation!",
-                                              message.getBody().getClass());
+                    message.setBody(document, Document.class);
+                }
+                catch (final Exception e) {
+                    LOG.error("Unable to parse Document: {}", e.getMessage());
                 }
             } else {
-                RequestReceiver.LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
+                LOG.warn("Request contains no input parameters.");
+                message.setBody(null);
+            }
+        }
+
+        final String invocationType = message.getHeader(MBHeader.INVOCATIONTYPE_STRING.toString(), String.class);
+
+        if (invocationType != null) {
+
+            // call the operation with the related invocation plug-in
+            final IManagementBusInvocationPluginService invocationPlugin =
+                ServiceHandler.invocationPluginServices.get(invocationType);
+            if (invocationPlugin != null) {
+                LOG.debug("Invoking IA with plug-in: {}", invocationPlugin.getClass());
+                final Exchange response = invocationPlugin.invoke(exchange);
+
+                final Object responseBody = response.getIn().getBody();
+
+                // object to transmitt output parameters to the calling Container
+                final IAInvocationRequest invocationResponse = new IAInvocationRequest();
+
+                if (responseBody instanceof HashMap) {
+                    LOG.debug("Response contains output parameters as HashMap");
+
+                    @SuppressWarnings("unchecked")
+                    final HashMap<String, String> paramsMap = (HashMap<String, String>) responseBody;
+
+                    final KeyValueMap invocationResponseMap = new KeyValueMap();
+                    final List<KeyValueType> invocationResponsePairs = invocationResponseMap.getKeyValuePair();
+
+                    for (final Entry<String, String> param : paramsMap.entrySet()) {
+                        invocationResponsePairs.add(new KeyValueType(param.getKey(), param.getValue()));
+                    }
+
+                    invocationResponse.setParams(invocationResponseMap);
+                } else {
+                    if (body instanceof Document) {
+                        LOG.debug("Response contains output parameters as Document.");
+
+                        final Document document = (Document) body;
+                        invocationResponse.setDoc(new Doc(document.getDocumentElement()));
+                    } else {
+                        LOG.warn("No output parameters defined!");
+                    }
+                }
+
+                // send response to calling Container
+                final CollaborationMessage reply =
+                    new CollaborationMessage(new KeyValueMap(), new BodyType(invocationResponse));
+                Activator.producer.sendBodyAndHeaders("direct:SendMQTT", reply, headers);
+            } else {
+                LOG.error("No invocation plug-in found for invocation type: {}", invocationType);
             }
         } else {
-            RequestReceiver.LOG.debug("Request is directed to another OpenTOSCA Container. Ignoring request!");
+            LOG.error("No invocation type specified for the IA!");
         }
     }
 
@@ -486,25 +465,22 @@ public class RequestReceiver {
      */
     private Map<String, Object> getResponseHeaders(final Message message) {
 
-        // extract header field
+        // extract header fields
         final String broker = message.getHeader(MBHeader.MQTTBROKERHOSTNAME_STRING.toString(), String.class);
         final String replyTopic = message.getHeader(MBHeader.REPLYTOTOPIC_STRING.toString(), String.class);
         final String correlation = message.getHeader(MBHeader.CORRELATIONID_STRING.toString(), String.class);
 
         // reply is only possible if all headers are set
-        if (broker != null && replyTopic != null && correlation != null) {
-
-            // add the header fields to the header map and return it
-            final Map<String, Object> headers = new HashMap<>();
-            headers.put(MBHeader.MQTTBROKERHOSTNAME_STRING.toString(), broker);
-            headers.put(MBHeader.MQTTTOPIC_STRING.toString(), replyTopic);
-            headers.put(MBHeader.CORRELATIONID_STRING.toString(), correlation);
-
-            return headers;
-        } else {
-            // header fields are missing and therefore no response possible
+        if (Objects.isNull(broker) || Objects.isNull(replyTopic) || Objects.isNull(correlation)) {
             return null;
         }
+
+        // add the header fields to the header map and return it
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put(MBHeader.MQTTBROKERHOSTNAME_STRING.toString(), broker);
+        headers.put(MBHeader.MQTTTOPIC_STRING.toString(), replyTopic);
+        headers.put(MBHeader.CORRELATIONID_STRING.toString(), correlation);
+        return headers;
     }
 
     /**
@@ -520,7 +496,7 @@ public class RequestReceiver {
 
         final String deploymentLocation =
             message.getHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), String.class);
-        RequestReceiver.LOG.debug("Deplyoment location header: {}", deploymentLocation);
+        LOG.debug("Deplyoment location header: {}", deploymentLocation);
 
         return deploymentLocation != null && deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
     }
@@ -544,14 +520,9 @@ public class RequestReceiver {
         final String implementationArtifactName =
             message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
 
-        if (triggeringContainer != null && deploymentLocation != null && typeImplementationID != null
-            && implementationArtifactName != null) {
-
-            return triggeringContainer + "/" + deploymentLocation + "/" + typeImplementationID.toString() + "/"
-                + implementationArtifactName;
-        } else {
-            return null;
-        }
+        return ManagementBusServiceImpl.getUniqueSynchronizationString(triggeringContainer, deploymentLocation,
+                                                                       typeImplementationID,
+                                                                       implementationArtifactName);
     }
 
     /**
@@ -571,13 +542,13 @@ public class RequestReceiver {
                                 final CSARID csarID, final QName portType, final String artifactType,
                                 final Long serviceTemplateInstanceID) {
 
-        RequestReceiver.LOG.debug("Triggering Container: {}", triggeringContainer);
-        RequestReceiver.LOG.debug("CSARID: {}", csarID);
-        RequestReceiver.LOG.debug("ServiceTemplateInstance ID: {}", serviceTemplateInstanceID);
-        RequestReceiver.LOG.debug("Deployment location: {}", deploymentLocation);
-        RequestReceiver.LOG.debug("TypeImplementation: {}", typeImplementationID);
-        RequestReceiver.LOG.debug("IA name: {}", implementationArtifactName);
-        RequestReceiver.LOG.debug("ArtifactType: {}", artifactType);
-        RequestReceiver.LOG.debug("Port type: {}", portType);
+        LOG.debug("Triggering Container: {}", triggeringContainer);
+        LOG.debug("CSARID: {}", csarID);
+        LOG.debug("ServiceTemplateInstance ID: {}", serviceTemplateInstanceID);
+        LOG.debug("Deployment location: {}", deploymentLocation);
+        LOG.debug("TypeImplementation: {}", typeImplementationID);
+        LOG.debug("IA name: {}", implementationArtifactName);
+        LOG.debug("ArtifactType: {}", artifactType);
+        LOG.debug("Port type: {}", portType);
     }
 }

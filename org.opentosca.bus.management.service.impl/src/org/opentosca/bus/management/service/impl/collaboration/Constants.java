@@ -6,11 +6,7 @@ import org.opentosca.container.core.common.Settings;
  * This class contains constants which are used by the collaboration classes.<br>
  * <br>
  *
- * Copyright 2018 IAAS University of Stuttgart <br>
- * <br>
- *
- * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
+ * Copyright 2018 IAAS University of Stuttgart
  */
 public final class Constants {
 

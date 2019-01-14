@@ -14,7 +14,6 @@ import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultExchange;
-import org.opentosca.bus.management.api.osgievent.model.Operations;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.osgi.service.event.Event;
@@ -79,7 +78,7 @@ public class MBEventHandler implements EventHandler {
                 headers.put(MBHeader.PLANID_QNAME.toString(), planID);
                 headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
                 headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), messageID);
-                headers.put("OPERATION", Operations.invokePlan);
+                headers.put("OPERATION", OsgiEventOperations.INVOKE_PLAN.getHeaderValue());
                 headers.put("PlanLanguage", planLanguage);
 
                 // Optional parameter if message is of type HashMap. Not needed for Document.

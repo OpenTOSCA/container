@@ -815,7 +815,6 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         LOG.error("The requested NodeTemplate was not found.");
         return null;
-
     }
 
     @Override
@@ -835,7 +834,6 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         LOG.error("The requested RelationshipTemplate was not found.");
         return null;
-
     }
 
     @Override
