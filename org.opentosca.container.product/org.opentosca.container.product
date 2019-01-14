@@ -4,6 +4,7 @@
 <product name="OpenTOSCA Container" uid="org.opentosca.container.product" id="org.opentosca.container.application.opentoscacontainer" application="org.opentosca.container.application.application" version="2.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
+      <macosx>/org.opentosca.container.product/config.ini</macosx>
       <win32>/org.opentosca.container.product/config.ini</win32>
    </configIni>
 
@@ -208,8 +209,6 @@
       <plugin id="org.opentosca.deployment.tests" autoStart="false" startLevel="5" />
       <plugin id="org.opentosca.planbuilder" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.planbuilder.csarhandler" autoStart="true" startLevel="0" />
-      <plugin id="org.opentosca.planbuilder.export" autoStart="true" startLevel="0" />
-      <plugin id="org.opentosca.planbuilder.importer" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.integration" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.model" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.instancedata" autoStart="true" startLevel="0" />
