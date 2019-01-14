@@ -18,6 +18,7 @@ Import-Package: com.google.common.base;version="15.0.0",
  org.apache.camel.model;version="2.18.3",
  org.apache.camel.support;version="2.18.3",
  org.apache.commons.io;version="2.2.0",
+ org.opentosca.planbuilder.importer,
  org.osgi.framework;version="1.8.0",
  org.slf4j;version="1.7.2"
 Bundle-ActivationPolicy: lazy
@@ -25,7 +26,6 @@ Require-Bundle: org.opentosca.planbuilder;bundle-version="2.0.0",
  org.opentosca.planbuilder.model,
  org.opentosca.container.core,
  org.opentosca.container.core.tosca;bundle-version="2.0.0",
- org.opentosca.planbuilder.importer,
  org.opentosca.bus.management
 Service-Component: OSGI-INF/*
 Export-Package: org.opentosca.deployment.tests
