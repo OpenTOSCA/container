@@ -3,6 +3,7 @@ package org.opentosca.container.api.controller;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -22,15 +23,22 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceDecorator;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceDTO;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceListDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
+import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.DeploymentTest;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
@@ -39,6 +47,9 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.repository.DeploymentTestRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
+import org.opentosca.container.core.tosca.model.TExportedInterface;
+import org.opentosca.container.core.tosca.model.TExportedOperation;
+import org.opentosca.container.core.tosca.model.TPlan;
 import org.opentosca.deployment.tests.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,19 +79,22 @@ public class ServiceTemplateInstanceController {
 
     private final PlanService planService;
 
-
     private final CsarService csarService;
 
     private final DeploymentTestService deploymentTestService;
 
+    private final IToscaReferenceMapper referenceMapper;
+
 
     public ServiceTemplateInstanceController(final InstanceService instanceService, final PlanService planService,
                                              final CsarService csarService,
-                                             final DeploymentTestService deploymentTestService) {
+                                             final DeploymentTestService deploymentTestService,
+                                             final IToscaReferenceMapper referenceMapper) {
         this.instanceService = instanceService;
         this.planService = planService;
         this.csarService = csarService;
         this.deploymentTestService = deploymentTestService;
+        this.referenceMapper = referenceMapper;
     }
 
     @GET
@@ -164,6 +178,8 @@ public class ServiceTemplateInstanceController {
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "properties", false, "properties"));
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "deploymenttests", false, "deploymenttests"));
+        dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "boundarydefinitions/interfaces", false,
+                                                "boundarydefinitions/interfaces"));
         dto.add(UriUtil.generateSelfLink(this.uriInfo));
 
         return Response.ok(dto).build();
@@ -262,6 +278,96 @@ public class ServiceTemplateInstanceController {
         }
 
         return instance;
+    }
+
+    @GET
+    @Path("/{id}/boundarydefinitions/interfaces")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
+    public Response getInterfaces(@PathParam("id") final Long id) {
+
+        final CSARContent csarContent = this.csarService.findById(this.csarId);
+        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), this.serviceTemplateId)) {
+            logger.info("Service template \"" + this.serviceTemplateId + "\" could not be found");
+            throw new NotFoundException("Service template \"" + this.serviceTemplateId + "\" could not be found");
+        }
+
+        final List<String> interfaces =
+            this.referenceMapper.getBoundaryInterfacesOfServiceTemplate(csarContent.getCSARID(),
+                                                                        QName.valueOf(this.serviceTemplateId));
+        logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", interfaces.size(),
+                     this.serviceTemplateId, this.csarId);
+
+        final InterfaceListDTO list = new InterfaceListDTO();
+        list.add(interfaces.stream().map(name -> {
+
+            final List<TExportedOperation> operations =
+                getExportedOperations(csarContent.getCSARID(), QName.valueOf(this.serviceTemplateId), name);
+            logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
+                         operations.size(), name, this.serviceTemplateId, this.csarId);
+
+            final Map<String, OperationDTO> ops = operations.stream().filter(o -> {
+                final PlanDTO plan = new PlanDTO((TPlan) o.getPlan().getPlanRef());
+                return !PlanTypes.BUILD.toString().equals(plan.getPlanType());
+            }).map(o -> {
+                final OperationDTO dto = new OperationDTO();
+                dto.setName(o.getName());
+                dto.setNodeOperation(NodeOperationDTO.Converter.convert(o.getNodeOperation()));
+                dto.setRelationshipOperation(o.getRelationshipOperation());
+                if (o.getPlan() != null) {
+                    final PlanDTO plan = new PlanDTO((TPlan) o.getPlan().getPlanRef());
+                    dto.setPlan(plan);
+                    // Compute the according URL for the Build or Management Plan
+                    final URI planUrl;
+                    if (PlanTypes.BUILD.toString().equals(plan.getPlanType())) {
+                        // If it's a build plan
+                        planUrl =
+                            this.uriInfo.getBaseUriBuilder()
+                                        .path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
+                                        .build(this.csarId, this.serviceTemplateId, plan.getId());
+                    } else {
+                        // ... else we assume it's a management plan
+                        planUrl =
+                            this.uriInfo.getBaseUriBuilder()
+                                        .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{id}/managementplans/{managementplan}")
+                                        .build(this.csarId, this.serviceTemplateId, id, plan.getId());
+                    }
+                    plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
+                    dto.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
+                }
+                return dto;
+            }).collect(Collectors.toMap(OperationDTO::getName, t -> t));
+
+            final InterfaceDTO dto = new InterfaceDTO();
+            dto.setName(name);
+            dto.setOperations(ops);
+
+            final URI selfLink =
+                this.uriInfo.getBaseUriBuilder()
+                            .path("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions/interfaces/{name}")
+                            .build(this.csarId, this.serviceTemplateId, name);
+            dto.add(Link.fromUri(UriUtil.encode(selfLink)).rel("self").build());
+
+            return dto;
+        }).collect(Collectors.toList()).toArray(new InterfaceDTO[] {}));
+        list.add(UriUtil.generateSelfLink(this.uriInfo));
+
+        return Response.ok(list).build();
+    }
+
+    private List<TExportedOperation> getExportedOperations(final CSARID csarId, final QName serviceTemplate,
+                                                           final String interfaceName) {
+        final Map<QName, List<TExportedInterface>> exportedInterfacesOfCsar =
+            this.referenceMapper.getExportedInterfacesOfCSAR(csarId);
+        if (exportedInterfacesOfCsar.containsKey(serviceTemplate)) {
+            final List<TExportedInterface> exportedInterfaces = exportedInterfacesOfCsar.get(serviceTemplate);
+            for (final TExportedInterface exportedInterface : exportedInterfaces) {
+                if (exportedInterface.getName().equalsIgnoreCase(interfaceName)) {
+                    return exportedInterface.getOperation();
+                }
+            }
+        }
+        return null;
     }
 
     @GET

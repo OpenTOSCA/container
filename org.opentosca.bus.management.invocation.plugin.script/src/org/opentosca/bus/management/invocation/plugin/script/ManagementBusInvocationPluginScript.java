@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
@@ -259,7 +260,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                             // delete the uploaded file on the remote site to save resources
                             final String deleteFileCommand = "; rm -f " + targetFilePath;
                             artifactTypeSpecificCommand = artifactTypeSpecificCommand + deleteFileCommand;
-                          
+
                             ManagementBusInvocationPluginScript.LOG.debug("Final command for the script execution: {}",
                                                                           artifactTypeSpecificCommand);
 
@@ -661,14 +662,31 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
         String paramsString = "";
         for (final Entry<String, String> param : paramsMap.entrySet()) {
-            paramsString += param.getKey() + "='" + param.getValue() + "' ";
+            // info:
+            // https://stackoverflow.com/questions/3005963/how-can-i-have-a-newline-in-a-string-in-sh
+            // https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
+            // we have to escape single quotes in the parameter values and properly pipe newlines
+            // TODO(?) There is still the issue if you use commands in scipt which don't interpret
+            // backslashes
+            paramsString += param.getKey() + "=$'" + escapeSingleQuotes(param.getValue()) + "' ";
         }
 
         return paramsString;
     }
 
     /**
+     * Escapes single quotes (') inside the given string conforming to bash argument values. Each '
+     * gets transformed to '"'"'
      *
+     * @see https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
+     *
+     * @return a String with escaped singles quotes
+     */
+    private String escapeSingleQuotes(final String unenscapedString) {
+        return unenscapedString.replace("'", "'\"'\"'").replace("\n", "'\"\\n\"'");
+    }
+
+    /**
      * Invokes the Management Bus.
      *
      * @param paramsMap
@@ -688,21 +706,10 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
         ManagementBusInvocationPluginScript.LOG.debug("Invocation finished: {}", response);
 
         return response;
-
     }
 
     @Override
     public List<String> getSupportedTypes() {
-
-        final List<String> supportedTypes = new ArrayList<>();
-
-        final List<QName> supportedTypesQName = ArtifactTypesHandler.getSupportedTypes();
-
-        for (final QName supportedTypeQName : supportedTypesQName) {
-            supportedTypes.add(supportedTypeQName.toString());
-        }
-
-        return supportedTypes;
+        return ArtifactTypesHandler.getSupportedTypes().stream().map(QName::toString).collect(Collectors.toList());
     }
-
 }

@@ -47,7 +47,7 @@ import io.swagger.annotations.ApiParam;
 @Path("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions")
 public class BoundaryDefinitionController {
 
-    private final Logger logger = LoggerFactory.getLogger(CsarController.class);
+    private static Logger logger = LoggerFactory.getLogger(CsarController.class);
 
     @Context
     private UriInfo uriInfo;
@@ -69,7 +69,7 @@ public class BoundaryDefinitionController {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
@@ -99,7 +99,7 @@ public class BoundaryDefinitionController {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
@@ -110,11 +110,11 @@ public class BoundaryDefinitionController {
             this.referenceMapper.getPropertyMappings(csarContent.getCSARID(), QName.valueOf(servicetemplate));
 
         final PropertiesDTO dto = new PropertiesDTO();
-        this.logger.debug("XML Fragement: {}", xmlFragment);
+        logger.debug("XML Fragement: {}", xmlFragment);
         dto.setXmlFragment(xmlFragment);
 
         if (propertyMappings != null) {
-            this.logger.debug("Found <{}> property mappings", propertyMappings.size());
+            logger.debug("Found <{}> property mappings", propertyMappings.size());
             dto.setPropertyMappings(propertyMappings);
         }
         dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
@@ -131,15 +131,15 @@ public class BoundaryDefinitionController {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
         final List<String> interfaces =
             this.referenceMapper.getBoundaryInterfacesOfServiceTemplate(csarContent.getCSARID(),
                                                                         QName.valueOf(servicetemplate));
-        this.logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", interfaces.size(),
-                          servicetemplate, csar);
+        logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", interfaces.size(),
+                     servicetemplate, csar);
 
         final InterfaceListDTO list = new InterfaceListDTO();
         list.add(interfaces.stream().map(name -> {
@@ -163,15 +163,15 @@ public class BoundaryDefinitionController {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
         final List<TExportedOperation> operations =
             getExportedOperations(csarContent.getCSARID(), QName.valueOf(servicetemplate), name);
 
-        this.logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
-                          operations.size(), name, servicetemplate, csar);
+        logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
+                     operations.size(), name, servicetemplate, csar);
 
         final Map<String, OperationDTO> ops = operations.stream().map(o -> {
 

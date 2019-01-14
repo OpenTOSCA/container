@@ -315,6 +315,40 @@ public class MBUtils {
     }
 
     /**
+     * Get the next NodeTemplateInstance connected with a HostedOn/DeployedOn/... Relation.
+     *
+     * @param currentNode the current NodeTemplateInstance
+     * @return an Optional containing the next NodeTemplateInstance if one is connected with one of
+     *         the supported Relation Types or an empty Optional otherwise
+     */
+    public static Optional<NodeTemplateInstance> getNextNodeTemplateInstance(final NodeTemplateInstance currentNode) {
+
+        Optional<NodeTemplateInstance> nextNode =
+            getConnectedNodeTemplateInstance(currentNode, Types.hostedOnRelationType);
+
+        if (!nextNode.isPresent()) {
+            nextNode = getConnectedNodeTemplateInstance(currentNode, Types.deployedOnRelationType);
+        }
+
+        return nextNode;
+    }
+
+    /**
+     * Get the next NodeTemplateInstance connected with a Relation of the given type.
+     *
+     * @param currentNode the current NodeTemplateInstance
+     * @param relationshipType the type of the Relation as QName
+     * @return an Optional containing the next NodeTemplateInstance if one is connected with a
+     *         Relation of the specified type or an empty Optional otherwise
+     */
+    private static Optional<NodeTemplateInstance> getConnectedNodeTemplateInstance(final NodeTemplateInstance currentNode,
+                                                                                   final QName relationshipType) {
+        return currentNode.getOutgoingRelations().stream()
+                          .filter(relation -> relation.getTemplateType().equals(relationshipType)).findFirst()
+                          .map(relation -> relation.getTarget());
+    }
+
+    /**
      * Retrieve the RelationshipTemplateInstance which is contained in a certain
      * ServiceTemplateInstance and has a certain template ID.
      *

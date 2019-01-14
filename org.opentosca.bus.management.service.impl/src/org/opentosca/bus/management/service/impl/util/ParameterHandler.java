@@ -1,13 +1,18 @@
 package org.opentosca.bus.management.service.impl.util;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
+import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
@@ -23,12 +28,7 @@ import org.w3c.dom.NodeList;
  * Management Bus.<br>
  * <br>
  *
- * Copyright 2018 IAAS University of Stuttgart <br>
- * <br>
- *
- * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
+ * Copyright 2019 IAAS University of Stuttgart
  */
 public class ParameterHandler {
 
@@ -49,102 +49,102 @@ public class ParameterHandler {
      */
     public static HashMap<String, String> updateInputParamsForNodeTemplate(final HashMap<String, String> inputParams,
                                                                            final CSARID csarID,
-                                                                           final NodeTemplateInstance nodeTemplateInstance,
+                                                                           NodeTemplateInstance nodeTemplateInstance,
                                                                            final String neededInterface,
                                                                            final String neededOperation) {
 
-        if (nodeTemplateInstance != null) {
-
-            ParameterHandler.LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(),
-                                       neededOperation, inputParams.toString());
-
-            final List<String> expectedParams =
-                ParameterHandler.getExpectedInputParams(csarID, nodeTemplateInstance.getTemplateType(), neededInterface,
-                                                        neededOperation);
-
-            ParameterHandler.LOG.debug("Operation: {} expects {} parameters: {}", neededOperation,
-                                       expectedParams.size(), expectedParams.toString());
-
-            if (!expectedParams.isEmpty()) {
-
-                ParameterHandler.LOG.debug("Getting instance data for NodeTemplateInstance ID: {} ...",
-                                           nodeTemplateInstance.getId());
-
-                final Map<String, String> propertiesMap = nodeTemplateInstance.getPropertiesAsMap();
-
-                if (propertiesMap != null) {
-
-                    ParameterHandler.LOG.debug("Found following properties in the instance data:");
-
-                    for (final String key : propertiesMap.keySet()) {
-                        ParameterHandler.LOG.debug("Prop: " + key + " Val: " + propertiesMap.get(key));
-                    }
-
-                    final List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
-                    final List<String> supportedInstanceIdPropertyNames =
-                        Utils.getSupportedVirtualMachineInstanceIdPropertyNames();
-                    final List<String> supportedPasswordPropertyNames =
-                        Utils.getSupportedVirtualMachineLoginPasswordPropertyNames();
-                    final List<String> supportedUsernamePropertyNames =
-                        Utils.getSupportedVirtualMachineLoginUserNamePropertyNames();
-
-                    String prop;
-                    // Check for property convention
-                    for (final String expectedParam : expectedParams) {
-
-                        if (supportedIPPropertyNames.contains(expectedParam)) {
-                            ParameterHandler.LOG.debug("Supported IP-Property found.");
-                            prop = ParameterHandler.getSupportedProperty(supportedIPPropertyNames, propertiesMap);
-
-                            if (prop != null) {
-                                ParameterHandler.putOnlyIfNotSet(inputParams, expectedParam, prop);
-                            }
-
-                        } else if (supportedInstanceIdPropertyNames.contains(expectedParam)) {
-                            ParameterHandler.LOG.debug("Supported InstanceID-Property found.");
-                            prop =
-                                ParameterHandler.getSupportedProperty(supportedInstanceIdPropertyNames, propertiesMap);
-
-                            if (prop != null) {
-                                ParameterHandler.putOnlyIfNotSet(inputParams, expectedParam, prop);
-                            }
-
-                        } else if (supportedPasswordPropertyNames.contains(expectedParam)) {
-                            ParameterHandler.LOG.debug("Supported Password-Property found.");
-                            prop = ParameterHandler.getSupportedProperty(supportedPasswordPropertyNames, propertiesMap);
-
-                            if (prop != null) {
-                                ParameterHandler.putOnlyIfNotSet(inputParams, expectedParam, prop);
-                            }
-
-                        } else if (supportedUsernamePropertyNames.contains(expectedParam)) {
-                            ParameterHandler.LOG.debug("Supported Username-Property found.");
-                            prop = ParameterHandler.getSupportedProperty(supportedUsernamePropertyNames, propertiesMap);
-
-                            if (prop != null) {
-                                ParameterHandler.putOnlyIfNotSet(inputParams, expectedParam, prop);
-                            }
-
-                        } else {
-
-                            for (final String propName : propertiesMap.keySet()) {
-                                if (expectedParam.equals(propName)) {
-                                    ParameterHandler.putOnlyIfNotSet(inputParams, expectedParam,
-                                                                     propertiesMap.get(propName));
-                                }
-                            }
-                        }
-                    }
-
-                    ParameterHandler.LOG.debug("Final {} input parameters for operation {} : {}", inputParams.size(),
-                                               neededOperation, inputParams.toString());
-                } else {
-                    ParameterHandler.LOG.debug("No stored instance data found.");
-                }
-            }
-        } else {
-            ParameterHandler.LOG.warn("Unable to update input parameters with nodeTemplateInstance equal to null!");
+        if (Objects.isNull(nodeTemplateInstance)) {
+            LOG.warn("Unable to update input parameters with nodeTemplateInstance equal to null!");
+            return inputParams;
         }
+
+        LOG.debug("Updating input params for NodeTemplateInstance ID: {}", nodeTemplateInstance.getId());
+
+        LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation,
+                  inputParams.toString());
+
+        // check if operation has input params at all
+        final Set<String> unsetParameters =
+            getExpectedInputParams(csarID, nodeTemplateInstance.getTemplateType(), neededInterface, neededOperation);
+        if (unsetParameters.isEmpty()) {
+            LOG.debug("No input params defined for this operation.");
+            return inputParams;
+        }
+
+        LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, unsetParameters.size(),
+                  unsetParameters.toString());
+
+        // use convention names for properties
+        final List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
+        final List<String> supportedInstanceIdPropertyNames = Utils.getSupportedVirtualMachineInstanceIdPropertyNames();
+        final List<String> supportedPasswordPropertyNames =
+            Utils.getSupportedVirtualMachineLoginPasswordPropertyNames();
+        final List<String> supportedUsernamePropertyNames =
+            Utils.getSupportedVirtualMachineLoginUserNamePropertyNames();
+
+        // remove already defined properties from the set
+        inputParams.keySet().stream().forEach(param -> unsetParameters.remove(param));
+
+        // search for parameters downwards in the topology until all are set
+        while (!unsetParameters.isEmpty()) {
+
+            // retrieve stored instance data for current node
+            final Map<String, String> propertiesMap = nodeTemplateInstance.getPropertiesAsMap();
+            if (Objects.nonNull(propertiesMap)) {
+
+                LOG.debug("Found following properties in the instance data:");
+                for (final String key : propertiesMap.keySet()) {
+                    LOG.debug("Prop: " + key + " Val: " + propertiesMap.get(key));
+                }
+
+                // update currently not set input parameters if possible
+                unsetParameters.stream().forEach(param -> {
+                    if (supportedIPPropertyNames.contains(param)) {
+                        LOG.debug("Supported IP-Property found.");
+                        getSupportedProperty(supportedIPPropertyNames,
+                                             propertiesMap).ifPresent(foundValue -> inputParams.put(param, foundValue));
+
+                    } else if (supportedInstanceIdPropertyNames.contains(param)) {
+                        LOG.debug("Supported InstanceID-Property found.");
+                        getSupportedProperty(supportedInstanceIdPropertyNames,
+                                             propertiesMap).ifPresent(foundValue -> inputParams.put(param, foundValue));
+
+                    } else if (supportedPasswordPropertyNames.contains(param)) {
+                        LOG.debug("Supported Password-Property found.");
+                        getSupportedProperty(supportedPasswordPropertyNames,
+                                             propertiesMap).ifPresent(foundValue -> inputParams.put(param, foundValue));
+
+                    } else if (supportedUsernamePropertyNames.contains(param)) {
+                        LOG.debug("Supported Username-Property found.");
+                        getSupportedProperty(supportedUsernamePropertyNames,
+                                             propertiesMap).ifPresent(foundValue -> inputParams.put(param, foundValue));
+
+                    } else {
+                        propertiesMap.keySet().stream().filter(name -> name.equals(param)).findFirst()
+                                     .ifPresent(name -> inputParams.put(param, propertiesMap.get(name)));
+                    }
+                });
+
+                // remove found properties
+                inputParams.keySet().stream().forEach(param -> unsetParameters.remove(param));
+            } else {
+                LOG.debug("No stored instance data found for current node: {}", nodeTemplateInstance.getId());
+            }
+
+            // get next node downwards in the topology
+            final Optional<NodeTemplateInstance> nextNode = MBUtils.getNextNodeTemplateInstance(nodeTemplateInstance);
+            if (nextNode.isPresent()) {
+                nodeTemplateInstance = nextNode.get();
+                LOG.debug("Next node for parameter search: {}", nodeTemplateInstance.getId());
+            } else {
+                LOG.warn("No next node found for parameter search. Terminating with {} unsatisfied expected parameters",
+                         unsetParameters.size());
+                break;
+            }
+        }
+
+        LOG.debug("Final {} input parameters for operation {} : {}", inputParams.size(), neededOperation,
+                  inputParams.toString());
 
         return inputParams;
     }
@@ -176,56 +176,45 @@ public class ParameterHandler {
                                                                                    final String neededInterface,
                                                                                    final String neededOperation) {
 
-        if (relationshipTemplateInstance != null) {
+        if (Objects.isNull(relationshipTemplateInstance)) {
+            LOG.warn("Unable to update input parameters with nodeTemplateInstance equal to null!");
+            return inputParams;
+        }
 
-            ParameterHandler.LOG.debug("Operation: {} on RelationshipTemplate: {}", relationshipTemplateInstance,
-                                       neededOperation);
+        LOG.debug("Updating input params for RelationshipTemplate ID: {}", relationshipTemplateInstance.getId());
 
-            ParameterHandler.LOG.debug("{} inital input parameters found: {}", inputParams.size(),
-                                       inputParams.toString());
+        LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation,
+                  inputParams.toString());
 
-            final List<String> expectedParams =
-                ParameterHandler.getExpectedInputParams(csarID, relationshipTemplateInstance.getTemplateType(),
-                                                        neededInterface, neededOperation);
+        // check if operation has input params at all
+        final Set<String> expectedParams =
+            getExpectedInputParams(csarID, relationshipTemplateInstance.getTemplateType(), neededInterface,
+                                   neededOperation);
+        if (expectedParams.isEmpty()) {
+            LOG.debug("No input params defined for this operation.");
+            return inputParams;
+        }
 
-            ParameterHandler.LOG.debug("Operation: {} expects {} parameters: {}", neededOperation,
-                                       expectedParams.size(), expectedParams.toString());
+        LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, expectedParams.size(),
+                  expectedParams.toString());
 
-            if (!expectedParams.isEmpty()) {
+        // update params with instance data
+        for (final String expectedParam : expectedParams) {
+            LOG.debug("Expected parameter: {}", expectedParam);
 
-                for (final String expectedParam : expectedParams) {
-                    ParameterHandler.LOG.debug("Expected parameter: {}", expectedParam);
-
-                    if (expectedParam.startsWith("SRC_")) {
-                        ParameterHandler.LOG.debug("Parameter is defined at the topology stack of the source NodeTemplate.");
-                        // TODO: search on source stack
-                    } else if (expectedParam.startsWith("TRG_")) {
-                        ParameterHandler.LOG.debug("Parameter is defined at the topology stack of the target NodeTemplate.");
-                        // TODO: search on target stack
-                    } else {
-                        ParameterHandler.LOG.debug("Parameter is defined at the RelationshipTemplate.");
-                        // TODO: search on RelationshipTemplateInstance properties
-                    }
-                }
+            if (expectedParam.startsWith("SRC_")) {
+                LOG.debug("Parameter is defined at the topology stack of the source NodeTemplate.");
+                // TODO: search on source stack
+            } else if (expectedParam.startsWith("TRG_")) {
+                LOG.debug("Parameter is defined at the topology stack of the target NodeTemplate.");
+                // TODO: search on target stack
+            } else {
+                LOG.debug("Parameter is defined at the RelationshipTemplate.");
+                // TODO: search on RelationshipTemplateInstance properties
             }
-        } else {
-            ParameterHandler.LOG.warn("Unable to update input parameters with RelationshipTemplateInstance equal to null!");
         }
 
         return inputParams;
-    }
-
-    /**
-     * Adds an entry to the given map if it does not already contain an entry with the same key.
-     *
-     * @param map the map to update
-     * @param key the key of the entry to update
-     * @param value the value which is set if there is not yet an entry with the key
-     */
-    private static void putOnlyIfNotSet(final Map<String, String> map, final String key, final String value) {
-        if (!map.containsKey(key)) {
-            map.put(key, value);
-        }
     }
 
     /**
@@ -240,36 +229,29 @@ public class ParameterHandler {
      *
      * @return specified input parameters of the operation
      */
-    private static List<String> getExpectedInputParams(final CSARID csarID, final QName typeID,
-                                                       final String interfaceName, final String operationName) {
+    private static Set<String> getExpectedInputParams(final CSARID csarID, final QName typeID,
+                                                      final String interfaceName, final String operationName) {
 
-        ParameterHandler.LOG.debug("Fetching expected input params of " + operationName + " in interface "
-            + interfaceName);
-        final List<String> inputParams = new ArrayList<>();
+        final Node definedInputParameters =
+            ServiceHandler.toscaEngineService.getInputParametersOfATypeOperation(csarID, typeID, interfaceName,
+                                                                                 operationName);
 
-        ParameterHandler.LOG.debug("Checking for params with Type: {}", typeID);
-        if (ServiceHandler.toscaEngineService.hasOperationOfATypeSpecifiedInputParams(csarID, typeID, interfaceName,
-                                                                                      operationName)) {
+        if (Objects.isNull(definedInputParameters)) {
+            return Collections.emptySet();
+        }
 
-            final Node definedInputParameters =
-                ServiceHandler.toscaEngineService.getInputParametersOfATypeOperation(csarID, typeID, interfaceName,
-                                                                                     operationName);
+        final Set<String> inputParams = new HashSet<>();
 
-            if (definedInputParameters != null) {
+        final NodeList definedInputParameterList = definedInputParameters.getChildNodes();
+        for (int i = 0; i < definedInputParameterList.getLength(); i++) {
 
-                final NodeList definedInputParameterList = definedInputParameters.getChildNodes();
+            final Node currentNode = definedInputParameterList.item(i);
 
-                for (int i = 0; i < definedInputParameterList.getLength(); i++) {
+            if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
 
-                    final Node currentNode = definedInputParameterList.item(i);
+                final String name = ((Element) currentNode).getAttribute("name");
 
-                    if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
-
-                        final String name = ((Element) currentNode).getAttribute("name");
-
-                        inputParams.add(name);
-                    }
-                }
+                inputParams.add(name);
             }
         }
 
@@ -277,22 +259,17 @@ public class ParameterHandler {
     }
 
     /**
-     * @param supportedProperties
-     * @param propertiesMap
+     * Checks if one of the supported properties is defined in the Map and returns an optional with
+     * the corresponding value.
      *
-     * @return convention defined properties.
+     * @param supportedProperties a List of supported properties
+     * @param propertiesMap a Map containing properties of a NodeTemplateInstance
+     * @return an Optional with the value of a supported property if one is found, an empty Optional
+     *         otherwise
      */
-    private static String getSupportedProperty(final List<String> supportedProperties,
-                                               final Map<String, String> propertiesMap) {
+    private static Optional<String> getSupportedProperty(final List<String> supportedProperties,
+                                                         final Map<String, String> propertiesMap) {
 
-        for (final String supportedProperty : supportedProperties) {
-
-            if (propertiesMap.containsKey(supportedProperty)) {
-                final String prop = propertiesMap.get(supportedProperty);
-                ParameterHandler.LOG.debug("Supported convention property: {} found: {}", supportedProperty, prop);
-                return prop;
-            }
-        }
-        return null;
+        return supportedProperties.stream().filter(propertiesMap::containsKey).findFirst().map(propertiesMap::get);
     }
 }
