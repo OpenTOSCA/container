@@ -37,7 +37,7 @@ public class ToscaMetaFileReplacement extends TOSCAMetaFile {
     public String getTopology() {
         return Paths.get(wrappedCsar.topologyPicture()
             .getPath())
-            .relativize(wrappedCsar.id().getSaveLocation())
+            .relativize(wrappedCsar.getSaveLocation())
             .toString();
     }
 }

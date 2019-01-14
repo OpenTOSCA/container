@@ -37,16 +37,28 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsarStorageServiceImpl.class);
 
-    private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
-
+    private final Path basePath;
     public CsarStorageServiceImpl() {
+        final Path settingsBasePath = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
         try {
-            Files.createDirectories(CSAR_BASE_PATH);
+            Files.createDirectories(settingsBasePath);
         }
         catch (IOException e) {
             LOGGER.error("Could not set up storage for Csars", e);
             throw new ExceptionInInitializerError(e);
         }
+        basePath = settingsBasePath;
+    }
+    
+    public CsarStorageServiceImpl(Path basePath) {
+        try {
+            Files.createDirectories(basePath);
+        }
+        catch (IOException e) {
+            LOGGER.error("Could not set up storage for Csars", e);
+            throw new ExceptionInInitializerError(e);
+        }
+        this.basePath = basePath;
     }
     
     @Override
@@ -56,11 +68,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         try {
             for (Path csarId : Files.newDirectoryStream(CSAR_BASE_PATH, Files::isDirectory)) {
                 // FIXME make CsarId a name and put the path somewhere else
-                csars.add(new CsarImpl(new CsarId(csarId)));
+                csars.add(new CsarImpl(new CsarId(csarId), csarId));
             }
         }
         catch (IOException e) {
-            LOGGER.error("Error when traversing '{}' for CSARs", CSAR_BASE_PATH);
+            LOGGER.error("Error when traversing '{}' for CSARs", basePath);
             throw new UncheckedIOException(e);
         }
         return csars;
@@ -68,8 +80,9 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     @Override
     public Csar findById(CsarId id) throws NoSuchElementException {
-        if (Files.exists(id.getSaveLocation())) {
-            return new CsarImpl(id);
+        Path predictedSaveLocation = basePath.resolve(id.csarName());
+        if (Files.exists(predictedSaveLocation)) {
+            return new CsarImpl(id, predictedSaveLocation);
         }
         LOGGER.info("CSAR '{}' could not be found", id.csarName());
         throw new NoSuchElementException();
@@ -101,7 +114,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         }
 
         CsarId candidateId = new CsarId(csarLocation.getFileName().toString());
-        Path permanentLocation = CSAR_BASE_PATH.resolve(csarLocation.getFileName());
+        Path permanentLocation = basePath.resolve(csarLocation.getFileName());
         if (Files.exists(permanentLocation)) {
             throw new UserException(
                 "CSAR \"" + candidateId.csarName() + "\" is already stored. Overwriting a CSAR is not allowed.");
@@ -114,7 +127,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
             CsarImporter importer = new CsarImporter();
             final CsarImportOptions importOptions = new CsarImportOptions();
-            importOptions.setValidate(false); // avoid triggering Provenance meddling with this
+            importOptions.setValidate(false); // avoid triggering accountability meddling with this
             importOptions.setAsyncWPDParsing(true);
             importOptions.setOverwrite(false);
             importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
@@ -162,21 +175,21 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             LOGGER.warn("Could not save EntryServiceTemplate for Csar [{}] due to {}", candidateId.csarName(), e);
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
         }
+        LOGGER.info("Successfully stored Csar as {}", candidateId.csarName());
         return candidateId;
     }
 
     @Override
     public void deleteCSAR(CsarId csarId) throws SystemException, UserException {
         LOGGER.debug("Deleting CSAR \"{}\"...", csarId.csarName());
-        FileUtils.forceDelete(csarId.getSaveLocation());
+        FileUtils.forceDelete(basePath.resolve(csarId.csarName()));
     }
 
     @Override
     public void purgeCsars() throws SystemException {
         LOGGER.debug("Deleting all CSARs...");
-        
         try {
-            for (Path csarRepoContent : Files.newDirectoryStream(CSAR_BASE_PATH)) {
+            for (Path csarRepoContent : Files.newDirectoryStream(basePath)) {
                 LOGGER.debug("Deleting CSAR at [{}]", csarRepoContent);
                 if (Files.isDirectory(csarRepoContent)) {
                     // delete csar here
@@ -193,23 +206,27 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     @Override
     public Path exportCSAR(final CsarId csarId) throws UserException, SystemException {
-        LOGGER.debug("Exporting CSAR \"{}\"...", csarId);
+        LOGGER.debug("Exporting CSAR \"{}\"...", csarId.csarName());
         Csar csar = findById(csarId);
         
         final Path tempDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
         final Path csarDownloadDirectory = tempDirectory.resolve("content");
         try {
-            Files.createDirectory(csarDownloadDirectory);
+            // only create temp directory if it doesn't exist
+            if (!Files.exists(csarDownloadDirectory)) {
+                Files.createDirectory(csarDownloadDirectory);
+            }
             final Path csarTarget = csarDownloadDirectory.resolve(csarId.csarName());
             if (Files.exists(csarTarget)) {
                 // remove previous export result
                 FileUtils.forceDelete(csarTarget);
             }
             csar.exportTo(csarTarget);
+            LOGGER.info("Successfully exported CSAR to {}", csarTarget);
             return csarTarget;
         }
-        catch (final IOException exc) {
-            throw new SystemException("An IO Exception occured.", exc);
+        catch (final IOException e) {
+            throw new SystemException("An IO Exception occured.", e);
         }
     }
 }

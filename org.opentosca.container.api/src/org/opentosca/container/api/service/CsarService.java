@@ -1,11 +1,17 @@
 package org.opentosca.container.api.service;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
+import org.eclipse.winery.repository.backend.filebased.FileUtils;
+import org.opentosca.container.core.common.SystemException;
+import org.opentosca.container.core.common.UserException;
+// FIXME clean this dependency up!
+import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.service.ICoreFileService;
+import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -17,7 +23,10 @@ public class CsarService {
 
     private static Logger logger = LoggerFactory.getLogger(CsarService.class);
 
-    private ICoreFileService fileService;
+    private CsarStorageService storage;
+    
+    public CsarService() {
+    }
 
     /**
      * Checks whether the plan builder should generate a build plans.
@@ -25,31 +34,45 @@ public class CsarService {
      * @param csar the {@link Csar} to generate build plans for
      * @return true for success or false for failure
      */
-    public boolean generatePlans(final Csar csarId) {
-        // Force NoOP, because importer / exporter internals can't deal with new representation yet
-        return true;
-//        final Importer planBuilderImporter = new Importer();
-//        final Exporter planBuilderExporter = new Exporter();
-//
-//        final List<AbstractPlan> buildPlans = planBuilderImporter.importDefs(csarId);
-//
-//        if (buildPlans.isEmpty()) {
-//            return csarId;
-//        }
-//
-//        final File file = planBuilderExporter.export(buildPlans, csarId);
-//
-//        try {
-//            this.fileService.deleteCSAR(csarId);
-//            return this.fileService.storeCSAR(file.toPath());
-//        } catch (final Exception e) {
-//            logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
-//        }
-//
-//        return null;
+    public boolean generatePlans(final Csar csar) {
+        // Importer requires an unzipped Csar file instead of the winery representation
+        final Path zipFile;
+        try {
+            zipFile = storage.exportCSAR(csar.id());
+        }
+        catch (UserException | SystemException e) {
+            logger.info("Exporting the Csar that is to be planned failed with an exception", e);
+            return false;
+        }
+        final Path planbuilderCsar = CSARHandler.planBuilderWorkingDir.resolve(csar.id().csarName());
+        ZipManager.getInstance().unzip(zipFile.toFile(), planbuilderCsar.toFile());
+        // clean up the zip file to allow reexporting the Csar
+        FileUtils.forceDelete(zipFile);
+        
+        final Importer planBuilderImporter = new Importer();
+        final Exporter planBuilderExporter = new Exporter();
+
+        final List<AbstractPlan> buildPlans = planBuilderImporter.importDefs(csar.id().toOldCsarId());
+        // no plans, ergo no export and reimport necessary
+        if (buildPlans.isEmpty()) {
+            return true;
+        }
+
+        final File file = planBuilderExporter.export(buildPlans, csar.id().toOldCsarId());
+        // clean up the temporary csar we were working on
+        FileUtils.forceDelete(planbuilderCsar);
+        try {
+            storage.deleteCSAR(csar.id());
+            storage.storeCSAR(file.toPath());
+            return true;
+        }
+        catch (UserException | SystemException e) {
+            logger.warn("Reimport of Csar after building plans failed with an exception", e);
+        }
+        return false;
     }
 
-    public void setFileService(final ICoreFileService fileService) {
-        this.fileService = fileService;
+    public void setStorageService(final CsarStorageService storage) {
+        this.storage = storage;
     }
 }

@@ -49,4 +49,6 @@ public interface Csar {
 
     @Deprecated
     ToscaMetaFileReplacement metafileReplacement();
+    @Deprecated
+    Path getSaveLocation();
 }

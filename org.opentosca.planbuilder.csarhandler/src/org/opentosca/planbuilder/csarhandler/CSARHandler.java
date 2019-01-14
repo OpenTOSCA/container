@@ -1,15 +1,20 @@
 package org.opentosca.planbuilder.csarhandler;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreFileService;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
+// FIXME do not rely on internals! (Correct solution is to rewrite planbuilder)
+import org.opentosca.container.core.service.impl.CoreFileServiceAdapter;
+import org.opentosca.container.core.service.impl.CsarStorageServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +31,24 @@ import org.slf4j.LoggerFactory;
 public class CSARHandler {
 
     final private static Logger LOG = LoggerFactory.getLogger(CSARHandler.class);
-
-
+    public static final Path planBuilderWorkingDir = Paths.get(System.getProperty("java.io.tempdir"), "opentosca", "container", "planbuilder");
+    private final ICoreFileService fileService;
+    
+    public CSARHandler() {
+        // FIXME eurgh. This is a mess!
+        // set up the facade file service
+        try {
+            Files.createDirectories(planBuilderWorkingDir);
+        }
+        catch (IOException e) {
+            LOG.warn("Could not create working direcotry for planbuilder", e);
+            throw new ExceptionInInitializerError(e);
+        }
+        CsarStorageService detachedStorage = new CsarStorageServiceImpl(planBuilderWorkingDir);
+        fileService = new CoreFileServiceAdapter();
+        ((CoreFileServiceAdapter)fileService).bindStorage(detachedStorage);
+    }
+    
     /**
      * Stores a CSAR given as file object
      *
@@ -56,12 +77,11 @@ public class CSARHandler {
     public void deleteAllCsars() {
         CSARHandler.LOG.info("Deleting all CSAR files");
         final ICoreFileService fileService = this.fetchCoreFileService();
-
         try {
             fileService.deleteCSARs();
         }
         catch (final SystemException e) {
-
+            
         }
     }
 
@@ -78,25 +98,7 @@ public class CSARHandler {
     }
 
     private ICoreFileService fetchCoreFileService() {
-        CSARHandler.LOG.debug("Retrieving bundle context");
-        BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-
-        if (bundleContext == null) {
-            CSARHandler.LOG.debug("BundleContext from FrameworkUtil is null. Fallback to Activator.");
-            bundleContext = Activator.bundleContext;
-        }
-
-        if (bundleContext != null) {
-            CSARHandler.LOG.debug("Retrieving ServiceReference for ICoreFileService");
-            final ServiceReference<?> fileServiceRef =
-                bundleContext.getServiceReference(ICoreFileService.class.getName());
-            CSARHandler.LOG.debug("Retrieving Service for ICoreFileService");
-            final ICoreFileService fileService = (ICoreFileService) bundleContext.getService(fileServiceRef);
-            return fileService;
-        } else {
-            LOG.debug("BundleContext still null. Fallback to ServiceRegistry");
-            return ServiceRegistry.getCoreFileService();
-        }
+        return fileService;
     }
 
 }

@@ -22,7 +22,7 @@ public class ArtifactResolver {
     
     public static AbstractArtifact resolveArtifact(Csar csar, Path... pathFragments) {
         // FIXME do not rely on save-location
-        Path location = csar.id().getSaveLocation();
+        Path location = csar.getSaveLocation();
         for (final Path step : pathFragments) {
             location = location.resolve(step);
         }

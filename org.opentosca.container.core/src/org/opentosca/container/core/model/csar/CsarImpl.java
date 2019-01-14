@@ -59,16 +59,14 @@ public class CsarImpl implements Csar {
     private final Optional<ServiceTemplateId> entryServiceTemplate;
     // TODO evaluate putting the savelocation into an additional field here!
     private IRepository wineryRepo;
-    
+
+    // this is just for bridging purposes
     @Deprecated
-    public CsarImpl(CsarId id) {
-        this.id = id;
-        wineryRepo = RepositoryFactory.getRepository(id.getSaveLocation());
-        entryServiceTemplate = readEntryServiceTemplate(id.getSaveLocation());
-    }
+    private @NonNull Path saveLocation;
     
     public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;
+        this.saveLocation = location;
         wineryRepo = RepositoryFactory.getRepository(location);
         entryServiceTemplate = readEntryServiceTemplate(location);
     }
@@ -183,10 +181,11 @@ public class CsarImpl implements Csar {
     public void exportTo(Path targetPath) throws IOException {
         CsarExporter exporter = new CsarExporter();
         Map<String, Object> exportConfiguration = new HashMap<>();
-        exportConfiguration.put(CsarExportConfiguration.INCLUDE_HASHES.name(), false);
-        exportConfiguration.put(CsarExportConfiguration.STORE_IMMUTABLY.name(), true);
+        // Do not check hashes and do not store immutably => don't put anything into the export configuration
         try (OutputStream out = Files.newOutputStream(targetPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
             try {
+                // FIXME CsarExporter.addManifest throws NoClassDefFoundError for Environment's initialization.
+                // Winery OSGI export configuration is probably broken
                 exporter.writeCsar(wineryRepo, entryServiceTemplate.get(), out, exportConfiguration);
             }
             catch (RepositoryCorruptException | InterruptedException | AccountabilityException | ExecutionException e) {
@@ -199,6 +198,11 @@ public class CsarImpl implements Csar {
     @Override
     public ToscaMetaFileReplacement metafileReplacement() {
         return new ToscaMetaFileReplacement(this);
+    }
+
+    @Override
+    public @NonNull Path getSaveLocation() {
+        return this.saveLocation;
     }
 
 }

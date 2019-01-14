@@ -115,9 +115,7 @@
       <plugin id="org.opentosca.planbuilder.integration" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.model" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.instancedata" autoStart="true" startLevel="0" />
-      <plugin id="org.opentosca.planbuilder.postphase.plugin.monitoring" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.vinothek" autoStart="true" startLevel="0" />
-      <plugin id="org.opentosca.planbuilder.prephase.plugin.fileupload" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.ansibleoperation" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.invoker" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.selection.plugin.firstavailable" autoStart="true" startLevel="0" />
@@ -127,7 +125,6 @@
       <plugin id="org.opentosca.planbuilder.type.plugin.connectsto" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.dockercontainer" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.mosquittoconnectsto" autoStart="true" startLevel="0" />
-      <plugin id="org.opentosca.planbuilder.type.plugin.patternbased" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.ubuntuvm" autoStart="true" startLevel="0" />
       <plugin id="org.restlet.jee.org.restlet" autoStart="true" startLevel="0" />
       <plugin id="org.restlet.jee.org.restlet.ext.httpclient" autoStart="true" startLevel="0" />

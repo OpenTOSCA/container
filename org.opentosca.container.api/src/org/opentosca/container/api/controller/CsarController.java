@@ -155,7 +155,7 @@ public class CsarController {
     @ApiOperation(hidden = true, value = "")
     public DirectoryController getContent(@PathParam("csar") final String id) {
         try {
-            return new DirectoryController(new FileSystemDirectory(storage.findById(new CsarId(id)).id().getSaveLocation()));
+            return new DirectoryController(new FileSystemDirectory(storage.findById(new CsarId(id)).getSaveLocation()));
         }
         catch (NoSuchElementException e) {
             throw new javax.ws.rs.NotFoundException(e);

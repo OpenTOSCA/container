@@ -36,7 +36,7 @@ public class CoreFileServiceAdapter implements ICoreFileService {
         Csar csar = actualService.findById(newId);
         LOGGER.debug("Retrieved Csar by id, wrapping it into CSARContent");
         return new CSARContent(csarID
-                               , new FileSystemDirectory(newId.getSaveLocation())
+                               , new FileSystemDirectory(csar.getSaveLocation())
                                , csar.metafileReplacement());
     }
 

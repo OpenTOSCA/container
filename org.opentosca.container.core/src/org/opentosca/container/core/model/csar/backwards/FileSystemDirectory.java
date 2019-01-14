@@ -40,7 +40,8 @@ public class FileSystemDirectory extends AbstractDirectory {
     @Override
     public Set<AbstractFile> getFilesRecursively() {
         try {
-            return Files.walk(representedPath).filter(Files::isRegularFile)
+            return Files.walk(representedPath)
+                .filter(Files::isRegularFile)
                 .map(FileSystemFile::new)
                 .collect(Collectors.toSet());
         }
