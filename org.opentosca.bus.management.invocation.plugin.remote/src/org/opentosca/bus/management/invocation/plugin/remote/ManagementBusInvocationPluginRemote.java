@@ -56,7 +56,7 @@ public class ManagementBusInvocationPluginRemote implements IManagementBusInvoca
 
         // perform remote IA operation
         final Exchange responseExchange =
-            RequestSender.sendRequestToRemoteContainer(null, RemoteOperations.INVOKE_IA_OPERATION, request, 0);
+            RequestSender.sendRequestToRemoteContainer(message, RemoteOperations.INVOKE_IA_OPERATION, request, 0);
 
         LOG.debug("Received a response for the invocation request!");
 

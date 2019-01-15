@@ -4,6 +4,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -43,6 +44,8 @@ public class RequestSender {
      */
     public static Exchange sendRequestToRemoteContainer(final Message message, final RemoteOperations operation,
                                                         final CollaborationMessage requestBody, final int timeout) {
+
+        Objects.requireNonNull(message);
 
         // create an unique correlation ID for the request
         final String correlationID = UUID.randomUUID().toString();
