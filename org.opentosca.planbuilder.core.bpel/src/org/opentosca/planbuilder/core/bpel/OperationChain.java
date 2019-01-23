@@ -42,6 +42,9 @@ public class OperationChain {
     List<IANodeTypeImplCandidate> iaCandidates = new ArrayList<>();
     List<OperationNodeTypeImplCandidate> provCandidates = new ArrayList<>();
 
+    // select candidate set
+    int selectedCandidateSet = 0;
+
     /**
      * <p>
      * Constructor for a NodeTemplate
@@ -87,7 +90,7 @@ public class OperationChain {
     public boolean executeDAProvisioning(final BPELPlanContext context) {
         boolean check = true;
         if (!this.daCandidates.isEmpty()) {
-            final DANodeTypeImplCandidate daCandidate = this.daCandidates.get(0);
+            final DANodeTypeImplCandidate daCandidate = this.daCandidates.get(this.selectedCandidateSet);
             for (int index = 0; index < daCandidate.das.size(); index++) {
                 final AbstractDeploymentArtifact da = daCandidate.das.get(index);
                 final AbstractNodeTemplate infraNode = daCandidate.infraNodes.get(index);
@@ -121,7 +124,7 @@ public class OperationChain {
     public boolean executeIAProvisioning(final BPELPlanContext context) {
         boolean check = true;
         if (!this.iaCandidates.isEmpty()) {
-            final IANodeTypeImplCandidate iaCandidate = this.iaCandidates.get(0);
+            final IANodeTypeImplCandidate iaCandidate = this.iaCandidates.get(this.selectedCandidateSet);
             for (int index = 0; index < iaCandidate.ias.size(); index++) {
                 final AbstractImplementationArtifact ia = iaCandidate.ias.get(index);
                 final AbstractNodeTemplate infraNode = iaCandidate.infraNodes.get(index);
@@ -155,7 +158,7 @@ public class OperationChain {
     public boolean executeOperationProvisioning(final BPELPlanContext context) {
         boolean check = true;
         if (!this.provCandidates.isEmpty()) {
-            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
+            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
             for (int index = 0; index < provCandidate.ops.size(); index++) {
                 final AbstractOperation op = provCandidate.ops.get(index);
                 final AbstractImplementationArtifact ia = provCandidate.ias.get(index);
@@ -189,7 +192,7 @@ public class OperationChain {
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames) {
         boolean check = true;
         if (!this.provCandidates.isEmpty()) {
-            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
+            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
             final Map<String, Integer> order = new HashMap<>();
             // check for index of prov candidates
             for (final String opName : operationNames) {
@@ -235,7 +238,7 @@ public class OperationChain {
                                                 final Map<AbstractParameter, Variable> param2propertyMapping) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
-            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
+            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
             final Map<String, Integer> order = new HashMap<>();
             // check for index of prov candidates
             for (final String opName : operationNames) {
@@ -304,9 +307,10 @@ public class OperationChain {
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
                                                 final Map<AbstractParameter, Variable> param2propertyMapping,
                                                 final Map<AbstractParameter, Variable> param2propertyOutputMapping) {
+
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
-            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
+            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
             final Map<String, Integer> order = new HashMap<>();
             // check for index of prov candidates
             for (final String opName : operationNames) {
@@ -402,7 +406,7 @@ public class OperationChain {
                                                 final BPELScopePhaseType phase) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
-            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
+            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
             final Map<String, Integer> order = new HashMap<>();
             // check for index of prov candidates
             for (final String opName : operationNames) {
@@ -493,7 +497,7 @@ public class OperationChain {
                                                 final BPELScopePhaseType phase) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
-            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
+            final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
             final Map<String, Integer> order = new HashMap<>();
             // check for index of prov candidates
             for (final String opName : operationNames) {

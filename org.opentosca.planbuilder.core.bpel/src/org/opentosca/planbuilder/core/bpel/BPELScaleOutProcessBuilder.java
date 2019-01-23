@@ -640,7 +640,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         if (plugin == null) {
             BPELScaleOutProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
                                                  nodeTemplate.getId());
-            final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate);
+            final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate, this.opNames);
             if (chain == null) {
                 BPELScaleOutProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}",
                                                     nodeTemplate.getId());
