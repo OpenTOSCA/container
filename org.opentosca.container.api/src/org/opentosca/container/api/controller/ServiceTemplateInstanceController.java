@@ -3,6 +3,7 @@ package org.opentosca.container.api.controller;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -22,10 +23,19 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Interfaces;
+import org.eclipse.winery.model.tosca.TExportedInterface;
+import org.eclipse.winery.model.tosca.TExportedOperation;
+import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceDecorator;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceDTO;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceListDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
+import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
@@ -153,6 +163,8 @@ public class ServiceTemplateInstanceController {
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "properties", false, "properties"));
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "deploymenttests", false, "deploymenttests"));
+        dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "boundarydefinitions/interfaces", false,
+                                                "boundarydefinitions/interfaces"));
         dto.add(UriUtil.generateSelfLink(this.uriInfo));
 
         return Response.ok(dto).build();
@@ -249,6 +261,73 @@ public class ServiceTemplateInstanceController {
         }
 
         return instance;
+    }
+
+    @GET
+    @Path("/{id}/boundarydefinitions/interfaces")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
+    public Response getInterfaces(@PathParam("id") final Long id) {
+
+        List<TExportedInterface> boundaryInterfaces = serviceTemplate.getBoundaryDefinitions().getInterfaces().getInterface();
+        logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", boundaryInterfaces.size(),
+                     serviceTemplate.getId(), csar.id().csarName());
+
+        final InterfaceListDTO list = new InterfaceListDTO();
+        list.add(boundaryInterfaces.stream().map(exportedInterface -> {
+
+            final List<TExportedOperation> operations = exportedInterface.getOperation();
+            logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
+                         operations.size(), exportedInterface.getName(), serviceTemplate.getId(), csar.id().csarName());
+
+            final Map<String, OperationDTO> ops = operations.stream().filter(o -> {
+                final PlanDTO plan = new PlanDTO((TPlan) o.getPlan().getPlanRef());
+                return !PlanTypes.BUILD.toString().equals(plan.getPlanType());
+            }).map(o -> {
+                final OperationDTO dto = new OperationDTO();
+                dto.setName(o.getName());
+                dto.setNodeOperation(NodeOperationDTO.Converter.convert(o.getNodeOperation()));
+                dto.setRelationshipOperation(o.getRelationshipOperation());
+                if (o.getPlan() != null) {
+                    final PlanDTO plan = new PlanDTO((TPlan) o.getPlan().getPlanRef());
+                    dto.setPlan(plan);
+                    // Compute the according URL for the Build or Management Plan
+                    final URI planUrl;
+                    if (PlanTypes.BUILD.toString().equals(plan.getPlanType())) {
+                        // If it's a build plan
+                        planUrl =
+                            this.uriInfo.getBaseUriBuilder()
+                                        .path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
+                                        .build(csar.id().csarName(), serviceTemplate.getId(), plan.getId());
+                    } else {
+                        // ... else we assume it's a management plan
+                        planUrl =
+                            this.uriInfo.getBaseUriBuilder()
+                                        .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{id}/managementplans/{managementplan}")
+                                        .build(csar.id().csarName(), serviceTemplate.getId(), id, plan.getId());
+                    }
+                    plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
+                    dto.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
+                }
+                return dto;
+            }).collect(Collectors.toMap(OperationDTO::getName, t -> t));
+
+            final InterfaceDTO dto = new InterfaceDTO();
+            String name = exportedInterface.getName();
+            dto.setName(name);
+            dto.setOperations(ops);
+
+            final URI selfLink =
+                this.uriInfo.getBaseUriBuilder()
+                            .path("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions/interfaces/{name}")
+                            .build(csar.id().csarName(), serviceTemplate.getId(), name);
+            dto.add(Link.fromUri(UriUtil.encode(selfLink)).rel("self").build());
+
+            return dto;
+        }).collect(Collectors.toList()).toArray(new InterfaceDTO[] {}));
+        list.add(UriUtil.generateSelfLink(this.uriInfo));
+
+        return Response.ok(list).build();
     }
 
     @GET

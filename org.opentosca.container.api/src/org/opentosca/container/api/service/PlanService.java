@@ -84,7 +84,7 @@ public class PlanService {
         }
         return pi;
     }
-    
+
     public boolean updatePlanInstanceState(PlanInstance instance, PlanInstanceState newState) {
         try {
             instance.setState(newState);

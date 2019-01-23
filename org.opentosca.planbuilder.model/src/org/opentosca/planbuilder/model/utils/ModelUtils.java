@@ -298,8 +298,7 @@ public class ModelUtils {
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
             ModelUtils.LOG.debug("Checking if relation is infrastructure edge, relation: " + relation.getId());
-            if (ModelUtils.getRelationshipBaseType(relation).equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
-                || ModelUtils.getRelationshipBaseType(relation).equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
+            if (ModelUtils.getRelationshipBaseType(relation).equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
                 || ModelUtils.getRelationshipBaseType(relation).equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)) {
                 ModelUtils.LOG.debug("traversing edge to node: " + relation.getTarget().getId());
 

@@ -58,7 +58,6 @@ public class ServiceTemplateController {
 
     private CsarStorageService storage;
     
-    
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all service templates", response = ServiceTemplateListDTO.class)

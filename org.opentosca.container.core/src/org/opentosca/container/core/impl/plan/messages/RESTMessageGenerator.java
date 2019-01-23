@@ -34,7 +34,7 @@ public class RESTMessageGenerator {
 
             for (final String nodeTemplate : nodeTemplates) {
                 final Document doc =
-                    ServiceProxy.toscaEngineService.getPropertiesOfNodeTemplate(csarID, serviceTemplate, nodeTemplate);
+                    ServiceProxy.toscaEngineService.getPropertiesOfTemplate(csarID, serviceTemplate, nodeTemplate);
                 if (null != doc) {
                     docs.add(doc);
                     this.LOG.trace("Found property document: {}",

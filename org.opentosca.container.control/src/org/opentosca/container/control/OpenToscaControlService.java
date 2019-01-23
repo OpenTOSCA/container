@@ -33,14 +33,6 @@ public interface OpenToscaControlService {
     public boolean invokeToscaProcessing(CsarId csar);
     
     /**
-     * Registers the implementation artifacts for a given ServiceTemplate of a given CSAR
-     *
-     * @param csar the CSAR owning the ServiceTemplate to deploy
-     * @param serviceTemplate the ServiceTemplate to deploy
-     * @return true for success, false for one or more errors.
-     */
-    public boolean registerImplementationArtifacts(CsarId csar, ServiceTemplateId serviceTemplate);
-    /**
      * Registers the plans for a given ServiceTemplate of a given CSAR
      *
      * @param csar the CSAR owning the ServiceTemplate to deploy
@@ -72,12 +64,6 @@ public interface OpenToscaControlService {
     public TPlanDTO getActivePlanOfInstance(CsarId csar, ServiceTemplateId serviceTemplate, long instanceId, String correlationId);
     long instanceIdOfCorrelation(String correlationId);
 
-    /**
-     * @deprecated {@link #invokeIADeployment(CsarId, TServiceTemplate)}
-     */
-    @Deprecated
-    public boolean invokeIADeployment(CsarId csarId, QName serviceTemplate);
-    boolean invokeIADeployment(CsarId csarId, TServiceTemplate serviceTemplate);
     /**
      * @deprecated {@link #invokePlanDeployment(CsarId, TServiceTemplate)} 
      */

@@ -156,7 +156,7 @@ public class ContainerProxy {
         LOG.trace("Searching ArtifactTemplate defining needed properties for Interface [{}] of NodeType [{}] inside Csar {}",
                   interfaceName, nodeTypeName, csarID);
         final List<QName> nodeTypeImplementationsIDs =
-            ToscaServiceHandler.getToscaEngineService().getNodeTypeImplementationsOfNodeType(csarID, nodeTypeName);
+            ToscaServiceHandler.getToscaEngineService().getTypeImplementationsOfType(csarID, nodeTypeName);
         LOG.trace("The NodeType [{}] has {} NodeTypeImplementations.", nodeTypeName, nodeTypeImplementationsIDs.size());
 
         for (final QName nodeTypeImplementationID : nodeTypeImplementationsIDs) {
@@ -395,8 +395,8 @@ public class ContainerProxy {
      * @param csarID
      * @param serviceTemplateID
      * @param nodeTypeQName
-     * @return name of a NodeTemplate of the specified NodeType inside of the specified serviceTemplate
-     *         & csar
+     * @return name of a NodeTemplate of the specified NodeType inside of the specified
+     *         serviceTemplate & csar
      */
     @Nullable
     protected static String getANodeTemplateNameOfNodeType(final CSARID csarID, final QName serviceTemplateID,
@@ -444,7 +444,8 @@ public class ContainerProxy {
     }
 
     /**
-     * Returns the first NodeTemplate underneath the defined NodeTemplate containing the IP property.
+     * Returns the first NodeTemplate underneath the defined NodeTemplate containing the IP
+     * property.
      *
      * @param csarID
      * @param serviceTemplateID
@@ -460,8 +461,8 @@ public class ContainerProxy {
         LOG.debug("Searching NodeTemplate with specified IP-Property underneath the NodeTemplate: " + nodeTemplateID
             + " of the ServiceTemplate :" + serviceTemplateID + " inside the CSAR: " + csarID);
 
-        Document props = ToscaServiceHandler.getToscaEngineService()
-                                            .getPropertiesOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
+        Document props = ToscaServiceHandler.getToscaEngineService().getPropertiesOfTemplate(csarID, serviceTemplateID,
+                                                                                             nodeTemplateID);
 
         final QName relationshipType = new QName(HOSTED_ON_NAMESPACE, HOSTED_ON_LOCALPART);
 
@@ -477,8 +478,8 @@ public class ContainerProxy {
             if (nodeTemplateID != null) {
                 LOG.debug("Checking if the underneath Node: {} is the searched NodeTemplate.", nodeTemplateID);
 
-                props = ToscaServiceHandler.getToscaEngineService()
-                                           .getPropertiesOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
+                props = ToscaServiceHandler.getToscaEngineService().getPropertiesOfTemplate(csarID, serviceTemplateID,
+                                                                                            nodeTemplateID);
 
             } else {
                 LOG.debug("No underneath Node found.");

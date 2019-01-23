@@ -80,7 +80,8 @@ public class NodeTemplateService {
      * @param nodeTemplateId The id of the node template we want to get and that belongs to the
      *        specified service template
      * @return The node template specified by the given id
-     * @throws NotFoundException If the service template does not contain the specified node template
+     * @throws NotFoundException If the service template does not contain the specified node
+     *         template
      */
     public NodeTemplateDTO getNodeTemplateById(final String csarId, final QName serviceTemplateQName,
                                                final String nodeTemplateId) throws NotFoundException {
@@ -97,8 +98,8 @@ public class NodeTemplateService {
      * @param csarId The id of the CSAR
      * @param serviceTemplateQName the QName of the service template
      * @param nodeTemplateId the id of the node template to check for
-     * @return <code>true</code> when the CSAR contains the service template and the service template
-     *         contains the node template, otherwise <code>false</code>
+     * @return <code>true</code> when the CSAR contains the service template and the service
+     *         template contains the node template, otherwise <code>false</code>
      */
     public boolean hasNodeTemplate(final String csarId, final QName serviceTemplateQName, final String nodeTemplateId) {
         final Csar csar = this.storage.findById(new CsarId(csarId));
@@ -137,11 +138,11 @@ public class NodeTemplateService {
         return properties;
     }
 
-    // TODO Careful! this method assumes that the namespace of a node template is the same namespace as
-    // its parent service template!
+    // TODO Careful! this method assumes that the namespace of a node template is the same namespace
+    // as its parent service template!
     /**
-     * Creates a new instance of the NodeTemplateDTO class. It fetches the qualified name of node type
-     * of the node template.
+     * Creates a new instance of the NodeTemplateDTO class. It fetches the qualified name of node
+     * type of the node template.
      *
      * @param csarId
      * @param serviceTemplateQName

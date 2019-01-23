@@ -311,9 +311,9 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
                     + ",';','ORIGINATOR_PRE=//smartorchestra.de/',$" + tenantIdVar.getName() + ",'~',$"
                     + instanceIdVar.getName() + ",';LOGGING_LEVEL=INFO;DEVICES=[];SIM=false;";
             if (resourceNames.isEmpty()) {
-                envVarConcatXpathQuery += ")";
+                envVarConcatXpathQuery += "')";
             } else {
-                envVarConcatXpathQuery += createDeviceMapping(sensorDeviceId, resourceNames) + ")";
+                envVarConcatXpathQuery += createDeviceMapping(sensorDeviceId, resourceNames) + "')";
             }
 
             // assign environment variable mappings
@@ -324,7 +324,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
-            final String deviceMappingConcatXpathQuery = "concat('/dev/ttyACM0','=/dev/ttyACM0')";
+            final String deviceMappingConcatXpathQuery = "concat('/dev/ttyACM0','=/dev/ttyAMA0')";
 
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignDevices",

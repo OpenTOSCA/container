@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="99">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="101">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="ch.qos.logback.classic" version="1.1.2.v20160208-0839"/>
@@ -87,8 +87,11 @@
 <repository location="http://download.eclipse.org/rt/eclipselink/updates/2.6.3.v20160428-59c81c5"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="com.bugsnag" version="3.2.0"/>
 <unit id="com.google.gson" version="2.2.4"/>
 <unit id="com.googlecode.json-simple" version="1.1.0"/>
+<unit id="com.hazelcast" version="3.5.4"/>
+<unit id="com.librato.metrics.librato" version="5.1.0"/>
 <unit id="com.predic8.soa-model-core" version="1.2.2"/>
 <unit id="com.springsource.util.common" version="2.0.0.RELEASE"/>
 <unit id="com.springsource.util.osgi" version="2.0.0.RELEASE"/>
@@ -98,6 +101,16 @@
 <unit id="dk.nykredit.jackson.dataformat.jackson-dataformat-hal" version="1.0.1"/>
 <unit id="filesystem" version="1.7.3"/>
 <unit id="groovy-all" version="1.8.6"/>
+<unit id="io.dropwizard.metrics.core" version="3.2.2"/>
+<unit id="io.moquette.broker" version="0.11.0"/>
+<unit id="io.netty.codec" version="4.1.12.Final"/>
+<unit id="io.netty.codec-http" version="4.1.12.Final"/>
+<unit id="io.netty.codec-mqtt" version="4.1.12.Final"/>
+<unit id="io.netty.common" version="4.1.12.Final"/>
+<unit id="io.netty.handler" version="4.1.12.Final"/>
+<unit id="io.netty.transport" version="4.1.12.Final"/>
+<unit id="io.netty.transport-native-epoll" version="4.1.12.Final"/>
+<unit id="io.netty.transport-native-unix-common" version="4.1.12.Final"/>
 <unit id="jclouds-blobstore" version="1.7.3"/>
 <unit id="jclouds-core" version="1.7.3"/>
 <unit id="jclouds-slf4j" version="1.7.3"/>
@@ -118,6 +131,7 @@
 <unit id="org.apache.camel.camel-jetty" version="2.18.3"/>
 <unit id="org.apache.camel.camel-jetty-common" version="2.18.3"/>
 <unit id="org.apache.camel.camel-jetty9" version="2.18.3"/>
+<unit id="org.apache.camel.camel-mqtt" version="2.18.3"/>
 <unit id="org.apache.camel.camel-restlet" version="2.18.3"/>
 <unit id="org.apache.camel.camel-spring" version="2.18.3"/>
 <unit id="org.apache.camel.camel-stream" version="2.18.3"/>
@@ -142,6 +156,8 @@
 <unit id="org.apache.servicemix.bundles.spring-core" version="4.3.7.RELEASE_1"/>
 <unit id="org.apache.servicemix.bundles.spring-expression" version="4.3.7.RELEASE_1"/>
 <unit id="org.apache.servicemix.bundles.spring-tx" version="4.3.7.RELEASE_1"/>
+<unit id="org.fusesource.hawtbuf.hawtbuf" version="1.11.0"/>
+<unit id="org.fusesource.hawtdispatch.hawtdispatch" version="1.22.0"/>
 <unit id="org.restlet.jee.org.restlet" version="2.3.6"/>
 <unit id="org.restlet.jee.org.restlet.ext.httpclient" version="2.3.6"/>
 <unit id="rocoto" version="6.2.0"/>
@@ -184,35 +200,35 @@
 <plugin id="com.eclipsesource.jaxrs.jersey-min.source" version="2.22.2"/>
 <plugin id="com.eclipsesource.jaxrs.publisher"/>
 <plugin id="com.eclipsesource.jaxrs.publisher.source"/>
-<plugin id="com.fasterxml.jackson.core.jackson-annotations" version="2.8.0"/>
 <plugin id="com.fasterxml.jackson.core.jackson-annotations" version="2.6.2.v20161117-2150"/>
+<plugin id="com.fasterxml.jackson.core.jackson-annotations" version="2.8.0"/>
 <plugin id="com.fasterxml.jackson.core.jackson-annotations.source" version="2.6.2.v20161117-2150"/>
 <plugin id="com.fasterxml.jackson.core.jackson-annotations.source" version="2.8.0"/>
 <plugin id="com.fasterxml.jackson.core.jackson-core" version="2.6.2.v20161117-2150"/>
 <plugin id="com.fasterxml.jackson.core.jackson-core" version="2.8.6"/>
-<plugin id="com.fasterxml.jackson.core.jackson-core.source" version="2.8.6"/>
 <plugin id="com.fasterxml.jackson.core.jackson-core.source" version="2.6.2.v20161117-2150"/>
-<plugin id="com.fasterxml.jackson.core.jackson-databind" version="2.6.2.v20161117-2150"/>
+<plugin id="com.fasterxml.jackson.core.jackson-core.source" version="2.8.6"/>
 <plugin id="com.fasterxml.jackson.core.jackson-databind" version="2.8.6"/>
-<plugin id="com.fasterxml.jackson.core.jackson-databind.source" version="2.6.2.v20161117-2150"/>
+<plugin id="com.fasterxml.jackson.core.jackson-databind" version="2.6.2.v20161117-2150"/>
 <plugin id="com.fasterxml.jackson.core.jackson-databind.source" version="2.8.6"/>
+<plugin id="com.fasterxml.jackson.core.jackson-databind.source" version="2.6.2.v20161117-2150"/>
 <plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="2.8.5"/>
 <plugin id="com.fasterxml.jackson.datatype.jackson-datatype-guava"/>
 <plugin id="com.fasterxml.jackson.datatype.jackson-datatype-guava.source"/>
-<plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base" version="2.6.2.v20161117-2150"/>
 <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base" version="2.7.7"/>
+<plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base" version="2.6.2.v20161117-2150"/>
 <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base.source" version="2.6.2.v20161117-2150"/>
 <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base.source" version="2.7.7"/>
 <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider" version="2.7.7"/>
 <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider" version="2.6.2.v20161117-2150"/>
-<plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider.source" version="2.7.7"/>
 <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider.source" version="2.6.2.v20161117-2150"/>
+<plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider.source" version="2.7.7"/>
 <plugin id="com.fasterxml.jackson.module.jackson-module-jaxb-annotations" version="2.5.0.v201504151636"/>
 <plugin id="com.fasterxml.jackson.module.jackson-module-jaxb-annotations" version="2.7.7"/>
 <plugin id="com.fasterxml.jackson.module.jackson-module-jaxb-annotations.source"/>
 <plugin id="com.google.gson"/>
 <plugin id="com.google.gson.source"/>
-<plugin id="com.google.guava.source" version="23.4.0.jre"/>
+<plugin id="com.google.guava.source" version="20.0.0"/>
 <plugin id="com.google.inject" version="3.0.0.v201605172100"/>
 <plugin id="com.google.inject.assistedinject" version="3.0.0.v201402270930"/>
 <plugin id="com.google.inject.assistedinject.source" version="3.0.0.v201402270930"/>
@@ -225,8 +241,8 @@
 <plugin id="com.googlecode.json-simple.source"/>
 <plugin id="com.ibm.icu"/>
 <plugin id="com.ibm.icu.source"/>
-<plugin id="com.jcraft.jsch" version="0.1.54.v20170116-1932"/>
 <plugin id="com.jcraft.jsch" version="0.1.54"/>
+<plugin id="com.jcraft.jsch" version="0.1.54.v20170116-1932"/>
 <plugin id="com.jcraft.jsch.source" version="0.1.54.v20170116-1932"/>
 <plugin id="com.jcraft.jsch.source" version="0.1.54"/>
 <plugin id="com.predic8.soa-model-core"/>
@@ -328,12 +344,12 @@
 <plugin id="org.apache.camel.camel-stream"/>
 <plugin id="org.apache.commons.beanutils" version="1.8.0.v201205091237"/>
 <plugin id="org.apache.commons.beanutils" version="1.9.3"/>
-<plugin id="org.apache.commons.beanutils.source" version="1.9.3"/>
 <plugin id="org.apache.commons.beanutils.source" version="1.8.0.v201205091237"/>
-<plugin id="org.apache.commons.codec" version="1.6.0.v201305230611"/>
+<plugin id="org.apache.commons.beanutils.source" version="1.9.3"/>
 <plugin id="org.apache.commons.codec" version="1.9.0.v20170208-1614"/>
-<plugin id="org.apache.commons.codec.source" version="1.11.0"/>
+<plugin id="org.apache.commons.codec" version="1.6.0.v201305230611"/>
 <plugin id="org.apache.commons.codec.source" version="1.6.0.v201305230611"/>
+<plugin id="org.apache.commons.codec.source" version="1.11.0"/>
 <plugin id="org.apache.commons.collections" version="3.2.2"/>
 <plugin id="org.apache.commons.collections" version="3.2.2.v201511171945"/>
 <plugin id="org.apache.commons.collections.source" version="3.2.2.v201511171945"/>
@@ -343,13 +359,13 @@
 <plugin id="org.apache.commons.httpclient" version="3.1.0.v201012070820"/>
 <plugin id="org.apache.commons.httpclient.source" version="3.1.0.v201012070820"/>
 <plugin id="org.apache.commons.io" version="2.2.0.v201405211200"/>
-<plugin id="org.apache.commons.io.source" version="2.5.0"/>
+<plugin id="org.apache.commons.io.source" version="2.2.0.v201405211200"/>
 <plugin id="org.apache.commons.jxpath" version="1.3.0.v200911051830"/>
 <plugin id="org.apache.commons.jxpath.source" version="1.3.0.v200911051830"/>
 <plugin id="org.apache.commons.lang"/>
 <plugin id="org.apache.commons.lang.source"/>
-<plugin id="org.apache.commons.lang3" version="3.7.0"/>
 <plugin id="org.apache.commons.lang3" version="3.1.0.v201403281430"/>
+<plugin id="org.apache.commons.lang3" version="3.7.0"/>
 <plugin id="org.apache.commons.lang3.source" version="3.1.0.v201403281430"/>
 <plugin id="org.apache.commons.lang3.source" version="3.7.0"/>
 <plugin id="org.apache.commons.logging" version="1.1.1.v201101211721"/>
@@ -373,8 +389,8 @@
 <plugin id="org.apache.cxf.cxf-rt-ws-addr" version="3.1.10"/>
 <plugin id="org.apache.cxf.cxf-rt-ws-policy" version="3.1.10"/>
 <plugin id="org.apache.cxf.cxf-rt-wsdl"/>
-<plugin id="org.apache.derby" version="10.8.2.2"/>
 <plugin id="org.apache.derby" version="10.11.1.1_v201605202053"/>
+<plugin id="org.apache.derby" version="10.8.2.2"/>
 <plugin id="org.apache.derby.source" version="10.11.1.1_v201605202053"/>
 <plugin id="org.apache.felix.gogo.command" version="0.10.0.v201209301215"/>
 <plugin id="org.apache.felix.gogo.command.source" version="0.10.0.v201209301215"/>
@@ -384,12 +400,12 @@
 <plugin id="org.apache.felix.gogo.shell.source"/>
 <plugin id="org.apache.httpcomponents.httpclient" version="4.3.6.v201511171540"/>
 <plugin id="org.apache.httpcomponents.httpclient" version="4.5.2.v20170210-0925"/>
-<plugin id="org.apache.httpcomponents.httpclient.source" version="4.5.2"/>
 <plugin id="org.apache.httpcomponents.httpclient.source" version="4.3.6.v201511171540"/>
-<plugin id="org.apache.httpcomponents.httpcore" version="4.4.6.v20170210-0925"/>
+<plugin id="org.apache.httpcomponents.httpclient.source" version="4.5.2"/>
 <plugin id="org.apache.httpcomponents.httpcore" version="4.3.3.v201411290715"/>
-<plugin id="org.apache.httpcomponents.httpcore.source" version="4.4.6.v20170210-0925"/>
+<plugin id="org.apache.httpcomponents.httpcore" version="4.4.6.v20170210-0925"/>
 <plugin id="org.apache.httpcomponents.httpcore.source" version="4.3.3.v201411290715"/>
+<plugin id="org.apache.httpcomponents.httpcore.source" version="4.4.4"/>
 <plugin id="org.apache.jasper.glassfish"/>
 <plugin id="org.apache.jasper.glassfish.source"/>
 <plugin id="org.apache.lucene.analysis"/>
@@ -890,8 +906,8 @@
 <plugin id="org.sat4j.pb"/>
 <plugin id="org.tukaani.xz" version="1.3"/>
 <plugin id="org.tukaani.xz" version="1.3.0.v201308270617"/>
-<plugin id="org.tukaani.xz.source" version="1.3.0.v201308270617"/>
 <plugin id="org.tukaani.xz.source" version="1.3.0"/>
+<plugin id="org.tukaani.xz.source" version="1.3.0.v201308270617"/>
 <plugin id="org.w3c.css.sac"/>
 <plugin id="org.w3c.css.sac.source"/>
 <plugin id="org.w3c.dom.events"/>
@@ -908,7 +924,7 @@
 <plugin id="xerces.Impl"/>
 <plugin id="xml-apis" version="1.3.04"/>
 <plugin id="xml-apis.source" version="1.3.04"/>
-	<plugin id="org.apache.httpcomponents.httpcore.source" version="4.4.4"/>
+	<plugin id="org.apache.httpcomponents.httpcore.source" version="4.4.6.v20170210-0925"/>
 	<plugin id="com.google.guava" version="15.0.0.v201403281430"/>
 	<plugin id="io.swagger.annotations" version="1.5.13"/>
 	<plugin id="io.swagger.annotations.source" version="1.5.13"/>
@@ -923,9 +939,8 @@
 	<plugin id="org.yaml.snakeyaml.source" version="1.17.0"/>
 	<plugin id="com.eclipsesource.jaxrs.provider.swagger.source"/>
 	<plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml.source" version="2.8.5"/>
-	<plugin id="com.google.guava.source" version="20.0.0"/>
 	<plugin id="com.google.guava.source" version="15.0.0.v201403281430"/>
-	<plugin id="org.apache.commons.io.source" version="2.2.0.v201405211200"/>
+	<plugin id="com.google.guava.source" version="23.4.0.jre"/>
 	<plugin id="org.apache.commons.compress"/>
 	<plugin id="org.eclipse.collections.eclipse-collections"/>
 	<plugin id="org.eclipse.collections.eclipse-collections-api"/>
@@ -948,5 +963,8 @@
 	<plugin id="com.sun.jersey.core" version="1.19.3"/>
 	<plugin id="com.sun.jersey.core.source" version="1.19.3"/>
 	<plugin id="com.eclipsesource.jaxrs.swagger-all" version="1.5.7"/>
+	<plugin id="io.moquette.broker"/>
+	<plugin id="com.bugsnag"/>
+	<plugin id="org.apache.camel.camel-mqtt"/>
 </includeBundles>
 </target>

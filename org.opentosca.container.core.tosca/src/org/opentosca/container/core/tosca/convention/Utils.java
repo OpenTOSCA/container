@@ -57,19 +57,16 @@ public class Utils {
     }
 
     /**
-     * Checks whether the given property name represents a special case property: the ip property of an
-     * virtual machine
+     * Checks whether the given property name represents a special case property: the ip property of
+     * an virtual machine
      *
      * @param name a String containing some property name
      * @return true iff the given name equals to the predefined IP property names of the plugins
      */
     public static boolean isSupportedVirtualMachineIPProperty(final String name) {
-        if (name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP)
+        return name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP)
             | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)
-            | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP)) {
-            return true;
-        }
-        return false;
+            | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP);
     }
 
     /**
@@ -77,48 +74,36 @@ public class Utils {
      * property of an virtual machine
      *
      * @param name a String containing some property name
-     * @return true iff the given name equals to the predefined InstanceId property names of the plugins
+     * @return true iff the given name equals to the predefined InstanceId property names of the
+     *         plugins
      */
     public static boolean isSupportedVirtualMachineInstanceIdProperty(final String name) {
-        if (name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID)
-            | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID)) {
-            return true;
-        }
-        return false;
+        return name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID)
+            | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID);
     }
 
     /**
-     * Checks whether the given NodeType is a cloud provider nodeType that can be handled by the set of
-     * plugins used by the PlanBuilder.
+     * Checks whether the given NodeType is a cloud provider nodeType that can be handled by the set
+     * of plugins used by the PlanBuilder.
      *
      * @param nodeType a QName denoting some nodeType
      * @return a boolean. True if the given nodeType is a cloud provider nodeType
      */
     public static boolean isSupportedCloudProviderNodeType(final QName nodeType) {
-
-        if (nodeType.equals(Types.amazonEc2NodeType) | nodeType.equals(Types.openStackNodeType)
+        return nodeType.equals(Types.amazonEc2NodeType) | nodeType.equals(Types.openStackNodeType)
             | nodeType.equals(Types.openStackLiberty12NodeType) | nodeType.equals(Types.vmWareVsphere55NodeType)
-            | nodeType.equals(Types.localHypervisor)) {
-            return true;
-        }
-
-        return false;
+            | nodeType.equals(Types.localHypervisor);
     }
 
     /**
-     * Checks whether the given QName denotes a nodeType which can't/won't be managed by OpenTOSCA, such
-     * as remote entites
+     * Checks whether the given QName denotes a nodeType which can't/won't be managed by OpenTOSCA,
+     * such as remote entites
      *
      * @param nodeType a QName denoting a NodeType
      * @return true if the nodeType is supported
      */
     public static boolean isSupportedUnmanagedNodeType(final QName nodeType) {
-
-        if (nodeType.equals(Types.remoteHostNodeType)) {
-            return true;
-        }
-
-        return false;
+        return nodeType.equals(Types.remoteHostNodeType);
     }
 
     /**
@@ -215,28 +200,17 @@ public class Utils {
      * @return a boolean. True if given nodeType is a virtual machine nodeType
      */
     public static boolean isSupportedVMNodeType(final QName nodeType) {
-        boolean check = Utils.isSupportedInfrastructureNodeType(nodeType);
-
-        // code for raspbian and stuff
-        if (nodeType.equals(Types.raspbianJessieOSNodeType)) {
-            check = false;
-        }
-        return check;
+        return !nodeType.equals(Types.raspbianJessieOSNodeType) && Utils.isSupportedInfrastructureNodeType(nodeType);
     }
 
     /**
-     * Checks whether the given NodeType is a docker engine nodeType that can be handled by the set of
-     * plugins used by the PlanBuilder.
+     * Checks whether the given NodeType is a docker engine nodeType that can be handled by the set
+     * of plugins used by the PlanBuilder.
      *
      * @param nodeType a QName denoting some nodeType
      * @return a boolean. True if the given nodeType is a docker engine nodeType
      */
     public static boolean isSupportedDockerEngineNodeType(final QName nodeType) {
-        if (nodeType.equals(Types.dockerEngineNodeType) | nodeType.equals(Types.dockerEngineNodeTypeAlt)) {
-            return true;
-        }
-
-        return false;
+        return nodeType.equals(Types.dockerEngineNodeType) | nodeType.equals(Types.dockerEngineNodeTypeAlt);
     }
-
 }

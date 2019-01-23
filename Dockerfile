@@ -14,11 +14,17 @@ ARG DOCKERIZE_VERSION=v0.3.0
 
 ENV PUBLIC_HOSTNAME localhost
 ENV CONTAINER_REPOSITORY_HOSTNAME localhost
+ENV CONTAINER_REPOSITORY_PORT 8091
 ENV ENGINE_PLAN_HOSTNAME localhost
 ENV ENGINE_IA_HOSTNAME localhost
+ENV ENGINE_IA_USER_NAME admin
+ENV ENGINE_IA_PWD admin
 ENV ENGINE_PLAN ODE
 ENV ENGINE_PLAN_ROOT_URL http://localhost:9763/ode
 ENV ENGINE_PLAN_SERVICES_URL http://localhost:9763/ode/processes
+ENV COLLABORATION_MODE false
+ENV COLLABORATION_HOSTNAMES ""
+ENV COLLABORATION_PORTS ""
 
 RUN rm /dev/random && ln -s /dev/urandom /dev/random \
     && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \

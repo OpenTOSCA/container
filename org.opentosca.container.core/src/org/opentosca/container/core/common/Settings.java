@@ -11,8 +11,6 @@ public class Settings {
         System.getProperty("org.opentosca.container.hostname", "localhost");
     public final static String OPENTOSCA_CONTAINER_PORT = System.getProperty("org.opentosca.container.port", "1337");
 
-    public final static String ENGINE_IA_PUBLIC_IP = System.getProperty("org.opentosca.container.engine.ia.hostname");
-
     public final static String CONTAINER_API_LEGACY =
         "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi";
     public final static String CONTAINER_API =
@@ -22,6 +20,15 @@ public class Settings {
             + "/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
     public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
         + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/servicetemplates/{servicetemplateid}/instances";
+    public final static String OPENTOSCA_CONTAINER_CONTENT_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
+        + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
+
+    public final static String ENGINE_IA_TOMCAT_URL =
+        System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.url", "http://localhost:8090");
+    public final static String ENGINE_IA_TOMCAT_USERNAME =
+        System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.username", "admin");
+    public final static String ENGINE_IA_TOMCAT_PASSWORD =
+        System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.password", "admin");
 
 
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
@@ -29,6 +36,20 @@ public class Settings {
     public final static String OPENTOSCA_DEPLOYMENT_TESTS = System.getProperty("org.opentosca.deployment.checks", "false");
     
     public final static String CONTAINER_STORAGE_BASEPATH = "org.opentosca.container.storage.basepath";
+
+    public final static String OPENTOSCA_COLLABORATION_MODE =
+        System.getProperty("org.opentosca.container.collaboration.mode", "false");
+    public final static String OPENTOSCA_COLLABORATION_HOSTNAMES =
+        System.getProperty("org.opentosca.container.collaboration.hostnames");
+    public final static String OPENTOSCA_COLLABORATION_PORTS =
+        System.getProperty("org.opentosca.container.collaboration.ports");
+
+    public final static String OPENTOSCA_BROKER_MQTT_PORT =
+        System.getProperty("org.opentosca.container.broker.mqtt.port", "1883");
+    public final static String OPENTOSCA_BROKER_MQTT_USERNAME =
+        System.getProperty("org.opentosca.container.broker.mqtt.username", "admin");
+    public final static String OPENTOSCA_BROKER_MQTT_PASSWORD =
+        System.getProperty("org.opentosca.container.broker.mqtt.password", "admin");
 
     // TODO: Use public static final variables instead, as in
     // StaticTOSCANamespaces. The problems with the current approach is: (i)

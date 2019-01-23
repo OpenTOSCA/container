@@ -18,6 +18,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
 import org.eclipse.persistence.annotations.Converter;
+import org.opentosca.container.core.common.jpa.QNameConverter;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
 
@@ -32,7 +33,7 @@ import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
                @NamedQuery(name = RESTEndpoint.getEndpointForUri, query = RESTEndpoint.getEndpointForUriQuery)})
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = RESTEndpoint.tableName, uniqueConstraints = @UniqueConstraint(columnNames = {"path", "method", "csarId"}))
+@Table(name = RESTEndpoint.tableName, uniqueConstraints = @UniqueConstraint(columnNames = {"path", "method", "csarId", "triggeringContainer"}))
 public class RESTEndpoint extends AbstractEndpoint {
 
     protected static final String tableName = "RESTEndpoint";
@@ -42,17 +43,17 @@ public class RESTEndpoint extends AbstractEndpoint {
     // Query to retrieve RESTEndpoints by Path.
     public static final String getEndpointForPath = "RESTEndpoint.getByPath";
     protected static final String getEndpointForPathQuery =
-        "select t from " + RESTEndpoint.tableName + " t where t.path = :path and t.csarId = :csarId";
+        "select t from " + RESTEndpoint.tableName + " t where t.path = :path and t.csarId = :csarId and t.triggeringContainer = :triggeringContainer";
 
     // Query to retrieve a RESTEndpoint by Path and Method
     public static final String getEndpointForPathAndMethod = "RESTEndpoint.getByPathAndMethod";
     protected static final String getEndpointForPathAndMethodQuery = "select t from " + RESTEndpoint.tableName
-        + " t where t.path = :path and t.method = :method and t.csarId = :csarId";
+        + " t where t.path = :path and t.method = :method and t.csarId = :csarId and t.triggeringContainer = :triggeringContainer";
 
     // Query to check if an Endpoint with given URI exists.
     public static final String getEndpointForUri = "RESTEndpoint.getByUri";
     protected static final String getEndpointForUriQuery =
-        "select t from " + RESTEndpoint.tableName + " t where t.uri = :uri and t.csarId = :csarId";
+        "select t from " + RESTEndpoint.tableName + " t where t.uri = :uri and t.csarId = :csarId and t.triggeringContainer = :triggeringContainer";
 
 
     public static enum restMethod {
@@ -63,17 +64,17 @@ public class RESTEndpoint extends AbstractEndpoint {
     // Converter to Convert QNames to String, and back from String to QName.
     // Used when persisting, so we can Query for QName-Objects.
     @Basic
-    @Converter(name = "QNameConverter", converterClass = org.opentosca.container.core.common.jpa.QNameConverter.class)
+    @Converter(name = QNameConverter.name, converterClass = org.opentosca.container.core.common.jpa.QNameConverter.class)
     @Column(name = "method")
     private restMethod method;
 
     @Column(name = "path")
     private String path;
 
-    @Convert("QNameConverter")
+    @Convert(QNameConverter.name)
     private QName requestPayload;
 
-    @Convert("QNameConverter")
+    @Convert(QNameConverter.name)
     private QName responsePayload;
 
     @Column(name = "RequestHeaders")
@@ -87,21 +88,25 @@ public class RESTEndpoint extends AbstractEndpoint {
         super();
     }
 
-    public RESTEndpoint(final URI uri, final restMethod method, final CsarId csarId) {
-        super(uri, csarId);
+    public RESTEndpoint(final URI uri, final restMethod method, final String triggeringContainer,
+                        final String managingContainer, final CsarId csarId, final Long serviceInstanceID) {
+        super(uri, triggeringContainer, managingContainer, csarId, serviceInstanceID);
         this.method = method;
         this.path = uri.getPath();
     }
 
-    public RESTEndpoint(final String host, final String path, final restMethod method,
-                        final CsarId csarId) throws URISyntaxException {
+    public RESTEndpoint(final String host, final String path, final restMethod method, final String managingContainer,
+                        final String triggeringContainer, final CsarId csarId,
+                        final Long serviceInstanceID) throws URISyntaxException {
         // Check if the path starts with a "/", if not we prepend a "/".
-        this(new URI(host + (path.charAt(0) == '/' ? path : '/' + path)), method, csarId);
+        this(new URI(host + (path.charAt(0) == '/' ? path : '/' + path)), method, triggeringContainer,
+             managingContainer, csarId, serviceInstanceID);
     }
 
     public RESTEndpoint(final URI uri, final restMethod method, final QName requestPayload, final QName responsePayload,
-                        final CsarId csarId) {
-        this(uri, method, csarId);
+                        final String triggeringContainer, final String managingContainer, final CsarId csarId,
+                        final Long serviceInstanceID) {
+        this(uri, method, triggeringContainer, managingContainer, csarId, serviceInstanceID);
         this.requestPayload = requestPayload;
         this.responsePayload = responsePayload;
     }

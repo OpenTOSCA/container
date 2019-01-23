@@ -66,7 +66,7 @@ public class BoundaryDefinitionController {
     public Response getBoundaryDefinitions(@PathParam("csar") final String csarId,
                                            @PathParam("servicetemplate") final String servicetemplate) {
 
-        final Csar csar = this.storage.findById(new CsarId(csarId));
+    	final Csar csar = this.storage.findById(new CsarId(csarId));
 
         final TServiceTemplate serviceTemplate;
         try {
@@ -117,7 +117,7 @@ public class BoundaryDefinitionController {
         final PropertiesDTO dto = new PropertiesDTO();
         dto.setXmlFragment(""); // we're not really exposing these in the winery-model
         if (propertyMappings != null) {
-            this.logger.debug("Found <{}> property mappings", propertyMappings.size());
+            logger.debug("Found <{}> property mappings", propertyMappings.size());
             dto.setPropertyMappings(propertyMappings);
         }
         dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
@@ -186,8 +186,8 @@ public class BoundaryDefinitionController {
                     .filter(iface -> iface.getIdFromIdOrNameField().equals(name)).findFirst()
                     .map(iface -> iface.getOperation()).orElse(Collections.emptyList());
 
-        this.logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
-                          operations.size(), name, servicetemplate, csar);
+        logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
+                     operations.size(), name, servicetemplate, csar);
 
         final Map<String, OperationDTO> ops = operations.stream().map(o -> {
             final OperationDTO op = new OperationDTO();

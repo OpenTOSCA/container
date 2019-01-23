@@ -609,6 +609,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.opentosca.broker.mqtt"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="org.opentosca.bus.application.api.jsonhttp"
          download-size="0"
          install-size="0"
@@ -693,28 +700,49 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.bus.management.plugins.remote.service.impl"
+         id="org.opentosca.bus.management.deployment.plugin"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.bus.management.plugins.rest.service.impl"
+         id="org.opentosca.bus.management.deployment.plugin.script"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.bus.management.plugins.service"
+         id="org.opentosca.bus.management.deployment.plugin.tomcat"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.bus.management.plugins.soaphttp.service.impl"
+         id="org.opentosca.bus.management.invocation.plugin.script"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.invocation.plugin.rest"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.invocation.plugin"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.invocation.plugin.soaphttp"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -736,6 +764,13 @@
 
    <plugin
          id="org.opentosca.container.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.container.api.legacy"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -792,42 +827,14 @@
          unpack="false"/>
 
    <plugin
+         id="org.opentosca.container.core.impl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="org.opentosca.container.core.tosca"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.container.engine.ia"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.container.engine.ia.plugin.aar"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.container.engine.ia.plugin.dockercompose"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.container.engine.ia.plugin.script"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.container.engine.ia.plugin.tomcat"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -870,20 +877,6 @@
 
    <plugin
          id="org.opentosca.planbuilder.csarhandler"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.planbuilder.export"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.planbuilder.importer"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1676,7 +1669,49 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.planbuilder.type.plugin.patternbased"
+         id="io.moquette.broker"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.bugsnag"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="io.dropwizard.metrics.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.hazelcast"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.librato.metrics.librato"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="io.netty.buffer"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="io.netty.codec"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1690,7 +1725,21 @@
          unpack="false"/>
 
    <plugin
+         id="io.netty.codec-http"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="javax.ws.rs"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="io.netty.codec-mqtt"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1704,7 +1753,21 @@
          unpack="false"/>
 
    <plugin
+         id="io.netty.handler"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="io.swagger.annotations"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="io.netty.common"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1718,10 +1781,93 @@
          unpack="false"/>
 
    <plugin
+         id="io.netty.resolver"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="com.eclipsesource.jaxrs.swagger-all"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="io.netty.transport"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="io.netty.transport-native-epoll"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="io.netty.transport-native-unix-common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.camel.camel-mqtt"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.fusesource.hawtbuf.hawtbuf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.fusesource.hawtdispatch.hawtdispatch"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.fusesource.hawtdispatch.hawtdispatch-transport"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.fusesource.mqtt-client.mqtt-client"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.deployment.plugin.remote"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.invocation.plugin.remote"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.planbuilder.type.plugin.patternbased"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 </feature>

@@ -25,6 +25,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
@@ -81,17 +82,17 @@ public class BPELRESTLightUpdater {
 
     /**
      * <p>
-     * Changes endpoints (URIs) inside the given BPEL file. If the bpel file contains somewhere the tag
-     * {OPENTOSCA} the tag will be replaced by the actual host of the container
+     * Changes endpoints (URIs) inside the given BPEL file. If the bpel file contains somewhere the
+     * tag {OPENTOSCA} the tag will be replaced by the actual host of the container
      * </p>
      * <p>
-     * If the BPEL file contains elements of BPEL4RESTLight (GET, PUT, POST, DELETE) it will check if
-     * the given URIs are services contained in the endpoint service and change them accordingly
+     * If the BPEL file contains elements of BPEL4RESTLight (GET, PUT, POST, DELETE) it will check
+     * if the given URIs are services contained in the endpoint service and change them accordingly
      * </p>
      *
      *
-     * @param processFiles a list of files containing the complete content of a Apache ODE WS-BPEL 2.0
-     *        zip file
+     * @param processFiles a list of files containing the complete content of a Apache ODE WS-BPEL
+     *        2.0 zip file
      * @param csarId a identifier of the CSAR this BPEL file belongs to
      * @return true only if some change was made
      * @throws IOException is thrown when access of BPEL file failed
@@ -117,7 +118,7 @@ public class BPELRESTLightUpdater {
 
         if (endpointService != null) {
             for (final URI localUri : localURIs) {
-                for (final RESTEndpoint endpoint : endpointService.getRestEndpoints(localUri, csarId)) {
+                for (final RESTEndpoint endpoint : endpointService.getRestEndpoints(localUri, Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId)) {
                     notChanged.addAll(changeAddress(endpoint, elements));
                 }
             }
@@ -297,8 +298,8 @@ public class BPELRESTLightUpdater {
      * Adds Slashes ('/') at beginning and end of the given string
      *
      * @param path The String to modify
-     * @return returns a String where String.charAt(0) == '/' and String.charAt(String.length() - 1) ==
-     *         '/'
+     * @return returns a String where String.charAt(0) == '/' and String.charAt(String.length() - 1)
+     *         == '/'
      */
     private String normalizePath(final String path) {
         String temp = path;

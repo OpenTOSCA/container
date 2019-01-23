@@ -50,10 +50,7 @@ public class RelationshipTemplateInstance extends PersistenceObject {
     @Column(name = "TEMPLATE_TYPE", nullable = false)
     private QName templateType;
 
-
-    public RelationshipTemplateInstance() {
-
-    }
+    public RelationshipTemplateInstance() {}
 
     public RelationshipTemplateInstanceState getState() {
         return this.state;

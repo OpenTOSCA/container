@@ -44,29 +44,24 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
- * This class implements functionality for deployment of WS-BPEL 2.0 Processes
- * through the
- * {@link org.opentosca.planengine.plugin.service.IPlanEnginePlanRefPluginService}
- * unto a WSO2 Business Process Server or Apache Orchestration Director Engine
- * (ODE).
+ * This class implements functionality for deployment of WS-BPEL 2.0 Processes through the
+ * {@link org.opentosca.planengine.plugin.service.IPlanEnginePlanRefPluginService} unto a WSO2
+ * Business Process Server or Apache Orchestration Director Engine (ODE).
  *
  * The class is the highlevel control of the plugin. It uses the classes
- * {@link org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightUpdater}
- * to update BPEL4RESTLight (see:
- * OpenTOSCA/trunk/examples/org.opentosca.bpel4restlight.bpelextension)
+ * {@link org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightUpdater} to update
+ * BPEL4RESTLight (see: OpenTOSCA/trunk/examples/org.opentosca.bpel4restlight.bpelextension)
  * extension activities with up-to-date endpoints. The plugin also uses
- * {@link org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater}
- * to update the bindings inside the used WSDL Descriptions referenced in the
- * BPEL process. The endpoints for the update are retrieved through a service
- * that implements the
+ * {@link org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater} to update the
+ * bindings inside the used WSDL Descriptions referenced in the BPEL process. The endpoints for the
+ * update are retrieved through a service that implements the
  * {@link org.opentosca.core.endpoint.service.ICoreEndpointService} interface.
  *
  * The actual deployment is done on the endpoint which is declared in the
- * {@link org.opentosca.container.engine.plan.plugin.bpel.util.Messages} class.
- * The plugin uses {@link org.opentosca.container.connector.bps.BpsConnector} or
- * {@link org.opentosca.container.connector.ode.OdeConnector} class to deploy
- * the updated plan unto the WSO2 BPS or Apache ODE behind the endpoint,
- * respectively.
+ * {@link org.opentosca.container.engine.plan.plugin.bpel.util.Messages} class. The plugin uses
+ * {@link org.opentosca.container.connector.bps.BpsConnector} or
+ * {@link org.opentosca.container.connector.ode.OdeConnector} class to deploy the updated plan unto
+ * the WSO2 BPS or Apache ODE behind the endpoint, respectively.
  *
  * @see org.opentosca.planengine.plugin.bpelwso2.util.BPELRESTLightUpdates
  * @see org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater
@@ -265,21 +260,23 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         if (processId == null || endpoint == null || portType == null) {
             LOG.error("Error while processing plan");
             if (processId == null) {
-                LOG.error("ProcessId is null");
+            	LOG.error("ProcessId is null");
             }
             if (endpoint == null) {
-                LOG.error("Endpoint for process is null");
+            	LOG.error("Endpoint for process is null");
             }
             if (portType == null) {
-                LOG.error("PortType of process is null");
+            	LOG.error("PortType of process is null");
             }
             return false;
-        } 
+        }
         LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
         LOG.info("Deployment of Plan was successfull: {}", tempPlan.getName());
 
         // save endpoint
-        final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType, csarId, planId, null, null);
+        final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+        final WSDLEndpoint wsdlEndpoint =
+        		new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null);
 
         if (this.endpointService == null) {
             LOG.warn("Couldn't store endpoint {} for plan {}, cause endpoint service is not available",
@@ -315,12 +312,12 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         // remove endpoint from core
         if (this.endpointService != null) {
             LOG.debug("Starting to remove endpoint!");
-            WSDLEndpoint endpoint = this.endpointService.getWSDLEndpointForPlanId(csarId, planId);
+            WSDLEndpoint endpoint = this.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
             if (endpoint == null) {
                 LOG.warn("Couldn't remove endpoint for plan {}, because endpoint service didn't find any endpoint associated with the plan to remove",
                                               planRef.getReference());
             }
-            else if (this.endpointService.removeWSDLEndpoint(csarId, endpoint)) {
+            else if (this.endpointService.removeWSDLEndpoint(endpoint)) {
                 LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
                                                planRef.getReference());
             }

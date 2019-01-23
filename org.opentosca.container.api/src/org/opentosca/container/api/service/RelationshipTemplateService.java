@@ -54,8 +54,8 @@ public class RelationshipTemplateService {
      *
      * @param csarId The id of the CSAR
      * @param serviceTemplateQName The QName of the service template within the given CSAR
-     * @param relationshipTemplateId The id of the relationship template we want to get and that belongs
-     *        to the specified service template
+     * @param relationshipTemplateId The id of the relationship template we want to get and that
+     *        belongs to the specified service template
      * @return The relationship template specified by the given id
      * @throws NotFoundException If the service template does not contain the specified relationship
      *         template
@@ -82,13 +82,13 @@ public class RelationshipTemplateService {
      * @param csarId The id of the CSAR
      * @param serviceTemplateQName the QName of the service template
      * @param relationshipTemplateId the id of the relationship template to check for
-     * @return <code>true</code> when the CSAR contains the service template and the service template
-     *         contains the relationship template, otherwise <code>false</code>
+     * @return <code>true</code> when the CSAR contains the service template and the service
+     *         template contains the relationship template, otherwise <code>false</code>
      */
     public boolean hasRelationshipTemplate(final String csarId, final QName serviceTemplateQName,
                                            final String relationshipTemplateId) {
-        return this.getRelationshipTemplateIdsOfServiceTemplate(csarId, serviceTemplateQName.toString())
-                   .contains(relationshipTemplateId);
+        return getRelationshipTemplateIdsOfServiceTemplate(csarId,
+                                                           serviceTemplateQName.toString()).contains(relationshipTemplateId);
     }
 
     /**

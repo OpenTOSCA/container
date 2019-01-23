@@ -42,7 +42,7 @@ public class PortabilityServiceImpl implements IPortabilityService {
 
         // TODO: null check nodeTypeOfNodeTemplate
         final List<QName> nodeTypeImplementationsOfNodeType =
-            toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeOfNodeTemplate);
+            toscaEngineService.getTypeImplementationsOfType(csarID, nodeTypeOfNodeTemplate);
 
         // for each implementation we want to get the resolvedArtifacts => for
         // each imp we get the archifactSpecificContent OR the reference from
@@ -52,15 +52,15 @@ public class PortabilityServiceImpl implements IPortabilityService {
         final List<ResolvedDeploymentArtifact> filteredDAList = new ArrayList<>();
         final List<ResolvedImplementationArtifact> filteredIAList = new ArrayList<>();
 
-        this.fillFilteredArtifactsOfNodeTypeImplByName(filteredDAList, filteredIAList, csarID,
-                                                       nodeTypeImplementationsOfNodeType, deploymentArtifactName,
-                                                       interfaceName, operationName);
+        fillFilteredArtifactsOfNodeTypeImplByName(filteredDAList, filteredIAList, csarID,
+                                                  nodeTypeImplementationsOfNodeType, deploymentArtifactName,
+                                                  interfaceName, operationName);
 
-        this.fillFilteredArtifactsOfNodeTemplateByName(filteredDAList, filteredIAList, csarID, nodeTemplateID,
-                                                       deploymentArtifactName, interfaceName, operationName);
+        fillFilteredArtifactsOfNodeTemplateByName(filteredDAList, filteredIAList, csarID, nodeTemplateID,
+                                                  deploymentArtifactName, interfaceName, operationName);
 
         // BUILD TArtifacts-Object
-        final Artifacts result = this.buildTArtifactsResult(filteredDAList, filteredIAList, artifactType);
+        final Artifacts result = buildTArtifactsResult(filteredDAList, filteredIAList, artifactType);
 
         return result;
     }
@@ -78,8 +78,7 @@ public class PortabilityServiceImpl implements IPortabilityService {
                                                                          relationshipTemplateID.getLocalPart());
         // TODO: null check nodeTypeOfNodeTemplate
         final List<QName> relationshipTypeImplementationsOfNodeType =
-            toscaEngineService.getRelationshipTypeImplementationsOfRelationshipType(csarID,
-                                                                                    relationshipTypeOfNodeTemplate);
+            toscaEngineService.getTypeImplementationsOfType(csarID, relationshipTypeOfNodeTemplate);
 
         // for each implementation we want to get the resolvedArtifacts => for
         // each imp we get the archifactSpecificContent OR the reference from
@@ -89,12 +88,12 @@ public class PortabilityServiceImpl implements IPortabilityService {
         final List<ResolvedDeploymentArtifact> filteredDAList = new ArrayList<>();
         final List<ResolvedImplementationArtifact> filteredIAList = new ArrayList<>();
 
-        this.fillFilteredArtifactsOfRelationshipTypeImplByName(filteredDAList, filteredIAList, csarID,
-                                                               relationshipTypeImplementationsOfNodeType,
-                                                               deplArtifactName, interfaceName, operationName);
+        fillFilteredArtifactsOfRelationshipTypeImplByName(filteredDAList, filteredIAList, csarID,
+                                                          relationshipTypeImplementationsOfNodeType, deplArtifactName,
+                                                          interfaceName, operationName);
 
         // BUILD TArtifacts-Object
-        final Artifacts result = this.buildTArtifactsResult(filteredDAList, filteredIAList, artifactType);
+        final Artifacts result = buildTArtifactsResult(filteredDAList, filteredIAList, artifactType);
 
         return result;
     }
@@ -169,8 +168,10 @@ public class PortabilityServiceImpl implements IPortabilityService {
      * @param nodeTemplateID NodeTemplate ID
      * @param deploymentArtifactNameFilter Filter which will be applied (.equals) to the resolved
      *        DeploymentArtifacts
-     * @param interfaceNameFilter Filter which will be applied (.equals) to the resolved ImplArtifacts
-     * @param operationNameFilter Filter which will be applied (.equals) to the resolved ImplArtifacts
+     * @param interfaceNameFilter Filter which will be applied (.equals) to the resolved
+     *        ImplArtifacts
+     * @param operationNameFilter Filter which will be applied (.equals) to the resolved
+     *        ImplArtifacts
      */
     private void fillFilteredArtifactsOfNodeTemplateByName(final List<ResolvedDeploymentArtifact> filteredDAList,
                                                            final List<ResolvedImplementationArtifact> filteredIAList,
@@ -225,12 +226,14 @@ public class PortabilityServiceImpl implements IPortabilityService {
      * @param filteredDAList list of resolvedArtifacts where the filtered DAs will be STORED!!!
      * @param filteredIAList list of resolvedArtifacts where the filtered IAs will be STORED!!
      * @param csarID csarID of the CSAR
-     * @param nodeTypeImplementations List of nodeTypeImplementations for which the Artifacts will be
-     *        resolved
+     * @param nodeTypeImplementations List of nodeTypeImplementations for which the Artifacts will
+     *        be resolved
      * @param deploymentArtifactNameFilter Filter which will be applied (.equals) to the resolved
      *        DeploymentArtifacts
-     * @param interfaceNameFilter Filter which will be applied (.equals) to the resolved ImplArtifacts
-     * @param operationNameFilter Filter which will be applied (.equals) to the resolved ImplArtifacts
+     * @param interfaceNameFilter Filter which will be applied (.equals) to the resolved
+     *        ImplArtifacts
+     * @param operationNameFilter Filter which will be applied (.equals) to the resolved
+     *        ImplArtifacts
      */
     private void fillFilteredArtifactsOfNodeTypeImplByName(final List<ResolvedDeploymentArtifact> filteredDAList,
                                                            final List<ResolvedImplementationArtifact> filteredIAList,
