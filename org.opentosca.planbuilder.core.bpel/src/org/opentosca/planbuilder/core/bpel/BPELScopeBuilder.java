@@ -223,9 +223,11 @@ public class BPELScopeBuilder {
         BPELScopeBuilder.reorderProvCandidates(chain);
 
         // TODO consistency plugins
+        final List<String> array= new ArrayList<>();
 
+        array.add(operationName);
         // select provisioning
-        BPELScopeBuilder.selectProvisioning(chain);
+        BPELScopeBuilder.selectProvisioning(chain, array);
 
         return chain;
     }
@@ -236,7 +238,7 @@ public class BPELScopeBuilder {
      * @param nodeTemplate an AbstractNodeTemplate to create a ProvisioningChain for
      * @return a complete ProvisioningChain
      */
-    public static OperationChain createOperationChain(final AbstractNodeTemplate nodeTemplate) {
+    public static OperationChain createOperationChain(final AbstractNodeTemplate nodeTemplate, final List<String> operationNames) {
         // get nodetype implementations
         final List<AbstractNodeTypeImplementation> nodeTypeImpls = nodeTemplate.getImplementations();
 
@@ -314,7 +316,8 @@ public class BPELScopeBuilder {
         // TODO consistency plugins
 
         // select provisioning
-        BPELScopeBuilder.selectProvisioning(chain);
+        BPELScopeBuilder.selectProvisioning(chain, operationNames);
+
 
         return chain;
     }
@@ -460,11 +463,34 @@ public class BPELScopeBuilder {
         }
     }
 
-    private static void selectProvisioning(final OperationChain chain) {
+    private static void selectProvisioning(final OperationChain chain, final List<String> operationNames) {
         // TODO just select the first ia candidate, da candidate and prov
         // candidate for now
         // Selection should determine a minimal provisioning. Minimal=
         // min{|IACandidates| + |DACandidates| +|ProvPhaseOperations|}
+
+        // select first candidate set where the provisioning candidate uses the given operations
+
+        int selectedCandidateSet = -1;
+        for(int i = 0 ; i <chain.provCandidates.size() ; i++) {
+
+            for(final AbstractOperation op : chain.provCandidates.get(i).ops) {
+                if(operationNames.contains(op.getName())) {
+                    selectedCandidateSet = i;
+                    break;
+                }
+            }
+            if(selectedCandidateSet != -1 ) {
+                break;
+            }
+        }
+
+
+        if(selectedCandidateSet != -1) {
+            chain.selectedCandidateSet = selectedCandidateSet;
+        }
+
+
     }
 
     /**
