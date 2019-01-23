@@ -155,7 +155,7 @@
     <module>org.opentosca.planbuilder.service</module>
     <module>org.opentosca.planbuilder.postphase.plugin.instancedata</module>
     <module>org.opentosca.planbuilder.postphase.plugin.vinothek</module>
-    <module>org.opentosca.planbuilder.postphase.plugin.monitoring</module>    
+    <module>org.opentosca.planbuilder.postphase.plugin.monitoring</module>
     <module>org.opentosca.planbuilder.provphase.plugin.ansibleoperation</module>
     <module>org.opentosca.planbuilder.prephase.plugin.fileupload</module>
     <module>org.opentosca.planbuilder.provphase.plugin.invoker</module>
@@ -167,7 +167,7 @@
     <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.patternbased</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
-    <module>org.opentosca.deployment.tests</module>
+    <module>org.opentosca.deployment.checks</module>
   </modules>
 
 </project>

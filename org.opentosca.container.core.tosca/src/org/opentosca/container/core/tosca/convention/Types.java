@@ -59,4 +59,8 @@ public class Types {
         new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DeployedOn");
     public final static QName hostedOnRelationType =
         new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "HostedOn");
+
+    public final static QName KVM_QEMU_VM_TYPE = new QName("http://opentosca.org/nodetypes", "KVM_QEMU_VM");
+    public final static QName KVM_QEMU_HYPERVISOR_TYPE =
+        new QName("http://opentosca.org/nodetypes", "KVM_QEMU_Hypervisor");
 }

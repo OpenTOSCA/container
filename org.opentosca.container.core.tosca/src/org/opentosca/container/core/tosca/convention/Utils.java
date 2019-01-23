@@ -98,7 +98,7 @@ public class Utils {
 
         if (nodeType.equals(Types.amazonEc2NodeType) | nodeType.equals(Types.openStackNodeType)
             | nodeType.equals(Types.openStackLiberty12NodeType) | nodeType.equals(Types.vmWareVsphere55NodeType)
-            | nodeType.equals(Types.localHypervisor)) {
+            | nodeType.equals(Types.localHypervisor) | nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE)) {
             return true;
         }
 
@@ -158,6 +158,10 @@ public class Utils {
         }
 
         if (nodeType.equals(Types.dockerEngineNodeType)) {
+            return true;
+        }
+
+        if (nodeType.equals(Types.KVM_QEMU_VM_TYPE)) {
             return true;
         }
 

@@ -1394,13 +1394,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.deployment.tests"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.opentosca.planbuilder.postphase.plugin.monitoring"
          download-size="0"
          install-size="0"
@@ -1409,6 +1402,13 @@
 
    <plugin
          id="org.opentosca.planbuilder.type.plugin.patternbased"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.deployment.checks"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -23,11 +24,18 @@ public class BPELContainerPatternBasedHandler {
     private static final BPELInvokerPlugin invoker = new BPELInvokerPlugin();
 
     class OperationMatching {
+
+        String interfaceName;
+        String operationName;
         Map<AbstractParameter, String> inputMatching = new HashMap<>();
         Map<AbstractParameter, String> outputMatching = new HashMap<>();
+
     }
 
     class ConcreteOperationMatching {
+
+        String interfaceName;
+        String operationName;
         Map<AbstractParameter, Variable> inputMatching = new HashMap<>();
         Map<AbstractParameter, Variable> outputMatching = new HashMap<>();
     }
@@ -35,16 +43,15 @@ public class BPELContainerPatternBasedHandler {
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
 
         final AbstractNodeTemplate hostingContainer = getHostingNode(nodeTemplate);
+
+        final AbstractInterface iface = getContainerPatternInterface(hostingContainer);
         final AbstractOperation createOperation = getContainerPatternCreateMethod(hostingContainer);
         final ConcreteOperationMatching matching =
             createConcreteOperationMatching(context,
-                                            createPropertyToParameterMatching(nodeTemplate, hostingContainer,
-                                                                              createOperation),
-                                            nodeTemplate, hostingContainer);
+                createPropertyToParameterMatching(nodeTemplate, hostingContainer, iface, createOperation), nodeTemplate,
+                hostingContainer);
         return invokeOperation(context, matching, hostingContainer);
     }
-
-
 
     public boolean isProvisionableByContainerPattern(final AbstractNodeTemplate nodeTemplate) {
         // find hosting node
@@ -57,7 +64,8 @@ public class BPELContainerPatternBasedHandler {
             return false;
         }
 
-        if (!hasCompleteMatching(nodeTemplate, hostingNode, getContainerPatternCreateMethod(hostingNode))) {
+        if (!hasCompleteMatching(nodeTemplate, hostingNode, getContainerPatternInterface(hostingNode),
+            getContainerPatternCreateMethod(hostingNode))) {
             return false;
         }
 
@@ -67,10 +75,9 @@ public class BPELContainerPatternBasedHandler {
     private boolean invokeOperation(final BPELPlanContext context, final ConcreteOperationMatching matching,
                                     final AbstractNodeTemplate hostingContainer) {
 
-        return invoker.handle(context, hostingContainer.getId(), true, containerPatternCreateOperationName,
-                              containerPatternInterfaceName, "planCallbackAddress_invoker",
-                              transformForInvoker(matching.inputMatching), transformForInvoker(matching.outputMatching),
-                              BPELScopePhaseType.PROVISIONING);
+        return invoker.handle(context, hostingContainer.getId(), true, matching.operationName, matching.interfaceName,
+            "planCallbackAddress_invoker", transformForInvoker(matching.inputMatching),
+            transformForInvoker(matching.outputMatching), BPELScopePhaseType.PROVISIONING);
     }
 
     private Map<String, Variable> transformForInvoker(final Map<AbstractParameter, Variable> map) {
@@ -83,7 +90,11 @@ public class BPELContainerPatternBasedHandler {
                                                                       final OperationMatching abstractMatching,
                                                                       final AbstractNodeTemplate nodeTemplate,
                                                                       final AbstractNodeTemplate hostingContainer) {
+
         final ConcreteOperationMatching matching = new ConcreteOperationMatching();
+
+        matching.interfaceName = abstractMatching.interfaceName;
+        matching.operationName = abstractMatching.operationName;
 
         for (final AbstractParameter param : abstractMatching.inputMatching.keySet()) {
             boolean added = false;
@@ -129,13 +140,13 @@ public class BPELContainerPatternBasedHandler {
 
     private boolean hasCompleteMatching(final AbstractNodeTemplate nodeTemplate,
                                         final AbstractNodeTemplate hostingContainer,
+        final AbstractInterface ifaceToMatch,
                                         final AbstractOperation operationToMatch) {
 
         final OperationMatching matching =
-            createPropertyToParameterMatching(nodeTemplate, hostingContainer, operationToMatch);
+            createPropertyToParameterMatching(nodeTemplate, hostingContainer, ifaceToMatch, operationToMatch);
 
-        if (matching.inputMatching.size() == operationToMatch.getInputParameters().size()
-            && matching.outputMatching.size() == operationToMatch.getOutputParameters().size()) {
+        if (matching.inputMatching.size() == operationToMatch.getInputParameters().size()) {
             return true;
         }
 
@@ -143,10 +154,13 @@ public class BPELContainerPatternBasedHandler {
     }
 
     private OperationMatching createPropertyToParameterMatching(final AbstractNodeTemplate nodeTemplate,
-                                                                final AbstractNodeTemplate hostingContainer,
+        final AbstractNodeTemplate hostingContainer, final AbstractInterface ifaceToMatch,
                                                                 final AbstractOperation operationToMatch) {
         final OperationMatching matching = new OperationMatching();
 
+        matching.interfaceName = ifaceToMatch.getName();
+        matching.operationName = operationToMatch.getName();
+        
         for (final AbstractParameter param : operationToMatch.getInputParameters()) {
             boolean matched = false;
             for (final String propName : ModelUtils.getPropertyNames(nodeTemplate)) {
@@ -207,8 +221,26 @@ public class BPELContainerPatternBasedHandler {
                     }
                 }
             }
+            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER)) {
+                for (final AbstractOperation op : iface.getOperations()) {
+                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM)) {
+                        return op;
+                    }
+                }
+            }
         }
+        return null;
+    }
 
+    private AbstractInterface getContainerPatternInterface(final AbstractNodeTemplate nodeTemplate) {
+        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+            if (iface.getName().equals(containerPatternInterfaceName)) {
+                return iface;
+            }
+            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER)) {
+                return iface;
+            }
+        }
         return null;
     }
 
