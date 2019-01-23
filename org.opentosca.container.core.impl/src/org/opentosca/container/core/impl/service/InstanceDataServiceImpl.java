@@ -400,9 +400,9 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         // use localparts because serviceInstance QName namespace HAS to be the
         // same as the namespace of the nodeInstance
         final Document propertiesOfNodeTemplate =
-            InstanceDataServiceImpl.toscaEngineService.getPropertiesOfNodeTemplate(csarId, serviceTemplateId,
-                                                                                   nodeTemplateID.getLocalPart()
-                                                                                                 .toString());
+            InstanceDataServiceImpl.toscaEngineService.getPropertiesOfTemplate(csarId, serviceTemplateId,
+                                                                               nodeTemplateID.getLocalPart()
+                                                                                             .toString());
 
         NodeInstance nodeInstance =
             new NodeInstance(nodeTemplateID, nodeTemplateName, nodeTypeOfNodeTemplate, serviceInstance);
@@ -433,15 +433,14 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         // same as the namespace of the nodeInstance
         final QName nodeTypeOfNodeTemplate =
             InstanceDataServiceImpl.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId,
-                                                                                                 serviceTemplateId,
-                                                                                                 relationshipTemplateID.getLocalPart());
+                                                                                                 serviceTemplateId, relationshipTemplateID.getLocalPart());
 
         // use localparts because serviceInstance QName namespace HAS to be the
         // same as the namespace of the nodeInstance
         final Document propertiesOfRelationshipTemplate =
-            InstanceDataServiceImpl.toscaEngineService.getPropertiesOfRelationshipTemplate(csarId, serviceTemplateId,
-                                                                                           relationshipTemplateID.getLocalPart()
-                                                                                                                 .toString());
+            InstanceDataServiceImpl.toscaEngineService.getPropertiesOfTemplate(csarId, serviceTemplateId,
+                                                                               relationshipTemplateID.getLocalPart()
+                                                                                                     .toString());
 
         final NodeInstance sourceInstance = getNodeInstances(URI.create(sourceInstanceId), null, null, null).get(0);
         final NodeInstance targetInstance = getNodeInstances(URI.create(targetInstanceId), null, null, null).get(0);

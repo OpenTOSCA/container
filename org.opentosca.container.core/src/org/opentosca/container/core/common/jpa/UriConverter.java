@@ -19,7 +19,7 @@ public class UriConverter implements Converter {
     @Override
     public Object convertDataValueToObjectValue(final Object arg0, final Session arg1) {
         try {
-            return new URI((String) arg0);
+            return arg0 != null ? new URI((String) arg0) : null;
         }
         catch (final URISyntaxException e) {
             return null;

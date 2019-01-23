@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.bus.management.invocation.plugin.rest.ManagementBusInvocationPluginRest">
+   <implementation class="org.opentosca.bus.management.invocation.plugin.rest.ManagementBusInvocationPluginRest"/>
+   <service>
+      <provide interface="org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService"/>
+   </service>
+</scr:component>

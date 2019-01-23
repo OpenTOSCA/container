@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.opentosca.bus.management.api.soaphttp.route.Route;
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -42,12 +43,13 @@ public class EndpointServiceHandler {
 
             }
             catch (final URISyntaxException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             // Stores the Management Bus endpoint in the endpointDB. "***",
             // cause the MB-endpoint is csar independent.
-            final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, new CSARID("***"), null, null, null);
+            final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+            final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, localContainer, localContainer,
+                new CSARID("***"), null, null, null, null);
             EndpointServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
 
         } else {
