@@ -259,13 +259,6 @@ public class CsarController {
             final List<QName> serviceTemplates =
                 this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId);
             for (final QName serviceTemplate : serviceTemplates) {
-                logger.info("Invoke IA deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                            csarId.getFileName());
-                if (!this.controlService.invokeIADeployment(csarId, serviceTemplate)) {
-                    logger.error("Error deploying IA for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                                 csarId.getFileName());
-                    success = false;
-                }
                 logger.info("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
                             csarId.getFileName());
                 if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {

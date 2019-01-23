@@ -1,7 +1,6 @@
 package org.opentosca.bus.management.servicehandler;
 
 import org.opentosca.container.core.engine.IToscaEngineService;
-import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.IInstanceDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +11,8 @@ import org.slf4j.LoggerFactory;
  *
  *
  *
- * @see IManagementBusPluginService
  * @see IToscaEngineService
- * @see ICoreEndpointService
+ * @see IInstanceDataService
  *
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  *

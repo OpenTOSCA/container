@@ -164,7 +164,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         String correlationID;
         // build plan, thus, faked instance id that has to be replaced later
         /**
-         * TODO this is a hack! problem is, that the instance id of a service template is created by @see
+         * TODO this is a hack! problem is, that the instance id of a service template is created
+         * by @see
          * {@link org.opentosca.containerapi.resources.csar.servicetemplate.instances.ServiceTemplateInstancesResource#createServiceInstance()}
          * , thus, we do not know it yet and have to correct it later with
          *
@@ -523,7 +524,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
             for (final String nodeTemplate : nodeTemplates) {
                 final Document doc =
-                    ServiceProxy.toscaEngineService.getPropertiesOfNodeTemplate(csarID, serviceTemplate, nodeTemplate);
+                    ServiceProxy.toscaEngineService.getPropertiesOfTemplate(csarID, serviceTemplate, nodeTemplate);
                 if (null != doc) {
                     docs.add(doc);
                     this.LOG.trace("Found property document: {}",
@@ -592,8 +593,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     }
 
     /**
-     * Receives events of the topic list org_opentosca_plans/response. This method handles responses of
-     * BPEL-plans.
+     * Receives events of the topic list org_opentosca_plans/response. This method handles responses
+     * of BPEL-plans.
      */
     @Override
     public void handleEvent(final Event eve) {

@@ -2,7 +2,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.opentoscacontrol.servicebindingtracking.ServiceBindingTracker">
    <implementation class="org.opentosca.container.control.ServiceBindingTracker"/>
    <reference bind="bindICoreCapabilityService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreCapabilityService" name="ICoreCapabilityService" policy="static" unbind="unbindICoreCapabilityService"/>
-   <reference bind="bindIIAEngineService" cardinality="1..1" interface="org.opentosca.container.engine.ia.IIAEngineService" name="IIAEngineService" policy="static" unbind="unbindIIAEngineService"/>
    <reference bind="bindICoreDeploymentTrackerService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreDeploymentTrackerService" name="ICoreDeploymentTrackerService" policy="static" unbind="unbindICoreDeploymentTrackerService"/>
    <reference bind="bindICoreEndpointService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreEndpointService" name="ICoreEndpointService" policy="static" unbind="unbindICoreEndpointService"/>
    <reference bind="bindICoreFileService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreFileService" name="ICoreFileService" policy="static" unbind="unbindICoreFileService"/>

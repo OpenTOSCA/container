@@ -12,7 +12,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
-import org.apache.camel.ExchangePattern;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultExchange;
 import org.opentosca.bus.management.header.MBHeader;
@@ -24,17 +23,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * EventHandler of the Management Bus-OSGiEvent-API.<br>
+ * EventHandler of the Management Bus-OSGi-Event-API.<br>
  * <br>
  *
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
- * Handles the events (receive and sent) of the Management Bus-OSGiEvent-API.
+ * Handles the events (receive and sent) of the Management Bus-OSGi-Event-API.
  *
  *
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
+ * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
  *
  */
 public class MBEventHandler implements EventHandler {
@@ -42,58 +42,51 @@ public class MBEventHandler implements EventHandler {
     private static final String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
     private static final String BPELNS = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 
-    private static Logger logger = LoggerFactory.getLogger(MBEventHandler.class);
+    private static Logger LOG = LoggerFactory.getLogger(MBEventHandler.class);
 
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
     private EventAdmin eventAdmin;
-
 
     @Override
     public void handleEvent(final Event event) {
 
         // Handle plan invoke requests
         if ("org_opentosca_plans/requests".equals(event.getTopic())) {
-            logger.debug("Process event of topic \"org_opentosca_plans/requests\".");
+            MBEventHandler.LOG.debug("Process event of topic \"org_opentosca_plans/requests\".");
 
             final CSARID csarID = (CSARID) event.getProperty("CSARID");
             final QName planID = (QName) event.getProperty("PLANID");
             final String planLanguage = (String) event.getProperty("PLANLANGUAGE");
 
-            // BPEL
-            if (planLanguage.startsWith(BPELNS)) {
+            if (planLanguage.startsWith(BPMNNS) || planLanguage.startsWith(BPELNS)) {
+                MBEventHandler.LOG.debug("Plan invocation with plan language: {}", planLanguage);
 
-                // Should be of type Document or HashMap<String, String>. Maybe
-                // better handle them with different topics.
-                final Object message = event.getProperty("BODY");
-
-                // Needed if message is of type HashMap
                 final String operationName = (String) event.getProperty("OPERATIONNAME");
-
-                // Optional parameter if message is of type HashMap. Not needed
-                // for
-                // Document.
-                final String serviceInstanceID = (String) event.getProperty("SERVICEINSTANCEID");
-
-                // If set the invocation will be asynchronous. Otherwise
-                // synchronous.
                 final String messageID = (String) event.getProperty("MESSAGEID");
                 final boolean async = (boolean) event.getProperty("ASYNC");
 
+                MBEventHandler.LOG.debug("Plan invocation is asynchronous: {}", async);
+
+                // Should be of type Document or HashMap<String, String>. Maybe better handle them
+                // with different topics.
+                final Object message = event.getProperty("BODY");
+
+                // create the headers for the Exchange which is send to the Management Bus
                 final Map<String, Object> headers = new HashMap<>();
                 headers.put(MBHeader.CSARID.toString(), csarID);
                 headers.put(MBHeader.PLANID_QNAME.toString(), planID);
-                headers.put("OPERATION", "invokePlan");
+                headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
+                headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), messageID);
+                headers.put("OPERATION", OsgiEventOperations.INVOKE_PLAN.getHeaderValue());
                 headers.put("PlanLanguage", planLanguage);
 
-                if (async) {
-                    logger.debug("Invocation is asynchronous.");
-                    headers.put("MessageID", messageID);
-                } else {
-                    logger.debug("Invocation is synchronous.");
-                }
+                // Optional parameter if message is of type HashMap. Not needed for Document.
+                final String serviceInstanceID = (String) event.getProperty("SERVICEINSTANCEID");
 
                 if (message instanceof HashMap) {
+                    MBEventHandler.LOG.debug("Invocation body is of type HashMap.");
+
                     if (serviceInstanceID != null) {
                         URI serviceInstanceURI;
                         try {
@@ -101,22 +94,23 @@ public class MBEventHandler implements EventHandler {
                             headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
                         }
                         catch (final URISyntaxException e) {
-                            logger.warn("Could not generate service instance URL: {}", e.getMessage(), e);
+                            MBEventHandler.LOG.warn("Could not generate service instance URL: {}", e.getMessage(), e);
                         }
+                    } else {
+                        MBEventHandler.LOG.warn("Service instance ID is null.");
                     }
-
-                    if (operationName != null) {
-                        headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
-                    }
+                } else {
+                    MBEventHandler.LOG.warn("Invocation body is of type: {}", message.getClass());
                 }
 
-                logger.debug("Sending message {}", message);
-
+                // templates to communicate with the Management Bus
                 final ProducerTemplate template = Activator.camelContext.createProducerTemplate();
                 final ConsumerTemplate consumer = Activator.camelContext.createConsumerTemplate();
 
-                logger.debug("Send request with correlation id {}.", messageID);
+                MBEventHandler.LOG.debug("Correlation id: {}", messageID);
+                MBEventHandler.LOG.debug("Sending message {}", message);
 
+                // forward request to the Management Bus
                 final Exchange requestExchange = new DefaultExchange(Activator.camelContext);
                 requestExchange.getIn().setBody(message);
                 requestExchange.getIn().setHeaders(headers);
@@ -125,119 +119,20 @@ public class MBEventHandler implements EventHandler {
                 // Threaded reception of response
                 this.executor.submit(() -> {
 
-                    Object response;
-                    String callbackMessageID;
-
-                    try {
-
-                        consumer.start();
-                        final Exchange exchange = consumer.receive("direct:response" + messageID);
-                        response = exchange.getIn().getBody();
-                        callbackMessageID = exchange.getIn().getMessageId();
-                        consumer.stop();
-                    }
-                    catch (final Exception e) {
-                        logger.error("Error occured: {}", e.getMessage(), e);
-                        return;
-                    }
-
-                    logger.debug("Received response with correlation id {}.", callbackMessageID);
-
-                    final Map<String, Object> responseMap = new HashMap<>();
-                    responseMap.put("RESPONSE", response);
-                    responseMap.put("MESSAGEID", messageID);
-                    final Event responseEvent = new Event("org_opentosca_plans/responses", responseMap);
-
-                    logger.debug("Posting response.");
-                    this.eventAdmin.postEvent(responseEvent);
-                });
-            }
-
-            // BPMN
-            else if (planLanguage.startsWith(BPMNNS)) {
-                logger.debug("Process a BPMN call.");
-
-                // Should be of type Document or HashMap<String, String>. Maybe
-                // better handle them with different topics.
-                final Object message = event.getProperty("BODY");
-
-                // Needed if message is of type HashMap
-                final String operationName = (String) event.getProperty("OPERATIONNAME");
-
-                // Optional parameter if message is of type HashMap. Not needed
-                // for
-                // Document.
-                final String serviceInstanceID = (String) event.getProperty("SERVICEINSTANCEID");
-
-                // If set the invocation will be asynchronous. Otherwise
-                // synchronous.
-                final String messageID = (String) event.getProperty("MESSAGEID");
-                final boolean async = (boolean) event.getProperty("ASYNC");
-
-                final Map<String, Object> headers = new HashMap<>();
-                headers.put(MBHeader.CSARID.toString(), csarID);
-                headers.put(MBHeader.PLANID_QNAME.toString(), planID);
-                headers.put("OPERATION", "invokePlan");
-                headers.put("PlanLanguage", planLanguage);
-
-                if (async) {
-                    logger.debug("Invocation is asynchronous.");
-                    headers.put("MessageID", messageID);
-                } else {
-                    logger.debug("Invocation is synchronous.");
-                }
-
-                if (message instanceof HashMap) {
-                    if (serviceInstanceID != null) {
-                        URI serviceInstanceURI;
-                        try {
-                            serviceInstanceURI = new URI(serviceInstanceID);
-                            headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
-                        }
-                        catch (final URISyntaxException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        logger.warn("Service instance ID is null.");
-                    }
-
-                    if (operationName != null) {
-                        headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
-                    } else {
-                        logger.warn("Operation name is null.");
-                    }
-                } else {
-                    logger.warn("The message is no Hashmap.");
-                }
-
-                logger.debug("Sending message {}", message);
-
-                final ProducerTemplate template = Activator.camelContext.createProducerTemplate();
-                final ConsumerTemplate consumer = Activator.camelContext.createConsumerTemplate();
-
-                logger.debug("Send request with correlation id {}.", messageID);
-
-                template.sendBodyAndHeaders("direct:invoke", ExchangePattern.InOnly, message, headers);
-
-                // Threaded reception of response
-                this.executor.submit(() -> {
-
-                    Object response;
-                    String callbackMessageID;
+                    Object response = null;
 
                     try {
                         consumer.start();
                         final Exchange exchange = consumer.receive("direct:response" + messageID);
                         response = exchange.getIn().getBody();
-                        callbackMessageID = exchange.getIn().getMessageId();
                         consumer.stop();
                     }
                     catch (final Exception e) {
-                        logger.error("Error occured: {}", e.getMessage(), e);
+                        MBEventHandler.LOG.error("Error occured: {}", e.getMessage(), e);
                         return;
                     }
 
-                    logger.debug("Received response with correlation id {}.", callbackMessageID);
+                    MBEventHandler.LOG.debug("Received response for request with id {}.", messageID);
 
                     final Map<String, Object> responseMap = new HashMap<>();
                     responseMap.put("RESPONSE", response);
@@ -245,20 +140,23 @@ public class MBEventHandler implements EventHandler {
                     responseMap.put("PLANLANGUAGE", planLanguage);
                     final Event responseEvent = new Event("org_opentosca_plans/responses", responseMap);
 
-                    logger.debug("Posting response.");
+                    MBEventHandler.LOG.debug("Posting response as OSGi event.");
                     this.eventAdmin.postEvent(responseEvent);
                 });
+
+            } else {
+                MBEventHandler.LOG.warn("Unsupported plan language: {}", planLanguage);
             }
         }
 
         // Handle IA invoke requests
         if ("org_opentosca_ia/requests".equals(event.getTopic())) {
-            logger.debug("Process event of topic \"org_opentosca_ia/requests\".");
+            MBEventHandler.LOG.debug("Process event of topic \"org_opentosca_ia/requests\".");
 
             // TODO when needed.
+            // Adapt 'MBEventHandler - component.xml' to receive messages from this topic too...
 
         }
-
     }
 
     public void bindEventAdmin(final EventAdmin eventAdmin) {

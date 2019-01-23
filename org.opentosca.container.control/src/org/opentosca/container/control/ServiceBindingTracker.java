@@ -23,7 +23,6 @@ import org.opentosca.container.core.service.internal.ICoreInternalDeploymentTrac
 import org.opentosca.container.core.service.internal.ICoreInternalEndpointService;
 import org.opentosca.container.core.service.internal.ICoreInternalFileService;
 import org.opentosca.container.core.service.internal.ICoreInternalModelRepositoryService;
-import org.opentosca.container.engine.ia.IIAEngineService;
 import org.opentosca.container.engine.plan.IPlanEngineService;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -36,7 +35,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceBindingTracker {
 
-    IIAEngineService iaEngineService;
     ICoreCapabilityService coreCapabilityService;
     ICoreDeploymentTrackerService coreDeploymentTrackerService;
     ICoreEndpointService coreEndpointService;
@@ -61,8 +59,8 @@ public class ServiceBindingTracker {
 
 
     /**
-     * Checks if all services defined by this class are bound. If all are bound there is a log output
-     * saying that the container is ready for use.
+     * Checks if all services defined by this class are bound. If all are bound there is a log
+     * output saying that the container is ready for use.
      */
     private void checkAvailability() {
 
@@ -103,7 +101,6 @@ public class ServiceBindingTracker {
 
             for (final QName serviceTemplateID : this.toscaEngineService.getToscaReferenceMapper()
                                                                         .getServiceTemplateIDsContainedInCSAR(csarID)) {
-                this.openToscaControlService.invokeIADeployment(csarID, serviceTemplateID);
                 this.openToscaControlService.invokePlanDeployment(csarID, serviceTemplateID);
             }
         }
@@ -115,28 +112,6 @@ public class ServiceBindingTracker {
         this.LOG.info("########################### The OpenTOSCA Container is ready for use! ###########################");
         this.LOG.info("#################################################################################################");
         this.LOG.info("#################################################################################################");
-    }
-
-    /**
-     * Bind method for a service.
-     *
-     * @param service The service to bind.
-     */
-    protected void bindIIAEngineService(final IIAEngineService service) {
-        if (service == null) {
-            this.LOG.error("Service IIAEngineService is null.");
-        } else {
-            this.LOG.debug("Bind of the IIAEngineService.");
-            this.iaEngineService = service;
-            log_online(service.getClass().getSimpleName());
-            checkAvailability();
-        }
-    }
-
-    protected void unbindIIAEngineService(final IIAEngineService service) {
-        this.LOG.debug("Unbind of the IIAEngineService.");
-        this.iaEngineService = null;
-        log_offline(service.getClass().getSimpleName());
     }
 
     /**

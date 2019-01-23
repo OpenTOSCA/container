@@ -5,8 +5,17 @@ Bundle-SymbolicName: org.opentosca.bus.management.service.impl
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.camel;version="2.10.4",
+ org.apache.camel.builder;version="2.10.4",
+ org.apache.camel.component.direct;version="2.10.4",
+ org.apache.camel.component.mqtt;version="2.10.4",
+ org.apache.camel.converter.jaxb;version="2.10.4",
  org.apache.camel.core.osgi;version="2.10.4",
  org.apache.camel.impl;version="2.10.4",
+ org.apache.camel.model;version="2.10.4",
+ org.apache.camel.spi;version="2.10.4",
+ org.apache.commons.io;version="2.2.0",
+ org.apache.commons.lang3;version="3.1.0",
+ org.opentosca.bus.management.invocation.plugin.script,
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.6.4"
 Bundle-Activator: org.opentosca.bus.management.service.impl.Activator
@@ -14,6 +23,11 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.container.core.tosca;bundle-version="1.0.0",
  org.opentosca.bus.management;bundle-version="1.0.0",
  org.opentosca.bus.management.service;bundle-version="1.0.0",
- org.opentosca.bus.management.plugins.service;bundle-version="1.0.0"
+ org.opentosca.bus.management.invocation.plugin;bundle-version="1.0.0",
+ org.opentosca.bus.management.deployment.plugin;bundle-version="1.0.0",
+ org.apache.camel.camel-core
+Export-Package: org.opentosca.bus.management.service.impl,
+ org.opentosca.bus.management.service.impl.collaboration,
+ org.opentosca.bus.management.service.impl.collaboration.model
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*

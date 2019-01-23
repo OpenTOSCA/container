@@ -282,7 +282,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                     if (plugin == null) {
                         PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
                                                                      nodeTemplate.getId());
-                        final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate);
+                        final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate, this.opNames);
                         if (chain == null) {
                             PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}",
                                                                         nodeTemplate.getId());
@@ -312,7 +312,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                     if (policyPlugin == null) {
                         PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
                                                                      nodeTemplate.getId());
-                        final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate);
+                        final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate, this.opNames);
                         if (chain == null) {
                             PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}",
                                                                         nodeTemplate.getId());

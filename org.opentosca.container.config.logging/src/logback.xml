@@ -31,5 +31,9 @@
   <logger name="httpclient.wire" level="WARN" />
   <logger name="com.predic8" level="WARN" />
   <logger name="org.apache.cxf.services" level="WARN" />
+  <logger name="io.moquette" level="ERROR" />
+  <logger name="io.moquette.persistence" level="OFF" />
+  <logger name="io.netty" level="ERROR" />
+  <logger name="messageLogger" level="ERROR" />
 
 </configuration>
