@@ -200,66 +200,6 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         return errors;
     }
 
-    public void bindToscaEngineService(IToscaEngineService service) {
-        LOGGER.debug("Binding ToscaEngineService");
-        toscaEngine = service;
-    }
-    
-    public void unbindToscaEngineService(IToscaEngineService service) {
-        LOGGER.debug("Unbinding ToscaEngineService");
-        toscaEngine = null;
-    }
-    
-    public void bindCoreDeploymentTrackerService(DeploymentTracker service) {
-        LOGGER.debug("Binding CoreDeploymentTrackerService");
-        deploymentTracker = service;
-    }
-    
-    public void unbindCoreDeploymentTrackerService(DeploymentTracker service) {
-        LOGGER.debug("Unbinding CoreDeploymentTrackerService");
-        deploymentTracker = null;
-    }
-    
-    public void bindPlanEngineService(IPlanEngineService service) {
-        LOGGER.debug("Binding PlanEngineService");
-        planEngine = service;
-    }
-    
-    public void unbindPlanEngineService(IPlanEngineService service) {
-        LOGGER.debug("Unbinding PlanEngineService");
-        planEngine = null;
-    }
-    
-    public void bindPlanInvocationEngine(IPlanInvocationEngine service) {
-        LOGGER.debug("Binding PlanInvocationEngine");
-        planInvocationEngine = service;
-    }
-    
-    public void unbindPlanInvocationEngine(IPlanInvocationEngine service) {
-        LOGGER.debug("Unbinding PlanInvocationEngine");
-        planInvocationEngine = null;
-    }
-    
-    public void bindCsarStorageService(CsarStorageService service) {
-        LOGGER.debug("Binding CsarStorageService");
-        storage = service;
-    }
-    
-    public void unbindCsarStorageService(CsarStorageService service) {
-        LOGGER.debug("Unbinding CsarStorageService");
-        storage = null;
-    }
-    
-    public void bindInstanceManagementService(ICSARInstanceManagementService service) {
-        LOGGER.debug("Binding InstanceManagementService");
-        instanceManagement = service;
-    }
-    
-    public void unbindInstanceManagementService(ICSARInstanceManagementService service) {
-        LOGGER.debug("Unbinding InstanceManagementService");
-        instanceManagement = null;
-    }
-
     @Override
     public boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate) {
         deploymentTracker.storeDeploymentState(csar, PLAN_DEPLOYMENT_ACTIVE);
@@ -332,6 +272,68 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         return storage.findById(csarid).serviceTemplates().stream()
             .map(TServiceTemplate::getId)
             .map(QName::new).collect(Collectors.toList());
+    }
+    
+    
+    
+    public void bindToscaEngineService(IToscaEngineService service) {
+        LOGGER.debug("Binding ToscaEngineService");
+        toscaEngine = service;
+    }
+    
+    public void unbindToscaEngineService(IToscaEngineService service) {
+        LOGGER.debug("Unbinding ToscaEngineService");
+        toscaEngine = null;
+    }
+    
+    public void bindCoreDeploymentTrackerService(DeploymentTracker service) {
+        LOGGER.debug("Binding CoreDeploymentTrackerService");
+        deploymentTracker = service;
+    }
+    
+    public void unbindCoreDeploymentTrackerService(DeploymentTracker service) {
+        LOGGER.debug("Unbinding CoreDeploymentTrackerService");
+        deploymentTracker = null;
+    }
+    
+    public void bindPlanEngineService(IPlanEngineService service) {
+        LOGGER.debug("Binding PlanEngineService");
+        planEngine = service;
+    }
+    
+    public void unbindPlanEngineService(IPlanEngineService service) {
+        LOGGER.debug("Unbinding PlanEngineService");
+        planEngine = null;
+    }
+    
+    public void bindPlanInvocationEngine(IPlanInvocationEngine service) {
+        LOGGER.debug("Binding PlanInvocationEngine");
+        planInvocationEngine = service;
+    }
+    
+    public void unbindPlanInvocationEngine(IPlanInvocationEngine service) {
+        LOGGER.debug("Unbinding PlanInvocationEngine");
+        planInvocationEngine = null;
+    }
+    
+    public void bindCsarStorageService(CsarStorageService service) {
+        LOGGER.debug("Binding CsarStorageService");
+        storage = service;
+    }
+    
+    public void unbindCsarStorageService(CsarStorageService service) {
+        LOGGER.debug("Unbinding CsarStorageService");
+        storage = null;
+    }
+    
+    public void bindInstanceManagementService(ICSARInstanceManagementService service) {
+        LOGGER.debug("Binding InstanceManagementService");
+        instanceManagement = service;
+    }
+    
+    public void unbindInstanceManagementService(ICSARInstanceManagementService service) {
+        LOGGER.debug("Unbinding InstanceManagementService");
+        instanceManagement = null;
     }
 }
 

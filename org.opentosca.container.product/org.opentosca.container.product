@@ -143,7 +143,7 @@
       <plugin id="org.opentosca.container.connector.bps" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.connector.ode" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.connector.winery" autoStart="true" startLevel="0" />
-      <plugin id="org.opentosca.container.control" autoStart="true" startLevel="6" />
+      <plugin id="org.opentosca.container.control" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.container.core" autoStart="true" startLevel="3" />
       <plugin id="org.opentosca.container.core.tosca" autoStart="true" startLevel="3" />
       <plugin id="org.opentosca.container.engine.plan" autoStart="true" startLevel="4" />
