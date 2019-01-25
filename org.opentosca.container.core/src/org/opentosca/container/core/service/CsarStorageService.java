@@ -5,11 +5,13 @@ import java.nio.file.Path;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 
+@NonNullByDefault
 public interface CsarStorageService {
 
     /**

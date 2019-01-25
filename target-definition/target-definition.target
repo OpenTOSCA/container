@@ -966,5 +966,22 @@
 	<plugin id="io.moquette.broker"/>
 	<plugin id="com.bugsnag"/>
 	<plugin id="org.apache.camel.camel-mqtt"/>
+	<plugin id="org.fusesource.hawtdispatch.hawtdispatch"/>
+	<plugin id="org.fusesource.hawtbuf.hawtbuf"/>
+	<plugin id="org.fusesource.mqtt-client.mqtt-client"/>
+	<plugin id="org.fusesource.hawtdispatch.hawtdispatch-transport"/>
+	<plugin id="com.hazelcast"/>
+	<plugin id="com.librato.metrics.librato"/>
+	<plugin id="io.dropwizard.metrics.core"/>
+	<plugin id="io.netty.buffer"/>
+	<plugin id="io.netty.codec-http"/>
+	<plugin id="io.netty.codec"/>
+	<plugin id="io.netty.codec-mqtt"/>
+	<plugin id="io.netty.common"/>
+	<plugin id="io.netty.handler"/>
+	<plugin id="io.netty.resolver"/>
+	<plugin id="io.netty.transport-native-epoll"/>
+	<plugin id="io.netty.transport"/>
+	<plugin id="io.netty.transport-native-unix-common"/>
 </includeBundles>
 </target>

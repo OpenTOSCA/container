@@ -39,7 +39,7 @@
       <import plugin="org.opentosca.bus.application.plugin.service" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.equinox.supplement"/>
       <import plugin="org.opentosca.bus.management" version="2.0.0" match="greaterOrEqual"/>
-      <import plugin="org.opentosca.bus.management.plugins.service" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.opentosca.bus.management.invocation.plugin" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="javax.persistence" version="2.1.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.persistence.core" version="2.6.3" match="greaterOrEqual"/>
       <import plugin="org.h2" version="1.3.168" match="greaterOrEqual"/>
