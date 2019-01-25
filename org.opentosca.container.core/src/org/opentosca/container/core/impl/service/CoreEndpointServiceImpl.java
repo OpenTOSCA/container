@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.xml.namespace.QName;
@@ -50,7 +51,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
          *
          * @see WSDLEndpoint#getWSDLEndpointByPortTyp
          */
-        final Query getWSDLEndpointsQuery = this.em.createNamedQuery(WSDLEndpoint.getWSDLEndpointByPortType);
+        final TypedQuery<WSDLEndpoint> getWSDLEndpointsQuery = em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId and e.PortType = :portType", WSDLEndpoint.class);
 
         // Set Parameters for the Query
         getWSDLEndpointsQuery.setParameter("portType", portType);
@@ -58,9 +59,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
         getWSDLEndpointsQuery.setParameter("csarId", csarId);
 
         // Get Query-Results (WSDLEndpoints) and add them to the result list.
-        final
-        // Result can only be a WSDLEndpoint
-        List<WSDLEndpoint> queryResults = getWSDLEndpointsQuery.getResultList();
+        final List<WSDLEndpoint> queryResults = getWSDLEndpointsQuery.getResultList();
         for (final WSDLEndpoint endpoint : queryResults) {
             results.add(endpoint);
         }
@@ -72,9 +71,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
         getWSDLEndpointsQuery.setParameter("csarId", new CsarId(""));
 
         // Get Query-Results (WSDLEndpoints) and add them to the result list.
-        final
-        // Result can only be a WSDLEndpoint
-        List<WSDLEndpoint> queryResults2 = getWSDLEndpointsQuery.getResultList();
+        final List<WSDLEndpoint> queryResults2 = getWSDLEndpointsQuery.getResultList();
         for (final WSDLEndpoint endpoint : queryResults2) {
             results.add(endpoint);
         }
@@ -110,8 +107,20 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
      * @return true, if the Endpoint already exists.
      */
     private boolean existsWSDLEndpoint(final WSDLEndpoint endpoint) {
-        WSDLEndpoint databaseResult = em.find(WSDLEndpoint.class, endpoint);
-        return databaseResult != null;
+        TypedQuery<WSDLEndpoint> findQuery = em.createQuery("SELECT e from WSDLEndpoint e where e.PortType = :portType and e.csarId = :csarId and e.managingContainer = :managingContainer and e.serviceTemplateInstanceID = :serviceTemplateInstanceID", WSDLEndpoint.class);
+        findQuery.setParameter("portType", endpoint.getPortType());
+        findQuery.setParameter("csarId", endpoint.getCsarId());
+        findQuery.setParameter("managingContainer", endpoint.getManagingContainer());
+        findQuery.setParameter("serviceTemplateInstanceID", endpoint.getServiceTemplateInstanceID());
+        
+        try {
+            @SuppressWarnings("unused")
+            WSDLEndpoint dbResult = findQuery.getSingleResult();
+            return true;
+        } catch (NoResultException | NonUniqueResultException umm) {
+            // maybe return true if result is not unique?
+            return false;
+        }
     }
 
     @Override
@@ -126,7 +135,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
          *
          * @see RESTEndpoint#getEndpointForPath
          **/
-        final Query getRestEndpointsQuery = this.em.createNamedQuery(RESTEndpoint.getEndpointForPath);
+        final TypedQuery<RESTEndpoint> getRestEndpointsQuery = this.em.createNamedQuery(RESTEndpoint.getEndpointForPath, RESTEndpoint.class);
 
         // Set Parameters
         getRestEndpointsQuery.setParameter("path", anyURI.getPath());
@@ -153,7 +162,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
          *
          * @see RESTEndpoint#getEndpointForPathAndMethod
          */
-        final Query getRestEndpointQuery = this.em.createNamedQuery(RESTEndpoint.getEndpointForPathAndMethod);
+        final TypedQuery<RESTEndpoint> getRestEndpointQuery = this.em.createNamedQuery(RESTEndpoint.getEndpointForPathAndMethod, RESTEndpoint.class);
 
         // Set parameters
         getRestEndpointQuery.setParameter("path", anyURI.getPath());
@@ -163,7 +172,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
 
         // As a RESTEndpoint identified by URI, RestMethod and thorID
         // is unique, we only return one result (there cannot be more)
-        return (RESTEndpoint) getRestEndpointQuery.getSingleResult();
+        return getRestEndpointQuery.getSingleResult();
     }
 
     @Override
@@ -250,7 +259,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
 
     public void _endpoint_show_rest(final CommandInterpreter commandInterpreter) {
 
-        final Query query = this.em.createQuery("SELECT e FROM RESTEndpoint e");
+        final TypedQuery<RESTEndpoint> query = this.em.createQuery("SELECT e FROM RESTEndpoint e", RESTEndpoint.class);
         final List<RESTEndpoint> queryResults = query.getResultList();
         for (final RESTEndpoint e : queryResults) {
             commandInterpreter.println("SeriviceTemplateID: " + e.getCsarId() + " URI: " + e.getURI());
@@ -259,7 +268,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     }
 
     public void _endpoint_show_wsdl(final CommandInterpreter commandInterpreter) {
-        final Query query = this.em.createQuery("SELECT e FROM WSDLEndpoint e");
+        final TypedQuery<WSDLEndpoint> query = this.em.createQuery("SELECT e FROM WSDLEndpoint e", WSDLEndpoint.class);
         final List<WSDLEndpoint> queryResults = query.getResultList();
         for (final WSDLEndpoint e : queryResults) {
             commandInterpreter.println("CSARId: " + e.getCsarId());
@@ -278,14 +287,13 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     @Override
     public WSDLEndpoint getWSDLEndpointForPlanId(String triggeringContainer, final CsarId csarId, final QName planId) {
         WSDLEndpoint endpoint = null;
-        final Query queryWSDLEndpoint = this.em
-                .createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.PlanId = :planId and e.triggeringContainer = :triggeringContainer");
+        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.PlanId = :planId and e.triggeringContainer = :triggeringContainer", WSDLEndpoint.class);
         queryWSDLEndpoint.setParameter("csarId", csarId);
         queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
         queryWSDLEndpoint.setParameter("planId", planId);
 
         try {
-            endpoint = (WSDLEndpoint) queryWSDLEndpoint.getSingleResult();
+            endpoint = queryWSDLEndpoint.getSingleResult();
         } catch (final NoResultException e) {
             LOG.error("Query in database didn't return a result", e);
             return null;
@@ -297,8 +305,8 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     @Override
     public WSDLEndpoint getWSDLEndpointForIa(final CsarId csarId, final QName nodeTypeImpl, final String iaName) {
         WSDLEndpoint endpoint = null;
-        final Query queryWSDLEndpoint = this.em.createQuery(
-                "SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl");
+        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = em.createQuery(
+                "SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl", WSDLEndpoint.class);
         queryWSDLEndpoint.setParameter("csarId", csarId);
         queryWSDLEndpoint.setParameter("IaName", iaName);
         queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
@@ -313,8 +321,8 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
 
     @Override
     public List<WSDLEndpoint> getWSDLEndpointsForCsarId(String triggeringContainer, final CsarId csarId) {
-        final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
-        final Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.triggeringContainer = :triggeringContainer");
+        final List<WSDLEndpoint> endpoints = new ArrayList<>();
+        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.triggeringContainer = :triggeringContainer", WSDLEndpoint.class);
         queryWSDLEndpoint.setParameter("csarId", csarId);
         queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
 
@@ -328,9 +336,9 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
 
     @Override
     public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(String triggeringContainer, String managingContainer, final QName nodeTypeImpl, final String iaName) {
-        final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
-        final Query queryWSDLEndpoint = this.em.createQuery(
-                "SELECT e FROM WSDLEndpoint e where e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl and e.triggeringContainer = :triggeringContainer and e.managingContainer = :managingContainer");
+        final List<WSDLEndpoint> endpoints = new ArrayList<>();
+        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery(
+                "SELECT e FROM WSDLEndpoint e where e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl and e.triggeringContainer = :triggeringContainer and e.managingContainer = :managingContainer", WSDLEndpoint.class);
         queryWSDLEndpoint.setParameter("IaName", iaName);
         queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
         queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
@@ -346,8 +354,8 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
 
     @Override
     public List<WSDLEndpoint> getWSDLEndpoints() {
-        final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
-        final Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e");
+        final List<WSDLEndpoint> endpoints = new ArrayList<>();
+        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e", WSDLEndpoint.class);
 
         final List<WSDLEndpoint> queryResults = queryWSDLEndpoint.getResultList();
         for (final WSDLEndpoint endpoint : queryResults) {
@@ -360,7 +368,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     @Override
     public void printPlanEndpoints() {
         List<WSDLEndpoint> endpoints = null;
-        final Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e");
+        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e", WSDLEndpoint.class);
 
         endpoints = queryWSDLEndpoint.getResultList();
 
@@ -392,7 +400,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
 
     @Override
     public List<WSDLEndpoint> getWSDLEndpointsForSTID(String triggeringContainer, Long serviceTemplateInstanceID) {
-        final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
+        final List<WSDLEndpoint> endpoints = new ArrayList<>();
         final TypedQuery<WSDLEndpoint> queryWSDLEndpoint =
             this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.serviceTemplateInstanceID= :serviceTemplateInstanceID", WSDLEndpoint.class);
         queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);

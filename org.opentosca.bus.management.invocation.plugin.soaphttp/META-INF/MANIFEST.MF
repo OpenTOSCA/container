@@ -31,5 +31,3 @@ Import-Package: com.predic8.schema,
  org.slf4j;version="1.7.5"
 Service-Component: OSGI-INF/*
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.apache.camel.camel-http-common;bundle-version="2.18.3",
- org.apache.camel.camel-jetty9;bundle-version="2.18.3"
