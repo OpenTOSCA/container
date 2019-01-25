@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="ContainerApi.IFileAccessService">
-   <implementation class="org.opentosca.container.api.legacy.osgi.servicegetter.FileAccessServiceHandler"/>
-   <reference bind="bind" cardinality="1..1" interface="org.opentosca.container.core.service.IFileAccessService" name="IFileAccessService" policy="static" unbind="unbind"/>
-</scr:component>
