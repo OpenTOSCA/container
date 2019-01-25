@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.opentosca.broker.mqtt
 Bundle-SymbolicName: org.opentosca.broker.mqtt
+Automatic-Module-Name: org.opentosca.broker.mqtt
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

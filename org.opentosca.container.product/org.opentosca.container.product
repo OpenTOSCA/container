@@ -3,7 +3,6 @@
 
 <product name="OpenTOSCA Container" uid="org.opentosca.container.product" id="org.opentosca.container.application.product" application="org.opentosca.container.application.app" version="2.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
-
    <configIni use="default">
    </configIni>
 
@@ -26,7 +25,6 @@
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
       <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</linux>

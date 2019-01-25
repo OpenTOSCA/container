@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Monitoring Post Phase Plugin
 Bundle-SymbolicName: org.opentosca.planbuilder.postphase.plugin.monitoring
+Automatic-Module-Name: org.opentosca.planbuilder.postphase.plugin.monitoring
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;version="2.2.0",
