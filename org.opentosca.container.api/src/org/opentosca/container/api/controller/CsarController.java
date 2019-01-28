@@ -1,8 +1,10 @@
 package org.opentosca.container.api.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.List;
@@ -139,7 +141,6 @@ public class CsarController {
         return Response.ok(csar).build();
     }
 
-
     @Path("/{csar}/content")
     @ApiOperation(hidden = true, value = "")
     public DirectoryController getContent(@PathParam("csar") final String id) {
@@ -209,44 +210,6 @@ public class CsarController {
             return Response.serverError().build();
         }
 
-        this.controlService.invokeTOSCAProcessing(csarId);
-
-        try {
-
-            if (ModelUtil.hasOpenRequirements(csarId, this.engineService)) {
-                final WineryConnector wc = new WineryConnector();
-                if (wc.isWineryRepositoryAvailable()) {
-                    final QName serviceTemplate = wc.uploadCSAR(file, true);
-                    this.controlService.deleteCSAR(csarId);
-                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
-                        + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
-                } else {
-                    logger.error("CSAR has open requirments but Winery repository is not available");
-                    try {
-                        this.fileService.deleteCSAR(csarId);
-                    }
-                    catch (final Exception e) {
-                        // Ignore
-                        logger.error("Error deleting csar after open requirements check: {}", e.getMessage(), e);
-                    }
-                    return Response.serverError().build();
-                }
-            }
-        }
-        catch (final Exception e) {
-            logger.error("Error resolving open requirements: {}", e.getMessage(), e);
-            return Response.serverError().build();
-        }
-
-        this.controlService.deleteCSAR(csarId);
-        try {
-            csarId = this.fileService.storeCSAR(file.toPath());
-        }
-        catch (UserException | SystemException e) {
-            logger.error("Failed to store CSAR: {}", e.getMessage(), e);
-            return Response.serverError().build();
-        }
-
         csarId = this.csarService.generatePlans(csarId);
         if (csarId == null) {
             return Response.serverError().build();
@@ -268,6 +231,67 @@ public class CsarController {
                 }
             }
         }
+
+        // TODO this is such a brutal hack, won't go through reviews....
+        final WineryConnector wc = new WineryConnector();
+        boolean repoAvailable = wc.isWineryRepositoryAvailable();
+
+        final StringBuilder strB = new StringBuilder();
+
+        // quick and dirty parallel thread to upload the csar to the container
+        // repository
+        // This is needed for the state save feature
+        Thread parallelUploadThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (wc.isWineryRepositoryAvailable()) {
+                    try {
+                        strB.append(wc.uploadCSAR(file, false));
+                    }
+                    catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        if (repoAvailable) {
+            parallelUploadThread.start();
+        }
+
+        try {
+            if (ModelUtil.hasOpenRequirements(csarId, this.engineService)) {
+
+                if (repoAvailable) {
+                    while (parallelUploadThread.isAlive()) {
+                        // wait till the upload is finished
+                    }
+                    this.controlService.deleteCSAR(csarId);
+                    return Response.status(Response.Status.NOT_ACCEPTABLE)
+                                   .entity("{ \"Location\": \""
+                                       + wc.getServiceTemplateURI(QName.valueOf(strB.toString())).toString() + "\" }")
+                                   .build();
+                } else {
+                    logger.error("CSAR has open requirments but Winery repository is not available");
+                    try {
+                        this.fileService.deleteCSAR(csarId);
+                    }
+                    catch (final Exception e) {
+                        // Ignore
+                        logger.error("Error deleting csar after open requirements check: {}", e.getMessage(), e);
+                    }
+                    return Response.serverError().build();
+                }
+            }
+        }
+        catch (final Exception e) {
+            logger.error("Error resolving open requirements: {}", e.getMessage(), e);
+            return Response.serverError().build();
+        }
+
 
         if (!success) {
             return Response.serverError().build();
