@@ -305,11 +305,12 @@ public class PlanService {
 
         final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
         for (final ServiceTemplateInstance sti : serviceInstances) {
-            final List<PlanInstanceDTO> foo = sti.getPlanInstances().stream().filter(p -> {
+            final List<PlanInstanceDTO> dto = sti.getPlanInstances().stream().filter(p -> {
                 final PlanTypes currType = PlanTypes.isPlanTypeURI(p.getType().toString());
-                return Arrays.asList(planTypes).contains(currType);
+                return Arrays.asList(planTypes).contains(currType)
+                    && plan.equalsIgnoreCase(p.getTemplateId().getLocalPart());
             }).map(p -> PlanInstanceDTO.Converter.convert(p)).collect(Collectors.toList());
-            planInstances.addAll(foo);
+            planInstances.addAll(dto);
         }
 
         for (final PlanInstanceDTO pi : planInstances) {

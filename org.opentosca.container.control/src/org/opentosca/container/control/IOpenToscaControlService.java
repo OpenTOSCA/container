@@ -15,7 +15,7 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
 /**
  * Interface of the control of the OpenTosca Container.
  *
- * The instance of this interface is used by org.opentosca.containerapi which invokes each step in
+ * The instance of this interface is used by org.opentosca.container.api which invokes each step in
  * the deployment process. For handling the states of processing of each CSAR, this component uses
  * the org.opentosca.core.deployment.tracker.service.ICoreDeploymentTrackerService to read and set
  * the current state of a certain CSAR and provides a HashSet with the possible process invocations
@@ -30,15 +30,6 @@ public interface IOpenToscaControlService {
      * @return Returns true for success, false for one or more errors.
      */
     public Boolean invokeTOSCAProcessing(CSARID csarID);
-
-    /**
-     * Invoke the deployment of ImplementationArtifacts.
-     *
-     * @param csarID ID which uniquely identifies a CSAR file.
-     * @param serviceTemplateID ID of the ServiceTemplate to deploy.
-     * @return Returns true for success, false for one or more errors.
-     */
-    public Boolean invokeIADeployment(CSARID csarID, QName serviceTemplateID);
 
     /**
      * Invoke the deployment of the Plans.
@@ -68,8 +59,8 @@ public interface IOpenToscaControlService {
      * This method returns a list of the QNames contained in a specific CSAR.
      *
      * @param csarID the ID of the specific CSAR.
-     * @return A list of the QName of ServiceTemplates if there are some contained in the given CSAR. An
-     *         empty list of none are contained. Null if there is an error.
+     * @return A list of the QName of ServiceTemplates if there are some contained in the given
+     *         CSAR. An empty list of none are contained. Null if there is an error.
      */
     public List<QName> getAllContainedServiceTemplates(CSARID csarID);
 

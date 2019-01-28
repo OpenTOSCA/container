@@ -87,21 +87,25 @@ public class RESTEndpoint extends GenericEndpoint {
         super();
     }
 
-    public RESTEndpoint(final URI uri, final restMethod method, final CSARID csarId) {
-        super(uri, csarId);
+    public RESTEndpoint(final URI uri, final restMethod method, final String triggeringContainer,
+                        final String managingContainer, final CSARID csarId, final Long serviceInstanceID) {
+        super(uri, triggeringContainer, managingContainer, csarId, serviceInstanceID);
         this.method = method;
         this.path = uri.getPath();
     }
 
-    public RESTEndpoint(final String host, final String path, final restMethod method,
-                        final CSARID csarId) throws URISyntaxException {
+    public RESTEndpoint(final String host, final String path, final restMethod method, final String managingContainer,
+                        final String triggeringContainer, final CSARID csarId,
+                        final Long serviceInstanceID) throws URISyntaxException {
         // Check if the path starts with a "/", if not we prepend a "/".
-        this(new URI(host + (path.charAt(0) == '/' ? path : '/' + path)), method, csarId);
+        this(new URI(host + (path.charAt(0) == '/' ? path : '/' + path)), method, triggeringContainer,
+             managingContainer, csarId, serviceInstanceID);
     }
 
     public RESTEndpoint(final URI uri, final restMethod method, final QName requestPayload, final QName responsePayload,
-                        final CSARID csarId) {
-        this(uri, method, csarId);
+                        final String triggeringContainer, final String managingContainer, final CSARID csarId,
+                        final Long serviceInstanceID) {
+        this(uri, method, triggeringContainer, managingContainer, csarId, serviceInstanceID);
         this.requestPayload = requestPayload;
         this.responsePayload = responsePayload;
     }

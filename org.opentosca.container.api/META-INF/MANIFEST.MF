@@ -40,13 +40,11 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.container.control;bundle-version="1.0.0",
  org.opentosca.container.connector.bps;bundle-version="1.0.0",
  org.opentosca.container.connector.winery;bundle-version="1.0.0",
- org.opentosca.planbuilder.importer;bundle-version="1.0.0",
- org.opentosca.planbuilder.export;bundle-version="2.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0",
  org.opentosca.planbuilder.integration;bundle-version="1.0.0",
  org.opentosca.planbuilder.service;bundle-version="1.0.0",
  org.opentosca.container.portability;bundle-version="1.0.0",
- org.opentosca.deployment.tests;bundle-version="2.0.0"
+ org.opentosca.deployment.checks;bundle-version="2.0.0"
 Service-Component: OSGI-INF/*
 Export-Package: org.opentosca.container.api.controller,
  org.opentosca.container.api.dto,

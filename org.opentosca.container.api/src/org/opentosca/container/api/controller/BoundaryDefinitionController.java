@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
@@ -46,7 +47,7 @@ import io.swagger.annotations.ApiParam;
 @Path("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions")
 public class BoundaryDefinitionController {
 
-    private final Logger logger = LoggerFactory.getLogger(CsarController.class);
+    private static Logger logger = LoggerFactory.getLogger(CsarController.class);
 
     @Context
     private UriInfo uriInfo;
@@ -68,7 +69,7 @@ public class BoundaryDefinitionController {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
@@ -98,7 +99,7 @@ public class BoundaryDefinitionController {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
@@ -109,11 +110,11 @@ public class BoundaryDefinitionController {
             this.referenceMapper.getPropertyMappings(csarContent.getCSARID(), QName.valueOf(servicetemplate));
 
         final PropertiesDTO dto = new PropertiesDTO();
-        this.logger.debug("XML Fragement: {}", xmlFragment);
+        logger.debug("XML Fragement: {}", xmlFragment);
         dto.setXmlFragment(xmlFragment);
 
         if (propertyMappings != null) {
-            this.logger.debug("Found <{}> property mappings", propertyMappings.size());
+            logger.debug("Found <{}> property mappings", propertyMappings.size());
             dto.setPropertyMappings(propertyMappings);
         }
         dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
@@ -130,15 +131,15 @@ public class BoundaryDefinitionController {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
         final List<String> interfaces =
             this.referenceMapper.getBoundaryInterfacesOfServiceTemplate(csarContent.getCSARID(),
                                                                         QName.valueOf(servicetemplate));
-        this.logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", interfaces.size(),
-                          servicetemplate, csar);
+        logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", interfaces.size(),
+                     servicetemplate, csar);
 
         final InterfaceListDTO list = new InterfaceListDTO();
         list.add(interfaces.stream().map(name -> {
@@ -162,41 +163,38 @@ public class BoundaryDefinitionController {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
         final List<TExportedOperation> operations =
             getExportedOperations(csarContent.getCSARID(), QName.valueOf(servicetemplate), name);
 
-        this.logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
-                          operations.size(), name, servicetemplate, csar);
+        logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
+                     operations.size(), name, servicetemplate, csar);
 
         final Map<String, OperationDTO> ops = operations.stream().map(o -> {
 
-            final OperationDTO op = new OperationDTO();
+            final OperationDTO dto = new OperationDTO();
 
-            op.setName(o.getName());
-            op.setNodeOperation(o.getNodeOperation());
-            op.setRelationshipOperation(o.getRelationshipOperation());
+            dto.setName(o.getName());
+            dto.setNodeOperation(NodeOperationDTO.Converter.convert(o.getNodeOperation()));
+            dto.setRelationshipOperation(o.getRelationshipOperation());
 
             if (o.getPlan() != null) {
                 final PlanDTO plan = new PlanDTO((TPlan) o.getPlan().getPlanRef());
-                op.setPlan(plan);
+                dto.setPlan(plan);
 
                 // Compute the according URL for the Build or Management Plan
                 final URI planUrl;
                 if (PlanTypes.BUILD.toString().equals(plan.getPlanType())) {
-
                     // If it's a build plan
-
                     planUrl =
                         this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
                                     .build(csar, servicetemplate, plan.getId());
                 } else {
                     // ... else we assume it's a management plan
-
                     planUrl =
                         this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/:id/managementplans/{managementplan}")
@@ -204,17 +202,16 @@ public class BoundaryDefinitionController {
                 }
 
                 plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
-                op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
+                dto.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
             }
 
-            return op;
+            return dto;
         }).collect(Collectors.toMap(OperationDTO::getName, t -> t));
 
         final InterfaceDTO dto = new InterfaceDTO();
         dto.setName(name);
         dto.setOperations(ops);
         dto.add(UriUtil.generateSelfLink(this.uriInfo));
-
 
         return Response.ok(dto).build();
     }
@@ -223,10 +220,12 @@ public class BoundaryDefinitionController {
                                                            final String interfaceName) {
         final Map<QName, List<TExportedInterface>> exportedInterfacesOfCsar =
             this.referenceMapper.getExportedInterfacesOfCSAR(csarId);
-        final List<TExportedInterface> exportedInterfaces = exportedInterfacesOfCsar.get(serviceTemplate);
-        for (final TExportedInterface exportedInterface : exportedInterfaces) {
-            if (exportedInterface.getName().equalsIgnoreCase(interfaceName)) {
-                return exportedInterface.getOperation();
+        if (exportedInterfacesOfCsar.containsKey(serviceTemplate)) {
+            final List<TExportedInterface> exportedInterfaces = exportedInterfacesOfCsar.get(serviceTemplate);
+            for (final TExportedInterface exportedInterface : exportedInterfaces) {
+                if (exportedInterface.getName().equalsIgnoreCase(interfaceName)) {
+                    return exportedInterface.getOperation();
+                }
             }
         }
         return null;

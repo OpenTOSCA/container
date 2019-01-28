@@ -60,20 +60,29 @@ public abstract class AbstractImporter {
 		// FIXME: This does not work for me (Michael W. - 2018-02-19)
 		// if (!this.hasPolicies(defs)) {
 		// buildPlanBuilder = new BPELBuildProcessBuildeplanr();
+		// Because policies must be enforced when they are set on the the topology, if
+		// the planbuilder doesn't understand them it doesn't generate a plan -> doesn't
+		// work for you
+		//
+		// if (!this.hasPolicies(defs)) {
+		// buildPlanBuilder = new BPELBuildProcessBuilder();
 		// } else {
 		// buildPlanBuilder = new PolicyAwareBPELBuildProcessBuilder();
 		// }
 
 		final AbstractPlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder();
 		final AbstractPlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder();
+
 		final AbstractPlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder();
 		final AbstractPlanBuilder defreezePlanBuilder = new BPELDefreezeProcessBuilder();
+
 
 		plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
 		plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
 		plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
 		plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
 		plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
+
 		return plans;
 	}
 

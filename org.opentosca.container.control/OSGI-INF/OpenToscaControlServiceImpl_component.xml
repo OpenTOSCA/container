@@ -5,7 +5,6 @@
       <provide interface="org.opentosca.container.control.IOpenToscaControlService"/>
    </service>
    <reference bind="bindIXMLSerializerService" cardinality="1..1" interface="org.opentosca.container.core.engine.xml.IXMLSerializerService" name="IXMLSerializerService" policy="static" unbind="unbindIXMLSerializerService"/>
-   <reference bind="bindIAEngine" cardinality="1..1" interface="org.opentosca.container.engine.ia.IIAEngineService" name="IIAEngineService" policy="static" unbind="unbindIAEngine"/>
    <reference bind="bindPlanEngine" cardinality="1..1" interface="org.opentosca.container.engine.plan.IPlanEngineService" name="IPlanEngineService" policy="static" unbind="unbindPlanEngine"/>
    <reference bind="bindFileService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreFileService" name="ICoreFileService" policy="static" unbind="unbindFileService"/>
    <reference bind="bindToscaEngine" cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaEngine"/>

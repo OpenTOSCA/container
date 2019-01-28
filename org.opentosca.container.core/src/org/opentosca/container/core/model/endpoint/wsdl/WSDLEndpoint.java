@@ -7,8 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.namespace.QName;
@@ -24,38 +22,13 @@ import org.opentosca.container.core.model.endpoint.GenericEndpoint;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@NamedQueries({@NamedQuery(name = WSDLEndpoint.getWSDLEndpointByPortType,
-                           query = WSDLEndpoint.getWSDLEndpointByPortTypeQuery),
-               // @NamedQuery(name =
-               // WSDLEndpoint.getWSDLEndpointByPortTypeAndAddressType, query =
-               // WSDLEndpoint.getWSDLEndpointByPortTypeAndAddressTypeQuery),
-               @NamedQuery(name = WSDLEndpoint.getWSDLEndpointByUri, query = WSDLEndpoint.getWSDLEndpointByUriQuery)})
 @Table(name = WSDLEndpoint.tableName,
-       uniqueConstraints = @UniqueConstraint(columnNames = {"portType", "addressType", "csarId"}))
+       uniqueConstraints = @UniqueConstraint(columnNames = {"portType", "csarId", "managingContainer",
+                                                            "serviceInstanceID"}))
 public class WSDLEndpoint extends GenericEndpoint {
 
     // Table Name
     protected final static String tableName = "WSDLEndpoint";
-
-    // Named queries for JPA
-
-    // Query to retrieve WSDLEndpoints identified by a given PortType
-    public final static String getWSDLEndpointByPortType = "WSDLEndpoint.getWSDLEndpointByPortType";
-    protected final static String getWSDLEndpointByPortTypeQuery =
-        "select t from WSDLEndpoint t where t.PortType = :portType and t.csarId = :csarId";
-
-    // Query to retrieve a WSDLEndpoint identified by a given PortType and
-    // AddressType
-    // public final static String getWSDLEndpointByPortTypeAndAddressType =
-    // "WSDLEndpoint.getWSDLEndpointByPortTypeAndAddressType";
-    // protected final static String
-    // getWSDLEndpointByPortTypeAndAddressTypeQuery =
-    // "select t from WSDLEndpoint t where t.PortType = :portType and
-    // t.AddressType = :addressType and t.csarId = :csarId";
-
-    public final static String getWSDLEndpointByUri = "WSDLEndpoint.getWSDLEndpointByUri";
-    protected final static String getWSDLEndpointByUriQuery =
-        "select t from WSDLEndpoint t where t.uri = :uri and t.csarId = :csarId";
 
     // Converter to Convert QNames to String, and back from String to QName.
     // Used when persisting, so we can Query for QName-Objects.
@@ -65,11 +38,12 @@ public class WSDLEndpoint extends GenericEndpoint {
     @Column(name = "PortType")
     private QName PortType;
 
-    // nodetypeimplementation and ianame are there to identify specific ias
+    // NodeTypeImplementation/RelationshipTypeImplementation and IA name are there to identify
+    // specific IAs
     @Basic
     @Convert("QNameConverter")
-    @Column(name = "NodeTypeImplementation")
-    private QName NodeTypeImplementation;
+    @Column(name = "TypeImplementation")
+    private QName TypeImplementation;
 
     @Basic
     @Column(name = "IaName")
@@ -82,34 +56,19 @@ public class WSDLEndpoint extends GenericEndpoint {
     @Column(name = "PlanId")
     private QName PlanId;
 
-
-    // @Convert("QNameConverter")
-    // @Column(name = "AddressType")
-    // private QName AddressType;
-
     public WSDLEndpoint() {
         super();
     }
 
-    // if planid is set nodeTypeimpl and iaName must be "null"
-    public WSDLEndpoint(final URI uri, final QName portType, final CSARID csarId, final QName planid,
-                        final QName nodeTypeImplementation, final String iaName) {
-        super(uri, csarId);
-        this.setPortType(portType);
-        this.setIaName(iaName);
-        this.setPlanId(planid);
-        this.setNodeTypeImplementation(nodeTypeImplementation);
-        // this.setAddressType(addressType);
-    }
-
-    @Override
-    public Long getId() {
-        return this.id;
-    }
-
-    @Override
-    public void setId(final Long id) {
-        this.id = id;
+    // if planid is set serviceInstanceID, nodeTypeimpl and iaName must be "null"
+    public WSDLEndpoint(final URI uri, final QName portType, final String triggeringContainer,
+                        final String managingContainer, final CSARID csarId, final Long serviceInstanceID,
+                        final QName planid, final QName nodeTypeImplementation, final String iaName) {
+        super(uri, triggeringContainer, managingContainer, csarId, serviceInstanceID);
+        setPortType(portType);
+        setIaName(iaName);
+        setPlanId(planid);
+        setTypeImplementation(nodeTypeImplementation);
     }
 
     public QName getPortType() {
@@ -120,12 +79,12 @@ public class WSDLEndpoint extends GenericEndpoint {
         this.PortType = portType;
     }
 
-    public QName getNodeTypeImplementation() {
-        return this.NodeTypeImplementation;
+    public QName getTypeImplementation() {
+        return this.TypeImplementation;
     }
 
-    public void setNodeTypeImplementation(final QName nodeTypeImplementation) {
-        this.NodeTypeImplementation = nodeTypeImplementation;
+    public void setTypeImplementation(final QName nodeTypeImplementation) {
+        this.TypeImplementation = nodeTypeImplementation;
     }
 
     public QName getPlanId() {
@@ -151,10 +110,10 @@ public class WSDLEndpoint extends GenericEndpoint {
         }
 
         final WSDLEndpoint compareEndpoint = (WSDLEndpoint) o;
-        if (compareEndpoint.getId() != this.getId()) {
+        if (compareEndpoint.getId() != getId()) {
             return false;
         }
-        if (!compareEndpoint.getCSARId().equals(this.getCSARId())) {
+        if (!compareEndpoint.getCSARId().equals(getCSARId())) {
             return false;
         }
         return true;

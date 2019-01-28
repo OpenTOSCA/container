@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.opentosca.container.core.common.EntityExistsException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
@@ -102,7 +103,7 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
             final CSARID csarID = new CSARID(csarFile.getFileName().toString());
 
             if (this.JPA_STORE.isCSARMetaDataStored(csarID)) {
-                throw new UserException(
+                throw new EntityExistsException(
                     "CSAR \"" + csarID.toString() + "\" is already stored. Overwriting a CSAR is not allowed.");
             }
 
@@ -269,7 +270,7 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
         final Map<Path, String> fileToStorageProviderIDMap = this.JPA_STORE.getFileToStorageProviderIDMap(csarID);
 
         final Map<Path, String> fileToMoveToStorageProviderIDMap =
-            this.findFilesToMove(null, fileToStorageProviderIDMap, targetStorageProviderID);
+            findFilesToMove(null, fileToStorageProviderIDMap, targetStorageProviderID);
 
         if (fileToMoveToStorageProviderIDMap.isEmpty()) {
             CoreInternalFileServiceImpl.LOG.debug("CSAR \"{}\" is already completely stored on storage provider \"{}\".",
@@ -281,8 +282,7 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
                 final Path fileRelToCSARRoot = fileToMoveToStorageProviderIDEntry.getKey();
                 final String fileStorageProviderID = fileToMoveToStorageProviderIDEntry.getValue();
 
-                this.moveFileToStorageProvider(csarID, fileRelToCSARRoot, fileStorageProviderID,
-                                               targetStorageProviderID);
+                moveFileToStorageProvider(csarID, fileRelToCSARRoot, fileStorageProviderID, targetStorageProviderID);
 
             }
 
@@ -380,8 +380,7 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
 
             } else {
 
-                this.moveFileToStorageProvider(csarID, relPathToCSARRoot, fileStorageProviderID,
-                                               targetStorageProviderID);
+                moveFileToStorageProvider(csarID, relPathToCSARRoot, fileStorageProviderID, targetStorageProviderID);
 
             }
 
@@ -390,7 +389,7 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
             CoreInternalFileServiceImpl.LOG.debug("\"{}\" to move is a directory of CSAR \"{}\".", relPathToCSARRoot,
                                                   csarID);
             final Map<Path, String> fileToMoveToStorageProviderIDMap =
-                this.findFilesToMove(relPathToCSARRoot, fileToStorageProviderIDMap, targetStorageProviderID);
+                findFilesToMove(relPathToCSARRoot, fileToStorageProviderIDMap, targetStorageProviderID);
 
             if (fileToMoveToStorageProviderIDMap.isEmpty()) {
 
@@ -403,8 +402,8 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
                 for (final Map.Entry<Path, String> fileToMoveToStorageProviderIDEntry : fileToMoveToStorageProviderIDMap.entrySet()) {
                     final Path fileRelToCSARRoot = fileToMoveToStorageProviderIDEntry.getKey();
                     final String fileStorageProviderID = fileToMoveToStorageProviderIDEntry.getValue();
-                    this.moveFileToStorageProvider(csarID, fileRelToCSARRoot, fileStorageProviderID,
-                                                   targetStorageProviderID);
+                    moveFileToStorageProvider(csarID, fileRelToCSARRoot, fileStorageProviderID,
+                                              targetStorageProviderID);
                 }
 
             }
@@ -514,7 +513,7 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
 
             for (final CSARID csarID : csarIDs) {
                 try {
-                    this.deleteCSAR(csarID);
+                    deleteCSAR(csarID);
                 }
                 catch (final UserException exc) {
                     throw new SystemException("An System Exception occured.", exc);

@@ -7,7 +7,6 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint;
-import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint.restMethod;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 
 /**
@@ -19,28 +18,17 @@ import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 public interface ICoreInternalEndpointService {
 
     /**
-     * This method queries for all WSDL-Endpoints identified by the given portType and thorID. It then
-     * returns a List of the retrieved Endpoints.
+     * This method queries for all WSDL-Endpoints identified by the given portType, Container and
+     * csarId. It then returns a List of the retrieved Endpoints.
      *
      * @see WSDLEndpoint
      *
      * @param portType : PortType to identify the Endpoint
-     * @param thorID : thorID to identify the Endpoint
+     * @param triggeringContainer Container where the CSAR identified by csarId resides
+     * @param csarId : csarId to identify the Endpoint
      * @return ArrayList containing all corresponding WSDLEndpoints
      */
-    public List<WSDLEndpoint> getWSDLEndpoints(QName portType, CSARID csarId);
-
-    /**
-     * This method queries for a WSDLEndpoint identified by the given portType, addressType and thorID.
-     *
-     * @see WSDLEndpoint
-     *
-     * @param portType : PortType to identify the Endpoint
-     * @param addressType : AddressType to identify the endpoint
-     * @param thorID : thorID to identify the Endpoint
-     * @return WSDLEndpoint matching the given parameters
-     */
-    public WSDLEndpoint getWSDLEndpoint(QName portType, CSARID csarId);
+    public List<WSDLEndpoint> getWSDLEndpoints(QName portType, String triggeringContainer, CSARID csarId);
 
     /**
      * This method stores a given WSDLEndpoint object.
@@ -60,40 +48,18 @@ public interface ICoreInternalEndpointService {
      * @param thorID : thorID to identify the Endpoint
      * @return ArrayList containing all endpoints matching the given parameters
      */
-    public List<RESTEndpoint> getRestEndpoints(URI anyURI, CSARID csarId);
+    public List<RESTEndpoint> getRestEndpoints(URI anyURI, String triggeringContainer, CSARID csarId);
 
     /**
-     * This method queries for a RESTEndpoint identified by the given URI, RestMethod
-     * {GET,PUT,POST,DELETE} and thorID
+     * This method queries for a WSDLEndpoint identified by the given Container, CSARID and PlanId
      *
-     * @see RESTEndpoint
-     *
-     * @param anyURI : Uri to identify the Endpoint
-     * @param method : RestMethod {GET, PUT, POST, DELETE} to identify the Endpoint
-     * @param thorID : thorID to identify the Endpoint
-     * @return RESTEndpoint matching the given parameters
-     */
-    public RESTEndpoint getRestEndpoint(URI anyURI, restMethod method, CSARID csarId);
-
-    /**
-     * This method queries for a WSDLEndpoint identified by the given CSARID and PlanId
-     *
+     * @param triggeringContainer Container where the CSAR identified by csarId resides
      * @param csarId an id of type CSARID
      * @param planId an id of type QName
-     * @return a WSDLEndpoint representing a Plan stored in the endpoint db or null if nothing was found
+     * @return a WSDLEndpoint representing a Plan stored in the endpoint db or null if nothing was
+     *         found
      */
-    public WSDLEndpoint getWSDLEndpointForPlanId(CSARID csarId, QName planId);
-
-    /**
-     * This method queries for a WSDLEndpoint identified by the given CSARID, NodeTypeImplementationId
-     * and ImplementationArtifact Name
-     *
-     * @param csarId an id of type CSARID
-     * @param nodeTypeImpl an id of type QName
-     * @param iaName an id of type String
-     * @return a WSDLEndpoint representing the given IA if one was found else null
-     */
-    public WSDLEndpoint getWSDLEndpointForIa(CSARID csarId, QName nodeTypeImpl, String iaName);
+    public WSDLEndpoint getWSDLEndpointForPlanId(String triggeringContainer, CSARID csarId, QName planId);
 
     /**
      * This method stores a given RESTEndpoint object.
@@ -105,18 +71,13 @@ public interface ICoreInternalEndpointService {
     public void storeRESTEndpoint(RESTEndpoint endpoint);
 
     /**
+     * Removes all plan endpoints associated with the CSAR identified by the given OpenTOSCA
+     * Container host name and the given CSARID
      *
-     * @param uri
-     * @return
+     * @param triggeringContainer the OpenTOSCA Container where the CSAR is deployed
+     * @param csarId the CSARID whose plan endpoints should be removed
      */
-    public boolean endpointExists(URI uri, CSARID csarId);
-
-    /**
-     * Removes all Endpoints associated with the given CSARID
-     *
-     * @param csarId the CSARID whose endpoints should be removed
-     */
-    public void removeEndpoints(CSARID csarId);
+    public void removePlanEndpoints(String triggeringContainer, CSARID csarId);
 
     /**
      * Debug print of plan endpoints.
@@ -124,22 +85,38 @@ public interface ICoreInternalEndpointService {
     public void printPlanEndpoints();
 
     /**
-     * This method queries for all WSDLEndpoints identified by the given CSARID
+     * This method queries for all WSDLEndpoints identified by the given Container and CSARID
      *
+     * @param triggeringContainer Container where the CSAR identified by csarId resides
      * @param csarId an id of type CSARID
      * @return List of WSDLEndpoints of the given CSARID if min. one was found else null
      */
-    public List<WSDLEndpoint> getWSDLEndpointsForCSARID(CSARID csarId);
+    public List<WSDLEndpoint> getWSDLEndpointsForCSARID(String triggeringContainer, CSARID csarId);
 
     /**
-     * This method queries for a WSDLEndpoint identified by NodeTypeImplementationId and
-     * ImplementationArtifact Name
+     * This method queries for all WSDLEndpoints identified by the given Container and
+     * ServiceTemplateInstance ID
      *
-     * @param nodeTypeImpl an id of type QName
-     * @param iaName an id of type String
+     * @param triggeringContainer OpenTOSCA Container host name where the ServiceTemplateInstance
+     *        identified by serviceTemplateInstanceID resides
+     * @param serviceTemplateInstanceID an ID which identifies a ServiceTemplateInstance uniquely
+     * @return List of WSDLEndpoints of the given serviceTemplateInstanceID if min. one was found
+     *         else null
+     */
+    public List<WSDLEndpoint> getWSDLEndpointsForSTID(String triggeringContainer, Long serviceTemplateInstanceID);
+
+    /**
+     * This method queries for a WSDLEndpoint identified by the triggering and managing OpenTOSCA
+     * Container, the NodeTypeImplementationId and the ImplementationArtifact name
+     *
+     * @param triggeringContainer OpenTOSCA Container which initiated the creation of the endpoint
+     * @param managingContainer OpenTOSCA Container which is responsible for handling the endpoint
+     * @param nodeTypeImpl an ID of type QName
+     * @param iaName an ID of type String
      * @return a WSDLEndpoint representing the given IA if one was found else null
      */
-    public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(QName nodeTypeImpl, String iaName);
+    public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(String triggeringContainer, String managingContainer,
+                                                                 QName nodeTypeImpl, String iaName);
 
     /**
      * This method queries for all WSDLEndpoints
@@ -149,12 +126,11 @@ public interface ICoreInternalEndpointService {
     public List<WSDLEndpoint> getWSDLEndpoints();
 
     /**
-     * Removes the given WSDLEndpoint related to the CSAR referenced by the CSARId
+     * Removes the given WSDL Endpoint if found
      *
-     * @param csarId the CSARID of the CSAR the endpoint belongs to
-     * @param endpoint the WSDLEndpoint to remove
-     * @return true if removal was successful, else false
+     * @param endpoint the WSDL Endpoint to remove
+     * @return true if removing the endpoint was successful, else false
      */
-    public boolean removeWSDLEndpoint(CSARID csarId, WSDLEndpoint endpoint);
+    public boolean removeWSDLEndpoint(WSDLEndpoint endpoint);
 
 }

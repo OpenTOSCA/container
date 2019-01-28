@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<artifacttype name="Chef" namespace="http://opentosca.org/artifacttypes">
+	<packages>
+		<package>unzip</package>
+	</packages>
+	<commands>
+		<!-- Install ChefDK -->
+		<command>wget https://packages.chef.io/stable/ubuntu/12.04/chefdk_0.16.28-1_amd64.deb</command>
+		<command>sudo dpkg -i chefdk_0.16.28-1_amd64.deb</command>
+		<!-- Unzip uploaded cookbook (*.tgz)-->
+		<command>cd {TARGET_FILE_FOLDER_PATH}</command>
+		<command>tar zxvf {TARGET_FILE_NAME_WITH_E}</command>
+		<command>cd {TARGET_FILE_NAME_WITHOUT_E}</command>
+		<!-- Resolve dependencies with Berkshelf -->
+		<command>berks vendor ~/cookbooks</command>
+		<command>cd ~/cookbooks</command>
+		<command>sudo apt-get update</command>
+		<!--Run Recipe specified in properties -->
+		<command>sudo chef-client --local-mode --runlist 'recipe[{{Recipe}}]'</command>
+	</commands>
+</artifacttype>

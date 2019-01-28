@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.bus.management.deployment.plugin.remote.ManagementBusDeploymentPluginRemote">
+   <implementation class="org.opentosca.bus.management.deployment.plugin.remote.ManagementBusDeploymentPluginRemote"/>
+   <service>
+      <provide interface="org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService"/>
+   </service>
+</scr:component>

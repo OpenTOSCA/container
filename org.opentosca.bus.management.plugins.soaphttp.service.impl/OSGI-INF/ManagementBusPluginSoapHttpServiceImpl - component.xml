@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" enabled="true" immediate="false" name="org.opentosca.bus.management.plugins.soaphttp.service.impl.ManagementBusPluginSoapHttpServiceImpl">
-   <implementation class="org.opentosca.bus.management.plugins.soaphttp.service.impl.ManagementBusPluginSoapHttpServiceImpl"/>
-   <service>
-      <provide interface="org.opentosca.bus.management.plugins.service.IManagementBusPluginService"/>
-   </service>
-</scr:component>

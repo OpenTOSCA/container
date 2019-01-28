@@ -122,19 +122,19 @@
     <module>org.opentosca.container.engine.plan.plugin.bpel</module>
     <module>org.opentosca.container.engine.plan.plugin.camunda</module>
     <module>org.opentosca.container.portability</module>
-    <module>org.opentosca.container.engine.ia</module>
-    <module>org.opentosca.container.engine.ia.plugin.aar</module>
-    <module>org.opentosca.container.engine.ia.plugin.dockercompose</module>
-    <module>org.opentosca.container.engine.ia.plugin.script</module>
-    <module>org.opentosca.container.engine.ia.plugin.tomcat</module>
     <module>org.opentosca.bus.management</module>
     <module>org.opentosca.bus.management.api.osgievent</module>
     <module>org.opentosca.bus.management.api.resthttp</module>
     <module>org.opentosca.bus.management.api.soaphttp</module>
-    <module>org.opentosca.bus.management.plugins.remote.service.impl</module>
-    <module>org.opentosca.bus.management.plugins.rest.service.impl</module>
-    <module>org.opentosca.bus.management.plugins.service</module>
-    <module>org.opentosca.bus.management.plugins.soaphttp.service.impl</module>
+    <module>org.opentosca.bus.management.deployment.plugin</module>
+    <module>org.opentosca.bus.management.deployment.plugin.script</module>
+    <module>org.opentosca.bus.management.deployment.plugin.tomcat</module>
+    <module>org.opentosca.bus.management.deployment.plugin.remote</module>
+    <module>org.opentosca.bus.management.invocation.plugin</module>
+    <module>org.opentosca.bus.management.invocation.plugin.script</module>
+    <module>org.opentosca.bus.management.invocation.plugin.rest</module>
+    <module>org.opentosca.bus.management.invocation.plugin.soaphttp</module>
+    <module>org.opentosca.bus.management.invocation.plugin.remote</module>
     <module>org.opentosca.bus.management.service</module>
     <module>org.opentosca.bus.management.service.impl</module>
     <module>org.opentosca.bus.application.api.jsonhttp</module>
@@ -150,14 +150,12 @@
     <module>org.opentosca.planbuilder</module>
     <module>org.opentosca.planbuilder.core.bpel</module>
     <module>org.opentosca.planbuilder.csarhandler</module>
-    <module>org.opentosca.planbuilder.export</module>
-    <module>org.opentosca.planbuilder.importer</module>
     <module>org.opentosca.planbuilder.integration</module>
     <module>org.opentosca.planbuilder.model</module>
     <module>org.opentosca.planbuilder.service</module>
     <module>org.opentosca.planbuilder.postphase.plugin.instancedata</module>
     <module>org.opentosca.planbuilder.postphase.plugin.vinothek</module>
-    <module>org.opentosca.planbuilder.postphase.plugin.monitoring</module>    
+    <module>org.opentosca.planbuilder.postphase.plugin.monitoring</module>
     <module>org.opentosca.planbuilder.provphase.plugin.ansibleoperation</module>
     <module>org.opentosca.planbuilder.prephase.plugin.fileupload</module>
     <module>org.opentosca.planbuilder.provphase.plugin.invoker</module>
@@ -169,7 +167,8 @@
     <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.patternbased</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
-    <module>org.opentosca.deployment.tests</module>
+    <module>org.opentosca.deployment.checks</module>
+    <module>org.opentosca.broker.mqtt</module>
   </modules>
 
 </project>

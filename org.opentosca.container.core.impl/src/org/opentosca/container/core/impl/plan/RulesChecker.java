@@ -137,14 +137,12 @@ public class RulesChecker {
 
                                 final String relatedNodeTemplate =
                                     ServiceProxy.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                                                                                             sourceRuleNTemplate.getId(),
-                                                                                             relationshipRule.getType());
+                                                                                             sourceRuleNTemplate.getId(), relationshipRule.getType());
 
                                 if (relatedNodeTemplate != null) {
                                     final QName relatedNodeType =
                                         ServiceProxy.toscaEngineService.getNodeTypeOfNodeTemplate(csarID,
-                                                                                                  serviceTemplateID,
-                                                                                                  relatedNodeTemplate);
+                                                                                                  serviceTemplateID, relatedNodeTemplate);
 
                                     if (relatedNodeType.equals(targetRuleNTemplate.getType())) {
                                         found = true;
@@ -364,7 +362,7 @@ public class RulesChecker {
                                                  final TNodeTemplate targetRuleNTemplate) {
 
         final Document propsDoc =
-            ServiceProxy.toscaEngineService.getPropertiesOfNodeTemplate(csarID, serviceTemplateID, relatedNodeTemplate);
+            ServiceProxy.toscaEngineService.getPropertiesOfTemplate(csarID, serviceTemplateID, relatedNodeTemplate);
 
         final HashMap<String, String> propertiesMap = getPropertiesFromDoc(propsDoc);
         final HashMap<String, String> rulesPropertiesMap = getPropertiesOfNodeTemplate(targetRuleNTemplate);
