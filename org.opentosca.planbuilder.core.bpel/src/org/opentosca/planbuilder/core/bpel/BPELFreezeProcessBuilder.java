@@ -11,6 +11,7 @@ import javax.xml.soap.Node;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.AbstractTerminationPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
@@ -18,12 +19,16 @@ import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
+import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
@@ -52,6 +57,8 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
 	// class for finalizing build plans (e.g when some template didn't receive
 	// some provisioning logic and they must be filled with empty elements)
 	private final BPELFinalizer finalizer;
+	
+    private BPELProcessFragments bpelFragments;
 
 	// accepted operations for provisioning
 	private final List<String> opNames = new ArrayList<>();
@@ -66,6 +73,7 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
 			this.planHandler = new BPELPlanHandler();
 			this.serviceInstanceVarsHandler = new ServiceInstanceVariablesHandler();
 			this.instanceVarsHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
+			this.bpelFragments = new BPELProcessFragments();
 		} catch (final ParserConfigurationException e) {
 			BPELFreezeProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
@@ -99,6 +107,7 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
 			final AbstractPlan newAbstractBackupPlan = generateTOG(new QName(processNamespace, processName).toString(),
 					definitions, serviceTemplate);
 
+			newAbstractBackupPlan.setType(PlanType.MANAGE);
 			final BPELPlan newTerminationPlan = this.planHandler.createEmptyBPELPlan(processNamespace, processName,
 					newAbstractBackupPlan, "freeze");
 
@@ -180,6 +189,49 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
 		return plans;
 	}
 
+	private boolean hasSaveStateInterface(AbstractNodeTemplate nodeTemplate) {
+		AbstractOperation op = this.getSaveStateOperation(nodeTemplate);
+		if (op != null) {
+			for (AbstractParameter param : op.getInputParameters()) {
+				if (param.getName()
+						.equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private AbstractInterface getSaveStateInterface(AbstractNodeTemplate nodeTemplate) {
+		for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+			if (!iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE)) {
+				continue;
+			}
+
+			return iface;
+		}
+		return null;
+	}
+
+	private AbstractOperation getSaveStateOperation(AbstractNodeTemplate nodeTemplate) {
+		AbstractInterface iface = this.getSaveStateInterface(nodeTemplate);
+		if (iface != null) {
+			for (AbstractOperation op : iface.getOperations()) {
+				if (!op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE)) {
+					continue;
+				}
+
+				return op;
+			}
+		}
+		return null;
+	}
+	
+	private void appendGenerateStatefulCsarLogic(BPELPlan plan) {
+		String statefulServiceTemplateVarName = this.planHandler.addGlobalStringVariable("statefulServiceTemplateUrl" +  System.currentTimeMillis(), plan);
+		
+		
+			}
 
 	/**
 	 * This Methods Finds out if a Service Template Container a freeze method and
@@ -197,24 +249,32 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
 		for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
 
-				// Only looks at Nodes that are no docker engine
-				if (!org.opentosca.container.core.tosca.convention.Utils
-						.isSupportedDockerEngineNodeType(templatePlan.getNodeTemplate().getType().getId())) {
-					final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap,
-							plan.getServiceTemplate());
-					final OperationChain chain = BPELScopeBuilder.createOperationChain(templatePlan.getNodeTemplate());
-					if (chain == null) {
-						BPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}");
-					} else {
-						BPELBuildProcessBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}");
-						Iterator<IANodeTypeImplCandidate> IAIterator = chain.iaCandidates.iterator();
+				// create a context for the node
+				final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
 
-					}
+				boolean alreadyHandled = false;
+				AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+
+				/*
+				 * generic save state code
+				 */
+				if (this.hasSaveStateInterface(nodeTemplate)) {
+					alreadyHandled = context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, null);
+					
+				}
+
+				/*
+				 * Legacy Code for specific docker containers:
+				 */
+				// Only looks at Nodes that are no docker engine
+				if (!alreadyHandled && !org.opentosca.container.core.tosca.convention.Utils
+						.isSupportedDockerEngineNodeType(templatePlan.getNodeTemplate().getType().getId())) {
 
 					final List<AbstractNodeTemplate> nodes = new ArrayList<>();
 					ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
 					for (final AbstractNodeTemplate node : nodes) {
 
+						// I've got no idea what is going on down here...
 						List<AbstractNodeTypeImplementation> IA = node.getImplementations();
 						Iterator<AbstractNodeTypeImplementation> iai = IA.iterator();
 						while (iai.hasNext()) {
@@ -224,7 +284,8 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
 							while (iasi.hasNext()) {
 								String methods = iasi.next().getName();
 								//
-								if (this.containsString(methods, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Defreeze)) {
+								if (methods.contains(
+										Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Defreeze)) {
 									boolean gotExecuted = context.executeOperation(node,
 											Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Backup,
 											Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Freeze, null);
@@ -245,9 +306,5 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
 
 		}
 		return changedActivities;
-	}
-
-	private static boolean containsString(String s, String subString) {
-		return s.indexOf(subString) > -1 ? true : false;
 	}
 }

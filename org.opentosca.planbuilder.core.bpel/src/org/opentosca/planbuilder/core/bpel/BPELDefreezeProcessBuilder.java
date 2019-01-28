@@ -161,7 +161,7 @@ public class BPELDefreezeProcessBuilder extends AbstractTerminationPlanBuilder  
 						.isSupportedDockerEngineNodeType(templatePlan.getNodeTemplate().getType().getId())) {
 					final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap,
 							plan.getServiceTemplate());
-					final OperationChain chain = BPELScopeBuilder.createOperationChain(templatePlan.getNodeTemplate());
+					final OperationChain chain = BPELScopeBuilder.createOperationChain(templatePlan.getNodeTemplate(),this.opNames);
 					if (chain == null) {
 						BPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}");
 					} else {
