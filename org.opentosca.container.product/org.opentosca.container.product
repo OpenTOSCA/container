@@ -50,9 +50,6 @@
       <plugin id="javax.wsdl" autoStart="true" startLevel="0" />
       <plugin id="javax.xml" autoStart="true" startLevel="0" />
       <plugin id="javax.xml.stream" autoStart="true" startLevel="0" />
-      <plugin id="jclouds-blobstore" autoStart="true" startLevel="0" />
-      <plugin id="jclouds-core" autoStart="true" startLevel="0" />
-      <plugin id="jclouds-slf4j" autoStart="true" startLevel="0" />
       <plugin id="org.apache.aries.blueprint.api" autoStart="true" startLevel="0" />
       <plugin id="org.apache.aries.blueprint.core" autoStart="true" startLevel="0" />
       <plugin id="org.apache.aries.proxy.api" autoStart="true" startLevel="0" />
