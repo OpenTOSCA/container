@@ -49,7 +49,17 @@
             <environment>
               <os>linux</os>
               <ws>gtk</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
               <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86</arch>
             </environment>
             <environment>
               <os>win32</os>
@@ -140,6 +150,8 @@
     <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.patternbased</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
+    <module>org.opentosca.container.feature</module>
+    <module>org.opentosca.container.product</module>
   </modules>
 
 </project>

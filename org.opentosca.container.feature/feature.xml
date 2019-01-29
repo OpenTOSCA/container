@@ -16,11 +16,6 @@
       [Enter License Description here.]
    </license>
 
-   <includes
-         id="winery"
-         version="0.0.0"
-         name="Winery"/>
-
    <requires>
       <import plugin="com.google.inject" version="3.0.0" match="compatible"/>
       <import plugin="org.eclipse.equinox.preferences" version="3.2.0" match="compatible"/>
@@ -768,7 +763,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="org.opentosca.container.application"
          download-size="0"
@@ -818,7 +813,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="org.opentosca.container.core.tosca"
          download-size="0"
@@ -1332,14 +1327,14 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.winery.common"
+         id="org.opentosca.planbuilder.postphase.plugin.monitoring"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.winery.model.selfservice"
+         id="org.opentosca.planbuilder.type.plugin.patternbased"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1374,13 +1369,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.winery.accountability"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.jgit"
          download-size="0"
          install-size="0"
@@ -1389,62 +1377,6 @@
 
    <plugin
          id="com.googlecode.javaewah.JavaEWAH"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.winery.bpmn4tosca.converter.tobpel"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.winery.compliance"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.winery.generators.ia"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.winery.highlevelrestapi"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.winery.model.bpmn4tosca"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.winery.repository.client"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.winery.yaml.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.winery.yaml.converter"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1704,13 +1636,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.winery.accountability"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="io.netty.codec-http"
          download-size="0"
          install-size="0"
@@ -1723,7 +1648,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="io.netty.codec-mqtt"
          download-size="0"
@@ -1856,4 +1781,89 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.opentosca.deployment.checks"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.planbuilder.prephase.plugin.fileupload"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.accountability"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.bpmn4tosca.converter.tobpel"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.compliance"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.generators.ia"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.highlevelrestapi"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.model.bpmn4tosca"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.model.selfservice"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.repository.client"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.yaml.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.winery.yaml.converter"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

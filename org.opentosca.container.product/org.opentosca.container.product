@@ -46,21 +46,33 @@
       <plugin id="com.eclipsesource.jaxrs.publisher" autoStart="true" startLevel="0" />
       <plugin id="com.eclipsesource.jaxrs.swagger-all" autoStart="true" startLevel="0" />
       <plugin id="javax.persistence" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-core" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-core-osgi" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-core-xml" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-cxf" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-cxf-transport" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-http" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-http-common" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-jaxb" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-jetty" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-jetty-common" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-jetty9" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-mqtt" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-restlet" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-spring" autoStart="true" startLevel="1" />
-      <plugin id="org.apache.camel.camel-stream" autoStart="true" startLevel="1" />
+      <plugin id="javax.servlet" autoStart="true" startLevel="0" />
+      <plugin id="javax.wsdl" autoStart="true" startLevel="0" />
+      <plugin id="javax.xml" autoStart="true" startLevel="0" />
+      <plugin id="javax.xml.stream" autoStart="true" startLevel="0" />
+      <plugin id="jclouds-blobstore" autoStart="true" startLevel="0" />
+      <plugin id="jclouds-core" autoStart="true" startLevel="0" />
+      <plugin id="jclouds-slf4j" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.aries.blueprint.api" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.aries.blueprint.core" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.aries.proxy.api" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.aries.util" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-blueprint" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-core" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-core-osgi" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-core-xml" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-cxf" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-cxf-transport" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-http" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-http-common" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-jaxb" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-jetty" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-jetty-common" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-jetty9" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-mqtt" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-restlet" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-spring" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-stream" autoStart="true" startLevel="0" />
       <plugin id="org.apache.commons.codec" autoStart="true" startLevel="0" />
       <plugin id="org.apache.commons.httpclient" autoStart="true" startLevel="0" />
       <plugin id="org.apache.commons.io" autoStart="true" startLevel="0" />
@@ -127,15 +139,15 @@
       <plugin id="org.opentosca.bus.management.api.osgievent" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.api.resthttp" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.api.soaphttp" autoStart="true" startLevel="5" />
-      <plugin id="org.opentosca.bus.management.deployment.plugin" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.bus.management.deployment.plugin.remote" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.bus.management.deployment.plugin.script" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.bus.management.deployment.plugin.tomcat" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.bus.management.invocation.plugin" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.bus.management.invocation.plugin.remote" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.bus.management.invocation.plugin.rest" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.bus.management.invocation.plugin.script" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.bus.management.invocation.plugin.soaphttp" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.management.deployment.plugin" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.deployment.plugin.remote" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.deployment.plugin.script" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.deployment.plugin.tomcat" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.invocation.plugin" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.invocation.plugin.remote" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.invocation.plugin.rest" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.invocation.plugin.script" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.invocation.plugin.soaphttp" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.service" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.service.impl" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.container.api" autoStart="true" startLevel="6" />
