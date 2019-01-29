@@ -1446,13 +1446,6 @@
          unpack="false"/>
 
    <plugin
-         id="xerces.Impl"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.apache.xml.resolver"
          download-size="0"
          install-size="0"
@@ -1861,6 +1854,20 @@
 
    <plugin
          id="org.eclipse.winery.yaml.converter"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.annotation"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="xerces.Impl"
          download-size="0"
          install-size="0"
          version="0.0.0"

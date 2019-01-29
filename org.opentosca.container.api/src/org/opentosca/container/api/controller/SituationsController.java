@@ -42,6 +42,12 @@ public class SituationsController {
     private InstanceService instanceService;
 
     @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getRoot() {
+        return Response.ok("Situations").build();
+    }
+
+    @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/situations")
     public Response getSituations() {

@@ -49,12 +49,14 @@ public class RootController {
         final ResourceSupport links = new ResourceSupport();
         links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
         links.add(Link.fromResource(CsarController.class).rel("csars").baseUri(this.uriInfo.getBaseUri()).build());
-        links.add(Link.fromResource(SituationsController.class).rel("situationsapi").baseUri(this.uriInfo.getBaseUri())
+        links.add(
+            Link.fromResource(SituationsController.class).rel("situations").baseUri(this.uriInfo.getBaseUri())
                       .build());
 
+        // TODO: This does not work anymore because the legacy API has been removed
         // Link to plan builder resources
-        links.add(Link.fromUriBuilder(this.uriInfo.getBaseUriBuilder().path("containerapi").path("planbuilder"))
-                      .rel("planbuilder").baseUri(this.uriInfo.getBaseUri()).build());
+        // links.add(Link.fromUriBuilder(this.uriInfo.getBaseUriBuilder().path("containerapi").path("planbuilder"))
+        // .rel("planbuilder").baseUri(this.uriInfo.getBaseUri()).build());
 
         return Response.ok(links).build();
     }
