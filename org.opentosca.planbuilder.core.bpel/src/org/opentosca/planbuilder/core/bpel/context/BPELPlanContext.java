@@ -76,9 +76,15 @@ public class BPELPlanContext implements PlanContext {
 
     public static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
     public static final String ServiceInstanceIDVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
-    public static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";
+    public static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";        
     public static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
 
+    
+    
+    public static Variable getVariable(String varName) {
+        return new Variable(null, varName);
+    }
+    
     public static String getVariableContent(final Variable variable, final BPELPlanContext context) {
         // check whether the property is empty --> external parameter
         for (final AbstractNodeTemplate node : context.getNodeTemplates()) {
