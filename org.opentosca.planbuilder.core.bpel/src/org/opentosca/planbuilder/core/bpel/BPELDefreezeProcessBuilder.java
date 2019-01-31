@@ -402,12 +402,12 @@ public class BPELDefreezeProcessBuilder extends AbstractTerminationPlanBuilder {
                 serviceTemplateId = new QName(definitions.getTargetNamespace(), serviceTemplate.getId());
             }
 
-            BPELDefreezeProcessBuilder.LOG.debug("ServiceTemplate {} has no BackupPlan, generating BackuopPlan",
+            BPELDefreezeProcessBuilder.LOG.debug("ServiceTemplate {} has no DefreezePlan, generating a new plan",
                                                  serviceTemplateId.toString());
             final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplateId);
 
             if (newBuildPlan != null) {
-                BPELDefreezeProcessBuilder.LOG.debug("Created BackupPlan "
+                BPELDefreezeProcessBuilder.LOG.debug("Created Defreeze sPlan "
                     + newBuildPlan.getBpelProcessElement().getAttribute("name"));
                 plans.add(newBuildPlan);
             }

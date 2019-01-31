@@ -100,7 +100,7 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
     @Override
     public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
                               final QName serviceTemplateId) {
-        BPELFreezeProcessBuilder.LOG.info("Making Concrete Plans");
+        BPELFreezeProcessBuilder.LOG.info("Making Plans");
 
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
             String namespace;
