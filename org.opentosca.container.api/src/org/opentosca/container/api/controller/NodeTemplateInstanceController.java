@@ -3,6 +3,7 @@ package org.opentosca.container.api.controller;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -190,10 +191,13 @@ public class NodeTemplateInstanceController {
     @GET
     @Path("/{id}/properties")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getNodeTemplateInstancePropertiesAsJson(@PathParam("id") final Long id) {
+    @ApiOperation(
+        value = "Get properties of a node template instance",
+        response = Map.class)
+    public Map<String, String> getNodeTemplateInstancePropertiesAsJson(@PathParam("id") final Long id) {
         final NodeTemplateInstance instance =
             this.instanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
-        return Response.ok(instance.getPropertiesAsMap()).build();
+        return instance.getPropertiesAsMap();
     }
 
     @GET
