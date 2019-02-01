@@ -174,7 +174,7 @@ public class NodeTemplateInstanceController {
 
     @GET
     @Path("/{id}/properties")
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_XML)
     @ApiOperation(hidden = true, value = "")
     public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
         final Document properties =
@@ -185,6 +185,15 @@ public class NodeTemplateInstanceController {
         } else {
             return Response.ok(properties).build();
         }
+    }
+
+    @GET
+    @Path("/{id}/properties")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getNodeTemplateInstancePropertiesAsJson(@PathParam("id") final Long id) {
+        final NodeTemplateInstance instance =
+            this.instanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
+        return Response.ok(instance.getPropertiesAsMap()).build();
     }
 
     @GET
