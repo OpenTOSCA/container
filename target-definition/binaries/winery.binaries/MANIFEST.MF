@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenTOSCA Winery Binaries
+Bundle-SymbolicName: winery.binaries
+Bundle-Version: 2.0.0.qualifier
+Bundle-Vendor: OpenTOSCA
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.eclipse.winery.model.tosca,
+ org.eclipse.winery.repository,
+ org.eclipse.winery.accountability.exceptions,
+ org.eclipse.winery.common.ids.definitions,
+ org.eclipse.winery.common.interfaces,
+ org.eclipse.winery.model.csar.toscametafile,
+ org.eclipse.winery.model.selfservice,
+ org.eclipse.winery.model.tosca.visitor,
+ org.eclipse.winery.repository.backend,
+ org.eclipse.winery.repository.backend.filebased,
+ org.eclipse.winery.repository.datatypes.ids.elements,
+ org.eclipse.winery.repository.export,
+ org.eclipse.winery.repository.exceptions,
+ org.eclipse.winery.repository.importing,
+ org.eclipse.winery.repository.configuration

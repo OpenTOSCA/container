@@ -183,11 +183,8 @@
 <repository location="http://hstaudacher.github.io/osgi-jax-rs-connector"/>
 	<unit id="com.eclipsesource.jaxrs.provider.swagger.feature.feature.group" version="1.1.1.201602281253"/>
 </location>
-	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-		<repository location="https://raw.githubusercontent.com/OpenTOSCA/winery-update-site/ustutt/"/>
-		<unit id="winery.feature.group" version="2.0.0"/>
-		<unit id="winery.source.feature.group" version="2.0.0"/>
-	</location>
+	<location path="${eclipse_home}" type="Profile"/>
+	<location path="${project_loc:/target-definition}/binaries" type="Directory"/>
 </locations>
 <includeBundles>
 <plugin id="ch.qos.logback.classic.source" version="1.2.3"/>
@@ -296,15 +293,6 @@
 <plugin id="javax.xml.stream" version="1.0.1.v201004272200"/>
 <plugin id="jaxb-core"/>
 <plugin id="jaxb-xjc"/>
-<plugin id="jclouds-blobstore"/>
-<plugin id="jclouds-blobstore.source"/>
-<plugin id="jclouds-core"/>
-<plugin id="jclouds-core.source"/>
-<plugin id="jclouds-slf4j"/>
-<plugin id="jclouds-slf4j.source"/>
-<plugin id="jstl"/>
-<plugin id="net.jcip.annotations"/>
-<plugin id="net.jcip.annotations.source"/>
 <plugin id="net.oauth.core.oauth"/>
 <plugin id="net.oauth.core.oauth-provider"/>
 <plugin id="org.apache.ant"/>
@@ -824,36 +812,6 @@
 <plugin id="org.eclipse.ui.workbench.texteditor.source"/>
 <plugin id="org.eclipse.update.configurator"/>
 <plugin id="org.eclipse.update.configurator.source"/>
-<plugin id="org.eclipse.virgo.util.parser.manifest"/>
-<plugin id="org.eclipse.virgo.util.parser.manifest.source"/>
-<plugin id="org.eclipse.winery.bpmn4tosca.converter.tobpel"/>
-<plugin id="org.eclipse.winery.bpmn4tosca.converter.tobpel.source"/>
-<plugin id="org.eclipse.winery.common.source"/>
-<plugin id="org.eclipse.winery.compliance"/>
-<plugin id="org.eclipse.winery.generators.ia"/>
-<plugin id="org.eclipse.winery.generators.ia.source"/>
-<plugin id="org.eclipse.winery.highlevelrestapi"/>
-<plugin id="org.eclipse.winery.highlevelrestapi.source"/>
-<plugin id="org.eclipse.winery.model.bpmn4tosca"/>
-<plugin id="org.eclipse.winery.model.bpmn4tosca.source"/>
-<plugin id="org.eclipse.winery.model.csar.toscametafile"/>
-<plugin id="org.eclipse.winery.model.csar.toscametafile.source"/>
-<plugin id="org.eclipse.winery.model.selfservice"/>
-<plugin id="org.eclipse.winery.model.selfservice.source"/>
-<plugin id="org.eclipse.winery.model.tosca"/>
-<plugin id="org.eclipse.winery.model.tosca.source"/>
-<plugin id="org.eclipse.winery.model.tosca.yaml"/>
-<plugin id="org.eclipse.winery.model.tosca.yaml.source"/>
-<plugin id="org.eclipse.winery.repository"/>
-<plugin id="org.eclipse.winery.repository.client"/>
-<plugin id="org.eclipse.winery.repository.client.source"/>
-<plugin id="org.eclipse.winery.repository.configuration"/>
-<plugin id="org.eclipse.winery.repository.configuration.source"/>
-<plugin id="org.eclipse.winery.repository.source"/>
-<plugin id="org.eclipse.winery.yaml.common"/>
-<plugin id="org.eclipse.winery.yaml.common.source"/>
-<plugin id="org.eclipse.winery.yaml.converter"/>
-<plugin id="org.eclipse.winery.yaml.converter.source"/>
 <plugin id="org.glassfish.hk2.api" version="2.5.0.v20161103-0227"/>
 <plugin id="org.glassfish.hk2.api.source" version="2.5.0.v20161103-0227"/>
 <plugin id="org.glassfish.hk2.locator" version="2.5.0.v20161103-0227"/>

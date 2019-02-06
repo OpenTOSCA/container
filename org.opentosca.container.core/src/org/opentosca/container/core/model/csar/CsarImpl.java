@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
@@ -122,7 +121,7 @@ public class CsarImpl implements Csar {
     @Override
     public List<TExportedOperation> exportedOperations() {
         // FIXME
-        throw new NotImplementedException("not yet implemented");
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override

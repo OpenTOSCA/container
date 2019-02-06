@@ -24,6 +24,7 @@ Import-Package:
  org.opentosca.container.core.model.endpoint;version="2.0.0",
  org.opentosca.container.core.model.endpoint.wsdl;version="2.0.0",
  org.opentosca.container.core.service;version="2.0.0",
+ org.opentosca.container.core.tosca.extension;version="2.0.0",
  org.opentosca.container.engine.plan.plugin;version="2.0.0",
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.6.4"
