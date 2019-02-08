@@ -12,7 +12,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.planbuilder.AbstractTerminationPlanBuilder;
+import org.opentosca.planbuilder.AbstractFreezePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
@@ -32,23 +32,19 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 /**
  * @author Jan Ruthardt - st107755@stud.uni-stuttgart.de
  *
  */
-public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
+public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELFreezeProcessBuilder.class);
 
@@ -70,7 +66,7 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
     // accepted operations for provisioning
     private final List<String> opNames = new ArrayList<>();
     
-    private QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes","StatefulComponent");
+    
 
     /**
      * <p>
@@ -116,7 +112,7 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
             // we take the overall flow of an termination plan, basically with the goal of saving state from
             // the top to the bottom
             final AbstractPlan newAbstractBackupPlan =
-                generateTOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+                generateFOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 
             newAbstractBackupPlan.setType(PlanType.MANAGE);
             final BPELPlan newFreezePlan =
@@ -212,15 +208,6 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
     
     private boolean isStateful(AbstractNodeTemplate nodeTemplate) {
         return this.hasSaveStateInterface(nodeTemplate) && this.hasStatefulComponentPolicy(nodeTemplate);
-    }
-    
-    private boolean hasStatefulComponentPolicy(AbstractNodeTemplate nodeTemplate) {
-        for(AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if(policy.getType().getId().equals(this.statefulComponentPolicy)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean hasSaveStateInterface(AbstractNodeTemplate nodeTemplate) {
@@ -359,6 +346,9 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
                 boolean alreadyHandled = false;
                 AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 
+                
+                // TODO add termination logic
+                
                 /*
                  * generic save state code
                  */

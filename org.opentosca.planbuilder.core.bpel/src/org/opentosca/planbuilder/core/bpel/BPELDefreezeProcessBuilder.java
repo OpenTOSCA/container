@@ -2,7 +2,6 @@ package org.opentosca.planbuilder.core.bpel;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,15 +12,15 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.planbuilder.AbstractTerminationPlanBuilder;
+import org.opentosca.planbuilder.AbstractDefrostPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
@@ -32,18 +31,15 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class BPELDefreezeProcessBuilder extends AbstractTerminationPlanBuilder {
+public class BPELDefreezeProcessBuilder extends AbstractDefrostPlanBuilder {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELDefreezeProcessBuilder.class);
 
@@ -99,7 +95,7 @@ public class BPELDefreezeProcessBuilder extends AbstractTerminationPlanBuilder {
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_defreezePlan";
 
             final AbstractPlan newAbstractBackupPlan =
-                generateTOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+                generateDOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 
             final BPELPlan newDefreezePlan =
                 this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, "defreeze");
@@ -198,16 +194,7 @@ public class BPELDefreezeProcessBuilder extends AbstractTerminationPlanBuilder {
     }
     
     private boolean isStateful(AbstractNodeTemplate nodeTemplate) {
-        return this.hasLoadStateInterface(nodeTemplate) && this.hasStatefulComponentPolicy(nodeTemplate);
-    }
-    
-    private boolean hasStatefulComponentPolicy(AbstractNodeTemplate nodeTemplate) {
-        for(AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if(policy.getType().getId().equals(this.statefulComponentPolicy)) {
-                return true;
-            }
-        }
-        return false;
+        return this.hasLoadStateInterface(nodeTemplate) && this.hasFreezeableComponentPolicy(nodeTemplate);
     }
 
     private boolean hasLoadStateInterface(AbstractNodeTemplate nodeTemplate) {
