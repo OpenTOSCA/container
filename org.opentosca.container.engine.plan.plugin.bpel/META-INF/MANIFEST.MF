@@ -31,7 +31,6 @@ Import-Package: com.ibm.wsdl.extensions.http,
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.10"
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.jdt.annotation;bundle-version="[2.0.0,3.0.0)";resolution:=optional,
- org.opentosca.winery.binaries
+Require-Bundle: org.eclipse.jdt.annotation;bundle-version="[2.0.0,3.0.0)";resolution:=optional
 Service-Component: OSGI-INF/*
 Bundle-Activator: org.opentosca.container.engine.plan.plugin.bpel.Activator

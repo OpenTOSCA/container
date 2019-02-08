@@ -24,7 +24,7 @@ Import-Package: com.ibm.wsdl,
  org.opentosca.planbuilder.model.plan.bpel;version="2.0.0",
  org.opentosca.planbuilder.model.tosca;version="2.0.0",
  org.osgi.framework;version="1.8.0",
- org.slf4j
+ org.slf4j;version="1.7.10"
 Export-Package: org.opentosca.planbuilder.export;version="2.0.0",
  org.opentosca.planbuilder.importer;version="2.0.0",
  org.opentosca.planbuilder.integration.layer;uses:="org.opentosca.planbuilder.model.tosca,org.opentosca.planbuilder.model.plan,javax.xml.namespace";version="2.0.0"

@@ -27,8 +27,7 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.opentosca.container.core.tosca;version="2.0.0",
  org.opentosca.container.core.tosca.convention;version="2.0.0",
  org.osgi.framework;version="1.6.0",
- org.slf4j;version="1.6.4"
+ org.slf4j;version="1.7.10"
 Service-Component: OSGI-INF/*
-Require-Bundle: org.eclipse.jdt.annotation;bundle-version="[2.0.0,3.0.0)";resolution:=optional,
- org.opentosca.winery.binaries
+Require-Bundle: org.eclipse.jdt.annotation;bundle-version="[2.0.0,3.0.0)";resolution:=optional
 Bundle-ActivationPolicy: lazy
