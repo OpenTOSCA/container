@@ -19,6 +19,30 @@
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.model</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.core.bpel</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.provphase.plugin.invoker</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 
 </project>

@@ -25,5 +25,15 @@
       <artifactId>org.opentosca.container.core</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.core.bpel</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>

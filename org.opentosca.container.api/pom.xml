@@ -20,6 +20,15 @@
           <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.tomcat.maven</groupId>
+        <artifactId>tomcat-maven-plugin</artifactId>
+        <version>2.2</version>
+        <configuration>
+          <port>1337</port>
+          <path>/</path>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -28,6 +37,7 @@
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.container.core</artifactId>
       <version>${project.version}</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>
@@ -91,6 +101,40 @@
       <artifactId>javax.ws.rs-api</artifactId>
       <version>2.0.1</version>
     </dependency>
-
+    <dependency>
+      <groupId>p2.osgi.bundle</groupId>
+      <artifactId>org.glassfish.jersey.media.jersey-media-json-jackson</artifactId>
+      <version>2.22.1.v20161117-2005</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-multipart</artifactId>
+      <version>2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-server</artifactId>
+      <version>2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>p2.osgi.bundle</groupId>
+      <artifactId>com.eclipsesource.jaxrs.publisher</artifactId>
+      <version>5.3.1.201602281253</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.csarhandler</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.integration</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.deployment.checks</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>

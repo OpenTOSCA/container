@@ -29,6 +29,16 @@
       <artifactId>camel-core</artifactId>
       <version>2.18.3</version>
     </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.management.invocation.plugin</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.management.service.impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

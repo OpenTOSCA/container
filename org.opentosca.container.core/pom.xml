@@ -29,6 +29,12 @@
     <dependency>
       <groupId>org.eclipse.winery</groupId>
       <artifactId>org.eclipse.winery.accountability</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.sun.jersey</groupId>
+          <artifactId>jersey-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.eclipse.winery</groupId>

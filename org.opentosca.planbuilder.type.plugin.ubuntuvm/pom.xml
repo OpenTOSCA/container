@@ -14,7 +14,22 @@
   <dependencies>
     <dependency>
       <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.container.core.tosca</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.container.core.bpel</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.planbuilder.model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.provphase.plugin.invoker</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

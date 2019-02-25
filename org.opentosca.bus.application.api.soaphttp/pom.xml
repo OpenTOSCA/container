@@ -21,6 +21,11 @@
       <artifactId>org.opentosca.bus.application.model</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.application.service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.osgi</groupId>
