@@ -10,6 +10,5 @@
   </parent>
 
   <artifactId>org.opentosca.bus.management.invocation.plugin.soaphttp</artifactId>
-  <packaging>eclipse-plugin</packaging>
 
 </project>

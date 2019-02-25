@@ -10,6 +10,15 @@
   </parent>
 
   <artifactId>org.opentosca.planbuilder.csarhandler</artifactId>
-  <packaging>eclipse-plugin</packaging>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+    </dependency>
+  </dependencies>
 </project>

@@ -10,6 +10,94 @@
   </parent>
 
   <artifactId>org.opentosca.container.core</artifactId>
-  <packaging>eclipse-plugin</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.container.core.tosca</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.winery</groupId>
+      <artifactId>org.eclipse.winery.model.tosca</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.winery</groupId>
+      <artifactId>org.eclipse.winery.accountability</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.winery</groupId>
+      <artifactId>org.eclipse.winery.repository</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+      <version>2.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-common</artifactId>
+      <version>2.15</version>
+    </dependency>
+    <dependency>
+      <groupId>p2.osgi.bundle</groupId>
+      <artifactId>org.eclipse.persistence.core</artifactId>
+      <version>2.6.3.v20160428-59c81c5</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>javax.persistence-api</artifactId>
+      <version>2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-client</artifactId>
+      <version>2.15</version>
+    </dependency>
+    <dependency>
+      <groupId>p2.osgi.bundle</groupId>
+      <artifactId>org.eclipse.osgi.services</artifactId>
+      <version>3.5.100.v20160504-1419</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.8.0</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>p2.osgi.bundle</groupId>
+      <artifactId>javax.persistence</artifactId>
+      <version>2.1.1.v201509150925</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.osgi</artifactId>
+      <version>3.13.100</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.equinox.common</artifactId>
+      <version>3.10.100</version>
+    </dependency>
+  </dependencies>
 
 </project>

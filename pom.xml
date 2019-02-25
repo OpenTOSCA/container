@@ -8,96 +8,24 @@
   <packaging>pom</packaging>
 
   <properties>
-    <tycho-version>1.2.0</tycho-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+
+    <winery.version>2.0.0-SNAPSHOT</winery.version>
   </properties>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <extensions>true</extensions>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-packaging-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <configuration>
-          <deployableFeature>true</deployableFeature>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>target-platform-configuration</artifactId>
-        <version>${tycho-version}</version>
-        <configuration>
-          <pomDependencies>consider</pomDependencies>
-          <targetDefinitionIncludeSource>force</targetDefinitionIncludeSource>
-          <target>
-            <resolver>p2</resolver>
-            <artifact>
-              <groupId>org.opentosca</groupId>
-              <artifactId>target-definition</artifactId>
-              <version>${project.version}</version>
-            </artifact>
-          </target>
-          <environments>
-            <!--
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86</arch>
-            </environment>
-            -->
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <!--
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86</arch>
-            </environment>
-            -->
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>macosx</os>
-              <ws>cocoa</ws>
-              <arch>x86_64</arch>
-            </environment>
-          </environments>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-source-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <executions>
-          <execution>
-            <id>plugin-source</id>
-            <goals>
-              <goal>plugin-source</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+  <repositories>
+    <!-- for resthttp management bus api -->
+    <repository>
+      <name>Spring Plugins Public Repository</name>
+      <id>spring-plugins</id>
+      <url>http://repo.spring.io/plugins-release/</url>
+    </repository>
+  </repositories>
 
   <modules>
-    <module>target-definition</module>
     <module>org.opentosca.broker.mqtt</module>
-    <module>org.opentosca.container.application</module>
     <module>org.opentosca.container.config.logging</module>
     <module>org.opentosca.container.connector.bps</module>
     <module>org.opentosca.container.connector.ode</module>
@@ -154,8 +82,61 @@
     <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.patternbased</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
-    <module>org.opentosca.container.feature</module>
-    <module>org.opentosca.container.product</module>
   </modules>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>23.4-jre</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>2.1.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.25</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jdt</groupId>
+        <artifactId>org.eclipse.jdt.annotation</artifactId>
+        <version>2.1.0</version>
+        <scope>compile</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.winery</groupId>
+        <artifactId>org.eclipse.winery.model.tosca</artifactId>
+        <version>${winery.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.winery</groupId>
+        <artifactId>org.eclipse.winery.model.selfservice</artifactId>
+        <version>${winery.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.winery</groupId>
+        <artifactId>org.eclipse.winery.accountability</artifactId>
+        <version>${winery.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.winery</groupId>
+        <artifactId>org.eclipse.winery.repository</artifactId>
+        <version>${winery.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>4.3.1</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

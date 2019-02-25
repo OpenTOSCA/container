@@ -9,6 +9,5 @@
   </parent>
 
   <artifactId>org.opentosca.container.integration.tests</artifactId>
-  <packaging>eclipse-plugin</packaging>
 
 </project>

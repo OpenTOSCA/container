@@ -10,6 +10,20 @@
   </parent>
 
   <artifactId>org.opentosca.planbuilder.type.plugin.connectsto</artifactId>
-  <packaging>eclipse-plugin</packaging>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.container.core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 </project>

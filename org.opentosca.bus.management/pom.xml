@@ -10,6 +10,5 @@
   </parent>
 
   <artifactId>org.opentosca.bus.management</artifactId>
-  <packaging>eclipse-plugin</packaging>
 
 </project>
