@@ -24,8 +24,9 @@ import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractFreezePlanBuilder extends AbstractPlanBuilder {
-    
-    QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes","StatefulComponent");
+
+    QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes", "StatefulComponent");
+    QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
 
     protected AbstractPlan generateFOG(final String id, final AbstractDefinitions definitions,
                                        final AbstractServiceTemplate serviceTemplate) {
@@ -36,30 +37,33 @@ public abstract class AbstractFreezePlanBuilder extends AbstractPlanBuilder {
 
 
         final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
-        
-        
-        // Get all node templates which are sources only --> that don't 
+
+
+        // Get all node templates which are sources only --> that don't
         for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-            
-                if(this.hasStatefulComponentPolicy(nodeTemplate)) {
-                    final ANodeTemplateActivity activity = new ANodeTemplateActivity(
-                                                                                     nodeTemplate.getId() + "_freeze_activity", ActivityType.FREEZE, nodeTemplate);
-                    activities.add(activity);
-                    mapping.put(nodeTemplate, activity);
-                } else {                    
-                    final ANodeTemplateActivity activity = new ANodeTemplateActivity(
-                                                                                     nodeTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, nodeTemplate);
-                    activities.add(activity);
-                    mapping.put(nodeTemplate, activity);
-                }
-            
+
+            if (this.hasFreezableComponentPolicy(nodeTemplate)) {
+                final ANodeTemplateActivity activity = new ANodeTemplateActivity(
+                    nodeTemplate.getId() + "_freeze_activity", ActivityType.FREEZE, nodeTemplate);
+                activities.add(activity);
+                mapping.put(nodeTemplate, activity);
+            } else if (!this.hasStatefulComponentPolicy(nodeTemplate)) {
+                final ANodeTemplateActivity activity = new ANodeTemplateActivity(
+                    nodeTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, nodeTemplate);
+                activities.add(activity);
+                mapping.put(nodeTemplate, activity);
+            }
+            // else we ignore, because there is nothing to do, if the component is only stateful.
+            // It might be the case that it is accessed by an underlying component which is freezable, hence, it
+            // should not be terminated beforehand.
+
         }
 
         for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
             final ARelationshipTemplateActivity activity = new ARelationshipTemplateActivity(
                 relationshipTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, relationshipTemplate);
             activities.add(activity);
-            
+
             final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
 
             if (baseType.equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
@@ -79,10 +83,18 @@ public abstract class AbstractFreezePlanBuilder extends AbstractPlanBuilder {
 
         return abstractTerminationPlan;
     }
-    
+
     protected boolean hasStatefulComponentPolicy(AbstractNodeTemplate nodeTemplate) {
-        for(AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if(policy.getType().getId().equals(this.statefulComponentPolicy)) {
+        return this.hasPolicy(nodeTemplate, this.statefulComponentPolicy);
+    }
+
+    protected boolean hasFreezableComponentPolicy(AbstractNodeTemplate nodeTemplate) {
+        return this.hasPolicy(nodeTemplate, this.freezableComponentPolicy);
+    }
+
+    private boolean hasPolicy(AbstractNodeTemplate nodeTemplate, QName policyType) {
+        for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
+            if (policy.getType().getId().equals(policyType)) {
                 return true;
             }
         }
