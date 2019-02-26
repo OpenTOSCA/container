@@ -58,19 +58,20 @@ public class ServiceRegistry {
         // TODO: Temporary workaround
         // This is a workaround related to issue JERSEY-2093; grizzly
         // (1.9.5)
-        final ClassLoader classLoader = this.getClass().getClassLoader();
-        final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(classLoader);
-            httpService.registerServlet("/planbuilder", new ServletContainer(), initParams, null);
-        }
-        catch (final Exception ex) {
-            ex.printStackTrace();
-
-        }
-        finally {
-            Thread.currentThread().setContextClassLoader(contextClassLoader);
-        }
+      // FIXME reinstate whatever this exactly did, it looks like we're registering a new application with our servlet container
+//        final ClassLoader classLoader = this.getClass().getClassLoader();
+//        final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+//        try {
+//            Thread.currentThread().setContextClassLoader(classLoader);
+//            httpService.registerServlet("/planbuilder", new ServletContainer(), initParams, null);
+//        }
+//        catch (final Exception ex) {
+//            ex.printStackTrace();
+//
+//        }
+//        finally {
+//            Thread.currentThread().setContextClassLoader(contextClassLoader);
+//        }
     }
 
     protected void unbindHttpService(final HttpService httpService) {

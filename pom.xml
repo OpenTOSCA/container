@@ -16,6 +16,11 @@
   </properties>
 
   <repositories>
+    <repository>
+      <name>Central</name>
+      <id>central</id>
+      <url>http://repo1.maven.org/maven2/</url>
+    </repository>
     <!-- for resthttp management bus api -->
     <repository>
       <name>Spring Plugins Public Repository</name>
