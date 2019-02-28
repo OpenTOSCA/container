@@ -28,6 +28,7 @@ import io.swagger.annotations.Contact;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
+import org.springframework.web.bind.annotation.RestController;
 
 @SwaggerDefinition(info = @Info(title = "Public API for OpenTOSCA Container",
                                 description = "API access to query entities and manipulate them using plans",
@@ -37,6 +38,7 @@ import io.swagger.annotations.SwaggerDefinition;
                                 license = @License(name = "Apache License, Version 2.0",
                                                    url = "https://www.apache.org/licenses/LICENSE-2.0")))
 @Path("/")
+@RestController
 public class RootController {
 
     @Context

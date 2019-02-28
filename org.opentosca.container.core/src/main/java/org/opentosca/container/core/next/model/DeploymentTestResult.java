@@ -12,8 +12,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.opentosca.container.core.next.utils.Consts;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -133,7 +131,7 @@ public class DeploymentTestResult extends PersistenceObject {
         if (this.output == null) {
             this.output = output;
         } else {
-            this.output = new StringBuilder(this.output).append(Consts.NL).append(output).toString();
+            this.output = new StringBuilder(this.output).append(System.getProperty("line.separator")).append(output).toString();
         }
     }
 

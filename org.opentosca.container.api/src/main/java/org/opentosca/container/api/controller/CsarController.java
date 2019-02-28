@@ -53,9 +53,11 @@ import org.slf4j.LoggerFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Api
 @javax.ws.rs.Path("/csars")
+@RestController
 public class CsarController {
 
     private static Logger logger = LoggerFactory.getLogger(CsarController.class);
@@ -317,23 +319,5 @@ public class CsarController {
             return Response.serverError().build();
         }
         return Response.noContent().build();
-    }
-
-    @Inject
-    public void setCsarService(final CsarService csarService) {
-        logger.debug("Binding CsarService");
-        this.csarService = csarService;
-    }
-
-    @Inject
-    public void setStorageService(final CsarStorageService storageService) {
-        logger.debug("Binding CsarStorageService");
-        this.storage = storageService;
-    }
-
-    @Inject
-    public void setControlService(final OpenToscaControlService controlService) {
-        logger.debug("Binding ToscaControlService");
-        this.controlService = controlService;
     }
 }

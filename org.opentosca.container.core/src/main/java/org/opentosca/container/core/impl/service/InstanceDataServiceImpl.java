@@ -50,6 +50,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -65,6 +66,7 @@ import org.w3c.dom.NodeList;
 @Deprecated
 @WebService(name = "InstanceDataService")
 @SOAPBinding(style = SOAPBinding.Style.RPC)
+@Service
 public class InstanceDataServiceImpl implements IInstanceDataService {
 
     final private static Logger logger = LoggerFactory.getLogger(InstanceDataServiceImpl.class);

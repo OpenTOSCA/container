@@ -8,15 +8,21 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 /**
  * Static service handler which provides services of other OSGI components in a static way for
  * classes of this bundle.
  */
 public class ServiceProxy {
 
+    @Inject
     public static IToscaEngineService toscaEngineService = null;
+    @Inject
     public static IToscaReferenceMapper toscaReferenceMapper = null;
+    @Inject
     public static IXMLSerializerService xmlSerializerService = null;
+    @Inject
     public static ICSARInstanceManagementService csarInstanceManagement = null;
 
     public static CorrelationHandler correlationHandler = new CorrelationHandler();

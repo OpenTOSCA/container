@@ -6,11 +6,13 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.springframework.stereotype.Service;
 
 /**
  * This class is a proxy to the toscaEngineService In a later refactoring (after some discussions)
  * some methods of this Proxy maybe directly ported to the ToscaEngine / ReferenceMapper
  */
+@Service
 // TODO: remove when no real logic is there anymore
 public class ToscaEngineProxy {
 

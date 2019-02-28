@@ -22,6 +22,7 @@ import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * This Class stores and retrieves Endpoint-Objects in the Database, using
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * For the JPA-Queries refer to: {@link RESTEndpoint}, {@link WSDLEndpoint}
  */
+@Service
 public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandProvider, AutoCloseable {
     private final static Logger LOG = LoggerFactory.getLogger(CoreEndpointServiceImpl.class);
 

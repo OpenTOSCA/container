@@ -39,6 +39,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -56,6 +57,7 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  *
  */
+@Service
 public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler {
 
     private final ResponseParser responseParser = new ResponseParser();

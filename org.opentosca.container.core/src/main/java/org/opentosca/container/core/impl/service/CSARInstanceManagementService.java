@@ -15,11 +15,13 @@ import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Implementation of the management of CSARInstances and History.
  */
 @Deprecated
+@Service
 public class CSARInstanceManagementService implements ICSARInstanceManagementService {
 
     private final Logger LOG = LoggerFactory.getLogger(CSARInstanceManagementService.class);

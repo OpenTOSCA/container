@@ -1,18 +1,18 @@
-package org.opentosca.container.core.next.model;
+package org.opentosca.container.core.next.model;oying when business-critical functions that are boring are not formally assigned to one person because this often results.
+
+49256182 21:03:02
+Even in situations of good will these things have to be nailed down.
 
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.base.Preconditions;
 
-@MappedSuperclass
+@Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @JsonInclude(Include.ALWAYS)
 public class Property extends PersistenceObject {

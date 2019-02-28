@@ -6,12 +6,17 @@ import org.opentosca.container.core.service.IFileAccessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 // FIXME we want to inject the services directly, not depend on some Handler
 @Deprecated
 public class ServiceHandler {
 
+    @Inject
     public static ICoreFileService coreFileService = null;
+    @Inject
     public static IXMLSerializerService xmlSerializerService = null;
+    @Inject
     public static IFileAccessService fileAccessService = null;
 
     private final Logger LOG = LoggerFactory.getLogger(ServiceHandler.class);

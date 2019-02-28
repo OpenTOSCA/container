@@ -1,5 +1,8 @@
 package org.opentosca.container.core.common;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -34,30 +37,37 @@ public class Settings {
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
 
     public final static String OPENTOSCA_DEPLOYMENT_TESTS = System.getProperty("org.opentosca.deployment.checks", "false");
-    
-    public final static String CONTAINER_STORAGE_BASEPATH = "org.opentosca.container.storage.basepath";
+
+    public final static Path CONTAINER_STORAGE_BASEPATH = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "container", "csar-storage");
+    /**
+     * OpenTOSCA Container database location
+     */
+    public static final Path DBDIR = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "db");
 
     public final static String OPENTOSCA_COLLABORATION_MODE =
-        System.getProperty("org.opentosca.container.collaboration.mode", "false");
+          System.getProperty("org.opentosca.container.collaboration.mode", "false");
     public final static String OPENTOSCA_COLLABORATION_HOSTNAMES =
-        System.getProperty("org.opentosca.container.collaboration.hostnames");
+          System.getProperty("org.opentosca.container.collaboration.hostnames");
     public final static String OPENTOSCA_COLLABORATION_PORTS =
-        System.getProperty("org.opentosca.container.collaboration.ports");
+          System.getProperty("org.opentosca.container.collaboration.ports");
 
     public final static String OPENTOSCA_BROKER_MQTT_PORT =
-        System.getProperty("org.opentosca.container.broker.mqtt.port", "1883");
+          System.getProperty("org.opentosca.container.broker.mqtt.port", "1883");
     public final static String OPENTOSCA_BROKER_MQTT_USERNAME =
-        System.getProperty("org.opentosca.container.broker.mqtt.username", "admin");
+          System.getProperty("org.opentosca.container.broker.mqtt.username", "admin");
     public final static String OPENTOSCA_BROKER_MQTT_PASSWORD =
-        System.getProperty("org.opentosca.container.broker.mqtt.password", "admin");
+          System.getProperty("org.opentosca.container.broker.mqtt.password", "admin");
 
-    // TODO: Use public static final variables instead, as in
+  // TODO: Use public static final variables instead, as in
     // StaticTOSCANamespaces. The problems with the current approach is: (i)
     // Full-text search to find usage instead of Java Reference Search. (ii) It
     // is possible to references non-existing settings, which is not possible
     // with static variables which are checked on compile time.
 
     private static Properties settings = new Properties();
+    static {
+        // Initialize settings with defaults we know
+    }
 
     // Container Capabilities
     public final static String containerCapabilities =

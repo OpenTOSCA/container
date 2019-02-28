@@ -1,6 +1,7 @@
 package org.opentosca.container.core.model.deployment;
 
 import javax.persistence.Column;
+import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 import org.eclipse.persistence.annotations.Convert;
@@ -18,6 +19,7 @@ public abstract class AbstractDeploymentInfo {
     // TODO: Rename property to csarId
     @Convert(CsarIdConverter.name)
     @Column(name = "csarID")
+    @Id
     private CsarId csarID;
 
 

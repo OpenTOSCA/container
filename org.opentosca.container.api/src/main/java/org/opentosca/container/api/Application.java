@@ -46,7 +46,6 @@ public class Application extends javax.ws.rs.core.Application {
         new CorsFilter()
         , new PlainTextMessageBodyWriter()
         , new URI2XMLMessageBodyWriter()
-        , new ExceptionMessageBodyWriter()
         , new ObjectMapperProvider()
 //        , new JacksonFeature()
 //        , new MultiPartFeature()

@@ -17,10 +17,12 @@ import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 
 
+@Service
 public class CsarService {
 
     private static Logger logger = LoggerFactory.getLogger(CsarService.class);

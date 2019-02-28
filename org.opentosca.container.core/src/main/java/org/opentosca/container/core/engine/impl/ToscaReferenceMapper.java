@@ -29,6 +29,7 @@ import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -42,6 +43,7 @@ import org.w3c.dom.Node;
  * @au Christian Endres - endrescn@studi.informatik.uni-stuttgart.de
  *
  */
+@Service
 public class ToscaReferenceMapper implements IToscaReferenceMapper {
 
     // services

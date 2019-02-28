@@ -31,11 +31,12 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.CsarImpl;
-import org.opentosca.container.core.next.utils.Consts;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 @NonNullByDefault
 public class CsarStorageServiceImpl implements CsarStorageService {
 
@@ -43,15 +44,14 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     private final Path basePath;
     public CsarStorageServiceImpl() {
-        final Path settingsBasePath = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
         try {
-            Files.createDirectories(settingsBasePath);
+            Files.createDirectories(Settings.CONTAINER_STORAGE_BASEPATH);
         }
         catch (IOException e) {
             LOGGER.error("Could not set up storage for Csars", e);
             throw new ExceptionInInitializerError(e);
         }
-        basePath = settingsBasePath;
+        basePath = Settings.CONTAINER_STORAGE_BASEPATH;
     }
     
     public CsarStorageServiceImpl(Path basePath) {
@@ -96,7 +96,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     @Nullable
     public Path storeCSARTemporarily(String filename, InputStream is) {
         try {
-            Path tempLocation = Paths.get(Consts.TMPDIR, filename);
+            Path tempLocation = Paths.get(System.getProperty("java.io.tmpdir"), filename);
             if (Files.exists(tempLocation)) {
                 // well ... umm ... let's just delete it, I guess?
                 Files.delete(tempLocation);

@@ -19,6 +19,7 @@ import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * This class stores, gets and deletes capabilities of different provider and provider types in/from
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  *
  */
+@Service
 public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
     private final String CapabilitiesTable = "CAPABILITIES";
     private final EntityManager em;

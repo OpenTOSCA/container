@@ -15,11 +15,13 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Store for files that are needed by the Container and its tests. Every file can be accessed by a
  * separate method.
  */
+@Service
 public class FileAccessServiceImpl implements IFileAccessService {
 
     final private static Logger LOG = LoggerFactory.getLogger(FileAccessServiceImpl.class);

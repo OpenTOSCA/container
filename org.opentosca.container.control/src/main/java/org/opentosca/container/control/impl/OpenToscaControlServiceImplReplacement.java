@@ -36,7 +36,9 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
 import org.opentosca.container.engine.plan.IPlanEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class OpenToscaControlServiceImplReplacement implements OpenToscaControlService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaControlServiceImplReplacement.class);

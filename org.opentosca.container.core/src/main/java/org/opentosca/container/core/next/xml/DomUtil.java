@@ -9,7 +9,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opentosca.container.core.next.utils.Consts;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -46,7 +45,7 @@ public abstract class DomUtil {
                 return data.getNodeValue();
             }
         }
-        return Consts.EMPTY;
+        return "";
     }
 
     public static String getNodeValue(final String tagName, final NodeList nodes) {
@@ -62,7 +61,7 @@ public abstract class DomUtil {
                 }
             }
         }
-        return Consts.EMPTY;
+        return "";
     }
 
     public static String getNodeAttribute(final String attrName, final Node node) {
@@ -73,7 +72,7 @@ public abstract class DomUtil {
                 return attr.getNodeValue();
             }
         }
-        return Consts.EMPTY;
+        return "";
     }
 
     public static String getNodeAttribute(final String tagName, final String attrName, final NodeList nodes) {
@@ -91,7 +90,7 @@ public abstract class DomUtil {
                 }
             }
         }
-        return Consts.EMPTY;
+        return "";
     }
 
     public static String toString(final Document document) {

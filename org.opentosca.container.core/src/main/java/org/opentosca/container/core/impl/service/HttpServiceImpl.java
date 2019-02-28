@@ -22,12 +22,14 @@ import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.opentosca.container.core.service.IHTTPService;
+import org.springframework.stereotype.Service;
 
 /**
  * This is an implementation of the {@link org.opentosca.util.http.service.IHTTPService} interface.
  * A lot of methods currently offer only very basic functionality which could be extended in the
  * future if the need arises. All methods make use of the Apache HttpComponents.
  */
+@Service
 public class HttpServiceImpl implements IHTTPService {
 
     DefaultHttpClient client;

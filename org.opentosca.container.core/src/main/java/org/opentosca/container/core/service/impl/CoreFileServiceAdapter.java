@@ -15,10 +15,12 @@ import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 // This is only an intermediary class helper that proxies to the CsarStorageService
 // until code actually depends on the new service
 @Deprecated
+@Service
 public class CoreFileServiceAdapter implements ICoreFileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CoreFileServiceAdapter.class);

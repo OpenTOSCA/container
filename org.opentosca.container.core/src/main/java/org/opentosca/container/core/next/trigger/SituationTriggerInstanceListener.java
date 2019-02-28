@@ -54,6 +54,7 @@ public class SituationTriggerInstanceListener {
 
         public SituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
             this.instance = instance;
+            // FIXME OH MY GOD, DON'T ACCESS THIS!
             final BundleContext ctx = org.opentosca.container.core.Activator.getContext();
             ServiceReference<?> ref = ctx.getServiceReference(IPlanInvocationEngine.class.getName());
             this.planInvocEngine = (IPlanInvocationEngine) ctx.getService(ref);
