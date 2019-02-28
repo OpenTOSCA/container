@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TEntityTemplate;
@@ -44,6 +45,7 @@ public class NodeTemplateService {
     // TODO add some trace logging
     private static Logger LOGGER = LoggerFactory.getLogger(NodeTemplateService.class);
 
+    @Inject
     private CsarStorageService storage;
 
     /**

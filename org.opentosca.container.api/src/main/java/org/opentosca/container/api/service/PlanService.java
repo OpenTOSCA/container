@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServerErrorException;
 import javax.xml.namespace.QName;
@@ -35,8 +36,10 @@ public class PlanService {
 
     private static final PlanTypes[] ALL_PLAN_TYPES = PlanTypes.values();
 
+    @Inject
     private OpenToscaControlService controlService;
 
+    @Inject
     private DeploymentTestService deploymentTestService;
 
     private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();

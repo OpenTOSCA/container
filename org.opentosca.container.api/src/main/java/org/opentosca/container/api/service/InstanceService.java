@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -63,8 +64,11 @@ public class InstanceService {
     private final SituationTriggerRepository sitTrig = new SituationTriggerRepository();
     private final SituationTriggerInstanceRepository sitTrigInst = new SituationTriggerInstanceRepository();
 
+    @Inject
     private RelationshipTemplateService relationshipTemplateService;
+    @Inject
     private NodeTemplateService nodeTemplateService;
+    @Inject
     private ServiceTemplateService serviceTemplateService;
     private final DocumentConverter converter = new DocumentConverter();
 

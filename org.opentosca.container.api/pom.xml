@@ -31,6 +31,7 @@
         <version>2.2</version>
         <configuration>
           <port>1337</port>
+          <path>/</path>
         </configuration>
         <dependencies>
           <dependency>
@@ -180,6 +181,10 @@
           <groupId>javax.ws.rs</groupId>
           <artifactId>jsr311-api</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -246,6 +251,43 @@
       <artifactId>jersey-server</artifactId>
       <version>2.6</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.logback-extensions</groupId>
+      <artifactId>logback-ext-spring</artifactId>
+      <version>0.1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aop</artifactId>
+      <version>4.3.18.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>4.3.18.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>4.3.18.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <version>4.3.18.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>4.3.18.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>4.3.18.RELEASE</version>
+    </dependency>
+
     <dependency>
       <groupId>p2.osgi.bundle</groupId>
       <artifactId>com.eclipsesource.jaxrs.publisher</artifactId>

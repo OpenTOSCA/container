@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -63,10 +64,13 @@ public class CsarController {
     private UriInfo uriInfo;
 
     // used to generate plans, but not for storage anymore
+    @Inject
     private CsarService csarService;
 
+    @Inject
     private CsarStorageService storage;
 
+    @Inject
     private OpenToscaControlService controlService;
 
     @GET
@@ -315,16 +319,19 @@ public class CsarController {
         return Response.noContent().build();
     }
 
+    @Inject
     public void setCsarService(final CsarService csarService) {
         logger.debug("Binding CsarService");
         this.csarService = csarService;
     }
 
+    @Inject
     public void setStorageService(final CsarStorageService storageService) {
         logger.debug("Binding CsarStorageService");
         this.storage = storageService;
     }
 
+    @Inject
     public void setControlService(final OpenToscaControlService controlService) {
         logger.debug("Binding ToscaControlService");
         this.controlService = controlService;

@@ -3,6 +3,7 @@ package org.opentosca.container.api.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 
@@ -25,6 +26,7 @@ import org.w3c.dom.Element;
  */
 public class RelationshipTemplateService {
 
+    @Inject
     private CsarStorageService storage;
 
     /**

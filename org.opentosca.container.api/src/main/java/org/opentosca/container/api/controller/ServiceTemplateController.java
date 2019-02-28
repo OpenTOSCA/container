@@ -1,5 +1,6 @@
 package org.opentosca.container.api.controller;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
@@ -46,16 +47,22 @@ public class ServiceTemplateController {
     @Context
     private ResourceContext resourceContext;
 
+    @Inject
     private PlanService planService;
 
+    @Inject
     private InstanceService instanceService;
 
+    @Inject
     private NodeTemplateService nodeTemplateService;
 
+    @Inject
     private RelationshipTemplateService relationshipTemplateService;
 
+    @Inject
     private DeploymentTestService deploymentTestService;
 
+    @Inject
     private CsarStorageService storage;
     
     @GET

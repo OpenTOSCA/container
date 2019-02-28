@@ -18,11 +18,14 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 
 public class CsarService {
 
     private static Logger logger = LoggerFactory.getLogger(CsarService.class);
 
+    @Inject
     private CsarStorageService storage;
     
     public CsarService() {

@@ -1,12 +1,13 @@
 package org.opentosca.container.api;
 
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.opentosca.container.api.config.*;
 import org.opentosca.container.api.controller.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ApplicationPath;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,7 +42,18 @@ public class Application extends javax.ws.rs.core.Application {
 
   @Override
   public Set<Object> getSingletons() {
-    return Collections.emptySet();
+    return Stream.of(
+        new CorsFilter()
+        , new PlainTextMessageBodyWriter()
+        , new URI2XMLMessageBodyWriter()
+        , new ExceptionMessageBodyWriter()
+        , new ObjectMapperProvider()
+//        , new JacksonFeature()
+//        , new MultiPartFeature()
+        , new LogFilter()
+        , new JAXBContextProvider()
+        , new LoggingExceptionMapper()
+      ).collect(Collectors.toSet());
   }
 
 }

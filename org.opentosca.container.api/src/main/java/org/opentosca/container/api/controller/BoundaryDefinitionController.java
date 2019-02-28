@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
@@ -58,6 +59,7 @@ public class BoundaryDefinitionController {
     @Context
     private Request request;
 
+    @Inject
     private CsarStorageService storage;
 
     @GET

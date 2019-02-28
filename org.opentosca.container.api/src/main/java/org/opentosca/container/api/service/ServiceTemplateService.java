@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 
@@ -21,6 +22,7 @@ public class ServiceTemplateService {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateService.class);
 
+    @Inject
     private CsarStorageService csarStorage;
 
     public Set<String> getServiceTemplatesOfCsar(final String csarId) {
