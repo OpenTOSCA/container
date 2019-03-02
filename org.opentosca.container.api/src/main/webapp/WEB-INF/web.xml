@@ -36,18 +36,26 @@
     <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>
   </listener>
   <listener>
-    <description>ApplicationContext configuration listener</description>
-    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    <description>RESTeasy bootstrapping listener for controller matching</description>
+    <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+  </listener>
+  <!-- pull spring DI into our RESTeasy dispatch process -->
+  <listener>
+    <description>RESTeasy spring bridge</description>
+    <listener-class>org.jboss.resteasy.plugins.spring.SpringContextLoaderListener</listener-class>
   </listener>
 
   <servlet>
-    <description>Central dispatching servlet</description>
-    <servlet-name>spring</servlet-name>
-    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
+    <servlet-name>resteasy-servlet</servlet-name>
+    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+    <init-param>
+      <param-name>javax.ws.rs.Application</param-name>
+      <param-value>org.opentosca.container.api.Application</param-value>
+    </init-param>
   </servlet>
-  <!--<servlet-mapping>-->
-    <!--<servlet>spring</servlet>-->
-    <!--<url-pattern>/</url-pattern>-->
-  <!--</servlet-mapping>-->
+
+  <servlet-mapping>
+    <servlet-name>resteasy-servlet</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
 </web-app>

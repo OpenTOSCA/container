@@ -15,6 +15,7 @@
 
   <properties>
     <tomcat.version>7.0.93</tomcat.version>
+    <spring.version>4.3.18.RELEASE</spring.version>
   </properties>
 
   <build>
@@ -236,6 +237,12 @@
       <artifactId>resteasy-jaxb-provider</artifactId>
       <version>3.6.3.Final</version>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-spring</artifactId>
+      <version>3.6.3.Final</version>
+    </dependency>
+
     <!--<dependency>-->
       <!--<groupId>org.jboss.resteasy</groupId>-->
       <!--<artifactId>resteasy-servlet-initializer</artifactId>-->
@@ -260,37 +267,37 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
-      <version>4.3.18.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>4.3.18.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>4.3.18.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
-      <version>4.3.18.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>4.3.18.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>4.3.18.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>4.3.18.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
 
     <!-- directly bind to hibernate as persistence-provider -->
