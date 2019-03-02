@@ -8,17 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.xml.namespace.QName;
 
-import org.eclipse.persistence.annotations.Convert;
 import org.opentosca.container.core.common.jpa.CsarIdConverter;
 import org.opentosca.container.core.common.jpa.QNameConverter;
 import org.opentosca.container.core.model.csar.CsarId;
@@ -45,11 +37,11 @@ public class ServiceTemplateInstance extends PersistenceObject {
     @OneToMany(mappedBy = "serviceTemplateInstance")
     private Collection<NodeTemplateInstance> nodeTemplateInstances = new ArrayList<>();
 
-    @Convert(CsarIdConverter.name)
+    @Convert(converter = CsarIdConverter.class)
     @Column(name = "CSAR_ID", nullable = false)
     private CsarId csarId;
 
-    @Convert(QNameConverter.name)
+    @Convert(converter = QNameConverter.class)
     @Column(name = "TEMPLATE_ID", nullable = false)
     private QName templateId;
 

@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity(name = Credentials.tableName)
 @Table(name = Credentials.tableName,
        uniqueConstraints = @UniqueConstraint(name = "credentialsUniqueConstraints",
-                                             columnNames = {"\"storageProviderID\"", "\"identity\""}))
+                                             columnNames = {"storageProviderID", "\"identity\""}))
 @NamedQueries({@NamedQuery(name = Credentials.getCredentialsByID, query = Credentials.getCredentialsByIDQuery),
                @NamedQuery(name = Credentials.getCredentialsIDs, query = Credentials.getCredentialsIDsQuery),
                @NamedQuery(name = Credentials.getAllCredentials, query = Credentials.getAllCredentialsQuery),

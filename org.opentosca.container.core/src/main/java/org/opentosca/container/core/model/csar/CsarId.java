@@ -37,4 +37,15 @@ public class CsarId implements Comparable<CsarId> {
     public CSARID toOldCsarId() {
         return new CSARID(name);
     }
+
+    @Override
+    public int hashCode() {
+      return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof CsarId &&
+          name.equals(((CsarId) o).name);
+    }
 }

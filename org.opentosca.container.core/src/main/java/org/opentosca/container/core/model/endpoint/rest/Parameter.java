@@ -1,7 +1,12 @@
 package org.opentosca.container.core.model.endpoint.rest;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class Parameter {
 
+    @Column(unique = true)
     private String parameter;
     private boolean required;
 

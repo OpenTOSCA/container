@@ -2,15 +2,8 @@ package org.opentosca.container.core.model.endpoint;
 
 import java.net.URI;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 
-import org.eclipse.persistence.annotations.Convert;
-import org.eclipse.persistence.annotations.Converter;
-import org.eclipse.persistence.annotations.Converters;
 import org.opentosca.container.core.common.jpa.CsarIdConverter;
 import org.opentosca.container.core.common.jpa.UriConverter;
 import org.opentosca.container.core.model.csar.CsarId;
@@ -19,8 +12,6 @@ import org.opentosca.container.core.model.csar.CsarId;
  * This abstract class is used as a super-class for WSDL and REST Endpoints.
  */
 @MappedSuperclass
-@Converters({@Converter(converterClass = CsarIdConverter.class, name = CsarIdConverter.name),
-             @Converter(converterClass = UriConverter.class, name = UriConverter.name)})
 public abstract class AbstractEndpoint {
 
     @Id
@@ -31,7 +22,7 @@ public abstract class AbstractEndpoint {
      * The URI which can be used to access the endpoint that is represented by this class.
      */
     @Basic
-    @Convert(UriConverter.name)
+    @Convert(converter = UriConverter.class)
     @Column(name = "uri", nullable = false)
     private URI uri;
 
@@ -64,7 +55,7 @@ public abstract class AbstractEndpoint {
      * except the Management Bus endpoint as this endpoint is CSAR independent. To avoid null values
      * "***" is set for this endpoint.
      */
-    @Convert(CsarIdConverter.name)
+    @Convert(converter = CsarIdConverter.class)
     @Column(name = "csarID")
     private CsarId csarId;
 

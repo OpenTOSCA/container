@@ -1,7 +1,12 @@
 package org.opentosca.container.core.model.endpoint.rest;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class RequestHeader {
 
+    @Column(unique=true)
     private String header;
     private boolean required;
 

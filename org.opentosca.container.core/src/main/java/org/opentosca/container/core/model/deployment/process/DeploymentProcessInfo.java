@@ -1,16 +1,7 @@
 package org.opentosca.container.core.model.deployment.process;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import javax.persistence.*;
 
-import org.eclipse.persistence.annotations.PrimaryKey;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.AbstractDeploymentInfo;
 
@@ -22,7 +13,6 @@ import org.opentosca.container.core.model.deployment.AbstractDeploymentInfo;
 @NamedQueries({@NamedQuery(name = DeploymentProcessInfo.getDeploymentProcessInfoByCSARID,
                            query = DeploymentProcessInfo.getDeploymentProcessInfoByCSARIDQuery)})
 @Table(name = DeploymentProcessInfo.tableName)
-@PrimaryKey(columns = {@Column(name = "csarID")})
 public class DeploymentProcessInfo extends AbstractDeploymentInfo {
 
     protected static final String tableName = "DeploymentProcessInfo";

@@ -1,7 +1,4 @@
-package org.opentosca.container.core.next.model;oying when business-critical functions that are boring are not formally assigned to one person because this often results.
-
-49256182 21:03:02
-Even in situations of good will these things have to be nailed down.
+package org.opentosca.container.core.next.model;
 
 import java.util.Objects;
 

@@ -8,24 +8,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.NamedNativeQuery;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.PostLoad;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
-import org.eclipse.persistence.annotations.Convert;
-import org.eclipse.persistence.annotations.Converter;
-import org.eclipse.persistence.annotations.Converters;
-import org.eclipse.persistence.annotations.MapKeyConvert;
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
@@ -58,8 +42,6 @@ import org.slf4j.LoggerFactory;
                   query = CSARContent.storeStorageProviderIDByFileAndCSARIDQuery)
 @Entity(name = CSARContent.CSAR_TABLE_NAME)
 @Table(name = CSARContent.CSAR_TABLE_NAME)
-@Converters({@Converter(name = CsarIdConverter.name, converterClass = CsarIdConverter.class),
-             @Converter(name = PathConverter.name, converterClass = PathConverter.class)})
 @Deprecated
 public class CSARContent implements IBrowseable {
 
@@ -93,36 +75,20 @@ public class CSARContent implements IBrowseable {
     protected static final String getDirectoriesByCSARIDQuery =
         "SELECT t FROM " + CSARContent.CSAR_TABLE_NAME + " t WHERE t.csarID = :csarID";
 
-    /**
-     * Relative path to CSAR root of the {@code IMPORTS} directory.
-     *
-     * @see org.opentosca.settings.Settings
-     */
-    @Transient
-    private final String IMPORTS_DIR_REL_PATH = Settings.getSetting("csarImportsRelPath");
-
-    /**
-     * Relative path to CSAR root of the {@code Definitions} directory.
-     *
-     * @see org.opentosca.settings.Settings
-     */
-    @Transient
-    private final String CSAR_DEFINITIONS_DIR_REL_PATH = Settings.getSetting("csarDefinitionsRelPath");
-
-    /**
-     * Possible file extensions of a TOSCA file.
-     *
-     * @see org.opentosca.settings.Settings
-     */
-    @Transient
-    private final String[] TOSCA_FILE_EXTENSIONS = Settings.getSetting("toscaFileExtensions").split(";");
+    private static final String IMPORTS_DIR_REL_PATH = "IMPORTS";
+    private static final String CSAR_DEFINITIONS_DIR_REL_PATH = "Definitions";
+    private static final String[] TOSCA_FILE_EXTENSIONS = new String[]{"xml", "tosca", "ste" };
 
     /**
      * Identifies this CSAR file.
      */
     @Id
-    @Convert(CsarIdConverter.name)
-    @Column(name = "csarID")
+    @GeneratedValue
+    // need a surrogate id, because we can't convert the id column with hibernate
+    long surrogateId;
+
+    @Convert(converter = CsarIdConverter.class)
+    @Column(name = "csarID", unique = true, nullable = false)
     private CsarId csarID;
 
     /**
@@ -132,7 +98,7 @@ public class CSARContent implements IBrowseable {
     @ElementCollection
     @CollectionTable(name = CSARContent.CSAR_FILES_TABLE_NAME, joinColumns = @JoinColumn(name = "csarID"))
     @MapKeyColumn(name = "file")
-    @MapKeyConvert(PathConverter.name)
+    @Convert(converter = PathConverter.class, attributeName = "key")
     @Column(name = "storageProviderID")
     private Map<Path, String> fileToStorageProviderIDMap;
 
@@ -143,7 +109,7 @@ public class CSARContent implements IBrowseable {
     @ElementCollection
     @CollectionTable(name = CSARContent.CSAR_DIRECTORIES_TABLE_NAME, joinColumns = @JoinColumn(name = "csarID"))
     @Column(name = "directory")
-    @Convert(PathConverter.name)
+    @Convert(converter = PathConverter.class)
     private Set<Path> directories;
 
     /**

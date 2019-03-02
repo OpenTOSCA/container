@@ -7,12 +7,15 @@ import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.mappings.converters.Converter;
 import org.eclipse.persistence.sessions.Session;
 
+import javax.persistence.AttributeConverter;
+
 /**
  * This class is used to convert {@link Path} to String, and {@link String} back to {@link Path}
  * when persisting {@link Path} fields with JPA. The conversion needs to be done, as we cannot
  * directly query for {@link Path} in JPQL.
  */
-public class PathConverter implements Converter {
+@javax.persistence.Converter
+public class PathConverter implements Converter, AttributeConverter<Path, String> {
 
     private static final long serialVersionUID = 3747978557147488965L;
 
@@ -34,5 +37,15 @@ public class PathConverter implements Converter {
     @Override
     public boolean isMutable() {
         return false;
+    }
+
+    @Override
+    public String convertToDatabaseColumn(Path path) {
+      return path == null ? null : path.toString();
+    }
+
+    @Override
+    public Path convertToEntityAttribute(String s) {
+      return s == null ? null : Paths.get(s);
     }
 }

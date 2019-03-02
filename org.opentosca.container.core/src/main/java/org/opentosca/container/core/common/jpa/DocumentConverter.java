@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import javax.persistence.AttributeConverter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -25,7 +25,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class DocumentConverter implements Converter {
+@javax.persistence.Converter
+public class DocumentConverter implements Converter, AttributeConverter<Document, String> {
 
     private static final long serialVersionUID = -1227963218864722385L;
 
@@ -79,16 +80,10 @@ public class DocumentConverter implements Converter {
             doc = db.parse(iSource);
             doc.getDocumentElement().normalize();
         }
-        catch (final ParserConfigurationException e) {
+        catch (final ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
-        catch (final SAXException e) {
-            e.printStackTrace();
-        }
-        catch (final IOException e) {
-            e.printStackTrace();
-        }
-        return doc;
+      return doc;
     }
 
     /**
@@ -130,17 +125,20 @@ public class DocumentConverter implements Converter {
                 // serialize
                 transformer.transform(source, streamResult);
                 result = stringWriter.getBuffer().toString();
-            }
-            catch (final TransformerConfigurationException e) {
-                e.printStackTrace();
-            }
-            catch (final TransformerFactoryConfigurationError e) {
-                e.printStackTrace();
-            }
-            catch (final TransformerException e) {
+            } catch (final TransformerFactoryConfigurationError | TransformerException e) {
                 e.printStackTrace();
             }
         }
         return result;
+    }
+
+    @Override
+    public String convertToDatabaseColumn(Document document) {
+      return document == null ? null : getString(document);
+    }
+
+    @Override
+    public Document convertToEntityAttribute(String s) {
+      return s == null ? null : getDocument(s);
     }
 }

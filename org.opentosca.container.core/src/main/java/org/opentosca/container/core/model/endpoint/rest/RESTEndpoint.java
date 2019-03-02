@@ -5,15 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
@@ -56,7 +48,7 @@ public class RESTEndpoint extends AbstractEndpoint {
         "select t from " + RESTEndpoint.tableName + " t where t.uri = :uri and t.csarId = :csarId and t.triggeringContainer = :triggeringContainer";
 
 
-    public static enum restMethod {
+    public enum restMethod {
         GET, PUT, POST, DELETE
     };
 
@@ -78,9 +70,13 @@ public class RESTEndpoint extends AbstractEndpoint {
     private QName responsePayload;
 
     @Column(name = "RequestHeaders")
+    @ElementCollection
+    @Embedded
     private final List<RequestHeader> headers = new ArrayList<>();
 
     @Column(name = "Parameters")
+    @ElementCollection
+    @Embedded
     private final List<Parameter> params = new ArrayList<>();
 
 

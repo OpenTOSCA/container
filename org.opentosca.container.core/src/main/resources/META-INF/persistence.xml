@@ -4,8 +4,16 @@
   
   <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
 
-    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
+    <!-- converter classes -->
+    <class>org.opentosca.container.core.common.jpa.CsarIdConverter</class>
+    <class>org.opentosca.container.core.common.jpa.DocumentConverter</class>
+    <class>org.opentosca.container.core.common.jpa.PathConverter</class>
+    <class>org.opentosca.container.core.common.jpa.QNameConverter</class>
+    <class>org.opentosca.container.core.common.jpa.UriConverter</class>
+
+    <!-- entities -->
     <class>org.opentosca.container.core.next.model.PersistenceObject</class>
     <class>org.opentosca.container.core.next.model.Property</class>
     <class>org.opentosca.container.core.next.model.ServiceTemplateInstance</class>
@@ -33,6 +41,8 @@
     <class>org.opentosca.container.core.model.deployment.ia.IADeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.plan.PlanDeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo</class>
+    <class>org.opentosca.container.core.model.deployment.AbstractDeploymentInfo</class>
+    <class>org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo</class>
     <class>org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint</class>
     <class>org.opentosca.container.core.model.endpoint.rest.RESTEndpoint</class>
 

@@ -7,11 +7,14 @@ import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.mappings.converters.Converter;
 import org.eclipse.persistence.sessions.Session;
 
+import javax.persistence.AttributeConverter;
+
 /**
  * This class is used to convert URIs to String, and Strings back to URIs when persisting URI fields
  * with JPA. The conversion needs to be done, as we cannot directly query for URI in JPQL.
  */
-public class UriConverter implements Converter {
+@javax.persistence.Converter
+public class UriConverter implements Converter, AttributeConverter<URI, String> {
 
     public static final String name = "URIConverter";
     private static final long serialVersionUID = 5695923859083900495L;
@@ -38,5 +41,19 @@ public class UriConverter implements Converter {
     @Override
     public boolean isMutable() {
         return false;
+    }
+
+    @Override
+    public String convertToDatabaseColumn(URI uri) {
+      return uri == null ? null : uri.toString();
+    }
+
+    @Override
+    public URI convertToEntityAttribute(String s) {
+      try {
+        return s == null ? null : new URI(s);
+      } catch (URISyntaxException e) {
+        return null;
+      }
     }
 }
