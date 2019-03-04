@@ -18,6 +18,7 @@ import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanModelPluginServ
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * This class implements the interface {@link org.opentosca.planengine.service.IPlanEngineService}
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * Where the plans are deployed is business of the respective plugins. There should always be only
  * one plugin for plans written in the same language.
  */
+@Service
 public class PlanEngineImpl implements IPlanEngineService {
 
     final private static Logger LOG = LoggerFactory.getLogger(PlanEngineImpl.class);

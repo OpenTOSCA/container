@@ -78,11 +78,6 @@ public class Activator implements BundleActivator {
 
         // possible file extensions of a TOSCA file, separated by character ";"
         Settings.setSetting("toscaFileExtensions", "xml;tosca;ste");
-
-        // /////////////////// OTHERS ///////////////////
-
-        // Container Capabilities
-        Settings.setSetting("containerCapabilities", Settings.containerCapabilities);
     }
 
     @Override

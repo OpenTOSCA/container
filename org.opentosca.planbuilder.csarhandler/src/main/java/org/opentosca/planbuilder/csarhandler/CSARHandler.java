@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class CSARHandler {
 
     final private static Logger LOG = LoggerFactory.getLogger(CSARHandler.class);
-    public static final Path planBuilderWorkingDir = Paths.get(System.getProperty("java.io.tempdir"), "opentosca", "container", "planbuilder");
+    public static final Path planBuilderWorkingDir = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "container", "planbuilder");
     private final ICoreFileService fileService;
     
     public CSARHandler() {

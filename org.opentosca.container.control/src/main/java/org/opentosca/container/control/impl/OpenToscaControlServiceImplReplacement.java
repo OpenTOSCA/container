@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
@@ -42,14 +43,20 @@ import org.springframework.stereotype.Service;
 public class OpenToscaControlServiceImplReplacement implements OpenToscaControlService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaControlServiceImplReplacement.class);
-    
-    private static IToscaEngineService toscaEngine;
-    private static DeploymentTracker deploymentTracker;
-    private static IPlanEngineService planEngine;
-    private static IPlanInvocationEngine planInvocationEngine;
-    private static CsarStorageService storage;
+
+    @Inject
+    private IToscaEngineService toscaEngine;
+    @Inject
+    private DeploymentTracker deploymentTracker;
+    @Inject
+    private IPlanEngineService planEngine;
+    @Inject
+    private IPlanInvocationEngine planInvocationEngine;
+    @Inject
+    private CsarStorageService storage;
     // used only for instanceIdOfCorrelation
-    private static ICSARInstanceManagementService instanceManagement;
+    @Inject
+    private ICSARInstanceManagementService instanceManagement;
     
     @Override
     public boolean invokeToscaProcessing(CsarId csar) {
@@ -274,68 +281,6 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
         return storage.findById(csarid).serviceTemplates().stream()
             .map(TServiceTemplate::getId)
             .map(QName::new).collect(Collectors.toList());
-    }
-    
-    
-    
-    public void bindToscaEngineService(IToscaEngineService service) {
-        LOGGER.debug("Binding ToscaEngineService");
-        toscaEngine = service;
-    }
-    
-    public void unbindToscaEngineService(IToscaEngineService service) {
-        LOGGER.debug("Unbinding ToscaEngineService");
-        toscaEngine = null;
-    }
-    
-    public void bindCoreDeploymentTrackerService(DeploymentTracker service) {
-        LOGGER.debug("Binding CoreDeploymentTrackerService");
-        deploymentTracker = service;
-    }
-    
-    public void unbindCoreDeploymentTrackerService(DeploymentTracker service) {
-        LOGGER.debug("Unbinding CoreDeploymentTrackerService");
-        deploymentTracker = null;
-    }
-    
-    public void bindPlanEngineService(IPlanEngineService service) {
-        LOGGER.debug("Binding PlanEngineService");
-        planEngine = service;
-    }
-    
-    public void unbindPlanEngineService(IPlanEngineService service) {
-        LOGGER.debug("Unbinding PlanEngineService");
-        planEngine = null;
-    }
-    
-    public void bindPlanInvocationEngine(IPlanInvocationEngine service) {
-        LOGGER.debug("Binding PlanInvocationEngine");
-        planInvocationEngine = service;
-    }
-    
-    public void unbindPlanInvocationEngine(IPlanInvocationEngine service) {
-        LOGGER.debug("Unbinding PlanInvocationEngine");
-        planInvocationEngine = null;
-    }
-    
-    public void bindCsarStorageService(CsarStorageService service) {
-        LOGGER.debug("Binding CsarStorageService");
-        storage = service;
-    }
-    
-    public void unbindCsarStorageService(CsarStorageService service) {
-        LOGGER.debug("Unbinding CsarStorageService");
-        storage = null;
-    }
-    
-    public void bindInstanceManagementService(ICSARInstanceManagementService service) {
-        LOGGER.debug("Binding InstanceManagementService");
-        instanceManagement = service;
-    }
-    
-    public void unbindInstanceManagementService(ICSARInstanceManagementService service) {
-        LOGGER.debug("Unbinding InstanceManagementService");
-        instanceManagement = null;
     }
 }
 

@@ -1,19 +1,17 @@
 package org.opentosca.container.core.impl.service;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
-import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.capability.provider.ProviderType;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.service.ICoreCapabilityService;
@@ -35,34 +33,27 @@ import org.springframework.stereotype.Service;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  *
  */
+// FIXME get rid of this, or at least translate it to using jpa properly instead of raw Connections
 @Service
 public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
-    private final String CapabilitiesTable = "CAPABILITIES";
-    private final EntityManager em;
-    
+    private static final Logger LOG = LoggerFactory.getLogger(CoreCapabilityServiceImpl.class);
+
+    private static final String CapabilitiesTable = "CAPABILITIES";
     /**
      * SQL queries for CapabilitiesTable: Creating the CapabilitiesTable, storing capabilities, getting
      * already stored capabilities and deleting capabilities.
      */
-    private final String createCapabilitiesTable = "CREATE TABLE " + this.CapabilitiesTable
+    private static final String createCapabilitiesTable = "CREATE TABLE IF NOT EXISTS " + CapabilitiesTable
         + " (Capability VARCHAR(1000) NOT NULL, ProviderName VARCHAR(1000) NOT NULL, ProviderType VARCHAR(1000) NOT NULL)";
-    private final String storeCapabilities =
-        "INSERT INTO " + this.CapabilitiesTable + " (Capability, ProviderName, ProviderType) VALUES (?, ?, ?)";
-    private final String getCapabilitiesByType =
-        "SELECT Capability, ProviderName FROM " + this.CapabilitiesTable + " WHERE ProviderType = ?";
-    private final String getCapabilitiesByName =
-        "SELECT Capability FROM " + this.CapabilitiesTable + " WHERE ProviderName = ? AND ProviderType = ?";
-    private final String deleteCapabilities = "DELETE FROM " + this.CapabilitiesTable + " WHERE ProviderName = ?";
+    private static final String storeCapabilities =
+        "INSERT INTO " + CapabilitiesTable + " (Capability, ProviderName, ProviderType) VALUES (?, ?, ?)";
+    private static final String getCapabilitiesByType =
+        "SELECT Capability, ProviderName FROM " + CapabilitiesTable + " WHERE ProviderType = ?";
+    private static final String getCapabilitiesByName =
+        "SELECT Capability FROM " + CapabilitiesTable + " WHERE ProviderName = ? AND ProviderType = ?";
+    private static final String deleteCapabilities = "DELETE FROM " + CapabilitiesTable + " WHERE ProviderName = ?";
 
-
-    /**
-     * Get the capabilities of the container to store them.
-     *
-     * @see org.opentosca.settings.Settings
-     */
-    private final String containerCapabilities = Settings.getSetting("containerCapabilities");
-
-    final private static Logger LOG = LoggerFactory.getLogger(CoreCapabilityServiceImpl.class);
+    private final EntityManager em;
 
     public CoreCapabilityServiceImpl() {
         this.em = EntityManagerProvider.createEntityManager();
@@ -76,21 +67,12 @@ public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
         LOG.debug("Checking if table \"{}\" already exists...", this.CapabilitiesTable);
         try {
             this.em.getTransaction().begin();
-            final Connection conn = this.em.unwrap(Connection.class);
-
-            final DatabaseMetaData metaData = conn.getMetaData();
-            final ResultSet rs = metaData.getTables(null, null, this.CapabilitiesTable, null);
-
-            if (!rs.next()) {
-                LOG.debug("Table \"{}\" did not exist. Creating...", this.CapabilitiesTable);
-                try (Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate(this.createCapabilitiesTable);
-                }
-                LOG.debug("Table \"{}\" successfully created.", this.CapabilitiesTable);
-            }
+            Query createIfNE = em.createNativeQuery(createCapabilitiesTable);
+            createIfNE.executeUpdate();
+            LOG.debug("Table \"{}\" successfully created.", this.CapabilitiesTable);
             this.em.getTransaction().commit();
         }
-        catch (final SQLException exc) {
+        catch (final RuntimeException exc) {
             LOG.error("Database error - can't create CapabilitiesTable.", exc);
             this.em.getTransaction().setRollbackOnly();
         }
@@ -105,8 +87,9 @@ public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
         try {
             LOG.debug("Storing \"{}\" capabilities of \"{}\" ...", providerType, providerName);
             em.getTransaction().begin();
+            // FIXME can't be used
             final Connection conn = em.unwrap(Connection.class);
-        
+
             try (PreparedStatement pstmt = conn.prepareStatement(storeCapabilities)) {
                 for (final String capability : capabilities) {
                     pstmt.setString(1, capability);
@@ -130,6 +113,7 @@ public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
         LOG.debug("Getting \"{}\" capabilities...", providerType);
         try {
             em.getTransaction().begin();
+            // FIXME can't be used
             final Connection conn = em.unwrap(Connection.class);
             final Map<String, List<String>> capsMap = new HashMap<>();
             try (PreparedStatement pstmt = conn.prepareStatement(getCapabilitiesByType)) {
@@ -160,6 +144,7 @@ public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
         LOG.debug("Getting \"{}\" capabilities of \"{}\"...", providerType, providerName);
         try {
             em.getTransaction().begin();
+            // FIXME can't be used
             final Connection conn = em.unwrap(Connection.class);
             final List<String> capabilities = new ArrayList<>();
             try (PreparedStatement pstmt = conn.prepareStatement(getCapabilitiesByName)) {
@@ -190,6 +175,7 @@ public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
         try {
             LOG.debug("Deleting capabilities of \"{}\" ...", providerName);
             em.getTransaction().begin();
+            // FIXME can't be used
             final Connection conn = em.unwrap(Connection.class);
             try (PreparedStatement pstmt = conn.prepareStatement(deleteCapabilities)) {
                 pstmt.setString(1, providerName);
@@ -201,17 +187,4 @@ public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
             LOG.error("Database error - can't delete capabilities of \"{}\" from database.", providerName, e);
         }
     }
-
-    /**
-     * @return all capabilities of the container.
-     */
-    private List<String> getCapabilities() {
-        final List<String> capabilities = new ArrayList<>();
-
-        for (final String capability : this.containerCapabilities.split("[,;]")) {
-            capabilities.add(capability.trim());
-        }
-        return capabilities;
-    }
-
 }
