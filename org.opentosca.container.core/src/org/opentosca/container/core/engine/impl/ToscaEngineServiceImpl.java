@@ -231,7 +231,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
             getOperationForType(csarID, typeID, interfaceName, operationName, outputParamListDefined);
 
         // check if parameters are defined
-        return operation.map((op) -> !op.getInputParameters().getInputParameter().isEmpty()).orElse(false);
+        return operation.map((op) -> !op.getOutputParameters().getOutputParameter().isEmpty()).orElse(false);
     }
 
     @Override
@@ -266,7 +266,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         // parse parameters to Node
         return operation.map((op) -> ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                                        .marshalToNode(op.getInputParameters()))
+                                                                        .marshalToNode(op.getOutputParameters()))
                         .orElse(null);
     }
 
