@@ -257,12 +257,12 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                     final String operationName) {
 
         // only use operation which have a output parameter list defined
-        final Predicate<TOperation> inputParamListDefined =
+        final Predicate<TOperation> outputParamListDefined =
             (op) -> op.getOutputParameters() != null && op.getOutputParameters().getOutputParameter() != null;
 
         // get the defined operation if available
         final Optional<TOperation> operation =
-            getOperationForType(csarID, typeID, interfaceName, operationName, inputParamListDefined);
+            getOperationForType(csarID, typeID, interfaceName, operationName, outputParamListDefined);
 
         // parse parameters to Node
         return operation.map((op) -> ServiceHandler.xmlSerializerService.getXmlSerializer()
