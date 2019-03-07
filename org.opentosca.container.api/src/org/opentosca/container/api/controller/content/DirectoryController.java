@@ -1,12 +1,14 @@
 package org.opentosca.container.api.controller.content;
 
 import java.util.Objects;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -35,14 +37,22 @@ public class DirectoryController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getLinks(@Context final UriInfo uriInfo) {
+    public Response getLinks(@Context final UriInfo uriInfo, @QueryParam("recursive") String recursive) {
         final ResourceSupport dto = new ResourceSupport();
-        for (final AbstractDirectory directory : this.directory.getDirectories()) {
-            dto.add(UriUtil.generateSubResourceLink(uriInfo, directory.getName(), false, directory.getName()));
+                        
+        if(recursive == null){
+        	for (final AbstractDirectory directory : this.directory.getDirectories()) {
+        		dto.add(UriUtil.generateSubResourceLink(uriInfo, directory.getName(), false, directory.getName()));
+        	}
+        	for (final AbstractFile file : this.directory.getFiles()) {
+        		dto.add(UriUtil.generateSubResourceLink(uriInfo, file.getName(), false, file.getName()));
+        	}        	        	
+        } else {
+        	for(final AbstractFile file : this.directory.getFilesRecursively()) {
+        		dto.add(UriUtil.generateSubResourceLink(uriInfo, file.getPath(), false, file.getName()));
+        	}
         }
-        for (final AbstractFile file : this.directory.getFiles()) {
-            dto.add(UriUtil.generateSubResourceLink(uriInfo, file.getName(), false, file.getName()));
-        }
+        
         dto.add(UriUtil.generateSelfLink(uriInfo));
         return Response.ok(dto).build();
     }
