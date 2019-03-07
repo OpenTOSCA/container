@@ -668,22 +668,21 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
             // we have to escape single quotes in the parameter values and properly pipe newlines
             // TODO(?) There is still the issue if you use commands in scipt which don't interpret
             // backslashes
-            paramsString += param.getKey() + "=$'" + escapeSingleQuotes(param.getValue()) + "' ";
+            paramsString += param.getKey() + "=$'" + escapeSpecialCharacters(param.getValue()) + "' ";
         }
 
         return paramsString;
     }
 
     /**
-     * Escapes single quotes (') inside the given string conforming to bash argument values. Each '
-     * gets transformed to '"'"'
+     * Escapes special charactes inside the given string conforming to bash argument values. 
      *
-     * @see https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
+     * @see e.g. https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
      *
      * @return a String with escaped singles quotes
      */
-    private String escapeSingleQuotes(final String unenscapedString) {
-        return unenscapedString.replace("'", "'\"'\"'").replace("\n", "'\"\\n\"'");
+    private String escapeSpecialCharacters(final String unenscapedString) {
+        return unenscapedString.replace("'", "'\"'\"'").replace("\n", "'\"\\n\"'").replace("\t", "'\"\\t\"'").replace(" ", "'\" \"'");
     }
 
     /**
