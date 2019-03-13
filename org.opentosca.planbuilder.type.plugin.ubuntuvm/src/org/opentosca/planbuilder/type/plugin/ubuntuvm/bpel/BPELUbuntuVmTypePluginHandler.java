@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -227,26 +228,13 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // directly then trough some vm nodetemplate) is a nodetype with a
         // ubuntu version e.g. Ubuntu_13.10 and stuff
         final AbstractNodeTemplate ubuntuNodeTemplate = findUbuntuNode(nodeTemplate);
-        Variable ubuntuAMIIdVar = null;
 
         if (ubuntuNodeTemplate == null) {
             LOG.error("Couldn't find Ubuntu Node");
             return false;
         }
 
-        // here either the ubuntu connected to the provider this handler is
-        // working on hasn't a version in the ID (ubuntu version must be written
-        // in AMIId property then) or something went really wrong
-        if (isUbuntuNodeTypeWithImplicitImage(ubuntuNodeTemplate.getType().getId())) {
-            // we'll set a global variable with the necessary ubuntu image
-            // ubuntuAMIIdVar =
-            // context.createGlobalStringVariable("ubuntu_AMIId",
-            // "ubuntu-13.10-server-cloudimg-amd64");
-            ubuntuAMIIdVar =
-                context.createGlobalStringVariable("ubuntu_AMIId",
-                                                   createUbuntuImageStringFromNodeType(ubuntuNodeTemplate.getType()
-                                                                                                         .getId()));
-        }
+        Variable ubuntuAMIIdVar = getUbtuntuAMIId(context, ubuntuNodeTemplate);
 
         LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId() + " of Type "
             + ubuntuNodeTemplate.getType().getId().toString());
@@ -425,26 +413,12 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // and an OS node (check for ssh service..)
         final AbstractNodeTemplate ubuntuNodeTemplate = findUbuntuNode(nodeTemplate);
 
-        Variable ubuntuAMIIdVar = null;
-
         if (ubuntuNodeTemplate == null) {
             LOG.error("Couldn't find Ubuntu Node");
             return false;
         }
 
-        // here either the ubuntu connected to the provider this handler is
-        // working on hasn't a version in the ID (ubuntu version must be written
-        // in AMIId property then) or something went really wrong
-        if (isUbuntuNodeTypeWithImplicitImage(ubuntuNodeTemplate.getType().getId())) {
-            // we'll set a global variable with the necessary ubuntu image
-            // ubuntuAMIIdVar =
-            // context.createGlobalStringVariable("ubuntu_AMIId",
-            // "ubuntu-13.10-server-cloudimg-amd64");
-            ubuntuAMIIdVar =
-                context.createGlobalStringVariable("ubuntu_AMIId",
-                                                   createUbuntuImageStringFromNodeType(ubuntuNodeTemplate.getType()
-                                                                                                         .getId()));
-        }
+        Variable ubuntuAMIIdVar = getUbtuntuAMIId(context, ubuntuNodeTemplate);
 
         LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId() + " of Type "
             + ubuntuNodeTemplate.getType().getId().toString());
@@ -969,26 +943,13 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // and an OS node (check for ssh service..)
         final AbstractNodeTemplate ubuntuNodeTemplate = findUbuntuNode(nodeTemplate);
-        Variable ubuntuAMIIdVar = null;
 
         if (ubuntuNodeTemplate == null) {
             BPELUbuntuVmTypePluginHandler.LOG.error("Couldn't find Ubuntu Node");
             return false;
         }
 
-        // here either the ubuntu connected to the provider this handler is
-        // working on hasn't a version in the ID (ubuntu version must be written
-        // in AMIId property then) or something went really wrong
-        if (isUbuntuNodeTypeWithImplicitImage(ubuntuNodeTemplate.getType().getId())) {
-            // we'll set a global variable with the necessary ubuntu image
-            // ubuntuAMIIdVar =
-            // context.createGlobalStringVariable("ubuntu_AMIId",
-            // "ubuntu-13.10-server-cloudimg-amd64");
-            ubuntuAMIIdVar =
-                context.createGlobalStringVariable("ubuntu_AMIId",
-                                                   createUbuntuImageStringFromNodeType(ubuntuNodeTemplate.getType()
-                                                                                                         .getId()));
-        }
+        Variable ubuntuAMIIdVar = getUbtuntuAMIId(context, ubuntuNodeTemplate);
 
         BPELUbuntuVmTypePluginHandler.LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId()
             + " of Type " + ubuntuNodeTemplate.getType().getId().toString());
@@ -1200,15 +1161,24 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         return true;
     }
 
-    /**
-     * This method checks whether the given QName represents a Ubuntu NodeType which has an implicit
-     * Ubuntu Image (e.g. Ubuntu 13.10 Server)
-     *
-     * @param nodeType a QName
-     * @return true if the given QName represents an Ubuntu NodeType with implicit image information
-     */
-    private boolean isUbuntuNodeTypeWithImplicitImage(final QName nodeType) {
-        return createUbuntuImageStringFromNodeType(nodeType) != null;
+    private Variable getUbtuntuAMIId(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+        Variable vmImageId = context.getPropertyVariable("VMImageID", true);
+        BPELPlanContext.isVariableValueEmpty(vmImageId, context);
+
+        // here either the ubuntu connected to the provider this handler is
+        // working on hasn't a version in the ID (ubuntu version must be written
+        // in AMIId property then) or something went really wrong
+        if (Objects.isNull(vmImageId)) {
+            // we'll set a global variable with the necessary ubuntu image
+            // ubuntuAMIIdVar =
+            // context.createGlobalStringVariable("ubuntu_AMIId",
+            // "ubuntu-13.10-server-cloudimg-amd64");
+            return context.createGlobalStringVariable("ubuntu_AMIId",
+                                                      createUbuntuImageStringFromNodeType(nodeTemplate.getType()
+                                                                                                      .getId()));
+        }
+
+        return vmImageId;
     }
 
 }
