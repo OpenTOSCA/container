@@ -57,8 +57,8 @@ public class Utils {
     }
 
     /**
-     * Checks whether the given property name represents a special case property: the ip property of
-     * an virtual machine
+     * Checks whether the given property name represents a special case property: the ip property of an
+     * virtual machine
      *
      * @param name a String containing some property name
      * @return true iff the given name equals to the predefined IP property names of the plugins
@@ -74,8 +74,7 @@ public class Utils {
      * property of an virtual machine
      *
      * @param name a String containing some property name
-     * @return true iff the given name equals to the predefined InstanceId property names of the
-     *         plugins
+     * @return true iff the given name equals to the predefined InstanceId property names of the plugins
      */
     public static boolean isSupportedVirtualMachineInstanceIdProperty(final String name) {
         return name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID)
@@ -83,8 +82,8 @@ public class Utils {
     }
 
     /**
-     * Checks whether the given NodeType is a cloud provider nodeType that can be handled by the set
-     * of plugins used by the PlanBuilder.
+     * Checks whether the given NodeType is a cloud provider nodeType that can be handled by the set of
+     * plugins used by the PlanBuilder.
      *
      * @param nodeType a QName denoting some nodeType
      * @return a boolean. True if the given nodeType is a cloud provider nodeType
@@ -100,8 +99,8 @@ public class Utils {
     }
 
     /**
-     * Checks whether the given QName denotes a nodeType which can't/won't be managed by OpenTOSCA,
-     * such as remote entites
+     * Checks whether the given QName denotes a nodeType which can't/won't be managed by OpenTOSCA, such
+     * as remote entites
      *
      * @param nodeType a QName denoting a NodeType
      * @return true if the nodeType is supported
@@ -132,7 +131,8 @@ public class Utils {
 
         // code for new namespace http://opentosca.org/NodeTypes
         if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
-            || nodeType.equals(Types.ubuntu1404ServerVmNodeType3)) {
+            || nodeType.equals(Types.ubuntu1404ServerVmNodeType3) || nodeType.equals(Types.ubuntu1604ServerVmNodeType)
+            || nodeType.equals(Types.ubuntu1804ServerVmNodeType)) {
             return true;
         }
 
@@ -212,8 +212,8 @@ public class Utils {
     }
 
     /**
-     * Checks whether the given NodeType is a docker engine nodeType that can be handled by the set
-     * of plugins used by the PlanBuilder.
+     * Checks whether the given NodeType is a docker engine nodeType that can be handled by the set of
+     * plugins used by the PlanBuilder.
      *
      * @param nodeType a QName denoting some nodeType
      * @return a boolean. True if the given nodeType is a docker engine nodeType

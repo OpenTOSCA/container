@@ -75,6 +75,10 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
             || nodeType.equals(Types.ubuntu1404ServerVmNodeType3)) {
             return "ubuntu-14.04-trusty-server-cloudimg";
+        } else if (nodeType.equals(Types.ubuntu1604ServerVmNodeType)) {
+            return "ubuntu-16.04-server-cloudimg-amd64";
+        } else if (nodeType.equals(Types.ubuntu1804ServerVmNodeType)) {
+            return "ubuntu-18.04-server-cloudimg-amd64";
         }
 
         final String localName = nodeType.getLocalPart();
@@ -1163,12 +1167,11 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
     private Variable getUbtuntuAMIId(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         Variable vmImageId = context.getPropertyVariable("VMImageID", true);
-        BPELPlanContext.isVariableValueEmpty(vmImageId, context);
 
         // here either the ubuntu connected to the provider this handler is
         // working on hasn't a version in the ID (ubuntu version must be written
         // in AMIId property then) or something went really wrong
-        if (Objects.isNull(vmImageId)) {
+        if (BPELPlanContext.isVariableValueEmpty(vmImageId, context)) {
             // we'll set a global variable with the necessary ubuntu image
             // ubuntuAMIIdVar =
             // context.createGlobalStringVariable("ubuntu_AMIId",
