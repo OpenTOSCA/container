@@ -12,20 +12,19 @@ import org.opentosca.planbuilder.service.model.PlanGenerationState;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class TaskResource {
 
-    private final PlanGenerationState state;
+  private final PlanGenerationState state;
 
-    public TaskResource(final PlanGenerationState state) {
-        this.state = state;
-    }
+  public TaskResource(final PlanGenerationState state) {
+    this.state = state;
+  }
 
-    @GET
-    @Produces("application/xml")
-    public Response getTaskState() {
-        return Response.ok(this.state).build();
-    }
+  @GET
+  @Produces("application/xml")
+  public Response getTaskState() {
+    return Response.ok(this.state).build();
+  }
 
 }

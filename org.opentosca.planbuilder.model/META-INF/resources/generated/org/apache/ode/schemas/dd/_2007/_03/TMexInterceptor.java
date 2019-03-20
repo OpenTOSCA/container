@@ -15,14 +15,13 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * 
- *                 Message exchange interceptor configuration.
- *             
- * 
+ * Message exchange interceptor configuration.
+ *
+ *
  * <p>Java class for tMexInterceptor complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="tMexInterceptor">
  *   &lt;complexContent>
@@ -34,40 +33,34 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tMexInterceptor", propOrder = {
-    "className"
+  "className"
 })
 public class TMexInterceptor {
 
-    @XmlElement(name = "class-name", required = true)
-    protected String className;
+  @XmlElement(name = "class-name", required = true)
+  protected String className;
 
-    /**
-     * Gets the value of the className property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getClassName() {
-        return className;
-    }
+  /**
+   * Gets the value of the className property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getClassName() {
+    return className;
+  }
 
-    /**
-     * Sets the value of the className property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setClassName(String value) {
-        this.className = value;
-    }
+  /**
+   * Sets the value of the className property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setClassName(String value) {
+    this.className = value;
+  }
 
 }

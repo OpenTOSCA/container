@@ -25,86 +25,84 @@ import io.moquette.server.Server;
  * MQTT. The port, username and password to access the MQTT broker can be defined in the global
  * config.ini file.<br>
  * <br>
- *
+ * <p>
  * Copyright 2018 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
  */
 public class Activator implements BundleActivator {
 
-    final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
+  final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
 
-    private static final String METAINF_FOLDER = "/META-INF/";
-    private static final String CONFIGFILE_PATH = "/credentials/password.config";
+  private static final String METAINF_FOLDER = "/META-INF/";
+  private static final String CONFIGFILE_PATH = "/credentials/password.config";
 
-    private Server mqttBroker;
+  private Server mqttBroker;
 
-    @Override
-    public void start(final BundleContext bundleContext) throws Exception {
-        Activator.LOG.info("Starting local MQTT broker at port: {}", Settings.OPENTOSCA_BROKER_MQTT_PORT);
+  @Override
+  public void start(final BundleContext bundleContext) throws Exception {
+    Activator.LOG.info("Starting local MQTT broker at port: {}", Settings.OPENTOSCA_BROKER_MQTT_PORT);
 
-        File credentialsFile = null;
+    File credentialsFile = null;
 
-        // try to create a credentials file
-        try {
-            // get META-INF folder as File
-            final URL bundleResURL = bundleContext.getBundle().getEntry(METAINF_FOLDER);
-            final URL fileResURL = FileLocator.toFileURL(bundleResURL);
-            final File metainfFolder = new File(fileResURL.getPath());
+    // try to create a credentials file
+    try {
+      // get META-INF folder as File
+      final URL bundleResURL = bundleContext.getBundle().getEntry(METAINF_FOLDER);
+      final URL fileResURL = FileLocator.toFileURL(bundleResURL);
+      final File metainfFolder = new File(fileResURL.getPath());
 
-            // create a password file
-            credentialsFile = new File(metainfFolder.getPath() + CONFIGFILE_PATH);
-            credentialsFile.getParentFile().mkdirs();
-            credentialsFile.createNewFile();
+      // create a password file
+      credentialsFile = new File(metainfFolder.getPath() + CONFIGFILE_PATH);
+      credentialsFile.getParentFile().mkdirs();
+      credentialsFile.createNewFile();
 
-            // get username/password from config and create hash
-            final String username = Settings.OPENTOSCA_BROKER_MQTT_USERNAME;
-            final String passwordHash =
-                Hashing.sha256().hashString(Settings.OPENTOSCA_BROKER_MQTT_PASSWORD, StandardCharsets.UTF_8).toString();
+      // get username/password from config and create hash
+      final String username = Settings.OPENTOSCA_BROKER_MQTT_USERNAME;
+      final String passwordHash =
+        Hashing.sha256().hashString(Settings.OPENTOSCA_BROKER_MQTT_PASSWORD, StandardCharsets.UTF_8).toString();
 
-            // add username/password to the credentials file
-            final PrintWriter writer = new PrintWriter(credentialsFile, "UTF-8");
-            writer.println(username + ":" + passwordHash);
-            writer.close();
-        }
-        catch (final Exception e) {
-            Activator.LOG.error("Failed to create credentials file: ", e);
-        }
-
-        // Set properties for the local Moquette MQTT broker
-        final Properties props = new Properties();
-        props.put("port", String.valueOf(Settings.OPENTOSCA_BROKER_MQTT_PORT));
-        props.put("host", "0.0.0.0");
-
-        // Set the max message size according to the MQTT spec
-        // http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/errata01/os/mqtt-v3.1.1-errata01-os-complete.html#_Toc442180836
-        props.put("netty.mqtt.message_size", "268435455");
-
-        if (credentialsFile != null) {
-            // set credentials file
-            props.put("allow_anonymous", "false");
-            props.put("password_file", credentialsFile.getPath());
-        } else {
-            // start broker without authentication
-            props.put("allow_anonymous", "true");
-            Activator.LOG.warn("Caution: Unable to create credentials file. Starting broker without authentication");
-        }
-
-        // start Moquette broker
-        this.mqttBroker = new Server();
-        this.mqttBroker.startServer(props);
-
-        Activator.LOG.info("MQTT broker started");
+      // add username/password to the credentials file
+      final PrintWriter writer = new PrintWriter(credentialsFile, "UTF-8");
+      writer.println(username + ":" + passwordHash);
+      writer.close();
+    } catch (final Exception e) {
+      Activator.LOG.error("Failed to create credentials file: ", e);
     }
 
-    @Override
-    public void stop(final BundleContext arg0) throws Exception {
-        Activator.LOG.info("Stopping MQTT borker");
+    // Set properties for the local Moquette MQTT broker
+    final Properties props = new Properties();
+    props.put("port", String.valueOf(Settings.OPENTOSCA_BROKER_MQTT_PORT));
+    props.put("host", "0.0.0.0");
 
-        this.mqttBroker.stopServer();
+    // Set the max message size according to the MQTT spec
+    // http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/errata01/os/mqtt-v3.1.1-errata01-os-complete.html#_Toc442180836
+    props.put("netty.mqtt.message_size", "268435455");
 
-        Activator.LOG.info("MQTT broker stopped");
+    if (credentialsFile != null) {
+      // set credentials file
+      props.put("allow_anonymous", "false");
+      props.put("password_file", credentialsFile.getPath());
+    } else {
+      // start broker without authentication
+      props.put("allow_anonymous", "true");
+      Activator.LOG.warn("Caution: Unable to create credentials file. Starting broker without authentication");
     }
+
+    // start Moquette broker
+    this.mqttBroker = new Server();
+    this.mqttBroker.startServer(props);
+
+    Activator.LOG.info("MQTT broker started");
+  }
+
+  @Override
+  public void stop(final BundleContext arg0) throws Exception {
+    Activator.LOG.info("Stopping MQTT borker");
+
+    this.mqttBroker.stopServer();
+
+    Activator.LOG.info("MQTT broker stopped");
+  }
 }

@@ -10,26 +10,24 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class ServiceRegistry {
 
-    final private static Logger LOG = LoggerFactory.getLogger(ServiceRegistry.class);
+  final private static Logger LOG = LoggerFactory.getLogger(ServiceRegistry.class);
 
-    private static ICoreFileService openTOSCACoreFileService = null;
+  private static ICoreFileService openTOSCACoreFileService = null;
 
+  protected void bindOpenTOSCACoreFileService(final ICoreFileService fileService) {
+    LOG.debug("Binding CoreFileService");
+    ServiceRegistry.openTOSCACoreFileService = fileService;
+  }
 
-    protected void bindOpenTOSCACoreFileService(final ICoreFileService fileService) {
-        LOG.debug("Binding CoreFileService");
-        ServiceRegistry.openTOSCACoreFileService = fileService;
-    }
+  protected void unbindOpenTOSCACoreFileService(final ICoreFileService fileService) {
+    LOG.debug("Unbinding CoreFileService");
+    ServiceRegistry.openTOSCACoreFileService = null;
+  }
 
-    protected void unbindOpenTOSCACoreFileService(final ICoreFileService fileService) {
-        LOG.debug("Unbinding CoreFileService");
-        ServiceRegistry.openTOSCACoreFileService = null;
-    }
-
-    protected static ICoreFileService getCoreFileService() {
-        return ServiceRegistry.openTOSCACoreFileService;
-    }
+  protected static ICoreFileService getCoreFileService() {
+    return ServiceRegistry.openTOSCACoreFileService;
+  }
 }

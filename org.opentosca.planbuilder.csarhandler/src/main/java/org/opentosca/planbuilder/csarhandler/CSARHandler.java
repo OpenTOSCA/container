@@ -26,79 +26,78 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class CSARHandler {
 
-    final private static Logger LOG = LoggerFactory.getLogger(CSARHandler.class);
-    public static final Path planBuilderWorkingDir = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "container", "planbuilder");
-    private final ICoreFileService fileService;
-    
-    public CSARHandler() {
-        // FIXME eurgh. This is a mess!
-        // set up the facade file service
-        try {
-            Files.createDirectories(planBuilderWorkingDir);
-        }
-        catch (IOException e) {
-            LOG.warn("Could not create working direcotry for planbuilder", e);
-            throw new ExceptionInInitializerError(e);
-        }
-        CsarStorageService detachedStorage = new CsarStorageServiceImpl(planBuilderWorkingDir);
-        fileService = new CoreFileServiceAdapter();
-        ((CoreFileServiceAdapter)fileService).bindStorage(detachedStorage);
-    }
-    
-    /**
-     * Stores a CSAR given as file object
-     *
-     * @param file File referencing a CSAR
-     * @return an Object representing an ID of the stored CSAR, if something went wrong null is returned
-     *         instead
-     * @throws SystemException
-     * @throws UserException
-     */
-    public Object storeCSAR(final File file) throws UserException, SystemException {
-        CSARHandler.LOG.debug("Trying to store csar");
-        final ICoreFileService fileService = this.fetchCoreFileService();
+  public static final Path planBuilderWorkingDir = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "container", "planbuilder");
 
-        final CSARID csarId = fileService.storeCSAR(file.toPath());
-        if (csarId == null) {
-            CSARHandler.LOG.warn("Storing CSAR file failed");
-            return null;
-        }
-        CSARHandler.LOG.info("Storing CSAR file was successful");
-        return csarId;
-    }
+  private static final Logger LOG = LoggerFactory.getLogger(CSARHandler.class);
 
-    /**
-     * Deletes all CSARs in the OpenTOSCA Core
-     */
-    public void deleteAllCsars() {
-        CSARHandler.LOG.info("Deleting all CSAR files");
-        final ICoreFileService fileService = this.fetchCoreFileService();
-        try {
-            fileService.deleteCSARs();
-        }
-        catch (final SystemException e) {
-            
-        }
-    }
+  private final ICoreFileService fileService;
 
-    /**
-     * Returns a CSARContent Object for the given CSARID
-     *
-     * @param id a CSARID
-     * @return the CSARContent for the given CSARID
-     * @throws UserException is thrown when something inside the OpenTOSCA Core fails
-     */
-    public CSARContent getCSARContentForID(final CSARID id) throws UserException {
-        LOG.debug("Fetching CSARContent for given ID");
-        return this.fetchCoreFileService().getCSAR(id);
+  public CSARHandler() {
+    // FIXME eurgh. This is a mess!
+    // set up the facade file service
+    try {
+      Files.createDirectories(planBuilderWorkingDir);
+    } catch (IOException e) {
+      LOG.warn("Could not create working direcotry for planbuilder", e);
+      throw new ExceptionInInitializerError(e);
     }
+    CsarStorageService detachedStorage = new CsarStorageServiceImpl(planBuilderWorkingDir);
+    fileService = new CoreFileServiceAdapter();
+    ((CoreFileServiceAdapter) fileService).bindStorage(detachedStorage);
+  }
 
-    private ICoreFileService fetchCoreFileService() {
-        return fileService;
+  /**
+   * Stores a CSAR given as file object
+   *
+   * @param file File referencing a CSAR
+   * @return an Object representing an ID of the stored CSAR, if something went wrong null is returned
+   * instead
+   * @throws SystemException
+   * @throws UserException
+   */
+  public Object storeCSAR(final File file) throws UserException, SystemException {
+    CSARHandler.LOG.debug("Trying to store csar");
+    final ICoreFileService fileService = this.fetchCoreFileService();
+
+    final CSARID csarId = fileService.storeCSAR(file.toPath());
+    if (csarId == null) {
+      CSARHandler.LOG.warn("Storing CSAR file failed");
+      return null;
     }
+    CSARHandler.LOG.info("Storing CSAR file was successful");
+    return csarId;
+  }
+
+  /**
+   * Deletes all CSARs in the OpenTOSCA Core
+   */
+  public void deleteAllCsars() {
+    CSARHandler.LOG.info("Deleting all CSAR files");
+    final ICoreFileService fileService = this.fetchCoreFileService();
+    try {
+      fileService.deleteCSARs();
+    } catch (final SystemException e) {
+
+    }
+  }
+
+  /**
+   * Returns a CSARContent Object for the given CSARID
+   *
+   * @param id a CSARID
+   * @return the CSARContent for the given CSARID
+   * @throws UserException is thrown when something inside the OpenTOSCA Core fails
+   */
+  public CSARContent getCSARContentForID(final CSARID id) throws UserException {
+    LOG.debug("Fetching CSARContent for given ID");
+    return this.fetchCoreFileService().getCSAR(id);
+  }
+
+  private ICoreFileService fetchCoreFileService() {
+    return fileService;
+  }
 
 }

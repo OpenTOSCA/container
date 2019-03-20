@@ -29,20 +29,19 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- *
  */
 @XmlType(name = "MethodeType")
 @XmlEnum
 public enum MethodeType {
 
-    POST, GET;
+  POST, GET;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static MethodeType fromValue(final String v) {
-        return valueOf(v);
-    }
+  public static MethodeType fromValue(final String v) {
+    return valueOf(v);
+  }
 
 }

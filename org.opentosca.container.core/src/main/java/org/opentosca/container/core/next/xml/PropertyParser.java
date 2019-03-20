@@ -21,48 +21,47 @@ import org.xml.sax.InputSource;
  */
 public final class PropertyParser {
 
-    private static Logger logger = LoggerFactory.getLogger(PropertyParser.class);
+  private static Logger logger = LoggerFactory.getLogger(PropertyParser.class);
 
-    public Map<String, String> parse(final String xml) {
-        final Document document = createDocument(xml);
-        // Optional, but recommended
-        // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-        document.getDocumentElement().normalize();
-        return parse(document.getDocumentElement());
+  public Map<String, String> parse(final String xml) {
+    final Document document = createDocument(xml);
+    // Optional, but recommended
+    // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+    document.getDocumentElement().normalize();
+    return parse(document.getDocumentElement());
+  }
+
+  public Map<String, String> parse(final Element root) {
+
+    final Map<String, String> properties = new HashMap<>();
+
+    final NodeList nodes = root.getChildNodes();
+    if (nodes.getLength() == 1) {
+      final String value = StringUtils.trimToNull(root.getTextContent());
+      if (value != null) {
+        properties.put(root.getLocalName(), value);
+      }
     }
 
-    public Map<String, String> parse(final Element root) {
-
-        final Map<String, String> properties = new HashMap<>();
-
-        final NodeList nodes = root.getChildNodes();
-        if (nodes.getLength() == 1) {
-            final String value = StringUtils.trimToNull(root.getTextContent());
-            if (value != null) {
-                properties.put(root.getLocalName(), value);
-            }
-        }
-
-        for (int x = 0; x < nodes.getLength(); x++) {
-            final Node node = nodes.item(x);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                properties.put(node.getLocalName(), StringUtils.trimToNull(DomUtil.getNodeValue(node)));
-            }
-        }
-
-        return properties;
+    for (int x = 0; x < nodes.getLength(); x++) {
+      final Node node = nodes.item(x);
+      if (node.getNodeType() == Node.ELEMENT_NODE) {
+        properties.put(node.getLocalName(), StringUtils.trimToNull(DomUtil.getNodeValue(node)));
+      }
     }
 
-    private Document createDocument(final String xml) {
-        try {
-            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            final DocumentBuilder builder = factory.newDocumentBuilder();
-            return builder.parse(new InputSource(new StringReader(xml)));
-        }
-        catch (final Exception e) {
-            logger.error("Error parsing XML string", e);
-            throw new IllegalArgumentException(e);
-        }
+    return properties;
+  }
+
+  private Document createDocument(final String xml) {
+    try {
+      final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setNamespaceAware(true);
+      final DocumentBuilder builder = factory.newDocumentBuilder();
+      return builder.parse(new InputSource(new StringReader(xml)));
+    } catch (final Exception e) {
+      logger.error("Error parsing XML string", e);
+      throw new IllegalArgumentException(e);
     }
+  }
 }

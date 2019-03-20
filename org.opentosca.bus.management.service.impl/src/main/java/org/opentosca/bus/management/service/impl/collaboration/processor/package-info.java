@@ -6,6 +6,5 @@
  * <br />
  *
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
  */
 package org.opentosca.bus.management.service.impl.collaboration.processor;

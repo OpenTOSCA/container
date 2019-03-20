@@ -30,33 +30,32 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- *
  */
 @XmlType(name = "ContentType")
 @XmlEnum
 public enum ContentType {
 
-    @XmlEnumValue("urlencoded")
-    URLENCODED("urlencoded"), @XmlEnumValue("xml")
-    XML("xml"), @XmlEnumValue("json")
-    JSON("json");
-    private final String value;
+  @XmlEnumValue("urlencoded")
+  URLENCODED("urlencoded"), @XmlEnumValue("xml")
+  XML("xml"), @XmlEnumValue("json")
+  JSON("json");
+  private final String value;
 
-    ContentType(final String v) {
-        this.value = v;
-    }
+  ContentType(final String v) {
+    this.value = v;
+  }
 
-    public String value() {
-        return this.value;
-    }
+  public String value() {
+    return this.value;
+  }
 
-    public static ContentType fromValue(final String v) {
-        for (final ContentType c : ContentType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static ContentType fromValue(final String v) {
+    for (final ContentType c : ContentType.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

@@ -14,30 +14,27 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  * <br>
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public interface UbuntuVmTypePluginHandler<T extends PlanContext> {
 
-    /**
-     * Adds fragments to provision a VM
-     *
-     * @param context a TemplatePlanContext for a EC2, VM or Ubuntu Node
-     * @param nodeTemplate the NodeTemplate on which the fragments are used
-     * @return true iff adding the fragments was successful
-     */
-    public boolean handle(final T context, final AbstractNodeTemplate nodeTemplate);
+  /**
+   * Adds fragments to provision a VM
+   *
+   * @param context      a TemplatePlanContext for a EC2, VM or Ubuntu Node
+   * @param nodeTemplate the NodeTemplate on which the fragments are used
+   * @return true iff adding the fragments was successful
+   */
+  public boolean handle(final T context, final AbstractNodeTemplate nodeTemplate);
 
-    public boolean handleWithCloudProviderInterface(final T context, final AbstractNodeTemplate nodeTemplate);
+  public boolean handleWithCloudProviderInterface(final T context, final AbstractNodeTemplate nodeTemplate);
 
-    /**
-     * Provisions a Docker Ubuntu Container on a DockerEngine
-     *
-     * @param context
-     *
-     *        a TemplatePlanContext for a DockerEngine or Ubuntu Node
-     * @param nodeTemplate the NodeTemplate on which the fragments are used
-     * @return true iff provisioning the container was successful
-     */
-    public boolean handleWithDockerEngineInterface(final T context, final AbstractNodeTemplate nodeTemplate);
+  /**
+   * Provisions a Docker Ubuntu Container on a DockerEngine
+   *
+   * @param context      a TemplatePlanContext for a DockerEngine or Ubuntu Node
+   * @param nodeTemplate the NodeTemplate on which the fragments are used
+   * @return true iff provisioning the container was successful
+   */
+  public boolean handleWithDockerEngineInterface(final T context, final AbstractNodeTemplate nodeTemplate);
 
 }

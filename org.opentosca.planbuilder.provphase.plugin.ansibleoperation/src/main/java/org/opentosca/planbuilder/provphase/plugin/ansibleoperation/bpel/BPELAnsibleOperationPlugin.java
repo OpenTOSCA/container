@@ -20,55 +20,53 @@ import org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core.AnsibleO
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
- *
  */
 public class BPELAnsibleOperationPlugin extends AnsibleOperationPlugin<BPELPlanContext> {
 
-    private final BPELAnsibleOperationPluginHandler handler = new BPELAnsibleOperationPluginHandler();
+  private final BPELAnsibleOperationPluginHandler handler = new BPELAnsibleOperationPluginHandler();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia) {
-        return this.handler.handle(context, operation, ia);
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+                        final AbstractImplementationArtifact ia) {
+    return this.handler.handle(context, operation, ia);
+  }
 
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping) {
-        return this.handler.handle(context, operation, ia, param2propertyMapping);
-    }
+  @Override
+  public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+                        final AbstractImplementationArtifact ia,
+                        final Map<AbstractParameter, Variable> param2propertyMapping) {
+    return this.handler.handle(context, operation, ia, param2propertyMapping);
+  }
 
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final BPELScopePhaseType phase) {
-        // TODO Auto-generated method stub
-        return false;
-    }
+  @Override
+  public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+                        final AbstractImplementationArtifact ia,
+                        final Map<AbstractParameter, Variable> param2propertyMapping,
+                        final BPELScopePhaseType phase) {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping) {
-        // TODO Auto-generated method stub
-        return false;
-    }
+  @Override
+  public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+                        final AbstractImplementationArtifact ia,
+                        final Map<AbstractParameter, Variable> param2propertyMapping,
+                        final Map<AbstractParameter, Variable> param2PropertyOutputMapping) {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          final BPELScopePhaseType phase) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
+  @Override
+  public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+                        final AbstractImplementationArtifact ia,
+                        final Map<AbstractParameter, Variable> param2propertyMapping,
+                        final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
+                        final BPELScopePhaseType phase) {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
 }

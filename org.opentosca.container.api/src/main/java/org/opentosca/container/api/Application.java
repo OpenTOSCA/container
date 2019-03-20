@@ -1,7 +1,5 @@
 package org.opentosca.container.api;
 
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.opentosca.container.api.config.*;
 import org.opentosca.container.api.controller.*;
 import org.slf4j.Logger;
@@ -20,7 +18,6 @@ public class Application extends javax.ws.rs.core.Application {
   public Application() {
     LOGGER.info("Application has been instantiated");
   }
-
 
   @Override
   public Set<Class<?>> getClasses() {
@@ -43,16 +40,13 @@ public class Application extends javax.ws.rs.core.Application {
   @Override
   public Set<Object> getSingletons() {
     return Stream.of(
-        new CorsFilter()
-        , new PlainTextMessageBodyWriter()
-        , new URI2XMLMessageBodyWriter()
-        , new ObjectMapperProvider()
-//        , new JacksonFeature()
-//        , new MultiPartFeature()
-        , new LogFilter()
-        , new JAXBContextProvider()
-        , new LoggingExceptionMapper()
-      ).collect(Collectors.toSet());
+      new CorsFilter()
+      , new PlainTextMessageBodyWriter()
+      , new URI2XMLMessageBodyWriter()
+      , new ObjectMapperProvider()
+      , new LogFilter()
+      , new JAXBContextProvider()
+      , new LoggingExceptionMapper()
+    ).collect(Collectors.toSet());
   }
-
 }

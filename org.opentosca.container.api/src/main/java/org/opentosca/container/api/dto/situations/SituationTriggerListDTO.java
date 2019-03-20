@@ -15,17 +15,16 @@ import com.google.common.collect.Lists;
 @XmlRootElement(name = "SituationTriggerResources")
 public class SituationTriggerListDTO extends ResourceSupport {
 
-    @JsonProperty
-    @XmlElement(name = "SituationTrigger")
-    @XmlElementWrapper(name = "SituationTriggers")
-    private final List<SituationTriggerDTO> situationTriggers = Lists.newArrayList();
+  @JsonProperty
+  @XmlElement(name = "SituationTrigger")
+  @XmlElementWrapper(name = "SituationTriggers")
+  private final List<SituationTriggerDTO> situationTriggers = Lists.newArrayList();
 
+  public List<SituationTriggerDTO> getSituationTriggers() {
+    return this.situationTriggers;
+  }
 
-    public List<SituationTriggerDTO> getSituationTriggers() {
-        return this.situationTriggers;
-    }
-
-    public void add(final SituationTriggerDTO... situations) {
-        this.situationTriggers.addAll(Arrays.asList(situations));
-    }
+  public void add(final SituationTriggerDTO... situations) {
+    this.situationTriggers.addAll(Arrays.asList(situations));
+  }
 }

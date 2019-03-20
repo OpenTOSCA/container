@@ -36,95 +36,85 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "invokeMethodWithNodeInstanceID", propOrder = {"_interface", "operation", "nodeInstanceID", "params"})
 public class InvokeMethodWithNodeInstanceID {
 
-    @XmlElement(name = "interface", required = true)
-    protected String _interface;
-    @XmlElement(required = true)
-    protected String operation;
-    protected int nodeInstanceID;
-    @XmlElement(name = "Params")
-    protected ParamsMap params;
+  @XmlElement(name = "interface", required = true)
+  protected String _interface;
+  @XmlElement(required = true)
+  protected String operation;
+  protected int nodeInstanceID;
+  @XmlElement(name = "Params")
+  protected ParamsMap params;
 
-    /**
-     * Gets the value of the interface property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getInterface() {
-        return this._interface;
-    }
+  /**
+   * Gets the value of the interface property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getInterface() {
+    return this._interface;
+  }
 
-    /**
-     * Sets the value of the interface property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setInterface(final String value) {
-        this._interface = value;
-    }
+  /**
+   * Sets the value of the interface property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setInterface(final String value) {
+    this._interface = value;
+  }
 
-    /**
-     * Gets the value of the operation property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getOperation() {
-        return this.operation;
-    }
+  /**
+   * Gets the value of the operation property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getOperation() {
+    return this.operation;
+  }
 
-    /**
-     * Sets the value of the operation property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setOperation(final String value) {
-        this.operation = value;
-    }
+  /**
+   * Sets the value of the operation property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setOperation(final String value) {
+    this.operation = value;
+  }
 
-    /**
-     * Gets the value of the nodeInstanceID property.
-     *
-     */
-    public int getNodeInstanceID() {
-        return this.nodeInstanceID;
-    }
+  /**
+   * Gets the value of the nodeInstanceID property.
+   */
+  public int getNodeInstanceID() {
+    return this.nodeInstanceID;
+  }
 
-    /**
-     * Sets the value of the nodeInstanceID property.
-     *
-     */
-    public void setNodeInstanceID(final int value) {
-        this.nodeInstanceID = value;
-    }
+  /**
+   * Sets the value of the nodeInstanceID property.
+   */
+  public void setNodeInstanceID(final int value) {
+    this.nodeInstanceID = value;
+  }
 
-    /**
-     * Gets the value of the params property.
-     *
-     * @return possible object is {@link ParamsMap }
-     *
-     */
-    public ParamsMap getParams() {
-        return this.params;
-    }
+  /**
+   * Gets the value of the params property.
+   *
+   * @return possible object is {@link ParamsMap }
+   */
+  public ParamsMap getParams() {
+    return this.params;
+  }
 
-    /**
-     * Sets the value of the params property.
-     *
-     * @param value allowed object is {@link ParamsMap }
-     *
-     */
-    public void setParams(final ParamsMap value) {
-        this.params = value;
-    }
+  /**
+   * Sets the value of the params property.
+   *
+   * @param value allowed object is {@link ParamsMap }
+   */
+  public void setParams(final ParamsMap value) {
+    this.params = value;
+  }
 
 }

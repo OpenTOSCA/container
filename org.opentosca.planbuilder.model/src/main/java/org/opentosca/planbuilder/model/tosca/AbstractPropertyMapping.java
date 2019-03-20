@@ -8,28 +8,27 @@ package org.opentosca.planbuilder.model.tosca;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public abstract class AbstractPropertyMapping {
 
-    /**
-     * Returns the ServiceTemplatePropertyRef
-     *
-     * @return a String containing a reference to a ServiceTemplate Property
-     */
-    public abstract String getServiceTemplatePropertyRef();
+  /**
+   * Returns the ServiceTemplatePropertyRef
+   *
+   * @return a String containing a reference to a ServiceTemplate Property
+   */
+  public abstract String getServiceTemplatePropertyRef();
 
-    /**
-     * Returns the TargetObjectRef
-     *
-     * @return a String containing a TopologyTemplate ID
-     */
-    public abstract String getTargetObjectRef();
+  /**
+   * Returns the TargetObjectRef
+   *
+   * @return a String containing a TopologyTemplate ID
+   */
+  public abstract String getTargetObjectRef();
 
-    /**
-     * Returns the TargetPropertyRef
-     *
-     * @return a String containing a reference to a Property of Template
-     */
-    public abstract String getTargetPropertyRef();
+  /**
+   * Returns the TargetPropertyRef
+   *
+   * @return a String containing a reference to a Property of Template
+   */
+  public abstract String getTargetPropertyRef();
 }

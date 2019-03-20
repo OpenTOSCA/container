@@ -15,31 +15,30 @@ import org.osgi.framework.ServiceRegistration;
  * <br>
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public class Activator implements BundleActivator {
 
-    private static BundleContext context;
+  private static BundleContext context;
 
-    private final List<ServiceRegistration<?>> registrations = new ArrayList<>();
+  private final List<ServiceRegistration<?>> registrations = new ArrayList<>();
 
-    static BundleContext getContext() {
-        return Activator.context;
-    }
+  static BundleContext getContext() {
+    return Activator.context;
+  }
 
-    @Override
-    public void start(final BundleContext bundleContext) throws Exception {
-        context = bundleContext;
-        this.registrations.add(bundleContext.registerService(IPlanBuilderTypePlugin.class.getName(),
-                                                             new BPELConnectsToPlugin(), null));
-        this.registrations.add(bundleContext.registerService(IPlanBuilderTypePlugin.class.getName(),
-                                                             new BPELConfigureRelationsPlugin(), null));
+  @Override
+  public void start(final BundleContext bundleContext) throws Exception {
+    context = bundleContext;
+    this.registrations.add(bundleContext.registerService(IPlanBuilderTypePlugin.class.getName(),
+      new BPELConnectsToPlugin(), null));
+    this.registrations.add(bundleContext.registerService(IPlanBuilderTypePlugin.class.getName(),
+      new BPELConfigureRelationsPlugin(), null));
 
-    }
+  }
 
-    @Override
-    public void stop(final BundleContext bundleContext) throws Exception {
-        Activator.context = null;
-        this.registrations.forEach(e -> e.unregister());
-    }
+  @Override
+  public void stop(final BundleContext bundleContext) throws Exception {
+    Activator.context = null;
+    this.registrations.forEach(e -> e.unregister());
+  }
 }

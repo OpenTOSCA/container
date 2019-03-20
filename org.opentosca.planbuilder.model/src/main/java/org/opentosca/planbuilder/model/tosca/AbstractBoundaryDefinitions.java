@@ -15,10 +15,10 @@ package org.opentosca.planbuilder.model.tosca;
  */
 public abstract class AbstractBoundaryDefinitions {
 
-    /**
-     * Returns the Properties of this BoundaryDefinitions
-     *
-     * @return an AbstractServiceTemplateProperties
-     */
-    public abstract AbstractServiceTemplateProperties getProperties();
+  /**
+   * Returns the Properties of this BoundaryDefinitions
+   *
+   * @return an AbstractServiceTemplateProperties
+   */
+  public abstract AbstractServiceTemplateProperties getProperties();
 }

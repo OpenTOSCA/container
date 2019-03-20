@@ -17,16 +17,16 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  *
  */
 public abstract class InvokerPlugin<T extends PlanContext> implements IPlanBuilderProvPhaseOperationPlugin<T>,
-                                   IPlanBuilderProvPhaseParamOperationPlugin<T> {
-    private static final String PLUGIN_ID = "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
+  IPlanBuilderProvPhaseParamOperationPlugin<T> {
+  private static final String PLUGIN_ID = "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
 
-    @Override
-    public boolean canHandle(final QName operationArtifactType) {
-        return true;
-    }
+  @Override
+  public boolean canHandle(final QName operationArtifactType) {
+    return true;
+  }
 
-    @Override
-    public String getID() {
-        return PLUGIN_ID;
-    }
+  @Override
+  public String getID() {
+    return PLUGIN_ID;
+  }
 }

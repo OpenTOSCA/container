@@ -11,46 +11,43 @@ import org.slf4j.LoggerFactory;
 /**
  * GetResultProcessor of the Application Bus.<br>
  * <br>
- *
+ * <p>
  * This processor handles "getResult" requests.
  *
- *
- *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- *
  */
 public class GetResultProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(GetResultProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(GetResultProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) throws Exception {
+  @Override
+  public void process(final Exchange exchange) throws Exception {
 
-        final String requestID = exchange.getIn().getBody(String.class);
+    final String requestID = exchange.getIn().getBody(String.class);
 
-        GetResultProcessor.LOG.debug("getResult request received. RequestID: {}", requestID);
+    GetResultProcessor.LOG.debug("getResult request received. RequestID: {}", requestID);
 
-        if (ResultMap.containsID(requestID)) {
+    if (ResultMap.containsID(requestID)) {
 
-            GetResultProcessor.LOG.debug("Getting result.");
+      GetResultProcessor.LOG.debug("Getting result.");
 
-            final Object result = ResultMap.get(requestID);
+      final Object result = ResultMap.get(requestID);
 
-            // "Garbage collection": Remove polled responses. Maybe
-            // client should actively delete it.
-            ResultMap.remove(requestID);
-            QueueMap.remove(requestID);
+      // "Garbage collection": Remove polled responses. Maybe
+      // client should actively delete it.
+      ResultMap.remove(requestID);
+      QueueMap.remove(requestID);
 
-            exchange.getIn().setBody(result);
+      exchange.getIn().setBody(result);
 
-        } else if (!QueueMap.containsID(requestID)) {
-            GetResultProcessor.LOG.warn("Unknown RequestID: {}", requestID);
-            exchange.getIn().setBody(new ApplicationBusInternalException("Unknown RequestID: " + requestID));
-        } else {
-            GetResultProcessor.LOG.warn("Error while invoking specified method.");
-            exchange.getIn().setBody(new ApplicationBusInternalException("Error while invoking specified method."));
-        }
-
+    } else if (!QueueMap.containsID(requestID)) {
+      GetResultProcessor.LOG.warn("Unknown RequestID: {}", requestID);
+      exchange.getIn().setBody(new ApplicationBusInternalException("Unknown RequestID: " + requestID));
+    } else {
+      GetResultProcessor.LOG.warn("Error while invoking specified method.");
+      exchange.getIn().setBody(new ApplicationBusInternalException("Error while invoking specified method."));
     }
+
+  }
 
 }

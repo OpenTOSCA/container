@@ -9,18 +9,15 @@ package org.opentosca.planbuilder.model.tosca;
  * <br>
  *
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public abstract class AbstractPolicy {
 
-    public abstract String getName();
+  public abstract String getName();
 
-    public abstract AbstractProperties getProperties();
+  public abstract AbstractProperties getProperties();
 
+  public abstract AbstractPolicyType getType();
 
-    public abstract AbstractPolicyType getType();
-
-    public abstract AbstractPolicyTemplate getTemplate();
-
+  public abstract AbstractPolicyTemplate getTemplate();
 
 }

@@ -8,7 +8,6 @@ package org.opentosca.planbuilder.integration.layer;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public abstract class AbstractExporter {
 

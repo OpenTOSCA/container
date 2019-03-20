@@ -32,180 +32,178 @@ import org.springframework.stereotype.Service;
 @Service
 public class HttpServiceImpl implements IHTTPService {
 
-    DefaultHttpClient client;
+  DefaultHttpClient client;
 
+  @Override
+  public HttpResponse Get(final String uri, final List<Cookie> cookies) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpGet get = new HttpGet(uri);
 
-    @Override
-    public HttpResponse Get(final String uri, final List<Cookie> cookies) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpGet get = new HttpGet(uri);
+    if (cookies != null) {
+      for (final Cookie c : cookies) {
+        ((AbstractHttpClient) this.client).getCookieStore().addCookie(c);
 
-        if (cookies != null) {
-            for (final Cookie c : cookies) {
-                ((AbstractHttpClient) this.client).getCookieStore().addCookie(c);
-
-            }
-        }
-
-        final HttpResponse response = this.client.execute(get);
-
-        return response;
-        // TODO Return something useful maybe... like an InputStream
+      }
     }
 
-    @Override
-    public HttpResponse Get(final String uri, final Map<String, String> headers) throws ClientProtocolException,
-                                                                                 IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpGet get = new HttpGet(uri);
+    final HttpResponse response = this.client.execute(get);
 
-        for (final String header : headers.keySet()) {
-            get.addHeader(header, headers.get(header));
-        }
+    return response;
+    // TODO Return something useful maybe... like an InputStream
+  }
 
-        final HttpResponse response = this.client.execute(get);
+  @Override
+  public HttpResponse Get(final String uri, final Map<String, String> headers) throws ClientProtocolException,
+    IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpGet get = new HttpGet(uri);
 
-        return response;
-        // TODO Return something useful maybe... like an InputStream
+    for (final String header : headers.keySet()) {
+      get.addHeader(header, headers.get(header));
     }
 
+    final HttpResponse response = this.client.execute(get);
 
-    @Override
-    public HttpResponse Get(final String uri) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpGet get = new HttpGet(uri);
-        final HttpResponse response = this.client.execute(get);
+    return response;
+    // TODO Return something useful maybe... like an InputStream
+  }
 
-        return response;
-        // TODO Return something useful maybe... like an InputStream
+  @Override
+  public HttpResponse Get(final String uri) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpGet get = new HttpGet(uri);
+    final HttpResponse response = this.client.execute(get);
+
+    return response;
+    // TODO Return something useful maybe... like an InputStream
+  }
+
+  @Override
+  public HttpResponse Get(final String uri, final String username,
+                          final String password) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.getCredentialsProvider().setCredentials(AuthScope.ANY,
+      new UsernamePasswordCredentials(username, password));
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpGet get = new HttpGet(uri);
+    final HttpResponse response = this.client.execute(get);
+
+    return response;
+    // TODO Return something useful maybe... like an InputStream
+  }
+
+  @Override
+  public HttpResponse Head(final String uri) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpHead head = new HttpHead(uri);
+    final HttpResponse response = this.client.execute(head);
+    return response;
+  }
+
+  @Override
+  public HttpResponse Post(final String uri, final HttpEntity httpEntity) throws ClientProtocolException,
+    IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpPost post = new HttpPost(uri);
+    post.setEntity(httpEntity);
+    final HttpResponse response = this.client.execute(post);
+    return response;
+  }
+
+  @Override
+  public HttpResponse Post(final String uri, final HttpEntity httpEntity,
+                           final Header... header) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpPost post = new HttpPost(uri);
+    post.setEntity(httpEntity);
+    post.setHeaders(header);
+    final HttpResponse response = this.client.execute(post);
+    return response;
+  }
+
+  @Override
+  public HttpResponse Post(final String uri, final HttpEntity httpEntity,
+                           final List<Cookie> cookies) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpPost post = new HttpPost(uri);
+    post.setEntity(httpEntity);
+    if (cookies != null) {
+      for (final Cookie c : cookies) {
+        ((AbstractHttpClient) this.client).getCookieStore().addCookie(c);
+
+      }
     }
+    final HttpResponse response = this.client.execute(post);
+    return response;
+  }
 
-    @Override
-    public HttpResponse Get(final String uri, final String username,
-                            final String password) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.getCredentialsProvider().setCredentials(AuthScope.ANY,
-                                                            new UsernamePasswordCredentials(username, password));
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpGet get = new HttpGet(uri);
-        final HttpResponse response = this.client.execute(get);
+  @Override
+  public List<Cookie> PostCookies(final String uri, final HttpEntity httpEntity) throws ClientProtocolException,
+    IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpPost post = new HttpPost(uri);
+    post.setEntity(httpEntity);
+    this.client.execute(post);
+    final List<Cookie> cookies = ((AbstractHttpClient) this.client).getCookieStore().getCookies();
+    // this.client.getConnectionManager().shutdown();
+    return cookies;
+  }
 
-        return response;
-        // TODO Return something useful maybe... like an InputStream
-    }
+  @Override
+  public HttpResponse Put(final String uri, final HttpEntity httpEntity) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpPut put = new HttpPut(uri);
+    put.setEntity(httpEntity);
+    final HttpResponse response = this.client.execute(put);
+    return response;
+  }
 
-    @Override
-    public HttpResponse Head(final String uri) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpHead head = new HttpHead(uri);
-        final HttpResponse response = this.client.execute(head);
-        return response;
-    }
+  @Override
+  public HttpResponse Put(final String uri, final HttpEntity httpEntity, final String username,
+                          final String password) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    this.client.getCredentialsProvider().setCredentials(AuthScope.ANY,
+      new UsernamePasswordCredentials(username, password));
+    final HttpPut put = new HttpPut(uri);
+    put.setEntity(httpEntity);
+    final HttpResponse response = this.client.execute(put);
+    return response;
+  }
 
-    @Override
-    public HttpResponse Post(final String uri, final HttpEntity httpEntity) throws ClientProtocolException,
-                                                                            IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpPost post = new HttpPost(uri);
-        post.setEntity(httpEntity);
-        final HttpResponse response = this.client.execute(post);
-        return response;
-    }
+  @Override
+  public HttpResponse Delete(final String uri) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpDelete del = new HttpDelete(uri);
+    final HttpResponse response = this.client.execute(del);
+    return response;
+  }
 
-    @Override
-    public HttpResponse Post(final String uri, final HttpEntity httpEntity,
-                             final Header... header) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpPost post = new HttpPost(uri);
-        post.setEntity(httpEntity);
-        post.setHeaders(header);
-        final HttpResponse response = this.client.execute(post);
-        return response;
-    }
+  @Override
+  public HttpResponse Trace(final String uri) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpTrace trace = new HttpTrace(uri);
+    final HttpResponse response = this.client.execute(trace);
+    return response;
+  }
 
-    @Override
-    public HttpResponse Post(final String uri, final HttpEntity httpEntity,
-                             final List<Cookie> cookies) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpPost post = new HttpPost(uri);
-        post.setEntity(httpEntity);
-        if (cookies != null) {
-            for (final Cookie c : cookies) {
-                ((AbstractHttpClient) this.client).getCookieStore().addCookie(c);
-
-            }
-        }
-        final HttpResponse response = this.client.execute(post);
-        return response;
-    }
-
-    @Override
-    public List<Cookie> PostCookies(final String uri, final HttpEntity httpEntity) throws ClientProtocolException,
-                                                                                   IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpPost post = new HttpPost(uri);
-        post.setEntity(httpEntity);
-        this.client.execute(post);
-        final List<Cookie> cookies = ((AbstractHttpClient) this.client).getCookieStore().getCookies();
-        // this.client.getConnectionManager().shutdown();
-        return cookies;
-    }
-
-    @Override
-    public HttpResponse Put(final String uri, final HttpEntity httpEntity) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpPut put = new HttpPut(uri);
-        put.setEntity(httpEntity);
-        final HttpResponse response = this.client.execute(put);
-        return response;
-    }
-
-    @Override
-    public HttpResponse Put(final String uri, final HttpEntity httpEntity, final String username,
-                            final String password) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        this.client.getCredentialsProvider().setCredentials(AuthScope.ANY,
-                                                            new UsernamePasswordCredentials(username, password));
-        final HttpPut put = new HttpPut(uri);
-        put.setEntity(httpEntity);
-        final HttpResponse response = this.client.execute(put);
-        return response;
-    }
-
-    @Override
-    public HttpResponse Delete(final String uri) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpDelete del = new HttpDelete(uri);
-        final HttpResponse response = this.client.execute(del);
-        return response;
-    }
-
-    @Override
-    public HttpResponse Trace(final String uri) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpTrace trace = new HttpTrace(uri);
-        final HttpResponse response = this.client.execute(trace);
-        return response;
-    }
-
-    @Override
-    public HttpResponse Options(final String uri) throws ClientProtocolException, IOException {
-        this.client = new DefaultHttpClient();
-        this.client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpOptions options = new HttpOptions(uri);
-        final HttpResponse response = this.client.execute(options);
-        return response;
-    }
+  @Override
+  public HttpResponse Options(final String uri) throws ClientProtocolException, IOException {
+    this.client = new DefaultHttpClient();
+    this.client.setRedirectStrategy(new LaxRedirectStrategy());
+    final HttpOptions options = new HttpOptions(uri);
+    final HttpResponse response = this.client.execute(options);
+    return response;
+  }
 }

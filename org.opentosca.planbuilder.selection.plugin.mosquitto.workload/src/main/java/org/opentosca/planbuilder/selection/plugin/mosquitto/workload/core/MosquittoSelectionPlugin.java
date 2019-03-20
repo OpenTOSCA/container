@@ -15,23 +15,22 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public abstract class MosquittoSelectionPlugin<T extends PlanContext> implements IScalingPlanBuilderSelectionPlugin<T> {
 
-    private static final String PLUGIN_ID = "OpenTOSCA Mosquitto Workload Selection Plugin";
-    private static final String WORKLOAD_SELECTION_STRATEGY = "WorkloadBased";
+  private static final String PLUGIN_ID = "OpenTOSCA Mosquitto Workload Selection Plugin";
+  private static final String WORKLOAD_SELECTION_STRATEGY = "WorkloadBased";
 
-    @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
-        // we can basically handle every type with this strategy
-        return selectionStrategies.contains(MosquittoSelectionPlugin.WORKLOAD_SELECTION_STRATEGY);
+  @Override
+  public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
+    // we can basically handle every type with this strategy
+    return selectionStrategies.contains(MosquittoSelectionPlugin.WORKLOAD_SELECTION_STRATEGY);
 
-    }
+  }
 
-    @Override
-    public String getID() {
-        return MosquittoSelectionPlugin.PLUGIN_ID;
-    }
+  @Override
+  public String getID() {
+    return MosquittoSelectionPlugin.PLUGIN_ID;
+  }
 
 }

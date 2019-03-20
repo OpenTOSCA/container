@@ -7,7 +7,7 @@
  * {@link org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService} and
  * {@link org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService}.<br
  * />
- *
+ * <p>
  * Copyright 2018 IAAS University of Stuttgart <br />
  * <br />
  *

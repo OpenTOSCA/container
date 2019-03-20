@@ -10,32 +10,29 @@ import org.slf4j.LoggerFactory;
 /**
  * ResponseProcessor of the Application Bus-JSON/HTTP-Plugin.<br>
  * <br>
- *
+ * <p>
  * This processor handles the responses.
  *
- *
- *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- *
  */
 public class ResponseProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(ResponseProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(ResponseProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) throws Exception {
+  @Override
+  public void process(final Exchange exchange) throws Exception {
 
-        ResponseProcessor.LOG.debug("Parsing the response...");
+    ResponseProcessor.LOG.debug("Parsing the response...");
 
-        final String response = exchange.getIn().getBody(String.class);
+    final String response = exchange.getIn().getBody(String.class);
 
-        final JSONObject obj = (JSONObject) JSONValue.parse(response);
-        final Object result = obj.get("result");
+    final JSONObject obj = (JSONObject) JSONValue.parse(response);
+    final Object result = obj.get("result");
 
-        ResponseProcessor.LOG.debug("Response: {}", result);
+    ResponseProcessor.LOG.debug("Response: {}", result);
 
-        exchange.getIn().setBody(result);
+    exchange.getIn().setBody(result);
 
-    }
+  }
 
 }

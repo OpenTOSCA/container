@@ -15,27 +15,26 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public abstract class InstanceDataPlugin<T extends PlanContext> implements IPlanBuilderPostPhasePlugin<T>,
-                                        IPlanBuilderPolicyAwarePrePhasePlugin<T> {
+  IPlanBuilderPolicyAwarePrePhasePlugin<T> {
 
-    private static final String PLAN_ID = "OpenTOSCA InstanceData Post Phase Plugin";
+  private static final String PLAN_ID = "OpenTOSCA InstanceData Post Phase Plugin";
 
-    @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
-        // we can handle nodes
-        return true;
-    }
+  @Override
+  public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    // we can handle nodes
+    return true;
+  }
 
-    @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
-        // we can't handle relations
-        return true;
-    }
+  @Override
+  public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    // we can't handle relations
+    return true;
+  }
 
-    @Override
-    public String getID() {
-        return PLAN_ID;
-    }
+  @Override
+  public String getID() {
+    return PLAN_ID;
+  }
 }

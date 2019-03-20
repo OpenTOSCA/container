@@ -7,5 +7,5 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://www.siengine.restplugin.org/SpecificContentRestSchema",
-                                     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+  elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.opentosca.bus.management.invocation.plugin.rest.model;

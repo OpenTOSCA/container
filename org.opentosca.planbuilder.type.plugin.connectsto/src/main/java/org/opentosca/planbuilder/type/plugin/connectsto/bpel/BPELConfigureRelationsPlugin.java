@@ -7,10 +7,10 @@ import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToP
 
 public class BPELConfigureRelationsPlugin extends ConfigureRelationsPlugin<BPELPlanContext> {
 
-    private final ConnectsToPluginHandler<BPELPlanContext> handler = new BPELConfigureRelationsPluginHandler();
+  private final ConnectsToPluginHandler<BPELPlanContext> handler = new BPELConfigureRelationsPluginHandler();
 
-    @Override
-    public boolean handle(final BPELPlanContext templateContext) {
-        return this.handler.handle(templateContext);
-    }
+  @Override
+  public boolean handle(final BPELPlanContext templateContext) {
+    return this.handler.handle(templateContext);
+  }
 }

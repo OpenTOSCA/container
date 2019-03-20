@@ -11,36 +11,36 @@ import org.w3c.dom.NodeList;
  */
 public class ReferenceResultWrapper {
 
-    private Document doc = null;
-    private NodeList nodeList = null;
+  private Document doc = null;
+  private NodeList nodeList = null;
 
 
-    /**
-     * @return the doc
-     */
-    public Document getDoc() {
-        return this.doc;
-    }
+  /**
+   * @return the doc
+   */
+  public Document getDoc() {
+    return this.doc;
+  }
 
-    /**
-     * @param doc the doc to set
-     */
-    public void setDoc(final Document doc) {
-        this.doc = doc;
-    }
+  /**
+   * @param doc the doc to set
+   */
+  public void setDoc(final Document doc) {
+    this.doc = doc;
+  }
 
-    /**
-     * @return the nodeList
-     */
-    public NodeList getNodeList() {
-        return this.nodeList;
-    }
+  /**
+   * @return the nodeList
+   */
+  public NodeList getNodeList() {
+    return this.nodeList;
+  }
 
-    /**
-     * @param nodeList the nodeList to set
-     */
-    public void setNodeList(final NodeList nodeList) {
-        this.nodeList = nodeList;
-    }
+  /**
+   * @param nodeList the nodeList to set
+   */
+  public void setNodeList(final NodeList nodeList) {
+    this.nodeList = nodeList;
+  }
 
 }

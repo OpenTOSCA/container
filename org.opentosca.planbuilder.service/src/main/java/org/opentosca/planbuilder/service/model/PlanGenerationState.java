@@ -13,49 +13,47 @@ import org.opentosca.container.core.model.csar.id.CSARID;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 @XmlRootElement
 public class PlanGenerationState {
 
-    public enum PlanGenerationStates {
-        INITIALIZED, CSARDOWNLOADING, CSARDOWNLOADFAILED, CSARDOWNLOADED, PLANGENERATING, PLANGENERATIONFAILED, PLANSGENERATED, PLANSENDING, PLANSENDINGFAILED, PLANSSENT, OPTIONSENDING, OPTIONSENDINGFAILED, OPTIONSENT, FINISHED
-    }
+  public enum PlanGenerationStates {
+    INITIALIZED, CSARDOWNLOADING, CSARDOWNLOADFAILED, CSARDOWNLOADED, PLANGENERATING, PLANGENERATIONFAILED, PLANSGENERATED, PLANSENDING, PLANSENDINGFAILED, PLANSSENT, OPTIONSENDING, OPTIONSENDINGFAILED, OPTIONSENT, FINISHED
+  }
+
+  @XmlElement
+  public String currentMessage = "Task is initializing";
+
+  @XmlElement
+  public PlanGenerationStates currentState = PlanGenerationStates.INITIALIZED;
+
+  @XmlElement
+  private final URL csarUrl;
+
+  private final CSARID csarId = null;
+
+  @XmlElement
+  private final URL planPostUrl;
+
+  private final File planTmpFile = null;
 
 
-    @XmlElement
-    public String currentMessage = "Task is initializing";
+  public PlanGenerationState() {
+    this.csarUrl = null;
+    this.planPostUrl = null;
+  }
 
-    @XmlElement
-    private final URL csarUrl;
+  public PlanGenerationState(final URL csarUrl, final URL planPostUrl) {
+    this.csarUrl = csarUrl;
+    this.planPostUrl = planPostUrl;
+  }
 
-    private final CSARID csarId = null;
+  public URL getCsarUrl() {
+    return this.csarUrl;
+  }
 
-    @XmlElement
-    private final URL planPostUrl;
-
-    private final File planTmpFile = null;
-
-    @XmlElement
-    public PlanGenerationStates currentState = PlanGenerationStates.INITIALIZED;
-
-
-    public PlanGenerationState() {
-        this.csarUrl = null;
-        this.planPostUrl = null;
-    }
-
-    public PlanGenerationState(final URL csarUrl, final URL planPostUrl) {
-        this.csarUrl = csarUrl;
-        this.planPostUrl = planPostUrl;
-    }
-
-    public URL getCsarUrl() {
-        return this.csarUrl;
-    }
-
-    public URL getPostUrl() {
-        return this.planPostUrl;
-    }
+  public URL getPostUrl() {
+    return this.planPostUrl;
+  }
 
 }

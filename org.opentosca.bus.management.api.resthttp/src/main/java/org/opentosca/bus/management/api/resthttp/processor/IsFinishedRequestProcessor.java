@@ -9,29 +9,26 @@ import org.slf4j.LoggerFactory;
 /**
  * IsFinishedRequestProcessor of the Management Bus REST-API.<br>
  * <br>
- *
+ * <p>
  * This processor handles "isFinished" requests.
  *
- *
- *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
- *
  */
 public class IsFinishedRequestProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(IsFinishedRequestProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(IsFinishedRequestProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) throws Exception {
+  @Override
+  public void process(final Exchange exchange) throws Exception {
 
-        IsFinishedRequestProcessor.LOG.debug("Processing IsFinished request....");
+    IsFinishedRequestProcessor.LOG.debug("Processing IsFinished request....");
 
-        final Integer requestID = exchange.getIn().getHeader(InvocationRoute.ID, Integer.class);
+    final Integer requestID = exchange.getIn().getHeader(InvocationRoute.ID, Integer.class);
 
-        IsFinishedRequestProcessor.LOG.debug("RequestID: {}", requestID);
+    IsFinishedRequestProcessor.LOG.debug("RequestID: {}", requestID);
 
-        exchange.getIn().setBody(requestID);
+    exchange.getIn().setBody(requestID);
 
-    }
+  }
 
 }

@@ -18,120 +18,114 @@ import org.opentosca.bus.application.model.exception.ApplicationBusInternalExcep
 /**
  * Route of the Application Bus-REST/HTTP-API.<br>
  * <br>
- *
+ * <p>
  * The endpoint of the REST/HTTP-API is created here. Incoming requests will be routed to processors
  * or the application bus in order to handle the requests.
  *
- *
- *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- *
  */
 public class Route extends RouteBuilder {
 
+  public static final String SI = "ServiceInstanceID";
+  public static final String NT = "NodeTemplateID";
+  public static final String NI = "NodeInstanceID";
+  public static final String IN = "InterfaceName";
+  public static final String ON = "OperationName";
 
-    private static final String HOST = "http://localhost";
+  public static final String INVOKE_ENDPOINT_SI = "/OTABService/v1/ServiceInstances/{" + Route.SI + "}/Nodes/{"
+    + Route.NT + "}/ApplicationInterfaces/{" + Route.IN + "}/Operations/{" + Route.ON + "}";
+  public static final String INVOKE_ENDPOINT_NI = "/OTABService/v1/NodeInstances/{" + Route.NI
+    + "}/ApplicationInterfaces/{" + Route.IN + "}/Operations/{" + Route.ON + "}";
 
-    private static final String PORT = "8085";
-    private static final String BASE_ENDPOINT = Route.HOST + ":" + Route.PORT;
+  public static final String ID = "id";
+  public static final String ID_PLACEHODLER = "{" + Route.ID + "}";
 
-    public static final String SI = "ServiceInstanceID";
-    public static final String NT = "NodeTemplateID";
-    public static final String NI = "NodeInstanceID";
-    public static final String IN = "InterfaceName";
-    public static final String ON = "OperationName";
+  public static final String POLL_ENDPOINT_SUFFIX = "/activeRequests/" + Route.ID_PLACEHODLER;
 
-    public static final String INVOKE_ENDPOINT_SI = "/OTABService/v1/ServiceInstances/{" + Route.SI + "}/Nodes/{"
-        + Route.NT + "}/ApplicationInterfaces/{" + Route.IN + "}/Operations/{" + Route.ON + "}";
-    public static final String INVOKE_ENDPOINT_NI = "/OTABService/v1/NodeInstances/{" + Route.NI
-        + "}/ApplicationInterfaces/{" + Route.IN + "}/Operations/{" + Route.ON + "}";
+  public static final String POLL_ENDPOINT_SI = Route.INVOKE_ENDPOINT_SI + Route.POLL_ENDPOINT_SUFFIX;
+  public static final String POLL_ENDPOINT_NI = Route.INVOKE_ENDPOINT_NI + Route.POLL_ENDPOINT_SUFFIX;
 
-    public static final String ID = "id";
-    public static final String ID_PLACEHODLER = "{" + Route.ID + "}";
+  public static final String GET_RESULT_ENDPOINT_SUFFIX = "/response";
 
-    public static final String POLL_ENDPOINT_SUFFIX = "/activeRequests/" + Route.ID_PLACEHODLER;
+  public static final String GET_RESULT_ENDPOINT_SI = Route.POLL_ENDPOINT_SI + Route.GET_RESULT_ENDPOINT_SUFFIX;
+  public static final String GET_RESULT_ENDPOINT_NI = Route.POLL_ENDPOINT_NI + Route.GET_RESULT_ENDPOINT_SUFFIX;
 
-    public static final String POLL_ENDPOINT_SI = Route.INVOKE_ENDPOINT_SI + Route.POLL_ENDPOINT_SUFFIX;
-    public static final String POLL_ENDPOINT_NI = Route.INVOKE_ENDPOINT_NI + Route.POLL_ENDPOINT_SUFFIX;
+  private static final String TO_APP_BUS_ENDPOINT = "direct:toAppBus";
 
-    public static final String GET_RESULT_ENDPOINT_SUFFIX = "/response";
+  private static final String HOST = "http://localhost";
 
-    public static final String GET_RESULT_ENDPOINT_SI = Route.POLL_ENDPOINT_SI + Route.GET_RESULT_ENDPOINT_SUFFIX;
-    public static final String GET_RESULT_ENDPOINT_NI = Route.POLL_ENDPOINT_NI + Route.GET_RESULT_ENDPOINT_SUFFIX;
+  private static final String PORT = "8085";
+  private static final String BASE_ENDPOINT = Route.HOST + ":" + Route.PORT;
 
-    private static final String TO_APP_BUS_ENDPOINT = "direct:toAppBus";
+  @Override
+  public void configure() throws Exception {
 
+    final ValueBuilder APP_BUS_ENDPOINT =
+      new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
+    final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
 
-    @Override
-    public void configure() throws Exception {
+    final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
+    final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
+    final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
+    final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
+    final GetResultRequestProcessor getResultRequestProcessor = new GetResultRequestProcessor();
+    final GetResultResponseProcessor getResultResponseProcessor = new GetResultResponseProcessor();
+    final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
-        final ValueBuilder APP_BUS_ENDPOINT =
-            new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
-        final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
+    // handle exceptions
 
-        final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
-        final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
-        final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
-        final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
-        final GetResultRequestProcessor getResultRequestProcessor = new GetResultRequestProcessor();
-        final GetResultResponseProcessor getResultResponseProcessor = new GetResultResponseProcessor();
-        final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
+    this.onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
+      .process(exceptionProcessor);
 
-        // handle exceptions
+    // INVOKE ROUTES
+    // invoke route (for ServiceInstance)
+    this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_SI + "?restletMethod=post")
+      .to("direct:invoke");
 
-        this.onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
-            .process(exceptionProcessor);
+    // invoke route (for NodeInstance)
+    this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_NI + "?restletMethod=post")
+      .to("direct:invoke");
 
-        // INVOKE ROUTES
-        // invoke route (for ServiceInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_SI + "?restletMethod=post")
-            .to("direct:invoke");
+    // invoke route
+    this.from("direct:invoke").process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
+      .when(property(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor).removeHeaders("*")
+      .otherwise().process(exceptionProcessor);
 
-        // invoke route (for NodeInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_NI + "?restletMethod=post")
-            .to("direct:invoke");
+    // IS FINISHED ROUTES
+    // isFinished route (for ServiceInstance)
+    this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_SI + "?restletMethod=get")
+      .to("direct:isFinished");
 
-        // invoke route
-        this.from("direct:invoke").process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
-            .when(property(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor).removeHeaders("*")
-            .otherwise().process(exceptionProcessor);
+    // isFinished route (for NodeInstance)
+    this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_NI + "?restletMethod=get")
+      .to("direct:isFinished");
 
+    // isFinished route
+    this.from("direct:isFinished").process(isFinishedRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT)
+      .process(isFinishedResponseProcessor).removeHeaders("*");
 
-        // IS FINISHED ROUTES
-        // isFinished route (for ServiceInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_SI + "?restletMethod=get")
-            .to("direct:isFinished");
+    // GET RESULT ROUTES
+    // getResult route (for ServiceInstance)
+    this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_SI + "?restletMethod=get")
+      .to("direct:getResult");
 
-        // isFinished route (for NodeInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_NI + "?restletMethod=get")
-            .to("direct:isFinished");
+    // getResult route (for NodeInstance)
+    this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_NI + "?restletMethod=get")
+      .to("direct:getResult");
 
-        // isFinished route
-        this.from("direct:isFinished").process(isFinishedRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT)
-            .process(isFinishedResponseProcessor).removeHeaders("*");
+    // getResult route
+    this.from("direct:getResult").process(getResultRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT)
+      .process(getResultResponseProcessor).removeHeaders("*");
 
-        // GET RESULT ROUTES
-        // getResult route (for ServiceInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_SI + "?restletMethod=get")
-            .to("direct:getResult");
+    // applicationBus route, throws exception if Application Bus is not
+    // running or wasn't binded
+    this.from(Route.TO_APP_BUS_ENDPOINT).choice().when(APP_BUS_ENDPOINT_EXISTS).recipientList(APP_BUS_ENDPOINT)
+      .endChoice().otherwise().to("direct:handleException");
 
-        // getResult route (for NodeInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_NI + "?restletMethod=get")
-            .to("direct:getResult");
+    // handle exception if Application Bus is not running or wasn't binded
+    this.from("direct:handleException")
+      .throwException(new ApplicationBusInternalException("The Application Bus is not running."));
 
-        // getResult route
-        this.from("direct:getResult").process(getResultRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT)
-            .process(getResultResponseProcessor).removeHeaders("*");
-
-        // applicationBus route, throws exception if Application Bus is not
-        // running or wasn't binded
-        this.from(Route.TO_APP_BUS_ENDPOINT).choice().when(APP_BUS_ENDPOINT_EXISTS).recipientList(APP_BUS_ENDPOINT)
-            .endChoice().otherwise().to("direct:handleException");
-
-        // handle exception if Application Bus is not running or wasn't binded
-        this.from("direct:handleException")
-            .throwException(new ApplicationBusInternalException("The Application Bus is not running."));
-
-    }
+  }
 
 }

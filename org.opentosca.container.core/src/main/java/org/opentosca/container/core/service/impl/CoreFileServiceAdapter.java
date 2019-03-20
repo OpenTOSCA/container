@@ -23,63 +23,63 @@ import org.springframework.stereotype.Service;
 @Service
 public class CoreFileServiceAdapter implements ICoreFileService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreFileServiceAdapter.class);
-    private CsarStorageService actualService;
+  private static final Logger LOGGER = LoggerFactory.getLogger(CoreFileServiceAdapter.class);
+  private CsarStorageService actualService;
 
-    @Override
-    public CSARID storeCSAR(Path csarFile) throws UserException, SystemException {
-        LOGGER.debug("Delegating storage request to CsarStorageService");
-        return actualService.storeCSAR(csarFile).toOldCsarId();
-    }
+  @Override
+  public CSARID storeCSAR(Path csarFile) throws UserException, SystemException {
+    LOGGER.debug("Delegating storage request to CsarStorageService");
+    return actualService.storeCSAR(csarFile).toOldCsarId();
+  }
 
-    @Override
-    public CSARContent getCSAR(CSARID csarID) throws UserException {
-        CsarId newId = new CsarId(csarID);
-        Csar csar = actualService.findById(newId);
-        LOGGER.debug("Retrieved Csar by id, wrapping it into CSARContent");
-        return new CSARContent(csarID
-                               , new FileSystemDirectory(csar.getSaveLocation())
-                               , csar.metafileReplacement());
-    }
+  @Override
+  public CSARContent getCSAR(CSARID csarID) throws UserException {
+    CsarId newId = new CsarId(csarID);
+    Csar csar = actualService.findById(newId);
+    LOGGER.debug("Retrieved Csar by id, wrapping it into CSARContent");
+    return new CSARContent(csarID
+      , new FileSystemDirectory(csar.getSaveLocation())
+      , csar.metafileReplacement());
+  }
 
-    @Override
-    public Path exportCSAR(CSARID csarID) throws UserException, SystemException {
-        LOGGER.debug("Delegating csar export request to actual service");
-        return actualService.exportCSAR(new CsarId(csarID));
-    }
+  @Override
+  public Path exportCSAR(CSARID csarID) throws UserException, SystemException {
+    LOGGER.debug("Delegating csar export request to actual service");
+    return actualService.exportCSAR(new CsarId(csarID));
+  }
 
-    @Override
-    public Set<CSARID> getCSARIDs() {
-        LOGGER.debug("Retrieving CSARIDs from actual service");
-        return actualService.findAll().stream()
-            .map(c -> c.id().toOldCsarId())
-            .collect(Collectors.toSet());
-    }
+  @Override
+  public Set<CSARID> getCSARIDs() {
+    LOGGER.debug("Retrieving CSARIDs from actual service");
+    return actualService.findAll().stream()
+      .map(c -> c.id().toOldCsarId())
+      .collect(Collectors.toSet());
+  }
 
-    @Override
-    public void deleteCSAR(CSARID csarID) throws SystemException, UserException {
-        LOGGER.debug("Delegating csar deletion request to actual service");
-        actualService.deleteCSAR(new CsarId(csarID));
-    }
+  @Override
+  public void deleteCSAR(CSARID csarID) throws SystemException, UserException {
+    LOGGER.debug("Delegating csar deletion request to actual service");
+    actualService.deleteCSAR(new CsarId(csarID));
+  }
 
-    @Override
-    public void deleteCSARs() throws SystemException {
-        LOGGER.debug("Delegating csar purge to actual service");
-        actualService.purgeCsars();
+  @Override
+  public void deleteCSARs() throws SystemException {
+    LOGGER.debug("Delegating csar purge to actual service");
+    actualService.purgeCsars();
+  }
+
+  public void bindStorage(CsarStorageService boundService) {
+    if (boundService == null) {
+      LOGGER.warn("Tried to bind null storage service");
+      return;
     }
-    
-    public void bindStorage(CsarStorageService boundService) {
-        if (boundService == null) {
-            LOGGER.warn("Tried to bind null storage service");
-            return;
-        }
-        actualService = boundService;
-        LOGGER.info("Bound storage service provider");
-    }
-    
-    public void unbindStorage(CsarStorageService removedService) {
-        actualService = null;
-        LOGGER.info("Unbound storage service provider");
-    }
+    actualService = boundService;
+    LOGGER.info("Bound storage service provider");
+  }
+
+  public void unbindStorage(CsarStorageService removedService) {
+    actualService = null;
+    LOGGER.info("Unbound storage service provider");
+  }
 
 }

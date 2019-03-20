@@ -18,32 +18,31 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "Artifacts")
 public class Artifacts {
 
-    @XmlTransient
-    public static final String NAMESPACE = "http://opentosca.org/planportability/rest";
+  @XmlTransient
+  public static final String NAMESPACE = "http://opentosca.org/planportability/rest";
 
-    @XmlElement(name = "deploymentArtifact")
-    @XmlElementWrapper(name = "deploymentArtifacts")
-    private List<DeploymentArtifact> deploymentArtifact;
+  @XmlElement(name = "deploymentArtifact")
+  @XmlElementWrapper(name = "deploymentArtifacts")
+  private List<DeploymentArtifact> deploymentArtifact;
 
-    @XmlElement(name = "implementationArtifact")
-    @XmlElementWrapper(name = "implementationtArtifacts")
-    private List<ImplementationArtifact> implementationArtifact;
+  @XmlElement(name = "implementationArtifact")
+  @XmlElementWrapper(name = "implementationtArtifacts")
+  private List<ImplementationArtifact> implementationArtifact;
 
+  public List<ImplementationArtifact> getImplementationArtifact() {
+    return this.implementationArtifact;
+  }
 
-    public List<ImplementationArtifact> getImplementationArtifact() {
-        return this.implementationArtifact;
-    }
+  public void setImplementationArtifact(final List<ImplementationArtifact> implementationArtifact) {
+    this.implementationArtifact = implementationArtifact;
+  }
 
-    public void setImplementationArtifact(final List<ImplementationArtifact> implementationArtifact) {
-        this.implementationArtifact = implementationArtifact;
-    }
+  public List<DeploymentArtifact> getDeploymentArtifact() {
+    return this.deploymentArtifact;
+  }
 
-    public List<DeploymentArtifact> getDeploymentArtifact() {
-        return this.deploymentArtifact;
-    }
-
-    public void setDeploymentArtifact(final List<DeploymentArtifact> deploymentArtifact) {
-        this.deploymentArtifact = deploymentArtifact;
-    }
+  public void setDeploymentArtifact(final List<DeploymentArtifact> deploymentArtifact) {
+    this.deploymentArtifact = deploymentArtifact;
+  }
 
 }

@@ -7,5 +7,5 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://ode.apache.org/activityRecovery",
-                                     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+  elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.apache.ode.activityrecovery;

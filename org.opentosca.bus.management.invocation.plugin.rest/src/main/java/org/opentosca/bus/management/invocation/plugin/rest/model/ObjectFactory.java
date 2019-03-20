@@ -20,41 +20,37 @@ import javax.xml.bind.annotation.XmlRegistry;
  * for XML content. The Java representation of XML content can consist of schema derived interfaces
  * and classes representing the binding of schema type definitions, element declarations and model
  * groups. Factory methods for each of these are provided in this class.
- *
  */
 @XmlRegistry
 public class ObjectFactory {
 
 
-    /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes
-     * for package: org.opentosca.bus.management.plugins.rest.service.impl.model
-     *
-     */
-    public ObjectFactory() {}
+  /**
+   * Create a new ObjectFactory that can be used to create new instances of schema derived classes
+   * for package: org.opentosca.bus.management.plugins.rest.service.impl.model
+   */
+  public ObjectFactory() {
+  }
 
-    /**
-     * Create an instance of {@link DataAssign }
-     *
-     */
-    public DataAssign createDataAssign() {
-        return new DataAssign();
-    }
+  /**
+   * Create an instance of {@link DataAssign }
+   */
+  public DataAssign createDataAssign() {
+    return new DataAssign();
+  }
 
-    /**
-     * Create an instance of {@link DataAssign.Operations.Operation }
-     *
-     */
-    public DataAssign.Operations.Operation createDataAssignOperationsOperation() {
-        return new DataAssign.Operations.Operation();
-    }
+  /**
+   * Create an instance of {@link DataAssign.Operations.Operation }
+   */
+  public DataAssign.Operations.Operation createDataAssignOperationsOperation() {
+    return new DataAssign.Operations.Operation();
+  }
 
-    /**
-     * Create an instance of {@link DataAssign.Operations }
-     *
-     */
-    public DataAssign.Operations createDataAssignOperations() {
-        return new DataAssign.Operations();
-    }
+  /**
+   * Create an instance of {@link DataAssign.Operations }
+   */
+  public DataAssign.Operations createDataAssignOperations() {
+    return new DataAssign.Operations();
+  }
 
 }

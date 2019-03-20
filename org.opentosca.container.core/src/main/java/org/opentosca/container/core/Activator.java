@@ -14,76 +14,74 @@ import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator {
 
-    private static Logger logger = LoggerFactory.getLogger(Activator.class);
+  private static Logger logger = LoggerFactory.getLogger(Activator.class);
 
-    private static BundleContext context;
+  private static BundleContext context;
 
+  public static BundleContext getContext() {
+    return context;
+  }
 
-    public static BundleContext getContext() {
-        return context;
+  @Override
+  public void start(final BundleContext bundleContext) throws Exception {
+    logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
+      bundleContext.getBundle().getVersion());
+    context = bundleContext;
+
+    logger.info("org.opentosca.container.hostname={}", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+    logger.info("org.opentosca.container.port={}", Settings.OPENTOSCA_CONTAINER_PORT);
+
+    // /////////////////// PATHS ///////////////////
+
+    // contains data of OpenTOSCA that should be stored permanently
+    String openTOSCAPath = "";
+    if (System.getProperty("openTOSCAPath") == null) {
+      openTOSCAPath = System.getProperty("java.io.tmpdir") + File.separator + "opentosca";
+    } else {
+      openTOSCAPath = System.getProperty("openTOSCAPath") + File.separator + "opentosca";
     }
 
-    @Override
-    public void start(final BundleContext bundleContext) throws Exception {
-        logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-                    bundleContext.getBundle().getVersion());
-        context = bundleContext;
+    // contains data of OpenTOSCA that should be stored temporarily
+    Settings.setSetting("temp", openTOSCAPath + File.separator + "Temp");
 
+    // Derby database location
+    Settings.setSetting("databaseLocation", openTOSCAPath + File.separator + "DB");
 
-        logger.info("org.opentosca.container.hostname={}", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-        logger.info("org.opentosca.container.port={}", Settings.OPENTOSCA_CONTAINER_PORT);
+    // relative path where CSARs will be stored locally; used by the
+    // Filesystem storage provider
+    Settings.setSetting("csarStorePath", openTOSCAPath + File.separator + "CSARs");
 
-        // /////////////////// PATHS ///////////////////
+    // /////////////////// URLS ///////////////////
 
-        // contains data of OpenTOSCA that should be stored permanently
-        String openTOSCAPath = "";
-        if (System.getProperty("openTOSCAPath") == null) {
-            openTOSCAPath = System.getProperty("java.io.tmpdir") + File.separator + "opentosca";
-        } else {
-            openTOSCAPath = System.getProperty("openTOSCAPath") + File.separator + "opentosca";
-        }
+    // URI of the ContainerAPI
+    Settings.setSetting("containerUri", Settings.CONTAINER_API_LEGACY);
 
-        // contains data of OpenTOSCA that should be stored temporarily
-        Settings.setSetting("temp", openTOSCAPath + File.separator + "Temp");
+    // URI of the DataInstanceAPI
+    Settings.setSetting("datainstanceUri", "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
+      + Settings.OPENTOSCA_CONTAINER_PORT + "/datainstance");
 
-        // Derby database location
-        Settings.setSetting("databaseLocation", openTOSCAPath + File.separator + "DB");
+    // /////////////////// CSAR ///////////////////
 
-        // relative path where CSARs will be stored locally; used by the
-        // Filesystem storage provider
-        Settings.setSetting("csarStorePath", openTOSCAPath + File.separator + "CSARs");
+    // extension of a CSAR file
+    Settings.setSetting("csarExtension", "csar");
 
-        // /////////////////// URLS ///////////////////
+    // relative path of IMPORTS directory in a CSAR file
+    Settings.setSetting("csarImportsRelPath", "IMPORTS");
 
-        // URI of the ContainerAPI
-        Settings.setSetting("containerUri", Settings.CONTAINER_API_LEGACY);
+    // relative path of Definitions directory in a CSAR file
+    Settings.setSetting("csarDefinitionsRelPath", "Definitions");
 
-        // URI of the DataInstanceAPI
-        Settings.setSetting("datainstanceUri", "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
-            + Settings.OPENTOSCA_CONTAINER_PORT + "/datainstance");
+    // relative path where the TOSCA meta file is located in a CSAR file
+    Settings.setSetting("toscaMetaFileRelPath", "TOSCA-Metadata" + File.separator + "TOSCA.meta");
 
-        // /////////////////// CSAR ///////////////////
+    // possible file extensions of a TOSCA file, separated by character ";"
+    Settings.setSetting("toscaFileExtensions", "xml;tosca;ste");
+  }
 
-        // extension of a CSAR file
-        Settings.setSetting("csarExtension", "csar");
-
-        // relative path of IMPORTS directory in a CSAR file
-        Settings.setSetting("csarImportsRelPath", "IMPORTS");
-
-        // relative path of Definitions directory in a CSAR file
-        Settings.setSetting("csarDefinitionsRelPath", "Definitions");
-
-        // relative path where the TOSCA meta file is located in a CSAR file
-        Settings.setSetting("toscaMetaFileRelPath", "TOSCA-Metadata" + File.separator + "TOSCA.meta");
-
-        // possible file extensions of a TOSCA file, separated by character ";"
-        Settings.setSetting("toscaFileExtensions", "xml;tosca;ste");
-    }
-
-    @Override
-    public void stop(final BundleContext bundleContext) throws Exception {
-        logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-                    bundleContext.getBundle().getVersion());
-        Activator.context = null;
-    }
+  @Override
+  public void stop(final BundleContext bundleContext) throws Exception {
+    logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
+      bundleContext.getBundle().getVersion());
+    Activator.context = null;
+  }
 }

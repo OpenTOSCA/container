@@ -6,15 +6,15 @@ package org.opentosca.bus.management.api.osgievent;
  */
 public enum OsgiEventOperations {
 
-    INVOKE_PLAN("invokePlan"), INVOKE_IA("invokeIA");
+  INVOKE_PLAN("invokePlan"), INVOKE_IA("invokeIA");
 
-    private final String headerValue;
+  private final String headerValue;
 
-    private OsgiEventOperations(final String headerValue) {
-        this.headerValue = headerValue;
-    }
+  private OsgiEventOperations(final String headerValue) {
+    this.headerValue = headerValue;
+  }
 
-    public String getHeaderValue() {
-        return this.headerValue;
-    }
+  public String getHeaderValue() {
+    return this.headerValue;
+  }
 }

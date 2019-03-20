@@ -11,48 +11,46 @@ import org.slf4j.LoggerFactory;
 /**
  * Activator of the Script-Invocation-Management-Bus-Plug-in.<br>
  * <br>
- *
- *
+ * <p>
+ * <p>
  * The activator is needed to start the camel context.
  *
- *
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
- *
  */
 public class Activator implements BundleActivator {
 
-    public static DefaultCamelContext camelContext;
+  public static DefaultCamelContext camelContext;
 
-    final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
+  public static String bundleID;
 
-    public static String bundleID;
+  private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
-     */
-    @Override
-    public void start(final BundleContext bundleContext) throws Exception {
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
+   */
+  @Override
+  public void start(final BundleContext bundleContext) throws Exception {
 
-        Activator.bundleID = bundleContext.getBundle().getSymbolicName();
-        Activator.camelContext = new OsgiDefaultCamelContext(bundleContext);
-        Activator.camelContext.start();
+    Activator.bundleID = bundleContext.getBundle().getSymbolicName();
+    Activator.camelContext = new OsgiDefaultCamelContext(bundleContext);
+    Activator.camelContext.start();
 
-        ArtifactTypesHandler.init(bundleContext);
+    ArtifactTypesHandler.init(bundleContext);
 
-        Activator.LOG.info("Script-IA-Management Bus-PLUGIN-STARTED");
-    }
+    Activator.LOG.info("Script-IA-Management Bus-PLUGIN-STARTED");
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
-    @Override
-    public void stop(final BundleContext bundleContext) throws Exception {
-        Activator.camelContext = null;
-        Activator.LOG.info("Script-IA-Management Bus-PLUGIN-STOPPED");
-    }
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+   */
+  @Override
+  public void stop(final BundleContext bundleContext) throws Exception {
+    Activator.camelContext = null;
+    Activator.LOG.info("Script-IA-Management Bus-PLUGIN-STOPPED");
+  }
 
 }

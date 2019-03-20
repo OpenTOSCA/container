@@ -31,96 +31,96 @@ import io.swagger.annotations.ApiParam;
 @Api
 public class NodeTemplateController {
 
-    private static final Logger logger = LoggerFactory.getLogger(NodeTemplateController.class);
+  private static final Logger logger = LoggerFactory.getLogger(NodeTemplateController.class);
 
-    @Context
-    UriInfo uriInfo;
+  @Context
+  UriInfo uriInfo;
 
-    @Context
-    ResourceContext resourceContext;
+  @Context
+  ResourceContext resourceContext;
 
-    private NodeTemplateService nodeTemplateService;
-    private InstanceService instanceService;
+  private NodeTemplateService nodeTemplateService;
+  private InstanceService instanceService;
 
-    public NodeTemplateController(final NodeTemplateService nodeTemplateService,
-                                  final InstanceService instanceService) {
-        this.nodeTemplateService = nodeTemplateService;
-        this.instanceService = instanceService;
-    }
+  public NodeTemplateController(final NodeTemplateService nodeTemplateService,
+                                final InstanceService instanceService) {
+    this.nodeTemplateService = nodeTemplateService;
+    this.instanceService = instanceService;
+  }
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all node templates of a service template", response = NodeTemplateListDTO.class)
-    public Response getNodeTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
-                                     @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
+  @GET
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get all node templates of a service template", response = NodeTemplateListDTO.class)
+  public Response getNodeTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
+                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
 
-        // this validates that the CSAR contains the service template
-        final List<NodeTemplateDTO> nodeTemplateIds =
-            this.nodeTemplateService.getNodeTemplatesOfServiceTemplate(csarId, serviceTemplateId);
-        final NodeTemplateListDTO list = new NodeTemplateListDTO();
+    // this validates that the CSAR contains the service template
+    final List<NodeTemplateDTO> nodeTemplateIds =
+      this.nodeTemplateService.getNodeTemplatesOfServiceTemplate(csarId, serviceTemplateId);
+    final NodeTemplateListDTO list = new NodeTemplateListDTO();
 
-        for (final NodeTemplateDTO nodeTemplate : nodeTemplateIds) {
-            nodeTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, nodeTemplate.getId(), true, "self"));
+    for (final NodeTemplateDTO nodeTemplate : nodeTemplateIds) {
+      nodeTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, nodeTemplate.getId(), true, "self"));
 
-            nodeTemplate.getInterfaces().add(UriUtil.generateSelfLink(this.uriInfo));
+      nodeTemplate.getInterfaces().add(UriUtil.generateSelfLink(this.uriInfo));
 
-            for (final InterfaceDTO dto : nodeTemplate.getInterfaces().getInterfaces()) {
-                dto.add(UriUtil.generateSelfLink(this.uriInfo));
-                for (final OperationDTO op : dto.getOperations().values()) {
-                    op.add(UriUtil.generateSelfLink(this.uriInfo));
-                }
-            }
-
-            list.add(nodeTemplate);
+      for (final InterfaceDTO dto : nodeTemplate.getInterfaces().getInterfaces()) {
+        dto.add(UriUtil.generateSelfLink(this.uriInfo));
+        for (final OperationDTO op : dto.getOperations().values()) {
+          op.add(UriUtil.generateSelfLink(this.uriInfo));
         }
+      }
 
-        list.add(UriUtil.generateSelfLink(this.uriInfo));
-
-        return Response.ok(list).build();
+      list.add(nodeTemplate);
     }
 
-    @GET
-    @Path("/{nodetemplate}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a node template", response = NodeTemplateDTO.class)
-    public Response getNodeTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
-                                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
-                                    @ApiParam("ID of node template") @PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
+    list.add(UriUtil.generateSelfLink(this.uriInfo));
 
-        NodeTemplateDTO result;
-        try {
-            result = this.nodeTemplateService.getNodeTemplateById(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId);
-        } catch (org.opentosca.container.core.common.NotFoundException e) {
-            throw new NotFoundException(e.getMessage(), e);
-        }
+    return Response.ok(list).build();
+  }
 
-        result.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
-        result.add(UriUtil.generateSelfLink(this.uriInfo));
+  @GET
+  @Path("/{nodetemplate}")
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get a node template", response = NodeTemplateDTO.class)
+  public Response getNodeTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
+                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
+                                  @ApiParam("ID of node template") @PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
 
-        return Response.ok(result).build();
+    NodeTemplateDTO result;
+    try {
+      result = this.nodeTemplateService.getNodeTemplateById(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId);
+    } catch (org.opentosca.container.core.common.NotFoundException e) {
+      throw new NotFoundException(e.getMessage(), e);
     }
 
-    @Path("/{nodetemplate}/instances")
-    public NodeTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
-                                                       @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
-                                                       @ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId) {
+    result.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
+    result.add(UriUtil.generateSelfLink(this.uriInfo));
 
-        if (!this.nodeTemplateService.hasNodeTemplate(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId)) {
-            logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
-            throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
-        }
+    return Response.ok(result).build();
+  }
 
-        final NodeTemplateInstanceController child = new NodeTemplateInstanceController(this.instanceService);
-        this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
+  @Path("/{nodetemplate}/instances")
+  public NodeTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
+                                                     @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
+                                                     @ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId) {
 
-        return child;
+    if (!this.nodeTemplateService.hasNodeTemplate(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId)) {
+      logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
+      throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
     }
 
-    public void setNodeTemplateService(final NodeTemplateService nodeTemplateService) {
-        this.nodeTemplateService = nodeTemplateService;
-    }
+    final NodeTemplateInstanceController child = new NodeTemplateInstanceController(this.instanceService);
+    this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
-    public void setInstanceService(final InstanceService instanceService) {
-        this.instanceService = instanceService;
-    }
+    return child;
+  }
+
+  public void setNodeTemplateService(final NodeTemplateService nodeTemplateService) {
+    this.nodeTemplateService = nodeTemplateService;
+  }
+
+  public void setInstanceService(final InstanceService instanceService) {
+    this.instanceService = instanceService;
+  }
 }

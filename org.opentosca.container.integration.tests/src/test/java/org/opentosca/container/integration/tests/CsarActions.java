@@ -5,12 +5,12 @@ import org.opentosca.container.core.service.CsarStorageService;
 
 public final class CsarActions {
 
-    public static boolean hasCsar(final String id) {
-        final CsarStorageService service = ServiceTrackerUtil.getService(CsarStorageService.class);
-        return service.findById(new CsarId(id)) != null;
-    }
+  private CsarActions() {
+    throw new UnsupportedOperationException();
+  }
 
-    private CsarActions() {
-        throw new UnsupportedOperationException();
-    }
+  public static boolean hasCsar(final String id) {
+    final CsarStorageService service = ServiceTrackerUtil.getService(CsarStorageService.class);
+    return service.findById(new CsarId(id)) != null;
+  }
 }

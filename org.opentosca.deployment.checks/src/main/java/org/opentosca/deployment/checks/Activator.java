@@ -26,39 +26,39 @@ import org.osgi.framework.ServiceReference;
 
 public class Activator implements BundleActivator {
 
-    public static final String ID = "org.opentosca.deployment.checks";
+  public static final String ID = "org.opentosca.deployment.checks";
 
-    private static DefaultCamelContext camelContext;
+  private static DefaultCamelContext camelContext;
 
-    @Override
-    public void start(final BundleContext bundleContext) throws Exception {
-        camelContext = new OsgiDefaultCamelContext(bundleContext);
+  @Override
+  public void start(final BundleContext bundleContext) throws Exception {
+    camelContext = new OsgiDefaultCamelContext(bundleContext);
 
-        // This explicitly binds the required components, fixing the OSGI startup
-        camelContext.addComponent("direct", new DirectComponent());
-        camelContext.addComponent("direct-vm", new DirectVmComponent());
-        camelContext.addComponent("stream", new StreamComponent());
-        camelContext.addComponent("bean", new BeanComponent());
-        
-        camelContext.addRoutes(new RouteConfiguration());
-        camelContext.start();
+    // This explicitly binds the required components, fixing the OSGI startup
+    camelContext.addComponent("direct", new DirectComponent());
+    camelContext.addComponent("direct-vm", new DirectVmComponent());
+    camelContext.addComponent("stream", new StreamComponent());
+    camelContext.addComponent("bean", new BeanComponent());
+
+    camelContext.addRoutes(new RouteConfiguration());
+    camelContext.start();
+  }
+
+  @Override
+  public void stop(final BundleContext bundleContext) throws Exception {
+    final ServiceReference<TestExecutor> ref = bundleContext.getServiceReference(TestExecutor.class);
+    if (ref != null) {
+      bundleContext.getService(ref).shutdown();
     }
-
-    @Override
-    public void stop(final BundleContext bundleContext) throws Exception {
-        final ServiceReference<TestExecutor> ref = bundleContext.getServiceReference(TestExecutor.class);
-        if (ref != null) {
-            bundleContext.getService(ref).shutdown();
-        }
-        if (camelContext != null) {
-            camelContext.stop();
-        }
+    if (camelContext != null) {
+      camelContext.stop();
     }
+  }
 
-    public static DefaultCamelContext getCamelContext() {
-        if (camelContext == null) {
-            throw new IllegalStateException();
-        }
-        return camelContext;
+  public static DefaultCamelContext getCamelContext() {
+    if (camelContext == null) {
+      throw new IllegalStateException();
     }
+    return camelContext;
+  }
 }

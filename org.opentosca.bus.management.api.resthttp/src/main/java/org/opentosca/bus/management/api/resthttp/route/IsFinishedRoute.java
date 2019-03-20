@@ -10,30 +10,27 @@ import org.opentosca.bus.management.api.resthttp.processor.IsFinishedResponsePro
 /**
  * InvocationRoute of the Management Bus REST-API.<br>
  * <br>
- *
+ * <p>
  * The "isFinished" endpoint of the REST-API is created here.
  *
- *
- *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
- *
  */
 public class IsFinishedRoute extends RouteBuilder {
 
-    @Override
-    public void configure() throws Exception {
+  @Override
+  public void configure() throws Exception {
 
-        final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
-        final IsFinishedProcessor isFinishedProcessor = new IsFinishedProcessor();
-        final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
-        final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
+    final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
+    final IsFinishedProcessor isFinishedProcessor = new IsFinishedProcessor();
+    final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
+    final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
-        // handle exceptions
-        onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
-                                    .process(exceptionProcessor);
+    // handle exceptions
+    onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
+      .process(exceptionProcessor);
 
-        from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
-            + "?restletMethod=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
-                                    .process(isFinishedResponseProcessor).removeHeaders("*");
-    }
+    from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
+      + "?restletMethod=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
+      .process(isFinishedResponseProcessor).removeHeaders("*");
+  }
 }

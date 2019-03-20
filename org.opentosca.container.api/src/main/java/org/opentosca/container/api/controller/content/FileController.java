@@ -17,49 +17,46 @@ import org.slf4j.LoggerFactory;
 
 public class FileController {
 
-    private static Logger logger = LoggerFactory.getLogger(FileController.class);
+  private static Logger logger = LoggerFactory.getLogger(FileController.class);
+  private static final Map<String, MediaType> IMAGE_TYPES = new HashMap<>();
 
-    private final AbstractFile file;
+  static {
+    IMAGE_TYPES.put("png", MediaType.valueOf("image/png"));
+    IMAGE_TYPES.put("jpg", MediaType.valueOf("image/jpeg"));
+    IMAGE_TYPES.put("jpeg", MediaType.valueOf("image/jpeg"));
+    IMAGE_TYPES.put("gif", MediaType.valueOf("image/gif"));
+  }
+
+  private final AbstractFile file;
 
 
-    private static final Map<String, MediaType> IMAGE_TYPES = new HashMap<>();
+  public FileController(final AbstractFile file) {
+    Objects.nonNull(file);
+    this.file = file;
+    logger.info("File path: {}", file.getPath());
+  }
 
-    static {
-        IMAGE_TYPES.put("png", MediaType.valueOf("image/png"));
-        IMAGE_TYPES.put("jpg", MediaType.valueOf("image/jpeg"));
-        IMAGE_TYPES.put("jpeg", MediaType.valueOf("image/jpeg"));
-        IMAGE_TYPES.put("gif", MediaType.valueOf("image/gif"));
+  @GET
+  @Produces( {MediaType.APPLICATION_OCTET_STREAM, "image/*"})
+  public Response getFile() {
+    logger.info("Attempt to get file: \"{}\"", this.file.getPath());
+    try {
+      final InputStream is = this.file.getFileAsInputStream();
+      // Image or normal file download?
+      final String ext = FilenameUtils.getExtension(this.file.getName());
+      final MediaType imageType = IMAGE_TYPES.get(ext);
+      if (imageType != null) {
+        // Serve the image
+        return Response.ok(is, imageType).build();
+      } else {
+        // ... download the file
+        return Response.ok(is)
+          .header("Content-Disposition", "attachment; filename=\"" + this.file.getName() + "\"")
+          .build();
+      }
+    } catch (final Exception e) {
+      logger.error("Could not get file: {}", e.getMessage(), e);
+      return Response.serverError().build();
     }
-
-
-    public FileController(final AbstractFile file) {
-        Objects.nonNull(file);
-        this.file = file;
-        logger.info("File path: {}", file.getPath());
-    }
-
-    @GET
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, "image/*"})
-    public Response getFile() {
-        logger.info("Attempt to get file: \"{}\"", this.file.getPath());
-        try {
-            final InputStream is = this.file.getFileAsInputStream();
-            // Image or normal file download?
-            final String ext = FilenameUtils.getExtension(this.file.getName());
-            final MediaType imageType = IMAGE_TYPES.get(ext);
-            if (imageType != null) {
-                // Serve the image
-                return Response.ok(is, imageType).build();
-            } else {
-                // ... download the file
-                return Response.ok(is)
-                               .header("Content-Disposition", "attachment; filename=\"" + this.file.getName() + "\"")
-                               .build();
-            }
-        }
-        catch (final Exception e) {
-            logger.error("Could not get file: {}", e.getMessage(), e);
-            return Response.serverError().build();
-        }
-    }
+  }
 }

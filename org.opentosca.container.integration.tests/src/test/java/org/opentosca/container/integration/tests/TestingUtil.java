@@ -11,6 +11,10 @@ import org.osgi.framework.FrameworkUtil;
 
 public final class TestingUtil {
 
+  private TestingUtil() {
+    throw new UnsupportedOperationException();
+  }
+
   public static File pathToFile(final String relativePath) {
     final URL url = pathToURL(relativePath);
     File file;
@@ -35,9 +39,5 @@ public final class TestingUtil {
     } catch (Exception e) {
       return "127.0.0.1";
     }
-  }
-
-  private TestingUtil() {
-    throw new UnsupportedOperationException();
   }
 }

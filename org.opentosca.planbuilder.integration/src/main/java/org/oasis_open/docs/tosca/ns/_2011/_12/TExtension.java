@@ -34,61 +34,55 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tExtension")
 public class TExtension extends TExtensibleElements {
 
-    @XmlAttribute(required = true)
-    @XmlSchemaType(name = "anyURI")
-    protected String namespace;
-    @XmlAttribute
-    protected TBoolean mustUnderstand;
+  @XmlAttribute(required = true)
+  @XmlSchemaType(name = "anyURI")
+  protected String namespace;
+  @XmlAttribute
+  protected TBoolean mustUnderstand;
 
-    /**
-     * Gets the value of the namespace property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getNamespace() {
-        return this.namespace;
-    }
+  /**
+   * Gets the value of the namespace property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getNamespace() {
+    return this.namespace;
+  }
 
-    /**
-     * Sets the value of the namespace property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setNamespace(final String value) {
-        this.namespace = value;
-    }
+  /**
+   * Sets the value of the namespace property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setNamespace(final String value) {
+    this.namespace = value;
+  }
 
-    /**
-     * Gets the value of the mustUnderstand property.
-     *
-     * @return possible object is {@link TBoolean }
-     *
-     */
-    public TBoolean getMustUnderstand() {
-        if (this.mustUnderstand == null) {
-            return TBoolean.YES;
-        } else {
-            return this.mustUnderstand;
-        }
+  /**
+   * Gets the value of the mustUnderstand property.
+   *
+   * @return possible object is {@link TBoolean }
+   */
+  public TBoolean getMustUnderstand() {
+    if (this.mustUnderstand == null) {
+      return TBoolean.YES;
+    } else {
+      return this.mustUnderstand;
     }
+  }
 
-    /**
-     * Sets the value of the mustUnderstand property.
-     *
-     * @param value allowed object is {@link TBoolean }
-     *
-     */
-    public void setMustUnderstand(final TBoolean value) {
-        this.mustUnderstand = value;
-    }
+  /**
+   * Sets the value of the mustUnderstand property.
+   *
+   * @param value allowed object is {@link TBoolean }
+   */
+  public void setMustUnderstand(final TBoolean value) {
+    this.mustUnderstand = value;
+  }
 
 }

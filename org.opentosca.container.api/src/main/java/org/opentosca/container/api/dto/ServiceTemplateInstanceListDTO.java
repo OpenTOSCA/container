@@ -15,18 +15,17 @@ import io.swagger.annotations.ApiModelProperty;
 @XmlRootElement(name = "ServiceTemplateInstanceResources")
 public class ServiceTemplateInstanceListDTO extends ResourceSupport {
 
-    @JsonProperty
-    @XmlElement(name = "ServiceTemplateInstance")
-    @XmlElementWrapper(name = "ServiceTemplateInstances")
-    private final List<ServiceTemplateInstanceDTO> serviceTemplateInstances = new ArrayList<>();
+  @JsonProperty
+  @XmlElement(name = "ServiceTemplateInstance")
+  @XmlElementWrapper(name = "ServiceTemplateInstances")
+  private final List<ServiceTemplateInstanceDTO> serviceTemplateInstances = new ArrayList<>();
 
+  @ApiModelProperty(name = "service_template_instances")
+  public List<ServiceTemplateInstanceDTO> getServiceTemplateInstances() {
+    return this.serviceTemplateInstances;
+  }
 
-    @ApiModelProperty(name = "service_template_instances")
-    public List<ServiceTemplateInstanceDTO> getServiceTemplateInstances() {
-        return this.serviceTemplateInstances;
-    }
-
-    public void add(final ServiceTemplateInstanceDTO... serviceTemplateInstances) {
-        this.serviceTemplateInstances.addAll(Arrays.asList(serviceTemplateInstances));
-    }
+  public void add(final ServiceTemplateInstanceDTO... serviceTemplateInstances) {
+    this.serviceTemplateInstances.addAll(Arrays.asList(serviceTemplateInstances));
+  }
 }

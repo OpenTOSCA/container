@@ -39,44 +39,40 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tTopologyTemplate", propOrder = {"nodeTemplateOrRelationshipTemplate"})
 public class TTopologyTemplate extends TExtensibleElements {
 
-    @XmlElements({@XmlElement(name = "RelationshipTemplate", type = TRelationshipTemplate.class),
-                  @XmlElement(name = "NodeTemplate", type = TNodeTemplate.class)})
-    protected List<TEntityTemplate> nodeTemplateOrRelationshipTemplate;
+  @XmlElements( {@XmlElement(name = "RelationshipTemplate", type = TRelationshipTemplate.class),
+    @XmlElement(name = "NodeTemplate", type = TNodeTemplate.class)})
+  protected List<TEntityTemplate> nodeTemplateOrRelationshipTemplate;
 
-    /**
-     * Gets the value of the nodeTemplateOrRelationshipTemplate property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-     * modification you make to the returned list will be present inside the JAXB object. This is why
-     * there is not a <CODE>set</CODE> method for the nodeTemplateOrRelationshipTemplate property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     *
-     * <pre>
-     * getNodeTemplateOrRelationshipTemplate().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link TRelationshipTemplate }
-     * {@link TNodeTemplate }
-     *
-     *
-     */
-    public List<TEntityTemplate> getNodeTemplateOrRelationshipTemplate() {
-        if (this.nodeTemplateOrRelationshipTemplate == null) {
-            this.nodeTemplateOrRelationshipTemplate = new ArrayList<>();
-        }
-        return this.nodeTemplateOrRelationshipTemplate;
+  /**
+   * Gets the value of the nodeTemplateOrRelationshipTemplate property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is why
+   * there is not a <CODE>set</CODE> method for the nodeTemplateOrRelationshipTemplate property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   *
+   * <pre>
+   * getNodeTemplateOrRelationshipTemplate().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link TRelationshipTemplate }
+   * {@link TNodeTemplate }
+   */
+  public List<TEntityTemplate> getNodeTemplateOrRelationshipTemplate() {
+    if (this.nodeTemplateOrRelationshipTemplate == null) {
+      this.nodeTemplateOrRelationshipTemplate = new ArrayList<>();
     }
+    return this.nodeTemplateOrRelationshipTemplate;
+  }
 
 }

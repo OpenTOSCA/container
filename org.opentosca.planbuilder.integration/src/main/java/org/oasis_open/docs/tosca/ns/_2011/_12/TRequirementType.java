@@ -33,34 +33,30 @@ import javax.xml.namespace.QName;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tRequirementType")
 public class TRequirementType extends TEntityType {
 
-    @XmlAttribute
-    protected QName requiredCapabilityType;
+  @XmlAttribute
+  protected QName requiredCapabilityType;
 
-    /**
-     * Gets the value of the requiredCapabilityType property.
-     *
-     * @return possible object is {@link QName }
-     *
-     */
-    public QName getRequiredCapabilityType() {
-        return this.requiredCapabilityType;
-    }
+  /**
+   * Gets the value of the requiredCapabilityType property.
+   *
+   * @return possible object is {@link QName }
+   */
+  public QName getRequiredCapabilityType() {
+    return this.requiredCapabilityType;
+  }
 
-    /**
-     * Sets the value of the requiredCapabilityType property.
-     *
-     * @param value allowed object is {@link QName }
-     *
-     */
-    public void setRequiredCapabilityType(final QName value) {
-        this.requiredCapabilityType = value;
-    }
+  /**
+   * Sets the value of the requiredCapabilityType property.
+   *
+   * @param value allowed object is {@link QName }
+   */
+  public void setRequiredCapabilityType(final QName value) {
+    this.requiredCapabilityType = value;
+  }
 
 }

@@ -28,39 +28,36 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Doc", propOrder = {"any"})
 public class Doc {
 
-    public Doc() {}
+  @XmlAnyElement
+  protected Element any;
 
-    public Doc(final Element content) {
-        this.any = content;
-    }
+  public Doc() {
+  }
 
-    @XmlAnyElement
-    protected Element any;
+  public Doc(final Element content) {
+    this.any = content;
+  }
 
-    /**
-     * Gets the value of the any property.
-     *
-     * @return possible object is {@link Element }
-     *
-     */
-    public Element getAny() {
-        return this.any;
-    }
+  /**
+   * Gets the value of the any property.
+   *
+   * @return possible object is {@link Element }
+   */
+  public Element getAny() {
+    return this.any;
+  }
 
-    /**
-     * Sets the value of the any property.
-     *
-     * @param value allowed object is {@link Element }
-     *
-     */
-    public void setAny(final Element value) {
-        this.any = value;
-    }
+  /**
+   * Sets the value of the any property.
+   *
+   * @param value allowed object is {@link Element }
+   */
+  public void setAny(final Element value) {
+    this.any = value;
+  }
 }

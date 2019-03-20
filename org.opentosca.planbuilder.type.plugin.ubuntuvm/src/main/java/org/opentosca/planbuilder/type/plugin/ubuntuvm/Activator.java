@@ -9,41 +9,41 @@ import org.osgi.framework.ServiceRegistration;
 
 public class Activator implements BundleActivator {
 
-    private static BundleContext context;
+  private static BundleContext context;
 
-    private final BPELUbuntuVmTypePlugin plugin = new BPELUbuntuVmTypePlugin();
+  private final BPELUbuntuVmTypePlugin plugin = new BPELUbuntuVmTypePlugin();
 
-    private ServiceRegistration<?> registration;
-    private ServiceRegistration<?> registration2;
+  private ServiceRegistration<?> registration;
+  private ServiceRegistration<?> registration2;
 
-    /**
-     * Returns the BundleContext of this Plugin
-     *
-     * @return a BundleContext
-     */
-    static BundleContext getContext() {
-        return Activator.context;
-    }
+  /**
+   * Returns the BundleContext of this Plugin
+   *
+   * @return a BundleContext
+   */
+  static BundleContext getContext() {
+    return Activator.context;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void start(final BundleContext bundleContext) throws Exception {
-        Activator.context = bundleContext;
-        this.registration =
-            Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(), this.plugin, null);
-        this.registration2 =
-            Activator.context.registerService(IPlanBuilderPolicyAwareTypePlugin.class.getName(), this.plugin, null);
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void start(final BundleContext bundleContext) throws Exception {
+    Activator.context = bundleContext;
+    this.registration =
+      Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(), this.plugin, null);
+    this.registration2 =
+      Activator.context.registerService(IPlanBuilderPolicyAwareTypePlugin.class.getName(), this.plugin, null);
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void stop(final BundleContext bundleContext) throws Exception {
-        this.registration.unregister();
-        this.registration2.unregister();
-        Activator.context = null;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void stop(final BundleContext bundleContext) throws Exception {
+    this.registration.unregister();
+    this.registration2.unregister();
+    Activator.context = null;
+  }
 }

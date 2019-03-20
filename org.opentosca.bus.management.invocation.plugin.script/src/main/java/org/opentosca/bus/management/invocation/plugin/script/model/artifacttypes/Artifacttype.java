@@ -39,102 +39,92 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {"packages", "commands"})
 @XmlRootElement(name = "artifacttype")
 public class Artifacttype {
 
-    @XmlElement(required = true)
-    protected Packagestype packages;
-    @XmlElement(required = true)
-    protected Commandstype commands;
-    @XmlAttribute(name = "name")
-    protected String name;
-    @XmlAttribute(name = "namespace")
-    @XmlSchemaType(name = "anyURI")
-    protected String namespace;
+  @XmlElement(required = true)
+  protected Packagestype packages;
+  @XmlElement(required = true)
+  protected Commandstype commands;
+  @XmlAttribute(name = "name")
+  protected String name;
+  @XmlAttribute(name = "namespace")
+  @XmlSchemaType(name = "anyURI")
+  protected String namespace;
 
-    /**
-     * Gets the value of the packages property.
-     *
-     * @return possible object is {@link Packagestype }
-     *
-     */
-    public Packagestype getPackages() {
-        return this.packages;
-    }
+  /**
+   * Gets the value of the packages property.
+   *
+   * @return possible object is {@link Packagestype }
+   */
+  public Packagestype getPackages() {
+    return this.packages;
+  }
 
-    /**
-     * Sets the value of the packages property.
-     *
-     * @param value allowed object is {@link Packagestype }
-     *
-     */
-    public void setPackages(final Packagestype value) {
-        this.packages = value;
-    }
+  /**
+   * Sets the value of the packages property.
+   *
+   * @param value allowed object is {@link Packagestype }
+   */
+  public void setPackages(final Packagestype value) {
+    this.packages = value;
+  }
 
-    /**
-     * Gets the value of the commands property.
-     *
-     * @return possible object is {@link Commandstype }
-     *
-     */
-    public Commandstype getCommands() {
-        return this.commands;
-    }
+  /**
+   * Gets the value of the commands property.
+   *
+   * @return possible object is {@link Commandstype }
+   */
+  public Commandstype getCommands() {
+    return this.commands;
+  }
 
-    /**
-     * Sets the value of the commands property.
-     *
-     * @param value allowed object is {@link Commandstype }
-     *
-     */
-    public void setCommands(final Commandstype value) {
-        this.commands = value;
-    }
+  /**
+   * Sets the value of the commands property.
+   *
+   * @param value allowed object is {@link Commandstype }
+   */
+  public void setCommands(final Commandstype value) {
+    this.commands = value;
+  }
 
-    /**
-     * Gets the value of the name property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getName() {
-        return this.name;
-    }
+  /**
+   * Gets the value of the name property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getName() {
+    return this.name;
+  }
 
-    /**
-     * Sets the value of the name property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setName(final String value) {
-        this.name = value;
-    }
+  /**
+   * Sets the value of the name property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setName(final String value) {
+    this.name = value;
+  }
 
-    /**
-     * Gets the value of the namespace property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getNamespace() {
-        return this.namespace;
-    }
+  /**
+   * Gets the value of the namespace property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getNamespace() {
+    return this.namespace;
+  }
 
-    /**
-     * Sets the value of the namespace property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setNamespace(final String value) {
-        this.namespace = value;
-    }
+  /**
+   * Sets the value of the namespace property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setNamespace(final String value) {
+    this.namespace = value;
+  }
 
 }

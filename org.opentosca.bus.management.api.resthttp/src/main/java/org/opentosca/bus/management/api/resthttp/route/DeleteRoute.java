@@ -7,26 +7,23 @@ import org.opentosca.bus.management.api.resthttp.model.ResultMap;
 /**
  * InvocationRoute of the Management Bus REST-API.<br>
  * <br>
- *
+ * <p>
  * The "getResult" endpoint of the REST-API is created here.
  *
- *
- *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
- *
  */
 public class DeleteRoute extends RouteBuilder {
 
-    // true => invocation results will be deleted automatically after fetching
-    // the result
-    // false => invocation result needs to be deleted manually
-    public static final boolean AUTO_DELETE = false;
+  // true => invocation results will be deleted automatically after fetching
+  // the result
+  // false => invocation result needs to be deleted manually
+  public static final boolean AUTO_DELETE = false;
 
-    @Override
-    public void configure() throws Exception {
-        from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
-            + "?restletMethod=delete").bean(QueueMap.class, "remove(${header." + InvocationRoute.ID + "})")
-                                       .bean(ResultMap.class, "remove(${header." + InvocationRoute.ID + "})")
-                                       .removeHeaders("*");
-    }
+  @Override
+  public void configure() throws Exception {
+    from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
+      + "?restletMethod=delete").bean(QueueMap.class, "remove(${header." + InvocationRoute.ID + "})")
+      .bean(ResultMap.class, "remove(${header." + InvocationRoute.ID + "})")
+      .removeHeaders("*");
+  }
 }

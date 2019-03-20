@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for anonymous complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -32,8 +32,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -42,80 +40,68 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "failureHandling")
 public class FailureHandling {
 
-    protected Integer retryFor;
-    protected Integer retryDelay;
-    protected Boolean faultOnFailure;
+  protected Integer retryFor;
+  protected Integer retryDelay;
+  protected Boolean faultOnFailure;
 
-    /**
-     * Gets the value of the retryFor property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public Integer getRetryFor() {
-        return retryFor;
-    }
+  /**
+   * Gets the value of the retryFor property.
+   *
+   * @return possible object is
+   * {@link Integer }
+   */
+  public Integer getRetryFor() {
+    return retryFor;
+  }
 
-    /**
-     * Sets the value of the retryFor property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setRetryFor(Integer value) {
-        this.retryFor = value;
-    }
+  /**
+   * Sets the value of the retryFor property.
+   *
+   * @param value allowed object is
+   *              {@link Integer }
+   */
+  public void setRetryFor(Integer value) {
+    this.retryFor = value;
+  }
 
-    /**
-     * Gets the value of the retryDelay property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public Integer getRetryDelay() {
-        return retryDelay;
-    }
+  /**
+   * Gets the value of the retryDelay property.
+   *
+   * @return possible object is
+   * {@link Integer }
+   */
+  public Integer getRetryDelay() {
+    return retryDelay;
+  }
 
-    /**
-     * Sets the value of the retryDelay property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setRetryDelay(Integer value) {
-        this.retryDelay = value;
-    }
+  /**
+   * Sets the value of the retryDelay property.
+   *
+   * @param value allowed object is
+   *              {@link Integer }
+   */
+  public void setRetryDelay(Integer value) {
+    this.retryDelay = value;
+  }
 
-    /**
-     * Gets the value of the faultOnFailure property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public Boolean isFaultOnFailure() {
-        return faultOnFailure;
-    }
+  /**
+   * Gets the value of the faultOnFailure property.
+   *
+   * @return possible object is
+   * {@link Boolean }
+   */
+  public Boolean isFaultOnFailure() {
+    return faultOnFailure;
+  }
 
-    /**
-     * Sets the value of the faultOnFailure property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setFaultOnFailure(Boolean value) {
-        this.faultOnFailure = value;
-    }
+  /**
+   * Sets the value of the faultOnFailure property.
+   *
+   * @param value allowed object is
+   *              {@link Boolean }
+   */
+  public void setFaultOnFailure(Boolean value) {
+    this.faultOnFailure = value;
+  }
 
 }

@@ -12,26 +12,25 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CsarUploadRequest {
 
-    @XmlElement(name = "Name")
-    private String name;
+  @XmlElement(name = "Name")
+  private String name;
 
-    @XmlElement(name = "Url")
-    private String url;
+  @XmlElement(name = "Url")
+  private String url;
 
+  public String getName() {
+    return this.name;
+  }
 
-    public String getName() {
-        return this.name;
-    }
+  public void setName(final String name) {
+    this.name = name;
+  }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
+  public String getUrl() {
+    return this.url;
+  }
 
-    public String getUrl() {
-        return this.url;
-    }
-
-    public void setUrl(final String url) {
-        this.url = url;
-    }
+  public void setUrl(final String url) {
+    this.url = url;
+  }
 }

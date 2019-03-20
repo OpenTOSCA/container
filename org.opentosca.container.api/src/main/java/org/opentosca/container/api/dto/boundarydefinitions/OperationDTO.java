@@ -21,53 +21,52 @@ import io.swagger.annotations.ApiModelProperty;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OperationDTO extends ResourceSupport {
 
-    @JsonIgnore
-    private String name;
+  @JsonIgnore
+  private String name;
 
-    @XmlElement
-    @EmbeddedResource
-    private NodeOperationDTO nodeOperation;
+  @XmlElement
+  @EmbeddedResource
+  private NodeOperationDTO nodeOperation;
 
-    @XmlElement
-    @EmbeddedResource
-    private TExportedOperation.RelationshipOperation relationshipOperation;
+  @XmlElement
+  @EmbeddedResource
+  private TExportedOperation.RelationshipOperation relationshipOperation;
 
-    @XmlElement
-    @EmbeddedResource
-    private PlanDTO plan;
+  @XmlElement
+  @EmbeddedResource
+  private PlanDTO plan;
 
+  public String getName() {
+    return this.name;
+  }
 
-    public String getName() {
-        return this.name;
-    }
+  public void setName(final String name) {
+    this.name = name;
+  }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
+  @ApiModelProperty(name = "node_operation")
+  public NodeOperationDTO getNodeOperation() {
+    return this.nodeOperation;
+  }
 
-    @ApiModelProperty(name = "node_operation")
-    public NodeOperationDTO getNodeOperation() {
-        return this.nodeOperation;
-    }
+  public void setNodeOperation(final NodeOperationDTO nodeOperation) {
+    this.nodeOperation = nodeOperation;
+  }
 
-    public void setNodeOperation(final NodeOperationDTO nodeOperation) {
-        this.nodeOperation = nodeOperation;
-    }
+  @ApiModelProperty(name = "relationship_operation")
+  public TExportedOperation.RelationshipOperation getRelationshipOperation() {
+    return this.relationshipOperation;
+  }
 
-    @ApiModelProperty(name = "relationship_operation")
-    public TExportedOperation.RelationshipOperation getRelationshipOperation() {
-        return this.relationshipOperation;
-    }
+  public void setRelationshipOperation(final TExportedOperation.RelationshipOperation relationshipOperation) {
+    this.relationshipOperation = relationshipOperation;
+  }
 
-    public void setRelationshipOperation(final TExportedOperation.RelationshipOperation relationshipOperation) {
-        this.relationshipOperation = relationshipOperation;
-    }
+  public PlanDTO getPlan() {
+    return this.plan;
+  }
 
-    public PlanDTO getPlan() {
-        return this.plan;
-    }
-
-    public void setPlan(final PlanDTO plan) {
-        this.plan = plan;
-    }
+  public void setPlan(final PlanDTO plan) {
+    this.plan = plan;
+  }
 }

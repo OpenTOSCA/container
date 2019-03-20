@@ -16,33 +16,32 @@ import org.springframework.stereotype.Service;
 // TODO: remove when no real logic is there anymore
 public class ToscaEngineProxy {
 
-    /**
-     * This method uses the toscaReferenceMapper of the given toscaEngineService to determine if the
-     * given csarID contains the serviceTemplate specified by serviceTemplateID
-     *
-     * @param toscaEngineService
-     * @param csarID
-     * @param serviceTemplateID
-     *
-     * @return true, if the given ServiceTemplate exists in the CSAR specified by the input parameter
-     */
-    public static boolean doesServiceTemplateExist(final IToscaEngineService toscaEngineService, final CSARID csarID,
-                                                   final QName serviceTemplateID) {
-        final List<QName> serviceTemplateIDsContainedInCSAR =
-            toscaEngineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarID);
+  /**
+   * This method uses the toscaReferenceMapper of the given toscaEngineService to determine if the
+   * given csarID contains the serviceTemplate specified by serviceTemplateID
+   *
+   * @param toscaEngineService
+   * @param csarID
+   * @param serviceTemplateID
+   * @return true, if the given ServiceTemplate exists in the CSAR specified by the input parameter
+   */
+  public static boolean doesServiceTemplateExist(final IToscaEngineService toscaEngineService, final CSARID csarID,
+                                                 final QName serviceTemplateID) {
+    final List<QName> serviceTemplateIDsContainedInCSAR =
+      toscaEngineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarID);
 
-        if (serviceTemplateIDsContainedInCSAR == null) {
-            return false;
-        }
-
-        for (final QName serviceTemplateId : serviceTemplateIDsContainedInCSAR) {
-            if (serviceTemplateID.equals(serviceTemplateId)) {
-                return true;
-            }
-        }
-
-        return serviceTemplateIDsContainedInCSAR.contains(serviceTemplateID);
-
+    if (serviceTemplateIDsContainedInCSAR == null) {
+      return false;
     }
+
+    for (final QName serviceTemplateId : serviceTemplateIDsContainedInCSAR) {
+      if (serviceTemplateID.equals(serviceTemplateId)) {
+        return true;
+      }
+    }
+
+    return serviceTemplateIDsContainedInCSAR.contains(serviceTemplateID);
+
+  }
 
 }

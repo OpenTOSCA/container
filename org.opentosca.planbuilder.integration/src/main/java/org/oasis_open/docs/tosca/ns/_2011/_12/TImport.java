@@ -35,80 +35,72 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tImport")
 public class TImport extends TExtensibleElements {
 
-    @XmlAttribute
-    @XmlSchemaType(name = "anyURI")
-    protected String namespace;
-    @XmlAttribute
-    @XmlSchemaType(name = "anyURI")
-    protected String location;
-    @XmlAttribute(required = true)
-    protected String importType;
+  @XmlAttribute
+  @XmlSchemaType(name = "anyURI")
+  protected String namespace;
+  @XmlAttribute
+  @XmlSchemaType(name = "anyURI")
+  protected String location;
+  @XmlAttribute(required = true)
+  protected String importType;
 
-    /**
-     * Gets the value of the namespace property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getNamespace() {
-        return this.namespace;
-    }
+  /**
+   * Gets the value of the namespace property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getNamespace() {
+    return this.namespace;
+  }
 
-    /**
-     * Sets the value of the namespace property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setNamespace(final String value) {
-        this.namespace = value;
-    }
+  /**
+   * Sets the value of the namespace property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setNamespace(final String value) {
+    this.namespace = value;
+  }
 
-    /**
-     * Gets the value of the location property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getLocation() {
-        return this.location;
-    }
+  /**
+   * Gets the value of the location property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getLocation() {
+    return this.location;
+  }
 
-    /**
-     * Sets the value of the location property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setLocation(final String value) {
-        this.location = value;
-    }
+  /**
+   * Sets the value of the location property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setLocation(final String value) {
+    this.location = value;
+  }
 
-    /**
-     * Gets the value of the importType property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getImportType() {
-        return this.importType;
-    }
+  /**
+   * Gets the value of the importType property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getImportType() {
+    return this.importType;
+  }
 
-    /**
-     * Sets the value of the importType property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setImportType(final String value) {
-        this.importType = value;
-    }
+  /**
+   * Sets the value of the importType property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setImportType(final String value) {
+    this.importType = value;
+  }
 
 }

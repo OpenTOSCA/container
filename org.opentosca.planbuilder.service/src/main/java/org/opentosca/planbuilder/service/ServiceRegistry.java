@@ -6,7 +6,6 @@ package org.opentosca.planbuilder.service;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.glassfish.jersey.servlet.ServletContainer;
 import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.service.IHTTPService;
 import org.osgi.service.http.HttpService;
@@ -20,45 +19,44 @@ import org.osgi.service.http.HttpService;
  */
 public class ServiceRegistry {
 
-    private static IHTTPService openToscaHttpService = null;
-    private static ICoreFileService openToscaCoreFileService = null;
+  private static IHTTPService openToscaHttpService = null;
+  private static ICoreFileService openToscaCoreFileService = null;
 
+  public static IHTTPService getHTTPService() {
+    return ServiceRegistry.openToscaHttpService;
+  }
 
-    public static IHTTPService getHTTPService() {
-        return ServiceRegistry.openToscaHttpService;
-    }
+  public static ICoreFileService getCoreFileService() {
+    return ServiceRegistry.openToscaCoreFileService;
+  }
 
-    public static ICoreFileService getCoreFileService() {
-        return ServiceRegistry.openToscaCoreFileService;
-    }
+  protected void bindOpenToscaHttpService(final IHTTPService httpService) {
+    ServiceRegistry.openToscaHttpService = httpService;
+  }
 
-    protected void bindOpenToscaHttpService(final IHTTPService httpService) {
-        ServiceRegistry.openToscaHttpService = httpService;
-    }
+  protected void unbindOpenToscaHttpService(final IHTTPService httpService) {
+    ServiceRegistry.openToscaHttpService = null;
+  }
 
-    protected void unbindOpenToscaHttpService(final IHTTPService httpService) {
-        ServiceRegistry.openToscaHttpService = null;
-    }
+  protected void bindOpenToscaCoreFileService(final ICoreFileService coreFileService) {
+    ServiceRegistry.openToscaCoreFileService = coreFileService;
+  }
 
-    protected void bindOpenToscaCoreFileService(final ICoreFileService coreFileService) {
-        ServiceRegistry.openToscaCoreFileService = coreFileService;
-    }
+  protected void unbindOpenToscaCoreFileService(final ICoreFileService coreFileService) {
+    ServiceRegistry.openToscaCoreFileService = null;
+  }
 
-    protected void unbindOpenToscaCoreFileService(final ICoreFileService coreFileService) {
-        ServiceRegistry.openToscaCoreFileService = null;
-    }
+  protected void bindHttpService(final HttpService httpService) {
 
-    protected void bindHttpService(final HttpService httpService) {
+    final Dictionary<String, String> initParams = new Hashtable<>();
+    initParams.put("javax.ws.rs.Application", PlanBuilderService.class.getName());
+    // initParams.put("com.sun.jersey.api.json.POJOMappingFeature",
+    // "true");
 
-        final Dictionary<String, String> initParams = new Hashtable<>();
-        initParams.put("javax.ws.rs.Application", PlanBuilderService.class.getName());
-        // initParams.put("com.sun.jersey.api.json.POJOMappingFeature",
-        // "true");
-
-        // TODO: Temporary workaround
-        // This is a workaround related to issue JERSEY-2093; grizzly
-        // (1.9.5)
-      // FIXME reinstate whatever this exactly did, it looks like we're registering a new application with our servlet container
+    // TODO: Temporary workaround
+    // This is a workaround related to issue JERSEY-2093; grizzly
+    // (1.9.5)
+    // FIXME reinstate whatever this exactly did, it looks like we're registering a new application with our servlet container
 //        final ClassLoader classLoader = this.getClass().getClassLoader();
 //        final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 //        try {
@@ -72,10 +70,10 @@ public class ServiceRegistry {
 //        finally {
 //            Thread.currentThread().setContextClassLoader(contextClassLoader);
 //        }
-    }
+  }
 
-    protected void unbindHttpService(final HttpService httpService) {
-        httpService.unregister("/planbuilder");
-    }
+  protected void unbindHttpService(final HttpService httpService) {
+    httpService.unregister("/planbuilder");
+  }
 
 }

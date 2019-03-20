@@ -7,5 +7,5 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://www.eclipse.org/winery/model/selfservice",
-                                     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+  elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.eclipse.winery.model.selfservice;

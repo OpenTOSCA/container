@@ -7,5 +7,5 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://www.apache.org/ode/schemas/dd/2007/03",
-                                     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+  elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.apache.ode.schemas.dd._2007._03;

@@ -21,41 +21,37 @@ import javax.xml.bind.annotation.XmlRegistry;
  * for XML content. The Java representation of XML content can consist of schema derived interfaces
  * and classes representing the binding of schema type definitions, element declarations and model
  * groups. Factory methods for each of these are provided in this class.
- *
  */
 @XmlRegistry
 public class ObjectFactory {
 
 
-    /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes
-     * for package: org.opentosca.bus.management.plugins.remote.service.impl.artifacttypes
-     *
-     */
-    public ObjectFactory() {}
+  /**
+   * Create a new ObjectFactory that can be used to create new instances of schema derived classes
+   * for package: org.opentosca.bus.management.plugins.remote.service.impl.artifacttypes
+   */
+  public ObjectFactory() {
+  }
 
-    /**
-     * Create an instance of {@link Artifacttype }
-     *
-     */
-    public Artifacttype createArtifacttype() {
-        return new Artifacttype();
-    }
+  /**
+   * Create an instance of {@link Artifacttype }
+   */
+  public Artifacttype createArtifacttype() {
+    return new Artifacttype();
+  }
 
-    /**
-     * Create an instance of {@link Packagestype }
-     *
-     */
-    public Packagestype createPackagestype() {
-        return new Packagestype();
-    }
+  /**
+   * Create an instance of {@link Packagestype }
+   */
+  public Packagestype createPackagestype() {
+    return new Packagestype();
+  }
 
-    /**
-     * Create an instance of {@link Commandstype }
-     *
-     */
-    public Commandstype createCommandstype() {
-        return new Commandstype();
-    }
+  /**
+   * Create an instance of {@link Commandstype }
+   */
+  public Commandstype createCommandstype() {
+    return new Commandstype();
+  }
 
 }

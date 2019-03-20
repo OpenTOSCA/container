@@ -14,66 +14,65 @@ import org.opentosca.planbuilder.model.tosca.AbstractParameter;
  * dummy class
  *
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 class InterfaceDummy extends AbstractOperation {
 
-    private final AbstractImplementationArtifact ia;
-    private final AbstractNodeTemplate nodeTemplate;
+  private final AbstractImplementationArtifact ia;
+  private final AbstractNodeTemplate nodeTemplate;
 
-    public InterfaceDummy(final AbstractNodeTemplate nodeTemplate, final AbstractImplementationArtifact ia) {
-        this.ia = ia;
-        this.nodeTemplate = nodeTemplate;
-    }
+  public InterfaceDummy(final AbstractNodeTemplate nodeTemplate, final AbstractImplementationArtifact ia) {
+    this.ia = ia;
+    this.nodeTemplate = nodeTemplate;
+  }
 
-    public AbstractOperation getOperation(final String opName) {
-        for (final AbstractInterface iface : this.nodeTemplate.getType().getInterfaces()) {
-            if (iface.getName().equals(this.ia.getInterfaceName())) {
-                for (final AbstractOperation op : iface.getOperations()) {
-                    if (op.getName().equals(opName)) {
-                        return op;
-                    }
-                }
-
-            }
+  public AbstractOperation getOperation(final String opName) {
+    for (final AbstractInterface iface : this.nodeTemplate.getType().getInterfaces()) {
+      if (iface.getName().equals(this.ia.getInterfaceName())) {
+        for (final AbstractOperation op : iface.getOperations()) {
+          if (op.getName().equals(opName)) {
+            return op;
+          }
         }
-        return null;
-    }
 
-    public List<String> getOperationNames() {
-        for (final AbstractInterface iface : this.nodeTemplate.getType().getInterfaces()) {
-            if (iface.getName().equals(this.ia.getInterfaceName())) {
-                final List<String> opNames = new ArrayList<>();
-                for (final AbstractOperation op : iface.getOperations()) {
-                    opNames.add(op.getName());
-                }
-                return opNames;
-            }
+      }
+    }
+    return null;
+  }
+
+  public List<String> getOperationNames() {
+    for (final AbstractInterface iface : this.nodeTemplate.getType().getInterfaces()) {
+      if (iface.getName().equals(this.ia.getInterfaceName())) {
+        final List<String> opNames = new ArrayList<>();
+        for (final AbstractOperation op : iface.getOperations()) {
+          opNames.add(op.getName());
         }
-        return new ArrayList<>();
+        return opNames;
+      }
     }
+    return new ArrayList<>();
+  }
 
-    public AbstractNodeTemplate getNodeTemplate() {
-        return this.nodeTemplate;
-    }
+  public AbstractNodeTemplate getNodeTemplate() {
+    return this.nodeTemplate;
+  }
 
-    public AbstractImplementationArtifact getIA() {
-        return this.ia;
-    }
+  public AbstractImplementationArtifact getIA() {
+    return this.ia;
+  }
 
-    @Override
-    public String getName() {
-        return this.ia.getInterfaceName();
-    }
+  @Override
+  public String getName() {
+    return this.ia.getInterfaceName();
+  }
 
-    @Override
-    public List<AbstractParameter> getInputParameters() {
-        return null;
-    }
+  @Override
+  public List<AbstractParameter> getInputParameters() {
+    return null;
+  }
 
-    @Override
-    public List<AbstractParameter> getOutputParameters() {
-        return null;
-    }
+  @Override
+  public List<AbstractParameter> getOutputParameters() {
+    return null;
+  }
 
 }

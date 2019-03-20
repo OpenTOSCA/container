@@ -9,10 +9,10 @@ package org.opentosca.container.core.engine.xml;
  */
 public interface IXMLSerializerService {
 
-    /**
-     * Getter for the XMLSerializer which handles data of TOSCA or is used by TOSCA.
-     *
-     * @return The xmlSerializer for data which is TOSCA or is used by TOSCA.
-     */
-    public abstract IXMLSerializer getXmlSerializer();
+  /**
+   * Getter for the XMLSerializer which handles data of TOSCA or is used by TOSCA.
+   *
+   * @return The xmlSerializer for data which is TOSCA or is used by TOSCA.
+   */
+  public abstract IXMLSerializer getXmlSerializer();
 }

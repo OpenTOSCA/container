@@ -7,8 +7,8 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 public interface IScalingPlanBuilderSelectionPlugin<T extends PlanContext> extends IPlanBuilderPlugin {
 
-    public boolean canHandle(AbstractNodeTemplate nodeTemplate, List<String> selectionStrategies);
+  public boolean canHandle(AbstractNodeTemplate nodeTemplate, List<String> selectionStrategies);
 
-    public boolean handle(T context, AbstractNodeTemplate nodeTemplate, List<String> selectionStrategies);
+  public boolean handle(T context, AbstractNodeTemplate nodeTemplate, List<String> selectionStrategies);
 
 }

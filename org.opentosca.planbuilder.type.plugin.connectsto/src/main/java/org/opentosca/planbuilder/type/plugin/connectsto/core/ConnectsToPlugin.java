@@ -19,63 +19,61 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  * connected to as target to this relation.
  * </p>
  *
- *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBuilderTypePlugin<T> {
-    public static final String PLUGIN_ID = "OpenTOSCA PlanBuilder Type Plugin Client connects to Mosquitto Broker";
+  public static final String PLUGIN_ID = "OpenTOSCA PlanBuilder Type Plugin Client connects to Mosquitto Broker";
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#canHandle(org.
-     * opentosca.planbuilder.model.tosca.AbstractNodeTemplate)
-     */
-    @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
-        // we can't handle nodeTemplates
-        return false;
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#canHandle(org.
+   * opentosca.planbuilder.model.tosca.AbstractNodeTemplate)
+   */
+  @Override
+  public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    // we can't handle nodeTemplates
+    return false;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#canHandle(org.
+   * opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate)
+   */
+  @Override
+  public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+
+    // check the relationshipType
+    if (!ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType())
+      .contains(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+      return false;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#canHandle(org.
-     * opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate)
-     */
-    @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    // look for a connectTo operation on the source node
+    final AbstractNodeTemplate sourceNode = relationshipTemplate.getSource();
 
-        // check the relationshipType
-        if (!ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType())
-                       .contains(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
-            return false;
+    for (final AbstractInterface iface : sourceNode.getType().getInterfaces()) {
+      for (final AbstractOperation op : iface.getOperations()) {
+        if (op.getName().equals("connectTo")) {
+          // found needed operation
+          return true;
         }
-
-        // look for a connectTo operation on the source node
-        final AbstractNodeTemplate sourceNode = relationshipTemplate.getSource();
-
-        for (final AbstractInterface iface : sourceNode.getType().getInterfaces()) {
-            for (final AbstractOperation op : iface.getOperations()) {
-                if (op.getName().equals("connectTo")) {
-                    // found needed operation
-                    return true;
-                }
-            }
-        }
-
-        return false;
+      }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opentosca.planbuilder.plugins.IPlanBuilderPlugin#getID()
-     */
-    @Override
-    public String getID() {
-        return ConnectsToPlugin.PLUGIN_ID;
-    }
+    return false;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.opentosca.planbuilder.plugins.IPlanBuilderPlugin#getID()
+   */
+  @Override
+  public String getID() {
+    return ConnectsToPlugin.PLUGIN_ID;
+  }
 
 }

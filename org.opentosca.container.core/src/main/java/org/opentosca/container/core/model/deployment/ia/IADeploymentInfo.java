@@ -20,49 +20,49 @@ import org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@NamedQueries({@NamedQuery(name = IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPath,
-                           query = IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPathQuery),
-               @NamedQuery(name = IADeploymentInfo.getIADeploymentInfoByCSARID,
-                           query = IADeploymentInfo.getIADeploymentInfoByCSARIDQuery)})
+@NamedQueries( {@NamedQuery(name = IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPath,
+  query = IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPathQuery),
+  @NamedQuery(name = IADeploymentInfo.getIADeploymentInfoByCSARID,
+    query = IADeploymentInfo.getIADeploymentInfoByCSARIDQuery)})
 @Table(name = IADeploymentInfo.tableName)
 @PrimaryKey(columns = {@Column(name = "csarID"), @Column(name = "RelPath")})
 public class IADeploymentInfo extends AbstractFileDeploymentInfo {
 
-    protected static final String tableName = "IADeploymentInfo";
+  public static final String getIADeploymentInfoByCSARIDAndRelPath = "IADeploymentInfo.ByCSARIDAndRelPath";
+  public static final String getIADeploymentInfoByCSARID = "IADeploymentInfo.ByCSARID";
 
-    /*
-     * JPQL Queries
-     */
-    public static final String getIADeploymentInfoByCSARIDAndRelPath = "IADeploymentInfo.ByCSARIDAndRelPath";
-    protected static final String getIADeploymentInfoByCSARIDAndRelPathQuery =
-        "select t from " + IADeploymentInfo.tableName + " t where t.relPath = :iaRelPath and t.csarID = :csarID";
+  protected static final String tableName = "IADeploymentInfo";
 
-    public static final String getIADeploymentInfoByCSARID = "IADeploymentInfo.ByCSARID";
-    protected static final String getIADeploymentInfoByCSARIDQuery =
-        "select t from " + IADeploymentInfo.tableName + " t where t.csarID = :csarID";
+  /*
+   * JPQL Queries
+   */
+  protected static final String getIADeploymentInfoByCSARIDAndRelPathQuery =
+    "select t from " + IADeploymentInfo.tableName + " t where t.relPath = :iaRelPath and t.csarID = :csarID";
+  protected static final String getIADeploymentInfoByCSARIDQuery =
+    "select t from " + IADeploymentInfo.tableName + " t where t.csarID = :csarID";
 
-    /**
-     * Deployment state of this IA.
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "DeploymentState")
-    private IADeploymentState deploymentState;
+  /**
+   * Deployment state of this IA.
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "DeploymentState")
+  private IADeploymentState deploymentState;
 
 
-    protected IADeploymentInfo() {
+  protected IADeploymentInfo() {
 
-    }
+  }
 
-    public IADeploymentInfo(final CsarId csarID, final String relPath, final IADeploymentState deploymentState) {
-        super(csarID, relPath);
-        this.deploymentState = deploymentState;
-    }
+  public IADeploymentInfo(final CsarId csarID, final String relPath, final IADeploymentState deploymentState) {
+    super(csarID, relPath);
+    this.deploymentState = deploymentState;
+  }
 
-    public IADeploymentState getDeploymentState() {
-        return this.deploymentState;
-    }
+  public IADeploymentState getDeploymentState() {
+    return this.deploymentState;
+  }
 
-    public void setDeploymentState(final IADeploymentState deploymentState) {
-        this.deploymentState = deploymentState;
-    }
+  public void setDeploymentState(final IADeploymentState deploymentState) {
+    this.deploymentState = deploymentState;
+  }
 }

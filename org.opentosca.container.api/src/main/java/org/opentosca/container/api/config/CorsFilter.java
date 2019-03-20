@@ -26,16 +26,15 @@ import org.slf4j.LoggerFactory;
 @Provider
 public class CorsFilter implements ContainerResponseFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(CorsFilter.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger(CorsFilter.class.getName());
 
-
-    @Override
-    public void filter(final ContainerRequestContext request,
-                       final ContainerResponseContext response) throws IOException {
-        logger.debug("CorsFilter.filter()");
-        response.getHeaders().add("Access-Control-Allow-Origin", "*");
-        response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
-        response.getHeaders().add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
-        response.getHeaders().add("Access-Control-Allow-Credentials", "true");
-    }
+  @Override
+  public void filter(final ContainerRequestContext request,
+                     final ContainerResponseContext response) throws IOException {
+    logger.debug("CorsFilter.filter()");
+    response.getHeaders().add("Access-Control-Allow-Origin", "*");
+    response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+    response.getHeaders().add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
+    response.getHeaders().add("Access-Control-Allow-Credentials", "true");
+  }
 }

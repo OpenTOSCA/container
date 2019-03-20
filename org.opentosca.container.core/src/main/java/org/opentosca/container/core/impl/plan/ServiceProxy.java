@@ -16,84 +16,83 @@ import javax.inject.Inject;
  */
 public class ServiceProxy {
 
-    @Inject
-    public static IToscaEngineService toscaEngineService = null;
-    @Inject
-    public static IToscaReferenceMapper toscaReferenceMapper = null;
-    @Inject
-    public static IXMLSerializerService xmlSerializerService = null;
-    @Inject
-    public static ICSARInstanceManagementService csarInstanceManagement = null;
+  @Inject
+  public static IToscaEngineService toscaEngineService = null;
+  @Inject
+  public static IToscaReferenceMapper toscaReferenceMapper = null;
+  @Inject
+  public static IXMLSerializerService xmlSerializerService = null;
+  @Inject
+  public static ICSARInstanceManagementService csarInstanceManagement = null;
 
-    public static CorrelationHandler correlationHandler = new CorrelationHandler();
+  public static CorrelationHandler correlationHandler = new CorrelationHandler();
 
-    public static EventAdmin eventAdmin;
+  public static EventAdmin eventAdmin;
 
-    private final Logger LOG = LoggerFactory.getLogger(ServiceProxy.class);
+  private final Logger LOG = LoggerFactory.getLogger(ServiceProxy.class);
 
-
-    protected void bindEventAdmin(final EventAdmin service) {
-        if (service == null) {
-            this.LOG.error("Service EventAdmin is null.");
-        } else {
-            this.LOG.debug("Bind of the EventAdmin.");
-            ServiceProxy.eventAdmin = service;
-        }
+  protected void bindEventAdmin(final EventAdmin service) {
+    if (service == null) {
+      this.LOG.error("Service EventAdmin is null.");
+    } else {
+      this.LOG.debug("Bind of the EventAdmin.");
+      ServiceProxy.eventAdmin = service;
     }
+  }
 
-    protected void unbindEventAdmin(final EventAdmin service) {
-        this.LOG.debug("Unbind of the EventAdmin.");
-        ServiceProxy.eventAdmin = null;
+  protected void unbindEventAdmin(final EventAdmin service) {
+    this.LOG.debug("Unbind of the EventAdmin.");
+    ServiceProxy.eventAdmin = null;
+  }
+
+  protected void bindICSARInstanceManagementService(final ICSARInstanceManagementService service) {
+    if (service == null) {
+      this.LOG.error("Service ICSARInstanceManagementService is null.");
+    } else {
+      this.LOG.debug("Bind of the ICSARInstanceManagementService.");
+      ServiceProxy.csarInstanceManagement = service;
     }
+  }
 
-    protected void bindICSARInstanceManagementService(final ICSARInstanceManagementService service) {
-        if (service == null) {
-            this.LOG.error("Service ICSARInstanceManagementService is null.");
-        } else {
-            this.LOG.debug("Bind of the ICSARInstanceManagementService.");
-            ServiceProxy.csarInstanceManagement = service;
-        }
+  protected void unbindICSARInstanceManagementService(final ICSARInstanceManagementService service) {
+    this.LOG.debug("Unbind of the ICSARInstanceManagementService.");
+    ServiceProxy.csarInstanceManagement = null;
+  }
+
+  protected void bindtoscaEngineService(final IToscaEngineService service) {
+    if (service == null) {
+      this.LOG.error("Service toscaEngineService is null.");
+    } else {
+      this.LOG.debug("Bind of the toscaEngineService.");
+      ServiceProxy.toscaEngineService = service;
+
+      if (null != ServiceProxy.toscaEngineService.getToscaReferenceMapper()) {
+        ServiceProxy.toscaReferenceMapper = ServiceProxy.toscaEngineService.getToscaReferenceMapper();
+      } else {
+        this.LOG.error("The ToscaReferenceMapper is not ready yet.");
+      }
+
     }
+  }
 
-    protected void unbindICSARInstanceManagementService(final ICSARInstanceManagementService service) {
-        this.LOG.debug("Unbind of the ICSARInstanceManagementService.");
-        ServiceProxy.csarInstanceManagement = null;
+  protected void unbindtoscaEngineService(final IToscaEngineService service) {
+    this.LOG.debug("Unbind of the toscaEngineService.");
+    ServiceProxy.toscaEngineService = null;
+  }
+
+  protected void bindIXMLSerializerService(final IXMLSerializerService service) {
+    if (service == null) {
+      this.LOG.error("Service IXMLSerializerService is null.");
+    } else {
+      this.LOG.debug("Bind of the IXMLSerializerService.");
+      ServiceProxy.xmlSerializerService = service;
+
     }
+  }
 
-    protected void bindtoscaEngineService(final IToscaEngineService service) {
-        if (service == null) {
-            this.LOG.error("Service toscaEngineService is null.");
-        } else {
-            this.LOG.debug("Bind of the toscaEngineService.");
-            ServiceProxy.toscaEngineService = service;
-
-            if (null != ServiceProxy.toscaEngineService.getToscaReferenceMapper()) {
-                ServiceProxy.toscaReferenceMapper = ServiceProxy.toscaEngineService.getToscaReferenceMapper();
-            } else {
-                this.LOG.error("The ToscaReferenceMapper is not ready yet.");
-            }
-
-        }
-    }
-
-    protected void unbindtoscaEngineService(final IToscaEngineService service) {
-        this.LOG.debug("Unbind of the toscaEngineService.");
-        ServiceProxy.toscaEngineService = null;
-    }
-
-    protected void bindIXMLSerializerService(final IXMLSerializerService service) {
-        if (service == null) {
-            this.LOG.error("Service IXMLSerializerService is null.");
-        } else {
-            this.LOG.debug("Bind of the IXMLSerializerService.");
-            ServiceProxy.xmlSerializerService = service;
-
-        }
-    }
-
-    protected void unbindIXMLSerializerService(final IXMLSerializerService service) {
-        this.LOG.debug("Unbind of the IXMLSerializerService.");
-        ServiceProxy.xmlSerializerService = null;
-    }
+  protected void unbindIXMLSerializerService(final IXMLSerializerService service) {
+    this.LOG.debug("Unbind of the IXMLSerializerService.");
+    ServiceProxy.xmlSerializerService = null;
+  }
 
 }

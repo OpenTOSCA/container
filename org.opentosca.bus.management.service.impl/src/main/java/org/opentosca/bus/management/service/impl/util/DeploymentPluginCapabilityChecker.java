@@ -14,69 +14,68 @@ import org.opentosca.container.core.model.capability.provider.ProviderType;
  * capabilities of the Implementation Artifact are met by the container and/or available plug-ins
  * (plan + deployment).<br>
  * <br>
- *
+ * <p>
  * Copyright 2018 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- *
  */
 
 public class DeploymentPluginCapabilityChecker {
 
-    /**
-     * Checks if required features are met by chosen plug-in or container and plan.
-     *
-     * @param requiredFeatures the set of features to be satisfied
-     * @param plugin the deployment plug-in
-     * @return true if all requiredFeatures are met, false otherwise
-     */
-    public static boolean capabilitiesAreMet(final List<String> requiredFeatures,
-                                             final IManagementBusDeploymentPluginService plugin) {
+  /**
+   * Checks if required features are met by chosen plug-in or container and plan.
+   *
+   * @param requiredFeatures the set of features to be satisfied
+   * @param plugin           the deployment plug-in
+   * @return true if all requiredFeatures are met, false otherwise
+   */
+  public static boolean capabilitiesAreMet(final List<String> requiredFeatures,
+                                           final IManagementBusDeploymentPluginService plugin) {
 
-        if (!requiredFeatures.isEmpty()) {
+    if (!requiredFeatures.isEmpty()) {
 
-            // get all provided capabilities
-            final List<String> capabilities = new ArrayList<>();
-            capabilities.addAll(DeploymentPluginCapabilityChecker.getConAndPlanCaps());
-            capabilities.addAll(plugin.getCapabilties());
+      // get all provided capabilities
+      final List<String> capabilities = new ArrayList<>();
+      capabilities.addAll(DeploymentPluginCapabilityChecker.getConAndPlanCaps());
+      capabilities.addAll(plugin.getCapabilties());
 
-            // remove all required features that are satisfied by a capability
-            for (final Iterator<String> itReqCaps = requiredFeatures.iterator(); itReqCaps.hasNext();) {
-                final String reqCap = itReqCaps.next();
-                if (capabilities.contains(reqCap)) {
-                    itReqCaps.remove();
-                }
-            }
-
-            // return true if no further requested feature exists
-            return requiredFeatures.isEmpty();
+      // remove all required features that are satisfied by a capability
+      for (final Iterator<String> itReqCaps = requiredFeatures.iterator(); itReqCaps.hasNext(); ) {
+        final String reqCap = itReqCaps.next();
+        if (capabilities.contains(reqCap)) {
+          itReqCaps.remove();
         }
+      }
 
-        return true;
+      // return true if no further requested feature exists
+      return requiredFeatures.isEmpty();
     }
 
-    /**
-     * Returns container and plan capabilities from the CoreCapabilitiyService.
-     *
-     * @return container and plan capabilities in one merged list.
-     */
-    private static List<String> getConAndPlanCaps() {
+    return true;
+  }
 
-        final List<String> conAndPlanCaps = new ArrayList<>();
+  /**
+   * Returns container and plan capabilities from the CoreCapabilitiyService.
+   *
+   * @return container and plan capabilities in one merged list.
+   */
+  private static List<String> getConAndPlanCaps() {
 
-        final List<String> containerCaps =
-            ServiceHandler.capabilityService.getCapabilities(ProviderType.CONTAINER.toString(), ProviderType.CONTAINER);
-        final Map<String, List<String>> planPluginsCaps =
-            ServiceHandler.capabilityService.getCapabilities(ProviderType.PLAN_PLUGIN);
+    final List<String> conAndPlanCaps = new ArrayList<>();
 
-        conAndPlanCaps.addAll(containerCaps);
+    final List<String> containerCaps =
+      ServiceHandler.capabilityService.getCapabilities(ProviderType.CONTAINER.toString(), ProviderType.CONTAINER);
+    final Map<String, List<String>> planPluginsCaps =
+      ServiceHandler.capabilityService.getCapabilities(ProviderType.PLAN_PLUGIN);
 
-        for (final String planPlugin : planPluginsCaps.keySet()) {
-            conAndPlanCaps.addAll(planPluginsCaps.get(planPlugin));
-        }
+    conAndPlanCaps.addAll(containerCaps);
 
-        return conAndPlanCaps;
+    for (final String planPlugin : planPluginsCaps.keySet()) {
+      conAndPlanCaps.addAll(planPluginsCaps.get(planPlugin));
     }
+
+    return conAndPlanCaps;
+  }
 
 }

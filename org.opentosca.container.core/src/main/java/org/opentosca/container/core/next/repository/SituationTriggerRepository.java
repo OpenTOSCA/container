@@ -9,22 +9,22 @@ import com.google.common.collect.Lists;
 
 public class SituationTriggerRepository extends JpaRepository<SituationTrigger> {
 
-    public SituationTriggerRepository() {
-        super(SituationTrigger.class);
-    }
+  public SituationTriggerRepository() {
+    super(SituationTrigger.class);
+  }
 
-    public List<SituationTrigger> findSituationTriggersBySituationId(final Long situationId) {
-        final List<SituationTrigger> result = Lists.newArrayList();
+  public List<SituationTrigger> findSituationTriggersBySituationId(final Long situationId) {
+    final List<SituationTrigger> result = Lists.newArrayList();
 
-        findAll().forEach(x -> {
-            for (final Situation situation : x.getSituations()) {
-                if (situation.getId() == situationId) {
-                    result.add(x);
-                }
-            }
-        });
+    findAll().forEach(x -> {
+      for (final Situation situation : x.getSituations()) {
+        if (situation.getId() == situationId) {
+          result.add(x);
+        }
+      }
+    });
 
-        return result;
-    }
+    return result;
+  }
 
 }

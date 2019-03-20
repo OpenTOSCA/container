@@ -19,83 +19,74 @@ import javax.xml.namespace.QName;
  * for XML content. The Java representation of XML content can consist of schema derived interfaces
  * and classes representing the binding of schema type definitions, element declarations and model
  * groups. Factory methods for each of these are provided in this class.
- *
  */
 @XmlRegistry
 public class ObjectFactory {
 
-    private final static QName _CollaborationMessage_QNAME =
-        new QName("http://collaboration.org/schema", "CollaborationMessage");
+  private final static QName _CollaborationMessage_QNAME =
+    new QName("http://collaboration.org/schema", "CollaborationMessage");
 
-    /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes
-     * for package: org.opentosca.bus.management.service.impl.collaboration.model
-     *
-     */
-    public ObjectFactory() {}
+  /**
+   * Create a new ObjectFactory that can be used to create new instances of schema derived classes
+   * for package: org.opentosca.bus.management.service.impl.collaboration.model
+   */
+  public ObjectFactory() {
+  }
 
-    /**
-     * Create an instance of {@link CollaborationMessage }
-     *
-     */
-    public CollaborationMessage createCollaborationMessage() {
-        return new CollaborationMessage();
-    }
+  /**
+   * Create an instance of {@link CollaborationMessage }
+   */
+  public CollaborationMessage createCollaborationMessage() {
+    return new CollaborationMessage();
+  }
 
-    /**
-     * Create an instance of {@link KeyValueMap }
-     *
-     */
-    public KeyValueMap createKeyValueMap() {
-        return new KeyValueMap();
-    }
+  /**
+   * Create an instance of {@link KeyValueMap }
+   */
+  public KeyValueMap createKeyValueMap() {
+    return new KeyValueMap();
+  }
 
-    /**
-     * Create an instance of {@link KeyValueType }
-     *
-     */
-    public KeyValueType createKeyValueType() {
-        return new KeyValueType();
-    }
+  /**
+   * Create an instance of {@link KeyValueType }
+   */
+  public KeyValueType createKeyValueType() {
+    return new KeyValueType();
+  }
 
-    /**
-     * Create an instance of {@link Doc }
-     *
-     */
-    public Doc createDoc() {
-        return new Doc();
-    }
+  /**
+   * Create an instance of {@link Doc }
+   */
+  public Doc createDoc() {
+    return new Doc();
+  }
 
-    /**
-     * Create an instance of {@link InstanceDataMatchingRequest }
-     *
-     */
-    public InstanceDataMatchingRequest createInstanceDataMatchingRequest() {
-        return new InstanceDataMatchingRequest();
-    }
+  /**
+   * Create an instance of {@link InstanceDataMatchingRequest }
+   */
+  public InstanceDataMatchingRequest createInstanceDataMatchingRequest() {
+    return new InstanceDataMatchingRequest();
+  }
 
-    /**
-     * Create an instance of {@link BodyType }
-     *
-     */
-    public BodyType createBodyType() {
-        return new BodyType();
-    }
+  /**
+   * Create an instance of {@link BodyType }
+   */
+  public BodyType createBodyType() {
+    return new BodyType();
+  }
 
-    /**
-     * Create an instance of {@link IAInvocationRequest }
-     *
-     */
-    public IAInvocationRequest createIAInvocationRequest() {
-        return new IAInvocationRequest();
-    }
+  /**
+   * Create an instance of {@link IAInvocationRequest }
+   */
+  public IAInvocationRequest createIAInvocationRequest() {
+    return new IAInvocationRequest();
+  }
 
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link CollaborationMessage }{@code >}}
-     *
-     */
-    @XmlElementDecl(namespace = "http://collaboration.org/schema", name = "CollaborationMessage")
-    public JAXBElement<CollaborationMessage> createCollaborationMessage(final CollaborationMessage value) {
-        return new JAXBElement<>(_CollaborationMessage_QNAME, CollaborationMessage.class, null, value);
-    }
+  /**
+   * Create an instance of {@link JAXBElement }{@code <}{@link CollaborationMessage }{@code >}}
+   */
+  @XmlElementDecl(namespace = "http://collaboration.org/schema", name = "CollaborationMessage")
+  public JAXBElement<CollaborationMessage> createCollaborationMessage(final CollaborationMessage value) {
+    return new JAXBElement<>(_CollaborationMessage_QNAME, CollaborationMessage.class, null, value);
+  }
 }

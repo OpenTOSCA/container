@@ -19,9 +19,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for tCleanup complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="tCleanup">
  *   &lt;complexContent>
@@ -54,102 +54,92 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tCleanup", propOrder = {
-    "category",
-    "filter"
+  "category",
+  "filter"
 })
 public class TCleanup {
 
-    @XmlElement(defaultValue = "all")
-    protected List<String> category;
-    protected List<String> filter;
-    @XmlAttribute
-    protected String on;
+  @XmlElement(defaultValue = "all")
+  protected List<String> category;
+  protected List<String> filter;
+  @XmlAttribute
+  protected String on;
 
-    /**
-     * Gets the value of the category property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the category property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getCategory().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link String }
-     * 
-     * 
-     */
-    public List<String> getCategory() {
-        if (category == null) {
-            category = new ArrayList<String>();
-        }
-        return this.category;
+  /**
+   * Gets the value of the category property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the category property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getCategory().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link String }
+   */
+  public List<String> getCategory() {
+    if (category == null) {
+      category = new ArrayList<String>();
     }
+    return this.category;
+  }
 
-    /**
-     * Gets the value of the filter property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the filter property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getFilter().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link String }
-     * 
-     * 
-     */
-    public List<String> getFilter() {
-        if (filter == null) {
-            filter = new ArrayList<String>();
-        }
-        return this.filter;
+  /**
+   * Gets the value of the filter property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the filter property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getFilter().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link String }
+   */
+  public List<String> getFilter() {
+    if (filter == null) {
+      filter = new ArrayList<String>();
     }
+    return this.filter;
+  }
 
-    /**
-     * Gets the value of the on property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getOn() {
-        return on;
-    }
+  /**
+   * Gets the value of the on property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getOn() {
+    return on;
+  }
 
-    /**
-     * Sets the value of the on property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setOn(String value) {
-        this.on = value;
-    }
+  /**
+   * Sets the value of the on property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setOn(String value) {
+    this.on = value;
+  }
 
 }

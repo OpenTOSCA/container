@@ -13,23 +13,22 @@ import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContaine
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPELPlanContext> {
 
-    private final BPELDockerContainerTypePluginHandler handler = new BPELDockerContainerTypePluginHandler();
+  private final BPELDockerContainerTypePluginHandler handler = new BPELDockerContainerTypePluginHandler();
 
-    @Override
-    public boolean handle(final BPELPlanContext templateContext) {
-        if (templateContext.getNodeTemplate() == null) {
-            // error
-            return false;
-        } else {
-            if (this.canHandle(templateContext.getNodeTemplate())) {
-                return this.handler.handle(templateContext);
-            }
-        }
-        return false;
+  @Override
+  public boolean handle(final BPELPlanContext templateContext) {
+    if (templateContext.getNodeTemplate() == null) {
+      // error
+      return false;
+    } else {
+      if (this.canHandle(templateContext.getNodeTemplate())) {
+        return this.handler.handle(templateContext);
+      }
     }
+    return false;
+  }
 
 }

@@ -21,44 +21,43 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class BPELPrePhasePlugin extends PrePhasePlugin<BPELPlanContext> {
 
-    private final static Logger LOG = LoggerFactory.getLogger(BPELPrePhasePlugin.class);
+  private final static Logger LOG = LoggerFactory.getLogger(BPELPrePhasePlugin.class);
 
-    private final QName warArtifactTypeOld = new QName("http://www.example.com/ToscaTypes", "WAR");
-    private final QName warArtifactType = new QName("http://opentosca.org/artifacttypes", "WAR");
-    private final QName dockerContainerArtefactTypeOld =
-        new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
-    private final QName dockerContainerArtefactType =
-        new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
+  private final QName warArtifactTypeOld = new QName("http://www.example.com/ToscaTypes", "WAR");
+  private final QName warArtifactType = new QName("http://opentosca.org/artifacttypes", "WAR");
+  private final QName dockerContainerArtefactTypeOld =
+    new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
+  private final QName dockerContainerArtefactType =
+    new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
 
-    private final BPELPrePhasePluginHandler handler = new BPELPrePhasePluginHandler();
+  private final BPELPrePhasePluginHandler handler = new BPELPrePhasePluginHandler();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractDeploymentArtifact da,
-                          final AbstractNodeTemplate nodeTemplate) {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean handle(final BPELPlanContext context, final AbstractDeploymentArtifact da,
+                        final AbstractNodeTemplate nodeTemplate) {
 
-        if (da.getArtifactType().equals(this.dockerContainerArtefactType)
-            || da.getArtifactType().equals(this.dockerContainerArtefactTypeOld)) {
-            return true;
-        }
-
-        return this.handler.handle(context, da, nodeTemplate);
+    if (da.getArtifactType().equals(this.dockerContainerArtefactType)
+      || da.getArtifactType().equals(this.dockerContainerArtefactTypeOld)) {
+      return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractImplementationArtifact ia,
-                          final AbstractNodeTemplate nodeTemplate) {
-        final QName type = ia.getArtifactType();
-        return type.equals(this.warArtifactType) || type.equals(this.warArtifactTypeOld);
-    }
+    return this.handler.handle(context, da, nodeTemplate);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean handle(final BPELPlanContext context, final AbstractImplementationArtifact ia,
+                        final AbstractNodeTemplate nodeTemplate) {
+    final QName type = ia.getArtifactType();
+    return type.equals(this.warArtifactType) || type.equals(this.warArtifactTypeOld);
+  }
 
 }

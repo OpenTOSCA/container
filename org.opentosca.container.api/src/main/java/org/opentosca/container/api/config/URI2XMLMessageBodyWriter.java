@@ -32,24 +32,24 @@ import javax.ws.rs.ext.Provider;
 @Produces(MediaType.APPLICATION_XML)
 public class URI2XMLMessageBodyWriter implements MessageBodyWriter<Serializable> {
 
-    @Override
-    public boolean isWriteable(final Class<?> type, final Type genericType, final Annotation[] annotations,
-                               final MediaType mediaType) {
-        return type == URI.class;
-    }
+  @Override
+  public boolean isWriteable(final Class<?> type, final Type genericType, final Annotation[] annotations,
+                             final MediaType mediaType) {
+    return type == URI.class;
+  }
 
-    @Override
-    public long getSize(final Serializable t, final Class<?> type, final Type genericType,
-                        final Annotation[] annotations, final MediaType mediaType) {
-        return 0;
-    }
+  @Override
+  public long getSize(final Serializable t, final Class<?> type, final Type genericType,
+                      final Annotation[] annotations, final MediaType mediaType) {
+    return 0;
+  }
 
-    @Override
-    public void writeTo(final Serializable t, final Class<?> type, final Type genericType,
-                        final Annotation[] annotations, final MediaType mediaType,
-                        final MultivaluedMap<String, Object> httpHeaders,
-                        final OutputStream entityStream) throws IOException, WebApplicationException {
-        final String body = "<url>" + t.toString() + "</url>";
-        entityStream.write(body.getBytes(Charset.forName("UTF-8")));
-    }
+  @Override
+  public void writeTo(final Serializable t, final Class<?> type, final Type genericType,
+                      final Annotation[] annotations, final MediaType mediaType,
+                      final MultivaluedMap<String, Object> httpHeaders,
+                      final OutputStream entityStream) throws IOException, WebApplicationException {
+    final String body = "<url>" + t.toString() + "</url>";
+    entityStream.write(body.getBytes(Charset.forName("UTF-8")));
+  }
 }

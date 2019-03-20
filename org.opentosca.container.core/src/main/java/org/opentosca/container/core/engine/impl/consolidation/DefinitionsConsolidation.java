@@ -14,38 +14,38 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 public class DefinitionsConsolidation {
 
-    private final Logger LOG = LoggerFactory.getLogger(ExportedInterfacesConsolidation.class);
+  private final Logger LOG = LoggerFactory.getLogger(ExportedInterfacesConsolidation.class);
 
-    private final ExportedInterfacesConsolidation exportedInterfacesConsolidation;
-    private final PolicyConsolidation policyConsolidation;
+  private final ExportedInterfacesConsolidation exportedInterfacesConsolidation;
+  private final PolicyConsolidation policyConsolidation;
 
-    public DefinitionsConsolidation(ToscaReferenceMapper referenceMapper) {
-        exportedInterfacesConsolidation = new ExportedInterfacesConsolidation(referenceMapper);
-        policyConsolidation = new PolicyConsolidation(referenceMapper);
+  public DefinitionsConsolidation(ToscaReferenceMapper referenceMapper) {
+    exportedInterfacesConsolidation = new ExportedInterfacesConsolidation(referenceMapper);
+    policyConsolidation = new PolicyConsolidation(referenceMapper);
+  }
+
+
+  /**
+   * Resolves the referenced TOSCA files inside of a CSAR and stores the mapping into the
+   * ToscaReferenceMapper.
+   *
+   * @param csarID The ID of the passed CSAR which shall be resolved.
+   * @return true means no error, false one or more errors
+   */
+  public boolean consolidateCSAR(final CSARID csarID) {
+
+    boolean ret = this.exportedInterfacesConsolidation.consolidate(csarID);
+    if (!ret) {
+      this.LOG.error("Consolidation of the exported interfaces of CSAR \"" + csarID
+        + "\" produced one or more errors.");
+    }
+    ret = ret && this.policyConsolidation.consolidate(csarID);
+    if (!ret) {
+      this.LOG.error("Consolidation of the Policies inside the CSAR \"" + csarID
+        + "\" produced one or more errors.");
     }
 
-
-    /**
-     * Resolves the referenced TOSCA files inside of a CSAR and stores the mapping into the
-     * ToscaReferenceMapper.
-     *
-     * @param csarID The ID of the passed CSAR which shall be resolved.
-     * @return true means no error, false one or more errors
-     */
-    public boolean consolidateCSAR(final CSARID csarID) {
-
-        boolean ret = this.exportedInterfacesConsolidation.consolidate(csarID);
-        if (!ret) {
-            this.LOG.error("Consolidation of the exported interfaces of CSAR \"" + csarID
-                + "\" produced one or more errors.");
-        }
-        ret = ret && this.policyConsolidation.consolidate(csarID);
-        if (!ret) {
-            this.LOG.error("Consolidation of the Policies inside the CSAR \"" + csarID
-                + "\" produced one or more errors.");
-        }
-
-        return ret;
-    }
+    return ret;
+  }
 
 }

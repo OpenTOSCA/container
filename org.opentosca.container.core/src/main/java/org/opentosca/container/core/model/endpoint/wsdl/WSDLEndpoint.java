@@ -26,110 +26,110 @@ import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Converters({
-    @Converter(name = QNameConverter.name, converterClass = QNameConverter.class)
+@Converters( {
+  @Converter(name = QNameConverter.name, converterClass = QNameConverter.class)
 })
 @Table(name = WSDLEndpoint.tableName,
-       uniqueConstraints = @UniqueConstraint(columnNames = {"portType", "csarId", "managingContainer",
-                                                            "serviceTemplateInstanceID"}))
-@NamedQueries({
-    @NamedQuery(name=WSDLEndpoint.getWSDLEndpointByPortType, query=WSDLEndpoint.queryByPortType)
+  uniqueConstraints = @UniqueConstraint(columnNames = {"portType", "csarId", "managingContainer",
+    "serviceTemplateInstanceID"}))
+@NamedQueries( {
+  @NamedQuery(name = WSDLEndpoint.getWSDLEndpointByPortType, query = WSDLEndpoint.queryByPortType)
 })
 public class WSDLEndpoint extends AbstractEndpoint {
 
-    // Table Name
-    protected final static String tableName = "WSDLEndpoint";
+  public static final String getWSDLEndpointByPortType = "wsdlEndpointByPortType";
+  // Table Name
+  protected final static String tableName = "WSDLEndpoint";
 
-    // NamedQuery names and queries
-    protected final static String queryByPortType = "SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId and e.PortType = :portType";
-    public static final String getWSDLEndpointByPortType = "wsdlEndpointByPortType";
-    
-    // Converter to Convert QNames to String, and back from String to QName.
-    // Used when persisting, so we can Query for QName-Objects.
-    @Basic
-    @Convert(QNameConverter.name)
-    @Column(name = "PortType")
-    private QName PortType;
+  // NamedQuery names and queries
+  protected final static String queryByPortType = "SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId and e.PortType = :portType";
 
-    // NodeTypeImplementation/RelationshipTypeImplementation and IA name are there to identify
-    // specific IAs
-    @Basic
-    @Convert(QNameConverter.name)
-    @Column(name = "TypeImplementation")
-    private QName TypeImplementation;
+  // Converter to Convert QNames to String, and back from String to QName.
+  // Used when persisting, so we can Query for QName-Objects.
+  @Basic
+  @Convert(QNameConverter.name)
+  @Column(name = "PortType")
+  private QName PortType;
 
-    @Basic
-    @Column(name = "IaName")
-    private String IaName;
+  // NodeTypeImplementation/RelationshipTypeImplementation and IA name are there to identify
+  // specific IAs
+  @Basic
+  @Convert(QNameConverter.name)
+  @Column(name = "TypeImplementation")
+  private QName TypeImplementation;
 
-    // only the planid is used for plan endpoints, cause in tosca the id for a
-    // plan must be unique in the targetnamespace
-    @Basic
-    @Convert(QNameConverter.name)
-    @Column(name = "PlanId")
-    private QName PlanId;
+  @Basic
+  @Column(name = "IaName")
+  private String IaName;
 
-    public WSDLEndpoint() {
-        super();
+  // only the planid is used for plan endpoints, cause in tosca the id for a
+  // plan must be unique in the targetnamespace
+  @Basic
+  @Convert(QNameConverter.name)
+  @Column(name = "PlanId")
+  private QName PlanId;
+
+  public WSDLEndpoint() {
+    super();
+  }
+
+  // if planid is set serviceInstanceID, nodeTypeimpl and iaName must be "null"
+  public WSDLEndpoint(final URI uri, final QName portType, final String triggeringContainer,
+                      final String managingContainer, final CsarId csarId, final Long serviceInstanceID,
+                      final QName planid, final QName nodeTypeImplementation, final String iaName) {
+    super(uri, triggeringContainer, managingContainer, csarId, serviceInstanceID);
+    setPortType(portType);
+    setIaName(iaName);
+    setPlanId(planid);
+    setTypeImplementation(nodeTypeImplementation);
+  }
+
+  public QName getPortType() {
+    return this.PortType;
+  }
+
+  public void setPortType(final QName portType) {
+    this.PortType = portType;
+  }
+
+  public QName getTypeImplementation() {
+    return this.TypeImplementation;
+  }
+
+  public void setTypeImplementation(final QName nodeTypeImplementation) {
+    this.TypeImplementation = nodeTypeImplementation;
+  }
+
+  public QName getPlanId() {
+    return this.PlanId;
+  }
+
+  public void setPlanId(final QName planId) {
+    this.PlanId = planId;
+  }
+
+  public String getIaName() {
+    return this.IaName;
+  }
+
+  public void setIaName(final String iaName) {
+    this.IaName = iaName;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (!(o instanceof WSDLEndpoint)) {
+      return false;
     }
-    
-    // if planid is set serviceInstanceID, nodeTypeimpl and iaName must be "null"
-    public WSDLEndpoint(final URI uri, final QName portType, final String triggeringContainer,
-                        final String managingContainer, final CsarId csarId, final Long serviceInstanceID,
-                        final QName planid, final QName nodeTypeImplementation, final String iaName) {
-        super(uri, triggeringContainer, managingContainer, csarId, serviceInstanceID);
-        setPortType(portType);
-        setIaName(iaName);
-        setPlanId(planid);
-        setTypeImplementation(nodeTypeImplementation);
-    }
 
-    public QName getPortType() {
-        return this.PortType;
+    final WSDLEndpoint compareEndpoint = (WSDLEndpoint) o;
+    if (compareEndpoint.getId() != getId()) {
+      return false;
     }
-
-    public void setPortType(final QName portType) {
-        this.PortType = portType;
+    if (!compareEndpoint.getCsarId().equals(getCsarId())) {
+      return false;
     }
-
-    public QName getTypeImplementation() {
-        return this.TypeImplementation;
-    }
-
-    public void setTypeImplementation(final QName nodeTypeImplementation) {
-        this.TypeImplementation = nodeTypeImplementation;
-    }
-
-    public QName getPlanId() {
-        return this.PlanId;
-    }
-
-    public void setPlanId(final QName planId) {
-        this.PlanId = planId;
-    }
-
-    public String getIaName() {
-        return this.IaName;
-    }
-
-    public void setIaName(final String iaName) {
-        this.IaName = iaName;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (!(o instanceof WSDLEndpoint)) {
-            return false;
-        }
-
-        final WSDLEndpoint compareEndpoint = (WSDLEndpoint) o;
-        if (compareEndpoint.getId() != getId()) {
-            return false;
-        }
-        if (!compareEndpoint.getCsarId().equals(getCsarId())) {
-            return false;
-        }
-        return true;
-    }
+    return true;
+  }
 
 }

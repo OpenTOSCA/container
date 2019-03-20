@@ -12,39 +12,39 @@ import org.slf4j.LoggerFactory;
 
 public class PortBindingTest implements TestExecutionPlugin {
 
-    public static final QName ANNOTATION =
-        new QName("http://opentosca.org/policytypes/annotations/tests", "PortBindingTest");
+  public static final QName ANNOTATION =
+    new QName("http://opentosca.org/policytypes/annotations/tests", "PortBindingTest");
 
-    private static Logger logger = LoggerFactory.getLogger(PortBindingTest.class);
+  private static Logger logger = LoggerFactory.getLogger(PortBindingTest.class);
 
-    @Override
-    public DeploymentTestResult execute(final TestContext context, final AbstractNodeTemplate nodeTemplate,
-                                        final NodeTemplateInstance nodeTemplateInstance,
-                                        final AbstractPolicyTemplate policyTemplate) {
+  @Override
+  public DeploymentTestResult execute(final TestContext context, final AbstractNodeTemplate nodeTemplate,
+                                      final NodeTemplateInstance nodeTemplateInstance,
+                                      final AbstractPolicyTemplate policyTemplate) {
 
-        logger.debug("Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
-                     this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
-                     policyTemplate.getId());
+    logger.debug("Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
+      this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
+      policyTemplate.getId());
 
-        final DeploymentTestResult result = new DeploymentTestResult();
-        result.setName(policyTemplate.getId());
-        result.setNodeTemplateInstance(nodeTemplateInstance);
-        result.start();
+    final DeploymentTestResult result = new DeploymentTestResult();
+    result.setName(policyTemplate.getId());
+    result.setNodeTemplateInstance(nodeTemplateInstance);
+    result.start();
 
-        // TODO
+    // TODO
 
-        result.failed();
-        logger.info("Test executed: {}", result);
-        return result;
+    result.failed();
+    logger.info("Test executed: {}", result);
+    return result;
+  }
+
+  @Override
+  public boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate) {
+
+    if (policyTemplate.getType().getId().equals(ANNOTATION)) {
+      return true;
     }
 
-    @Override
-    public boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate) {
-
-        if (policyTemplate.getType().getId().equals(ANNOTATION)) {
-            return true;
-        }
-
-        return false;
-    }
+    return false;
+  }
 }

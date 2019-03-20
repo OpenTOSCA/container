@@ -15,18 +15,17 @@ import io.swagger.annotations.ApiModelProperty;
 @XmlRootElement(name = "RelationshipTemplateResources")
 public class RelationshipTemplateListDTO extends ResourceSupport {
 
-    @JsonProperty
-    @XmlElement(name = "RelationshipTemplate")
-    @XmlElementWrapper(name = "RelationshipTemplate")
-    private final List<RelationshipTemplateDTO> relationshipTemplates = new ArrayList<>();
+  @JsonProperty
+  @XmlElement(name = "RelationshipTemplate")
+  @XmlElementWrapper(name = "RelationshipTemplate")
+  private final List<RelationshipTemplateDTO> relationshipTemplates = new ArrayList<>();
 
+  @ApiModelProperty(name = "relationship_templates")
+  public List<RelationshipTemplateDTO> getRelationshipTemplates() {
+    return this.relationshipTemplates;
+  }
 
-    @ApiModelProperty(name = "relationship_templates")
-    public List<RelationshipTemplateDTO> getRelationshipTemplates() {
-        return this.relationshipTemplates;
-    }
-
-    public void add(final RelationshipTemplateDTO... relationshipTemplates) {
-        this.relationshipTemplates.addAll(Arrays.asList(relationshipTemplates));
-    }
+  public void add(final RelationshipTemplateDTO... relationshipTemplates) {
+    this.relationshipTemplates.addAll(Arrays.asList(relationshipTemplates));
+  }
 }

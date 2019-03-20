@@ -21,34 +21,34 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PropertiesDTO extends ResourceSupport {
 
-    @XmlElement(name = "XmlFragment")
-    private String xmlFragment;
+  @XmlElement(name = "XmlFragment")
+  private String xmlFragment;
 
 
-    @XmlElement(name = "PropertyMapping")
-    @XmlElementWrapper(name = "PropertyMappings")
-    private List<TPropertyMapping> propertyMappings = new ArrayList<>();
+  @XmlElement(name = "PropertyMapping")
+  @XmlElementWrapper(name = "PropertyMappings")
+  private List<TPropertyMapping> propertyMappings = new ArrayList<>();
 
 
-    public PropertiesDTO() {
+  public PropertiesDTO() {
 
-    }
+  }
 
-    @ApiModelProperty(name = "xml_fragment")
-    public String getXmlFragment() {
-        return this.xmlFragment;
-    }
+  @ApiModelProperty(name = "xml_fragment")
+  public String getXmlFragment() {
+    return this.xmlFragment;
+  }
 
-    public void setXmlFragment(final String xmlFragment) {
-        this.xmlFragment = xmlFragment;
-    }
+  public void setXmlFragment(final String xmlFragment) {
+    this.xmlFragment = xmlFragment;
+  }
 
-    @ApiModelProperty(name = "property_mappings")
-    public List<TPropertyMapping> getPropertyMappings() {
-        return this.propertyMappings;
-    }
+  @ApiModelProperty(name = "property_mappings")
+  public List<TPropertyMapping> getPropertyMappings() {
+    return this.propertyMappings;
+  }
 
-    public void setPropertyMappings(final List<TPropertyMapping> propertyMappings) {
-        this.propertyMappings = propertyMappings;
-    }
+  public void setPropertyMappings(final List<TPropertyMapping> propertyMappings) {
+    this.propertyMappings = propertyMappings;
+  }
 }

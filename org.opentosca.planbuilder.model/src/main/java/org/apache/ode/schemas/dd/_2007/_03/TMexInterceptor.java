@@ -16,7 +16,6 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- *
  * Message exchange interceptor configuration.
  *
  *
@@ -37,34 +36,30 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tMexInterceptor", propOrder = {"className"})
 public class TMexInterceptor {
 
-    @XmlElement(name = "class-name", required = true)
-    protected String className;
+  @XmlElement(name = "class-name", required = true)
+  protected String className;
 
-    /**
-     * Gets the value of the className property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getClassName() {
-        return this.className;
-    }
+  /**
+   * Gets the value of the className property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getClassName() {
+    return this.className;
+  }
 
-    /**
-     * Sets the value of the className property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setClassName(final String value) {
-        this.className = value;
-    }
+  /**
+   * Sets the value of the className property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setClassName(final String value) {
+    this.className = value;
+  }
 
 }

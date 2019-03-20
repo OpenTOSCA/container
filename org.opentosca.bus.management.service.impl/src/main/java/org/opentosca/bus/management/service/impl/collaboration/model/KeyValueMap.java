@@ -7,7 +7,6 @@
 //
 
 
-
 package org.opentosca.bus.management.service.impl.collaboration.model;
 
 import java.util.ArrayList;
@@ -34,41 +33,37 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "KeyValueMap", propOrder = {"keyValuePair"})
 public class KeyValueMap {
 
-    @XmlElement(name = "KeyValuePair", required = true)
-    protected List<KeyValueType> keyValuePair;
+  @XmlElement(name = "KeyValuePair", required = true)
+  protected List<KeyValueType> keyValuePair;
 
-    /**
-     * Gets the value of the KeyValuePair property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-     * modification you make to the returned list will be present inside the JAXB object. This is
-     * why there is not a <CODE>set</CODE> method for the keyValuePair property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     *
-     * <pre>
-     * getKeyValuePair().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link KeyValueType }
-     *
-     *
-     */
-    public List<KeyValueType> getKeyValuePair() {
-        if (this.keyValuePair == null) {
-            this.keyValuePair = new ArrayList<>();
-        }
-        return this.keyValuePair;
+  /**
+   * Gets the value of the KeyValuePair property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is
+   * why there is not a <CODE>set</CODE> method for the keyValuePair property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   *
+   * <pre>
+   * getKeyValuePair().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link KeyValueType }
+   */
+  public List<KeyValueType> getKeyValuePair() {
+    if (this.keyValuePair == null) {
+      this.keyValuePair = new ArrayList<>();
     }
+    return this.keyValuePair;
+  }
 }

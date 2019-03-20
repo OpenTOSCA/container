@@ -18,55 +18,54 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplateProperties;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class ServiceTemplatePropertiesImpl extends AbstractServiceTemplateProperties {
 
-    private final Properties properties;
-    private final List<AbstractPropertyMapping> propMappings;
+  private final Properties properties;
+  private final List<AbstractPropertyMapping> propMappings;
 
 
-    /**
-     * Constructor
-     *
-     * @param properties an JAXB TBoundaryDefinitions.Properties
-     */
-    public ServiceTemplatePropertiesImpl(final Properties properties) {
-        this.properties = properties;
-        this.propMappings = new ArrayList<>();
-        this.init();
+  /**
+   * Constructor
+   *
+   * @param properties an JAXB TBoundaryDefinitions.Properties
+   */
+  public ServiceTemplatePropertiesImpl(final Properties properties) {
+    this.properties = properties;
+    this.propMappings = new ArrayList<>();
+    this.init();
+  }
+
+  /**
+   * Initializes the PropertyMappings inside this Properties
+   */
+  private void init() {
+    if (this.properties.getPropertyMappings() != null
+      && this.properties.getPropertyMappings().getPropertyMapping() != null) {
+      for (final TPropertyMapping mapping : this.properties.getPropertyMappings().getPropertyMapping()) {
+        this.propMappings.add(new PropertyMappingImpl(mapping));
+      }
     }
+  }
 
-    /**
-     * Initializes the PropertyMappings inside this Properties
-     */
-    private void init() {
-        if (this.properties.getPropertyMappings() != null
-            && this.properties.getPropertyMappings().getPropertyMapping() != null) {
-            for (final TPropertyMapping mapping : this.properties.getPropertyMappings().getPropertyMapping()) {
-                this.propMappings.add(new PropertyMappingImpl(mapping));
-            }
-        }
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<AbstractPropertyMapping> getPropertyMappings() {
+    return this.propMappings;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<AbstractPropertyMapping> getPropertyMappings() {
-        return this.propMappings;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public AbstractProperties getProperties() {
+    if (this.properties.getAny() != null) {
+      return new PropertiesImpl(this.properties.getAny());
+    } else {
+      return null;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public AbstractProperties getProperties() {
-        if (this.properties.getAny() != null) {
-            return new PropertiesImpl(this.properties.getAny());
-        } else {
-            return null;
-        }
-    }
+  }
 
 }

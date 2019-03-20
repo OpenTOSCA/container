@@ -35,41 +35,37 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "commandstype", propOrder = {"command"})
 public class Commandstype {
 
-    protected List<String> command;
+  protected List<String> command;
 
-    /**
-     * Gets the value of the command property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-     * modification you make to the returned list will be present inside the JAXB object. This is why
-     * there is not a <CODE>set</CODE> method for the command property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     *
-     * <pre>
-     * getCommand().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link String }
-     *
-     *
-     */
-    public List<String> getCommand() {
-        if (this.command == null) {
-            this.command = new ArrayList<>();
-        }
-        return this.command;
+  /**
+   * Gets the value of the command property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is why
+   * there is not a <CODE>set</CODE> method for the command property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   *
+   * <pre>
+   * getCommand().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link String }
+   */
+  public List<String> getCommand() {
+    if (this.command == null) {
+      this.command = new ArrayList<>();
     }
+    return this.command;
+  }
 
 }

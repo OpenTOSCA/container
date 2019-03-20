@@ -37,57 +37,51 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tPolicyType", propOrder = {"appliesTo"})
 public class TPolicyType extends TEntityType {
 
-    @XmlElement(name = "AppliesTo", required = true)
-    protected TAppliesTo appliesTo;
-    @XmlAttribute
-    @XmlSchemaType(name = "anyURI")
-    protected String policyLanguage;
+  @XmlElement(name = "AppliesTo", required = true)
+  protected TAppliesTo appliesTo;
+  @XmlAttribute
+  @XmlSchemaType(name = "anyURI")
+  protected String policyLanguage;
 
-    /**
-     * Gets the value of the appliesTo property.
-     *
-     * @return possible object is {@link TAppliesTo }
-     *
-     */
-    public TAppliesTo getAppliesTo() {
-        return this.appliesTo;
-    }
+  /**
+   * Gets the value of the appliesTo property.
+   *
+   * @return possible object is {@link TAppliesTo }
+   */
+  public TAppliesTo getAppliesTo() {
+    return this.appliesTo;
+  }
 
-    /**
-     * Sets the value of the appliesTo property.
-     *
-     * @param value allowed object is {@link TAppliesTo }
-     *
-     */
-    public void setAppliesTo(final TAppliesTo value) {
-        this.appliesTo = value;
-    }
+  /**
+   * Sets the value of the appliesTo property.
+   *
+   * @param value allowed object is {@link TAppliesTo }
+   */
+  public void setAppliesTo(final TAppliesTo value) {
+    this.appliesTo = value;
+  }
 
-    /**
-     * Gets the value of the policyLanguage property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getPolicyLanguage() {
-        return this.policyLanguage;
-    }
+  /**
+   * Gets the value of the policyLanguage property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPolicyLanguage() {
+    return this.policyLanguage;
+  }
 
-    /**
-     * Sets the value of the policyLanguage property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setPolicyLanguage(final String value) {
-        this.policyLanguage = value;
-    }
+  /**
+   * Sets the value of the policyLanguage property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPolicyLanguage(final String value) {
+    this.policyLanguage = value;
+  }
 
 }

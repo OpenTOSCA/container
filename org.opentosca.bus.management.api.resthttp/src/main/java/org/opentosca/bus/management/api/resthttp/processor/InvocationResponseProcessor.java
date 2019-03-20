@@ -12,33 +12,30 @@ import org.slf4j.LoggerFactory;
 /**
  * InvocationResponseProcessor of the Management Bus REST-API.<br>
  * <br>
- *
+ * <p>
  * This processor handles the responses of "invokeOperation" requests.
  *
- *
- *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
- *
  */
 public class InvocationResponseProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(InvocationResponseProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(InvocationResponseProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) throws Exception {
+  @Override
+  public void process(final Exchange exchange) throws Exception {
 
-        InvocationResponseProcessor.LOG.debug("Processing Invocation response....");
+    InvocationResponseProcessor.LOG.debug("Processing Invocation response....");
 
-        final String requestID = exchange.getIn().getBody(String.class);
+    final String requestID = exchange.getIn().getBody(String.class);
 
-        InvocationResponseProcessor.LOG.debug("RequestID: {}", requestID);
+    InvocationResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
-        response.setStatus(Status.SUCCESS_ACCEPTED);
-        response.setLocationRef(InvocationRoute.POLL_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER, requestID));
+    final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+    response.setStatus(Status.SUCCESS_ACCEPTED);
+    response.setLocationRef(InvocationRoute.POLL_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER, requestID));
 
-        exchange.getOut().setBody(response);
+    exchange.getOut().setBody(response);
 
-    }
+  }
 
 }

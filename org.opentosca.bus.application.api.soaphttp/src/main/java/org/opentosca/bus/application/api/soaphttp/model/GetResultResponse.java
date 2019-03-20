@@ -32,33 +32,29 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "getResultResponse", propOrder = {"result"})
 public class GetResultResponse {
 
-    protected Object result;
+  protected Object result;
 
-    /**
-     * Gets the value of the result property.
-     *
-     * @return possible object is {@link Object }
-     *
-     */
-    public Object getResult() {
-        return this.result;
-    }
+  /**
+   * Gets the value of the result property.
+   *
+   * @return possible object is {@link Object }
+   */
+  public Object getResult() {
+    return this.result;
+  }
 
-    /**
-     * Sets the value of the result property.
-     *
-     * @param value allowed object is {@link Object }
-     *
-     */
-    public void setResult(final Object value) {
-        this.result = value;
-    }
+  /**
+   * Sets the value of the result property.
+   *
+   * @param value allowed object is {@link Object }
+   */
+  public void setResult(final Object value) {
+    this.result = value;
+  }
 
 }

@@ -34,58 +34,52 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tRequirementRef")
 public class TRequirementRef {
 
-    @XmlAttribute
-    protected String name;
-    @XmlAttribute(required = true)
-    @XmlIDREF
-    @XmlSchemaType(name = "IDREF")
-    protected Object ref;
+  @XmlAttribute
+  protected String name;
+  @XmlAttribute(required = true)
+  @XmlIDREF
+  @XmlSchemaType(name = "IDREF")
+  protected Object ref;
 
-    /**
-     * Gets the value of the name property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getName() {
-        return this.name;
-    }
+  /**
+   * Gets the value of the name property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getName() {
+    return this.name;
+  }
 
-    /**
-     * Sets the value of the name property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setName(final String value) {
-        this.name = value;
-    }
+  /**
+   * Sets the value of the name property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setName(final String value) {
+    this.name = value;
+  }
 
-    /**
-     * Gets the value of the ref property.
-     *
-     * @return possible object is {@link Object }
-     *
-     */
-    public Object getRef() {
-        return this.ref;
-    }
+  /**
+   * Gets the value of the ref property.
+   *
+   * @return possible object is {@link Object }
+   */
+  public Object getRef() {
+    return this.ref;
+  }
 
-    /**
-     * Sets the value of the ref property.
-     *
-     * @param value allowed object is {@link Object }
-     *
-     */
-    public void setRef(final Object value) {
-        this.ref = value;
-    }
+  /**
+   * Sets the value of the ref property.
+   *
+   * @param value allowed object is {@link Object }
+   */
+  public void setRef(final Object value) {
+    this.ref = value;
+  }
 
 }

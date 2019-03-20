@@ -16,62 +16,62 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanInstanceEventDTO {
 
-    @XmlElement(name = "Timestamp")
-    private Date timestamp;
+  @XmlElement(name = "Timestamp")
+  private Date timestamp;
 
-    @XmlElement(name = "Status")
-    private String status;
+  @XmlElement(name = "Status")
+  private String status;
 
-    @XmlElement(name = "Type")
-    private String type;
+  @XmlElement(name = "Type")
+  private String type;
 
-    @XmlElement(name = "Message")
-    private String message;
+  @XmlElement(name = "Message")
+  private String message;
 
-    public Date getTimestamp() {
-        return this.timestamp;
+  public Date getTimestamp() {
+    return this.timestamp;
+  }
+
+  public void setTimestamp(final Date timestamp) {
+    this.timestamp = timestamp;
+  }
+
+  public String getStatus() {
+    return this.status;
+  }
+
+  public void setStatus(final String status) {
+    this.status = status;
+  }
+
+  public String getType() {
+    return this.type;
+  }
+
+  public void setType(final String type) {
+    this.type = type;
+  }
+
+  public String getMessage() {
+    return this.message;
+  }
+
+  public void setMessage(final String message) {
+    this.message = message;
+  }
+
+  public static final class Converter {
+
+    public static PlanInstanceEventDTO convert(final PlanInstanceEvent object) {
+      final PlanInstanceEventDTO dto = new PlanInstanceEventDTO();
+
+      dto.setMessage(object.getMessage());
+      dto.setStatus(object.getStatus());
+      dto.setTimestamp(object.getTimestamp());
+      dto.setType(object.getType());
+
+      return dto;
     }
 
-    public void setTimestamp(final Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getStatus() {
-        return this.status;
-    }
-
-    public void setStatus(final String status) {
-        this.status = status;
-    }
-
-    public String getType() {
-        return this.type;
-    }
-
-    public void setType(final String type) {
-        this.type = type;
-    }
-
-    public String getMessage() {
-        return this.message;
-    }
-
-    public void setMessage(final String message) {
-        this.message = message;
-    }
-
-    public static final class Converter {
-
-        public static PlanInstanceEventDTO convert(final PlanInstanceEvent object) {
-            final PlanInstanceEventDTO dto = new PlanInstanceEventDTO();
-
-            dto.setMessage(object.getMessage());
-            dto.setStatus(object.getStatus());
-            dto.setTimestamp(object.getTimestamp());
-            dto.setType(object.getType());
-
-            return dto;
-        }
-
-    }
+  }
 }

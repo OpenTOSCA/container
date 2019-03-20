@@ -15,21 +15,21 @@ import org.slf4j.LoggerFactory;
 
 public class WineryRepositoryTests {
 
-    private static Logger logger = LoggerFactory.getLogger(WineryRepositoryTests.class);
+  private static Logger logger = LoggerFactory.getLogger(WineryRepositoryTests.class);
 
-    @Test
-    public void testTryOut() throws Exception {
-        final Path csarRoot = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "CSARs");
-        // ensures csar-root exists
-        Files.createDirectories(csarRoot);
-        final DirectoryStream<Path> stream = Files.newDirectoryStream(csarRoot, entry -> Files.isDirectory(entry));
-        boolean hit = false;
-        for (final Path p : stream) {
-            // create a repository for every CSAR we know
-            final IRepository r = RepositoryFactory.getRepository(new FileBasedRepositoryConfiguration(p));
-            logger.info("{}", r.getUsedNamespaces());
-            hit |= true;
-        }
-        Assert.assertTrue( "no CSARs were available under " + csarRoot, hit);
+  @Test
+  public void testTryOut() throws Exception {
+    final Path csarRoot = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "CSARs");
+    // ensures csar-root exists
+    Files.createDirectories(csarRoot);
+    final DirectoryStream<Path> stream = Files.newDirectoryStream(csarRoot, entry -> Files.isDirectory(entry));
+    boolean hit = false;
+    for (final Path p : stream) {
+      // create a repository for every CSAR we know
+      final IRepository r = RepositoryFactory.getRepository(new FileBasedRepositoryConfiguration(p));
+      logger.info("{}", r.getUsedNamespaces());
+      hit |= true;
     }
+    Assert.assertTrue("no CSARs were available under " + csarRoot, hit);
+  }
 }

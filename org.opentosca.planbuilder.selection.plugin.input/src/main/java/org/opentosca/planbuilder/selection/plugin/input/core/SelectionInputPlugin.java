@@ -15,21 +15,20 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public abstract class SelectionInputPlugin<T extends PlanContext> implements IScalingPlanBuilderSelectionPlugin<T> {
 
-    private static final String PLUGIN_ID = "OpenTOSCA Input Selection Plugin";
-    private static final String INPUT_SELECTION_STRATEGY = "UserProvided";
+  private static final String PLUGIN_ID = "OpenTOSCA Input Selection Plugin";
+  private static final String INPUT_SELECTION_STRATEGY = "UserProvided";
 
-    @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
-        return selectionStrategies.contains(SelectionInputPlugin.INPUT_SELECTION_STRATEGY);
-    }
+  @Override
+  public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
+    return selectionStrategies.contains(SelectionInputPlugin.INPUT_SELECTION_STRATEGY);
+  }
 
-    @Override
-    public String getID() {
-        return SelectionInputPlugin.PLUGIN_ID;
-    }
+  @Override
+  public String getID() {
+    return SelectionInputPlugin.PLUGIN_ID;
+  }
 
 }

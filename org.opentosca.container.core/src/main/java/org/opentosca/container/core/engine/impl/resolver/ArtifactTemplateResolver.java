@@ -9,53 +9,52 @@ import org.eclipse.winery.model.tosca.TExtensibleElements;
 
 public class ArtifactTemplateResolver extends GenericResolver {
 
-    public ArtifactTemplateResolver(final ReferenceMapper referenceMapper) {
-        super(referenceMapper);
-    }
+  public ArtifactTemplateResolver(final ReferenceMapper referenceMapper) {
+    super(referenceMapper);
+  }
 
-    /**
-     *
-     * @param definitions
-     * @return true if an error occurred, false if not
-     */
-    public boolean resolve(final Definitions definitions) {
+  /**
+   * @param definitions
+   * @return true if an error occurred, false if not
+   */
+  public boolean resolve(final Definitions definitions) {
 
-        boolean errorOccurred = false;
+    boolean errorOccurred = false;
 
-        for (final TExtensibleElements element : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
+    for (final TExtensibleElements element : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
 
-            // ArtifactTemplate
-            if (element instanceof TArtifactTemplate) {
+      // ArtifactTemplate
+      if (element instanceof TArtifactTemplate) {
 
-                final TArtifactTemplate artifactTemplate = (TArtifactTemplate) element;
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(definitions.getTargetNamespace(),
-                    artifactTemplate.getId()), artifactTemplate);
+        final TArtifactTemplate artifactTemplate = (TArtifactTemplate) element;
+        this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(definitions.getTargetNamespace(),
+          artifactTemplate.getId()), artifactTemplate);
 
-                // resolve the ArtifactType
-                if (artifactTemplate.getType() != null && !artifactTemplate.getType().toString().equals("")) {
-                    errorOccurred = errorOccurred
-                        || !this.referenceMapper.searchToscaElementByQNameWithName(artifactTemplate.getType(),
-                                                                                   ElementNamesEnum.ARTIFACTTYPE);
-                }
-
-                // Properties
-                // nothing to do here
-
-                // PropertyConstraints
-                // nothing to do here
-
-                // ArtifactReferences
-                // if (artifactTemplate.getArtifactReferences() != null) {
-                // for (TArtifactReference artifactReference :
-                // artifactTemplate.getArtifactReferences().getArtifactReference())
-                // {
-                // this is done by the ToscaEngine with the method
-                // getFilesOfAArtifactTemplate
-                // }
-                // }
-
-            }
+        // resolve the ArtifactType
+        if (artifactTemplate.getType() != null && !artifactTemplate.getType().toString().equals("")) {
+          errorOccurred = errorOccurred
+            || !this.referenceMapper.searchToscaElementByQNameWithName(artifactTemplate.getType(),
+            ElementNamesEnum.ARTIFACTTYPE);
         }
-        return errorOccurred;
+
+        // Properties
+        // nothing to do here
+
+        // PropertyConstraints
+        // nothing to do here
+
+        // ArtifactReferences
+        // if (artifactTemplate.getArtifactReferences() != null) {
+        // for (TArtifactReference artifactReference :
+        // artifactTemplate.getArtifactReferences().getArtifactReference())
+        // {
+        // this is done by the ToscaEngine with the method
+        // getFilesOfAArtifactTemplate
+        // }
+        // }
+
+      }
     }
+    return errorOccurred;
+  }
 }

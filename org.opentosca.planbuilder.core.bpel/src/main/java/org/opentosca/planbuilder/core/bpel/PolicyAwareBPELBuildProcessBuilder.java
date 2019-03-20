@@ -49,442 +49,438 @@ import org.slf4j.LoggerFactory;
  * OpenTOSCA</a>. It is responsible for generating the Build Plan Skeleton and assign plugins to
  * handle the different templates inside a TopologyTemplate.
  * </p>
- *
+ * <p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
-    final static Logger LOG = LoggerFactory.getLogger(PolicyAwareBPELBuildProcessBuilder.class);
+  final static Logger LOG = LoggerFactory.getLogger(PolicyAwareBPELBuildProcessBuilder.class);
 
-    // class for initializing properties inside the plan
-    private final PropertyVariableInitializer propertyInitializer;
-    // class for initializing output with boundarydefinitions of a
-    // serviceTemplate
-    private final PropertyMappingsToOutputInitializer propertyOutputInitializer;
-    // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
+  // class for initializing properties inside the plan
+  private final PropertyVariableInitializer propertyInitializer;
+  // class for initializing output with boundarydefinitions of a
+  // serviceTemplate
+  private final PropertyMappingsToOutputInitializer propertyOutputInitializer;
+  // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
 
-    private ServiceInstanceVariablesHandler serviceInstanceInitializer;
-    // class for finalizing build plans (e.g when some template didn't receive
-    // some provisioning logic and they must be filled with empty elements)
-    private final BPELFinalizer finalizer;
-    // accepted operations for provisioning
-    private final List<String> opNames = new ArrayList<>();
+  private ServiceInstanceVariablesHandler serviceInstanceInitializer;
+  // class for finalizing build plans (e.g when some template didn't receive
+  // some provisioning logic and they must be filled with empty elements)
+  private final BPELFinalizer finalizer;
+  // accepted operations for provisioning
+  private final List<String> opNames = new ArrayList<>();
 
-    private BPELPlanHandler planHandler;
+  private BPELPlanHandler planHandler;
 
-    private NodeRelationInstanceVariablesHandler instanceInit;
+  private NodeRelationInstanceVariablesHandler instanceInit;
 
 
+  private final EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
 
-    private final EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
+  /**
+   * <p>
+   * Default Constructor
+   * </p>
+   */
+  public PolicyAwareBPELBuildProcessBuilder() {
+    try {
+      this.planHandler = new BPELPlanHandler();
+      this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
+      this.instanceInit = new NodeRelationInstanceVariablesHandler(this.planHandler);
 
-    /**
-     * <p>
-     * Default Constructor
-     * </p>
-     */
-    public PolicyAwareBPELBuildProcessBuilder() {
-        try {
-            this.planHandler = new BPELPlanHandler();
-            this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
-            this.instanceInit = new NodeRelationInstanceVariablesHandler(this.planHandler);
-
-        }
-        catch (final ParserConfigurationException e) {
-            PolicyAwareBPELBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
-        }
-        // TODO seems ugly
-        this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
-        this.propertyOutputInitializer = new PropertyMappingsToOutputInitializer();
-        this.finalizer = new BPELFinalizer();
-        this.opNames.add("install");
-        this.opNames.add("configure");
-        this.opNames.add("start");
-        // this.opNames.add("connectTo");
-        // this.opNames.add("hostOn");
+    } catch (final ParserConfigurationException e) {
+      PolicyAwareBPELBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
     }
+    // TODO seems ugly
+    this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
+    this.propertyOutputInitializer = new PropertyMappingsToOutputInitializer();
+    this.finalizer = new BPELFinalizer();
+    this.opNames.add("install");
+    this.opNames.add("configure");
+    this.opNames.add("start");
+    // this.opNames.add("connectTo");
+    // this.opNames.add("hostOn");
+  }
 
-    /**
-     * Returns the number of the plugins registered with this planbuilder
-     *
-     * @return integer denoting the count of plugins
-     */
-    public int registeredPlugins() {
-        return this.pluginRegistry.getGenericPlugins().size() + this.pluginRegistry.getDaPlugins().size()
-            + this.pluginRegistry.getIaPlugins().size() + this.pluginRegistry.getPostPlugins().size()
-            + this.pluginRegistry.getProvPlugins().size();
+  /**
+   * Returns the number of the plugins registered with this planbuilder
+   *
+   * @return integer denoting the count of plugins
+   */
+  public int registeredPlugins() {
+    return this.pluginRegistry.getGenericPlugins().size() + this.pluginRegistry.getDaPlugins().size()
+      + this.pluginRegistry.getIaPlugins().size() + this.pluginRegistry.getPostPlugins().size()
+      + this.pluginRegistry.getProvPlugins().size();
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
+   * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
+   */
+  @Override
+  public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
+                            final QName serviceTemplateId) {
+    // create empty plan from servicetemplate and add definitions
+
+    for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+      String namespace;
+      if (serviceTemplate.getTargetNamespace() != null) {
+        namespace = serviceTemplate.getTargetNamespace();
+      } else {
+        namespace = definitions.getTargetNamespace();
+      }
+
+      if (namespace.equals(serviceTemplateId.getNamespaceURI())
+        && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
+        final String processName = serviceTemplate.getId() + "_buildPlan";
+        final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
+
+        final AbstractPlan buildPlan =
+          generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+
+        LOG.debug("Generated the following abstract prov plan: ");
+        LOG.debug(buildPlan.toString());
+
+        final BPELPlan newBuildPlan =
+          this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, "initiate");
+
+        newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
+        newBuildPlan.setTOSCAOperationname("initiate");
+
+        this.planHandler.initializeBPELSkeleton(newBuildPlan, csarName);
+        // newBuildPlan.setCsarName(csarName);
+
+        // create empty templateplans for each template and add them to
+        // buildplan
+        // for (AbstractNodeTemplate nodeTemplate :
+        // serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+        // BPELScopeActivity newTemplate =
+        // this.templateHandler.createTemplateBuildPlan(nodeTemplate,
+        // newBuildPlan);
+        // newTemplate.setNodeTemplate(nodeTemplate);
+        // newBuildPlan.addTemplateBuildPlan(newTemplate);
+        // }
+        //
+        // for (AbstractRelationshipTemplate relationshipTemplate :
+        // serviceTemplate.getTopologyTemplate().getRelationshipTemplates())
+        // {
+        // BPELScopeActivity newTemplate =
+        // this.templateHandler.createTemplateBuildPlan(relationshipTemplate,
+        // newBuildPlan);
+        // newTemplate.setRelationshipTemplate(relationshipTemplate);
+        // newBuildPlan.addTemplateBuildPlan(newTemplate);
+        // }
+        //
+        // // connect the templates
+        // this.initializeDependenciesInBuildPlan(newBuildPlan);
+
+        this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
+          newBuildPlan);
+
+        final PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newBuildPlan);
+        // init output
+        this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, newBuildPlan, propMap);
+
+        // instanceDataAPI handling is done solely trough this extension
+
+        // initialize instanceData handling
+        this.serviceInstanceInitializer.initializeInstanceDataFromInput(newBuildPlan);
+
+        this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap);
+
+        runPlugins(newBuildPlan, propMap);
+
+        this.serviceInstanceInitializer.addCorrellationID(newBuildPlan);
+
+        this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
+          newBuildPlan.getBpelMainFlowElement(),
+          "CREATING");
+        this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
+          newBuildPlan.getBpelMainSequenceOutputAssignElement(),
+          "CREATED");
+
+        this.finalizer.finalize(newBuildPlan);
+        PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created BuildPlan:");
+        PolicyAwareBPELBuildProcessBuilder.LOG.debug(getStringFromDoc(newBuildPlan.getBpelDocument()));
+        return newBuildPlan;
+      }
     }
+    PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
+      serviceTemplateId.toString(), definitions.getId(), csarName);
+    return null;
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
-     */
-    @Override
-    public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
-                              final QName serviceTemplateId) {
-        // create empty plan from servicetemplate and add definitions
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.opentosca.planbuilder.IPlanBuilder#buildPlans(java.lang.String,
+   * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
+   */
+  @Override
+  public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+    final List<AbstractPlan> plans = new ArrayList<>();
+    for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+      QName serviceTemplateId;
+      // targetNamespace attribute doesn't has to be set, so we check it
+      if (serviceTemplate.getTargetNamespace() != null) {
+        serviceTemplateId = new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId());
+      } else {
+        serviceTemplateId = new QName(definitions.getTargetNamespace(), serviceTemplate.getId());
+      }
 
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-            String namespace;
-            if (serviceTemplate.getTargetNamespace() != null) {
-                namespace = serviceTemplate.getTargetNamespace();
-            } else {
-                namespace = definitions.getTargetNamespace();
-            }
+      if (!serviceTemplate.hasBuildPlan()) {
+        PolicyAwareBPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
+          serviceTemplateId.toString());
+        final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplateId);
 
-            if (namespace.equals(serviceTemplateId.getNamespaceURI())
-                && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
-                final String processName = serviceTemplate.getId() + "_buildPlan";
-                final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
-
-                final AbstractPlan buildPlan =
-                    generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
-
-                LOG.debug("Generated the following abstract prov plan: ");
-                LOG.debug(buildPlan.toString());
-
-                final BPELPlan newBuildPlan =
-                    this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, "initiate");
-
-                newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
-                newBuildPlan.setTOSCAOperationname("initiate");
-
-                this.planHandler.initializeBPELSkeleton(newBuildPlan, csarName);
-                // newBuildPlan.setCsarName(csarName);
-
-                // create empty templateplans for each template and add them to
-                // buildplan
-                // for (AbstractNodeTemplate nodeTemplate :
-                // serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-                // BPELScopeActivity newTemplate =
-                // this.templateHandler.createTemplateBuildPlan(nodeTemplate,
-                // newBuildPlan);
-                // newTemplate.setNodeTemplate(nodeTemplate);
-                // newBuildPlan.addTemplateBuildPlan(newTemplate);
-                // }
-                //
-                // for (AbstractRelationshipTemplate relationshipTemplate :
-                // serviceTemplate.getTopologyTemplate().getRelationshipTemplates())
-                // {
-                // BPELScopeActivity newTemplate =
-                // this.templateHandler.createTemplateBuildPlan(relationshipTemplate,
-                // newBuildPlan);
-                // newTemplate.setRelationshipTemplate(relationshipTemplate);
-                // newBuildPlan.addTemplateBuildPlan(newTemplate);
-                // }
-                //
-                // // connect the templates
-                // this.initializeDependenciesInBuildPlan(newBuildPlan);
-
-                this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
-                                                   newBuildPlan);
-
-                final PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newBuildPlan);
-                // init output
-                this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, newBuildPlan, propMap);
-
-                // instanceDataAPI handling is done solely trough this extension
-
-                // initialize instanceData handling
-                this.serviceInstanceInitializer.initializeInstanceDataFromInput(newBuildPlan);
-
-                this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap);
-
-                runPlugins(newBuildPlan, propMap);
-
-                this.serviceInstanceInitializer.addCorrellationID(newBuildPlan);
-
-
-                this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
-                                                                              newBuildPlan.getBpelMainFlowElement(),
-                                                                              "CREATING");
-                this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
-                                                                              newBuildPlan.getBpelMainSequenceOutputAssignElement(),
-                                                                              "CREATED");
-
-                this.finalizer.finalize(newBuildPlan);
-                PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created BuildPlan:");
-                PolicyAwareBPELBuildProcessBuilder.LOG.debug(getStringFromDoc(newBuildPlan.getBpelDocument()));
-                return newBuildPlan;
-            }
+        if (newBuildPlan != null) {
+          PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created BuildPlan "
+            + newBuildPlan.getBpelProcessElement().getAttribute("name"));
+          plans.add(newBuildPlan);
         }
-        PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-                                                    serviceTemplateId.toString(), definitions.getId(), csarName);
-        return null;
+      } else {
+        PolicyAwareBPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed",
+          serviceTemplateId.toString());
+      }
     }
+    return plans;
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opentosca.planbuilder.IPlanBuilder#buildPlans(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
-     */
-    @Override
-    public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
-        final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-            QName serviceTemplateId;
-            // targetNamespace attribute doesn't has to be set, so we check it
-            if (serviceTemplate.getTargetNamespace() != null) {
-                serviceTemplateId = new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId());
+  /**
+   * <p>
+   * This method assigns plugins to the already initialized BuildPlan and its TemplateBuildPlans.
+   * First there will be checked if any generic plugin can handle a template of the TopologyTemplate
+   * </p>
+   *
+   * @param buildPlan a BuildPlan which is alread initialized
+   * @param map       a PropertyMap which contains mappings from Template to Property and to variable name
+   *                  of inside the BuidlPlan
+   */
+  private boolean runPlugins(final BPELPlan buildPlan, final PropertyMap map) {
+    for (final BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
+      boolean handled = false;
+      if (templatePlan.getNodeTemplate() != null) {
+        // handling nodetemplate
+        final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+        PolicyAwareBPELBuildProcessBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
+        final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate());
+        // check if we have a generic plugin to handle the template
+        // Note: if a generic plugin fails during execution the
+        // TemplateBuildPlan is broken!
+
+        if (nodeTemplate.getPolicies().isEmpty()) {
+          final IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
+          if (plugin == null) {
+            PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
+              nodeTemplate.getId());
+            final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate, this.opNames);
+            if (chain == null) {
+              PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}",
+                nodeTemplate.getId());
             } else {
-                serviceTemplateId = new QName(definitions.getTargetNamespace(), serviceTemplate.getId());
+              PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}",
+                nodeTemplate.getId());
+              chain.executeIAProvisioning(context);
+              chain.executeDAProvisioning(context);
+              chain.executeOperationProvisioning(context, this.opNames);
+              handled = true;
             }
+          } else {
+            PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with generic plugin",
+              nodeTemplate.getId());
+            handled = plugin.handle(context);
 
-            if (!serviceTemplate.hasBuildPlan()) {
-                PolicyAwareBPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
-                                                             serviceTemplateId.toString());
-                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplateId);
+          }
 
-                if (newBuildPlan != null) {
-                    PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created BuildPlan "
-                        + newBuildPlan.getBpelProcessElement().getAttribute("name"));
-                    plans.add(newBuildPlan);
+          for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+            if (postPhasePlugin.canHandle(nodeTemplate)) {
+              handled = postPhasePlugin.handle(context, nodeTemplate);
+            }
+          }
+        } else {
+          // policy aware handling
+          final IPlanBuilderPolicyAwareTypePlugin policyPlugin = findPolicyAwareTypePlugin(nodeTemplate);
+          if (policyPlugin == null) {
+            PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
+              nodeTemplate.getId());
+            final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate, this.opNames);
+            if (chain == null) {
+              PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}",
+                nodeTemplate.getId());
+            } else {
+              PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}",
+                nodeTemplate.getId());
+
+              final List<AbstractPolicy> policies = nodeTemplate.getPolicies();
+              final Map<AbstractPolicy, IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext>> compatiblePrePlugins =
+                new HashMap<>();
+              final Map<AbstractPolicy, IPlanBuilderPolicyAwarePostPhasePlugin<BPELPlanContext>> compatiblePostPlugins =
+                new HashMap<>();
+
+              for (final AbstractPolicy policy : policies) {
+                boolean matched = false;
+                for (final IPlanBuilderPolicyAwarePrePhasePlugin<?> policyPrePhasePlugin : this.pluginRegistry.getPolicyAwarePrePhasePlugins()) {
+                  if (policyPrePhasePlugin.canHandle(nodeTemplate, policy)) {
+                    compatiblePrePlugins.put(policy,
+                      (IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext>) policyPrePhasePlugin);
+                    matched = true;
+                    break;
+                  }
                 }
-            } else {
-                PolicyAwareBPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed",
-                                                             serviceTemplateId.toString());
+
+                if (matched) {
+                  continue;
+                }
+
+                for (final IPlanBuilderPolicyAwarePostPhasePlugin<?> policyPostPhasePlugin : this.pluginRegistry.getPolicyAwarePostPhasePlugins()) {
+                  if (policyPostPhasePlugin.canHandle(nodeTemplate, policy)) {
+                    compatiblePostPlugins.put(policy,
+                      (IPlanBuilderPolicyAwarePostPhasePlugin<BPELPlanContext>) policyPostPhasePlugin);
+                    matched = true;
+                    break;
+                  }
+                }
+              }
+
+              if (policies.size() != compatiblePrePlugins.keySet().size()
+                + compatiblePostPlugins.keySet().size()) {
+                handled = false;
+              } else {
+
+                for (final AbstractPolicy policy : compatiblePrePlugins.keySet()) {
+                  compatiblePrePlugins.get(policy).handle(context, nodeTemplate, policy);
+                }
+
+                for (final AbstractPolicy policy : compatiblePostPlugins.keySet()) {
+                  compatiblePostPlugins.get(policy).handle(context, nodeTemplate, policy);
+                }
+
+                chain.executeIAProvisioning(context);
+                chain.executeDAProvisioning(context);
+                chain.executeOperationProvisioning(context, this.opNames);
+              }
+
             }
+          } else {
+            PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with generic policy aware plugin",
+              nodeTemplate.getId());
+            handled = policyPlugin.handlePolicyAware(context);
+          }
+
+          for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+            if (postPhasePlugin.canHandle(nodeTemplate)) {
+              handled = postPhasePlugin.handle(context, nodeTemplate);
+            }
+          }
+
         }
-        return plans;
+
+        if (!handled) {
+          return handled;
+        }
+      } else {
+        // handling relationshiptemplate
+        final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
+        final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate());
+
+        // check if we have a generic plugin to handle the template
+        // Note: if a generic plugin fails during execution the
+        // TemplateBuildPlan is broken here!
+        // TODO implement fallback
+        if (!canGenericPluginHandle(relationshipTemplate)) {
+          PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains",
+            relationshipTemplate.getId());
+          final OperationChain sourceChain =
+            BPELScopeBuilder.createOperationChain(relationshipTemplate, true);
+          final OperationChain targetChain =
+            BPELScopeBuilder.createOperationChain(relationshipTemplate, false);
+
+          // first execute provisioning on target, then on source
+          if (targetChain != null) {
+            PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}",
+              relationshipTemplate.getId());
+            targetChain.executeIAProvisioning(context);
+            targetChain.executeOperationProvisioning(context, this.opNames);
+          }
+
+          if (sourceChain != null) {
+            PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}",
+              relationshipTemplate.getId());
+            sourceChain.executeIAProvisioning(context);
+            sourceChain.executeOperationProvisioning(context, this.opNames);
+          }
+          handled = true;
+        } else {
+          PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin",
+            relationshipTemplate.getId());
+          handled = handleWithTypePlugin(context, relationshipTemplate);
+        }
+
+        for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+          if (postPhasePlugin.canHandle(relationshipTemplate)) {
+            handled = postPhasePlugin.handle(context, relationshipTemplate);
+          }
+        }
+      }
     }
+    return true;
+  }
 
-    /**
-     * <p>
-     * This method assigns plugins to the already initialized BuildPlan and its TemplateBuildPlans.
-     * First there will be checked if any generic plugin can handle a template of the TopologyTemplate
-     * </p>
-     *
-     * @param buildPlan a BuildPlan which is alread initialized
-     * @param map a PropertyMap which contains mappings from Template to Property and to variable name
-     *        of inside the BuidlPlan
-     */
-    private boolean runPlugins(final BPELPlan buildPlan, final PropertyMap map) {
-        for (final BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
-            boolean handled = false;
-            if (templatePlan.getNodeTemplate() != null) {
-                // handling nodetemplate
-                final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
-                PolicyAwareBPELBuildProcessBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
-                final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate());
-                // check if we have a generic plugin to handle the template
-                // Note: if a generic plugin fails during execution the
-                // TemplateBuildPlan is broken!
-
-                if (nodeTemplate.getPolicies().isEmpty()) {
-                    final IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
-                    if (plugin == null) {
-                        PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
-                                                                     nodeTemplate.getId());
-                        final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate, this.opNames);
-                        if (chain == null) {
-                            PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}",
-                                                                        nodeTemplate.getId());
-                        } else {
-                            PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}",
-                                                                         nodeTemplate.getId());
-                            chain.executeIAProvisioning(context);
-                            chain.executeDAProvisioning(context);
-                            chain.executeOperationProvisioning(context, this.opNames);
-                            handled = true;
-                        }
-                    } else {
-                        PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with generic plugin",
-                                                                    nodeTemplate.getId());
-                        handled = plugin.handle(context);
-
-                    }
-
-                    for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandle(nodeTemplate)) {
-                            handled = postPhasePlugin.handle(context, nodeTemplate);
-                        }
-                    }
-                } else {
-                    // policy aware handling
-                    final IPlanBuilderPolicyAwareTypePlugin policyPlugin = findPolicyAwareTypePlugin(nodeTemplate);
-                    if (policyPlugin == null) {
-                        PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
-                                                                     nodeTemplate.getId());
-                        final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate, this.opNames);
-                        if (chain == null) {
-                            PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}",
-                                                                        nodeTemplate.getId());
-                        } else {
-                            PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}",
-                                                                         nodeTemplate.getId());
-
-                            final List<AbstractPolicy> policies = nodeTemplate.getPolicies();
-                            final Map<AbstractPolicy, IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext>> compatiblePrePlugins =
-                                new HashMap<>();
-                            final Map<AbstractPolicy, IPlanBuilderPolicyAwarePostPhasePlugin<BPELPlanContext>> compatiblePostPlugins =
-                                new HashMap<>();
-
-                            for (final AbstractPolicy policy : policies) {
-                                boolean matched = false;
-                                for (final IPlanBuilderPolicyAwarePrePhasePlugin<?> policyPrePhasePlugin : this.pluginRegistry.getPolicyAwarePrePhasePlugins()) {
-                                    if (policyPrePhasePlugin.canHandle(nodeTemplate, policy)) {
-                                        compatiblePrePlugins.put(policy,
-                                                                 (IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext>) policyPrePhasePlugin);
-                                        matched = true;
-                                        break;
-                                    }
-                                }
-
-                                if (matched) {
-                                    continue;
-                                }
-
-                                for (final IPlanBuilderPolicyAwarePostPhasePlugin<?> policyPostPhasePlugin : this.pluginRegistry.getPolicyAwarePostPhasePlugins()) {
-                                    if (policyPostPhasePlugin.canHandle(nodeTemplate, policy)) {
-                                        compatiblePostPlugins.put(policy,
-                                                                  (IPlanBuilderPolicyAwarePostPhasePlugin<BPELPlanContext>) policyPostPhasePlugin);
-                                        matched = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (policies.size() != compatiblePrePlugins.keySet().size()
-                                + compatiblePostPlugins.keySet().size()) {
-                                handled = false;
-                            } else {
-
-                                for (final AbstractPolicy policy : compatiblePrePlugins.keySet()) {
-                                    compatiblePrePlugins.get(policy).handle(context, nodeTemplate, policy);
-                                }
-
-                                for (final AbstractPolicy policy : compatiblePostPlugins.keySet()) {
-                                    compatiblePostPlugins.get(policy).handle(context, nodeTemplate, policy);
-                                }
-
-                                chain.executeIAProvisioning(context);
-                                chain.executeDAProvisioning(context);
-                                chain.executeOperationProvisioning(context, this.opNames);
-                            }
-
-                        }
-                    } else {
-                        PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with generic policy aware plugin",
-                                                                    nodeTemplate.getId());
-                        handled = policyPlugin.handlePolicyAware(context);
-                    }
-
-                    for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandle(nodeTemplate)) {
-                            handled = postPhasePlugin.handle(context, nodeTemplate);
-                        }
-                    }
-
-                }
-
-                if (!handled) {
-                    return handled;
-                }
-            } else {
-                // handling relationshiptemplate
-                final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
-                final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate());
-
-                // check if we have a generic plugin to handle the template
-                // Note: if a generic plugin fails during execution the
-                // TemplateBuildPlan is broken here!
-                // TODO implement fallback
-                if (!canGenericPluginHandle(relationshipTemplate)) {
-                    PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains",
-                                                                 relationshipTemplate.getId());
-                    final OperationChain sourceChain =
-                        BPELScopeBuilder.createOperationChain(relationshipTemplate, true);
-                    final OperationChain targetChain =
-                        BPELScopeBuilder.createOperationChain(relationshipTemplate, false);
-
-                    // first execute provisioning on target, then on source
-                    if (targetChain != null) {
-                        PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}",
-                                                                    relationshipTemplate.getId());
-                        targetChain.executeIAProvisioning(context);
-                        targetChain.executeOperationProvisioning(context, this.opNames);
-                    }
-
-                    if (sourceChain != null) {
-                        PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}",
-                                                                    relationshipTemplate.getId());
-                        sourceChain.executeIAProvisioning(context);
-                        sourceChain.executeOperationProvisioning(context, this.opNames);
-                    }
-                    handled = true;
-                } else {
-                    PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin",
-                                                                relationshipTemplate.getId());
-                    handled = handleWithTypePlugin(context, relationshipTemplate);
-                }
-
-                for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                    if (postPhasePlugin.canHandle(relationshipTemplate)) {
-                        handled = postPhasePlugin.handle(context, relationshipTemplate);
-                    }
-                }
-            }
-        }
+  /**
+   * <p>
+   * Checks whether there is any generic plugin, that can handle the given RelationshipTemplate
+   * </p>
+   *
+   * @param relationshipTemplate an AbstractRelationshipTemplate denoting a RelationshipTemplate
+   * @return true if there is any generic plugin which can handle the given RelationshipTemplate, else
+   * false
+   */
+  private boolean canGenericPluginHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    for (final IPlanBuilderTypePlugin plugin : this.pluginRegistry.getGenericPlugins()) {
+      if (plugin.canHandle(relationshipTemplate)) {
+        PolicyAwareBPELBuildProcessBuilder.LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}",
+          plugin.getID(), relationshipTemplate.getId());
         return true;
+      }
     }
+    return false;
+  }
 
-    /**
-     * <p>
-     * Checks whether there is any generic plugin, that can handle the given RelationshipTemplate
-     * </p>
-     *
-     * @param relationshipTemplate an AbstractRelationshipTemplate denoting a RelationshipTemplate
-     * @return true if there is any generic plugin which can handle the given RelationshipTemplate, else
-     *         false
-     */
-    private boolean canGenericPluginHandle(final AbstractRelationshipTemplate relationshipTemplate) {
-        for (final IPlanBuilderTypePlugin plugin : this.pluginRegistry.getGenericPlugins()) {
-            if (plugin.canHandle(relationshipTemplate)) {
-                PolicyAwareBPELBuildProcessBuilder.LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}",
-                                                            plugin.getID(), relationshipTemplate.getId());
-                return true;
-            }
-        }
-        return false;
-    }
+  // TODO delete this method, or add to utils. is pretty much copied from the
+  // net
 
-    // TODO delete this method, or add to utils. is pretty much copied from the
-    // net
-    /**
-     * <p>
-     * Converts the given DOM Document to a String
-     * </p>
-     *
-     * @param doc a DOM Document
-     * @return a String representation of the complete Document given
-     */
-    public String getStringFromDoc(final org.w3c.dom.Document doc) {
-        try {
-            final DOMSource domSource = new DOMSource(doc);
-            final StringWriter writer = new StringWriter();
-            final StreamResult result = new StreamResult(writer);
-            final TransformerFactory tf = TransformerFactory.newInstance();
-            final Transformer transformer = tf.newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-            transformer.transform(domSource, result);
-            writer.flush();
-            return writer.toString();
-        }
-        catch (final TransformerException ex) {
-            PolicyAwareBPELBuildProcessBuilder.LOG.error("Couldn't transform DOM Document to a String", ex);
-            return null;
-        }
+  /**
+   * <p>
+   * Converts the given DOM Document to a String
+   * </p>
+   *
+   * @param doc a DOM Document
+   * @return a String representation of the complete Document given
+   */
+  public String getStringFromDoc(final org.w3c.dom.Document doc) {
+    try {
+      final DOMSource domSource = new DOMSource(doc);
+      final StringWriter writer = new StringWriter();
+      final StreamResult result = new StreamResult(writer);
+      final TransformerFactory tf = TransformerFactory.newInstance();
+      final Transformer transformer = tf.newTransformer();
+      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+      transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+      transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+      transformer.transform(domSource, result);
+      writer.flush();
+      return writer.toString();
+    } catch (final TransformerException ex) {
+      PolicyAwareBPELBuildProcessBuilder.LOG.error("Couldn't transform DOM Document to a String", ex);
+      return null;
     }
+  }
 
 }

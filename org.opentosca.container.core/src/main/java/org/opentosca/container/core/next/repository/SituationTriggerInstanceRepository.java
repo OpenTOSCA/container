@@ -8,20 +8,20 @@ import com.google.common.collect.Lists;
 
 public class SituationTriggerInstanceRepository extends JpaRepository<SituationTriggerInstance> {
 
-    public SituationTriggerInstanceRepository() {
-        super(SituationTriggerInstance.class);
-    }
+  public SituationTriggerInstanceRepository() {
+    super(SituationTriggerInstance.class);
+  }
 
-    public List<SituationTriggerInstance> findBySituationTriggerId(final Long situationTriggerId) {
-        final List<SituationTriggerInstance> result = Lists.newArrayList();
+  public List<SituationTriggerInstance> findBySituationTriggerId(final Long situationTriggerId) {
+    final List<SituationTriggerInstance> result = Lists.newArrayList();
 
-        findAll().forEach(x -> {
-            if (x.getSituationTrigger().getId() == situationTriggerId) {
-                result.add(x);
-            }
-        });
+    findAll().forEach(x -> {
+      if (x.getSituationTrigger().getId() == situationTriggerId) {
+        result.add(x);
+      }
+    });
 
-        return result;
-    }
+    return result;
+  }
 
 }

@@ -25,26 +25,25 @@ import dk.nykredit.jackson.dataformat.hal.HALMapper;
 @Provider
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
-    private ObjectMapper objectMapper;
+  private ObjectMapper objectMapper;
 
-
-    @Override
-    public ObjectMapper getContext(final Class<?> type) {
-        if (this.objectMapper == null) {
-            this.objectMapper = createDefaultMapper();
-        }
-        return this.objectMapper;
+  @Override
+  public ObjectMapper getContext(final Class<?> type) {
+    if (this.objectMapper == null) {
+      this.objectMapper = createDefaultMapper();
     }
+    return this.objectMapper;
+  }
 
-    public static ObjectMapper createSimpleMapper() {
-        final ObjectMapper om = new HALMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return om;
-    }
+  public static ObjectMapper createSimpleMapper() {
+    final ObjectMapper om = new HALMapper();
+    om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    return om;
+  }
 
-    public static ObjectMapper createDefaultMapper() {
-        final ObjectMapper om = createSimpleMapper();
-        om.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
-        return om;
-    }
+  public static ObjectMapper createDefaultMapper() {
+    final ObjectMapper om = createSimpleMapper();
+    om.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+    return om;
+  }
 }

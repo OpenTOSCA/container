@@ -40,198 +40,189 @@ import org.springframework.stereotype.Service;
 @NonNullByDefault
 public class CsarStorageServiceImpl implements CsarStorageService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CsarStorageServiceImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CsarStorageServiceImpl.class);
 
-    private final Path basePath;
-    public CsarStorageServiceImpl() {
-        try {
-            Files.createDirectories(Settings.CONTAINER_STORAGE_BASEPATH);
-        }
-        catch (IOException e) {
-            LOGGER.error("Could not set up storage for Csars", e);
-            throw new ExceptionInInitializerError(e);
-        }
-        basePath = Settings.CONTAINER_STORAGE_BASEPATH;
+  private final Path basePath;
+
+  public CsarStorageServiceImpl() {
+    try {
+      Files.createDirectories(Settings.CONTAINER_STORAGE_BASEPATH);
+    } catch (IOException e) {
+      LOGGER.error("Could not set up storage for Csars", e);
+      throw new ExceptionInInitializerError(e);
     }
-    
-    public CsarStorageServiceImpl(Path basePath) {
-        try {
-            Files.createDirectories(basePath);
-        }
-        catch (IOException e) {
-            LOGGER.error("Could not set up storage for Csars", e);
-            throw new ExceptionInInitializerError(e);
-        }
-        this.basePath = basePath;
+    basePath = Settings.CONTAINER_STORAGE_BASEPATH;
+  }
+
+  public CsarStorageServiceImpl(Path basePath) {
+    try {
+      Files.createDirectories(basePath);
+    } catch (IOException e) {
+      LOGGER.error("Could not set up storage for Csars", e);
+      throw new ExceptionInInitializerError(e);
     }
-    
-    @Override
-    public Set<Csar> findAll() {
-        LOGGER.debug("Requesting all CSARs");
-        final Set<Csar> csars = new HashSet<>();
-        try {
-            for (@NonNull Path csarId : Files.newDirectoryStream(basePath, Files::isDirectory)) {
-                // FIXME make CsarId a name and put the path somewhere else
-                csars.add(new CsarImpl(new CsarId(csarId), csarId));
-            }
-        }
-        catch (IOException e) {
-            LOGGER.error("Error when traversing '{}' for CSARs", basePath);
-            throw new UncheckedIOException(e);
-        }
-        return csars;
+    this.basePath = basePath;
+  }
+
+  @Override
+  public Set<Csar> findAll() {
+    LOGGER.debug("Requesting all CSARs");
+    final Set<Csar> csars = new HashSet<>();
+    try {
+      for (@NonNull Path csarId : Files.newDirectoryStream(basePath, Files::isDirectory)) {
+        // FIXME make CsarId a name and put the path somewhere else
+        csars.add(new CsarImpl(new CsarId(csarId), csarId));
+      }
+    } catch (IOException e) {
+      LOGGER.error("Error when traversing '{}' for CSARs", basePath);
+      throw new UncheckedIOException(e);
     }
+    return csars;
+  }
 
-    @Override
-    public Csar findById(CsarId id) throws NoSuchElementException {
-        Path predictedSaveLocation = basePath.resolve(id.csarName());
-        if (Files.exists(predictedSaveLocation)) {
-            return new CsarImpl(id, predictedSaveLocation);
-        }
-        LOGGER.info("CSAR '{}' could not be found", id.csarName());
-        throw new NoSuchElementException();
+  @Override
+  public Csar findById(CsarId id) throws NoSuchElementException {
+    Path predictedSaveLocation = basePath.resolve(id.csarName());
+    if (Files.exists(predictedSaveLocation)) {
+      return new CsarImpl(id, predictedSaveLocation);
     }
+    LOGGER.info("CSAR '{}' could not be found", id.csarName());
+    throw new NoSuchElementException();
+  }
 
-    @Override
-    @Nullable
-    public Path storeCSARTemporarily(String filename, InputStream is) {
-        try {
-            Path tempLocation = Paths.get(System.getProperty("java.io.tmpdir"), filename);
-            if (Files.exists(tempLocation)) {
-                // well ... umm ... let's just delete it, I guess?
-                Files.delete(tempLocation);
-            }
-            Files.copy(is, tempLocation);
-            return tempLocation;
-        }
-        catch (IOException e) {
-            LOGGER.error("Exception occured when writing temporary CSAR file: {}", e.getMessage(), e);
-            return null;
-        }
+  @Override
+  @Nullable
+  public Path storeCSARTemporarily(String filename, InputStream is) {
+    try {
+      Path tempLocation = Paths.get(System.getProperty("java.io.tmpdir"), filename);
+      if (Files.exists(tempLocation)) {
+        // well ... umm ... let's just delete it, I guess?
+        Files.delete(tempLocation);
+      }
+      Files.copy(is, tempLocation);
+      return tempLocation;
+    } catch (IOException e) {
+      LOGGER.error("Exception occured when writing temporary CSAR file: {}", e.getMessage(), e);
+      return null;
     }
+  }
 
-    @Override
-    public CsarId storeCSAR(Path csarLocation) throws UserException, SystemException {
-        LOGGER.debug("Given file to store: {}", csarLocation);
-        if (!Files.isRegularFile(csarLocation)) {
-            throw new UserException(
-                "\"" + csarLocation.toString() + "\" to store is not an absolute path to an existing file.");
-        }
-
-        CsarId candidateId = new CsarId(csarLocation.getFileName().toString());
-        Path permanentLocation = basePath.resolve(csarLocation.getFileName());
-        if (Files.exists(permanentLocation)) {
-            throw new UserException(
-                "CSAR \"" + candidateId.csarName() + "\" is already stored. Overwriting a CSAR is not allowed.");
-        }
-        ImportMetaInformation importInfo = null;
-        try {
-            Files.createDirectory(permanentLocation);
-            // CsarImporter doesn't allow overriding the repository it imports to
-            RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(permanentLocation));
-
-            CsarImporter importer = new CsarImporter();
-            final CsarImportOptions importOptions = new CsarImportOptions();
-            importOptions.setValidate(false); // avoid triggering accountability meddling with this
-            importOptions.setAsyncWPDParsing(true);
-            importOptions.setOverwrite(false);
-            importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
-            if (!importInfo.errors.isEmpty()) {
-                FileUtils.forceDelete(permanentLocation);
-            }
-        }
-        catch (IOException e) {
-            // roll back the import
-            FileUtils.forceDelete(permanentLocation);
-            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
-        }
-        catch (AccountabilityException e) {
-            LOGGER.debug("Accountability for imported CSAR could not be checked", e);
-            FileUtils.forceDelete(permanentLocation);
-            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
-        }
-        catch (ExecutionException | InterruptedException e) {
-            LOGGER.warn("CSAR Import was interrupted or terminated with an exception", e);
-            FileUtils.forceDelete(permanentLocation);
-            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
-        }
-        catch (Exception e) {
-            LOGGER.warn("CSAR Import failed with an unspecified exception", e);
-            FileUtils.forceDelete(permanentLocation);
-            if (e instanceof RuntimeException) { throw e; }
-            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
-        }
-        
-        if (importInfo == null || !importInfo.errors.isEmpty()) {
-            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
-        }
-        // apparently there will always be an EntryServiceTemplate??
-        ServiceTemplateId entryServiceTemplate = importInfo.entryServiceTemplate;
-        // we may be able to "guarantee" it's not null, since we validate CSARs on import
-        if (entryServiceTemplate == null) {
-            return candidateId;
-        }
-        // FIXME don't store this in the winery repo location. Use some database for this!
-        try (OutputStream os = Files.newOutputStream(permanentLocation.resolve("EntryServiceTemplate"), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)) {
-            os.write(entryServiceTemplate.getQName().toString().getBytes(StandardCharsets.UTF_8));
-        }
-        catch (IOException e) {
-            // well... we failed to keep track of the entryServiceTemplate
-            LOGGER.warn("Could not save EntryServiceTemplate for Csar [{}] due to {}", candidateId.csarName(), e);
-            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
-        }
-        LOGGER.info("Successfully stored Csar as {}", candidateId.csarName());
-        return candidateId;
+  @Override
+  public CsarId storeCSAR(Path csarLocation) throws UserException, SystemException {
+    LOGGER.debug("Given file to store: {}", csarLocation);
+    if (!Files.isRegularFile(csarLocation)) {
+      throw new UserException(
+        "\"" + csarLocation.toString() + "\" to store is not an absolute path to an existing file.");
     }
 
-    @Override
-    public void deleteCSAR(CsarId csarId) throws SystemException, UserException {
-        LOGGER.debug("Deleting CSAR \"{}\"...", csarId.csarName());
-        FileUtils.forceDelete(basePath.resolve(csarId.csarName()));
+    CsarId candidateId = new CsarId(csarLocation.getFileName().toString());
+    Path permanentLocation = basePath.resolve(csarLocation.getFileName());
+    if (Files.exists(permanentLocation)) {
+      throw new UserException(
+        "CSAR \"" + candidateId.csarName() + "\" is already stored. Overwriting a CSAR is not allowed.");
+    }
+    ImportMetaInformation importInfo = null;
+    try {
+      Files.createDirectory(permanentLocation);
+      // CsarImporter doesn't allow overriding the repository it imports to
+      RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(permanentLocation));
+
+      CsarImporter importer = new CsarImporter();
+      final CsarImportOptions importOptions = new CsarImportOptions();
+      importOptions.setValidate(false); // avoid triggering accountability meddling with this
+      importOptions.setAsyncWPDParsing(true);
+      importOptions.setOverwrite(false);
+      importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
+      if (!importInfo.errors.isEmpty()) {
+        FileUtils.forceDelete(permanentLocation);
+      }
+    } catch (IOException e) {
+      // roll back the import
+      FileUtils.forceDelete(permanentLocation);
+      throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
+    } catch (AccountabilityException e) {
+      LOGGER.debug("Accountability for imported CSAR could not be checked", e);
+      FileUtils.forceDelete(permanentLocation);
+      throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
+    } catch (ExecutionException | InterruptedException e) {
+      LOGGER.warn("CSAR Import was interrupted or terminated with an exception", e);
+      FileUtils.forceDelete(permanentLocation);
+      throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
+    } catch (Exception e) {
+      LOGGER.warn("CSAR Import failed with an unspecified exception", e);
+      FileUtils.forceDelete(permanentLocation);
+      if (e instanceof RuntimeException) {
+        throw e;
+      }
+      throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
     }
 
-    @Override
-    public void purgeCsars() throws SystemException {
-        LOGGER.debug("Deleting all CSARs...");
-        try {
-            for (Path csarRepoContent : Files.newDirectoryStream(basePath)) {
-                LOGGER.debug("Deleting CSAR at [{}]", csarRepoContent);
-                if (Files.isDirectory(csarRepoContent)) {
-                    // delete csar here
-                    FileUtils.forceDelete(csarRepoContent);
-                }
-            }
-            LOGGER.debug("Deleting all CSARs completed");
-        }
-        catch (IOException e) {
-            throw new SystemException("Could not delete all CSARs.", e);
-        }
+    if (importInfo == null || !importInfo.errors.isEmpty()) {
+      throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
     }
-
-
-    @Override
-    public Path exportCSAR(final CsarId csarId) throws UserException, SystemException {
-        LOGGER.debug("Exporting CSAR \"{}\"...", csarId.csarName());
-        Csar csar = findById(csarId);
-        
-        final Path tempDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
-        final Path csarDownloadDirectory = tempDirectory.resolve("content");
-        try {
-            // only create temp directory if it doesn't exist
-            if (!Files.exists(csarDownloadDirectory)) {
-                Files.createDirectory(csarDownloadDirectory);
-            }
-            final Path csarTarget = csarDownloadDirectory.resolve(csarId.csarName());
-            if (Files.exists(csarTarget)) {
-                // remove previous export result
-                FileUtils.forceDelete(csarTarget);
-            }
-            csar.exportTo(csarTarget);
-            LOGGER.info("Successfully exported CSAR to {}", csarTarget);
-            return csarTarget;
-        }
-        catch (final IOException e) {
-            throw new SystemException("An IO Exception occured.", e);
-        }
+    // apparently there will always be an EntryServiceTemplate??
+    ServiceTemplateId entryServiceTemplate = importInfo.entryServiceTemplate;
+    // we may be able to "guarantee" it's not null, since we validate CSARs on import
+    if (entryServiceTemplate == null) {
+      return candidateId;
     }
+    // FIXME don't store this in the winery repo location. Use some database for this!
+    try (OutputStream os = Files.newOutputStream(permanentLocation.resolve("EntryServiceTemplate"), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)) {
+      os.write(entryServiceTemplate.getQName().toString().getBytes(StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      // well... we failed to keep track of the entryServiceTemplate
+      LOGGER.warn("Could not save EntryServiceTemplate for Csar [{}] due to {}", candidateId.csarName(), e);
+      throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
+    }
+    LOGGER.info("Successfully stored Csar as {}", candidateId.csarName());
+    return candidateId;
+  }
+
+  @Override
+  public void deleteCSAR(CsarId csarId) throws SystemException, UserException {
+    LOGGER.debug("Deleting CSAR \"{}\"...", csarId.csarName());
+    FileUtils.forceDelete(basePath.resolve(csarId.csarName()));
+  }
+
+  @Override
+  public void purgeCsars() throws SystemException {
+    LOGGER.debug("Deleting all CSARs...");
+    try {
+      for (Path csarRepoContent : Files.newDirectoryStream(basePath)) {
+        LOGGER.debug("Deleting CSAR at [{}]", csarRepoContent);
+        if (Files.isDirectory(csarRepoContent)) {
+          // delete csar here
+          FileUtils.forceDelete(csarRepoContent);
+        }
+      }
+      LOGGER.debug("Deleting all CSARs completed");
+    } catch (IOException e) {
+      throw new SystemException("Could not delete all CSARs.", e);
+    }
+  }
+
+  @Override
+  public Path exportCSAR(final CsarId csarId) throws UserException, SystemException {
+    LOGGER.debug("Exporting CSAR \"{}\"...", csarId.csarName());
+    Csar csar = findById(csarId);
+
+    final Path tempDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
+    final Path csarDownloadDirectory = tempDirectory.resolve("content");
+    try {
+      // only create temp directory if it doesn't exist
+      if (!Files.exists(csarDownloadDirectory)) {
+        Files.createDirectory(csarDownloadDirectory);
+      }
+      final Path csarTarget = csarDownloadDirectory.resolve(csarId.csarName());
+      if (Files.exists(csarTarget)) {
+        // remove previous export result
+        FileUtils.forceDelete(csarTarget);
+      }
+      csar.exportTo(csarTarget);
+      LOGGER.info("Successfully exported CSAR to {}", csarTarget);
+      return csarTarget;
+    } catch (final IOException e) {
+      throw new SystemException("An IO Exception occured.", e);
+    }
+  }
 }

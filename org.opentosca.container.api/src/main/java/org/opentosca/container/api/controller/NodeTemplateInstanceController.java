@@ -40,219 +40,212 @@ import io.swagger.annotations.ApiParam;
 @Api
 public class NodeTemplateInstanceController {
 
-    @ApiParam("ID of node template")
-    @PathParam("nodetemplate")
-    String nodetemplate;
+  private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
 
-    @ApiParam("ID of CSAR")
-    @PathParam("csar")
-    String csar;
+  @ApiParam("ID of node template")
+  @PathParam("nodetemplate")
+  String nodetemplate;
 
-    @ApiParam("qualified name of the service template")
-    @PathParam("servicetemplate")
-    String servicetemplate;
+  @ApiParam("ID of CSAR")
+  @PathParam("csar")
+  String csar;
 
-    @Context
-    UriInfo uriInfo;
+  @ApiParam("qualified name of the service template")
+  @PathParam("servicetemplate")
+  String servicetemplate;
 
-    private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
+  @Context
+  UriInfo uriInfo;
 
-    private final InstanceService instanceService;
+  private final InstanceService instanceService;
 
-    public NodeTemplateInstanceController(final InstanceService instanceService) {
-        this.instanceService = instanceService;
+  public NodeTemplateInstanceController(final InstanceService instanceService) {
+    this.instanceService = instanceService;
+  }
+
+  @GET
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceListDTO.class)
+  public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
+                                           @QueryParam(value = "source") final List<Long> relationIds) {
+    final QName nodeTemplateQName =
+      new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.nodetemplate);
+    final Collection<NodeTemplateInstance> nodeInstances =
+      this.instanceService.getNodeTemplateInstances(nodeTemplateQName);
+    logger.debug("Found <{}> instances of NodeTemplate \"{}\" ", nodeInstances.size(), this.nodetemplate);
+
+    final NodeTemplateInstanceListDTO list = new NodeTemplateInstanceListDTO();
+
+    for (final NodeTemplateInstance i : nodeInstances) {
+      if (states != null && !states.isEmpty() && !states.contains(i.getState())) {
+        // skip this node instance, as it not has the proper state
+        continue;
+      }
+
+      if (relationIds != null && !relationIds.isEmpty()) {
+        for (final RelationshipTemplateInstance relInstance : i.getOutgoingRelations()) {
+          if (!relationIds.contains(relInstance.getId())) {
+            // skip this node instance, as it is no source of the given relation
+            continue;
+          }
+        }
+      }
+
+      final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(i);
+      dto.add(UriUtil.generateSubResourceLink(this.uriInfo, dto.getId().toString(), false, "self"));
+
+      list.add(dto);
     }
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceListDTO.class)
-    public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
-                                             @QueryParam(value = "source") final List<Long> relationIds) {
-        final QName nodeTemplateQName =
-            new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.nodetemplate);
-        final Collection<NodeTemplateInstance> nodeInstances =
-            this.instanceService.getNodeTemplateInstances(nodeTemplateQName);
-        logger.debug("Found <{}> instances of NodeTemplate \"{}\" ", nodeInstances.size(), this.nodetemplate);
+    list.add(UriUtil.generateSelfLink(this.uriInfo));
 
-        final NodeTemplateInstanceListDTO list = new NodeTemplateInstanceListDTO();
+    return Response.ok(list).build();
+  }
 
-        for (final NodeTemplateInstance i : nodeInstances) {
-            if (states != null && !states.isEmpty() && !states.contains(i.getState())) {
-                // skip this node instance, as it not has the proper state
-                continue;
-            }
+  @POST
+  @Consumes( {MediaType.TEXT_PLAIN})
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+  @ApiOperation(hidden = true, value = "")
+  public Response createNodeTemplateInstance(@Context final UriInfo uriInfo, final String serviceTemplateInstanceId) {
+    try {
+      final NodeTemplateInstance createdInstance =
+        this.instanceService.createNewNodeTemplateInstance(this.csar, this.servicetemplate, this.nodetemplate,
+          Long.parseLong(serviceTemplateInstanceId));
+      final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
+      return Response.ok(instanceURI).build();
+    } catch (final IllegalArgumentException e) {
+      return Response.status(Status.BAD_REQUEST).build();
+    } catch (InstantiationException | IllegalAccessException e) {
+      return Response.serverError().build();
+    }
+  }
 
-            if (relationIds != null && !relationIds.isEmpty()) {
-                for (final RelationshipTemplateInstance relInstance : i.getOutgoingRelations()) {
-                    if (!relationIds.contains(relInstance.getId())) {
-                        // skip this node instance, as it is no source of the given relation
-                        continue;
-                    }
-                }
-            }
+  @GET
+  @Path("/{id}")
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get a node template instance", response = NodeTemplateInstanceDTO.class)
+  public Response getNodeTemplateInstance(@ApiParam("ID of node template instance") @PathParam("id") final Long id) {
 
-            final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(i);
-            dto.add(UriUtil.generateSubResourceLink(this.uriInfo, dto.getId().toString(), false, "self"));
+    final NodeTemplateInstance instance =
+      this.instanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
+    final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(instance);
 
-            list.add(dto);
-        }
+    dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
+    dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "properties", false, "properties"));
+    dto.add(UriUtil.generateSelfLink(this.uriInfo));
 
-        list.add(UriUtil.generateSelfLink(this.uriInfo));
+    return Response.ok(dto).build();
+  }
 
-        return Response.ok(list).build();
+  @DELETE
+  @Path("/{id}")
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(hidden = true, value = "")
+  public Response deleteNodeTemplateInstance(@PathParam("id") final Long id) {
+    this.instanceService.deleteNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
+    return Response.noContent().build();
+  }
+
+  @GET
+  @Path("/{id}/state")
+  @Produces( {MediaType.TEXT_PLAIN})
+  @ApiOperation(value = "Get state of a node template instance", response = String.class)
+  public Response getNodeTemplateInstanceState(@ApiParam("ID node template instance") @PathParam("id") final Long id) {
+    final NodeTemplateInstanceState state =
+      this.instanceService.getNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id);
+    return Response.ok(state.toString()).build();
+  }
+
+  @PUT
+  @Path("/{id}/state")
+  @Consumes( {MediaType.TEXT_PLAIN})
+  @ApiOperation(hidden = true, value = "")
+  public Response updateNodeTemplateInstanceState(@PathParam("id") final Long id, final String request) {
+    try {
+      this.instanceService.setNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id, request);
+    } catch (final IllegalArgumentException e) { // this handles a null request too
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    return Response.ok().build();
+  }
+
+  @GET
+  @Path("/{id}/properties")
+  @Produces( {MediaType.APPLICATION_XML})
+  @ApiOperation(hidden = true, value = "")
+  public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
+    final Document properties =
+      this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+
+    if (properties == null) {
+      return Response.noContent().build();
+    } else {
+      return Response.ok(properties).build();
+    }
+  }
+
+  @GET
+  @Path("/{id}/properties/{propname}")
+  @Produces( {MediaType.APPLICATION_XML})
+  @ApiOperation(hidden = true, value = "")
+  public Response getNodeTemplateInstanceProperty(@PathParam("id") final Long id,
+                                                  @PathParam("propname") final String propertyName) {
+    final Document properties =
+      this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+
+    if (properties == null && ModelUtil.fetchFirstChildElement(properties, propertyName) == null) {
+      return Response.noContent().build();
+    } else {
+      return Response.ok(ModelUtil.createDocumentFromElement(ModelUtil.fetchFirstChildElement(properties,
+        propertyName)))
+        .build();
+    }
+  }
+
+  @PUT
+  @Path("/{id}/properties")
+  @Consumes( {MediaType.APPLICATION_XML})
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+  @ApiOperation(hidden = true, value = "")
+  public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
+
+    try {
+      this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
+        request);
+    } catch (final IllegalArgumentException e) { // this handles a null request too
+      return Response.status(Status.BAD_REQUEST).build();
+    } catch (final ReflectiveOperationException e) {
+      return Response.serverError().build();
     }
 
-    @POST
-    @Consumes({MediaType.TEXT_PLAIN})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response createNodeTemplateInstance(@Context final UriInfo uriInfo, final String serviceTemplateInstanceId) {
-        try {
-            final NodeTemplateInstance createdInstance =
-                this.instanceService.createNewNodeTemplateInstance(this.csar, this.servicetemplate, this.nodetemplate,
-                                                                   Long.parseLong(serviceTemplateInstanceId));
-            final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
-            return Response.ok(instanceURI).build();
-        }
-        catch (final IllegalArgumentException e) {
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-        catch (InstantiationException | IllegalAccessException e) {
-            return Response.serverError().build();
-        }
+    return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
+  }
+
+  @PUT
+  @Path("/{id}/properties/{propname}")
+  @Consumes( {MediaType.APPLICATION_XML})
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+  @ApiOperation(hidden = true, value = "")
+  public Response updateNodeTemplateInstanceProperty(@PathParam("id") final Long id,
+                                                     @PathParam("propname") final String propertyName,
+                                                     final Document request) {
+
+    try {
+      final Document properties =
+        this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+
+      final Element propElement = ModelUtil.fetchFirstChildElement(properties, propertyName);
+
+      propElement.setTextContent(request.getDocumentElement().getTextContent());
+
+      this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
+        properties);
+    } catch (final IllegalArgumentException e) { // this handles a null request too
+      return Response.status(Status.BAD_REQUEST).build();
+    } catch (final ReflectiveOperationException e) {
+      return Response.serverError().build();
     }
 
-    @GET
-    @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a node template instance", response = NodeTemplateInstanceDTO.class)
-    public Response getNodeTemplateInstance(@ApiParam("ID of node template instance") @PathParam("id") final Long id) {
-
-        final NodeTemplateInstance instance =
-            this.instanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
-        final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(instance);
-
-        dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
-        dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "properties", false, "properties"));
-        dto.add(UriUtil.generateSelfLink(this.uriInfo));
-
-        return Response.ok(dto).build();
-    }
-
-    @DELETE
-    @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response deleteNodeTemplateInstance(@PathParam("id") final Long id) {
-        this.instanceService.deleteNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
-        return Response.noContent().build();
-    }
-
-    @GET
-    @Path("/{id}/state")
-    @Produces({MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Get state of a node template instance", response = String.class)
-    public Response getNodeTemplateInstanceState(@ApiParam("ID node template instance") @PathParam("id") final Long id) {
-        final NodeTemplateInstanceState state =
-            this.instanceService.getNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id);
-        return Response.ok(state.toString()).build();
-    }
-
-    @PUT
-    @Path("/{id}/state")
-    @Consumes({MediaType.TEXT_PLAIN})
-    @ApiOperation(hidden = true, value = "")
-    public Response updateNodeTemplateInstanceState(@PathParam("id") final Long id, final String request) {
-        try {
-            this.instanceService.setNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id, request);
-        }
-        catch (final IllegalArgumentException e) { // this handles a null request too
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-        return Response.ok().build();
-    }
-
-    @GET
-    @Path("/{id}/properties")
-    @Produces({MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
-        final Document properties =
-            this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
-
-        if (properties == null) {
-            return Response.noContent().build();
-        } else {
-            return Response.ok(properties).build();
-        }
-    }
-
-    @GET
-    @Path("/{id}/properties/{propname}")
-    @Produces({MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response getNodeTemplateInstanceProperty(@PathParam("id") final Long id,
-                                                    @PathParam("propname") final String propertyName) {
-        final Document properties =
-            this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
-
-        if (properties == null && ModelUtil.fetchFirstChildElement(properties, propertyName) == null) {
-            return Response.noContent().build();
-        } else {
-            return Response.ok(ModelUtil.createDocumentFromElement(ModelUtil.fetchFirstChildElement(properties,
-                                                                                                    propertyName)))
-                           .build();
-        }
-    }
-
-    @PUT
-    @Path("/{id}/properties")
-    @Consumes({MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
-
-        try {
-            this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
-                                                                   request);
-        }
-        catch (final IllegalArgumentException e) { // this handles a null request too
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-        catch (final ReflectiveOperationException e) {
-            return Response.serverError().build();
-        }
-
-        return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
-    }
-
-    @PUT
-    @Path("/{id}/properties/{propname}")
-    @Consumes({MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response updateNodeTemplateInstanceProperty(@PathParam("id") final Long id,
-                                                       @PathParam("propname") final String propertyName,
-                                                       final Document request) {
-
-        try {
-            final Document properties =
-                this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
-
-            final Element propElement = ModelUtil.fetchFirstChildElement(properties, propertyName);
-
-            propElement.setTextContent(request.getDocumentElement().getTextContent());
-
-            this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
-                                                                   properties);
-        }
-        catch (final IllegalArgumentException e) { // this handles a null request too
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-        catch (final ReflectiveOperationException e) {
-            return Response.serverError().build();
-        }
-
-        return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
-    }
+    return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
+  }
 }

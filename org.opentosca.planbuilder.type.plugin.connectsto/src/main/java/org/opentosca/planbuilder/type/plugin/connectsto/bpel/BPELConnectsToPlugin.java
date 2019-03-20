@@ -18,32 +18,29 @@ import org.opentosca.planbuilder.type.plugin.connectsto.core.ConnectsToPlugin;
  * connected to as target to this relation.
  * </p>
  *
- *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
 
-    private BPELConnectsToPluginHandler handler;
+  private BPELConnectsToPluginHandler handler;
 
-    public BPELConnectsToPlugin() {
-        try {
-            this.handler = new BPELConnectsToPluginHandler();
-        }
-        catch (final ParserConfigurationException e) {
-            e.printStackTrace();
-        }
+  public BPELConnectsToPlugin() {
+    try {
+      this.handler = new BPELConnectsToPluginHandler();
+    } catch (final ParserConfigurationException e) {
+      e.printStackTrace();
     }
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#handle(org.
-     * opentosca.planbuilder.plugins.context.BPELPlanContext)
-     */
-    @Override
-    public boolean handle(final BPELPlanContext templateContext) {
-        return this.handler.handle(templateContext);
-    }
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#handle(org.
+   * opentosca.planbuilder.plugins.context.BPELPlanContext)
+   */
+  @Override
+  public boolean handle(final BPELPlanContext templateContext) {
+    return this.handler.handle(templateContext);
+  }
 
 }

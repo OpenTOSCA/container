@@ -33,82 +33,74 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tParameter")
 public class TParameter {
 
-    @XmlAttribute(required = true)
-    protected String name;
-    @XmlAttribute(required = true)
-    protected String type;
-    @XmlAttribute
-    protected TBoolean required;
+  @XmlAttribute(required = true)
+  protected String name;
+  @XmlAttribute(required = true)
+  protected String type;
+  @XmlAttribute
+  protected TBoolean required;
 
-    /**
-     * Gets the value of the name property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getName() {
-        return this.name;
-    }
+  /**
+   * Gets the value of the name property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getName() {
+    return this.name;
+  }
 
-    /**
-     * Sets the value of the name property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setName(final String value) {
-        this.name = value;
-    }
+  /**
+   * Sets the value of the name property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setName(final String value) {
+    this.name = value;
+  }
 
-    /**
-     * Gets the value of the type property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getType() {
-        return this.type;
-    }
+  /**
+   * Gets the value of the type property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getType() {
+    return this.type;
+  }
 
-    /**
-     * Sets the value of the type property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setType(final String value) {
-        this.type = value;
-    }
+  /**
+   * Sets the value of the type property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setType(final String value) {
+    this.type = value;
+  }
 
-    /**
-     * Gets the value of the required property.
-     *
-     * @return possible object is {@link TBoolean }
-     *
-     */
-    public TBoolean getRequired() {
-        if (this.required == null) {
-            return TBoolean.YES;
-        } else {
-            return this.required;
-        }
+  /**
+   * Gets the value of the required property.
+   *
+   * @return possible object is {@link TBoolean }
+   */
+  public TBoolean getRequired() {
+    if (this.required == null) {
+      return TBoolean.YES;
+    } else {
+      return this.required;
     }
+  }
 
-    /**
-     * Sets the value of the required property.
-     *
-     * @param value allowed object is {@link TBoolean }
-     *
-     */
-    public void setRequired(final TBoolean value) {
-        this.required = value;
-    }
+  /**
+   * Sets the value of the required property.
+   *
+   * @param value allowed object is {@link TBoolean }
+   */
+  public void setRequired(final TBoolean value) {
+    this.required = value;
+  }
 
 }

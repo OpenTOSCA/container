@@ -40,9 +40,7 @@ import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.backend.SelfServiceMetaDataUtils;
 import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataId;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
-import org.eclipse.winery.repository.export.CsarExportConfiguration;
 import org.eclipse.winery.repository.export.CsarExporter;
-import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.backwards.FileSystemFile;
 import org.opentosca.container.core.model.csar.backwards.ToscaMetaFileReplacement;
@@ -51,157 +49,157 @@ import org.slf4j.LoggerFactory;
 
 public class CsarImpl implements Csar {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CsarImpl.class);
-    
-    @NonNull
-    private final CsarId id;
-    private final Optional<ServiceTemplateId> entryServiceTemplate;
-    // TODO evaluate putting the savelocation into an additional field here!
-    private IRepository wineryRepo;
+  private static final Logger LOGGER = LoggerFactory.getLogger(CsarImpl.class);
 
-    // this is just for bridging purposes
-    @Deprecated
-    private @NonNull Path saveLocation;
-    
-    public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
-        this.id = id;
-        this.saveLocation = location;
-        wineryRepo = RepositoryFactory.getRepository(location);
-        entryServiceTemplate = readEntryServiceTemplate(location);
-    }
-    
-    private Optional<ServiceTemplateId> readEntryServiceTemplate(Path csarLocation) {
-        String qname = null;
-        try {
-            // FIXME magic string constant
-            qname = new String(Files.readAllBytes(csarLocation.resolve("EntryServiceTemplate")), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            // Swallow, no helping this
-        }
-        return qname == null ? Optional.empty() 
-                             : Optional.ofNullable(new ServiceTemplateId(QName.valueOf(qname)));
-    }
-    
-    
-    @Override
-    public CsarId id() {
-        return id;
-    }
+  @NonNull
+  private final CsarId id;
+  private final Optional<ServiceTemplateId> entryServiceTemplate;
+  // TODO evaluate putting the savelocation into an additional field here!
+  private IRepository wineryRepo;
 
-    @Override
-    public List<TArtifactTemplate> artifactTemplates() {
-        return wineryRepo.getAllDefinitionsChildIds(ArtifactTemplateId.class).stream()
-            .map(wineryRepo::getElement)
-            .collect(Collectors.toList());
-    }
+  // this is just for bridging purposes
+  @Deprecated
+  private @NonNull Path saveLocation;
 
-    @Override
-    public List<TServiceTemplate> serviceTemplates() {
-        return wineryRepo.getAllDefinitionsChildIds(ServiceTemplateId.class).stream()
-            .map(wineryRepo::getElement)
-            .collect(Collectors.toList());
-    }
+  public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
+    this.id = id;
+    this.saveLocation = location;
+    wineryRepo = RepositoryFactory.getRepository(location);
+    entryServiceTemplate = readEntryServiceTemplate(location);
+  }
 
-    @Override
-    public TServiceTemplate entryServiceTemplate() {
-        // FIXME stop mapping between Optional and nullable.
-        if (entryServiceTemplate.isPresent()) {
-            return wineryRepo.getElement(entryServiceTemplate.get());
-        }
-        return null;
+  private Optional<ServiceTemplateId> readEntryServiceTemplate(Path csarLocation) {
+    String qname = null;
+    try {
+      // FIXME magic string constant
+      qname = new String(Files.readAllBytes(csarLocation.resolve("EntryServiceTemplate")), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      // Swallow, no helping this
     }
+    return qname == null ? Optional.empty()
+      : Optional.ofNullable(new ServiceTemplateId(QName.valueOf(qname)));
+  }
 
-    @Override
-    public List<TDefinitions> definitions() {
-        return wineryRepo.getAllDefinitionsChildIds().stream()
-            .map(wineryRepo::getDefinitions)
-            .collect(Collectors.toList());
-    }
+  @Override
+  public CsarId id() {
+    return id;
+  }
 
-    @Override
-    public List<TExportedOperation> exportedOperations() {
-        // FIXME
-        throw new UnsupportedOperationException("not yet implemented");
-    }
+  @Override
+  public List<TArtifactTemplate> artifactTemplates() {
+    return wineryRepo.getAllDefinitionsChildIds(ArtifactTemplateId.class).stream()
+      .map(wineryRepo::getElement)
+      .collect(Collectors.toList());
+  }
 
-    @Override
-    public List<TPlan> plans() {
-        @SuppressWarnings("null")
-        List<TPlan> plans = Optional.ofNullable(entryServiceTemplate())
-            .map(TServiceTemplate::getPlans)
-            .map(TPlans::getPlan)
-            .orElse(Collections.emptyList());
-        return plans;
-    }
+  @Override
+  public List<TServiceTemplate> serviceTemplates() {
+    return wineryRepo.getAllDefinitionsChildIds(ServiceTemplateId.class).stream()
+      .map(wineryRepo::getElement)
+      .collect(Collectors.toList());
+  }
 
-    @Override
-    @Nullable
-    public Application selfserviceMetadata() {
-        // FIXME stop bridging optional to null
-        if (!entryServiceTemplate.isPresent()) { return null; }
-        SelfServiceMetaDataId metadata = new SelfServiceMetaDataId(entryServiceTemplate.get());
-        return SelfServiceMetaDataUtils.getApplication(metadata);
+  @Override
+  public TServiceTemplate entryServiceTemplate() {
+    // FIXME stop mapping between Optional and nullable.
+    if (entryServiceTemplate.isPresent()) {
+      return wineryRepo.getElement(entryServiceTemplate.get());
     }
-    
-    @Override
-    public List<TNodeType> nodeTypes() {
-        return wineryRepo.getAllDefinitionsChildIds(NodeTypeId.class).stream()
-        .map(wineryRepo::getElement)
-        .collect(Collectors.toList());
-    }
-    
-    @Override
-    public List<TNodeTypeImplementation> nodeTypeImplementations() {
-        return wineryRepo.getAllDefinitionsChildIds(NodeTypeImplementationId.class).stream()
-        .map(wineryRepo::getElement)
-        .collect(Collectors.toList());
-    }
+    return null;
+  }
 
-    @Override
-    public List<TRelationshipTypeImplementation> relationshipTypeImplementations() {
-        return wineryRepo.getAllDefinitionsChildIds(RelationshipTypeImplementationId.class).stream()
-        .map(wineryRepo::getElement)
-        .collect(Collectors.toList());
-    }
-    
-    @Override
-    public String description() {
-        Application metadata = selfserviceMetadata();
-        return metadata == null ? "" : metadata.getDescription();
-    }
+  @Override
+  public List<TDefinitions> definitions() {
+    return wineryRepo.getAllDefinitionsChildIds().stream()
+      .map(wineryRepo::getDefinitions)
+      .collect(Collectors.toList());
+  }
 
-    @Override
-    public AbstractFile topologyPicture() {
-        final String imageUrl = selfserviceMetadata().getImageUrl();
-        return new FileSystemFile(Paths.get(imageUrl));
-    }
+  @Override
+  public List<TExportedOperation> exportedOperations() {
+    // FIXME
+    throw new UnsupportedOperationException("not yet implemented");
+  }
 
-    @Override
-    public void exportTo(Path targetPath) throws IOException {
-        CsarExporter exporter = new CsarExporter();
-        Map<String, Object> exportConfiguration = new HashMap<>();
-        // Do not check hashes and do not store immutably => don't put anything into the export configuration
-        try (OutputStream out = Files.newOutputStream(targetPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
-            try {
-                // FIXME CsarExporter.addManifest throws NoClassDefFoundError for Environment's initialization.
-                // Winery OSGI export configuration is probably broken
-                exporter.writeCsar(wineryRepo, entryServiceTemplate.get(), out, exportConfiguration);
-            }
-            catch (RepositoryCorruptException | InterruptedException | AccountabilityException | ExecutionException e) {
-                LOGGER.warn("Exporting the csar failed with an exception", e);
-                throw new IOException("Failed to export CSAR", e);
-            }
-        }
-    }
+  @Override
+  public List<TPlan> plans() {
+    @SuppressWarnings("null")
+    List<TPlan> plans = Optional.ofNullable(entryServiceTemplate())
+      .map(TServiceTemplate::getPlans)
+      .map(TPlans::getPlan)
+      .orElse(Collections.emptyList());
+    return plans;
+  }
 
-    @Override
-    public ToscaMetaFileReplacement metafileReplacement() {
-        return new ToscaMetaFileReplacement(this);
+  @Override
+  @Nullable
+  public Application selfserviceMetadata() {
+    // FIXME stop bridging optional to null
+    if (!entryServiceTemplate.isPresent()) {
+      return null;
     }
+    SelfServiceMetaDataId metadata = new SelfServiceMetaDataId(entryServiceTemplate.get());
+    return SelfServiceMetaDataUtils.getApplication(metadata);
+  }
 
-    @Override
-    public @NonNull Path getSaveLocation() {
-        return this.saveLocation;
+  @Override
+  public List<TNodeType> nodeTypes() {
+    return wineryRepo.getAllDefinitionsChildIds(NodeTypeId.class).stream()
+      .map(wineryRepo::getElement)
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<TNodeTypeImplementation> nodeTypeImplementations() {
+    return wineryRepo.getAllDefinitionsChildIds(NodeTypeImplementationId.class).stream()
+      .map(wineryRepo::getElement)
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<TRelationshipTypeImplementation> relationshipTypeImplementations() {
+    return wineryRepo.getAllDefinitionsChildIds(RelationshipTypeImplementationId.class).stream()
+      .map(wineryRepo::getElement)
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public String description() {
+    Application metadata = selfserviceMetadata();
+    return metadata == null ? "" : metadata.getDescription();
+  }
+
+  @Override
+  public AbstractFile topologyPicture() {
+    final String imageUrl = selfserviceMetadata().getImageUrl();
+    return new FileSystemFile(Paths.get(imageUrl));
+  }
+
+  @Override
+  public void exportTo(Path targetPath) throws IOException {
+    CsarExporter exporter = new CsarExporter();
+    Map<String, Object> exportConfiguration = new HashMap<>();
+    // Do not check hashes and do not store immutably => don't put anything into the export configuration
+    try (OutputStream out = Files.newOutputStream(targetPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+      try {
+        // FIXME CsarExporter.addManifest throws NoClassDefFoundError for Environment's initialization.
+        // Winery OSGI export configuration is probably broken
+        exporter.writeCsar(wineryRepo, entryServiceTemplate.get(), out, exportConfiguration);
+      } catch (RepositoryCorruptException | InterruptedException | AccountabilityException | ExecutionException e) {
+        LOGGER.warn("Exporting the csar failed with an exception", e);
+        throw new IOException("Failed to export CSAR", e);
+      }
     }
+  }
+
+  @Override
+  public ToscaMetaFileReplacement metafileReplacement() {
+    return new ToscaMetaFileReplacement(this);
+  }
+
+  @Override
+  public @NonNull Path getSaveLocation() {
+    return this.saveLocation;
+  }
 
 }

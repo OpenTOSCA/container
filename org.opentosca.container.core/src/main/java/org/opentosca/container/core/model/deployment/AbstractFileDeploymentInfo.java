@@ -11,41 +11,42 @@ import org.opentosca.container.core.model.csar.CsarId;
 @MappedSuperclass
 public abstract class AbstractFileDeploymentInfo extends AbstractDeploymentInfo {
 
-    /**
-     * Relative path where the file is located inside a CSAR file.
-     */
-    @Column(name = "RelPath")
-    private String relPath;
+  /**
+   * Relative path where the file is located inside a CSAR file.
+   */
+  @Column(name = "RelPath")
+  private String relPath;
 
-    /**
-     * Counts the number of deployment / undeployment attempts. It will be incremented by one on every
-     * deployment / undeployment attempt. If a file is deployed and will be now undeployed it will be
-     * reseted to 0.
-     */
-    @Column(name = "Attempt")
-    private int attempt = 0;
+  /**
+   * Counts the number of deployment / undeployment attempts. It will be incremented by one on every
+   * deployment / undeployment attempt. If a file is deployed and will be now undeployed it will be
+   * reseted to 0.
+   */
+  @Column(name = "Attempt")
+  private int attempt = 0;
 
-    // 0-args ctor for JPA
-    protected AbstractFileDeploymentInfo() { }
+  // 0-args ctor for JPA
+  protected AbstractFileDeploymentInfo() {
+  }
 
-    public AbstractFileDeploymentInfo(final CsarId csarID, final String relPath) {
-        super(csarID);
-        this.relPath = relPath;
-    }
+  public AbstractFileDeploymentInfo(final CsarId csarID, final String relPath) {
+    super(csarID);
+    this.relPath = relPath;
+  }
 
-    public String getRelPath() {
-        return this.relPath;
-    }
+  public String getRelPath() {
+    return this.relPath;
+  }
 
-    public void setRelPath(final String relPath) {
-        this.relPath = relPath;
-    }
+  public void setRelPath(final String relPath) {
+    this.relPath = relPath;
+  }
 
-    public int getAttempt() {
-        return this.attempt;
-    }
+  public int getAttempt() {
+    return this.attempt;
+  }
 
-    public void setAttempt(final int attempt) {
-        this.attempt = attempt;
-    }
+  public void setAttempt(final int attempt) {
+    this.attempt = attempt;
+  }
 }

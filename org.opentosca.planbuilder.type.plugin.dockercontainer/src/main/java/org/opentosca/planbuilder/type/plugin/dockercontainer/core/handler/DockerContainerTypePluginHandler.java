@@ -11,8 +11,7 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public interface DockerContainerTypePluginHandler<T extends PlanContext> {
-    public boolean handle(final T context);
+  public boolean handle(final T context);
 }

@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for tProvide complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="tProvide">
  *   &lt;complexContent>
@@ -33,92 +33,78 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tProvide", propOrder = {
-    "service",
-    "enableSharing"
+  "service",
+  "enableSharing"
 })
 public class TProvide {
 
-    @XmlElement(required = true)
-    protected TService service;
-    protected TEnableSharing enableSharing;
-    @XmlAttribute(required = true)
-    protected String partnerLink;
+  @XmlElement(required = true)
+  protected TService service;
+  protected TEnableSharing enableSharing;
+  @XmlAttribute(required = true)
+  protected String partnerLink;
 
-    /**
-     * Gets the value of the service property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link TService }
-     *     
-     */
-    public TService getService() {
-        return service;
-    }
+  /**
+   * Gets the value of the service property.
+   *
+   * @return possible object is
+   * {@link TService }
+   */
+  public TService getService() {
+    return service;
+  }
 
-    /**
-     * Sets the value of the service property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link TService }
-     *     
-     */
-    public void setService(TService value) {
-        this.service = value;
-    }
+  /**
+   * Sets the value of the service property.
+   *
+   * @param value allowed object is
+   *              {@link TService }
+   */
+  public void setService(TService value) {
+    this.service = value;
+  }
 
-    /**
-     * Gets the value of the enableSharing property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link TEnableSharing }
-     *     
-     */
-    public TEnableSharing getEnableSharing() {
-        return enableSharing;
-    }
+  /**
+   * Gets the value of the enableSharing property.
+   *
+   * @return possible object is
+   * {@link TEnableSharing }
+   */
+  public TEnableSharing getEnableSharing() {
+    return enableSharing;
+  }
 
-    /**
-     * Sets the value of the enableSharing property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link TEnableSharing }
-     *     
-     */
-    public void setEnableSharing(TEnableSharing value) {
-        this.enableSharing = value;
-    }
+  /**
+   * Sets the value of the enableSharing property.
+   *
+   * @param value allowed object is
+   *              {@link TEnableSharing }
+   */
+  public void setEnableSharing(TEnableSharing value) {
+    this.enableSharing = value;
+  }
 
-    /**
-     * Gets the value of the partnerLink property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPartnerLink() {
-        return partnerLink;
-    }
+  /**
+   * Gets the value of the partnerLink property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getPartnerLink() {
+    return partnerLink;
+  }
 
-    /**
-     * Sets the value of the partnerLink property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPartnerLink(String value) {
-        this.partnerLink = value;
-    }
+  /**
+   * Sets the value of the partnerLink property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setPartnerLink(String value) {
+    this.partnerLink = value;
+  }
 
 }

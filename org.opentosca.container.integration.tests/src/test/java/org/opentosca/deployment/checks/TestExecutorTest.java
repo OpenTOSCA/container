@@ -26,57 +26,56 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  */
 public class TestExecutorTest {
 
-    private static final String CSAR_NAME = "MyTinyToDo_Bare_Docker.csar";
+  private static final String CSAR_NAME = "MyTinyToDo_Bare_Docker.csar";
 
-    private final CsarId csar = new CsarId(CSAR_NAME);
-    private final DeploymentTestRepository repository = new DeploymentTestRepository();
+  private final CsarId csar = new CsarId(CSAR_NAME);
+  private final DeploymentTestRepository repository = new DeploymentTestRepository();
 
-    private TestExecutor executor;
+  private TestExecutor executor;
 
+  @Before
+  public void init() {
+    this.executor = ServiceTrackerUtil.getService(TestExecutor.class);
+  }
 
-    @Before
-    public void init() {
-        this.executor = ServiceTrackerUtil.getService(TestExecutor.class);
-    }
+  @Test
+  public void execute() {
 
-    @Test
-    public void execute() {
+    if (CsarActions.hasCsar(CSAR_NAME)) {
 
-        if (CsarActions.hasCsar(CSAR_NAME)) {
+      final Importer importer = new Importer();
+      final AbstractDefinitions defs = importer.getMainDefinitions(this.csar.toOldCsarId());
 
-            final Importer importer = new Importer();
-            final AbstractDefinitions defs = importer.getMainDefinitions(this.csar.toOldCsarId());
+      for (final AbstractServiceTemplate template : defs.getServiceTemplates()) {
 
-            for (final AbstractServiceTemplate template : defs.getServiceTemplates()) {
-
-                Collection<ServiceTemplateInstance> instances =
-                    new ServiceTemplateInstanceRepository().findByTemplateId(template.getQName());
-                // Only select active instances
-                instances = instances.stream().filter(i -> i.getState().equals(ServiceTemplateInstanceState.CREATED))
-                                     .collect(Collectors.toList());
-                if (instances.isEmpty()) {
-                    fail("No instance of service template \"" + template.getId() + "\" is available");
-                }
-
-                for (final ServiceTemplateInstance instance : instances) {
-
-                    // Prepare the verification
-                    final DeploymentTest result = new DeploymentTest();
-                    result.setServiceTemplateInstance(instance);
-                    this.repository.add(result);
-
-                    // Prepare the context
-                    final TestContext context = new TestContext();
-                    context.setServiceTemplate(template);
-                    context.setServiceTemplateInstance(instance);
-                    context.setDeploymentTest(result);
-
-                    // Execute the verification
-                    this.executor.verify(context).join();
-                    this.executor.shutdown();
-                    this.repository.update(result);
-                }
-            }
+        Collection<ServiceTemplateInstance> instances =
+          new ServiceTemplateInstanceRepository().findByTemplateId(template.getQName());
+        // Only select active instances
+        instances = instances.stream().filter(i -> i.getState().equals(ServiceTemplateInstanceState.CREATED))
+          .collect(Collectors.toList());
+        if (instances.isEmpty()) {
+          fail("No instance of service template \"" + template.getId() + "\" is available");
         }
+
+        for (final ServiceTemplateInstance instance : instances) {
+
+          // Prepare the verification
+          final DeploymentTest result = new DeploymentTest();
+          result.setServiceTemplateInstance(instance);
+          this.repository.add(result);
+
+          // Prepare the context
+          final TestContext context = new TestContext();
+          context.setServiceTemplate(template);
+          context.setServiceTemplateInstance(instance);
+          context.setDeploymentTest(result);
+
+          // Execute the verification
+          this.executor.verify(context).join();
+          this.executor.shutdown();
+          this.repository.update(result);
+        }
+      }
     }
+  }
 }

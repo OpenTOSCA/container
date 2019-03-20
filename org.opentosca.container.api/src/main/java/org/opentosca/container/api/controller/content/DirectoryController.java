@@ -21,53 +21,52 @@ import org.slf4j.LoggerFactory;
 
 public class DirectoryController {
 
-    private static Logger logger = LoggerFactory.getLogger(DirectoryController.class);
+  private static Logger logger = LoggerFactory.getLogger(DirectoryController.class);
 
 
-    private final AbstractDirectory directory;
+  private final AbstractDirectory directory;
 
 
-    public DirectoryController(final AbstractDirectory directory) {
-        Objects.nonNull(directory);
-        this.directory = directory;
-        logger.info("Directory path: {}", directory.getPath());
+  public DirectoryController(final AbstractDirectory directory) {
+    Objects.nonNull(directory);
+    this.directory = directory;
+    logger.info("Directory path: {}", directory.getPath());
+  }
+
+  @GET
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public Response getLinks(@Context final UriInfo uriInfo) {
+    final ResourceSupport dto = new ResourceSupport();
+    for (final AbstractDirectory directory : this.directory.getDirectories()) {
+      dto.add(UriUtil.generateSubResourceLink(uriInfo, directory.getName(), false, directory.getName()));
     }
-
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getLinks(@Context final UriInfo uriInfo) {
-        final ResourceSupport dto = new ResourceSupport();
-        for (final AbstractDirectory directory : this.directory.getDirectories()) {
-            dto.add(UriUtil.generateSubResourceLink(uriInfo, directory.getName(), false, directory.getName()));
-        }
-        for (final AbstractFile file : this.directory.getFiles()) {
-            dto.add(UriUtil.generateSubResourceLink(uriInfo, file.getName(), false, file.getName()));
-        }
-        dto.add(UriUtil.generateSelfLink(uriInfo));
-        return Response.ok(dto).build();
+    for (final AbstractFile file : this.directory.getFiles()) {
+      dto.add(UriUtil.generateSubResourceLink(uriInfo, file.getName(), false, file.getName()));
     }
+    dto.add(UriUtil.generateSelfLink(uriInfo));
+    return Response.ok(dto).build();
+  }
 
-
-    @Path("/{path}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Object getPath(@PathParam("path") String path, @Context final UriInfo uriInfo) {
-        path = UriUtil.encodePathSegment(path);
-        logger.debug("Serve path '{}' of directory '{}'", path, this.directory.getPath());
-        for (final AbstractDirectory directory : this.directory.getDirectories()) {
-            if (directory.getName().equals(path)) {
-                logger.debug("Path '{}' is a directory...", path);
-                return new DirectoryController(directory);
-            }
-        }
-        for (final AbstractFile file : this.directory.getFiles()) {
-            if (file.getName().equals(path)) {
-                logger.debug("Path '{}' is a file...", path);
-                return new FileController(file);
-            }
-        }
-        logger.warn("Path '{}' does not exist in directory '{}'", path, this.directory.getPath());
-
-        throw new NotFoundException(
-            String.format("Path '%s' does not exist in directory '%s'", path, this.directory.getPath()));
+  @Path("/{path}")
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public Object getPath(@PathParam("path") String path, @Context final UriInfo uriInfo) {
+    path = UriUtil.encodePathSegment(path);
+    logger.debug("Serve path '{}' of directory '{}'", path, this.directory.getPath());
+    for (final AbstractDirectory directory : this.directory.getDirectories()) {
+      if (directory.getName().equals(path)) {
+        logger.debug("Path '{}' is a directory...", path);
+        return new DirectoryController(directory);
+      }
     }
+    for (final AbstractFile file : this.directory.getFiles()) {
+      if (file.getName().equals(path)) {
+        logger.debug("Path '{}' is a file...", path);
+        return new FileController(file);
+      }
+    }
+    logger.warn("Path '{}' does not exist in directory '{}'", path, this.directory.getPath());
+
+    throw new NotFoundException(
+      String.format("Path '%s' does not exist in directory '%s'", path, this.directory.getPath()));
+  }
 }

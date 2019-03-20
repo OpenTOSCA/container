@@ -6,103 +6,103 @@ import java.util.regex.Pattern;
 
 public class NCName {
 
-	public static final Pattern ILLEGAL_CHARACTERS_PATTERN = Pattern
-			.compile("[\\s\\:\\@\\$\\%\\&\\/\\+\\,\\;\\!\"\\#\'\\(\\)\\*\\<\\=\\>\\?\\[\\]\\\\^\\`\\{\\|\\}\\~]");
-	public static final Pattern ILLEGAL_START_CHARACTERS_PATTERN = Pattern.compile("^[\\.\\d\\-]+");
+  public static final Pattern ILLEGAL_CHARACTERS_PATTERN = Pattern
+    .compile("[\\s\\:\\@\\$\\%\\&\\/\\+\\,\\;\\!\"\\#\'\\(\\)\\*\\<\\=\\>\\?\\[\\]\\\\^\\`\\{\\|\\}\\~]");
+  public static final Pattern ILLEGAL_START_CHARACTERS_PATTERN = Pattern.compile("^[\\.\\d\\-]+");
 
-	// To check validity
-	public static final Pattern NAME_PATTERN = Pattern.compile("[^\\.\\d\\-][\\w]+");
+  // To check validity
+  public static final Pattern NAME_PATTERN = Pattern.compile("[^\\.\\d\\-][\\w]+");
 
-	public static final String OUTPUT_FORMAT = "%s:%s";
+  public static final String OUTPUT_FORMAT = "%s:%s";
 
-	private String prefix;
-	private String ncName;
+  private String prefix;
+  private String ncName;
 
-	@Override
-	public String toString() {
-		return String.format(OUTPUT_FORMAT, this.prefix, this.ncName);
-	}
+  public NCName(final String prefix, final String ncName) {
+    Objects.requireNonNull(prefix);
+    Objects.requireNonNull(ncName);
 
-	public NCName(final String prefix, final String ncName) {
-		Objects.requireNonNull(prefix);
-		Objects.requireNonNull(ncName);
+    String prefixResult = prefix;
+    String ncNameResult = ncName;
 
-		String prefixResult = prefix;
-		String ncNameResult = ncName;
+    prefixResult = makeValid(prefixResult);
+    ncNameResult = makeValid(ncNameResult);
 
-		prefixResult = makeValid(prefixResult);
-		ncNameResult = makeValid(ncNameResult);
+    this.prefix = prefixResult;
+    this.ncName = ncNameResult;
+  }
 
-		this.prefix = prefixResult;
-		this.ncName = ncNameResult;
-	}
-	
-	private String makeValid(final String input) {
-		String output = input;
-		
-		// Step 1
-		output = removeWhiteSpaces(output);
-		
-		// Step 2
-		output = replaceInvalidCharacters(output);
-		
-		// Step 3
-		output = removeInvalidStartCharacters(output);
-		
-		// Step 4
-		checkValidity(output);
-		
-		return output;
-	}
+  @Override
+  public String toString() {
+    return String.format(OUTPUT_FORMAT, this.prefix, this.ncName);
+  }
 
-	private String removeInvalidStartCharacters(final String input) {
-		String output = input;
+  private String makeValid(final String input) {
+    String output = input;
 
-		Matcher match = ILLEGAL_START_CHARACTERS_PATTERN.matcher(output);
+    // Step 1
+    output = removeWhiteSpaces(output);
 
-		output = match.replaceFirst("");
+    // Step 2
+    output = replaceInvalidCharacters(output);
 
-		return output;
-	}
+    // Step 3
+    output = removeInvalidStartCharacters(output);
 
-	private String removeWhiteSpaces(final String input) {
-		String output = input;
-		Pattern whiteSpacePattern = Pattern.compile("\\s");
+    // Step 4
+    checkValidity(output);
 
-		Matcher match = whiteSpacePattern.matcher(output);
+    return output;
+  }
 
-		output = match.replaceAll("");
+  private String removeInvalidStartCharacters(final String input) {
+    String output = input;
 
-		return output;
-	}
+    Matcher match = ILLEGAL_START_CHARACTERS_PATTERN.matcher(output);
 
-	private String replaceInvalidCharacters(final String input) {
-		String output = input;
+    output = match.replaceFirst("");
 
-		Matcher match = ILLEGAL_CHARACTERS_PATTERN.matcher(output);
+    return output;
+  }
 
-		output = match.replaceAll("_");
+  private String removeWhiteSpaces(final String input) {
+    String output = input;
+    Pattern whiteSpacePattern = Pattern.compile("\\s");
 
-		return output;
-	}
+    Matcher match = whiteSpacePattern.matcher(output);
 
-	private void checkValidity(String input) {
+    output = match.replaceAll("");
 
-		if (input.length() == 0) {
-			throw new NCNameException("Resulting NCName was empty");
-		}
-	}
+    return output;
+  }
 
-	public class NCNameException extends RuntimeException {
+  private String replaceInvalidCharacters(final String input) {
+    String output = input;
 
-		/**
-		 * Generated serialVersionUID
-		 */
-		private static final long serialVersionUID = -4052808822350498637L;
+    Matcher match = ILLEGAL_CHARACTERS_PATTERN.matcher(output);
 
-		protected NCNameException(String msg) {
-			super(msg);
-		}
+    output = match.replaceAll("_");
 
-	}
+    return output;
+  }
+
+  private void checkValidity(String input) {
+
+    if (input.length() == 0) {
+      throw new NCNameException("Resulting NCName was empty");
+    }
+  }
+
+  public class NCNameException extends RuntimeException {
+
+    /**
+     * Generated serialVersionUID
+     */
+    private static final long serialVersionUID = -4052808822350498637L;
+
+    protected NCNameException(String msg) {
+      super(msg);
+    }
+
+  }
 }

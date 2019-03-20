@@ -7,10 +7,9 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  * <br>
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public interface ConnectsToPluginHandler<T extends PlanContext> {
 
-    public boolean handle(final T templateContext);
+  public boolean handle(final T templateContext);
 
 }

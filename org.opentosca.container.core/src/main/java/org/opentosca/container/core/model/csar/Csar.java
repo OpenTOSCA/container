@@ -21,34 +21,39 @@ import org.opentosca.container.core.model.csar.backwards.ToscaMetaFileReplacemen
 @NonNullByDefault
 public interface Csar {
 
-    public CsarId id();
+  public CsarId id();
 
-    public List<TArtifactTemplate> artifactTemplates();
+  public List<TArtifactTemplate> artifactTemplates();
 
-    public List<TServiceTemplate> serviceTemplates();
+  public List<TServiceTemplate> serviceTemplates();
 
-    @Nullable
-    public TServiceTemplate entryServiceTemplate();
+  @Nullable
+  public TServiceTemplate entryServiceTemplate();
 
-    public List<TDefinitions> definitions();
-    public List<TExportedOperation> exportedOperations();
+  public List<TDefinitions> definitions();
 
-    public List<TPlan> plans();
-    public List<TNodeType> nodeTypes();
+  public List<TExportedOperation> exportedOperations();
 
-    public List<TNodeTypeImplementation> nodeTypeImplementations();
-    public List<TRelationshipTypeImplementation> relationshipTypeImplementations();
-    
-    public String description();
-    // FIXME decide on Path / File / Binary Representation / ??
-    public AbstractFile topologyPicture();
+  public List<TPlan> plans();
 
-    public Application selfserviceMetadata();
+  public List<TNodeType> nodeTypes();
 
-    void exportTo(Path targetPath) throws IOException;
+  public List<TNodeTypeImplementation> nodeTypeImplementations();
 
-    @Deprecated
-    ToscaMetaFileReplacement metafileReplacement();
-    @Deprecated
-    Path getSaveLocation();
+  public List<TRelationshipTypeImplementation> relationshipTypeImplementations();
+
+  public String description();
+
+  // FIXME decide on Path / File / Binary Representation / ??
+  public AbstractFile topologyPicture();
+
+  public Application selfserviceMetadata();
+
+  void exportTo(Path targetPath) throws IOException;
+
+  @Deprecated
+  ToscaMetaFileReplacement metafileReplacement();
+
+  @Deprecated
+  Path getSaveLocation();
 }

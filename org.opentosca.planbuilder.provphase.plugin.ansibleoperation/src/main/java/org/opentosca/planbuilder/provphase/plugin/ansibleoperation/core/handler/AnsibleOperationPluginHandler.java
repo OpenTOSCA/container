@@ -19,22 +19,21 @@ import org.opentosca.planbuilder.plugins.context.Variable;
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
- *
  */
 public interface AnsibleOperationPluginHandler<T extends PlanContext> {
 
-    /**
-     * Adds logic to the Plan to call a Ansible Playbook on a remote machine
-     *
-     * @param context the TemplatePlanContext where the logical provisioning operation is called
-     * @param operation the operation to call
-     * @param ia the ia that implements the operation
-     * @return true iff adding BPEL Fragment was successful
-     */
-    public boolean handle(final T templateContext, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia);
+  /**
+   * Adds logic to the Plan to call a Ansible Playbook on a remote machine
+   *
+   * @param context   the TemplatePlanContext where the logical provisioning operation is called
+   * @param operation the operation to call
+   * @param ia        the ia that implements the operation
+   * @return true iff adding BPEL Fragment was successful
+   */
+  public boolean handle(final T templateContext, final AbstractOperation operation,
+                        final AbstractImplementationArtifact ia);
 
-    public boolean handle(final T context, final AbstractOperation operation, final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping);
+  public boolean handle(final T context, final AbstractOperation operation, final AbstractImplementationArtifact ia,
+                        final Map<AbstractParameter, Variable> param2propertyMapping);
 
 }

@@ -30,32 +30,31 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- *
  */
 @XmlType(name = "tBoolean")
 @XmlEnum
 public enum TBoolean {
 
-    @XmlEnumValue("yes")
-    YES("yes"), @XmlEnumValue("no")
-    NO("no");
-    private final String value;
+  @XmlEnumValue("yes")
+  YES("yes"), @XmlEnumValue("no")
+  NO("no");
+  private final String value;
 
-    TBoolean(final String v) {
-        this.value = v;
-    }
+  TBoolean(final String v) {
+    this.value = v;
+  }
 
-    public String value() {
-        return this.value;
-    }
+  public String value() {
+    return this.value;
+  }
 
-    public static TBoolean fromValue(final String v) {
-        for (final TBoolean c : TBoolean.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static TBoolean fromValue(final String v) {
+    for (final TBoolean c : TBoolean.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

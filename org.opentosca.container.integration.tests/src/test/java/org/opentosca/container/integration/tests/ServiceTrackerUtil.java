@@ -11,6 +11,10 @@ public final class ServiceTrackerUtil {
 
   private static Logger logger = LoggerFactory.getLogger(ServiceTrackerUtil.class);
 
+  private ServiceTrackerUtil() {
+    throw new UnsupportedOperationException();
+  }
+
   public static <T> T getService(final Class<T> clazz) {
     final Bundle bundle = FrameworkUtil.getBundle(TestExecutorTest.class);
     if (bundle == null) {
@@ -18,7 +22,7 @@ public final class ServiceTrackerUtil {
       return null;
     }
     final ServiceTracker<T, T> st =
-        new ServiceTracker<T, T>(bundle.getBundleContext(), clazz, null);
+      new ServiceTracker<T, T>(bundle.getBundleContext(), clazz, null);
     st.open();
     try {
       return st.waitForService(500); // Give the runtime some time to startup
@@ -26,9 +30,5 @@ public final class ServiceTrackerUtil {
       logger.error("Error getting instance of class {}: {}", clazz.getName(), e.getMessage());
     }
     return null;
-  }
-
-  private ServiceTrackerUtil() {
-    throw new UnsupportedOperationException();
   }
 }

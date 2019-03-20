@@ -17,35 +17,36 @@ import javax.persistence.AttributeConverter;
 @javax.persistence.Converter
 public class PathConverter implements Converter, AttributeConverter<Path, String> {
 
-    private static final long serialVersionUID = 3747978557147488965L;
+  public static final String name = "PathConverter";
 
-    public static final String name = "PathConverter";
+  private static final long serialVersionUID = 3747978557147488965L;
 
-    @Override
-    public Object convertDataValueToObjectValue(final Object arg0, final Session arg1) {
-        return arg0 != null ? Paths.get((String) arg0) : null;
-    }
+  @Override
+  public Object convertDataValueToObjectValue(final Object arg0, final Session arg1) {
+    return arg0 != null ? Paths.get((String) arg0) : null;
+  }
 
-    @Override
-    public Object convertObjectValueToDataValue(final Object arg0, final Session arg1) {
-        return arg0 != null ? ((Path) arg0).toString() : null;
-    }
+  @Override
+  public Object convertObjectValueToDataValue(final Object arg0, final Session arg1) {
+    return arg0 != null ? ((Path) arg0).toString() : null;
+  }
 
-    @Override
-    public void initialize(final DatabaseMapping arg0, final Session arg1) {}
+  @Override
+  public void initialize(final DatabaseMapping arg0, final Session arg1) {
+  }
 
-    @Override
-    public boolean isMutable() {
-        return false;
-    }
+  @Override
+  public boolean isMutable() {
+    return false;
+  }
 
-    @Override
-    public String convertToDatabaseColumn(Path path) {
-      return path == null ? null : path.toString();
-    }
+  @Override
+  public String convertToDatabaseColumn(Path path) {
+    return path == null ? null : path.toString();
+  }
 
-    @Override
-    public Path convertToEntityAttribute(String s) {
-      return s == null ? null : Paths.get(s);
-    }
+  @Override
+  public Path convertToEntityAttribute(String s) {
+    return s == null ? null : Paths.get(s);
+  }
 }

@@ -32,35 +32,31 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tRequiredContainerFeature")
 public class TRequiredContainerFeature {
 
-    @XmlAttribute(required = true)
-    @XmlSchemaType(name = "anyURI")
-    protected String feature;
+  @XmlAttribute(required = true)
+  @XmlSchemaType(name = "anyURI")
+  protected String feature;
 
-    /**
-     * Gets the value of the feature property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getFeature() {
-        return this.feature;
-    }
+  /**
+   * Gets the value of the feature property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getFeature() {
+    return this.feature;
+  }
 
-    /**
-     * Sets the value of the feature property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setFeature(final String value) {
-        this.feature = value;
-    }
+  /**
+   * Sets the value of the feature property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setFeature(final String value) {
+    this.feature = value;
+  }
 
 }

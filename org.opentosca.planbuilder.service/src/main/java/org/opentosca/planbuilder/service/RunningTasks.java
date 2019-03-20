@@ -21,14 +21,14 @@ import org.opentosca.planbuilder.service.model.PlanGenerationState;
  */
 public class RunningTasks {
 
-    public static Map<String, PlanGenerationState> tasks = new HashMap<>();
+  public static Map<String, PlanGenerationState> tasks = new HashMap<>();
 
-    public static String generateId() {
-        final String newId = String.valueOf(System.currentTimeMillis());
-        if (RunningTasks.tasks.containsKey(newId)) {
-            return RunningTasks.generateId();
-        } else {
-            return newId;
-        }
+  public static String generateId() {
+    final String newId = String.valueOf(System.currentTimeMillis());
+    if (RunningTasks.tasks.containsKey(newId)) {
+      return RunningTasks.generateId();
+    } else {
+      return newId;
     }
+  }
 }

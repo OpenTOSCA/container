@@ -12,7 +12,6 @@ import org.apache.ode.schemas.dd._2007._03.TDeployment;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 @XmlRootElement(namespace = "http://www.apache.org/ode/schemas/dd/2007/03")
 public class Deploy extends TDeployment {

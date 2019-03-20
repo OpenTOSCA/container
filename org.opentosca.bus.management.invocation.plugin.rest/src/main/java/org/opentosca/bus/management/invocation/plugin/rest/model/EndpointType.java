@@ -30,32 +30,31 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- *
  */
 @XmlType(name = "EndpointType")
 @XmlEnum
 public enum EndpointType {
 
-    @XmlEnumValue("no")
-    NO("no"), @XmlEnumValue("yes")
-    YES("yes");
-    private final String value;
+  @XmlEnumValue("no")
+  NO("no"), @XmlEnumValue("yes")
+  YES("yes");
+  private final String value;
 
-    EndpointType(final String v) {
-        this.value = v;
-    }
+  EndpointType(final String v) {
+    this.value = v;
+  }
 
-    public String value() {
-        return this.value;
-    }
+  public String value() {
+    return this.value;
+  }
 
-    public static EndpointType fromValue(final String v) {
-        for (final EndpointType c : EndpointType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static EndpointType fromValue(final String v) {
+    for (final EndpointType c : EndpointType.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

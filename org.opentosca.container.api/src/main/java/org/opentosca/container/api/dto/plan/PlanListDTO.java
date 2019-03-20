@@ -16,21 +16,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @XmlRootElement(name = "PlanResources")
 public class PlanListDTO extends ResourceSupport {
 
-    @JsonProperty
-    @XmlElement(name = "Plan")
-    @XmlElementWrapper(name = "Plans")
-    private final List<PlanDTO> plans = new ArrayList<>();
+  @JsonProperty
+  @XmlElement(name = "Plan")
+  @XmlElementWrapper(name = "Plans")
+  private final List<PlanDTO> plans = new ArrayList<>();
 
+  public List<PlanDTO> getPlans() {
+    return this.plans;
+  }
 
-    public List<PlanDTO> getPlans() {
-        return this.plans;
-    }
+  public void add(final PlanDTO... plans) {
+    this.plans.addAll(Arrays.asList(plans));
+  }
 
-    public void add(final PlanDTO... plans) {
-        this.plans.addAll(Arrays.asList(plans));
-    }
-
-    public void add(final Collection<PlanDTO> plans) {
-        this.plans.addAll(plans);
-    }
+  public void add(final Collection<PlanDTO> plans) {
+    this.plans.addAll(plans);
+  }
 }

@@ -12,14 +12,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreatePlanInstanceLogEntryRequest {
 
-    @XmlValue
-    private String logEntry;
+  @XmlValue
+  private String logEntry;
 
-    public String getLogEntry() {
-        return this.logEntry;
-    }
+  public String getLogEntry() {
+    return this.logEntry;
+  }
 
-    public void setLogEntry(final String logEntry) {
-        this.logEntry = logEntry;
-    }
+  public void setLogEntry(final String logEntry) {
+    this.logEntry = logEntry;
+  }
 }

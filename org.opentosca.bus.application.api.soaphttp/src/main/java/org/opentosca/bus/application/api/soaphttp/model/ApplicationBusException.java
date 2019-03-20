@@ -32,33 +32,29 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ApplicationBusException", propOrder = {"message"})
 public class ApplicationBusException {
 
-    protected String message;
+  protected String message;
 
-    /**
-     * Gets the value of the message property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getMessage() {
-        return this.message;
-    }
+  /**
+   * Gets the value of the message property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getMessage() {
+    return this.message;
+  }
 
-    /**
-     * Sets the value of the message property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setMessage(final String value) {
-        this.message = value;
-    }
+  /**
+   * Sets the value of the message property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setMessage(final String value) {
+    this.message = value;
+  }
 
 }

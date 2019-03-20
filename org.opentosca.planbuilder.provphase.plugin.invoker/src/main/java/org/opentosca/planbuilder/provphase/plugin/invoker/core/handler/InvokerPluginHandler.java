@@ -10,13 +10,13 @@ import org.opentosca.planbuilder.plugins.context.Variable;
 
 public interface InvokerPluginHandler<T extends PlanContext> {
 
-    public boolean handle(final T context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia) throws Exception;
+  public boolean handle(final T context, final AbstractOperation operation,
+                        final AbstractImplementationArtifact ia) throws Exception;
 
-    public boolean handle(final T context, final String templateId, final boolean isNodeTemplate,
-                          final String operationName, final String interfaceName, final String callbackAddressVarName,
-                          final Map<String, Variable> internalExternalPropsInput,
-                          final Map<String, Variable> internalExternalPropsOutput,
-                          final BPELScopePhaseType appendToPrePhase) throws Exception;
+  public boolean handle(final T context, final String templateId, final boolean isNodeTemplate,
+                        final String operationName, final String interfaceName, final String callbackAddressVarName,
+                        final Map<String, Variable> internalExternalPropsInput,
+                        final Map<String, Variable> internalExternalPropsOutput,
+                        final BPELScopePhaseType appendToPrePhase) throws Exception;
 
 }

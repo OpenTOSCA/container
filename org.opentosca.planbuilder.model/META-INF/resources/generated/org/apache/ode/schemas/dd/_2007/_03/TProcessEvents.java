@@ -19,9 +19,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for tProcessEvents complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="tProcessEvents">
  *   &lt;complexContent>
@@ -41,73 +41,64 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tProcessEvents", propOrder = {
-    "scopeEvents"
+  "scopeEvents"
 })
 public class TProcessEvents
-    extends TEnableEventList
-{
+  extends TEnableEventList {
 
-    @XmlElement(name = "scope-events")
-    protected List<TScopeEvents> scopeEvents;
-    @XmlAttribute
-    protected String generate;
+  @XmlElement(name = "scope-events")
+  protected List<TScopeEvents> scopeEvents;
+  @XmlAttribute
+  protected String generate;
 
-    /**
-     * Gets the value of the scopeEvents property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the scopeEvents property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getScopeEvents().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link TScopeEvents }
-     * 
-     * 
-     */
-    public List<TScopeEvents> getScopeEvents() {
-        if (scopeEvents == null) {
-            scopeEvents = new ArrayList<TScopeEvents>();
-        }
-        return this.scopeEvents;
+  /**
+   * Gets the value of the scopeEvents property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the scopeEvents property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getScopeEvents().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link TScopeEvents }
+   */
+  public List<TScopeEvents> getScopeEvents() {
+    if (scopeEvents == null) {
+      scopeEvents = new ArrayList<TScopeEvents>();
     }
+    return this.scopeEvents;
+  }
 
-    /**
-     * Gets the value of the generate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGenerate() {
-        return generate;
-    }
+  /**
+   * Gets the value of the generate property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getGenerate() {
+    return generate;
+  }
 
-    /**
-     * Sets the value of the generate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGenerate(String value) {
-        this.generate = value;
-    }
+  /**
+   * Sets the value of the generate property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setGenerate(String value) {
+    this.generate = value;
+  }
 
 }

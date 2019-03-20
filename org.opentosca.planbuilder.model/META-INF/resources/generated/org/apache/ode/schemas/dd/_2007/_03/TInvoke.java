@@ -14,14 +14,15 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
+
 import org.apache.ode.activityrecovery.FailureHandling;
 
 
 /**
  * <p>Java class for tInvoke complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="tInvoke">
  *   &lt;complexContent>
@@ -45,200 +46,172 @@ import org.apache.ode.activityrecovery.FailureHandling;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tInvoke", propOrder = {
-    "service",
-    "binding",
-    "failureHandling"
+  "service",
+  "binding",
+  "failureHandling"
 })
 public class TInvoke {
 
-    @XmlElement(required = true)
-    protected TService service;
-    protected TInvoke.Binding binding;
-    @XmlElement(namespace = "http://ode.apache.org/activityRecovery")
-    protected FailureHandling failureHandling;
+  @XmlElement(required = true)
+  protected TService service;
+  protected TInvoke.Binding binding;
+  @XmlElement(namespace = "http://ode.apache.org/activityRecovery")
+  protected FailureHandling failureHandling;
+  @XmlAttribute(required = true)
+  protected String partnerLink;
+  @XmlAttribute
+  protected Boolean usePeer2Peer;
+
+  /**
+   * Gets the value of the service property.
+   *
+   * @return possible object is
+   * {@link TService }
+   */
+  public TService getService() {
+    return service;
+  }
+
+  /**
+   * Sets the value of the service property.
+   *
+   * @param value allowed object is
+   *              {@link TService }
+   */
+  public void setService(TService value) {
+    this.service = value;
+  }
+
+  /**
+   * Gets the value of the binding property.
+   *
+   * @return possible object is
+   * {@link TInvoke.Binding }
+   */
+  public TInvoke.Binding getBinding() {
+    return binding;
+  }
+
+  /**
+   * Sets the value of the binding property.
+   *
+   * @param value allowed object is
+   *              {@link TInvoke.Binding }
+   */
+  public void setBinding(TInvoke.Binding value) {
+    this.binding = value;
+  }
+
+  /**
+   * Gets the value of the failureHandling property.
+   *
+   * @return possible object is
+   * {@link FailureHandling }
+   */
+  public FailureHandling getFailureHandling() {
+    return failureHandling;
+  }
+
+  /**
+   * Sets the value of the failureHandling property.
+   *
+   * @param value allowed object is
+   *              {@link FailureHandling }
+   */
+  public void setFailureHandling(FailureHandling value) {
+    this.failureHandling = value;
+  }
+
+  /**
+   * Gets the value of the partnerLink property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getPartnerLink() {
+    return partnerLink;
+  }
+
+  /**
+   * Sets the value of the partnerLink property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setPartnerLink(String value) {
+    this.partnerLink = value;
+  }
+
+  /**
+   * Gets the value of the usePeer2Peer property.
+   *
+   * @return possible object is
+   * {@link Boolean }
+   */
+  public boolean isUsePeer2Peer() {
+    if (usePeer2Peer == null) {
+      return true;
+    } else {
+      return usePeer2Peer;
+    }
+  }
+
+  /**
+   * Sets the value of the usePeer2Peer property.
+   *
+   * @param value allowed object is
+   *              {@link Boolean }
+   */
+  public void setUsePeer2Peer(Boolean value) {
+    this.usePeer2Peer = value;
+  }
+
+
+  /**
+   * <p>Java class for anonymous complex type.
+   *
+   * <p>The following schema fragment specifies the expected content contained within this class.
+   *
+   * <pre>
+   * &lt;complexType>
+   *   &lt;complexContent>
+   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+   *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}QName" />
+   *     &lt;/restriction>
+   *   &lt;/complexContent>
+   * &lt;/complexType>
+   * </pre>
+   */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(name = "")
+  public static class Binding {
+
     @XmlAttribute(required = true)
-    protected String partnerLink;
-    @XmlAttribute
-    protected Boolean usePeer2Peer;
+    protected QName name;
 
     /**
-     * Gets the value of the service property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link TService }
-     *     
+     * Gets the value of the name property.
+     *
+     * @return possible object is
+     * {@link QName }
      */
-    public TService getService() {
-        return service;
+    public QName getName() {
+      return name;
     }
 
     /**
-     * Sets the value of the service property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link TService }
-     *     
+     * Sets the value of the name property.
+     *
+     * @param value allowed object is
+     *              {@link QName }
      */
-    public void setService(TService value) {
-        this.service = value;
+    public void setName(QName value) {
+      this.name = value;
     }
 
-    /**
-     * Gets the value of the binding property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link TInvoke.Binding }
-     *     
-     */
-    public TInvoke.Binding getBinding() {
-        return binding;
-    }
-
-    /**
-     * Sets the value of the binding property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link TInvoke.Binding }
-     *     
-     */
-    public void setBinding(TInvoke.Binding value) {
-        this.binding = value;
-    }
-
-    /**
-     * Gets the value of the failureHandling property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link FailureHandling }
-     *     
-     */
-    public FailureHandling getFailureHandling() {
-        return failureHandling;
-    }
-
-    /**
-     * Sets the value of the failureHandling property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link FailureHandling }
-     *     
-     */
-    public void setFailureHandling(FailureHandling value) {
-        this.failureHandling = value;
-    }
-
-    /**
-     * Gets the value of the partnerLink property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPartnerLink() {
-        return partnerLink;
-    }
-
-    /**
-     * Sets the value of the partnerLink property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPartnerLink(String value) {
-        this.partnerLink = value;
-    }
-
-    /**
-     * Gets the value of the usePeer2Peer property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public boolean isUsePeer2Peer() {
-        if (usePeer2Peer == null) {
-            return true;
-        } else {
-            return usePeer2Peer;
-        }
-    }
-
-    /**
-     * Sets the value of the usePeer2Peer property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setUsePeer2Peer(Boolean value) {
-        this.usePeer2Peer = value;
-    }
-
-
-    /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType>
-     *   &lt;complexContent>
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}QName" />
-     *     &lt;/restriction>
-     *   &lt;/complexContent>
-     * &lt;/complexType>
-     * </pre>
-     * 
-     * 
-     */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "")
-    public static class Binding {
-
-        @XmlAttribute(required = true)
-        protected QName name;
-
-        /**
-         * Gets the value of the name property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link QName }
-         *     
-         */
-        public QName getName() {
-            return name;
-        }
-
-        /**
-         * Sets the value of the name property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link QName }
-         *     
-         */
-        public void setName(QName value) {
-            this.name = value;
-        }
-
-    }
+  }
 
 }

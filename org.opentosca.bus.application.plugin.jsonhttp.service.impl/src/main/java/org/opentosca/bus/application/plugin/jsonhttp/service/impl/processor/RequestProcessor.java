@@ -13,47 +13,44 @@ import org.slf4j.LoggerFactory;
 /**
  * RequestProcessor of the Application Bus-JSON/HTTP-Plugin.<br>
  * <br>
- *
+ * <p>
  * This processor handles the incoming requests.
  *
- *
- *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- *
  */
 public class RequestProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) throws Exception {
+  @Override
+  public void process(final Exchange exchange) throws Exception {
 
-        RequestProcessor.LOG.debug("Creation of the json request body...");
+    RequestProcessor.LOG.debug("Creation of the json request body...");
 
-        final String className =
-            exchange.getIn().getHeader(ApplicationBusConstants.CLASS_NAME.toString(), String.class);
-        final String operationName =
-            exchange.getIn().getHeader(ApplicationBusConstants.OPERATION_NAME.toString(), String.class);
+    final String className =
+      exchange.getIn().getHeader(ApplicationBusConstants.CLASS_NAME.toString(), String.class);
+    final String operationName =
+      exchange.getIn().getHeader(ApplicationBusConstants.OPERATION_NAME.toString(), String.class);
 
-        final LinkedHashMap<String, Object> params = exchange.getIn().getBody(LinkedHashMap.class);
+    final LinkedHashMap<String, Object> params = exchange.getIn().getBody(LinkedHashMap.class);
 
-        // JSON body creation
-        final JSONObject infoJSON = new JSONObject();
-        infoJSON.put("class", className);
-        infoJSON.put("operation", operationName);
+    // JSON body creation
+    final JSONObject infoJSON = new JSONObject();
+    infoJSON.put("class", className);
+    infoJSON.put("operation", operationName);
 
-        final LinkedHashMap<String, Object> finalJSON = new LinkedHashMap<>();
-        finalJSON.put("invocation-information", infoJSON);
-        if (params != null) {
-            finalJSON.put("params", params);
-        }
-
-        final String finalJSONString = JSONValue.toJSONString(finalJSON);
-
-        RequestProcessor.LOG.debug("Created json request body: {}", finalJSONString);
-
-        exchange.getIn().setBody(finalJSONString);
-
+    final LinkedHashMap<String, Object> finalJSON = new LinkedHashMap<>();
+    finalJSON.put("invocation-information", infoJSON);
+    if (params != null) {
+      finalJSON.put("params", params);
     }
+
+    final String finalJSONString = JSONValue.toJSONString(finalJSON);
+
+    RequestProcessor.LOG.debug("Created json request body: {}", finalJSONString);
+
+    exchange.getIn().setBody(finalJSONString);
+
+  }
 
 }

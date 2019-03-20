@@ -13,44 +13,43 @@ import org.opentosca.planbuilder.model.tosca.AbstractRequirement;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class RequirementImpl extends AbstractRequirement {
 
-    private final TRequirement requirement;
+  private final TRequirement requirement;
 
 
-    /**
-     * Constructor
-     *
-     * @param requirement a JAXB TRequirement
-     */
-    public RequirementImpl(final TRequirement requirement) {
-        this.requirement = requirement;
-    }
+  /**
+   * Constructor
+   *
+   * @param requirement a JAXB TRequirement
+   */
+  public RequirementImpl(final TRequirement requirement) {
+    this.requirement = requirement;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return this.requirement.getName();
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getName() {
+    return this.requirement.getName();
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getId() {
-        return this.requirement.getId();
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getId() {
+    return this.requirement.getId();
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public QName getType() {
-        return this.requirement.getType();
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public QName getType() {
+    return this.requirement.getType();
+  }
 
 }

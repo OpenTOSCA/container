@@ -24,16 +24,16 @@ import org.opentosca.planbuilder.service.resources.TaskResource;
  */
 public class PlanBuilderService extends Application {
 
-    @Override
-    public Set<Class<?>> getClasses() {
+  @Override
+  public Set<Class<?>> getClasses() {
 
-        final Set<Class<?>> s = new HashSet<>();
+    final Set<Class<?>> s = new HashSet<>();
 
-        // add root resource
-        s.add(RootResource.class);
-        s.add(TaskResource.class);
+    // add root resource
+    s.add(RootResource.class);
+    s.add(TaskResource.class);
 
-        return s;
-    }
+    return s;
+  }
 
 }

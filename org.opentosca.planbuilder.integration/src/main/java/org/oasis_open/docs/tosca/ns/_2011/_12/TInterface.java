@@ -39,65 +39,59 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tInterface", propOrder = {"operation"})
 public class TInterface {
 
-    @XmlElement(name = "Operation", required = true)
-    protected List<TOperation> operation;
-    @XmlAttribute(required = true)
-    @XmlSchemaType(name = "anyURI")
-    protected String name;
+  @XmlElement(name = "Operation", required = true)
+  protected List<TOperation> operation;
+  @XmlAttribute(required = true)
+  @XmlSchemaType(name = "anyURI")
+  protected String name;
 
-    /**
-     * Gets the value of the operation property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-     * modification you make to the returned list will be present inside the JAXB object. This is why
-     * there is not a <CODE>set</CODE> method for the operation property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     *
-     * <pre>
-     * getOperation().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link TOperation }
-     *
-     *
-     */
-    public List<TOperation> getOperation() {
-        if (this.operation == null) {
-            this.operation = new ArrayList<>();
-        }
-        return this.operation;
+  /**
+   * Gets the value of the operation property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is why
+   * there is not a <CODE>set</CODE> method for the operation property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   *
+   * <pre>
+   * getOperation().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link TOperation }
+   */
+  public List<TOperation> getOperation() {
+    if (this.operation == null) {
+      this.operation = new ArrayList<>();
     }
+    return this.operation;
+  }
 
-    /**
-     * Gets the value of the name property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getName() {
-        return this.name;
-    }
+  /**
+   * Gets the value of the name property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getName() {
+    return this.name;
+  }
 
-    /**
-     * Sets the value of the name property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setName(final String value) {
-        this.name = value;
-    }
+  /**
+   * Sets the value of the name property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setName(final String value) {
+    this.name = value;
+  }
 
 }

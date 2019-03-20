@@ -33,34 +33,30 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "isFinished", propOrder = {"requestID"})
 public class IsFinished {
 
-    @XmlElement(required = true)
-    protected String requestID;
+  @XmlElement(required = true)
+  protected String requestID;
 
-    /**
-     * Gets the value of the requestID property.
-     *
-     * @return possible object is {@link String }
-     *
-     */
-    public String getRequestID() {
-        return this.requestID;
-    }
+  /**
+   * Gets the value of the requestID property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getRequestID() {
+    return this.requestID;
+  }
 
-    /**
-     * Sets the value of the requestID property.
-     *
-     * @param value allowed object is {@link String }
-     *
-     */
-    public void setRequestID(final String value) {
-        this.requestID = value;
-    }
+  /**
+   * Sets the value of the requestID property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setRequestID(final String value) {
+    this.requestID = value;
+  }
 
 }

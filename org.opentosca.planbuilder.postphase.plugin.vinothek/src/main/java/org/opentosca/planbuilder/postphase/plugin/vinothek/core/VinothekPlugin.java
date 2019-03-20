@@ -20,28 +20,28 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  */
 public abstract class VinothekPlugin<T extends PlanContext> implements IPlanBuilderPostPhasePlugin<T> {
 
-    protected static final String PLUGIN_ID = "OpenTOSCA PlanBuilder PostPhase Plugin Vinothek";
-    protected static final QName phpApp = new QName("http://opentosca.org/types/declarative", "PhpApplication");
-    protected static final QName bpelProcess = new QName("http://opentosca.org/declarative/", "BPEL");
-    protected final QName zipArtifactType =
-        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
+  protected static final String PLUGIN_ID = "OpenTOSCA PlanBuilder PostPhase Plugin Vinothek";
+  protected static final QName phpApp = new QName("http://opentosca.org/types/declarative", "PhpApplication");
+  protected static final QName bpelProcess = new QName("http://opentosca.org/declarative/", "BPEL");
+  protected final QName zipArtifactType =
+    new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 
-    @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
-        // if the nodeTemplate is some kind of PhpApp we're happy
-        return ModelUtils.checkForTypeInHierarchy(nodeTemplate, phpApp)
-            || ModelUtils.checkForTypeInHierarchy(nodeTemplate, bpelProcess);
-    }
+  @Override
+  public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    // if the nodeTemplate is some kind of PhpApp we're happy
+    return ModelUtils.checkForTypeInHierarchy(nodeTemplate, phpApp)
+      || ModelUtils.checkForTypeInHierarchy(nodeTemplate, bpelProcess);
+  }
 
-    @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
-        // only handling nodeTemplates
-        return false;
-    }
+  @Override
+  public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    // only handling nodeTemplates
+    return false;
+  }
 
-    @Override
-    public String getID() {
-        return VinothekPlugin.PLUGIN_ID;
-    }
+  @Override
+  public String getID() {
+    return VinothekPlugin.PLUGIN_ID;
+  }
 
 }

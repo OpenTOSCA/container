@@ -4,8 +4,8 @@ import org.opentosca.container.core.next.model.Situation;
 
 public class SituationRepository extends JpaRepository<Situation> {
 
-    public SituationRepository() {
-        super(Situation.class);
-    }
+  public SituationRepository() {
+    super(Situation.class);
+  }
 
 }

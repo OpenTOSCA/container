@@ -15,21 +15,20 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public abstract class FirstAvailablePlugin<T extends PlanContext> implements IScalingPlanBuilderSelectionPlugin<T> {
 
-    private static final String PLUGIN_ID = "OpenTOSCA First Available Selection Plugin";
-    private static final String FIRST_AVAIABLE_SELECTION_STRATEGY = "FirstInstance";
+  private static final String PLUGIN_ID = "OpenTOSCA First Available Selection Plugin";
+  private static final String FIRST_AVAIABLE_SELECTION_STRATEGY = "FirstInstance";
 
-    @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
-        // we can basically handle every type with this strategy
-        return selectionStrategies.contains(FirstAvailablePlugin.FIRST_AVAIABLE_SELECTION_STRATEGY);
-    }
+  @Override
+  public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
+    // we can basically handle every type with this strategy
+    return selectionStrategies.contains(FirstAvailablePlugin.FIRST_AVAIABLE_SELECTION_STRATEGY);
+  }
 
-    @Override
-    public String getID() {
-        return FirstAvailablePlugin.PLUGIN_ID;
-    }
+  @Override
+  public String getID() {
+    return FirstAvailablePlugin.PLUGIN_ID;
+  }
 }

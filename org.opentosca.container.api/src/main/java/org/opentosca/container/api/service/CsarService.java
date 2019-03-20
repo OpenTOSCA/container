@@ -1,46 +1,45 @@
 package org.opentosca.container.api.service;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.List;
-
-import org.eclipse.winery.repository.backend.filebased.FileUtils;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.common.UserException;
+//import java.io.File;
+//import java.nio.file.Path;
+//import java.util.List;
+//
+//import org.eclipse.winery.repository.backend.filebased.FileUtils;
+//import org.opentosca.container.core.common.SystemException;
+//import org.opentosca.container.core.common.UserException;
 // FIXME clean this dependency up!
-import org.opentosca.container.core.impl.service.ZipManager;
+//import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.opentosca.planbuilder.csarhandler.CSARHandler;
-import org.opentosca.planbuilder.export.Exporter;
-import org.opentosca.planbuilder.importer.Importer;
-import org.opentosca.planbuilder.model.plan.AbstractPlan;
+//import org.opentosca.planbuilder.csarhandler.CSARHandler;
+//import org.opentosca.planbuilder.export.Exporter;
+//import org.opentosca.planbuilder.importer.Importer;
+//import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 
-
 @Service
 public class CsarService {
 
-    private static Logger logger = LoggerFactory.getLogger(CsarService.class);
+  private static Logger logger = LoggerFactory.getLogger(CsarService.class);
 
-    @Inject
-    private CsarStorageService storage;
-    
-    public CsarService() {
-    }
+  @Inject
+  private CsarStorageService storage;
 
-    /**
-     * Checks whether the plan builder should generate a build plans.
-     *
-     * @param csar the {@link Csar} to generate build plans for
-     * @return true for success or false for failure
-     */
-    public boolean generatePlans(final Csar csar) {
-        return true;
+  public CsarService() {
+  }
+
+  /**
+   * Checks whether the plan builder should generate a build plans.
+   *
+   * @param csar the {@link Csar} to generate build plans for
+   * @return true for success or false for failure
+   */
+  public boolean generatePlans(final Csar csar) {
+    return true;
 //        // Importer requires an unzipped Csar file instead of the winery representation
 //        final Path zipFile;
 //        try {
@@ -77,9 +76,9 @@ public class CsarService {
 //            logger.warn("Reimport of Csar after building plans failed with an exception", e);
 //        }
 //        return false;
-    }
+  }
 
-    public void setStorageService(final CsarStorageService storage) {
-        this.storage = storage;
-    }
+  public void setStorageService(final CsarStorageService storage) {
+    this.storage = storage;
+  }
 }

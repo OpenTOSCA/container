@@ -13,36 +13,36 @@ import org.eclipse.winery.model.tosca.Definitions;
  */
 public class DefinitionsData {
 
-    private final Definitions mainDef;
-    private final CSARContent csarContent;
-    private final CSARID csarID;
+  private final Definitions mainDef;
+  private final CSARContent csarContent;
+  private final CSARID csarID;
 
 
-    public DefinitionsData(final Definitions mainDef, final CSARContent csarContent, final CSARID csarID) {
-        this.mainDef = mainDef;
-        this.csarContent = csarContent;
-        this.csarID = csarID;
-    }
+  public DefinitionsData(final Definitions mainDef, final CSARContent csarContent, final CSARID csarID) {
+    this.mainDef = mainDef;
+    this.csarContent = csarContent;
+    this.csarID = csarID;
+  }
 
-    /**
-     * @return the main Definitions
-     */
-    public Definitions getMainDefinitions() {
-        return this.mainDef;
-    }
+  /**
+   * @return the main Definitions
+   */
+  public Definitions getMainDefinitions() {
+    return this.mainDef;
+  }
 
-    /**
-     * @return the CSAR content
-     */
-    public CSARContent getCSARContent() {
-        return this.csarContent;
-    }
+  /**
+   * @return the CSAR content
+   */
+  public CSARContent getCSARContent() {
+    return this.csarContent;
+  }
 
-    /**
-     * @return the CSAR ID
-     */
-    public CSARID getCSARID() {
-        return this.csarID;
-    }
+  /**
+   * @return the CSAR ID
+   */
+  public CSARID getCSARID() {
+    return this.csarID;
+  }
 
 }

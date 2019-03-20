@@ -28,45 +28,46 @@ import io.swagger.annotations.Contact;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @SwaggerDefinition(info = @Info(title = "Public API for OpenTOSCA Container",
-                                description = "API access to query entities and manipulate them using plans",
-                                version = "2.1.0", termsOfService = "",
-                                contact = @Contact(name = "OpenTOSCA", url = "http://opentosca.org",
-                                                   email = "opentosca@iaas.uni-stuttgart.de"),
-                                license = @License(name = "Apache License, Version 2.0",
-                                                   url = "https://www.apache.org/licenses/LICENSE-2.0")))
+  description = "API access to query entities and manipulate them using plans",
+  version = "2.1.0", termsOfService = "",
+  contact = @Contact(name = "OpenTOSCA", url = "http://opentosca.org",
+    email = "opentosca@iaas.uni-stuttgart.de"),
+  license = @License(name = "Apache License, Version 2.0",
+    url = "https://www.apache.org/licenses/LICENSE-2.0")))
 @Path("/")
 @RestController
+@RequestMapping("/")
 public class RootController {
 
-    @Context
-    private UriInfo uriInfo;
+  @Context
+  private UriInfo uriInfo;
 
+  @GET
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public Response getRoot() {
+    final ResourceSupport links = new ResourceSupport();
+    links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
+    links.add(Link.fromResource(CsarController.class).rel("csars").baseUri(this.uriInfo.getBaseUri()).build());
+    links.add(
+      Link.fromResource(SituationsController.class).rel("situations").baseUri(this.uriInfo.getBaseUri())
+        .build());
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getRoot() {
-        final ResourceSupport links = new ResourceSupport();
-        links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
-        links.add(Link.fromResource(CsarController.class).rel("csars").baseUri(this.uriInfo.getBaseUri()).build());
-        links.add(
-            Link.fromResource(SituationsController.class).rel("situations").baseUri(this.uriInfo.getBaseUri())
-                      .build());
+    // TODO: This does not work anymore because the legacy API has been removed
+    // Link to plan builder resources
+    // links.add(Link.fromUriBuilder(this.uriInfo.getBaseUriBuilder().path("containerapi").path("planbuilder"))
+    // .rel("planbuilder").baseUri(this.uriInfo.getBaseUri()).build());
 
-        // TODO: This does not work anymore because the legacy API has been removed
-        // Link to plan builder resources
-        // links.add(Link.fromUriBuilder(this.uriInfo.getBaseUriBuilder().path("containerapi").path("planbuilder"))
-        // .rel("planbuilder").baseUri(this.uriInfo.getBaseUri()).build());
+    return Response.ok(links).build();
+  }
 
-        return Response.ok(links).build();
-    }
-    
-    @GET
-    @Path("favicon.ico")
-    // this just stubs out the favicon endpoint to shut error-logging for requests to it up
-    public Response faviconStub() {
-        return Response.noContent().build();
-    }
+  @GET
+  @Path("favicon.ico")
+  // this just stubs out the favicon endpoint to shut error-logging for requests to it up
+  public Response faviconStub() {
+    return Response.noContent().build();
+  }
 }

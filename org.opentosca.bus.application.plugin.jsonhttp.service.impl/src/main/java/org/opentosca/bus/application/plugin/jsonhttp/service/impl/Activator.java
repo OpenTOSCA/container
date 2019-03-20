@@ -14,59 +14,56 @@ import org.slf4j.LoggerFactory;
 /**
  * Activator of the JSON/HTTP-Application Bus-Plugin.<br>
  * <br>
- *
+ * <p>
  * The activator is needed to add and start the camel routes. The bundleID is used for generating
  * the routing endpoint of this plugin.
  *
- *
- *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- *
  */
 public class Activator implements BundleActivator {
 
-    final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
+  final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
 
-    private static DefaultCamelContext camelContext;
+  private static DefaultCamelContext camelContext;
 
-    private static String bundleID;
+  private static String bundleID;
 
-    static String getBundleID() {
-        return bundleID;
-    }
+  static String getBundleID() {
+    return bundleID;
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework. BundleContext)
-     */
-    @Override
-    public void start(final BundleContext bundleContext) throws Exception {
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.osgi.framework.BundleActivator#start(org.osgi.framework. BundleContext)
+   */
+  @Override
+  public void start(final BundleContext bundleContext) throws Exception {
 
-        bundleID = bundleContext.getBundle().getSymbolicName();
+    bundleID = bundleContext.getBundle().getSymbolicName();
 
-        final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
-        camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
-        
-        // This explicitly binds the required components, fixing the OSGI startup
-        camelContext.addComponent("direct-vm", new DirectVmComponent());
-        camelContext.addComponent("http", new HttpComponent());
+    final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
+    camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
 
-        camelContext.addRoutes(new Route());
+    // This explicitly binds the required components, fixing the OSGI startup
+    camelContext.addComponent("direct-vm", new DirectVmComponent());
+    camelContext.addComponent("http", new HttpComponent());
 
-        camelContext.start();
-        Activator.LOG.info("Application Bus JSON-HTTP plugin started!");
-    }
+    camelContext.addRoutes(new Route());
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
-    @Override
-    public void stop(final BundleContext bundleContext) throws Exception {
-        Activator.camelContext = null;
-        Activator.LOG.info("Application Bus JSON-HTTP plugin stopped!");
-    }
+    camelContext.start();
+    Activator.LOG.info("Application Bus JSON-HTTP plugin started!");
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+   */
+  @Override
+  public void stop(final BundleContext bundleContext) throws Exception {
+    Activator.camelContext = null;
+    Activator.LOG.info("Application Bus JSON-HTTP plugin stopped!");
+  }
 
 }

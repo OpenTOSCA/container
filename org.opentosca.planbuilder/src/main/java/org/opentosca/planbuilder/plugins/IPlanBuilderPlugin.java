@@ -8,14 +8,13 @@ package org.opentosca.planbuilder.plugins;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public interface IPlanBuilderPlugin {
 
-    /**
-     * Returns the Id of the Plugin
-     *
-     * @return a String used to identify this Plugin
-     */
-    public String getID();
+  /**
+   * Returns the Id of the Plugin
+   *
+   * @return a String used to identify this Plugin
+   */
+  public String getID();
 }

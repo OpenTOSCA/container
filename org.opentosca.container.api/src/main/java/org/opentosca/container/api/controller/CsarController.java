@@ -53,271 +53,268 @@ import org.slf4j.LoggerFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Api
 @javax.ws.rs.Path("/csars")
 @RestController
+@RequestMapping("/csars")
 public class CsarController {
 
-    private static Logger logger = LoggerFactory.getLogger(CsarController.class);
+  private static Logger logger = LoggerFactory.getLogger(CsarController.class);
 
-    @Context
-    private UriInfo uriInfo;
+  @Context
+  private UriInfo uriInfo;
 
-    // used to generate plans, but not for storage anymore
-    @Inject
-    private CsarService csarService;
+  // used to generate plans, but not for storage anymore
+  @Inject
+  private CsarService csarService;
 
-    @Inject
-    private CsarStorageService storage;
+  @Inject
+  private CsarStorageService storage;
 
-    @Inject
-    private OpenToscaControlService controlService;
+  @Inject
+  private OpenToscaControlService controlService;
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all CSARs", response = CsarListDTO.class)
-    public Response getCsars() {
-        try {
-            final CsarListDTO list = new CsarListDTO();
-            for (final Csar csarContent : this.storage.findAll()) {
-                final String id = csarContent.id().csarName();
-                final CsarDTO csar = new CsarDTO();
-                csar.setId(id);
-                csar.setDescription(csarContent.description());
-                csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                                                  .path(CsarController.class, "getCsar").build(id))
-                             .rel("self").build());
-                list.add(csar);
-            }
-            list.add(Link.fromResource(CsarController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
-            return Response.ok(list).build();
-        }
-        catch (Exception e) {
-            logger.warn("Exception when fetching all CSARs:", e);
-            throw new ServerErrorException(Response.serverError().build());
-        }
+  @GET
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get all CSARs", response = CsarListDTO.class)
+  public Response getCsars() {
+    try {
+      final CsarListDTO list = new CsarListDTO();
+      for (final Csar csarContent : this.storage.findAll()) {
+        final String id = csarContent.id().csarName();
+        final CsarDTO csar = new CsarDTO();
+        csar.setId(id);
+        csar.setDescription(csarContent.description());
+        csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
+          .path(CsarController.class, "getCsar").build(id))
+          .rel("self").build());
+        list.add(csar);
+      }
+      list.add(Link.fromResource(CsarController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
+      return Response.ok(list).build();
+    } catch (Exception e) {
+      logger.warn("Exception when fetching all CSARs:", e);
+      throw new ServerErrorException(Response.serverError().build());
+    }
+  }
+
+  @GET
+  @javax.ws.rs.Path("/{csar}")
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get a CSAR", response = CsarDTO.class)
+  public Response getCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
+    try {
+      final Csar csarContent = storage.findById(new CsarId(id));
+      final Application metadata = csarContent.selfserviceMetadata();
+
+      final CsarDTO csar = CsarDTO.Converter.convert(metadata);
+      // Absolute URLs for icon and image
+      final String urlTemplate = "{0}csars/{1}/content/servicetemplates/{2}/{3}/SELFSERVICE-Metadata/{4}";
+
+      TServiceTemplate entryServiceTemplate = csarContent.entryServiceTemplate();
+      // double encoding, otherwise the link breaks
+      final String namespaceSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getTargetNamespace()));
+      final String nameSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getName()));
+      final String baseUri = this.uriInfo.getBaseUri().toString();
+      if (csar.getIconUrl() != null) {
+        final String iconUrl =
+          MessageFormat.format(urlTemplate, baseUri, id, namespaceSegment, nameSegment, csar.getIconUrl());
+        csar.setIconUrl(iconUrl);
+      }
+      if (csar.getImageUrl() != null) {
+        final String imageUrl =
+          MessageFormat.format(urlTemplate, baseUri, id, namespaceSegment, nameSegment, csar.getImageUrl());
+        csar.setImageUrl(imageUrl);
+      }
+
+      csar.setId(id);
+      if (csar.getName() == null) {
+        csar.setName(id);
+      }
+      csar.add(Link.fromResource(ServiceTemplateController.class).rel("servicetemplates")
+        .baseUri(this.uriInfo.getBaseUri()).build(id));
+
+      csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
+        .path(CsarController.class, "getContent").build(id))
+        .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));
+      csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
+        .path(CsarController.class, "getCsar").build(id))
+        .rel("self").build());
+
+      csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(ServiceTemplateController.class)
+        .path(ServiceTemplateController.class, "getServiceTemplate")
+        .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
+        .rel("servicetemplate").baseUri(this.uriInfo.getBaseUri()).build());
+
+      return Response.ok(csar).build();
+    } catch (NoSuchElementException e) {
+      return Response.status(Status.NOT_FOUND).build();
+    }
+  }
+
+  @javax.ws.rs.Path("/{csar}/content")
+  @ApiOperation(hidden = true, value = "")
+  public DirectoryController getContent(@PathParam("csar") final String id) {
+    try {
+      return new DirectoryController(new FileSystemDirectory(storage.findById(new CsarId(id)).getSaveLocation()));
+    } catch (NoSuchElementException e) {
+      throw new javax.ws.rs.NotFoundException(e);
+    }
+  }
+
+  @POST
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(hidden = true, value = "")
+  public Response uploadCsar(@FormDataParam(value = "file") final InputStream is,
+                             @FormDataParam("file") final FormDataContentDisposition file) {
+
+    if (is == null || file == null) {
+      return Response.status(Status.BAD_REQUEST).build();
     }
 
-    @GET
-    @javax.ws.rs.Path("/{csar}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a CSAR", response = CsarDTO.class)
-    public Response getCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
-        try {
-            final Csar csarContent = storage.findById(new CsarId(id));
-            final Application metadata = csarContent.selfserviceMetadata();
+    logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
+    return handleCsarUpload(file.getFileName(), is);
+  }
 
-            final CsarDTO csar = CsarDTO.Converter.convert(metadata);
-            // Absolute URLs for icon and image
-            final String urlTemplate = "{0}csars/{1}/content/servicetemplates/{2}/{3}/SELFSERVICE-Metadata/{4}";
-            
-            TServiceTemplate entryServiceTemplate = csarContent.entryServiceTemplate();
-            // double encoding, otherwise the link breaks
-            final String namespaceSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getTargetNamespace()));
-            final String nameSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getName()));
-            final String baseUri = this.uriInfo.getBaseUri().toString();
-            if (csar.getIconUrl() != null) {
-                final String iconUrl =
-                    MessageFormat.format(urlTemplate, baseUri, id, namespaceSegment, nameSegment, csar.getIconUrl());
-                csar.setIconUrl(iconUrl);
-            }
-            if (csar.getImageUrl() != null) {
-                final String imageUrl =
-                    MessageFormat.format(urlTemplate, baseUri, id, namespaceSegment, nameSegment, csar.getImageUrl());
-                csar.setImageUrl(imageUrl);
-            }
+  @POST
+  @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Handles an upload request for a CSAR file")
+  public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request) {
 
-            csar.setId(id);
-            if (csar.getName() == null) {
-                csar.setName(id);
-            }
-            csar.add(Link.fromResource(ServiceTemplateController.class).rel("servicetemplates")
-                         .baseUri(this.uriInfo.getBaseUri()).build(id));
-            
-            csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                                              .path(CsarController.class, "getContent").build(id))
-                         .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));
-            csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                                              .path(CsarController.class, "getCsar").build(id))
-                         .rel("self").build());
-
-            csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(ServiceTemplateController.class)
-                                              .path(ServiceTemplateController.class, "getServiceTemplate")
-                                              .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
-                         .rel("servicetemplate").baseUri(this.uriInfo.getBaseUri()).build());
-
-            return Response.ok(csar).build();
-        }
-        catch (NoSuchElementException e) {
-            return Response.status(Status.NOT_FOUND).build();
-        }
+    if (request == null) {
+      return Response.status(Status.BAD_REQUEST).build();
     }
 
+    logger.info("Uploading new CSAR based on request payload: name={}; url={}", request.getName(),
+      request.getUrl());
 
-    @javax.ws.rs.Path("/{csar}/content")
-    @ApiOperation(hidden = true, value = "")
-    public DirectoryController getContent(@PathParam("csar") final String id) {
-        try {
-            return new DirectoryController(new FileSystemDirectory(storage.findById(new CsarId(id)).getSaveLocation()));
-        }
-        catch (NoSuchElementException e) {
-            throw new javax.ws.rs.NotFoundException(e);
-        }
+    String filename = request.getName();
+    if (!filename.endsWith(".csar")) {
+      filename = filename + ".csar";
     }
 
-    @POST
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response uploadCsar(@FormDataParam(value = "file") final InputStream is,
-                               @FormDataParam("file") final FormDataContentDisposition file) {
+    try {
+      final URL url = new URL(request.getUrl());
 
-        if (is == null || file == null) {
-            return Response.status(Status.BAD_REQUEST).build();
-        }
+      return handleCsarUpload(filename, url.openStream());
+    } catch (final Exception e) {
+      logger.error("Error uploading CSAR: {}", e.getMessage(), e);
+      return Response.serverError().build();
+    }
+  }
 
-        logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
-        return handleCsarUpload(file.getFileName(), is);
+  private Response handleCsarUpload(final String filename, final InputStream is) {
+
+    Path tempFile = storage.storeCSARTemporarily(filename, is);
+    if (tempFile == null) {
+      // writing to temporary file failed
+      return Response.serverError().build();
+    }
+    CsarId csarId = null;
+    try {
+      csarId = storage.storeCSAR(tempFile);
+    } catch (UserException e) {
+      FileUtils.forceDelete(tempFile);
+      return Response.notAcceptable(null).entity(e).build();
+    } catch (SystemException e) {
+      FileUtils.forceDelete(tempFile);
+      return Response.serverError().entity(e).build();
     }
 
-    @POST
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Handles an upload request for a CSAR file")
-    public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request) {
-
-        if (request == null) {
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-
-        logger.info("Uploading new CSAR based on request payload: name={}; url={}", request.getName(),
-                    request.getUrl());
-
-        String filename = request.getName();
-        if (!filename.endsWith(".csar")) {
-            filename = filename + ".csar";
-        }
-
+    // FIXME I'm pretty sure that invoking ToscaProcessing is unnecessary with the new model
+    this.controlService.invokeToscaProcessing(csarId);
+    Csar storedCsar = storage.findById(csarId);
+    if (ModelUtil.hasOpenRequirements(storedCsar)) {
+      final WineryConnector wc = new WineryConnector();
+      if (wc.isWineryRepositoryAvailable()) {
+        QName serviceTemplate = null;
         try {
-            final URL url = new URL(request.getUrl());
-
-            return handleCsarUpload(filename, url.openStream());
+          serviceTemplate = wc.uploadCSAR(tempFile.toFile());
+        } catch (URISyntaxException | IOException e) {
+          logger.warn("Failed to upload CSAR to winery repository to satisfy missing requirements", e);
         }
-        catch (final Exception e) {
-            logger.error("Error uploading CSAR: {}", e.getMessage(), e);
-            return Response.serverError().build();
+        this.controlService.deleteCsar(csarId);
+        if (serviceTemplate == null) {
+          return Response.serverError().build();
         }
+        return Response.notAcceptable(Collections.emptyList())
+          .entity("{ \"Location\": \"" + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }")
+          .build();
+      } else {
+        logger.error("CSAR has open requirements, but Winery repository is not available");
+        try {
+          this.storage.deleteCSAR(csarId);
+        } catch (Exception log) {
+          logger.warn("Failed to delete CSAR [{}] with open requirements on import", csarId.csarName());
+        }
+        return Response.serverError().build();
+      }
     }
 
-    private Response handleCsarUpload(final String filename, final InputStream is) {
-
-        Path tempFile = storage.storeCSARTemporarily(filename, is);
-        if (tempFile == null) {
-            // writing to temporary file failed
-            return Response.serverError().build();
-        }
-        CsarId csarId = null;
-        try {
-            csarId = storage.storeCSAR(tempFile);
-        } catch (UserException e) {
-            FileUtils.forceDelete(tempFile);
-            return Response.notAcceptable(null).entity(e).build();
-        } catch (SystemException e) {
-            FileUtils.forceDelete(tempFile);
-            return Response.serverError().entity(e).build();
-        }
-
-        // FIXME I'm pretty sure that invoking ToscaProcessing is unnecessary with the new model
-        this.controlService.invokeToscaProcessing(csarId);
-        Csar storedCsar = storage.findById(csarId);
-        if (ModelUtil.hasOpenRequirements(storedCsar)) {
-            final WineryConnector wc = new WineryConnector();
-            if (wc.isWineryRepositoryAvailable()) {
-                QName serviceTemplate = null;
-                try {
-                    serviceTemplate = wc.uploadCSAR(tempFile.toFile());
-                }
-                catch (URISyntaxException | IOException e) {
-                    logger.warn("Failed to upload CSAR to winery repository to satisfy missing requirements", e);
-                }
-                this.controlService.deleteCsar(csarId);
-                if (serviceTemplate == null) { return Response.serverError().build(); }
-                return Response.notAcceptable(Collections.emptyList())
-                    .entity("{ \"Location\": \"" + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }")
-                    .build();
-            } else {
-                logger.error("CSAR has open requirements, but Winery repository is not available");
-                try {
-                    this.storage.deleteCSAR(csarId);
-                } catch (Exception log) {
-                    logger.warn("Failed to delete CSAR [{}] with open requirements on import", csarId.csarName());
-                }
-                return Response.serverError().build();
-            }
-        }
-        
-        try {
-            if (!this.csarService.generatePlans(storedCsar)) {
-                logger.warn("Planning the CSAR failed");
-                return Response.serverError().build();
-            }
-        } catch (Exception e) {
-            logger.warn("Planning the CSAR [{}] failed with an exception", csarId.csarName(), e);
-            try {
-                this.storage.deleteCSAR(csarId);
-            } catch (Exception log) {
-                logger.warn("Failed to delete CSAR [{}] with failed plans on import", csarId.csarName());
-            }
-            return Response.serverError().build();
-        }
-
-        // FIXME maybe this only makes sense when we have generated plans :/
-        this.controlService.declareStored(csarId);
-        boolean success = this.controlService.invokeToscaProcessing(csarId);
-        if (success) {
-            final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
-            for (final TServiceTemplate serviceTemplate : serviceTemplates) {
-                logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-                if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
-                    logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-                    success = false;
-                }
-            }
-        }
-
-        if (!success) {
-            return Response.serverError().build();
-        }
-
-        logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());
-        final URI uri =
-            UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId.csarName()));
-        return Response.created(uri).build();
+    try {
+      if (!this.csarService.generatePlans(storedCsar)) {
+        logger.warn("Planning the CSAR failed");
+        return Response.serverError().build();
+      }
+    } catch (Exception e) {
+      logger.warn("Planning the CSAR [{}] failed with an exception", csarId.csarName(), e);
+      try {
+        this.storage.deleteCSAR(csarId);
+      } catch (Exception log) {
+        logger.warn("Failed to delete CSAR [{}] with failed plans on import", csarId.csarName());
+      }
+      return Response.serverError().build();
     }
 
-    @DELETE
-    @javax.ws.rs.Path("/{csar}")
-    @ApiOperation(value = "Delete a CSAR")
-    public Response deleteCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
-
-        Csar csarContent;
-        try {
-            csarContent = storage.findById(new CsarId(id));
+    // FIXME maybe this only makes sense when we have generated plans :/
+    this.controlService.declareStored(csarId);
+    boolean success = this.controlService.invokeToscaProcessing(csarId);
+    if (success) {
+      final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
+      for (final TServiceTemplate serviceTemplate : serviceTemplates) {
+        logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
+        if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
+          logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
+          success = false;
         }
-        catch (NoSuchElementException e) {
-            return Response.notModified().build();
-        }
-        
-        logger.info("Deleting CSAR \"{}\"", id);
-        final List<String> errors = this.controlService.deleteCsar(csarContent.id());
-        
-        if (errors.size() > 0) {
-            logger.error("Error deleting CSAR");
-            errors.forEach(s -> logger.error(s));
-            return Response.serverError().build();
-        }
-        return Response.noContent().build();
+      }
     }
+
+    if (!success) {
+      return Response.serverError().build();
+    }
+
+    logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());
+    final URI uri =
+      UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId.csarName()));
+    return Response.created(uri).build();
+  }
+
+  @DELETE
+  @javax.ws.rs.Path("/{csar}")
+  @ApiOperation(value = "Delete a CSAR")
+  public Response deleteCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
+
+    Csar csarContent;
+    try {
+      csarContent = storage.findById(new CsarId(id));
+    } catch (NoSuchElementException e) {
+      return Response.notModified().build();
+    }
+
+    logger.info("Deleting CSAR \"{}\"", id);
+    final List<String> errors = this.controlService.deleteCsar(csarContent.id());
+
+    if (errors.size() > 0) {
+      logger.error("Error deleting CSAR");
+      errors.forEach(s -> logger.error(s));
+      return Response.serverError().build();
+    }
+    return Response.noContent().build();
+  }
 }

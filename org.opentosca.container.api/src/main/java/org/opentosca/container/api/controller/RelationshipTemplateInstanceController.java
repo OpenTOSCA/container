@@ -38,184 +38,179 @@ import io.swagger.annotations.ApiParam;
 @Api
 public class RelationshipTemplateInstanceController {
 
-    @ApiParam("ID of CSAR")
-    @PathParam("csar")
-    String csar;
+  private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateInstanceController.class);
 
-    @ApiParam("qualified name of the service template")
-    @PathParam("servicetemplate")
-    String servicetemplate;
+  @ApiParam("ID of CSAR")
+  @PathParam("csar")
+  String csar;
 
-    @ApiParam("ID of relationship template")
-    @PathParam("relationshiptemplate")
-    String relationshiptemplate;
+  @ApiParam("qualified name of the service template")
+  @PathParam("servicetemplate")
+  String servicetemplate;
 
-    @Context
-    UriInfo uriInfo;
+  @ApiParam("ID of relationship template")
+  @PathParam("relationshiptemplate")
+  String relationshiptemplate;
 
-    private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateInstanceController.class);
+  @Context
+  UriInfo uriInfo;
 
-    private final InstanceService instanceService;
+  private final InstanceService instanceService;
 
-    public RelationshipTemplateInstanceController(final InstanceService instanceService) {
-        this.instanceService = instanceService;
+  public RelationshipTemplateInstanceController(final InstanceService instanceService) {
+    this.instanceService = instanceService;
+  }
+
+  @GET
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get all relationship template instances",
+    response = RelationshipTemplateInstanceListDTO.class)
+  public Response getRelationshipTemplateInstances(@QueryParam(value = "target") final Long targetNodeInstanceId) {
+    final QName relationshipTemplateQName =
+      new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.relationshiptemplate);
+    final Collection<RelationshipTemplateInstance> relationshipInstances =
+      this.instanceService.getRelationshipTemplateInstances(relationshipTemplateQName);
+    logger.debug("Found <{}> instances of RelationshipTemplate \"{}\" ", relationshipInstances.size(),
+      this.relationshiptemplate);
+
+    final RelationshipTemplateInstanceListDTO list = new RelationshipTemplateInstanceListDTO();
+
+    for (final RelationshipTemplateInstance i : relationshipInstances) {
+      if (targetNodeInstanceId != null && !i.getTarget().getId().equals(targetNodeInstanceId)) {
+        // skip this instance if the target id doesn't match
+        continue;
+      }
+      final RelationshipTemplateInstanceDTO dto = RelationshipTemplateInstanceDTO.Converter.convert(i);
+      dto.add(UriUtil.generateSubResourceLink(this.uriInfo, dto.getId().toString(), false, "self"));
+
+      list.add(dto);
     }
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all relationship template instances",
-                  response = RelationshipTemplateInstanceListDTO.class)
-    public Response getRelationshipTemplateInstances(@QueryParam(value = "target") final Long targetNodeInstanceId) {
-        final QName relationshipTemplateQName =
-            new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.relationshiptemplate);
-        final Collection<RelationshipTemplateInstance> relationshipInstances =
-            this.instanceService.getRelationshipTemplateInstances(relationshipTemplateQName);
-        logger.debug("Found <{}> instances of RelationshipTemplate \"{}\" ", relationshipInstances.size(),
-                     this.relationshiptemplate);
+    list.add(UriUtil.generateSelfLink(this.uriInfo));
 
-        final RelationshipTemplateInstanceListDTO list = new RelationshipTemplateInstanceListDTO();
+    return Response.ok(list).build();
+  }
 
-        for (final RelationshipTemplateInstance i : relationshipInstances) {
-            if (targetNodeInstanceId != null && !i.getTarget().getId().equals(targetNodeInstanceId)) {
-                // skip this instance if the target id doesn't match
-                continue;
-            }
-            final RelationshipTemplateInstanceDTO dto = RelationshipTemplateInstanceDTO.Converter.convert(i);
-            dto.add(UriUtil.generateSubResourceLink(this.uriInfo, dto.getId().toString(), false, "self"));
+  @POST
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+  @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(hidden = true, value = "")
+  public Response createRelationshipTemplateInstance(@Context final UriInfo uriInfo,
+                                                     final CreateRelationshipTemplateInstanceRequest request) {
+    try {
 
-            list.add(dto);
-        }
+      final RelationshipTemplateInstance createdInstance =
+        this.instanceService.createNewRelationshipTemplateInstance(this.csar, this.servicetemplate,
+          this.relationshiptemplate, request);
+      final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
+      return Response.ok(instanceURI).build();
+    } catch (final IllegalArgumentException e) {
+      logger.error("Error creating instance: {}", e.getMessage(), e);
+      return Response.status(Status.BAD_REQUEST).build();
+    } catch (InstantiationException | IllegalAccessException e) {
+      logger.error("Error creating instance: {}", e.getMessage(), e);
+      return Response.serverError().build();
+    }
+  }
 
-        list.add(UriUtil.generateSelfLink(this.uriInfo));
+  @GET
+  @Path("/{id}")
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get a relationship template instance", response = RelationshipTemplateInstanceDTO.class)
+  public Response getRelationshipTemplateInstance(@ApiParam("ID of relationship template instance") @PathParam("id") final Long id) {
 
-        return Response.ok(list).build();
+    final RelationshipTemplateInstance instance =
+      this.instanceService.resolveRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate,
+        id);
+    final RelationshipTemplateInstanceDTO dto = RelationshipTemplateInstanceDTO.Converter.convert(instance);
+
+    dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
+    dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "properties", false, "properties"));
+    final String path =
+      "/csars/{csar}/servicetemplates/{servicetemplate}/nodetemplates/{nodetemplate}/instances/{nodetemplateinstance}";
+    final URI sourceNodeTemplateInstanceUri =
+      this.uriInfo.getBaseUriBuilder().path(path).build(dto.getCsarId(), dto.getServiceTemplateId(),
+        instance.getSource().getTemplateId().getLocalPart(),
+        dto.getSourceNodeTemplateInstanceId());
+    final URI targetNodeTemplateInstanceUri =
+      this.uriInfo.getBaseUriBuilder().path(path).build(dto.getCsarId(), dto.getServiceTemplateId(),
+        instance.getTarget().getTemplateId().getLocalPart(),
+        dto.getTargetNodeTemplateInstanceId());
+    dto.add(Link.fromUri(UriUtil.encode(sourceNodeTemplateInstanceUri)).rel("source_node_template_instance")
+      .build());
+    dto.add(Link.fromUri(UriUtil.encode(targetNodeTemplateInstanceUri)).rel("target_node_template_instance")
+      .build());
+    dto.add(UriUtil.generateSelfLink(this.uriInfo));
+
+    return Response.ok(dto).build();
+  }
+
+  @DELETE
+  @Path("/{id}")
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(hidden = true, value = "")
+  public Response deleteRelationshipTemplateInstance(@PathParam("id") final Long id) {
+    this.instanceService.deleteRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate, id);
+    return Response.noContent().build();
+  }
+
+  @GET
+  @Path("/{id}/state")
+  @Produces( {MediaType.TEXT_PLAIN})
+  @ApiOperation(value = "Get state of a relationship template instance", response = String.class)
+  public Response getRelationshipTemplateInstanceState(@ApiParam("ID of relationship template instance") @PathParam("id") final Long id) {
+    final RelationshipTemplateInstanceState state =
+      this.instanceService.getRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
+        id);
+    return Response.ok(state.toString()).build();
+  }
+
+  @PUT
+  @Path("/{id}/state")
+  @Consumes( {MediaType.TEXT_PLAIN})
+  @ApiOperation(hidden = true, value = "")
+  public Response updateRelationshipTemplateInstanceState(@PathParam("id") final Long id, final String request) {
+    try {
+      this.instanceService.setRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
+        id, request);
+    } catch (final IllegalArgumentException e) { // this handles a null request too
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    return Response.ok().build();
+  }
+
+  @GET
+  @Path("/{id}/properties")
+  @Produces( {MediaType.APPLICATION_XML})
+  @ApiOperation(hidden = true, value = "")
+  public Response getRelationshipTemplateInstanceProperties(@PathParam("id") final Long id) {
+    final Document properties =
+      this.instanceService.getRelationshipTemplateInstanceProperties(this.servicetemplate,
+        this.relationshiptemplate, id);
+    if (properties == null) {
+      return Response.noContent().build();
+    } else {
+      return Response.ok(properties).build();
+    }
+  }
+
+  @PUT
+  @Path("/{id}/properties")
+  @Consumes( {MediaType.APPLICATION_XML})
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+  @ApiOperation(hidden = true, value = "")
+  public Response updateRelationshipTemplateInstanceProperties(@PathParam("id") final Long id,
+                                                               final Document request) {
+
+    try {
+      this.instanceService.setRelationshipTemplateInstanceProperties(this.servicetemplate,
+        this.relationshiptemplate, id, request);
+    } catch (final IllegalArgumentException e) { // this handles a null request too
+      return Response.status(Status.BAD_REQUEST).build();
+    } catch (final ReflectiveOperationException e) {
+      return Response.serverError().build();
     }
 
-    @POST
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response createRelationshipTemplateInstance(@Context final UriInfo uriInfo,
-                                                       final CreateRelationshipTemplateInstanceRequest request) {
-        try {
-
-            final RelationshipTemplateInstance createdInstance =
-                this.instanceService.createNewRelationshipTemplateInstance(this.csar, this.servicetemplate,
-                                                                           this.relationshiptemplate, request);
-            final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
-            return Response.ok(instanceURI).build();
-        }
-        catch (final IllegalArgumentException e) {
-            logger.error("Error creating instance: {}", e.getMessage(), e);
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-        catch (InstantiationException | IllegalAccessException e) {
-            logger.error("Error creating instance: {}", e.getMessage(), e);
-            return Response.serverError().build();
-        }
-    }
-
-    @GET
-    @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a relationship template instance", response = RelationshipTemplateInstanceDTO.class)
-    public Response getRelationshipTemplateInstance(@ApiParam("ID of relationship template instance") @PathParam("id") final Long id) {
-
-        final RelationshipTemplateInstance instance =
-            this.instanceService.resolveRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate,
-                                                                     id);
-        final RelationshipTemplateInstanceDTO dto = RelationshipTemplateInstanceDTO.Converter.convert(instance);
-
-        dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
-        dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "properties", false, "properties"));
-        final String path =
-            "/csars/{csar}/servicetemplates/{servicetemplate}/nodetemplates/{nodetemplate}/instances/{nodetemplateinstance}";
-        final URI sourceNodeTemplateInstanceUri =
-            this.uriInfo.getBaseUriBuilder().path(path).build(dto.getCsarId(), dto.getServiceTemplateId(),
-                                                              instance.getSource().getTemplateId().getLocalPart(),
-                                                              dto.getSourceNodeTemplateInstanceId());
-        final URI targetNodeTemplateInstanceUri =
-            this.uriInfo.getBaseUriBuilder().path(path).build(dto.getCsarId(), dto.getServiceTemplateId(),
-                                                              instance.getTarget().getTemplateId().getLocalPart(),
-                                                              dto.getTargetNodeTemplateInstanceId());
-        dto.add(Link.fromUri(UriUtil.encode(sourceNodeTemplateInstanceUri)).rel("source_node_template_instance")
-                    .build());
-        dto.add(Link.fromUri(UriUtil.encode(targetNodeTemplateInstanceUri)).rel("target_node_template_instance")
-                    .build());
-        dto.add(UriUtil.generateSelfLink(this.uriInfo));
-
-        return Response.ok(dto).build();
-    }
-
-    @DELETE
-    @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response deleteRelationshipTemplateInstance(@PathParam("id") final Long id) {
-        this.instanceService.deleteRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate, id);
-        return Response.noContent().build();
-    }
-
-    @GET
-    @Path("/{id}/state")
-    @Produces({MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Get state of a relationship template instance", response = String.class)
-    public Response getRelationshipTemplateInstanceState(@ApiParam("ID of relationship template instance") @PathParam("id") final Long id) {
-        final RelationshipTemplateInstanceState state =
-            this.instanceService.getRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
-                                                                      id);
-        return Response.ok(state.toString()).build();
-    }
-
-    @PUT
-    @Path("/{id}/state")
-    @Consumes({MediaType.TEXT_PLAIN})
-    @ApiOperation(hidden = true, value = "")
-    public Response updateRelationshipTemplateInstanceState(@PathParam("id") final Long id, final String request) {
-        try {
-            this.instanceService.setRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
-                                                                      id, request);
-        }
-        catch (final IllegalArgumentException e) { // this handles a null request too
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-        return Response.ok().build();
-    }
-
-    @GET
-    @Path("/{id}/properties")
-    @Produces({MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response getRelationshipTemplateInstanceProperties(@PathParam("id") final Long id) {
-        final Document properties =
-            this.instanceService.getRelationshipTemplateInstanceProperties(this.servicetemplate,
-                                                                           this.relationshiptemplate, id);
-        if (properties == null) {
-            return Response.noContent().build();
-        } else {
-            return Response.ok(properties).build();
-        }
-    }
-
-    @PUT
-    @Path("/{id}/properties")
-    @Consumes({MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    @ApiOperation(hidden = true, value = "")
-    public Response updateRelationshipTemplateInstanceProperties(@PathParam("id") final Long id,
-                                                                 final Document request) {
-
-        try {
-            this.instanceService.setRelationshipTemplateInstanceProperties(this.servicetemplate,
-                                                                           this.relationshiptemplate, id, request);
-        }
-        catch (final IllegalArgumentException e) { // this handles a null request too
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-        catch (final ReflectiveOperationException e) {
-            return Response.serverError().build();
-        }
-
-        return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
-    }
+    return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
+  }
 }

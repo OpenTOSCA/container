@@ -12,15 +12,15 @@ import org.slf4j.LoggerFactory;
 @Provider
 public class LoggingExceptionMapper implements ExceptionMapper<Throwable> {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoggingExceptionMapper.class);
-    
-    @Override
-    public Response toResponse(Throwable exception) {
-        logger.info("An exception was not handled!", exception);
-        if (exception instanceof NotFoundException) {
-            return Response.status(Status.NOT_FOUND).build();
-        }
-        
-        return Response.serverError().entity(exception).build();
+  private static final Logger logger = LoggerFactory.getLogger(LoggingExceptionMapper.class);
+
+  @Override
+  public Response toResponse(Throwable exception) {
+    logger.info("An exception was not handled!", exception);
+    if (exception instanceof NotFoundException) {
+      return Response.status(Status.NOT_FOUND).build();
     }
+
+    return Response.serverError().entity(exception).build();
+  }
 }

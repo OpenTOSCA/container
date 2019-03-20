@@ -17,49 +17,49 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NodeTemplateDTO extends ResourceSupport {
 
-    @XmlAttribute(name = "id")
-    private String id;
+  @XmlAttribute(name = "id")
+  private String id;
 
-    @XmlElement(name = "Name")
-    private String name;
+  @XmlElement(name = "Name")
+  private String name;
 
-    @XmlElement(name = "NodeType")
-    private String nodeType;
+  @XmlElement(name = "NodeType")
+  private String nodeType;
 
-    @XmlElement(name = "Interfaces")
-    private InterfaceListDTO interfaces;
+  @XmlElement(name = "Interfaces")
+  private InterfaceListDTO interfaces;
 
-    public String getId() {
-        return this.id;
-    }
+  public String getId() {
+    return this.id;
+  }
 
-    public void setId(final String id) {
-        this.id = id;
-    }
+  public void setId(final String id) {
+    this.id = id;
+  }
 
-    public String getName() {
-        return this.name;
-    }
+  public String getName() {
+    return this.name;
+  }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
+  public void setName(final String name) {
+    this.name = name;
+  }
 
-    @ApiModelProperty(name = "node_type")
-    public String getNodeType() {
-        return this.nodeType;
-    }
+  @ApiModelProperty(name = "node_type")
+  public String getNodeType() {
+    return this.nodeType;
+  }
 
-    public void setNodeType(final String nodeType) {
-        this.nodeType = nodeType;
-    }
+  public void setNodeType(final String nodeType) {
+    this.nodeType = nodeType;
+  }
 
-    public InterfaceListDTO getInterfaces() {
-        return this.interfaces;
-    }
+  public InterfaceListDTO getInterfaces() {
+    return this.interfaces;
+  }
 
-    public void setInterfaces(final InterfaceListDTO interfaces) {
-        this.interfaces = interfaces;
-    }
+  public void setInterfaces(final InterfaceListDTO interfaces) {
+    this.interfaces = interfaces;
+  }
 
 }

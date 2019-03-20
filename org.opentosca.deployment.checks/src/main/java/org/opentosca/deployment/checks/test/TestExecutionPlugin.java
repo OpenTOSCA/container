@@ -8,9 +8,9 @@ import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 
 public interface TestExecutionPlugin {
 
-    DeploymentTestResult execute(final TestContext context, final AbstractNodeTemplate nodeTemplate,
-                                 final NodeTemplateInstance nodeTemplateInstance,
-                                 final AbstractPolicyTemplate policyTemplate);
+  DeploymentTestResult execute(final TestContext context, final AbstractNodeTemplate nodeTemplate,
+                               final NodeTemplateInstance nodeTemplateInstance,
+                               final AbstractPolicyTemplate policyTemplate);
 
-    boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate);
+  boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate);
 }
