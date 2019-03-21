@@ -276,8 +276,8 @@ public class PlanService {
 
         // set "meta" params
         for (TParameter param : parameters) {
-            if (param.getName()
-                     .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT)) {
+            if (param.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT)
+                && param.getValue() != null && param.getValue().isEmpty()) {
                 String containerRepoUrl = Settings.getSetting("org.opentosca.container.connector.winery.url");
                 param.setValue(containerRepoUrl);
             }

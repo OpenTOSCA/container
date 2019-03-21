@@ -335,16 +335,13 @@ public class BPELScopeBuilder {
         for (final IANodeTypeImplCandidate iaCandidate : chain.iaCandidates) {
             final int iaCandidateSize = iaCandidate.ias.size();
             for (final OperationNodeTypeImplCandidate provCandidate : chain.provCandidates) {
-                int count = 0;
                 for (final AbstractImplementationArtifact iaCandidateIa : iaCandidate.ias) {
                     for (final AbstractImplementationArtifact provCandidateIa : provCandidate.ias) {
                         if (iaCandidateIa.equals(provCandidateIa)) {
-                            count++;
+                            reorderedList.add(provCandidate);
+                            break;
                         }
                     }
-                }
-                if (count == iaCandidateSize) {
-                    reorderedList.add(provCandidate);
                 }
             }
         }

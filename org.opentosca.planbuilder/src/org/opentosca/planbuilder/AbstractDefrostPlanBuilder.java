@@ -80,8 +80,8 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractPlanBuilder {
         for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
             
             if(nodeToStart.contains(nodeTemplate)) {
-                final AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_start_activity",
-                                                                            ActivityType.START, nodeTemplate);
+                final AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_no_activity",
+                                                                            ActivityType.NONE, nodeTemplate);
                 activities.add(activity);
                 nodeActivityMapping.put(nodeTemplate, activity);
 

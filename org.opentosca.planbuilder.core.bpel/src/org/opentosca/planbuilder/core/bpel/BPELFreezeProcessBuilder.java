@@ -34,10 +34,13 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -65,8 +68,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
     // accepted operations for provisioning
     private final List<String> opNames = new ArrayList<>();
-    
-    
+
+
 
     /**
      * <p>
@@ -114,13 +117,14 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             final AbstractPlan newAbstractBackupPlan =
                 generateFOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 
-            newAbstractBackupPlan.setType(PlanType.MANAGE);
+            newAbstractBackupPlan.setType(PlanType.TERMINATE);
             final BPELPlan newFreezePlan =
                 this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, "freeze");
 
             this.planHandler.initializeBPELSkeleton(newFreezePlan, csarName);
-            
-            
+
+            newFreezePlan.setTOSCAInterfaceName("OpenTOSCA-Stateful-Lifecycle-Interface");
+            newFreezePlan.setTOSCAOperationname("freeze");
 
             this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newFreezePlan);
             this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newFreezePlan);
@@ -153,6 +157,10 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             }
 
             final List<BPELScopeActivity> changedActivities = runPlugins(newFreezePlan, propMap);
+
+            this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newFreezePlan,
+                                                                          newFreezePlan.getBpelMainSequenceOutputAssignElement(),
+                                                                          "DELETED");
 
             this.serviceInstanceVarsHandler.addCorrellationID(newFreezePlan);
 
@@ -205,7 +213,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         }
         return plans;
     }
-    
+
     private boolean isStateful(AbstractNodeTemplate nodeTemplate) {
         return this.hasSaveStateInterface(nodeTemplate) && this.hasStatefulComponentPolicy(nodeTemplate);
     }
@@ -264,20 +272,21 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
         return null;
     }
-    
- 
+
+
 
     private void appendGenerateStatefulServiceTemplateLogic(BPELPlan plan) throws IOException, SAXException {
         QName serviceTemplateId = plan.getServiceTemplate().getQName();
 
-        this.planHandler.addStringElementToPlanRequest(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT, plan);
+        this.planHandler.addStringElementToPlanRequest(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT,
+                                                       plan);
 
         // var to save serviceTemplate url on storage service
         String statefulServiceTemplateVarName =
             this.planHandler.addGlobalStringVariable("statefulServiceTemplateUrl" + System.currentTimeMillis(), plan);
         String responseVarName = this.planHandler.createAnyTypeVar(plan);
 
-       
+
         // assign variable with the original service template url
         Node assignStatefuleServiceTemplateStorageVar =
             this.bpelFragments.createAssignVarToVarWithXpathQueryAsNode("assignServiceTemplateStorageUrl"
@@ -291,8 +300,9 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                                                                             + "','/" + serviceTemplateId.getLocalPart()
                                                                             + "','/createnewstatefulversion')");
         assignStatefuleServiceTemplateStorageVar =
-            plan.getBpelDocument().importNode(assignStatefuleServiceTemplateStorageVar, true);                
-        plan.getBpelMainSequenceElement().insertBefore(assignStatefuleServiceTemplateStorageVar, plan.getBpelMainSequencePropertyAssignElement());        
+            plan.getBpelDocument().importNode(assignStatefuleServiceTemplateStorageVar, true);
+        plan.getBpelMainSequenceElement().insertBefore(assignStatefuleServiceTemplateStorageVar,
+                                                       plan.getBpelMainSequencePropertyAssignElement());
 
 
         // create append POST for creating a stateful service template version
@@ -300,14 +310,16 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             this.bpelFragments.createHTTPPOST(statefulServiceTemplateVarName, responseVarName);
 
         createStatefulServiceTemplatePOST = plan.getBpelDocument().importNode(createStatefulServiceTemplatePOST, true);
-        
-        plan.getBpelMainSequenceElement().insertBefore(createStatefulServiceTemplatePOST, plan.getBpelMainSequencePropertyAssignElement());        
+
+        plan.getBpelMainSequenceElement().insertBefore(createStatefulServiceTemplatePOST,
+                                                       plan.getBpelMainSequencePropertyAssignElement());
 
 
         // read response and assign url of created stateful service template
         // query the localname from the response
-        String xpathQuery1 = "concat(substring-before($" + statefulServiceTemplateVarName + ",'"
-            + serviceTemplateId.getLocalPart() + "'),encode-for-uri(encode-for-uri(//*[local-name()='QName']/*[local-name()='localname']/text())))";
+        String xpathQuery1 =
+            "concat(substring-before($" + statefulServiceTemplateVarName + ",'" + serviceTemplateId.getLocalPart()
+                + "'),encode-for-uri(encode-for-uri(//*[local-name()='QName']/*[local-name()='localname']/text())))";
         // query original service template url without the last path fragment(/service template localname)
         String xpathQuery2 = "string($" + statefulServiceTemplateVarName + ")";
         Node assignCreatedStatefulServiceTemplate =
@@ -320,7 +332,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
         assignCreatedStatefulServiceTemplate =
             plan.getBpelDocument().importNode(assignCreatedStatefulServiceTemplate, true);
-        plan.getBpelMainSequenceElement().insertBefore(assignCreatedStatefulServiceTemplate, plan.getBpelMainSequencePropertyAssignElement());        
+        plan.getBpelMainSequenceElement().insertBefore(assignCreatedStatefulServiceTemplate,
+                                                       plan.getBpelMainSequencePropertyAssignElement());
     }
 
     /**
@@ -338,17 +351,17 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         String statefulServiceTemplateUrlVarName = this.findStatefulServiceTemplateUrlVar(plan);
 
         for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
+            final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
             if (templatePlan.getNodeTemplate() != null) {
 
                 // create a context for the node
-                final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
 
                 boolean alreadyHandled = false;
                 AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 
-                
+
                 // TODO add termination logic
-                
+
                 /*
                  * generic save state code
                  */
@@ -389,51 +402,88 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
                 }
 
-                /*
-                 * Legacy Code for specific docker containers:
-                 */
-                // Only looks at Nodes that are no docker engine
-                if (!alreadyHandled
-                    && !org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(templatePlan.getNodeTemplate()
-                                                                                                                        .getType()
-                                                                                                                        .getId())) {
 
+
+                if (org.opentosca.container.core.tosca.convention.Utils.isSupportedVMNodeType(templatePlan.getNodeTemplate()
+                                                                                                          .getType()
+                                                                                                          .getId())) {
+
+                    // fetch infrastructure node (cloud provider)
+                    final List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
+                    for (final AbstractNodeTemplate infraNode : infraNodes) {
+                        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(infraNode.getType()
+                                                                                                                          .getId())) {
+                            // append logic to call terminateVM method on the
+                            // node
+
+                            context.executeOperation(infraNode,
+                                                     org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+                                                     org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
+                                                     null);
+
+                            changedActivities.add(templatePlan);
+                        }
+                    }
+
+                } else {
+
+                    if (!isDockerContainer(context.getNodeTemplate())) {
+                        continue;
+                    }
+
+                    // fetch infrastructure node (cloud provider)
                     final List<AbstractNodeTemplate> nodes = new ArrayList<>();
                     ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
+
                     for (final AbstractNodeTemplate node : nodes) {
-
-                        // I've got no idea what is going on down here...
-                        List<AbstractNodeTypeImplementation> IA = node.getImplementations();
-                        Iterator<AbstractNodeTypeImplementation> iai = IA.iterator();
-                        while (iai.hasNext()) {
-                            List<AbstractImplementationArtifact> Ias = iai.next().getImplementationArtifacts();
-                            Iterator<AbstractImplementationArtifact> iasi = Ias.iterator();
-
-                            while (iasi.hasNext()) {
-                                String methods = iasi.next().getName();
-                                //
-                                if (methods.contains(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Defreeze)) {
-                                    boolean gotExecuted =
-                                        context.executeOperation(node,
-                                                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Backup,
-                                                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Freeze,
-                                                                 null);
-                                    if (gotExecuted) {
-                                        BPELFreezeProcessBuilder.LOG.debug("Freeze Plan created");
-                                    } else {
-                                        BPELFreezeProcessBuilder.LOG.debug("Freeze Plan creation failed");
-                                    }
-                                    BPELFreezeProcessBuilder.LOG.info("" + String.valueOf(gotExecuted));
-                                    changedActivities.add(templatePlan);
-                                }
-                            }
+                        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
+                                                                                                                    .getId())) {
+                            context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
+                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
+                                                     null);
+                            changedActivities.add(templatePlan);
                         }
                     }
 
                 }
-            }
 
+                for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+                    if (postPhasePlugin.canHandle(nodeTemplate)) {
+                        postPhasePlugin.handle(context, nodeTemplate);
+                    }
+                }
+            }
         }
+
         return changedActivities;
+
+    }
+
+    private boolean isDockerContainer(final AbstractNodeTemplate nodeTemplate) {
+        if (nodeTemplate.getProperties() == null) {
+            return false;
+        }
+        final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
+        final NodeList childNodeList = propertyElement.getChildNodes();
+
+        int check = 0;
+        boolean foundDockerImageProp = false;
+        for (int index = 0; index < childNodeList.getLength(); index++) {
+            if (childNodeList.item(index).getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            if (childNodeList.item(index).getLocalName().equals("ContainerPort")) {
+                check++;
+            } else if (childNodeList.item(index).getLocalName().equals("Port")) {
+                check++;
+            } else if (childNodeList.item(index).getLocalName().equals("ImageID")) {
+                foundDockerImageProp = true;
+            }
+        }
+
+        if (check != 2) {
+            return false;
+        }
+        return true;
     }
 }

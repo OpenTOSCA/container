@@ -27,10 +27,9 @@ public class Interfaces {
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Defreeze = "defreeze";
 
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE = "http://opentosca.org/interfaces/state";
-	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE = "saveState";
-	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT = "StoreStateServiceEndpoint";
-	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE = "restoreState";
-	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE_MANDATORY_PARAM_ENDPOINT = "GetStateServiceEndpoint";
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE = "freeze";
+    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT = "StoreStateServiceEndpoint";
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE = "defrost";
 
 
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_PACKAGENAMES = "PackageNames";
