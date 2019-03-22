@@ -130,22 +130,6 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                                                newDefreezePlan);
 
-            try {
-                this.appendLoadStatefulServiceTemplateLogic(newDefreezePlan);
-            }
-            catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (SAXException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
             // initialize instanceData handling
             this.serviceInstanceInitializer.initializeInstanceDataFromInput(newDefreezePlan);
 
@@ -174,32 +158,6 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         BPELDefrostProcessBuilder.LOG.warn("Couldn't create DeFreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
                                            serviceTemplateId.toString(), definitions.getId(), csarName);
         return null;
-    }
-
-    private void appendLoadStatefulServiceTemplateLogic(BPELPlan plan) throws UnsupportedEncodingException, IOException,
-                                                                       SAXException {
-        this.planHandler.addStringElementToPlanRequest(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT,
-                                                       plan);
-
-
-        // var to save serviceTemplate url on storage service
-        String statefulServiceTemplateVarName =
-            this.planHandler.addGlobalStringVariable("statefulServiceTemplateUrl" + System.currentTimeMillis(), plan);
-
-
-        // assign variable with the original service template url
-        Node assignStatefuleServiceTemplateStorageVar =
-            this.bpelFragments.createAssignVarToVarWithXpathQueryAsNode("assignServiceTemplateStorageUrl"
-                + System.currentTimeMillis(), "input", statefulServiceTemplateVarName,
-                                                                        "string(//*[local-name()='"
-                                                                            + Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT
-                                                                            + "']/text())");
-        assignStatefuleServiceTemplateStorageVar =
-            plan.getBpelDocument().importNode(assignStatefuleServiceTemplateStorageVar, true);
-        plan.getBpelMainSequenceElement().insertBefore(assignStatefuleServiceTemplateStorageVar,
-                                                       plan.getBpelMainSequencePropertyAssignElement());
-
-        // not sure if we need more right now
     }
 
     private boolean isDefrostable(AbstractNodeTemplate nodeTemplate) {
