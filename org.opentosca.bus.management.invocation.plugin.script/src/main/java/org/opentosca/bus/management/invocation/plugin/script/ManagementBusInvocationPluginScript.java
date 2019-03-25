@@ -35,9 +35,6 @@ import org.w3c.dom.NodeList;
 /**
  * Management Bus-Plug-in for Script IAs which have to be executed on a host machine.<br>
  * <br>
- * <p>
- * <p>
- * <p>
  * The Plugin gets needed information from the Management Bus and is responsible for the uploading
  * of the files and the installation of required packages on the target machine (if specified).
  *
@@ -657,21 +654,21 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       // we have to escape single quotes in the parameter values and properly pipe newlines
       // TODO(?) There is still the issue if you use commands in scipt which don't interpret
       // backslashes
-      paramsString += param.getKey() + "=$'" + escapeSingleQuotes(param.getValue()) + "' ";
+      paramsString += param.getKey() + "=$'" + escapeSpecialCharacters(param.getValue()) + "' ";
     }
 
     return paramsString;
   }
 
   /**
-   * Escapes single quotes (') inside the given string conforming to bash argument values. Each '
-   * gets transformed to '"'"'
+   * Escapes special characters inside the given string conforming to bash argument values.
+   *
+   * See e.g. <a href="https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings">Stackoverflow: Escape single quites within single quoted string</a>
    *
    * @return a String with escaped singles quotes
-   * @see https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
    */
-  private String escapeSingleQuotes(final String unenscapedString) {
-    return unenscapedString.replace("'", "'\"'\"'").replace("\n", "'\"\\n\"'");
+  private String escapeSpecialCharacters(final String unenscapedString) {
+    return unenscapedString.replace("'", "'\"'\"'").replace("\n", "'\"\\n\"'").replace("\t", "'\"\\t\"'").replace(" ", "'\" \"'");
   }
 
   /**
