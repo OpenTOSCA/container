@@ -37,6 +37,7 @@ import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.model.TBoolean;
@@ -63,7 +64,6 @@ public class PlanService {
     private DeploymentTestService deploymentTestService;
 
     private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
-
 
     public List<TPlan> getPlansByType(final CSARID id, final PlanTypes... planTypes) {
         logger.debug("Requesting plans of type \"{}\" for CSAR \"{}\"...", planTypes, id);
@@ -183,7 +183,6 @@ public class PlanService {
         return pi;
     }
 
-
     /* API Operations Helper Methods */
     /*********************************/
     /*********************************/
@@ -275,6 +274,15 @@ public class PlanService {
             parameters.add(param);
         }
 
+        // set "meta" params
+        for (TParameter param : parameters) {
+            if (param.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT)
+                && param.getValue() != null && param.getValue().isEmpty()) {
+                String containerRepoUrl = Settings.getSetting("org.opentosca.container.connector.winery.url");
+                param.setValue(containerRepoUrl);
+            }
+        }
+
         final TPlan p = getPlan(plan, csarId);
         final String correlationId = invokePlan(csarId, serviceTemplate, serviceTemplateInstanceId, p, parameters);
         final URI location = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(correlationId).build());
@@ -315,7 +323,8 @@ public class PlanService {
 
         for (final PlanInstanceDTO pi : planInstances) {
 
-            // Should we add the link in the "instances" method or only in "instance" method?
+            // Should we add the link in the "instances" method or only in "instance"
+            // method?
             // Add service template instance link
             final Long id = pi.getServiceTemplateInstanceId();
             if (id != null) {
@@ -340,7 +349,6 @@ public class PlanService {
     public Response getPlanInstance(final String plan, final String instance, final UriInfo uriInfo,
                                     final CSARID csarId, final QName serviceTemplate,
                                     final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
-
 
         final PlanInstance pi =
             resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
@@ -415,7 +423,6 @@ public class PlanService {
                                          final QName serviceTemplate, final Long serviceTemplateInstanceId,
                                          final PlanTypes... planTypes) {
         final String entry = logEntry.getLogEntry();
-
 
         if (entry != null && entry.length() > 0) {
             final PlanInstance pi = resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,

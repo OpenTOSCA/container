@@ -40,7 +40,13 @@ public class Types {
         new QName("http://opentosca.org/NodeTypes", "Ubuntu-14.04-VM");
 
     public final static QName ubuntu1404ServerVmNodeType3 =
-        new QName("http://opentosca.org/nodetypes/versioned", "Ubuntu-VM_14.04-w1");
+        new QName("http://opentosca.org/nodetypes", "Ubuntu-VM_14.04-w1");
+
+    public final static QName ubuntu1604ServerVmNodeType =
+        new QName("http://opentosca.org/nodetypes", "Ubuntu-VM_16.04-w1");
+
+    public final static QName ubuntu1804ServerVmNodeType =
+        new QName("http://opentosca.org/nodetypes", "Ubuntu-VM_18.04-w1");
 
     // raspbian nodeTypes
     public final static QName raspbianJessieOSNodeType = new QName("http://opentosca.org/nodetypes", "RaspbianJessie");

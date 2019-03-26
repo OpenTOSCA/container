@@ -6,7 +6,9 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.AbstractPlanBuilder;
+import org.opentosca.planbuilder.core.bpel.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.BPELBuildProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.BPELDefrostProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.BPELScaleOutProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.BPELTerminationProcessBuilder;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -22,6 +24,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Jan Ruthardt - st107755@stud.uni-stuttgart.de
  *
  */
 public abstract class AbstractImporter {
@@ -55,6 +58,8 @@ public abstract class AbstractImporter {
 		final AbstractPlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
 
 		// FIXME: This does not work for me (Michael W. - 2018-02-19)
+		// if (!this.hasPolicies(defs)) {
+		// buildPlanBuilder = new BPELBuildProcessBuildeplanr();
 		// Because policies must be enforced when they are set on the the topology, if
 		// the planbuilder doesn't understand them it doesn't generate a plan -> doesn't
 		// work for you
@@ -68,9 +73,16 @@ public abstract class AbstractImporter {
 		final AbstractPlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder();
 		final AbstractPlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder();
 
+		final AbstractPlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder();
+		final AbstractPlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder();
+
+
 		plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
 		plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
 		plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
+		plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
+		plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
+
 		return plans;
 	}
 
