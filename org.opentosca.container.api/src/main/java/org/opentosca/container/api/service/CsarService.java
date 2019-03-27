@@ -1,5 +1,6 @@
 package org.opentosca.container.api.service;
 
+import csarhandler.CSARHandler;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
@@ -7,7 +8,6 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;

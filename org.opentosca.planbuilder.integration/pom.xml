@@ -19,7 +19,7 @@
     </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.planbuilder.csarhandler</artifactId>
+      <artifactId>org.opentosca.planbuilder</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

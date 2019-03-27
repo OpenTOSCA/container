@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -54,15 +55,15 @@ public class CSARMetaDataJPAStore {
   /**
    * Persists the meta data of CSAR {@code csarID}.
    *
-   * @param csarID                     of the CSAR.
-   * @param toscaMetaFile              - represents the content of the TOSCA meta file of the CSAR.
+   * @param csarID        of the CSAR.
+   * @param toscaMetaFile - represents the content of the TOSCA meta file of the CSAR.
    */
   public void storeCSARMetaData(final CSARID csarID, final TOSCAMetaFile toscaMetaFile) {
     initJPA();
     LOG.debug("Storing meta data of CSAR \"{}\"...", csarID);
 
     // FIXME pass the actual directory of the CSAR root
-    final CSARContent csar = new CSARContent(csarID, new FileSystemDirectory(Paths.get("")),toscaMetaFile);
+    final CSARContent csar = new CSARContent(csarID, new FileSystemDirectory(Paths.get("")), toscaMetaFile);
 
     this.em.getTransaction().begin();
     this.em.persist(csar);
@@ -82,13 +83,17 @@ public class CSARMetaDataJPAStore {
     initJPA();
     LOG.debug("Checking if meta data of CSAR \"{}\" are stored...", csarID);
 
-    final CSARContent csar = this.em.find(CSARContent.class, csarID);
-    if (csar == null) {
+    final TypedQuery<CSARContent> query = this.em.createNamedQuery(CSARContent.csarsByCSARID, CSARContent.class);
+    query.setParameter("csarID", csarID);
+
+    try {
+      query.getSingleResult();
+      LOG.debug("Meta data of CSAR \"{}\" were found.", csarID);
+      return true;
+    } catch (NoResultException e) {
       LOG.debug("Meta data of CSAR \"{}\" were not found.", csarID);
       return false;
     }
-    LOG.debug("Meta data of CSAR \"{}\" were found.", csarID);
-    return true;
   }
 
   /**
@@ -103,15 +108,16 @@ public class CSARMetaDataJPAStore {
     initJPA();
     LOG.debug("Retrieving meta data of CSAR \"{}\"...", csarID);
 
-    final CSARContent csar = this.em.find(CSARContent.class, csarID);
-    if (csar == null) {
+    final TypedQuery<CSARContent> query = this.em.createNamedQuery(CSARContent.csarsByCSARID, CSARContent.class);
+    query.setParameter("csarID", csarID);
+
+    try {
+      return query.getSingleResult();
+    } catch (NoResultException e) {
       String message = String.format("Meta data of CSAR \"%s\" were not found.", csarID);
       LOG.debug(message);
       throw new NotFoundException(message);
     }
-
-    LOG.debug("Meta data of CSAR \"{}\" were retrieved.", csarID);
-    return csar;
   }
 
   /**

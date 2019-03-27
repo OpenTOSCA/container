@@ -1,4 +1,4 @@
-package csarhandler;
+package org.opentosca.planbuilder.csarhandler;
 
 import java.io.File;
 import java.io.IOException;

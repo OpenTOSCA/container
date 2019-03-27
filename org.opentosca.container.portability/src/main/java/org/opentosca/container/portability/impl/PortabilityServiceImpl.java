@@ -5,11 +5,11 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedImplementationArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.opentosca.container.portability.IPortabilityService;
 import org.opentosca.container.portability.model.Artifacts;
 import org.opentosca.container.portability.model.DeploymentArtifact;
@@ -161,16 +161,13 @@ public class PortabilityServiceImpl implements IPortabilityService {
    * toscaEngineService for the NodeTemplate of the <code>CSARID</code> and filters them by the
    * <code>artifactName</code>
    *
-   * @param filteredDAList               list of resolvedArtifacts where the filtered DAs will be STORED!!!
-   * @param filteredIAList               list of resolvedArtifacts where the filtered IAs will be STORED!!
-   * @param csarID                       csarID of the CSAR
-   * @param nodeTemplateID               NodeTemplate ID
-   * @param deploymentArtifactNameFilter Filter which will be applied (.equals) to the resolved
-   *                                     DeploymentArtifacts
-   * @param interfaceNameFilter          Filter which will be applied (.equals) to the resolved
-   *                                     ImplArtifacts
-   * @param operationNameFilter          Filter which will be applied (.equals) to the resolved
-   *                                     ImplArtifacts
+   * @param filteredDAList         list of resolvedArtifacts where the filtered DAs will be STORED!!!
+   * @param filteredIAList         list of resolvedArtifacts where the filtered IAs will be STORED!!
+   * @param csarID                 csarID of the CSAR
+   * @param nodeTemplateID         NodeTemplate ID
+   * @param deploymentArtifactName Filter which will be applied (.equals) to the resolved DeploymentArtifacts
+   * @param interfaceName          Filter which will be applied (.equals) to the resolved ImplArtifacts
+   * @param operationName          Filter which will be applied (.equals) to the resolved ImplArtifacts
    */
   private void fillFilteredArtifactsOfNodeTemplateByName(final List<ResolvedDeploymentArtifact> filteredDAList,
                                                          final List<ResolvedImplementationArtifact> filteredIAList,
@@ -225,14 +222,10 @@ public class PortabilityServiceImpl implements IPortabilityService {
    * @param filteredDAList               list of resolvedArtifacts where the filtered DAs will be STORED!!!
    * @param filteredIAList               list of resolvedArtifacts where the filtered IAs will be STORED!!
    * @param csarID                       csarID of the CSAR
-   * @param nodeTypeImplementations      List of nodeTypeImplementations for which the Artifacts will
-   *                                     be resolved
-   * @param deploymentArtifactNameFilter Filter which will be applied (.equals) to the resolved
-   *                                     DeploymentArtifacts
-   * @param interfaceNameFilter          Filter which will be applied (.equals) to the resolved
-   *                                     ImplArtifacts
-   * @param operationNameFilter          Filter which will be applied (.equals) to the resolved
-   *                                     ImplArtifacts
+   * @param nodeTypeImplementations      List of nodeTypeImplementations for which the Artifacts will be resolved
+   * @param deploymentArtifactNameFilter Filter which will be applied (.equals) to the resolved DeploymentArtifacts
+   * @param interfaceNameFilter          Filter which will be applied (.equals) to the resolved ImplArtifacts
+   * @param operationNameFilter          Filter which will be applied (.equals) to the resolved ImplArtifacts
    */
   private void fillFilteredArtifactsOfNodeTypeImplByName(final List<ResolvedDeploymentArtifact> filteredDAList,
                                                          final List<ResolvedImplementationArtifact> filteredIAList,
@@ -297,9 +290,8 @@ public class PortabilityServiceImpl implements IPortabilityService {
    * @param filteredDAList                  list of resolvedArtifacts where the filtered DAs will be STORED!!!
    * @param filteredIAList                  list of resolvedArtifacts where the filtered IAs will be STORED!!
    * @param csarID                          csarID of the CSAR
-   * @param relationshipTypeImplementations List of relationshipTypeImplementations for which the
-   *                                        Artifacts will be resolved
-   * @param artifactNameFilter              Filter which will be applied (.equals) to the resolved Artifacts
+   * @param relationshipTypeImplementations List of relationshipTypeImplementations for which the Artifacts will be resolved
+   * @param deploymentArtifactNameFilter    Filter which will be applied (.equals) to the resolved Artifacts
    */
   private void fillFilteredArtifactsOfRelationshipTypeImplByName(final List<ResolvedDeploymentArtifact> filteredDAList,
                                                                  final List<ResolvedImplementationArtifact> filteredIAList,
@@ -373,24 +365,8 @@ public class PortabilityServiceImpl implements IPortabilityService {
     return false;
   }
 
-  public void bindToscaEngineService(final IToscaEngineService toscaEngineService) {
-    if (toscaEngineService == null) {
-      PortabilityServiceImpl.LOG.error("Can't bind ToscaEngine Service.");
-    } else {
-      PortabilityServiceImpl.toscaEngineService = toscaEngineService;
-      PortabilityServiceImpl.LOG.info("ToscaEngine-Service bound.");
-    }
-  }
-
-  public void unbindToscaEngineService(final IToscaEngineService toscaEngineService) {
-    PortabilityServiceImpl.toscaEngineService = null;
-    PortabilityServiceImpl.LOG.info("ToscaEngine-Service unbound.");
-
-  }
-
   @Override
   public boolean isNodeTemplate(final CSARID csarID, final QName serviceTemplateID, final QName templateId) {
     return toscaEngineService.doesNodeTemplateExist(csarID, serviceTemplateID, templateId.getLocalPart());
   }
-
 }

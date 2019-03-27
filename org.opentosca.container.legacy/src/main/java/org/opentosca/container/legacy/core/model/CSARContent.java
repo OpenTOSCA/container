@@ -35,12 +35,13 @@ import org.slf4j.LoggerFactory;
  *
  * @deprecated Instead use {@link Csar}
  */
-@NamedQueries( {@NamedQuery(name = CSARContent.getCSARIDs, query = CSARContent.getCSARIDsQuery),
-  @NamedQuery(name = CSARContent.getFileToStorageProviderIDMapByCSARID,
-    query = CSARContent.getFileToStorageProviderIDMapByCSARIDQuery),
-  @NamedQuery(name = CSARContent.getDirectoriesByCSARID, query = CSARContent.getDirectoriesByCSARIDQuery)})
-@NamedNativeQuery(name = CSARContent.storeStorageProviderIDByFileAndCSARID,
-  query = CSARContent.storeStorageProviderIDByFileAndCSARIDQuery)
+@NamedQueries({
+  @NamedQuery(name = CSARContent.getCSARIDs, query = CSARContent.getCSARIDsQuery),
+  @NamedQuery(name = CSARContent.getFileToStorageProviderIDMapByCSARID, query = CSARContent.getFileToStorageProviderIDMapByCSARIDQuery),
+  @NamedQuery(name = CSARContent.getDirectoriesByCSARID, query = CSARContent.getDirectoriesByCSARIDQuery),
+  @NamedQuery(name = CSARContent.csarsByCSARID, query = CSARContent.getCSARContentsByCSARIDQuery),
+})
+@NamedNativeQuery(name = CSARContent.storeStorageProviderIDByFileAndCSARID, query = CSARContent.storeStorageProviderIDByFileAndCSARIDQuery)
 @Entity(name = CSARContent.CSAR_TABLE_NAME)
 @Table(name = CSARContent.CSAR_TABLE_NAME)
 @Deprecated
@@ -49,8 +50,8 @@ public class CSARContent implements IBrowseable {
    * JPQL Queries
    */
   public static final String getCSARIDs = "CSARContent.getCSARIDs";
-  public static final String getFileToStorageProviderIDMapByCSARID =
-    CSARContent.CSAR_TABLE_NAME + ".getFileToStorageProviderIDMapByCSARID";
+  public static final String getFileToStorageProviderIDMapByCSARID = CSARContent.CSAR_TABLE_NAME + ".getFileToStorageProviderIDMapByCSARID";
+  public static final String csarsByCSARID = "CSARContent.byCSARID";
   /**
    * For storing / updating the storage provider ID of a file in CSAR we must use a native SQL query,
    * because JPQL update queries doesn't work on Maps.
@@ -71,6 +72,7 @@ public class CSARContent implements IBrowseable {
 
   protected static final String getDirectoriesByCSARIDQuery =
     "SELECT t FROM " + CSARContent.CSAR_TABLE_NAME + " t WHERE t.csarID = :csarID";
+  static final String getCSARContentsByCSARIDQuery = "SELECT t FROM " + CSARContent.CSAR_TABLE_NAME + " t WHERE t.csarID = :csarID";
 
   private static final Logger LOG = LoggerFactory.getLogger(CSARContent.class);
 

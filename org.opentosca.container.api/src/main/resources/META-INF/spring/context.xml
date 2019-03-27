@@ -19,4 +19,8 @@
   <context:component-scan base-package="org.opentosca.container.core.service.impl" />
   <context:component-scan base-package="org.opentosca.container.core.engine.impl" />
   <context:component-scan base-package="org.opentosca.container.engine.plan.impl" />
+
+  <context:component-scan base-package="org.opentosca.container.legacy.core.service" />
+  <context:component-scan base-package="org.opentosca.container.legacy.core.engine" />
+  <context:component-scan base-package="org.opentosca.container.legacy.core.plan" />
 </beans>
