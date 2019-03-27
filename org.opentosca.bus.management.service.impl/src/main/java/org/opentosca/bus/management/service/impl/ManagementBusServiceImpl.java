@@ -28,7 +28,6 @@ import org.opentosca.bus.management.service.impl.util.ParameterHandler;
 import org.opentosca.bus.management.service.impl.util.PluginHandler;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -43,6 +42,7 @@ import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -81,12 +81,11 @@ import org.w3c.dom.NodeList;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
- * @see IManagementBusInvocationPluginService
  * @see IManagementBusDeploymentPluginService
- * @see IToscaEngineService
  * @see ICoreEndpointService
  */
 
+@Service
 public class ManagementBusServiceImpl implements IManagementBusService {
 
   private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);

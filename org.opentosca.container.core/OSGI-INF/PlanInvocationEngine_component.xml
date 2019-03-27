@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="PlanInvocationEngine">
-   <implementation class="org.opentosca.container.core.impl.plan.PlanInvocationEngine"/>
+   <implementation class="org.opentosca.container.legacy.core.plan.PlanInvocationEngine"/>
    <service>
       <provide interface="org.opentosca.container.core.service.IPlanInvocationEngine"/>
       <provide interface="org.osgi.service.event.EventHandler"/>

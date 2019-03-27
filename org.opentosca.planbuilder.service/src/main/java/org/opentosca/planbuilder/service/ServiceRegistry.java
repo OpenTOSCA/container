@@ -1,13 +1,10 @@
-/**
- *
- */
 package org.opentosca.planbuilder.service;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.service.IHTTPService;
+import org.opentosca.container.legacy.core.service.ICoreFileService;
 import org.osgi.service.http.HttpService;
 
 /**
@@ -28,22 +25,6 @@ public class ServiceRegistry {
 
   public static ICoreFileService getCoreFileService() {
     return ServiceRegistry.openToscaCoreFileService;
-  }
-
-  protected void bindOpenToscaHttpService(final IHTTPService httpService) {
-    ServiceRegistry.openToscaHttpService = httpService;
-  }
-
-  protected void unbindOpenToscaHttpService(final IHTTPService httpService) {
-    ServiceRegistry.openToscaHttpService = null;
-  }
-
-  protected void bindOpenToscaCoreFileService(final ICoreFileService coreFileService) {
-    ServiceRegistry.openToscaCoreFileService = coreFileService;
-  }
-
-  protected void unbindOpenToscaCoreFileService(final ICoreFileService coreFileService) {
-    ServiceRegistry.openToscaCoreFileService = null;
   }
 
   protected void bindHttpService(final HttpService httpService) {

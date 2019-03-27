@@ -1,5 +1,6 @@
 package org.opentosca.container.core.common;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -9,56 +10,41 @@ import java.util.Properties;
  */
 public class Settings {
 
-  public final static String OPENTOSCA_CONTAINER_HOSTNAME =
-    System.getProperty("org.opentosca.container.hostname", "localhost");
+  public final static String OPENTOSCA_CONTAINER_HOSTNAME = System.getProperty("org.opentosca.container.hostname", "localhost");
   public final static String OPENTOSCA_CONTAINER_PORT = System.getProperty("org.opentosca.container.port", "1337");
 
-  public final static String CONTAINER_API_LEGACY =
-    "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi";
-  public final static String CONTAINER_API =
-    "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;
-  public final static String CONTAINER_INSTANCEDATA_LEGACY_API =
-    "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT
-      + "/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
-  public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
-    + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/servicetemplates/{servicetemplateid}/instances";
-  public final static String OPENTOSCA_CONTAINER_CONTENT_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
-    + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
+  @Deprecated
+  public final static String CONTAINER_API_LEGACY = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi";
+  public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;
+  public final static String CONTAINER_INSTANCEDATA_LEGACY_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
+  public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/servicetemplates/{servicetemplateid}/instances";
+  public final static String OPENTOSCA_CONTAINER_CONTENT_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
 
-  public final static String ENGINE_IA_TOMCAT_URL =
-    System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.url", "http://localhost:8090");
-  public final static String ENGINE_IA_TOMCAT_USERNAME =
-    System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.username", "admin");
-  public final static String ENGINE_IA_TOMCAT_PASSWORD =
-    System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.password", "admin");
+  public final static String ENGINE_IA_TOMCAT_URL = System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.url", "http://localhost:8090");
+  public final static String ENGINE_IA_TOMCAT_USERNAME = System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.username", "admin");
+  public final static String ENGINE_IA_TOMCAT_PASSWORD = System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.password", "admin");
 
 
   public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
 
   public final static String OPENTOSCA_DEPLOYMENT_TESTS = System.getProperty("org.opentosca.deployment.checks", "false");
-
   public final static Path CONTAINER_STORAGE_BASEPATH = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "container", "csar-storage");
+
   /**
    * OpenTOSCA Container database location
    */
   public static final Path DBDIR = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "db");
 
-  public final static String OPENTOSCA_COLLABORATION_MODE =
-    System.getProperty("org.opentosca.container.collaboration.mode", "false");
-  public final static String OPENTOSCA_COLLABORATION_HOSTNAMES =
-    System.getProperty("org.opentosca.container.collaboration.hostnames");
-  public final static String OPENTOSCA_COLLABORATION_PORTS =
-    System.getProperty("org.opentosca.container.collaboration.ports");
+  public final static String OPENTOSCA_COLLABORATION_MODE = System.getProperty("org.opentosca.container.collaboration.mode", "false");
+  public final static String OPENTOSCA_COLLABORATION_HOSTNAMES = System.getProperty("org.opentosca.container.collaboration.hostnames");
+  public final static String OPENTOSCA_COLLABORATION_PORTS = System.getProperty("org.opentosca.container.collaboration.ports");
 
-  public final static String OPENTOSCA_BROKER_MQTT_PORT =
-    System.getProperty("org.opentosca.container.broker.mqtt.port", "1883");
-  public final static String OPENTOSCA_BROKER_MQTT_USERNAME =
-    System.getProperty("org.opentosca.container.broker.mqtt.username", "admin");
-  public final static String OPENTOSCA_BROKER_MQTT_PASSWORD =
-    System.getProperty("org.opentosca.container.broker.mqtt.password", "admin");
+  public final static String OPENTOSCA_BROKER_MQTT_PORT = System.getProperty("org.opentosca.container.broker.mqtt.port", "1883");
+  public final static String OPENTOSCA_BROKER_MQTT_USERNAME = System.getProperty("org.opentosca.container.broker.mqtt.username", "admin");
+  public final static String OPENTOSCA_BROKER_MQTT_PASSWORD = System.getProperty("org.opentosca.container.broker.mqtt.password", "admin");
   // Container Capabilities
-  public final static String containerCapabilities =
-    "http://opentosca/planportabilityapi/rest, http://opentosca/containerapi";
+  public final static String containerCapabilities = "http://opentosca/planportabilityapi/rest, http://opentosca/containerapi";
+  public static final String TOSCA_META_FILE_REL_PATH = "TOSCA-Metadata" + File.separator + "TOSCA.meta";
 
 
   // TODO: Use public static final variables instead, as in

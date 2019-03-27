@@ -5,11 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.impl.plan.ServiceProxy;
+import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,74 +25,75 @@ import org.w3c.dom.NodeList;
 
 public class RESTMessageGenerator {
 
-  private final Logger LOG = LoggerFactory.getLogger(RESTMessageGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RESTMessageGenerator.class);
+
+  @Inject
+  private CsarStorageService storageBridge;
 
   public Map<String, String> createRequest(final CSARID csarID, final QName planInputMessageID,
                                            final List<TParameterDTO> inputParameter, final String correlationID) {
+    final List<TEntityTemplate.Properties> docs = new ArrayList<>();
 
-    final Map<String, String> map = new HashMap<>();
-    final List<Document> docs = new ArrayList<>();
-
-    final List<QName> serviceTemplates = ServiceProxy.toscaEngineService.getServiceTemplatesInCSAR(csarID);
-    for (final QName serviceTemplate : serviceTemplates) {
-      final List<String> nodeTemplates =
-        ServiceProxy.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarID, serviceTemplate);
-
-      for (final String nodeTemplate : nodeTemplates) {
-        final Document doc =
-          ServiceProxy.toscaEngineService.getPropertiesOfTemplate(csarID, serviceTemplate, nodeTemplate);
-        if (null != doc) {
-          docs.add(doc);
-          this.LOG.trace("Found property document: {}",
-            ServiceProxy.xmlSerializerService.getXmlSerializer().docToString(doc, false));
+    Csar csar = storageBridge.findById(new CsarId(csarID));
+    List<TServiceTemplate> templates = csar.serviceTemplates();
+    for (final TServiceTemplate serviceTemplate : templates) {
+      final List<TNodeTemplate> nodeTemplates = serviceTemplate.getTopologyTemplate().getNodeTemplates();
+      for (final TNodeTemplate nodeTemplate : nodeTemplates) {
+        TEntityTemplate.Properties ntProps = nodeTemplate.getProperties();
+        if (ntProps != null) {
+          docs.add(ntProps);
         }
       }
     }
 
-    this.LOG.trace("Processing a list of {} parameters", inputParameter.size());
+    LOG.trace("Processing a list of {} parameters", inputParameter.size());
+    final Map<String, String> map = new HashMap<>();
     for (final TParameterDTO para : inputParameter) {
-      this.LOG.trace("Put in the parameter {} with value \"{}\".", para.getName(), para.getValue());
+      LOG.trace("Put in the parameter {} with value \"{}\".", para.getName(), para.getValue());
 
       if (para.getType().equalsIgnoreCase("correlation")) {
-        this.LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
+        LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
         map.put(para.getName(), correlationID);
       } else if (para.getName().equalsIgnoreCase("csarName")) {
-        this.LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
+        LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
         map.put(para.getName(), csarID.toString());
       } else if (para.getName().equalsIgnoreCase("containerApiAddress")) {
-        this.LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \""
+        LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \""
           + Settings.CONTAINER_API_LEGACY + "\".");
         map.put(para.getName(), Settings.CONTAINER_API_LEGACY);
       } else if (para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
-        this.LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \""
+        LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \""
           + Settings.CONTAINER_INSTANCEDATA_LEGACY_API + "\".");
         map.put(para.getName(), Settings.CONTAINER_INSTANCEDATA_LEGACY_API);
       } else {
         if (para.getName() == null || para.getValue().equals("")) {
-          this.LOG.debug("The parameter \"" + para.getName()
+          LOG.debug("The parameter \"" + para.getName()
             + "\" has an empty value, thus search in the properties.");
           String value = "";
-          for (final Document doc : docs) {
+          for (final TEntityTemplate.Properties props : docs) {
+            // downcast SHOULD be safe here
+            Document doc = (Document) props.getAny();
+            if (doc == null) {
+              continue;
+            }
             final NodeList nodes = doc.getElementsByTagNameNS("*", para.getName());
-            this.LOG.trace("Found {} nodes.", nodes.getLength());
+            LOG.trace("Found {} nodes.", nodes.getLength());
             if (nodes.getLength() > 0) {
               value = nodes.item(0).getTextContent();
-              this.LOG.debug("Found value {}", value);
+              LOG.debug("Found value {}", value);
               break;
             }
           }
           if (value.equals("")) {
-            this.LOG.debug("No value found.");
+            LOG.debug("No value found.");
           }
           map.put(para.getName(), value);
         } else {
-          this.LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
+          LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
           map.put(para.getName(), para.getValue());
         }
       }
     }
-
     return map;
   }
-
 }

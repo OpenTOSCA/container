@@ -7,9 +7,9 @@ import java.util.Map;
 
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
-import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.opentosca.container.core.service.ICoreEndpointService;
+import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,87 +31,13 @@ import org.slf4j.LoggerFactory;
 
 public class ServiceHandler {
 
-  public static Map<String, IManagementBusInvocationPluginService> invocationPluginServices =
-    Collections.synchronizedMap(new HashMap<String, IManagementBusInvocationPluginService>());
-  public static Map<String, IManagementBusDeploymentPluginService> deploymentPluginServices =
-    Collections.synchronizedMap(new HashMap<String, IManagementBusDeploymentPluginService>());
+  public static Map<String, IManagementBusInvocationPluginService> invocationPluginServices = Collections.synchronizedMap(new HashMap<>());
+  public static Map<String, IManagementBusDeploymentPluginService> deploymentPluginServices = Collections.synchronizedMap(new HashMap<>());
   public static ICoreEndpointService endpointService;
   public static IToscaEngineService toscaEngineService;
   public static ICoreCapabilityService capabilityService;
 
   private final static Logger LOG = LoggerFactory.getLogger(ServiceHandler.class);
-
-  /**
-   * Bind EndpointService.
-   *
-   * @param endpointService - The endpointService to register.
-   */
-  public void bindEndpointService(final ICoreEndpointService endpointService) {
-    if (endpointService != null) {
-      ServiceHandler.endpointService = endpointService;
-      LOG.debug("Bind Endpoint Service: {} bound.", endpointService.toString());
-    } else {
-      LOG.error("Bind Endpoint Service: Supplied parameter is null!");
-    }
-  }
-
-  /**
-   * Unbind EndpointService.
-   *
-   * @param endpointService - The endpointService to unregister.
-   */
-  public void unbindEndpointService(final ICoreEndpointService endpointService) {
-    ServiceHandler.endpointService = null;
-    LOG.debug("Unbind Endpoint Service unbound.");
-  }
-
-  /**
-   * Bind ToscaEngineService
-   *
-   * @param toscaEngineService
-   */
-  public void bindToscaService(final IToscaEngineService toscaEngineService) {
-    if (toscaEngineService != null) {
-      ServiceHandler.toscaEngineService = toscaEngineService;
-      LOG.debug("Bind ToscaEngineService: {} bound.", toscaEngineService.toString());
-    } else {
-      LOG.error("Bind ToscaEngineService: Supplied parameter is null!");
-    }
-  }
-
-  /**
-   * Unbind ToscaEngineService
-   *
-   * @param toscaEngineService
-   */
-  public void unbindToscaService(final IToscaEngineService toscaEngineService) {
-    ServiceHandler.toscaEngineService = null;
-    LOG.debug("Unbind ToscaEngineService unbound.");
-  }
-
-  /**
-   * Bind CapabilityService
-   *
-   * @param capabilityService
-   */
-  public void bindCapabilityService(final ICoreCapabilityService capabilityService) {
-    if (capabilityService != null) {
-      ServiceHandler.capabilityService = capabilityService;
-      LOG.debug("Bind ICoreCapabilityService: {} bound.", ServiceHandler.capabilityService.toString());
-    } else {
-      LOG.error("Bind ICoreCapabilityService: Supplied parameter is null!");
-    }
-  }
-
-  /**
-   * Unbind CapabilityService
-   *
-   * @param capabilityService
-   */
-  public void unbindCapabilityService(final ICoreCapabilityService capabilityService) {
-    ServiceHandler.capabilityService = null;
-    LOG.debug("Unbind ICoreCapabilityService unbound.");
-  }
 
   /**
    * Bind Management Bus Invocation plug-in Services and store them in local HashMap.

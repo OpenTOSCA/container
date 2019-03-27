@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.opentosca.bus.management.servicehandler.ServiceHandler;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
@@ -16,6 +16,7 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -28,11 +29,13 @@ import org.w3c.dom.traversal.NodeIterator;
 
 public class MBUtils {
 
-  final private static Logger LOG = LoggerFactory.getLogger(MBUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MBUtils.class);
 
   // repository to access ServiceTemplateInstance data
-  final private static ServiceTemplateInstanceRepository serviceTemplateInstanceRepository =
-    new ServiceTemplateInstanceRepository();
+  private static final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
+
+  @Inject
+  private static IToscaEngineService toscaEngineService;
 
   /**
    * Returns the OperatingSystem NodeTemplate.
@@ -48,8 +51,7 @@ public class MBUtils {
     MBUtils.LOG.debug("Searching the OperatingSystemNode of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
       nodeTemplateID, serviceTemplateID, csarID);
 
-    QName nodeType =
-      ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
+    QName nodeType = toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
 
     while (!isOperatingSystemNodeType(csarID, nodeType) && nodeTemplateID != null) {
 
@@ -57,30 +59,17 @@ public class MBUtils {
       MBUtils.LOG.debug("Getting the underneath Node for checking if it is the OperatingSystemNode...");
 
       // try different relationshiptypes with priority on hostedOn
-      nodeTemplateID =
-        ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID,
-          Types.hostedOnRelationType);
-
+      nodeTemplateID = toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID, Types.hostedOnRelationType);
       if (nodeTemplateID == null) {
-        nodeTemplateID =
-          ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-            nodeTemplateID,
-            Types.deployedOnRelationType);
-
-        if (nodeTemplateID == null) {
-          nodeTemplateID =
-            ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-              nodeTemplateID,
-              Types.dependsOnRelationType);
-        }
-
+        nodeTemplateID = toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID, Types.deployedOnRelationType);
+      }
+      if (nodeTemplateID == null) {
+        nodeTemplateID = toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID, Types.dependsOnRelationType);
       }
 
       if (nodeTemplateID != null) {
         MBUtils.LOG.debug("Checking if the underneath Node: {} is the OperatingSystemNode.", nodeTemplateID);
-        nodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-          nodeTemplateID);
-
+        nodeType = toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
       } else {
         MBUtils.LOG.debug("No underneath Node found.");
       }
@@ -96,22 +85,20 @@ public class MBUtils {
   /**
    * Checks if the specified NodeType is the OperatingSystem NodeType.
    *
-   * @param csarID
-   * @param nodeType
    * @return true if the specified NodeType is the OperatingSystem NodeType. Otherwise false.
    */
   private static boolean isOperatingSystemNodeType(final CSARID csarID, final QName nodeType) {
-    if (ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+    if (toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-      && ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+      && toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
       return true;
-    } else if (ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+    } else if (toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
-      && ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+      && toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
       return true;
@@ -128,17 +115,17 @@ public class MBUtils {
    * OS Node Type null
    */
   public static String getInterfaceForOperatingSystemNodeType(final CSARID csarID, final QName nodeType) {
-    if (ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+    if (toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-      && ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+      && toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
       return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM;
-    } else if (ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+    } else if (toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
-      && ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+      && toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
       Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
       return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER;
@@ -161,17 +148,17 @@ public class MBUtils {
       osNodeTemplateID, serviceTemplateID, csarID);
 
     final QName osNodeType =
-      ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, osNodeTemplateID);
+      toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, osNodeTemplateID);
 
     final List<QName> osNodeTypeImpls =
-      ServiceHandler.toscaEngineService.getTypeImplementationsOfType(csarID, osNodeType);
+      toscaEngineService.getTypeImplementationsOfType(csarID, osNodeType);
 
     for (final QName osNodeTypeImpl : osNodeTypeImpls) {
 
       MBUtils.LOG.debug("NodeTypeImpl: {} ", osNodeTypeImpl);
 
       final List<String> osIANames =
-        ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfTypeImplementation(csarID,
+        toscaEngineService.getImplementationArtifactNamesOfTypeImplementation(csarID,
           osNodeTypeImpl);
 
       for (final String osIAName : osIANames) {
@@ -179,7 +166,7 @@ public class MBUtils {
         MBUtils.LOG.debug("IA: {} ", osIAName);
 
         final String osIAInterface =
-          ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfATypeImplementation(csarID,
+          toscaEngineService.getInterfaceOfAImplementationArtifactOfATypeImplementation(csarID,
             osNodeTypeImpl, osIAName);
 
         MBUtils.LOG.debug("Interface: {} ", osIAInterface);
@@ -199,9 +186,8 @@ public class MBUtils {
    * Traverses the topology and searches for the specified property. If found, the value from the
    * instance data is returned.
    *
-   * @param nodeTemplateInstanceID the ID of the NodeTemplateInstance where the search should be
-   *                               started in downwards direction
-   * @param property               the name of the property that is searched
+   * @param nodeTemplateInstance the NodeTemplateInstance where the search should be started in downwards direction
+   * @param property             the name of the property that is searched
    * @return instance data value of searched property if found, <tt>null</tt> otherwise.
    */
   public static String searchProperty(NodeTemplateInstance nodeTemplateInstance, final String property) {
@@ -333,7 +319,7 @@ public class MBUtils {
                                                                                  final QName relationshipType) {
     return currentNode.getOutgoingRelations().stream()
       .filter(relation -> relation.getTemplateType().equals(relationshipType)).findFirst()
-      .map(relation -> relation.getTarget());
+      .map(RelationshipTemplateInstance::getTarget);
   }
 
   /**

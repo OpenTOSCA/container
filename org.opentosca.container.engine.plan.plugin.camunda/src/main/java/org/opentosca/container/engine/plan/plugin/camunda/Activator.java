@@ -1,10 +1,10 @@
 package org.opentosca.container.engine.plan.plugin.camunda;
 
-import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
+import org.opentosca.container.legacy.core.engine.IToscaEngineService;
+import org.opentosca.container.legacy.core.service.ICoreFileService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;

@@ -3,7 +3,7 @@
    <implementation class="org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler"/>
    <reference bind="bindInvocationPluginService" cardinality="0..n" interface="org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService" name="InvocationPluginService" policy="dynamic" unbind="unbindInvocationPluginService"/>
    <reference bind="bindDeploymentPluginService" cardinality="0..n" interface="org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService" name="DeploymentPluginInterface" policy="dynamic" unbind="unbindDeploymentPluginService"/>
-   <reference bind="bindToscaService" cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaService"/>
+   <reference bind="bindToscaService" cardinality="1..1" interface="org.opentosca.container.legacy.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaService"/>
    <reference bind="bindCapabilityService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreCapabilityService" name="ICoreCapabilityService" policy="static" unbind="unbindCapabilityService"/>
    <reference bind="bindEndpointService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreEndpointService" name="ICoreEndpointService" policy="static" unbind="unbindEndpointService"/>
 </scr:component>

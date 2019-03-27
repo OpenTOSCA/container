@@ -71,9 +71,6 @@ public class Activator implements BundleActivator {
     // relative path of Definitions directory in a CSAR file
     Settings.setSetting("csarDefinitionsRelPath", "Definitions");
 
-    // relative path where the TOSCA meta file is located in a CSAR file
-    Settings.setSetting("toscaMetaFileRelPath", "TOSCA-Metadata" + File.separator + "TOSCA.meta");
-
     // possible file extensions of a TOSCA file, separated by character ";"
     Settings.setSetting("toscaFileExtensions", "xml;tosca;ste");
   }

@@ -41,10 +41,8 @@ public class SOAPMessageGenerator implements EventHandler {
   public SOAPMessage createRequest(final CSARID csarID, final QName messageID, final List<TParameterDTO> params,
                                    final String correlationID) {
 
-    this.LOG.debug("Create new BPEL/SOAP message with correlation \"" + correlationID + "\".");
-
+    LOG.debug("Create new BPEL/SOAP message with correlation \"" + correlationID + "\".");
     try {
-
       final MessageFactory messageFactory = MessageFactory.newInstance();
       final SOAPMessage soapMessage = messageFactory.createMessage();
       soapMessage.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, "UTF-8");
@@ -59,7 +57,7 @@ public class SOAPMessageGenerator implements EventHandler {
 
       final String messageName = messageID.getLocalPart();
       final String messageNS = messageID.getNamespaceURI();
-      this.LOG.trace("Message has name {} and namespace {}", messageName, messageNS);
+      LOG.trace("Message has name {} and namespace {}", messageName, messageNS);
 
       final Name bodyName = envelope.createName(messageName, "custom", messageNS);
       final SOAPBodyElement payload = soapBody.addBodyElement(bodyName);
@@ -67,54 +65,46 @@ public class SOAPMessageGenerator implements EventHandler {
       // put in the InputParameter details.
       for (final TParameterDTO para : params) {
 
-        if (para.getType().equalsIgnoreCase("correlation")
-          || para.getName().equalsIgnoreCase("CorrelationID")) {
-          this.LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
+        if (para.getType().equalsIgnoreCase("correlation") || para.getName().equalsIgnoreCase("CorrelationID")) {
+          LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
           final Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
           payload.addChildElement(elementName).addTextNode(correlationID);
           // para.setValue(correlationID);
         } else if (para.getType().equalsIgnoreCase("callbackaddress")) {
-          this.LOG.debug("Found CallbackAddress Element! Put in CallbackAddress \""
-            + SOAPMessageGenerator.callbackAddress + "\".");
+          LOG.debug("Found CallbackAddress Element! Put in CallbackAddress \"" + SOAPMessageGenerator.callbackAddress + "\".");
           final Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
           payload.addChildElement(elementName).addTextNode(SOAPMessageGenerator.callbackAddress);
           // para.setValue(SOAPMessageGenerator.callbackAddress);
         } else if (para.getName().equalsIgnoreCase("csarName")) {
-          this.LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
+          LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
           final Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
           payload.addChildElement(elementName).addTextNode(csarID.toString());
           // para.setValue(csarID);
         } else if (para.getName().equalsIgnoreCase("containerApiAddress")) {
-          this.LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \""
-            + Settings.CONTAINER_API_LEGACY + "\".");
+          LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \"" + Settings.CONTAINER_API_LEGACY + "\".");
           final Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
           payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API_LEGACY);
           // para.setValue(Settings.CONTAINER_API);
         } else if (para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
-          this.LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \""
-            + Settings.CONTAINER_INSTANCEDATA_LEGACY_API + "\".");
+          LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_LEGACY_API + "\".");
           final Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
           payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_INSTANCEDATA_LEGACY_API);
         } else if (para.getName().equalsIgnoreCase("csarEntrypoint")) {
-          this.LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
-            + Settings.CONTAINER_API_LEGACY + "/" + csarID + "\".");
+          LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_API_LEGACY + "/" + csarID + "\".");
           final Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
           payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API_LEGACY + "/" + csarID);
         } else {
-          this.LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
+          LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
           final Name elementName = envelope.createName(para.getName(), "tns", messageNS);
           payload.addChildElement(elementName).addTextNode(para.getValue());
         }
       }
 
       soapMessage.saveChanges();
-
       return soapMessage;
-
     } catch (final SOAPException e) {
-      this.LOG.error(e.getLocalizedMessage());
+      LOG.error(e.getLocalizedMessage());
     }
-
     return null;
   }
 
@@ -124,6 +114,6 @@ public class SOAPMessageGenerator implements EventHandler {
   @Override
   public void handleEvent(final Event event) {
     SOAPMessageGenerator.callbackAddress = (String) event.getProperty("callbackAddress");
-    this.LOG.debug("Recieved the current callback address: \"" + SOAPMessageGenerator.callbackAddress + "\".");
+    LOG.debug("Recieved the current callback address: \"" + SOAPMessageGenerator.callbackAddress + "\".");
   }
 }

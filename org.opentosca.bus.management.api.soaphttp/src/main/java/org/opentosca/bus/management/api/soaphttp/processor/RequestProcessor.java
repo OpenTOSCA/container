@@ -25,10 +25,10 @@ import org.opentosca.bus.management.api.soaphttp.model.ParamsMap;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMapItemType;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ import com.google.gson.Gson;
  */
 public class RequestProcessor implements Processor {
 
-  final private static Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
 
   @Override
   public void process(final Exchange exchange) throws Exception {
@@ -68,7 +68,7 @@ public class RequestProcessor implements Processor {
     String operationName = null;
 
     // copy SOAP headers in camel exchange object
-    RequestProcessor.LOG.debug("copy SOAP headers in camel exchange object");
+    LOG.debug("copy SOAP headers in camel exchange object");
     @SuppressWarnings("unchecked") final List<SoapHeader> soapHeaders = (List<SoapHeader>) exchange.getIn().getHeader(Header.HEADER_LIST);
     Element elementx;
     if (soapHeaders != null) {
@@ -80,7 +80,7 @@ public class RequestProcessor implements Processor {
 
     if (exchange.getIn().getBody() instanceof InvokeOperationAsync) {
 
-      RequestProcessor.LOG.debug("Processing async operation invocation");
+      LOG.debug("Processing async operation invocation");
 
       final InvokeOperationAsync invokeIaRequest = (InvokeOperationAsync) exchange.getIn().getBody();
 
@@ -106,6 +106,7 @@ public class RequestProcessor implements Processor {
       exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
 
       // Support new Deployment Artifact Header
+      // FIXME ERMH
       final ServiceReference<?> servRef =
         Activator.bundleContext.getServiceReference(IToscaEngineService.class.getName());
       final IToscaEngineService toscaEngineService =
@@ -173,7 +174,7 @@ public class RequestProcessor implements Processor {
 
     if (exchange.getIn().getBody() instanceof InvokeOperationSync) {
 
-      RequestProcessor.LOG.debug("Processing sync operation invocation");
+      LOG.debug("Processing sync operation invocation");
 
       final InvokeOperationSync invokeIaRequest = (InvokeOperationSync) exchange.getIn().getBody();
 
@@ -216,7 +217,7 @@ public class RequestProcessor implements Processor {
 
     if (exchange.getIn().getBody() instanceof InvokePlan) {
 
-      RequestProcessor.LOG.debug("Processing plan invocation");
+      LOG.debug("Processing plan invocation");
 
       final InvokePlan invokePlanRequest = (InvokePlan) exchange.getIn().getBody();
 

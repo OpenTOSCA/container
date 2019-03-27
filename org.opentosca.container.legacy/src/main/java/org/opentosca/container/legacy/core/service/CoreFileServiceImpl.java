@@ -1,0 +1,186 @@
+package org.opentosca.container.legacy.core.service;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+
+import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
+import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFileParser;
+import org.opentosca.container.core.common.EntityExistsException;
+import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.common.SystemException;
+import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.impl.service.ZipManager;
+import org.opentosca.container.core.impl.service.internal.file.csar.CSARUnpacker;
+import org.opentosca.container.core.impl.service.internal.file.csar.CSARValidator;
+import org.opentosca.container.core.impl.service.internal.file.visitors.DirectoryDeleteVisitor;
+import org.opentosca.container.core.impl.service.internal.file.visitors.DirectoryVisitor;
+import org.opentosca.container.legacy.core.model.CSARContent;
+import org.opentosca.container.core.model.csar.id.CSARID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Provides a store and management functionality for CSAR files.
+ * <p>
+ * Meta data (file and directory paths, TOSCA meta file content and CSAR ID) of a CSAR will be
+ * stored locally in the database. This makes it possible to browse in a CSAR and get the TOSCA meta
+ * file data without network access.
+ *
+ * @see CSARContent
+ */
+@Deprecated
+public class CoreFileServiceImpl implements ICoreFileService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(CoreFileServiceImpl.class);
+
+  private static final CSARMetaDataJPAStore JPA_STORE = new CSARMetaDataJPAStore();
+  private final Path baseDirectory;
+
+  public CoreFileServiceImpl(Path baseDirectory) {
+    this.baseDirectory = baseDirectory;
+  }
+
+  @Override
+  public CSARContent getCSAR(final CSARID csarID) throws UserException {
+    return JPA_STORE.getCSARMetaData(csarID);
+  }
+
+  @Override
+  public Set<CSARID> getCSARIDs() {
+    return JPA_STORE.getCSARIDsMetaData();
+  }
+
+  @Override
+  public CSARID storeCSAR(final Path csarFile) throws UserException, SystemException {
+    LOG.debug("Given file to store: {}", csarFile);
+
+    CSARUnpacker csarUnpacker = null;
+    try {
+      if (!Files.isRegularFile(csarFile)) {
+        throw new UserException(
+          "\"" + csarFile.toString() + "\" to store is not an absolute path to an existent file.");
+      }
+
+      final CSARID csarID = new CSARID(csarFile.getFileName().toString());
+      if (JPA_STORE.isCSARMetaDataStored(csarID)) {
+        throw new EntityExistsException(
+          "CSAR \"" + csarID.toString() + "\" is already stored. Overwriting a CSAR is not allowed.");
+      }
+
+      csarUnpacker = new CSARUnpacker(csarFile);
+      try {
+        csarUnpacker.unpackAndVisitUnpackDir();
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+
+      final Path csarUnpackDir = csarUnpacker.getUnpackDirectory();
+      final DirectoryVisitor csarVisitor = csarUnpacker.getFilesAndDirectories();
+
+      final CSARValidator csarValidator = new CSARValidator(csarID, csarUnpackDir, csarVisitor);
+      if (!csarValidator.isValid()) {
+        throw new UserException(csarValidator.getErrorMessage());
+      }
+
+      final Path toscaMetaFileAbsPath = csarUnpackDir.resolve(Settings.TOSCA_META_FILE_REL_PATH);
+      final TOSCAMetaFile toscaMetaFile = new TOSCAMetaFileParser().parse(toscaMetaFileAbsPath);
+      if (toscaMetaFile == null) {
+        throw new UserException("TOSCA meta file is invalid.");
+      }
+
+      JPA_STORE.storeCSARMetaData(csarID, toscaMetaFile);
+      LOG.debug("Storing CSAR \"{}\" located at \"{}\" successfully completed.", csarID, csarFile);
+      return csarID;
+    } finally {
+      // At the end or if an exception occurred we should delete the
+      // unpack directory, if necessary.
+      if (csarUnpacker != null) {
+        csarUnpacker.deleteUnpackDir();
+      }
+    }
+  }
+
+  @Override
+  public Path exportCSAR(final CSARID csarID) throws UserException, SystemException {
+    LOG.debug("Exporting CSAR \"{}\"...", csarID);
+    final Set<Path> directoriesOfCSAR = JPA_STORE.getDirectories(csarID);
+
+    Path csarDownloadDirectory = null;
+    try {
+      final Path tempDirectory = createTimestampDirectory();
+      csarDownloadDirectory = tempDirectory.resolve("content");
+      Files.createDirectory(csarDownloadDirectory);
+
+      for (final Path directoryOfCSAR : directoriesOfCSAR) {
+        final Path directoryOfCSARAbsPath = csarDownloadDirectory.resolve(directoryOfCSAR);
+        Files.createDirectories(directoryOfCSARAbsPath);
+      }
+
+      final Path csarFile = tempDirectory.resolve(csarID.getFileName());
+      ZipManager.getInstance().zip(csarDownloadDirectory.toFile(), csarFile.toFile());
+      LOG.debug("CSAR \"{}\" was successfully exported to \"{}\".", csarID, csarFile);
+
+      return csarFile;
+    } catch (final IOException exc) {
+      throw new SystemException("An IO Exception occured.", exc);
+    } finally {
+      if (csarDownloadDirectory == null) {
+        throw new SystemException("Export failed");
+      }
+      final DirectoryDeleteVisitor csarDeleteVisitor = new DirectoryDeleteVisitor();
+      try {
+        LOG.debug("Deleting CSAR download directory \"{}\"...", csarDownloadDirectory);
+        Files.walkFileTree(csarDownloadDirectory, csarDeleteVisitor);
+        LOG.debug("Deleting CSAR download directory \"{}\" completed.", csarDownloadDirectory);
+      } catch (final IOException exc) {
+        throw new SystemException("An IO Exception occured. Deleting CSAR download directory \"" + csarDownloadDirectory + "\" failed.", exc);
+      }
+    }
+  }
+
+  @Override
+  public void deleteCSAR(final CSARID csarID) throws SystemException, UserException {
+    LOG.debug("Deleting CSAR \"{}\"...", csarID);
+    // FIXME delete CSAR from disk
+    LOG.debug("Deleting CSAR \"{}\" on storage provider(s) completed.", csarID);
+    JPA_STORE.deleteCSARMetaData(csarID);
+    LOG.debug("Deleting CSAR \"{}\" completed.", csarID);
+  }
+
+  @Override
+  public void deleteCSARs() throws SystemException {
+    LOG.debug("Deleting all CSARs...");
+    final Set<CSARID> csarIDs = JPA_STORE.getCSARIDsMetaData();
+    if (csarIDs.isEmpty()) {
+      LOG.debug("No CSARs are currently stored.");
+      return;
+    }
+
+    LOG.debug("{} CSAR(s) is / are currently stored and will be deleted now.", csarIDs.size());
+    for (final CSARID csarID : csarIDs) {
+      try {
+        deleteCSAR(csarID);
+      } catch (final UserException exc) {
+        throw new SystemException("An System Exception occured.", exc);
+      }
+    }
+    LOG.debug("Deleting all CSARs completed.");
+  }
+
+  /**
+   * Creates a directory with the current timestamp in the system's temporary storage location
+   *
+   * @return An existing or newly created directory to be used for temporary storage
+   * @throws IOException If creating directories failed.
+   */
+  private Path createTimestampDirectory() throws IOException {
+    Path timestamped = Paths.get(System.getProperty("java.io.tmpdir"), String.valueOf(System.nanoTime()));
+    Files.createDirectories(timestamped);
+    return timestamped;
+  }
+}

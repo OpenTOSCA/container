@@ -70,7 +70,6 @@
     <module>org.opentosca.container.api</module>
     <module>org.opentosca.planbuilder</module>
     <module>org.opentosca.planbuilder.core.bpel</module>
-    <module>org.opentosca.planbuilder.csarhandler</module>
     <module>org.opentosca.planbuilder.integration</module>
     <module>org.opentosca.planbuilder.model</module>
     <module>org.opentosca.planbuilder.service</module>
@@ -88,6 +87,7 @@
     <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.patternbased</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
+    <module>org.opentosca.container.legacy</module>
   </modules>
 
   <build>

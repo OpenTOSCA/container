@@ -29,7 +29,7 @@
     <class>org.opentosca.container.core.next.model.SituationTriggerInstanceProperty</class>    
 
     <class>org.opentosca.container.core.model.credentials.Credentials</class>
-    <class>org.opentosca.container.core.model.csar.CSARContent</class>
+    <class>org.opentosca.container.legacy.core.model.CSARContent</class>
     <class>org.opentosca.container.core.model.deployment.ia.IADeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.plan.PlanDeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo</class>

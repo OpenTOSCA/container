@@ -18,25 +18,8 @@ public class CSARValidator {
 
   /**
    * Relative path to CSAR root of the {@code Definitions} directory.
-   *
-   * @see org.opentosca.settings.Settings
    */
   private final String CSAR_DEFINITIONS_DIR_REL_PATH = Settings.getSetting("csarDefinitionsRelPath");
-
-  /**
-   * Relative path to CSAR root of the TOSCA meta file.
-   *
-   * @see org.opentosca.settings.Settings
-   */
-  private final String TOSCA_META_FILE_REL_PATH = Settings.getSetting("toscaMetaFileRelPath");
-
-  // /**
-  // * Possible file extensions of a TOSCA file.
-  // *
-  // * @see org.opentosca.settings.Settings
-  // */
-  // private final String[] TOSCA_FILE_EXTENSIONS =
-  // Settings.getSetting("toscaFileExtensions").split(";");
 
   /**
    * CSAR ID of the CSAR to validate.
@@ -82,7 +65,7 @@ public class CSARValidator {
    */
   public boolean isValid() {
 
-    CSARValidator.LOG.debug("Validating content of CSAR \"{}\"...", this.CSAR_ID);
+    LOG.debug("Validating content of CSAR \"{}\"...", this.CSAR_ID);
 
     final Set<Path> csarFiles = this.CSAR_VISITOR.getVisitedFiles();
 
@@ -95,9 +78,9 @@ public class CSARValidator {
     }
 
     if (this.isValidCSAR) {
-      CSARValidator.LOG.debug("Validation of CSAR \"{}\" completed. CSAR is valid.", this.CSAR_ID);
+      LOG.debug("Validation of CSAR \"{}\" completed. CSAR is valid.", this.CSAR_ID);
     } else {
-      CSARValidator.LOG.warn("Validation of CSAR \"{}\" completed. CSAR is invalid!", this.CSAR_ID);
+      LOG.warn("Validation of CSAR \"{}\" completed. CSAR is invalid!", this.CSAR_ID);
     }
 
     return this.isValidCSAR;
@@ -129,22 +112,15 @@ public class CSARValidator {
     final Path csarDefinitionsDirAbsPath = csarUnpackDir.resolve(this.CSAR_DEFINITIONS_DIR_REL_PATH);
 
     for (final Path csarFile : csarFiles) {
-      if (csarFile.startsWith(csarDefinitionsDirAbsPath) /*
-       * && PathUtils. hasFileExtension (csarFile, this.
-       * TOSCA_FILE_EXTENSIONS )
-       */) {
-        CSARValidator.LOG.debug("At least one file was found in directory \"{}\" of CSAR \"{}\".",
-          this.CSAR_DEFINITIONS_DIR_REL_PATH, this.CSAR_ID);
+      if (csarFile.startsWith(csarDefinitionsDirAbsPath)) {
+        LOG.debug("At least one file was found in directory \"{}\" of CSAR \"{}\".", this.CSAR_DEFINITIONS_DIR_REL_PATH, this.CSAR_ID);
         return true;
       }
     }
-
-    this.errorMessage.append("\n");
-    this.errorMessage.append("No files were found in directory \"" + this.CSAR_DEFINITIONS_DIR_REL_PATH
-      + "\" of CSAR \"" + this.CSAR_ID + "\". There must be at least one!");
-
+    this.errorMessage.append("\n")
+      .append("No files were found in directory \"").append(this.CSAR_DEFINITIONS_DIR_REL_PATH)
+      .append("\" of CSAR \"").append(this.CSAR_ID).append("\". There must be at least one!");
     return false;
-
   }
 
   /**
@@ -154,21 +130,13 @@ public class CSARValidator {
    * @return {@code true} if TOSCA meta file exists in CSAR {@code csarID}, otherwise {@code false}.
    */
   private boolean existsTOSCAMetaFile(final CSARID csarID, final Path csarUnpackDir, final Set<Path> csarFiles) {
-
-    final Path toscaMetaFileAbsPath = csarUnpackDir.resolve(this.TOSCA_META_FILE_REL_PATH);
-
+    final Path toscaMetaFileAbsPath = csarUnpackDir.resolve(Settings.TOSCA_META_FILE_REL_PATH);
     if (csarFiles.contains(toscaMetaFileAbsPath)) {
-      CSARValidator.LOG.debug("TOSCA meta file exists at \"{}\" in CSAR \"{}\".", this.TOSCA_META_FILE_REL_PATH,
-        this.CSAR_ID);
+      LOG.debug("TOSCA meta file exists at \"{}\" in CSAR \"{}\".", Settings.TOSCA_META_FILE_REL_PATH, this.CSAR_ID);
       return true;
     }
-
-    this.errorMessage.append("\n");
-    this.errorMessage.append("TOSCA meta file does not exist at \"" + this.TOSCA_META_FILE_REL_PATH
-      + "\" in CSAR \"" + this.CSAR_ID + "\".");
-
+    this.errorMessage.append("\n").append("TOSCA meta file does not exist at \"").append(Settings.TOSCA_META_FILE_REL_PATH)
+      .append("\" in CSAR \"").append(this.CSAR_ID).append("\".");
     return false;
-
   }
-
 }
