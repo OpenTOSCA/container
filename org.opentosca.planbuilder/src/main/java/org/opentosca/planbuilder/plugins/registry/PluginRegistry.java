@@ -12,10 +12,10 @@ import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
-import org.opentosca.planbuilder.plugins.activator.Activator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.springframework.stereotype.Service;
+
+import javax.inject.Singleton;
+
 
 /**
  * <p>
@@ -26,10 +26,95 @@ import org.osgi.framework.ServiceReference;
  *
  * @author Kalman Kepes - kepes@iaas.uni-stuttgart.de
  */
+@Service
+@Singleton
 public class PluginRegistry {
 
-  private BundleContext getCtx() {
-    return Activator.ctx;
+  public static final PluginRegistry INSTANCE = new PluginRegistry();
+
+  private PluginRegistry(){}
+
+
+  private final List<IPlanBuilderTypePlugin<?>> genericPlugins = new ArrayList<>();
+  private final List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins = new ArrayList<>();
+  private final List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = new ArrayList<>();
+  private final List<IPlanBuilderPrePhaseDAPlugin<?>> daPlugins = new ArrayList<>();
+  private final List<IPlanBuilderPostPhasePlugin<?>> postPlugins = new ArrayList<>();
+  private final List<IScalingPlanBuilderSelectionPlugin<?>> selectionPlugins = new ArrayList<>();
+  private final List<IPlanBuilderPolicyAwareTypePlugin<?>> policyAwareTypePlugins = new ArrayList<>();
+  private final List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> policyAwarePostPhasePlugins = new ArrayList<>();
+  private final List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> policyAwarePrePhasePlugins = new ArrayList<>();
+
+  public void register(IPlanBuilderTypePlugin<?> plugin) {
+    genericPlugins.add(plugin);
+  }
+
+  public void unregister(IPlanBuilderTypePlugin<?> plugin) {
+    genericPlugins.remove(plugin);
+  }
+
+  public void register(IPlanBuilderProvPhaseOperationPlugin<?> plugin) {
+    provPlugins.add(plugin);
+  }
+
+  public void unregister(IPlanBuilderProvPhaseOperationPlugin<?> plugin) {
+    provPlugins.remove(plugin);
+  }
+
+  public void register(IPlanBuilderPrePhaseIAPlugin<?> plugin) {
+    iaPlugins.add(plugin);
+  }
+
+  public void unregister(IPlanBuilderPrePhaseIAPlugin<?> plugin) {
+    iaPlugins.remove(plugin);
+  }
+
+  public void register(IPlanBuilderPrePhaseDAPlugin<?> plugin) {
+    daPlugins.add(plugin);
+  }
+
+  public void unregister(IPlanBuilderPrePhaseDAPlugin<?> plugin) {
+    daPlugins.remove(plugin);
+  }
+
+  public void register(IPlanBuilderPostPhasePlugin<?> plugin) {
+    postPlugins.add(plugin);
+  }
+
+  public void unregister(IPlanBuilderPostPhasePlugin<?> plugin) {
+    postPlugins.remove(plugin);
+  }
+
+  public void register(IScalingPlanBuilderSelectionPlugin<?> plugin) {
+    selectionPlugins.add(plugin);
+  }
+
+  public void unregister(IScalingPlanBuilderSelectionPlugin<?> plugin) {
+    selectionPlugins.remove(plugin);
+  }
+
+  public void register(IPlanBuilderPolicyAwareTypePlugin<?> plugin) {
+    policyAwareTypePlugins.add(plugin);
+  }
+
+  public void unregister(IPlanBuilderPolicyAwareTypePlugin<?> plugin) {
+    policyAwareTypePlugins.remove(plugin);
+  }
+
+  public void register(IPlanBuilderPolicyAwarePostPhasePlugin<?> plugin) {
+    policyAwarePostPhasePlugins.add(plugin);
+  }
+
+  public void unregister(IPlanBuilderPolicyAwarePostPhasePlugin<?> plugin) {
+    policyAwarePostPhasePlugins.remove(plugin);
+  }
+
+  public void register(IPlanBuilderPolicyAwarePrePhasePlugin<?> plugin) {
+    policyAwarePrePhasePlugins.add(plugin);
+  }
+
+  public void unregister(IPlanBuilderPolicyAwarePrePhasePlugin<?> plugin) {
+    policyAwarePrePhasePlugins.remove(plugin);
   }
 
   /**
@@ -38,23 +123,7 @@ public class PluginRegistry {
    * @return a List of IPlanBuilderTypePlugin
    */
   public List<IPlanBuilderTypePlugin<?>> getGenericPlugins() {
-    final List<IPlanBuilderTypePlugin<?>> plugins = new ArrayList<>();
-    final BundleContext ctx = getCtx();
-    try {
-      final ServiceReference<?>[] refs =
-        ctx.getAllServiceReferences(IPlanBuilderTypePlugin.class.getName(), null);
-
-      if (refs != null) {
-        for (final ServiceReference<?> ref : refs) {
-          plugins.add((IPlanBuilderTypePlugin<?>) ctx.getService(ref));
-        }
-
-      }
-    } catch (final InvalidSyntaxException e) {
-      e.printStackTrace();
-    }
-
-    return plugins;
+    return genericPlugins;
   }
 
   /**
@@ -63,25 +132,7 @@ public class PluginRegistry {
    * @return a List of IPlanBuilderProvPhaseOperationPlugin
    */
   public List<IPlanBuilderProvPhaseOperationPlugin<?>> getProvPlugins() {
-    final List<IPlanBuilderProvPhaseOperationPlugin<?>> plugins = new ArrayList<>();
-
-    final BundleContext ctx = getCtx();
-
-    try {
-      final ServiceReference<?>[] refs =
-        ctx.getAllServiceReferences(IPlanBuilderProvPhaseOperationPlugin.class.getName(), null);
-
-      if (refs != null) {
-        for (final ServiceReference<?> ref : refs) {
-          plugins.add((IPlanBuilderProvPhaseOperationPlugin<?>) ctx.getService(ref));
-        }
-      }
-
-    } catch (final InvalidSyntaxException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return plugins;
+    return provPlugins;
   }
 
   /**
@@ -90,25 +141,7 @@ public class PluginRegistry {
    * @return a List of IPlanBuilderPrePhaseIAPlugin
    */
   public List<IPlanBuilderPrePhaseIAPlugin<?>> getIaPlugins() {
-    final List<IPlanBuilderPrePhaseIAPlugin<?>> plugins = new ArrayList<>();
-
-    final BundleContext ctx = getCtx();
-
-    try {
-      final ServiceReference<?>[] refs =
-        ctx.getAllServiceReferences(IPlanBuilderPrePhaseIAPlugin.class.getName(), null);
-
-      if (refs != null) {
-        for (final ServiceReference<?> ref : refs) {
-          plugins.add((IPlanBuilderPrePhaseIAPlugin<?>) ctx.getService(ref));
-        }
-      }
-
-    } catch (final InvalidSyntaxException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return plugins;
+    return iaPlugins;
   }
 
   /**
@@ -117,25 +150,7 @@ public class PluginRegistry {
    * @return a List of IPlanBuilderPrePhaseDAPlugin
    */
   public List<IPlanBuilderPrePhaseDAPlugin<?>> getDaPlugins() {
-    final List<IPlanBuilderPrePhaseDAPlugin<?>> plugins = new ArrayList<>();
-
-    final BundleContext ctx = getCtx();
-
-    try {
-      final ServiceReference<?>[] refs =
-        ctx.getAllServiceReferences(IPlanBuilderPrePhaseDAPlugin.class.getName(), null);
-
-      if (refs != null) {
-        for (final ServiceReference<?> ref : refs) {
-          plugins.add((IPlanBuilderPrePhaseDAPlugin<?>) ctx.getService(ref));
-        }
-      }
-
-    } catch (final InvalidSyntaxException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return plugins;
+    return daPlugins;
   }
 
   /**
@@ -144,25 +159,7 @@ public class PluginRegistry {
    * @return a List of IPlanBuilderPostPhasePlugin
    */
   public List<IPlanBuilderPostPhasePlugin<?>> getPostPlugins() {
-    final List<IPlanBuilderPostPhasePlugin<?>> plugins = new ArrayList<>();
-
-    final BundleContext ctx = getCtx();
-
-    try {
-      final ServiceReference<?>[] refs =
-        ctx.getAllServiceReferences(IPlanBuilderPostPhasePlugin.class.getName(), null);
-
-      if (refs != null) {
-        for (final ServiceReference<?> ref : refs) {
-          plugins.add((IPlanBuilderPostPhasePlugin<?>) ctx.getService(ref));
-        }
-      }
-
-    } catch (final InvalidSyntaxException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return plugins;
+    return postPlugins;
   }
 
   /**
@@ -171,89 +168,19 @@ public class PluginRegistry {
    * @return a List of IScalingPlanBuilderSelectionPlugin
    */
   public List<IScalingPlanBuilderSelectionPlugin<?>> getSelectionPlugins() {
-    final List<IScalingPlanBuilderSelectionPlugin<?>> plugins = new ArrayList<>();
-    final BundleContext ctx = getCtx();
-
-    try {
-      final ServiceReference<?>[] refs =
-        ctx.getAllServiceReferences(IScalingPlanBuilderSelectionPlugin.class.getName(), null);
-
-      if (refs != null) {
-        for (final ServiceReference<?> ref : refs) {
-          plugins.add((IScalingPlanBuilderSelectionPlugin<?>) ctx.getService(ref));
-        }
-      }
-
-    } catch (final InvalidSyntaxException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return plugins;
+    return selectionPlugins;
   }
 
   public List<IPlanBuilderPolicyAwareTypePlugin<?>> getPolicyAwareTypePlugins() {
-    final List<IPlanBuilderPolicyAwareTypePlugin<?>> plugins = new ArrayList<>();
-    final BundleContext ctx = getCtx();
-
-    try {
-      final ServiceReference<?>[] refs =
-        ctx.getAllServiceReferences(IPlanBuilderPolicyAwareTypePlugin.class.getName(), null);
-
-      if (refs != null) {
-        for (final ServiceReference<?> ref : refs) {
-          plugins.add((IPlanBuilderPolicyAwareTypePlugin<?>) ctx.getService(ref));
-        }
-      }
-
-    } catch (final InvalidSyntaxException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return plugins;
+    return policyAwareTypePlugins;
   }
 
   public List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> getPolicyAwarePostPhasePlugins() {
-    final List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> plugins = new ArrayList<>();
-
-    final BundleContext ctx = getCtx();
-
-    try {
-      final ServiceReference<?>[] refs =
-        ctx.getAllServiceReferences(IPlanBuilderPolicyAwarePostPhasePlugin.class.getName(), null);
-
-      if (refs != null) {
-        for (final ServiceReference<?> ref : refs) {
-          plugins.add((IPlanBuilderPolicyAwarePostPhasePlugin<?>) ctx.getService(ref));
-        }
-      }
-
-    } catch (final InvalidSyntaxException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return plugins;
+    return policyAwarePostPhasePlugins;
   }
 
   public List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> getPolicyAwarePrePhasePlugins() {
-    final List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> plugins = new ArrayList<>();
-
-    final BundleContext ctx = getCtx();
-
-    try {
-      final ServiceReference<?>[] refs =
-        ctx.getAllServiceReferences(IPlanBuilderPolicyAwarePrePhasePlugin.class.getName(), null);
-
-      if (refs != null) {
-        for (final ServiceReference<?> ref : refs) {
-          plugins.add((IPlanBuilderPolicyAwarePrePhasePlugin<?>) ctx.getService(ref));
-        }
-      }
-
-    } catch (final InvalidSyntaxException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return plugins;
+    return policyAwarePrePhasePlugins;
   }
 
 }

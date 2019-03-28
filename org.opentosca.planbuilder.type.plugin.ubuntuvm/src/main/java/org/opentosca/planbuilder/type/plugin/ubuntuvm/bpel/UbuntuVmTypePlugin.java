@@ -42,13 +42,13 @@ public abstract class UbuntuVmTypePlugin<T extends PlanContext>
   @Override
   public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
     if (nodeTemplate == null) {
-      UbuntuVmTypePlugin.LOG.debug("NodeTemplate is null");
+      LOG.debug("NodeTemplate is null");
     }
     if (nodeTemplate.getType() == null) {
-      UbuntuVmTypePlugin.LOG.debug("NodeTemplate NodeType is null. NodeTemplate Id:" + nodeTemplate.getId());
+      LOG.debug("NodeTemplate NodeType is null. NodeTemplate Id:" + nodeTemplate.getId());
     }
     if (nodeTemplate.getType().getId() == null) {
-      UbuntuVmTypePlugin.LOG.debug("NodeTemplate NodeType id is null");
+      LOG.debug("NodeTemplate NodeType id is null");
     }
     // this plugin can handle all referenced nodeTypes
     if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {

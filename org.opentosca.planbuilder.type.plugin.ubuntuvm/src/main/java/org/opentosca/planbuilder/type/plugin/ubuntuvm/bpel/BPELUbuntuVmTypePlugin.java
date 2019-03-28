@@ -7,6 +7,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  */
+@Service
 public class BPELUbuntuVmTypePlugin extends UbuntuVmTypePlugin<BPELPlanContext> {
   private static final Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePlugin.class);
   private final BPELUbuntuVmTypePluginHandler handler = new BPELUbuntuVmTypePluginHandler();

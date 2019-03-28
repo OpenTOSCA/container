@@ -25,6 +25,8 @@ import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 /**
  * <p>
  * This Class represents the low-level algorithm for the concept in <a href=
@@ -46,7 +48,8 @@ public class BPELScopeBuilder {
 
   final static Logger LOG = LoggerFactory.getLogger(BPELScopeBuilder.class);
 
-  private static PluginRegistry pluginRegistry = new PluginRegistry();
+//  @Inject
+  private static PluginRegistry pluginRegistry = PluginRegistry.INSTANCE;
 
   /**
    * <p>

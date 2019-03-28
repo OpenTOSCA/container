@@ -18,6 +18,7 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -29,6 +30,7 @@ import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
+@Service
 public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPlanContext> {
 
   private final String monitoringInterfaceName = "http://opentosca.org/interfaces/monitoring";

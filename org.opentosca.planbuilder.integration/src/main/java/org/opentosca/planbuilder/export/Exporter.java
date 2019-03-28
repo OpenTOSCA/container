@@ -6,10 +6,16 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -17,7 +23,6 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.selfservice.ApplicationOption;
@@ -45,11 +50,9 @@ import org.opentosca.planbuilder.integration.layer.AbstractExporter;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -60,6 +63,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
+@Service
 public class Exporter extends AbstractExporter {
 
   private final static Logger LOG = LoggerFactory.getLogger(Exporter.class);
@@ -68,6 +72,8 @@ public class Exporter extends AbstractExporter {
 
   private final ObjectFactory toscaFactory;
   private final CSARHandler handler = new CSARHandler();
+  @Inject
+  private IFileAccessService fileAccessService;
 
 
   /**
@@ -117,11 +123,8 @@ public class Exporter extends AbstractExporter {
 
     final String csarName = csarId.getFileName();
 
-    final IFileAccessService service = getFileAccessService();
-
-    final File tempDir = service.getTemp();
-    final File pathToRepackagedCsar = service.getTemp();
-    final File repackagedCsar = new File(pathToRepackagedCsar, csarName);
+    final File tempDir = fileAccessService.getTemp();
+    final Path contentRoot = Paths.get(csarContent.getDirectory("").getPath());
 
     try {
       final Set<AbstractFile> files = csarContent.getFilesRecursively();
@@ -149,8 +152,7 @@ public class Exporter extends AbstractExporter {
           serviceTemplate.setBoundaryDefinitions(boundary);
         }
 
-        org.oasis_open.docs.tosca.ns._2011._12.TBoundaryDefinitions.Interfaces ifaces =
-          boundary.getInterfaces();
+        org.oasis_open.docs.tosca.ns._2011._12.TBoundaryDefinitions.Interfaces ifaces = boundary.getInterfaces();
 
         if (ifaces == null) {
           ifaces = this.toscaFactory.createTBoundaryDefinitionsInterfaces();
@@ -158,63 +160,54 @@ public class Exporter extends AbstractExporter {
         }
 
         for (final BPELPlan plan : plans) {
-          if (plan.getServiceTemplate().getQName().equals(buildQName(defs, serviceTemplate))) {
+          if (!plan.getServiceTemplate().getQName().equals(buildQName(defs, serviceTemplate))) {
+            continue;
+          }
 
-            final TPlan generatedPlanElement = generateTPlanElement(plan);
-            planList.add(generatedPlanElement);
-            plansToExport.add(plan);
+          final TPlan generatedPlanElement = generateTPlanElement(plan);
+          planList.add(generatedPlanElement);
+          plansToExport.add(plan);
 
-            TExportedInterface exportedIface = null;
+          TExportedInterface exportedIface = null;
 
-            // find already set openTOSCA lifecycle interface
-            for (final TExportedInterface exIface : ifaces.getInterface()) {
-
-              if (exIface.getName() != null && exIface.getName().equals(plan.getTOSCAInterfaceName())) {
-                exportedIface = exIface;
-              }
+          // find already set openTOSCA lifecycle interface
+          for (final TExportedInterface exIface : ifaces.getInterface()) {
+            if (exIface.getName() != null && exIface.getName().equals(plan.getTOSCAInterfaceName())) {
+              exportedIface = exIface;
             }
+          }
 
-            if (exportedIface == null) {
-              exportedIface = this.toscaFactory.createTExportedInterface();
-              exportedIface.setName(plan.getTOSCAInterfaceName());
-              ifaces.getInterface().add(exportedIface);
-            }
+          if (exportedIface == null) {
+            exportedIface = this.toscaFactory.createTExportedInterface();
+            exportedIface.setName(plan.getTOSCAInterfaceName());
+            ifaces.getInterface().add(exportedIface);
+          }
 
-            boolean alreadySpecified = false;
-            for (final TExportedOperation op : exportedIface.getOperation()) {
-              if (op.getName().equals(plan.getTOSCAOperationName())) {
-                alreadySpecified = true;
-              }
+          boolean alreadySpecified = false;
+          for (final TExportedOperation op : exportedIface.getOperation()) {
+            if (op.getName().equals(plan.getTOSCAOperationName())) {
+              alreadySpecified = true;
             }
+          }
 
-            if (!alreadySpecified) {
-              final TExportedOperation newOp = this.toscaFactory.createTExportedOperation();
-              newOp.setName(plan.getTOSCAOperationName());
-              final org.oasis_open.docs.tosca.ns._2011._12.TExportedOperation.Plan newPlanRefElement =
-                this.toscaFactory.createTExportedOperationPlan();
-              newPlanRefElement.setPlanRef(generatedPlanElement);
-              newOp.setPlan(newPlanRefElement);
-              exportedIface.getOperation().add(newOp);
-            }
+          if (!alreadySpecified) {
+            final TExportedOperation newOp = this.toscaFactory.createTExportedOperation();
+            newOp.setName(plan.getTOSCAOperationName());
+            final org.oasis_open.docs.tosca.ns._2011._12.TExportedOperation.Plan newPlanRefElement =
+              this.toscaFactory.createTExportedOperationPlan();
+            newPlanRefElement.setPlanRef(generatedPlanElement);
+            newOp.setPlan(newPlanRefElement);
+            exportedIface.getOperation().add(newOp);
           }
         }
       }
 
       for (final AbstractFile file : files) {
-        if (file.getFile().toFile().toString().equals(rootDefFile.toString())) {
-          continue;
-        }
-
-        final File newLocation = new File(tempDir, file.getPath());
-        LOG.debug(newLocation.getAbsolutePath());
-        LOG.debug(file.getFile().toString());
-        if (newLocation.isDirectory()) {
-
-          FileUtils.copyDirectory(file.getFile().toFile(), newLocation);
-        } else {
-          FileUtils.copyFile(file.getFile().toFile(), newLocation);
-        }
-
+        final Path relative = contentRoot.relativize(Paths.get(file.getPath()));
+        final Path newLocation = tempDir.toPath().resolve(relative);
+        LOG.debug("Packaging " + file.getFile().toString() + " to  " + newLocation.toString());
+        Files.createDirectories(newLocation.getParent());
+        Files.copy(file.getFile(), newLocation);
       }
 
       // write new defs file
@@ -345,9 +338,9 @@ public class Exporter extends AbstractExporter {
     } catch (final SystemException e) {
       LOG.error("Some error in the openTOSCA Core", e);
     }
-    service.zip(tempDir, repackagedCsar);
+    final File repackagedCsar = new File(fileAccessService.getTemp(), csarName);
     LOG.debug(repackagedCsar.toString());
-    return repackagedCsar;
+    return fileAccessService.zip(tempDir, repackagedCsar);
   }
 
   private ApplicationOption createApplicationOption(final BPELPlan plan, final int optionCounter) {
@@ -393,18 +386,6 @@ public class Exporter extends AbstractExporter {
       return null;
     }
     return def;
-  }
-
-  /**
-   * Returns the FileAccessService of the OpenTOSCA Core
-   *
-   * @return the IFileAccessService of the OpenTOSCA Core
-   */
-  private IFileAccessService getFileAccessService() {
-    final BundleContext ctx = FrameworkUtil.getBundle(Exporter.class).getBundleContext();
-    final ServiceReference<IFileAccessService> serviceReference = ctx.getServiceReference(IFileAccessService.class);
-    final IFileAccessService service = ctx.getService(serviceReference);
-    return service;
   }
 
   /**
@@ -534,7 +515,7 @@ public class Exporter extends AbstractExporter {
     }
     soapMessage += soapMessageSuffix;
 
-    FileUtils.write(xmlFile, soapMessage);
+    Files.write(xmlFile.toPath(), soapMessage.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
   }
 
   private String createPrefixPartOfSoapMessage(final String namespace, final String messageBodyRootLocalName) {

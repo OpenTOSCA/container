@@ -23,4 +23,7 @@
   <context:component-scan base-package="org.opentosca.container.legacy.core.service" />
   <context:component-scan base-package="org.opentosca.container.legacy.core.engine" />
   <context:component-scan base-package="org.opentosca.container.legacy.core.plan" />
+
+  <context:component-scan base-package="org.opentosca.planbuilder.export" />
+  <context:component-scan base-package="org.opentosca.planbuilder.importer" />
 </beans>

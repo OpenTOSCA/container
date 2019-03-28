@@ -32,14 +32,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
-import org.opentosca.container.core.service.IFileAccessService;
-import org.opentosca.planbuilder.export.Exporter;
+import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -88,29 +84,30 @@ public class SimpleFileExporter {
     // fetch imported files
     final Set<File> importedFiles = buildPlan.getImportedFiles();
 
-    SimpleFileExporter.LOG.debug("BuildPlan has following files attached");
+    LOG.debug("BuildPlan has following files attached");
     for (final File file : importedFiles) {
-      SimpleFileExporter.LOG.debug(file.getAbsolutePath());
+      LOG.debug(file.getAbsolutePath());
     }
 
     // fetch import elements
     final List<Element> importElements = buildPlan.getBpelImportElements();
 
-    SimpleFileExporter.LOG.debug("BuildPlan has following import elements");
+    LOG.debug("BuildPlan has following import elements");
     for (final Element element : importElements) {
-      SimpleFileExporter.LOG.debug("LocalName: " + element.getLocalName());
-      SimpleFileExporter.LOG.debug("location:" + element.getAttribute("location"));
+      LOG.debug("LocalName: " + element.getLocalName());
+      LOG.debug("location:" + element.getAttribute("location"));
     }
 
     // fetch wsdl
     final GenericWsdlWrapper wsdl = buildPlan.getWsdl();
 
     // generate temp folder
-    final File tempDir = this.getFileAccessService().getTemp();
-    SimpleFileExporter.LOG.debug("Trying to write files in system temp folder: " + tempDir.getAbsolutePath());
+    // FIXME something something common useage
+    final File tempDir = new File(System.getProperty("java.io.tmpdir"));
+    LOG.debug("Trying to write files in system temp folder: " + tempDir.getAbsolutePath());
     final File tempFolder = new File(tempDir, Long.toString(System.currentTimeMillis()));
     tempFolder.mkdir();
-    SimpleFileExporter.LOG.debug("Trying to write files to temp folder: " + tempFolder.getAbsolutePath());
+    LOG.debug("Trying to write files to temp folder: " + tempFolder.getAbsolutePath());
 
     final List<File> exportedFiles = new ArrayList<>();
 
@@ -120,15 +117,15 @@ public class SimpleFileExporter {
       for (final Element importElement : importElements) {
         final String filePath = importedFile.getAbsolutePath();
         final String locationPath = importElement.getAttribute("location");
-        SimpleFileExporter.LOG.debug("checking filepath:");
-        SimpleFileExporter.LOG.debug(filePath);
-        SimpleFileExporter.LOG.debug("with: ");
-        SimpleFileExporter.LOG.debug(locationPath);
+        LOG.debug("checking filepath:");
+        LOG.debug(filePath);
+        LOG.debug("with: ");
+        LOG.debug(locationPath);
         if (importedFile.getAbsolutePath().trim().equals(importElement.getAttribute("location").trim())) {
           // found the import element for the corresponding file
           // get file name
           final String fileName = importedFile.getName();
-          SimpleFileExporter.LOG.debug("Trying to reset path to: " + fileName);
+          LOG.debug("Trying to reset path to: " + fileName);
           // change location attribute in import element
           importElement.setAttribute("location", fileName);
           // copy file to tempdir
@@ -145,7 +142,7 @@ public class SimpleFileExporter {
     LOG.debug("Exported files:" + exportedFiles);
 
     // write deploy.xml
-    SimpleFileExporter.LOG.debug("Starting marshalling");
+    LOG.debug("Starting marshalling");
     final Deploy deployment = buildPlan.getDeploymentDeskriptor();
 
     // rewrite service names in deploy.xml and potential wsdl files
@@ -174,16 +171,12 @@ public class SimpleFileExporter {
     try {
       this.writeBPELDocToFile(bpelFile, buildPlan.getBpelDocument());
     } catch (final TransformerException e) {
-      SimpleFileExporter.LOG.error("Error while writing BPEL Document to a file", e);
+      LOG.error("Error while writing BPEL Document to a file", e);
       return false;
     }
 
     // package temp dir and move to destination URI
-    final ServiceReference<?> servRef = FrameworkUtil.getBundle(this.getClass()).getBundleContext()
-      .getServiceReference(IFileAccessService.class.getName());
-    final IFileAccessService service =
-      (IFileAccessService) FrameworkUtil.getBundle(this.getClass()).getBundleContext().getService(servRef);
-    service.zip(tempFolder, new File(destination));
+    ZipManager.getInstance().zip(tempFolder, new File(destination));
     return true;
   }
 
@@ -329,18 +322,6 @@ public class SimpleFileExporter {
         }
       }
     }
-  }
-
-  /**
-   * Returns the FileAccessService of the OpenTOSCA Core
-   *
-   * @return the IFileAccessService of the OpenTOSCA Core
-   */
-  private IFileAccessService getFileAccessService() {
-    final BundleContext ctx = FrameworkUtil.getBundle(Exporter.class).getBundleContext();
-    final ServiceReference<IFileAccessService> serviceReference = ctx.getServiceReference(IFileAccessService.class);
-    final IFileAccessService service = ctx.getService(serviceReference);
-    return service;
   }
 
   /**

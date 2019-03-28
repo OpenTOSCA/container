@@ -3,8 +3,6 @@ package org.opentosca.container.api.service;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
-// FIXME prefer to not depend on ZipManager
-import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.csarhandler.CSARHandler;
@@ -28,6 +26,12 @@ public class CsarService {
 
   @Inject
   private CsarStorageService storage;
+  @Inject
+  private Exporter planBuilderExporter;
+  @Inject
+  private Importer planBuilderImporter;
+
+
   private final CSARHandler planbuilderStorage = new CSARHandler();
 
   public CsarService() {
@@ -47,14 +51,12 @@ public class CsarService {
 
     try {
       planbuilderStorage.storeCSAR(zipFile.get().toFile());
-      final Importer planBuilderImporter = new Importer();
       final List<AbstractPlan> buildPlans = planBuilderImporter.importDefs(csar.id().toOldCsarId());
       // no plans, save ourselves some work by returning early
       if (buildPlans.isEmpty()) {
         return true;
       }
 
-      final Exporter planBuilderExporter = new Exporter();
       final File file = planBuilderExporter.export(buildPlans, csar.id().toOldCsarId());
       // reimport CSAR after generating plans
       storage.deleteCSAR(csar.id());

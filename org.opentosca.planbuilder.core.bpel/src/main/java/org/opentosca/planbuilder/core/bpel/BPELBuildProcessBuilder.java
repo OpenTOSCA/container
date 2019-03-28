@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.core.bpel;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Named;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -30,6 +31,7 @@ import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -45,6 +47,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
+@Service
+@Named("bpelBuildProcessBuilder")
 public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
   final static Logger LOG = LoggerFactory.getLogger(BPELBuildProcessBuilder.class);

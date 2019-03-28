@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.core.bpel;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Named;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.Node;
@@ -26,12 +27,15 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  */
+@Service
+@Named("bpelTerminationProcessBuilder")
 public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilder {
 
   private final static Logger LOG = LoggerFactory.getLogger(BPELTerminationProcessBuilder.class);

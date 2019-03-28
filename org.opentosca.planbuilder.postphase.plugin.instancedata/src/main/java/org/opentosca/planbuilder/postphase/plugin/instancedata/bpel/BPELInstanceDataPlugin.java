@@ -8,6 +8,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.postphase.plugin.instancedata.core.InstanceDataPlugin;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -21,17 +22,16 @@ import org.w3c.dom.NodeList;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
+@Service
 public class BPELInstanceDataPlugin extends InstanceDataPlugin<BPELPlanContext> {
 
   private final Handler handler = new Handler();
 
-  private final QName securePasswordPolicyType =
-    new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
+  private final QName securePasswordPolicyType = new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
 
   @Override
   public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-    // TODO FIXME this is a huge assumption right now! Not all management plans need
-    // instance handling for provisioning
+    // TODO FIXME this is a huge assumption right now! Not all management plans need instance handling for provisioning
     if (context.getPlanType().equals(AbstractPlan.PlanType.BUILD)
       || context.getPlanType().equals(AbstractPlan.PlanType.MANAGE)) {
       return this.handler.handleBuild(context, nodeTemplate);

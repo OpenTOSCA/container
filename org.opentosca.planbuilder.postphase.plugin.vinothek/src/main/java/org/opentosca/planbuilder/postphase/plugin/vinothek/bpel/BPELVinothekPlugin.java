@@ -20,6 +20,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.bpel.handler.BPELVinothekPluginHandler;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.core.VinothekPlugin;
+import org.springframework.stereotype.Service;
 
 /**
  * Copyright 2014 IAAS University of Stuttgart <br>
@@ -28,6 +29,7 @@ import org.opentosca.planbuilder.postphase.plugin.vinothek.core.VinothekPlugin;
  * @author Kalman Kepes - nyuuyn@googlemail.com
  *
  */
+@Service
 public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
 
   public static final QName phpApp = new QName("http://opentosca.org/types/declarative", "PhpApplication");

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Named;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -40,6 +41,7 @@ import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -55,6 +57,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
+@Service
+@Named("bpelPolicyAwareBuildProcessBuilder")
 public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
   final static Logger LOG = LoggerFactory.getLogger(PolicyAwareBPELBuildProcessBuilder.class);

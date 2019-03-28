@@ -46,13 +46,13 @@ public class FileAccessServiceImpl implements IFileAccessService {
       fileResURL = FileLocator.toFileURL(bundleResURL);
       fileRes = new File(fileResURL.toURI());
     } catch (final Exception e) {
-      FileAccessServiceImpl.LOG.error("", e);
+      LOG.error("", e);
     }
 
     if (fileRes == null) {
-      FileAccessServiceImpl.LOG.error("Can't get file at relative path {}.", relFilePath);
+      LOG.error("Can't get file at relative path {}.", relFilePath);
     } else {
-      FileAccessServiceImpl.LOG.debug("Absolute File path: {}", fileRes.getAbsolutePath());
+      LOG.debug("Absolute File path: {}", fileRes.getAbsolutePath());
     }
 
     return fileRes;
@@ -63,7 +63,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getNotebookAppBuildPlan() {
-    FileAccessServiceImpl.LOG.debug("Retrieving NotebookApp build plan");
+    LOG.debug("Retrieving NotebookApp build plan");
     return this.getResource("test/notebookbuildPlan.zip");
   }
 
@@ -72,7 +72,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getOpenToscaSchemaFile() {
-    FileAccessServiceImpl.LOG.debug("Get the TOSCA XML schema");
+    LOG.debug("Get the TOSCA XML schema");
     return this.getResource("TOSCA-v1.0.xsd");
   }
 
@@ -81,7 +81,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getXMLSchemaDatatypesSchema() {
-    FileAccessServiceImpl.LOG.debug("Get the XML schema data types schema file.");
+    LOG.debug("Get the XML schema data types schema file.");
     return this.getResource("xsds/XMLSchemaDatatypes.xsd");
   }
 
@@ -90,7 +90,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getDeploymentArtifactXMLSchemaFile() {
-    FileAccessServiceImpl.LOG.debug("Get the Deployment Artifact XML schema file.");
+    LOG.debug("Get the Deployment Artifact XML schema file.");
     return this.getResource("xsds/DeploymentArtifactXMLSchema.xsd");
   }
 
@@ -99,7 +99,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getToscaTestXMLFileA() {
-    FileAccessServiceImpl.LOG.debug("Get the TOSCA test A XML file.");
+    LOG.debug("Get the TOSCA test A XML file.");
     return this.getResource("test/TOSCA-TestXML-A.xml");
   }
 
@@ -108,7 +108,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getToscaTestXMLFileB() {
-    FileAccessServiceImpl.LOG.debug("Get the TOSCA test B XML file.");
+    LOG.debug("Get the TOSCA test B XML file.");
     return this.getResource("test/TOSCA-TestXML-B.xml");
   }
 
@@ -117,7 +117,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getToscaTestXMLFileMergeURI() {
-    FileAccessServiceImpl.LOG.debug("Get the TOSCA test merge XML file.");
+    LOG.debug("Get the TOSCA test merge XML file.");
     return this.getResource("test/TOSCA-TestXML-Merge.xml");
   }
 
@@ -126,7 +126,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getTHORSuperApplicationToscaFile() {
-    FileAccessServiceImpl.LOG.debug("Get the Super Application TOSCA file.");
+    LOG.debug("Get the Super Application TOSCA file.");
     return this.getResource("test/SuperApplicationTOSCAFile.xml");
   }
 
@@ -135,7 +135,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getTestWarImplementationArtifact() {
-    FileAccessServiceImpl.LOG.debug("Get the WAR test Implementation Artifact.");
+    LOG.debug("Get the WAR test Implementation Artifact.");
     return this.getResource("test/TestImplementationArtifact.war");
   }
 
@@ -144,7 +144,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getAWSDeployer() {
-    FileAccessServiceImpl.LOG.debug("Get the IA WAR-File AWSDeployer.");
+    LOG.debug("Get the IA WAR-File AWSDeployer.");
     return this.getResource("test/AWSDeployer.war");
   }
 
@@ -153,7 +153,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getDBCreator() {
-    FileAccessServiceImpl.LOG.debug("Get the IA WAR-File DBCreator.");
+    LOG.debug("Get the IA WAR-File DBCreator.");
     return this.getResource("test/AmazonDBCreator.war");
   }
 
@@ -162,7 +162,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getTestAarImplementationArtifact() {
-    FileAccessServiceImpl.LOG.debug("Get the AAR test Implementation Artifact.");
+    LOG.debug("Get the AAR test Implementation Artifact.");
     return this.getResource("test/TestImplementationArtifact.aar");
   }
 
@@ -171,7 +171,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getTestWSDLFile() {
-    FileAccessServiceImpl.LOG.debug("Get the test WSDL file.");
+    LOG.debug("Get the test WSDL file.");
     return this.getResource("test/wsdl/Deploy.wsdl");
   }
 
@@ -180,7 +180,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getResolverTest_MainTOSCA() {
-    FileAccessServiceImpl.LOG.debug("Get the Service Template Resolver test main TOSCA file.");
+    LOG.debug("Get the Service Template Resolver test main TOSCA file.");
     return this.getResource("test/ResolverTest_MainTOSCAFile.xml");
   }
 
@@ -189,7 +189,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getResolverTest_ImportTOSCA() {
-    FileAccessServiceImpl.LOG.debug("Get the Service Template Resolver test import TOSCA file.");
+    LOG.debug("Get the Service Template Resolver test import TOSCA file.");
     return this.getResource("test/ResolverTest_ImportTOSCA.xml");
   }
 
@@ -198,7 +198,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getResolverTest_ImportWSDL() {
-    FileAccessServiceImpl.LOG.debug("Get the Service Template Resolver test import WSDL file.");
+    LOG.debug("Get the Service Template Resolver test import WSDL file.");
     return this.getResource("test/ResolverTest_ImportWSDL.wsdl");
   }
 
@@ -207,121 +207,121 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * {@inheritDoc}
    */
   public File getResolverThorFile() {
-    FileAccessServiceImpl.LOG.debug("Getting the Service Templatr Resolver test THOR file.");
+    LOG.debug("Getting the Service Templatr Resolver test THOR file.");
     return this.getResource("test/ResolverExampleThorFile.thor");
   }
 
   @Override
   public File getCSARSugarCRM3() {
-    FileAccessServiceImpl.LOG.debug("Get the SugarCRM3 CSAR file.");
+    LOG.debug("Get the SugarCRM3 CSAR file.");
     return this.getResource("test/SugarCRM3.csar");
   }
 
   @Override
   public File getCSARSuperApplicationNotebook() {
-    FileAccessServiceImpl.LOG.debug("Get the SuperApplicationNotebook CSAR file.");
+    LOG.debug("Get the SuperApplicationNotebook CSAR file.");
     return this.getResource("test/SuperApplicationNotebook.csar");
   }
 
   @Override
   public File getCSARWithInvalidFileExtension() {
-    FileAccessServiceImpl.LOG.debug("Get a CSAR with invalid file extension.");
+    LOG.debug("Get a CSAR with invalid file extension.");
     return this.getResource("test/CSARWithInvalidFileExtension.csar1");
   }
 
   @Override
   public File getCSARMoodle() {
-    FileAccessServiceImpl.LOG.debug("Get the Moodle CSAR file.");
+    LOG.debug("Get the Moodle CSAR file.");
     return this.getResource("test/Moodle.csar");
   }
 
   @Override
   public File getTOSCAMetaFileInvalid1() {
-    FileAccessServiceImpl.LOG.debug("Get the invalid TOSCA meta file 1.");
+    LOG.debug("Get the invalid TOSCA meta file 1.");
     return this.getResource("test/TOSCAMetaFileInvalid1.meta");
   }
 
   @Override
   public File getTOSCAMetaFileInvalid2() {
-    FileAccessServiceImpl.LOG.debug("Get the invalid TOSCA meta file 2.");
+    LOG.debug("Get the invalid TOSCA meta file 2.");
     return this.getResource("test/TOSCAMetaFileInvalid2.meta");
   }
 
   @Override
   public File getTOSCAMetaFileInvalid3() {
-    FileAccessServiceImpl.LOG.debug("Get the invalid TOSCA meta file 3.");
+    LOG.debug("Get the invalid TOSCA meta file 3.");
     return this.getResource("test/TOSCAMetaFileInvalid3.meta");
   }
 
   @Override
   public File getTOSCAMetaFileInvalid4() {
-    FileAccessServiceImpl.LOG.debug("Get the invalid TOSCA meta file 4.");
+    LOG.debug("Get the invalid TOSCA meta file 4.");
     return this.getResource("test/TOSCAMetaFileInvalid4.meta");
   }
 
   @Override
   public File getTOSCAMetaFileInvalid5() {
-    FileAccessServiceImpl.LOG.debug("Get the invalid TOSCA meta file 5.");
+    LOG.debug("Get the invalid TOSCA meta file 5.");
     return this.getResource("test/TOSCAMetaFileInvalid5.meta");
   }
 
   @Override
   public File getTOSCAMetaFileInvalid6() {
-    FileAccessServiceImpl.LOG.debug("Get the invalid TOSCA meta file 6.");
+    LOG.debug("Get the invalid TOSCA meta file 6.");
     return this.getResource("test/TOSCAMetaFileInvalid6.meta");
   }
 
   @Override
   public File getTOSCAMetaFileInvalid7() {
-    FileAccessServiceImpl.LOG.debug("Get the invalid TOSCA meta file 7.");
+    LOG.debug("Get the invalid TOSCA meta file 7.");
     return this.getResource("test/TOSCAMetaFileInvalid7.meta");
   }
 
   @Override
   public File getTOSCAMetaFileInvalid8() {
-    FileAccessServiceImpl.LOG.debug("Get the invalid TOSCA meta file 8.");
+    LOG.debug("Get the invalid TOSCA meta file 8.");
     return this.getResource("test/TOSCAMetaFileInvalid8.meta");
   }
 
   @Override
   public File getTOSCAMetaFileValid1() {
-    FileAccessServiceImpl.LOG.debug("Get the valid TOSCA meta file 1.");
+    LOG.debug("Get the valid TOSCA meta file 1.");
     return this.getResource("test/TOSCAMetaFileValid1.meta");
   }
 
   @Override
   public File getTOSCAMetaFileValid2() {
-    FileAccessServiceImpl.LOG.debug("Get the valid TOSCA meta file 2.");
+    LOG.debug("Get the valid TOSCA meta file 2.");
     return this.getResource("test/TOSCAMetaFileValid2.meta");
   }
 
   @Override
   public File getTOSCAMetaFileValid3() {
-    FileAccessServiceImpl.LOG.debug("Get the valid TOSCA meta file 3.");
+    LOG.debug("Get the valid TOSCA meta file 3.");
     return this.getResource("test/TOSCAMetaFileValid3.meta");
   }
 
   @Override
   public File getTestCSAR() {
-    FileAccessServiceImpl.LOG.debug("Get the Test CSAR for Core File Service test cases.");
+    LOG.debug("Get the Test CSAR for Core File Service test cases.");
     return this.getResource("test/TestCSAR.csar");
   }
 
   @Override
   public File getTestCSAR2() {
-    FileAccessServiceImpl.LOG.debug("Get the Test CSAR 2 for Core File Service test cases (invalid, contains no Definitions files).");
+    LOG.debug("Get the Test CSAR 2 for Core File Service test cases (invalid, contains no Definitions files).");
     return this.getResource("test/TestCSAR2.csar");
   }
 
   @Override
   public File getStorageProviderTestFile1() {
-    FileAccessServiceImpl.LOG.debug("Get a test file for storage provider test cases.");
+    LOG.debug("Get a test file for storage provider test cases.");
     return this.getResource("test/Storage Provider Test File.txt");
   }
 
   @Override
   public File getStorageProviderTestFile2() {
-    FileAccessServiceImpl.LOG.debug("Get a empty test file for storage provider test cases.");
+    LOG.debug("Get a empty test file for storage provider test cases.");
     return this.getResource("test/StorageProviderTestFile2.war");
   }
 
@@ -329,39 +329,23 @@ public class FileAccessServiceImpl implements IFileAccessService {
    * -----------------------------------------------------------------
    */
 
-  @Override
   /**
    * {@inheritDoc}
    */
+  @Override
   public File getTemp() {
-
     Path tempDir;
-
     do {
-      tempDir = Paths.get(Settings.getSetting("temp") + File.separator + System.nanoTime());
+      tempDir = Paths.get(System.getProperty("java.io.tmpdir") + File.separator + System.nanoTime());
     } while (Files.exists(tempDir));
 
     try {
       Files.createDirectories(tempDir);
     } catch (final IOException exc) {
-      FileAccessServiceImpl.LOG.warn("An IO Exception occured.", exc);
+      LOG.warn("An IO Exception occured.", exc);
       return null;
     }
-
     return tempDir.toFile();
-
-    // Path opentoscaTemp = Paths.get(Settings.getSetting("temp"));
-    //
-    // try {
-    // Files.createDirectories(opentoscaTemp);
-    // Path tempDir = Files.createTempDirectory(opentoscaTemp, null);
-    // return tempDir.toFile();
-    // } catch (IOException exc) {
-    // FileAccessServiceImpl.LOG.warn("An IO Exception occured.", exc);
-    // }
-    //
-    // return null;
-
   }
 
   @Override

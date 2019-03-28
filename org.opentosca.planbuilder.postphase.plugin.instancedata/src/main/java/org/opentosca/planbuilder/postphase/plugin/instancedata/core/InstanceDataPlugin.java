@@ -5,6 +5,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -16,6 +17,7 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
+
 public abstract class InstanceDataPlugin<T extends PlanContext> implements IPlanBuilderPostPhasePlugin<T>,
   IPlanBuilderPolicyAwarePrePhasePlugin<T> {
 

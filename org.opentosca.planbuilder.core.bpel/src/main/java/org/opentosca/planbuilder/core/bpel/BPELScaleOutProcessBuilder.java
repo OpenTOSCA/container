@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Named;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -39,6 +40,7 @@ import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -48,6 +50,8 @@ import org.xml.sax.SAXException;
  *
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  */
+@Service
+@Named("bpelScaleOutProcessBuilder")
 public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
   private final static Logger LOG = LoggerFactory.getLogger(BPELScaleOutProcessBuilder.class);

@@ -3,6 +3,8 @@ package org.opentosca.planbuilder.integration.layer;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.AbstractPlanBuilder;
@@ -25,6 +27,16 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  */
 public abstract class AbstractImporter {
 
+//  @Inject
+//  @Named("bpelBuildProcessBuilder")
+  private AbstractPlanBuilder bpelBuildProcessBuilder = new BPELBuildProcessBuilder();
+//  @Inject
+//  @Named("bpelTerminationProcessBuilder")
+  private AbstractPlanBuilder bpelTerminationBuilder = new BPELTerminationProcessBuilder();
+//  @Inject
+//  @Named("bpelScaleOutProcessBuilder")
+  private AbstractPlanBuilder bpelScaleOutProcessBuilder = new BPELScaleOutProcessBuilder();
+
   /**
    * Creates a BuildPlan for the given ServiceTemplate
    *
@@ -36,8 +48,7 @@ public abstract class AbstractImporter {
    * @return a BuildPlan if generating a BuildPlan was successful, else null
    */
   public AbstractPlan buildPlan(final AbstractDefinitions defs, final String csarName, final QName serviceTemplate) {
-    final AbstractPlanBuilder planBuilder = new BPELBuildProcessBuilder();
-    return planBuilder.buildPlan(csarName, defs, serviceTemplate);
+    return bpelBuildProcessBuilder.buildPlan(csarName, defs, serviceTemplate);
   }
 
   /**
@@ -50,13 +61,9 @@ public abstract class AbstractImporter {
    */
   public List<AbstractPlan> buildPlans(final AbstractDefinitions defs, final String csarName) {
     final List<AbstractPlan> plans = new ArrayList<>();
-
-    final AbstractPlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
-
     // FIXME: This does not work for me (Michael W. - 2018-02-19)
     // Because policies must be enforced when they are set on the the topology, if
-    // the planbuilder doesn't understand them it doesn't generate a plan -> doesn't
-    // work for you
+    // the planbuilder doesn't understand them it doesn't generate a plan -> doesn't work for you
     //
     // if (!this.hasPolicies(defs)) {
     // buildPlanBuilder = new BPELBuildProcessBuilder();
@@ -64,12 +71,9 @@ public abstract class AbstractImporter {
     // buildPlanBuilder = new PolicyAwareBPELBuildProcessBuilder();
     // }
 
-    final AbstractPlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder();
-    final AbstractPlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder();
-
-    plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
-    plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
-    plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
+    plans.addAll(bpelScaleOutProcessBuilder.buildPlans(csarName, defs));
+    plans.addAll(bpelBuildProcessBuilder.buildPlans(csarName, defs));
+    plans.addAll(bpelTerminationBuilder.buildPlans(csarName, defs));
     return plans;
   }
 
