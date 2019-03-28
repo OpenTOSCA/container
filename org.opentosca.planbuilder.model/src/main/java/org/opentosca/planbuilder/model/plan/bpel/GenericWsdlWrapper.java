@@ -12,7 +12,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.osgi.framework.FrameworkUtil;
 
 /**
  * <p>
@@ -167,7 +166,8 @@ public class GenericWsdlWrapper {
    * @throws IOException is thrown when reading the internal file fails
    */
   public GenericWsdlWrapper(final BPELPlan.PlanType planType, final String inputOperationName) throws IOException {
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("genericProcessWsdl.wsdl");
+    //FrameworkUtil.getBundle(this.getClass()).getResource("genericProcessWsdl.wsdl");
+    final URL url = getClass().getClassLoader().getResource("genericProcessWsdl.wsdl");
     final File genericWsdlFile = new File(FileLocator.toFileURL(url).getPath());
     this.genericWsdlFileAsString = FileUtils.readFileToString(genericWsdlFile);
     this.partnerLinkTypeNames = new ArrayList<>();

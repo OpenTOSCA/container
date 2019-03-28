@@ -38,8 +38,8 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.IFileAccessService;
-import csarhandler.CSARHandler;
 import org.opentosca.container.legacy.core.model.CSARContent;
+import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.export.exporters.SimpleFileExporter;
 import org.opentosca.planbuilder.integration.layer.AbstractExporter;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -108,7 +108,7 @@ public class Exporter extends AbstractExporter {
     try {
       csarContent = this.handler.getCSARContentForID(csarId);
     } catch (final UserException e1) {
-      Exporter.LOG.error("Error occured while trying to retrieve CSAR content", e1);
+      LOG.error("Error occured while trying to retrieve CSAR content", e1);
     }
 
     if (csarContent == null) {
@@ -206,8 +206,8 @@ public class Exporter extends AbstractExporter {
         }
 
         final File newLocation = new File(tempDir, file.getPath());
-        Exporter.LOG.debug(newLocation.getAbsolutePath());
-        Exporter.LOG.debug(file.getFile().toString());
+        LOG.debug(newLocation.getAbsolutePath());
+        LOG.debug(file.getFile().toString());
         if (newLocation.isDirectory()) {
 
           FileUtils.copyDirectory(file.getFile().toFile(), newLocation);
@@ -239,7 +239,7 @@ public class Exporter extends AbstractExporter {
       // write plans
       for (final BPELPlan plan : plansToExport) {
         final File planPath = new File(tempDir, generateRelativePlanPath(plan));
-        Exporter.LOG.debug(planPath.toString());
+        LOG.debug(planPath.toString());
         planPath.getParentFile().mkdirs();
         planPath.createNewFile();
         this.simpleExporter.export(planPath.toURI(), plan);
@@ -339,14 +339,14 @@ public class Exporter extends AbstractExporter {
       }
 
     } catch (final IOException e) {
-      Exporter.LOG.error("Some IO Exception occured", e);
+      LOG.error("Some IO Exception occured", e);
     } catch (final JAXBException e) {
-      Exporter.LOG.error("Some error while marshalling with JAXB", e);
+      LOG.error("Some error while marshalling with JAXB", e);
     } catch (final SystemException e) {
-      Exporter.LOG.error("Some error in the openTOSCA Core", e);
+      LOG.error("Some error in the openTOSCA Core", e);
     }
     service.zip(tempDir, repackagedCsar);
-    Exporter.LOG.debug(repackagedCsar.toString());
+    LOG.debug(repackagedCsar.toString());
     return repackagedCsar;
   }
 
@@ -386,10 +386,10 @@ public class Exporter extends AbstractExporter {
       final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
       def = (Definitions) unmarshaller.unmarshal(new FileReader(file));
     } catch (final JAXBException e) {
-      Exporter.LOG.error("Error while reading a Definitions file", e);
+      LOG.error("Error while reading a Definitions file", e);
       return null;
     } catch (final FileNotFoundException e) {
-      Exporter.LOG.error("Definitions file not found", e);
+      LOG.error("Definitions file not found", e);
       return null;
     }
     return def;

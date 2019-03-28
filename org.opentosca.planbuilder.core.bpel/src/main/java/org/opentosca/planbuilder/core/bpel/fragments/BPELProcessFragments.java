@@ -14,7 +14,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -47,7 +46,7 @@ public class BPELProcessFragments {
 
   public String createAssignVarWithLiteral(final String literal, final String varName,
                                            final String intent) throws IOException {
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("assignVarWithLiteral.xml");
+    final URL url = getClass().getClassLoader().getResource("assignVarWithLiteral.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelfragmentfile);
     template = template.replaceAll("\\$literal", literal);
@@ -104,7 +103,7 @@ public class BPELProcessFragments {
                                                    final String toVarName,
                                                    final String xpathQuery) throws IOException {
     // <!-- $xpath2query, $fromVarName, $toVarName -->
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("assignVarFromVarWithXpath2Query.xml");
+    final URL url = getClass().getClassLoader().getResource("assignVarFromVarWithXpath2Query.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelfragmentfile);
     template = template.replaceAll("\\$assignName", assignName);
@@ -118,7 +117,7 @@ public class BPELProcessFragments {
                                                      final String part1, final String toVarName, final String part2,
                                                      final String xpathQuery1, final String xpathQuery2,
                                                      final String intent, final QName extension) throws IOException {
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("assignVarFromVarWithXpath2Queries.xml");
+    final URL url = getClass().getClassLoader().getResource("assignVarFromVarWithXpath2Queries.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelfragmentfile);
     template = template.replaceAll("\\$assignName", assignName);
@@ -177,8 +176,7 @@ public class BPELProcessFragments {
                                                                                     final String stringVarName,
                                                                                     final String nodeInstanceResponseVarName) throws IOException {
     // <!-- $assignName, $stringVarName, $NodeInstanceResponseVarName -->
-    final URL url =
-      FrameworkUtil.getBundle(this.getClass()).getResource("BpelAssignFromNodeInstanceRequestToStringVar.xml");
+    final URL url = getClass().getClassLoader().getResource("BpelAssignFromNodeInstanceRequestToStringVar.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelfragmentfile);
     template = template.replace("$assignName", assignName);
@@ -227,8 +225,7 @@ public class BPELProcessFragments {
   public String createAssignFromNodeInstancePropertyToBPELVariableAsString(final String assignName,
                                                                            final String nodeInstancePropertyResponseVarName,
                                                                            final Map<Element, String> propElement2BpelVarNameMap) throws IOException {
-    final URL url =
-      FrameworkUtil.getBundle(this.getClass()).getResource("BpelCopyFromPropertyVarToNodeInstanceProperty.xml");
+    final URL url = getClass().getClassLoader().getResource("BpelCopyFromPropertyVarToNodeInstanceProperty.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     final String template = FileUtils.readFileToString(bpelfragmentfile);
 
@@ -255,10 +252,8 @@ public class BPELProcessFragments {
 
   public String createAssignSelectFirstReferenceAndAssignToStringVar(final String referencesResponseVarName,
                                                                      final String stringVarName) throws IOException {
-    // BpelAssignSelectFromNodeInstancesRequestToStringVar.xml
     // <!-- $assignName, $stringVarName, $NodeInstancesResponseVarName -->
-    final URL url = FrameworkUtil.getBundle(this.getClass())
-      .getResource("BpelAssignSelectFromNodeInstancesRequestToStringVar.xml");
+    final URL url = getClass().getClassLoader().getResource("BpelAssignSelectFromNodeInstancesRequestToStringVar.xml");
     final File bpelAssigntFile = new File(FileLocator.toFileURL(url).getPath());
     String bpelAssignString = FileUtils.readFileToString(bpelAssigntFile);
 
@@ -342,7 +337,7 @@ public class BPELProcessFragments {
   public String createAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query,
                                                                   final String stringVarName) throws IOException {
     // <!-- {AssignName},{xpath2query}, {stringVarName} -->
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("assignStringVarWithXpath2Query.xml");
+    final URL url = getClass().getClassLoader().getResource("assignStringVarWithXpath2Query.xml");
     final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelFragmentFile);
     template = template.replace("{AssignName}", assignName);
@@ -367,8 +362,7 @@ public class BPELProcessFragments {
                                                              final String serviceInstanceIdVarName,
                                                              final String responseVarName) throws IOException {
     // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-    final URL url =
-      FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightGET_NodeInstances_InstanceDataAPI.xml");
+    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightGET_NodeInstances_InstanceDataAPI.xml");
     final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelFragmentFile);
     template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
@@ -380,10 +374,8 @@ public class BPELProcessFragments {
   public String createBPEL4RESTLightPlanInstanceLOGsPOST(final String urlVarName,
                                                          final String stringVarNameWithLogContent,
                                                          final String unassignedLogReqMessage) throws IOException {
-    // BPEL4RESTLightPOST_PlanInstance_Logs.xml
     // <!-- $urlVarName, $requestVar, $correlationId -->
-    final URL url =
-      FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightPOST_PlanInstance_Logs.xml");
+    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightPOST_PlanInstance_Logs.xml");
     final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelFragmentFile);
     template = template.replaceAll("\\$urlVarName", urlVarName);
@@ -407,7 +399,7 @@ public class BPELProcessFragments {
   public String createBPEL4RESTLightPUTState(final String instanceURLVarName,
                                              final String requestVarName) throws IOException {
     // <!-- $urlVarName, $requestVar -->
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightPUTInstanceState.xml");
+    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightPUTInstanceState.xml");
     final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelFragmentFile);
     template = template.replace("$urlVarName", instanceURLVarName);
@@ -441,8 +433,7 @@ public class BPELProcessFragments {
                                                                  final String serviceInstanceIdVarName,
                                                                  final String responseVarName) throws IOException {
     // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-    final URL url = FrameworkUtil.getBundle(this.getClass())
-      .getResource("BPEL4RESTLightGET_RelationInstances_InstanceDataAPI.xml");
+    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightGET_RelationInstances_InstanceDataAPI.xml");
     final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelFragmentFile);
     template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
@@ -471,17 +462,12 @@ public class BPELProcessFragments {
                                                                                         final String relationshipTemplateId,
                                                                                         final String responseVarName,
                                                                                         final String nodeInstanceIdVarName) throws IOException {
-    // BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml
-    // <!-- $serviceInstanceURLVar, $relationshipTemplateId, $ResponseVarName,
-    // $nodeInstanceIdVarName -->
-    final URL url =
-      FrameworkUtil.getBundle(this.getClass())
-        .getResource("BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml");
+    // <!-- $serviceInstanceURLVar, $relationshipTemplateId, $ResponseVarName, $nodeInstanceIdVarName -->
+    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml");
     final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelFragmentFile);
 
-    // <!-- $ServiceTemplateURLVarKeyword, $relationshipTemplateId, $nodeInstanceIdVarName,
-    // $ResponseVarName-->
+    // <!-- $ServiceTemplateURLVarKeyword, $relationshipTemplateId, $nodeInstanceIdVarName, $ResponseVarName-->
 
     template = template.replace("$ServiceTemplateURLVarKeyword", serviceTemplateUrlVarName);
     template = template.replace("$relationshipTemplateId", relationshipTemplateId);
@@ -518,7 +504,7 @@ public class BPELProcessFragments {
    */
   public String createRESTDeleteOnURLBPELVarAsString(final String bpelVarName,
                                                      final String responseVarName) throws IOException {
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightDELETE.xml");
+    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightDELETE.xml");
     // <!-- $urlVarName, $ResponseVarName -->
 
     final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
@@ -577,13 +563,12 @@ public class BPELProcessFragments {
                                                                   final String responseVarName,
                                                                   final String templateId,
                                                                   final String query) throws IOException {
-    // <!-- $InstanceDataURLVar, $ResponseVarName, $TemplateId,
-    // $serviceInstanceUrlVarName, $templateType -->
+    // <!-- $InstanceDataURLVar, $ResponseVarName, $TemplateId, $serviceInstanceUrlVarName, $templateType -->
 
     // <!-- $InstanceDataURLVar, $ResponseVarName, $nodeType -->
 
     final URL url =
-      FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
+      getClass().getClassLoader().getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelfragmentfile);
     template = template.replaceAll("\\$InstanceDataURLVar", serviceTemplateUrlVar);
@@ -631,8 +616,7 @@ public class BPELProcessFragments {
   public String createRESTExtensionGETForNodeInstancePropertiesAsString(final String nodeInstanceIDUrl,
                                                                         final String responseVarName) throws IOException {
     // <!-- $urlVarName, $ResponseVarName -->
-    final URL url =
-      FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightGET_NodeInstance_Properties.xml");
+    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightGET_NodeInstance_Properties.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelfragmentfile);
     template = template.replace("$urlVarName", nodeInstanceIDUrl);
@@ -657,8 +641,7 @@ public class BPELProcessFragments {
 
   public String generateServiceInstanceRequestMessageAssign(final String inputMessageElementLocalName,
                                                             final String anyElementariableName) throws IOException {
-    final URL url = FrameworkUtil.getBundle(this.getClass())
-      .getResource("BpelAssignServiceInstanceCorrelationIdPOSTRequest.xml");
+    final URL url = getClass().getClassLoader().getResource("BpelAssignServiceInstanceCorrelationIdPOSTRequest.xml");
     final File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
     String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
     // <!-- $inputElementLocalName, $StringVariableName, $assignName -->
@@ -693,7 +676,7 @@ public class BPELProcessFragments {
    */
   public String generateAssignFromInputMessageToStringVariable(final String inputMessageElementLocalName,
                                                                final String stringVariableName) throws IOException {
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BpelAssignFromInputToStringVar.xml");
+    final URL url = getClass().getClassLoader().getResource("BpelAssignFromInputToStringVar.xml");
     final File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
     String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
     // <!-- $inputElementLocalName, $StringVariableName, $assignName -->
@@ -727,8 +710,7 @@ public class BPELProcessFragments {
 
   public String generateBPEL4RESTLightGETonURL(final String urlVarName,
                                                final String responseVarName) throws IOException {
-    final URL url =
-      FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightGET_URL_ApplicationXML.xml");
+    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightGET_URL_ApplicationXML.xml");
     final File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
     String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
     // <!-- $ResponseVarName, $urlVar -->
@@ -763,8 +745,7 @@ public class BPELProcessFragments {
                                                           final String responseVariableName) throws IOException {
     // tags in xml snippet: $InstanceDataURLVar, $CSARName,
     // $serviceTemplateId, $ResponseVarName
-    final URL url = FrameworkUtil.getBundle(this.getClass())
-      .getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
+    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
     final File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
     String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
 
@@ -777,7 +758,7 @@ public class BPELProcessFragments {
   }
 
   public File getOpenTOSCAAPISchemaFile() throws IOException {
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("schemas/opentoscaapischema.xsd");
+    final URL url = getClass().getClassLoader().getResource("schemas/opentoscaapischema.xsd");
     final File schemaFile = new File(FileLocator.toFileURL(url).getPath());
     return schemaFile;
   }
@@ -810,10 +791,8 @@ public class BPELProcessFragments {
   public String generateBPEL4RESTLightServiceInstancePOST(final String instanceDataAPIUrlVariableName,
                                                           final String requestVariableName,
                                                           final String responseVariableName) throws IOException {
-    // tags in xml snippet: $InstanceDataURLVar, $CSARName,
-    // $serviceTemplateId, $ResponseVarName
-    final URL url = FrameworkUtil.getBundle(this.getClass())
-      .getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml");
+    // tags in xml snippet: $InstanceDataURLVar, $CSARName, $serviceTemplateId, $ResponseVarName
+    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml");
     final File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
     String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
 
@@ -908,7 +887,7 @@ public class BPELProcessFragments {
   public String generateBPELIfTrueThrowFaultAsString(final String xpath1Expr,
                                                      final QName faultQName) throws IOException {
     // <!-- $xpath1Expr, $faultPrefix, $faultNamespace, $faultLocalName-->
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BPELIfTrueThrowFault.xml");
+    final URL url = getClass().getClassLoader().getResource("BPELIfTrueThrowFault.xml");
     final File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
     String bpelIfString = FileUtils.readFileToString(bpel4RestFile);
 
@@ -964,10 +943,8 @@ public class BPELProcessFragments {
                                                                   final String outputVarName,
                                                                   final String outputVarPartName,
                                                                   final String outputVarLocalName) throws IOException {
-    // BpelAssignOutputVarFromStringVariable.xml
-    // <!-- ${assignName}, ${variableName}, ${outputVarName},
-    // ${outputVarPartName}, ${outputVarPrefix}, ${outputVarLocalName} -->
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BpelCopyOutputVarFromStringVariable.xml");
+    // <!-- ${assignName}, ${variableName}, ${outputVarName}, ${outputVarPartName}, ${outputVarPrefix}, ${outputVarLocalName} -->
+    final URL url = getClass().getClassLoader().getResource("BpelCopyOutputVarFromStringVariable.xml");
     final File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
     String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
     bpelAssignString = bpelAssignString.replace("${variableName}", variableName);
@@ -1026,8 +1003,7 @@ public class BPELProcessFragments {
                                                               final String serviceTemplateURLVarName,
                                                               final String planName,
                                                               final String buildPlanUrlVarName) throws IOException {
-    final URL url =
-      FrameworkUtil.getBundle(this.getClass()).getResource("BpelAssignServiceInstancePOSTResponse.xml");
+    final URL url = getClass().getClassLoader().getResource("BpelAssignServiceInstancePOSTResponse.xml");
     final File bpelAssigntFile = new File(FileLocator.toFileURL(url).getPath());
     String bpelAssignString = FileUtils.readFileToString(bpelAssigntFile);
     // <!-- $assignName $ServiceInstanceResponseVarName
