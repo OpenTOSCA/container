@@ -10,6 +10,8 @@
 
   <logger name="org.hibernate" level="INFO" />
   <logger name="org.opentosca" level="DEBUG" />
+  <logger name="org.opentosca.planbuilder" level="INFO" />
+  <logger name="org.opentosca.container.api.config" level="INFO" />
 
   <root level="debug">
     <appender-ref ref="STDOUT" />

@@ -1,6 +1,5 @@
 package org.opentosca.container.api.service;
 
-import csarhandler.CSARHandler;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
@@ -8,6 +7,7 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CsarService {
@@ -27,6 +28,7 @@ public class CsarService {
 
   @Inject
   private CsarStorageService storage;
+  private final CSARHandler planbuilderStorage = new CSARHandler();
 
   public CsarService() {
   }
@@ -37,40 +39,44 @@ public class CsarService {
    * @param csar the {@link Csar} to generate build plans for
    * @return true for success or false for failure
    */
-  public boolean generatePlans(final Csar csar) {
-    // Importer requires an unzipped Csar file instead of the winery representation
-    final Path zipFile;
-    try {
-      zipFile = storage.exportCSAR(csar.id());
-    } catch (UserException | SystemException e) {
-      logger.info("Exporting the Csar that is to be planned failed with an exception", e);
+  public boolean generatePlans(final Csar csar) throws SystemException, UserException {
+    Optional<Path> zipFile = safeExport(csar);
+    if (!zipFile.isPresent()) {
       return false;
     }
-    final Path planbuilderCsar = CSARHandler.planBuilderWorkingDir.resolve(csar.id().csarName());
-    ZipManager.getInstance().unzip(zipFile.toFile(), planbuilderCsar.toFile());
-    // clean up the zip file to allow reexporting the Csar
-    FileUtils.forceDelete(zipFile);
 
-    final Importer planBuilderImporter = new Importer();
-    final Exporter planBuilderExporter = new Exporter();
-
-    final List<AbstractPlan> buildPlans = planBuilderImporter.importDefs(csar.id().toOldCsarId());
-    // no plans, ergo no export and reimport necessary
-    if (buildPlans.isEmpty()) {
-      return true;
-    }
-
-    final File file = planBuilderExporter.export(buildPlans, csar.id().toOldCsarId());
-    // clean up the temporary csar we were working on
-    FileUtils.forceDelete(planbuilderCsar);
     try {
+      planbuilderStorage.storeCSAR(zipFile.get().toFile());
+      final Importer planBuilderImporter = new Importer();
+      final List<AbstractPlan> buildPlans = planBuilderImporter.importDefs(csar.id().toOldCsarId());
+      // no plans, save ourselves some work by returning early
+      if (buildPlans.isEmpty()) {
+        return true;
+      }
+
+      final Exporter planBuilderExporter = new Exporter();
+      final File file = planBuilderExporter.export(buildPlans, csar.id().toOldCsarId());
       // reimport CSAR after generating plans
       storage.deleteCSAR(csar.id());
       storage.storeCSAR(file.toPath());
       return true;
     } catch (UserException | SystemException e) {
       logger.warn("Reimport of Csar after building plans failed with an exception", e);
+    } finally {
+      planbuilderStorage.deleteCSAR(csar.id().toOldCsarId());
     }
     return false;
+  }
+
+  private Optional<Path> safeExport(Csar csar) {
+    Optional<Path> zipFile = Optional.empty();
+    try {
+      zipFile = Optional.of(storage.exportCSAR(csar.id()));
+    } catch (UserException | SystemException e) {
+      logger.info("Exporting the Csar that is to be planned failed with an exception", e);
+      zipFile.ifPresent(FileUtils::forceDelete);
+      return Optional.empty();
+    }
+    return zipFile;
   }
 }

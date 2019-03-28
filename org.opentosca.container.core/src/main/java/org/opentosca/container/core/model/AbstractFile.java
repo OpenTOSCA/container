@@ -9,6 +9,7 @@ import org.opentosca.container.core.service.IFileAccessService;
 /**
  * Abstract class of a file. Provides methods to fetch the file and get it's meta data.
  */
+@Deprecated
 public abstract class AbstractFile {
 
   private final String FILE_REFERENCE;

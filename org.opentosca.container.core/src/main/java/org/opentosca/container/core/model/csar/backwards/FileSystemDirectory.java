@@ -22,8 +22,8 @@ public class FileSystemDirectory extends AbstractDirectory {
 
   public FileSystemDirectory(Path dirPath) {
     super(dirPath.toAbsolutePath().toString(), Collections.emptySet(), Collections.emptySet(), false);
-    if (!Files.isDirectory(dirPath)) {
-      throw new IllegalArgumentException();
+    if (Files.exists(dirPath) && !Files.isDirectory(dirPath)) {
+      throw new IllegalArgumentException("Given path " + dirPath + " was not a directory");
     }
     representedPath = dirPath;
   }

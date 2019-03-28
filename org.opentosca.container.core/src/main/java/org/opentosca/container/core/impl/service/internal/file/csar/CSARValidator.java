@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
  */
 public class CSARValidator {
 
-  private final static Logger LOG = LoggerFactory.getLogger(CSARValidator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CSARValidator.class);
 
   /**
    * Relative path to CSAR root of the {@code Definitions} directory.
    */
-  private final String CSAR_DEFINITIONS_DIR_REL_PATH = Settings.getSetting("csarDefinitionsRelPath");
+  private static final String CSAR_DEFINITIONS_DIR_REL_PATH = "Definitions";
 
   /**
    * CSAR ID of the CSAR to validate.

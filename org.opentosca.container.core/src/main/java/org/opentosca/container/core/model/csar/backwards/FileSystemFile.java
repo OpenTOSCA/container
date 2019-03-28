@@ -16,6 +16,9 @@ public class FileSystemFile extends AbstractFile {
 
   public FileSystemFile(Path actualPath) {
     super(actualPath.toString());
+    if (!Files.isRegularFile(actualPath)) {
+      throw new IllegalArgumentException();
+    }
     this.actualPath = actualPath;
   }
 

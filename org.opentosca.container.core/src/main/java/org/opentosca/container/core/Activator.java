@@ -68,9 +68,6 @@ public class Activator implements BundleActivator {
     // relative path of IMPORTS directory in a CSAR file
     Settings.setSetting("csarImportsRelPath", "IMPORTS");
 
-    // relative path of Definitions directory in a CSAR file
-    Settings.setSetting("csarDefinitionsRelPath", "Definitions");
-
     // possible file extensions of a TOSCA file, separated by character ";"
     Settings.setSetting("toscaFileExtensions", "xml;tosca;ste");
   }

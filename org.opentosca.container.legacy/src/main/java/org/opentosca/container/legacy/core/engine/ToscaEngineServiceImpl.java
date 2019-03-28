@@ -675,63 +675,54 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
    */
   @Override
   public List<AbstractArtifact> getArtifactsOfAArtifactTemplate(final CSARID csarID, final QName artifactTemplateID) {
-
-    final List<AbstractArtifact> artifacts = new ArrayList<>();
-
     final Object requestedObject = toscaReferenceMapper.getJAXBReference(csarID, artifactTemplateID);
-
-    if (requestedObject instanceof TArtifactTemplate) {
-
-      // get the ArtifactTemplate
-      final TArtifactTemplate artifactTemplate = (TArtifactTemplate) requestedObject;
-
-      if (artifactTemplate.getArtifactReferences() != null) {
-
-        CSARContent csar;
-
-        try {
-          csar = coreFileService.getCSAR(csarID);
-        } catch (final UserException e) {
-          LOG.warn("An User Exception occured.", e);
-          return artifacts;
-        }
-
-        // iterate the references
-        for (final TArtifactReference artifactReference : artifactTemplate.getArtifactReferences()
-          .getArtifactReference()) {
-
-          final Set<String> includePatterns = new HashSet<>();
-          final Set<String> excludePatterns = new HashSet<>();
-
-          for (final Object patternObj : artifactReference.getIncludeOrExclude()) {
-            if (patternObj instanceof Include) {
-              final Include include = (Include) patternObj;
-              includePatterns.add(include.getPattern());
-            } else {
-              final Exclude exclude = (Exclude) patternObj;
-              excludePatterns.add(exclude.getPattern());
-            }
-          }
-
-          try {
-            final AbstractArtifact artifact =
-              csar.resolveArtifactReference(artifactReference.getReference(), includePatterns,
-                excludePatterns);
-            artifacts.add(artifact);
-          } catch (final UserException exc) {
-            LOG.warn("An User Exception occured.", exc);
-          } catch (final SystemException exc) {
-            LOG.warn("A System Exception occured.", exc);
-
-          }
-        }
-      } else {
-        LOG.debug("There are no ArtifactReferences in ArtifactTemplate \"" + artifactTemplateID + "\".");
-      }
-    } else {
+    if (!(requestedObject instanceof TArtifactTemplate)) {
       LOG.error("The requested \"" + artifactTemplateID
         + "\" is not of the type ArtifactTemplate. It is of the type "
         + requestedObject.getClass().getSimpleName() + ".");
+      return Collections.emptyList();
+    }
+
+    final TArtifactTemplate artifactTemplate = (TArtifactTemplate) requestedObject;
+    if (artifactTemplate.getArtifactReferences() == null) {
+      LOG.debug("There are no ArtifactReferences in ArtifactTemplate \"" + artifactTemplateID + "\".");
+      return Collections.emptyList();
+    }
+
+    CSARContent csar;
+    try {
+      csar = coreFileService.getCSAR(csarID);
+    } catch (final UserException e) {
+      LOG.warn("An User Exception occured.", e);
+      return Collections.emptyList();
+    }
+
+    final List<AbstractArtifact> artifacts = new ArrayList<>();
+    // iterate the references
+    for (final TArtifactReference artifactReference : artifactTemplate.getArtifactReferences()
+      .getArtifactReference()) {
+
+      final Set<String> includePatterns = new HashSet<>();
+      final Set<String> excludePatterns = new HashSet<>();
+
+      for (final Object patternObj : artifactReference.getIncludeOrExclude()) {
+        if (patternObj instanceof Include) {
+          final Include include = (Include) patternObj;
+          includePatterns.add(include.getPattern());
+        } else {
+          final Exclude exclude = (Exclude) patternObj;
+          excludePatterns.add(exclude.getPattern());
+        }
+      }
+
+      try {
+        final AbstractArtifact artifact = csar.resolveArtifactReference(artifactReference.getReference(), includePatterns, excludePatterns);
+        artifacts.add(artifact);
+      } catch (final UserException exc) {
+        LOG.warn("An User Exception occured.", exc);
+      } catch (final SystemException exc) {
+        LOG.warn("A System Exception occured.", exc);
+      }
     }
 
     return artifacts;

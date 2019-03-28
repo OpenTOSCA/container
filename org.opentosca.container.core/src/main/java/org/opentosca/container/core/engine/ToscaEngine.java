@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,9 +15,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.HasType;
-import org.eclipse.winery.model.tosca.TArtifactReference;
-import org.eclipse.winery.model.tosca.TArtifactTemplate;
-import org.eclipse.winery.model.tosca.TArtifactTemplate.ArtifactReferences;
 import org.eclipse.winery.model.tosca.TEntityType.DerivedFrom;
 import org.eclipse.winery.model.tosca.TEntityTypeImplementation;
 import org.eclipse.winery.model.tosca.TImplementationArtifacts;
@@ -36,9 +32,6 @@ import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.visitor.Visitor;
 import org.opentosca.container.core.common.NotFoundException;
-import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.model.AbstractArtifact;
-import org.opentosca.container.core.model.CSARArtifact;
 import org.opentosca.container.core.model.csar.Csar;
 
 @NonNullByDefault
@@ -280,40 +273,6 @@ public final class ToscaEngine {
     return typeRefs;
   }
 
-  @Deprecated
-  //FIXME find a better representation of an Artifact inside a Csar
-  public static List<AbstractArtifact> artifactsOfTemplate(TArtifactTemplate artifactTemplate, Csar csar) {
-    ArtifactReferences references = artifactTemplate.getArtifactReferences();
-    if (references == null) {
-      return Collections.emptyList();
-    }
-    return references.getArtifactReference().stream()
-      .map(tar -> {
-        List<Object> inclExcl = tar.getIncludeOrExclude();
-        Set<String> includes = inclExcl.stream()
-          .filter(ie -> ie instanceof TArtifactReference.Include)
-          .map(TArtifactReference.Include.class::cast)
-          .map(TArtifactReference.Include::getPattern)
-          .collect(Collectors.toSet());
-        Set<String> excludes = inclExcl.stream()
-          .filter(ie -> ie instanceof TArtifactReference.Exclude)
-          .map(TArtifactReference.Exclude.class::cast)
-          .map(TArtifactReference.Exclude::getPattern)
-          .collect(Collectors.toSet());
-        CSARArtifact csarArtifact;
-        try {
-          csarArtifact = new CSARArtifact(tar.getReference(), includes, excludes, csar.id().toOldCsarId(),
-            Collections.emptySet(), Collections.emptyMap());
-        } catch (UserException e) {
-          // LOGGER.warn("Could not create CSARArtifact", e);
-          return null;
-        }
-        return csarArtifact;
-      })
-      .filter(Objects::nonNull)
-      .collect(Collectors.toList());
-  }
-
   @NonNull
   public static TPlan resolvePlanReference(Csar csar, QName planId) throws NotFoundException {
     TPlan plan = csar.serviceTemplates().stream()
@@ -332,7 +291,7 @@ public final class ToscaEngine {
     return csar.serviceTemplates().stream()
       .filter(st -> {
         TPlans plans = st.getPlans();
-        return plans == null ? false : plans.getPlan().stream().anyMatch(toscaPlan::equals);
+        return plans != null && plans.getPlan().stream().anyMatch(toscaPlan::equals);
       })
       .findFirst()
       .orElse(null);

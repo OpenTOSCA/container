@@ -52,7 +52,6 @@ public class CSARHandler {
    */
   public Object storeCSAR(final File file) throws UserException, SystemException {
     LOG.debug("Trying to store csar");
-    final ICoreFileService fileService = this.fetchCoreFileService();
 
     final CSARID csarId = fileService.storeCSAR(file.toPath());
     if (csarId == null) {
@@ -63,12 +62,15 @@ public class CSARHandler {
     return csarId;
   }
 
+  public void deleteCSAR(final CSARID id) throws UserException, SystemException {
+    fileService.deleteCSAR(id);
+  }
+
   /**
    * Deletes all CSARs in the OpenTOSCA Core
    */
   public void deleteAllCsars() {
     LOG.info("Deleting all CSAR files");
-    final ICoreFileService fileService = this.fetchCoreFileService();
     try {
       fileService.deleteCSARs();
     } catch (final SystemException e) {
@@ -85,11 +87,6 @@ public class CSARHandler {
    */
   public CSARContent getCSARContentForID(final CSARID id) throws UserException {
     LOG.debug("Fetching CSARContent for given ID");
-    return this.fetchCoreFileService().getCSAR(id);
+    return fileService.getCSAR(id);
   }
-
-  private ICoreFileService fetchCoreFileService() {
-    return fileService;
-  }
-
 }

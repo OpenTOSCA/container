@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.container.core.service.impl.CoreFileServiceAdapter">
-   <implementation class="org.opentosca.container.legacy.core.bridge.CoreFileServiceAdapter"/>
-   <service>
-      <provide interface="org.opentosca.container.core.service.ICoreFileService"/>
-   </service>
-   <reference bind="bindStorage" cardinality="1..1" interface="org.opentosca.container.core.service.CsarStorageService" name="CsarStorageService" policy="static" unbind="unbindStorage"/>
-</scr:component>

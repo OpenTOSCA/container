@@ -1,15 +1,14 @@
 package org.opentosca.container.legacy.core.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFileParser;
+import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.opentosca.container.core.common.EntityExistsException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
@@ -23,6 +22,8 @@ import org.opentosca.container.legacy.core.model.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.nio.file.FileVisitResult.CONTINUE;
 
 /**
  * Provides a store and management functionality for CSAR files.
@@ -93,7 +94,33 @@ public class CoreFileServiceImpl implements ICoreFileService {
         throw new UserException("TOSCA meta file is invalid.");
       }
 
-      JPA_STORE.storeCSARMetaData(csarID, toscaMetaFile);
+      Path persistentStorageLocation = baseDirectory.resolve(csarID.getFileName());
+      try {
+        Files.createDirectories(persistentStorageLocation);
+        Files.walkFileTree(csarUnpackDir, new SimpleFileVisitor<Path>() {
+          @Override
+          public FileVisitResult preVisitDirectory(Path directory, BasicFileAttributes basicFileAttributes) throws IOException {
+            Path targetdir = persistentStorageLocation.resolve(csarUnpackDir.relativize(directory));
+            try {
+              Files.copy(directory, targetdir);
+            } catch (FileAlreadyExistsException e) {
+              if (!Files.isDirectory(targetdir))
+                throw e;
+            }
+            return CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes basicFileAttributes) throws IOException {
+            Files.copy(file, persistentStorageLocation.resolve(csarUnpackDir.relativize(file)));
+            return CONTINUE;
+          }
+        });
+      } catch (IOException e) {
+        throw new SystemException("Creating the permanent storage for the CSAR failed", e);
+      }
+
+      JPA_STORE.storeCSARMetaData(csarID, persistentStorageLocation, toscaMetaFile);
       LOG.debug("Storing CSAR \"{}\" located at \"{}\" successfully completed.", csarID, csarFile);
       return csarID;
     } finally {
@@ -108,18 +135,12 @@ public class CoreFileServiceImpl implements ICoreFileService {
   @Override
   public Path exportCSAR(final CSARID csarID) throws UserException, SystemException {
     LOG.debug("Exporting CSAR \"{}\"...", csarID);
-    final Set<Path> directoriesOfCSAR = JPA_STORE.getDirectories(csarID);
 
     Path csarDownloadDirectory = null;
     try {
       final Path tempDirectory = createTimestampDirectory();
       csarDownloadDirectory = tempDirectory.resolve("content");
       Files.createDirectory(csarDownloadDirectory);
-
-      for (final Path directoryOfCSAR : directoriesOfCSAR) {
-        final Path directoryOfCSARAbsPath = csarDownloadDirectory.resolve(directoryOfCSAR);
-        Files.createDirectories(directoryOfCSARAbsPath);
-      }
 
       final Path csarFile = tempDirectory.resolve(csarID.getFileName());
       ZipManager.getInstance().zip(csarDownloadDirectory.toFile(), csarFile.toFile());
@@ -146,7 +167,12 @@ public class CoreFileServiceImpl implements ICoreFileService {
   @Override
   public void deleteCSAR(final CSARID csarID) throws SystemException, UserException {
     LOG.debug("Deleting CSAR \"{}\"...", csarID);
-    // FIXME delete CSAR from disk
+    if (!JPA_STORE.isCSARMetaDataStored(csarID)) {
+      LOG.trace("Nothing to delete");
+      return;
+    }
+    // Delete CSAR from disk
+    FileUtils.forceDelete(baseDirectory.resolve(csarID.getFileName()));
     LOG.debug("Deleting CSAR \"{}\" on storage provider(s) completed.", csarID);
     JPA_STORE.deleteCSARMetaData(csarID);
     LOG.debug("Deleting CSAR \"{}\" completed.", csarID);

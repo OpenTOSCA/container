@@ -18,6 +18,7 @@ import org.opentosca.container.core.common.UserException;
  * check if an artifact reference belongs to this type of artifact, and browsing the artifact
  * content (this is the artifact root).
  */
+@Deprecated
 // FIXME remove the abomination that is IBrowseable
 public abstract class AbstractArtifact implements IBrowseable {
 
@@ -125,35 +126,6 @@ public abstract class AbstractArtifact implements IBrowseable {
    */
   public String getArtifactReference() {
     return this.ARTIFACT_REFERENCE;
-  }
-
-  /**
-   * @return Patterns to include only certain files in this artifact.<br />
-   * In case of an file artifact no patterns are allowed. Thus, always an empty {@code Set}
-   * will be returned.
-   */
-  public Set<String> getIncludePatterns() {
-
-    if (this.isFileArtifact()) {
-      return Collections.<String>emptySet();
-    }
-
-    return this.INCLUDE_PATTERNS;
-
-  }
-
-  /**
-   * @return Patterns to exclude certain files from this artifact.<br />
-   * In case of an file artifact no patterns are allowed. Thus, always an empty {@code Set}
-   * will be returned.
-   */
-  public Set<String> getExcludePatterns() {
-
-    if (this.isFileArtifact()) {
-      return Collections.<String>emptySet();
-    }
-
-    return this.EXCLUDE_PATTERNS;
   }
 
 }

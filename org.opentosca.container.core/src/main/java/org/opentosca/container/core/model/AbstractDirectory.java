@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
  * Abstract class of a directory. Provides methods for browsing the directory and getting their meta
  * data.
  */
+@Deprecated
 public abstract class AbstractDirectory implements IBrowseable {
 
   private final static Logger LOG = LoggerFactory.getLogger(AbstractDirectory.class);
