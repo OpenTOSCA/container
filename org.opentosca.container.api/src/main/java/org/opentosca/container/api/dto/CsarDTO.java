@@ -4,43 +4,59 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.eclipse.winery.model.selfservice.Application;
+import javax.xml.bind.annotation.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.eclipse.winery.model.selfservice.Application;
 
 import io.swagger.annotations.ApiModelProperty;
 
 @XmlRootElement(name = "Csar")
+@XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CsarDTO extends ResourceSupport {
 
+  @JsonProperty
+  @XmlAttribute
   private String id;
 
+  @JsonProperty
+  @XmlElement(name = "Name")
   private String name;
 
+  @JsonProperty
+  @ApiModelProperty(name = "display_name")
+  @XmlElement(name = "DisplayName")
   private String displayName;
 
+  @JsonProperty
+  @XmlElement(name = "Version")
   private String version;
 
+  @JsonProperty
+  @XmlElement(name = "Author")
+  @XmlElementWrapper(name = "Authors")
   private List<String> authors;
 
+  @JsonProperty
+  @XmlElement(name = "Description")
   private String description;
 
+  @JsonProperty
+  @ApiModelProperty(name = "icon_url")
+  @XmlElement(name = "IconUrl")
   private String iconUrl;
 
+  @JsonProperty
+  @ApiModelProperty(name = "image_url")
+  @XmlElement(name = "ImageUrl")
   private String imageUrl;
 
 
   public CsarDTO() {
   }
 
-  @XmlAttribute
   public String getId() {
     return this.id;
   }
@@ -49,18 +65,15 @@ public class CsarDTO extends ResourceSupport {
     this.id = id;
   }
 
-  @XmlElement(name = "Name")
+
   public String getName() {
     return this.name;
   }
 
-  @JsonSetter
   public void setName(final String name) {
     this.name = name;
   }
 
-  @ApiModelProperty(name = "display_name")
-  @XmlElement(name = "DisplayName")
   public String getDisplayName() {
     return this.displayName;
   }
@@ -69,7 +82,6 @@ public class CsarDTO extends ResourceSupport {
     this.displayName = displayName;
   }
 
-  @XmlElement(name = "Version")
   public String getVersion() {
     return this.version;
   }
@@ -78,7 +90,6 @@ public class CsarDTO extends ResourceSupport {
     this.version = version;
   }
 
-  @XmlElement(name = "Description")
   public String getDescription() {
     return this.description;
   }
@@ -87,8 +98,6 @@ public class CsarDTO extends ResourceSupport {
     this.description = description;
   }
 
-  @ApiModelProperty(name = "icon_url")
-  @XmlElement(name = "IconUrl")
   public String getIconUrl() {
     return this.iconUrl;
   }
@@ -97,8 +106,6 @@ public class CsarDTO extends ResourceSupport {
     this.iconUrl = iconUrl;
   }
 
-  @ApiModelProperty(name = "image_url")
-  @XmlElement(name = "ImageUrl")
   public String getImageUrl() {
     return this.imageUrl;
   }
@@ -107,8 +114,6 @@ public class CsarDTO extends ResourceSupport {
     this.imageUrl = imageUrl;
   }
 
-  @XmlElement(name = "Author")
-  @XmlElementWrapper(name = "Authors")
   public List<String> getAuthors() {
     return this.authors;
   }

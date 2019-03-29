@@ -32,9 +32,6 @@ public class PluginRegistry {
 
   public static final PluginRegistry INSTANCE = new PluginRegistry();
 
-  private PluginRegistry(){}
-
-
   private final List<IPlanBuilderTypePlugin<?>> genericPlugins = new ArrayList<>();
   private final List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins = new ArrayList<>();
   private final List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = new ArrayList<>();
@@ -44,6 +41,8 @@ public class PluginRegistry {
   private final List<IPlanBuilderPolicyAwareTypePlugin<?>> policyAwareTypePlugins = new ArrayList<>();
   private final List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> policyAwarePostPhasePlugins = new ArrayList<>();
   private final List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> policyAwarePrePhasePlugins = new ArrayList<>();
+
+  private PluginRegistry() { }
 
   public void register(IPlanBuilderTypePlugin<?> plugin) {
     genericPlugins.add(plugin);

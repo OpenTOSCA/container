@@ -20,7 +20,9 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DeploymentTestService {
 
   private static final Logger logger = LoggerFactory.getLogger(DeploymentTestService.class);

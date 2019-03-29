@@ -21,9 +21,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 import dk.nykredit.jackson.dataformat.hal.HALMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Provider
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ObjectMapperProvider.class);
 
   private ObjectMapper objectMapper;
 
@@ -32,18 +36,15 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
     if (this.objectMapper == null) {
       this.objectMapper = createDefaultMapper();
     }
+    LOG.trace("Retrieving Jackson Object Mapper");
     return this.objectMapper;
   }
 
-  public static ObjectMapper createSimpleMapper() {
+  private static ObjectMapper createDefaultMapper() {
     final ObjectMapper om = new HALMapper();
     om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    return om;
-  }
-
-  public static ObjectMapper createDefaultMapper() {
-    final ObjectMapper om = createSimpleMapper();
-    om.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+    om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+    LOG.info("Created Jackson ObjectMapper");
     return om;
   }
 }

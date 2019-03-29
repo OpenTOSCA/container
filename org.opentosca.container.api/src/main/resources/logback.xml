@@ -13,6 +13,8 @@
   <logger name="org.opentosca.planbuilder" level="INFO" />
   <logger name="org.opentosca.container.api.config" level="INFO" />
 
+  <logger name="org.apache.commons" level="INFO" />
+
   <root level="debug">
     <appender-ref ref="STDOUT" />
   </root>

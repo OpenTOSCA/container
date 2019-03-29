@@ -4,7 +4,6 @@
  *******************************************************************************/
 package org.opentosca.container.core.model;
 
-import java.util.Collections;
 import java.util.Set;
 
 import org.opentosca.container.core.common.UserException;

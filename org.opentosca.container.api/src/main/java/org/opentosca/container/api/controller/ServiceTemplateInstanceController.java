@@ -58,15 +58,17 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @Api
+//@RestController
 public class ServiceTemplateInstanceController {
 
   private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateInstanceController.class);
 
-  private final Csar csar;
-  private final TServiceTemplate serviceTemplate;
-
   @Context
   private UriInfo uriInfo;
+
+  private final Csar csar;
+
+  private final TServiceTemplate serviceTemplate;
 
   private final InstanceService instanceService;
 

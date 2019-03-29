@@ -12,6 +12,7 @@ import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -24,6 +25,7 @@ import org.w3c.dom.Element;
  *
  * @author Ghareeb Falazi
  */
+@Service
 public class RelationshipTemplateService {
 
   @Inject

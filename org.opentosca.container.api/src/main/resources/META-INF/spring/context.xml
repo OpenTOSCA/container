@@ -26,4 +26,6 @@
 
   <context:component-scan base-package="org.opentosca.planbuilder.export" />
   <context:component-scan base-package="org.opentosca.planbuilder.importer" />
+
+  <context:component-scan base-package="org.opentosca.deployment.checks" />
 </beans>

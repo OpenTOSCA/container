@@ -15,9 +15,11 @@ import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+@Service
 public class ServiceTemplateService {
 
   private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateService.class);

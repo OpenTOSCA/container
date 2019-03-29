@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;

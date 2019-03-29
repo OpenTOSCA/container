@@ -25,8 +25,6 @@ import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-
 /**
  * <p>
  * This Class represents the low-level algorithm for the concept in <a href=

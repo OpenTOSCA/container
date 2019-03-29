@@ -35,7 +35,6 @@ public class RulesChecker {
 
   private final static Logger LOG = LoggerFactory.getLogger(RulesChecker.class);
 
-
   static boolean check(final CSARID csarID, final QName serviceTemplateID, final InputParameters inputParameters) {
 
     LOG.debug("Checking Rules");

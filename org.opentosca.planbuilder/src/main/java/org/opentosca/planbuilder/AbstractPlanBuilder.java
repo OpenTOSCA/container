@@ -2,7 +2,6 @@ package org.opentosca.planbuilder;
 
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;

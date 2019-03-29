@@ -40,6 +40,7 @@ import org.opentosca.container.core.next.repository.SituationTriggerInstanceRepo
 import org.opentosca.container.core.next.repository.SituationTriggerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -48,6 +49,7 @@ import com.google.common.collect.Lists;
 /**
  * Allows access to instance information for service templates and node templates.
  */
+@Service
 public class InstanceService {
 
   private static Logger logger = LoggerFactory.getLogger(InstanceService.class);
