@@ -28,9 +28,10 @@ public abstract class UriUtil {
     for (final PathSegment ps : pathSegments) {
       uriBuilder.path(UriComponent.encode(ps.toString(), UriComponent.Type.PATH_SEGMENT));
     }
-    logger.debug("URL before encoding: {}", uri);
-    logger.debug("URL after encoding:  {}", uriBuilder);
-    return URI.create(uriBuilder.toString());
+    logger.debug("URL before encoding: {}", uri.toString());
+    URI result = uriBuilder.build();
+    logger.debug("URL after encoding:  {}", result.toString());
+    return result;
   }
 
   public static String encodePathSegment(final String pathSegment) {
