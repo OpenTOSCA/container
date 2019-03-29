@@ -31,6 +31,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RestController;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -39,6 +40,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @Api
+@RestController
 public class NodeTemplateInstanceController {
 
   private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);

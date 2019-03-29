@@ -27,8 +27,10 @@ import org.slf4j.LoggerFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Api
+@RestController
 public class NodeTemplateController {
 
   private static final Logger logger = LoggerFactory.getLogger(NodeTemplateController.class);

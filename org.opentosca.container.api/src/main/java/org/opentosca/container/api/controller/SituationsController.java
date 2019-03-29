@@ -33,8 +33,10 @@ import org.opentosca.container.core.next.model.SituationTriggerProperty;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.springframework.web.bind.annotation.RestController;
 
 @Path("/situationsapi")
+@RestController
 public class SituationsController {
 
   @Context

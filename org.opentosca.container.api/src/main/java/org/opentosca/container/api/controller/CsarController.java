@@ -59,7 +59,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api
 @javax.ws.rs.Path("/csars")
 @RestController
-@RequestMapping("/csars")
+//@RequestMapping("/csars")
 public class CsarController {
 
   private static Logger logger = LoggerFactory.getLogger(CsarController.class);

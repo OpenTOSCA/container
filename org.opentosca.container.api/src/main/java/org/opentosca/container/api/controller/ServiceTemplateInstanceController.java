@@ -51,6 +51,7 @@ import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RestController;
 import org.w3c.dom.Document;
 
 import io.swagger.annotations.Api;
