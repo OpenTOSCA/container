@@ -34,8 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
   @NamedQuery(name = Credentials.getAllCredentials, query = Credentials.getAllCredentialsQuery),
   @NamedQuery(name = Credentials.removeCredentialsByID, query = Credentials.removeCredentialsByIDQuery),
   @NamedQuery(name = Credentials.removeAllCredentials, query = Credentials.removeAllCredentialsQuery),
-  @NamedQuery(name = Credentials.getAllCredentialsByStorageProviderID,
-    query = Credentials.getAllCredentialsByStorageProviderIDQuery)})
+  @NamedQuery(name = Credentials.getAllCredentialsByStorageProviderID, query = Credentials.getAllCredentialsByStorageProviderIDQuery)})
 public class Credentials {
 
   protected static final String tableName = "Credentials";
@@ -71,9 +70,7 @@ public class Credentials {
    */
   @XmlAttribute(name = "id")
   @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "credentialsSequence")
-  @SequenceGenerator(name = "credentialsSequence", sequenceName = "credentialsSequence")
+  @Column(name = "id", nullable = false, unique = true)
   private Long id;
 
   /**
