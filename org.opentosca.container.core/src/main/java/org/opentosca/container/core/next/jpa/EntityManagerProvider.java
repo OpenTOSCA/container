@@ -13,13 +13,13 @@ import org.opentosca.container.core.common.Settings;
 
 public final class EntityManagerProvider {
 
-  public static final String DATABASE_FILE = Settings.DBDIR.resolve("opentosca").toAbsolutePath().toString();
-  public static final String DATABASE_PROPERTIES = ";AUTO_SERVER=TRUE";
-  public static final String JDBC_URL = "jdbc:h2:file:" + DATABASE_FILE + DATABASE_PROPERTIES;
+  private static final String DATABASE_FILE = Settings.DBDIR.resolve("opentosca").toAbsolutePath().toString();
+  private static final String DATABASE_PROPERTIES = ";AUTO_SERVER=TRUE";
+  private static final String JDBC_URL = "jdbc:h2:file:" + DATABASE_FILE + DATABASE_PROPERTIES;
 
-  public static final String PERSISTENCE_UNIT = "default";
+  private static final String PERSISTENCE_UNIT = "default";
 
-  private static EntityManagerFactory emf = null;
+  private static EntityManagerFactory emf;
 
   static {
     final Map<String, Object> cfg = new HashMap<>();

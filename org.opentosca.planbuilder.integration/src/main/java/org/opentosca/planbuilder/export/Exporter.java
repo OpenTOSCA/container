@@ -207,31 +207,25 @@ public class Exporter extends AbstractExporter {
       }
 
       // write new defs file
-      final File newDefsFile = new File(tempDir, mainDefFile.getPath());
-      newDefsFile.createNewFile();
+      final Path newDefinitionsFile = tempDir.toPath().resolve(contentRoot.relativize(Paths.get(mainDefFile.getPath())));
+      Files.createDirectories(newDefinitionsFile.getParent());
 
       final JAXBContext jaxbContext = JAXBContext.newInstance(Definitions.class);
-
       final Marshaller m = jaxbContext.createMarshaller();
-
-      final FileWriter writer = new FileWriter(newDefsFile);
-
       m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-      // output to the console: m.marshal(defs, System.out);
       try {
-        m.marshal(defs, writer);
+        m.marshal(defs, newDefinitionsFile.toFile());
       } catch (final FactoryConfigurationError e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        LOG.error("Failed to configure factory for Marshaller initialized with Definitions", e);
+        throw new SystemException("Failed to configure Marshaller", e);
       }
 
       // write plans
       for (final BPELPlan plan : plansToExport) {
-        final File planPath = new File(tempDir, generateRelativePlanPath(plan));
+        final Path planPath = tempDir.toPath().resolve(generateRelativePlanPath(plan));
         LOG.debug(planPath.toString());
-        planPath.getParentFile().mkdirs();
-        planPath.createNewFile();
-        this.simpleExporter.export(planPath.toURI(), plan);
+        Files.createDirectories(planPath.getParent());
+        this.simpleExporter.export(planPath.toFile().toURI(), plan);
       }
 
       // Check if selfservice is already available
@@ -369,11 +363,10 @@ public class Exporter extends AbstractExporter {
    * @return a JAXB Definitions class object if parsing was without errors, else null
    */
   private Definitions parseDefinitionsFile(final File file) {
-    Definitions def = null;
     try {
       final JAXBContext jaxbContext = JAXBContext.newInstance(Definitions.class);
       final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-      def = (Definitions) unmarshaller.unmarshal(new FileReader(file));
+      return (Definitions) unmarshaller.unmarshal(new FileReader(file));
     } catch (final JAXBException e) {
       LOG.error("Error while reading a Definitions file", e);
       return null;
@@ -381,7 +374,6 @@ public class Exporter extends AbstractExporter {
       LOG.error("Definitions file not found", e);
       return null;
     }
-    return def;
   }
 
   /**
