@@ -25,6 +25,7 @@
   <logger name="org.eclipse.jetty" level="OFF" />
   <logger name="org.hibernate" level="INFO" />
   <logger name="org.jclouds" level="INFO" />
+  <logger name="org.jboss.resteasy" level="INFO" />
   <logger name="org.opentosca.container.api.config" level="INFO"/>
   <logger name="org.opentosca.container.api.controller" level="DEBUG" />
   <logger name="org.opentosca.container.api.util" level="INFO"/>

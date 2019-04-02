@@ -69,8 +69,7 @@ public class CoreFileServiceImpl implements ICoreFileService {
 
       final CSARID csarID = new CSARID(csarFile.getFileName().toString());
       if (JPA_STORE.isCSARMetaDataStored(csarID)) {
-        throw new EntityExistsException(
-          "CSAR \"" + csarID.toString() + "\" is already stored. Overwriting a CSAR is not allowed.");
+        throw new EntityExistsException("CSAR \"" + csarID.toString() + "\" is already stored. Overwriting a CSAR is not allowed.");
       }
 
       csarUnpacker = new CSARUnpacker(csarFile);

@@ -145,6 +145,6 @@ public class CSARMetaDataJPAStore {
     this.em.remove(csarContent);
     this.em.getTransaction().commit();
 
-    LOG.debug("Deleting meta data of CSAR \"{}\" completed.", csarID);
+    LOG.info("Deleting meta data of CSAR \"{}\" completed.", csarID);
   }
 }
