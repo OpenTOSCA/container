@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -41,6 +42,7 @@ import org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater;
 import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
 /**
@@ -69,6 +71,7 @@ import org.xml.sax.SAXException;
  * @see ICoreEndpointService
  */
 @NonNullByDefault
+@Service
 public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
   public static final String BPS_ENGINE = "BPS";
@@ -81,16 +84,16 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
   private static String URL = Messages.BpelPlanEnginePlugin_engineAddress;
   private static String SERVICESURL = Messages.BpelPlanEnginPlugin_engineServiceRootAddress;
 
-  @Nullable
-  private IFileAccessService fileAccessService = null;
-  @Nullable
-  private ICoreEndpointService endpointService;
-  @Nullable
-  private IToscaEngineService toscaEngine;
-  @Nullable
-  private CsarStorageService storage;
+  private final IFileAccessService fileAccessService;
+  private final ICoreEndpointService endpointService;
+  private final CsarStorageService storage;
 
-  public BpelPlanEnginePlugin() {
+  @Inject
+  public BpelPlanEnginePlugin(IFileAccessService fileAccessService, ICoreEndpointService endpointService, CsarStorageService storage) {
+    this.fileAccessService = fileAccessService;
+    this.endpointService = endpointService;
+    this.storage = storage;
+
     final String processEngine = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.engine");
     if (processEngine != null) {
       ENGINE = processEngine;
@@ -196,19 +199,17 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     // package process
     LOG.info("Prepare deployment of PlanModelReference");
 
-    if (this.fileAccessService != null) {
-      try {
-        if (!tempPlan.createNewFile()) {
-          LOG.error("Can't package temporary plan for deployment");
-          return false;
-        }
-        // package the updated files
-        LOG.debug("Packaging plan to {} ", tempPlan.getAbsolutePath());
-        tempPlan = localCopy.zip(tempDir, tempPlan);
-      } catch (final IOException e) {
-        LOG.error("Can't package temporary plan for deployment", e);
+    try {
+      if (!tempPlan.createNewFile()) {
+        LOG.error("Can't package temporary plan for deployment");
         return false;
       }
+      // package the updated files
+      LOG.debug("Packaging plan to {} ", tempPlan.getAbsolutePath());
+      tempPlan = localCopy.zip(tempDir, tempPlan);
+    } catch (final IOException e) {
+      LOG.error("Can't package temporary plan for deployment", e);
+      return false;
     }
 
     // deploy process
@@ -243,18 +244,14 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     }
 
     if (endpoint == null) {
-      LOG.warn("No endpoint for Plan {} could be determined, container won't be able to instantiate it",
-        planRef.getReference());
+      LOG.warn("No endpoint for Plan {} could be determined, container won't be able to instantiate it", planRef.getReference());
       return false;
     }
 
-    if (processId == null || endpoint == null || portType == null) {
+    if (processId == null || portType == null) {
       LOG.error("Error while processing plan");
       if (processId == null) {
         LOG.error("ProcessId is null");
-      }
-      if (endpoint == null) {
-        LOG.error("Endpoint for process is null");
       }
       if (portType == null) {
         LOG.error("PortType of process is null");
@@ -368,86 +365,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
       return null;
     }
     return artifact;
-  }
-
-  /**
-   * Bind method for IFileAccessServices
-   *
-   * @param fileAccessService the fileAccessService to bind
-   */
-  public void registerFileAccessService(final IFileAccessService fileAccessService) {
-    if (fileAccessService != null) {
-      LOG.debug("Registering FileAccessService {}", fileAccessService.toString());
-      this.fileAccessService = fileAccessService;
-      LOG.debug("Registered FileAccessService {}", fileAccessService.toString());
-    }
-  }
-
-  /**
-   * Unbind method for IFileAccessServices
-   *
-   * @param fileAccessService the fileAccessService to unbind
-   */
-  protected void unregisterFileAccessService(final IFileAccessService fileAccessService) {
-    LOG.debug("Unregistering FileAccessService {}", fileAccessService.toString());
-    this.fileAccessService = null;
-    LOG.debug("Unregistered FileAccessService {}", fileAccessService.toString());
-  }
-
-  /**
-   * Bind method for ICoreEndpointServices
-   *
-   * @param endpointService the endpointService to bind
-   */
-  public void registerEndpointService(final ICoreEndpointService endpointService) {
-    if (endpointService != null) {
-      LOG.debug("Registering EndpointService {}", endpointService.toString());
-      this.endpointService = endpointService;
-      LOG.debug("Registered EndpointService {}", endpointService.toString());
-    }
-  }
-
-  /**
-   * Unbind method for ICoreEndpointServices
-   *
-   * @param endpointService the endpointService to unbind
-   */
-  protected void unregisterEndpointService(final ICoreEndpointService endpointService) {
-    LOG.debug("Unregistering EndpointService {}", endpointService.toString());
-    this.endpointService = null;
-    LOG.debug("Unregistered EndpointService {}", endpointService.toString());
-  }
-
-  /**
-   * Bind method for IToscaEngineService
-   *
-   * @param service the IToscaEngineService to bind
-   */
-  public void registerToscaEngine(final IToscaEngineService service) {
-    if (service != null) {
-      this.toscaEngine = service;
-      LOG.debug("Registered IToscaEngineService {}", service.toString());
-    }
-  }
-
-  /**
-   * Unbind method for IToscaEngineService
-   *
-   * @param endpointService the IToscaEngineService to unbind
-   */
-  protected void unregisterToscaEngine(final IToscaEngineService endpointService) {
-    this.toscaEngine = null;
-    LOG.debug("Unregistered IToscaEngineService {}", endpointService.toString());
-  }
-
-  public void bindStorageService(final CsarStorageService storage) {
-    this.storage = storage;
-    LOG.debug("Bound storage service");
-  }
-
-  public void unbindStorageService(final CsarStorageService storage) {
-    this.storage = null;
-    LOG.debug("Unbound storage service");
   }
 
   @Override

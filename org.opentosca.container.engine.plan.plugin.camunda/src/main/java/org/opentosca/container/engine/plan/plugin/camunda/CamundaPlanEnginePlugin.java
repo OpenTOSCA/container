@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
@@ -31,17 +33,26 @@ import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
 import org.opentosca.container.engine.plan.plugin.camunda.iaenginecopies.CopyOfIAEnginePluginWarTomcatServiceImpl;
 import org.opentosca.container.engine.plan.plugin.camunda.util.Messages;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
+@NonNullByDefault
 public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
   final private static Logger LOG = LoggerFactory.getLogger(CamundaPlanEnginePlugin.class);
 
-  private ICoreEndpointService endpointService;
-  private CsarStorageService storage;
+  private final ICoreEndpointService endpointService;
+  private final CsarStorageService storage;
+  private final IHTTPService httpService;
+
+  @Inject
+  public CamundaPlanEnginePlugin(ICoreEndpointService endpointService, CsarStorageService storage, IHTTPService httpService) {
+    this.endpointService = endpointService;
+    this.storage = storage;
+    this.httpService = httpService;
+  }
 
   @Override
   public String getLanguageUsed() {
@@ -61,7 +72,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
   public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
     Path fetchedPlan = planLocationOnDisk(csarId, planId, planRef);
 
-    final CopyOfIAEnginePluginWarTomcatServiceImpl deployer = new CopyOfIAEnginePluginWarTomcatServiceImpl();
+    final CopyOfIAEnginePluginWarTomcatServiceImpl deployer = new CopyOfIAEnginePluginWarTomcatServiceImpl(httpService);
     deployer.deployImplementationArtifact(csarId.toOldCsarId(), fetchedPlan.toFile());
     // POST http://localhost:8080/engine-rest/process-definition/{id}/start
     URI endpointURI = null;
@@ -158,11 +169,6 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 
     final String processDefinitions = "http://localhost:8080/engine-rest/process-definition/";
 
-    IHTTPService httpService;
-    final BundleContext context = Activator.getContext();
-    final ServiceReference<IHTTPService> tmpHttpService = context.getServiceReference(IHTTPService.class);
-    httpService = context.getService(tmpHttpService);
-
     HttpResponse response;
     String output = null;
 
@@ -214,33 +220,6 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 
     endpointURI = new URI(processDefinitions + "key/" + planID + "/start");
     return endpointURI;
-  }
-
-  public void bindStorageService(CsarStorageService storageService) {
-    if (storageService == null) {
-      LOG.warn("Trying to bind null storage service. Aborting binding");
-      return;
-    }
-    this.storage = storageService;
-    LOG.info("Bound storage service");
-  }
-
-  public void unbindStorageService(CsarStorageService storageService) {
-    LOG.info("Unbinding storage service");
-    this.storage = null;
-  }
-
-  public void bindEndpointService(ICoreEndpointService endpointService) {
-    if (endpointService == null) {
-      LOG.error("Attempted to bind null endpoint service. Aborting");
-    }
-    this.endpointService = endpointService;
-    LOG.info("Bound endpoint service");
-  }
-
-  public void unbindEndpointService(ICoreEndpointService endpointService) {
-    LOG.info("Unbinding endpoint service");
-    this.endpointService = null;
   }
 
   @Override

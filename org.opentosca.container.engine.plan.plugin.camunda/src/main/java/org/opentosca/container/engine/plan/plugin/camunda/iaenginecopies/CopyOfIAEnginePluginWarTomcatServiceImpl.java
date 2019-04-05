@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.io.IOUtils;
@@ -23,11 +24,9 @@ import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.IHTTPService;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
-import org.opentosca.container.engine.plan.plugin.camunda.Activator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -56,6 +55,7 @@ import org.w3c.dom.NodeList;
  * @author original: Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @see IHTTPService
  */
+@Service
 public class CopyOfIAEnginePluginWarTomcatServiceImpl {
 
   // Hardcoded location of Tomcat, username & password. Defined in
@@ -69,30 +69,25 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
 
   static final private Logger LOG = LoggerFactory.getLogger(CopyOfIAEnginePluginWarTomcatServiceImpl.class);
 
-  private IHTTPService httpService;
+  private final IHTTPService httpService;
 
 
-  public CopyOfIAEnginePluginWarTomcatServiceImpl() {
+  @Inject
+  public CopyOfIAEnginePluginWarTomcatServiceImpl(IHTTPService httpService) {
+    this.httpService = httpService;
     LOG.trace("Created instance of class");
   }
 
-  private void bindServices() {
-    final BundleContext context = Activator.getContext();
-    final ServiceReference<IHTTPService> httpService = context.getServiceReference(IHTTPService.class);
-    this.httpService = context.getService(httpService);
-  }
 
   /**
    * {@inheritDoc}
    */
   public void deployImplementationArtifact(final CSARID csarID, final File warFile) {
 
-    this.bindServices();
-
     String deployPath = null;
     // AbstractFile warFile = null;
 
-    CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Searching for a deployable WAR-File...");
+    LOG.info("Searching for a deployable WAR-File...");
 
     // warFile = this.getWar(artifacts);
 
@@ -107,12 +102,12 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
 
         // Create final endpoint.
         // deployPath = deployPath.concat(endpointSuffix);
-        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Complete war deployment of {} to the path {}",
+        LOG.info("Complete war deployment of {} to the path {}",
           warFile.getName(), deployPath);
       }
 
     } else {
-      CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.warn("No deployable WAR-File found.");
+      LOG.warn("No deployable WAR-File found.");
     }
   }
 
@@ -135,7 +130,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
 
     if (this.isRunning()) {
 
-      CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.debug("URI of file {}.war: {}", fileName, filePath);
+      LOG.debug("URI of file {}.war: {}", fileName, filePath);
 
       try {
         // Needed, cause some characters are not correctly converted
@@ -143,49 +138,49 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
         convertedQname = this.getConvertedcsarID(csarID);
         final String deployPath = "/" + convertedQname + "/" + fileName;
 
-        final String uri = CopyOfIAEnginePluginWarTomcatServiceImpl.URL
+        final String uri = URL
           + "/manager/text/deploy?update=true&path=" + deployPath;
 
-        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Tomcat command to deploy IA {}: {}", fileName, uri);
+        LOG.info("Tomcat command to deploy IA {}: {}", fileName, uri);
 
         final MultipartEntity uploadEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
         uploadEntity.addPart(fileName, new FileBody(warFile));
 
-        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Deploying {} ...", fileName);
+        LOG.info("Deploying {} ...", fileName);
 
         final HttpResponse httpResponse =
           this.httpService.Put(uri, uploadEntity, CopyOfIAEnginePluginWarTomcatServiceImpl.USERNAME,
-            CopyOfIAEnginePluginWarTomcatServiceImpl.PASSWORD);
+            PASSWORD);
         final InputStream inputStream = httpResponse.getEntity().getContent();
         final String response = this.convertStreamToString(inputStream);
 
-        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Tomcat response: {} ", response);
+        LOG.info("Tomcat response: {} ", response);
 
         // Check if WAR-File was deployed successfully.
         if (response.contains("OK - Deployed application at context path " + deployPath)) {
-          CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("{} was deployed successfully.", fileName);
+          LOG.info("{} was deployed successfully.", fileName);
 
-          endpoint = CopyOfIAEnginePluginWarTomcatServiceImpl.URL + deployPath;
+          endpoint = URL + deployPath;
 
-          CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.debug("Endpoint of {} : {}", fileName, endpoint);
+          LOG.debug("Endpoint of {} : {}", fileName, endpoint);
 
         } else {
-          CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("{} wasn't deployed successfully.", fileName);
+          LOG.error("{} wasn't deployed successfully.", fileName);
         }
 
       } catch (final UnsupportedEncodingException e) {
-        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("UnsupportedEncodingException occured while deploying the WAR-File: {}!",
+        LOG.error("UnsupportedEncodingException occured while deploying the WAR-File: {}!",
           fileName, e);
       } catch (final ClientProtocolException e) {
-        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("ClientProtocolException occured while deploying the WAR-File: {}!",
+        LOG.error("ClientProtocolException occured while deploying the WAR-File: {}!",
           fileName, e);
       } catch (final IOException e) {
-        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("IOException occured while deploying the WAR-File: {}!",
+        LOG.error("IOException occured while deploying the WAR-File: {}!",
           fileName, e);
       }
 
     } else {
-      CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("Tomcat isn't running or can't be accessed! Can't deploy {}!",
+      LOG.error("Tomcat isn't running or can't be accessed! Can't deploy {}!",
         fileName);
     }
 
@@ -221,7 +216,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
           // only
           // the first one found
           if (this.isADeployableWar(file)) {
-            CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Deployable WAR-File with name {} found.",
+            LOG.info("Deployable WAR-File with name {} found.",
               file.getName());
 
             return file;
@@ -244,7 +239,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
     if (file.getName().toLowerCase().endsWith(".war")) {
       return true;
     } else {
-      CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.warn("Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
+      LOG.warn("Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
         file.getName());
     }
 
@@ -272,14 +267,13 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
 
         if (this.containsEndpointSuffix(propNode)) {
           endpointSuffix = this.getNodeContent(propNode);
-          CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("ServiceEndpointSuffix found: {}",
-            endpointSuffix);
+          LOG.info("ServiceEndpointSuffix found: {}", endpointSuffix);
           return endpointSuffix;
         }
       }
     }
 
-    CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.debug("No ServiceEndpointSuffix found!");
+    LOG.debug("No ServiceEndpointSuffix found!");
     return endpointSuffix;
   }
 
@@ -320,7 +314,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
       try {
         endpointURI = new URI(endpoint);
       } catch (final URISyntaxException e) {
-        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("URISyntaxException occurred while creating endpoint URI: {} ",
+        LOG.error("URISyntaxException occurred while creating endpoint URI: {} ",
           endpoint, e);
       }
     }
@@ -334,12 +328,12 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
   private String getConvertedcsarID(final CSARID csarID) {
 
     final String qname = csarID.toString();
-    CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.debug("Converting QName: {} ...", qname);
+    LOG.debug("Converting QName: {} ...", qname);
 
     // Remove all special characters except '-'
     final String convertedCsarID = qname.replaceAll("[^-a-zA-Z0-9]", "");
 
-    CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.debug("Converted QName: {}", convertedCsarID);
+    LOG.debug("Converted QName: {}", convertedCsarID);
 
     return convertedCsarID;
   }
@@ -352,26 +346,23 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
     boolean isRunning = false;
 
     // URL to get serverinfo from Tomcat.
-    final String url = CopyOfIAEnginePluginWarTomcatServiceImpl.URL + "/manager/text/serverinfo";
+    final String url = URL + "/manager/text/serverinfo";
 
-    CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Checking if Tomcat is running on '"
-      + CopyOfIAEnginePluginWarTomcatServiceImpl.URL + "' and can be accessed with \"" + USERNAME + "\" and \""
-      + PASSWORD + "\"");
+    LOG.info("Checking if Tomcat is running on '" + URL + "' and can be accessed with \"" + USERNAME + "\" and \"" + PASSWORD + "\"");
 
     // Execute the Tomcat command and get response message back. If no
     // exception occurs, Tomcat is running.y
     HttpResponse httpResponse;
 
     try {
-      httpResponse = this.httpService.Get(url, CopyOfIAEnginePluginWarTomcatServiceImpl.USERNAME,
-        CopyOfIAEnginePluginWarTomcatServiceImpl.PASSWORD);
+      httpResponse = this.httpService.Get(url, USERNAME, PASSWORD);
 
       final String response = this.convertStreamToString(httpResponse.getEntity().getContent());
 
-      CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.debug(response);
+      LOG.debug(response);
 
       if (response.contains("OK - Server info")) {
-        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Tomcat is running and can be accessed!");
+        LOG.info("Tomcat is running and can be accessed!");
         isRunning = true;
       }
 
@@ -407,10 +398,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
    * {@inheritDoc}
    */
   public List<String> getSupportedTypes() {
-
-    this.bindServices();
-
-    CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.debug("Getting Types: {}.",
+    LOG.debug("Getting Types: {}.",
       CopyOfIAEnginePluginWarTomcatServiceImpl.TYPES);
     final List<String> types = new ArrayList<>();
 
@@ -424,10 +412,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
    * {@inheritDoc}
    */
   public List<String> getCapabilties() {
-
-    this.bindServices();
-
-    CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.debug("Getting Plugin-Capabilities: {}.",
+    LOG.debug("Getting Plugin-Capabilities: {}.",
       CopyOfIAEnginePluginWarTomcatServiceImpl.CAPABILITIES);
     final List<String> capabilities = new ArrayList<>();
 

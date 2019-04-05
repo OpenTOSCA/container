@@ -331,5 +331,16 @@
       <version>2.0.1</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.container.engine.plan.plugin.camunda</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.container.engine.plan.plugin.bpel</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>
