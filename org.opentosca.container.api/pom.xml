@@ -14,8 +14,9 @@
 
 
   <properties>
-    <tomcat.version>7.0.93</tomcat.version>
+    <resteasy.version>3.6.3.Final</resteasy.version>
     <spring.version>4.3.18.RELEASE</spring.version>
+    <tomcat.version>7.0.93</tomcat.version>
   </properties>
 
   <build>
@@ -213,11 +214,6 @@
       <version>1.0</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.8.9</version>
-    </dependency>
-    <dependency>
       <groupId>dk.nykredit.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-hal</artifactId>
       <version>1.0.1</version>
@@ -227,36 +223,41 @@
       <artifactId>swagger-annotations</artifactId>
       <version>1.5.17</version>
     </dependency>
-    <dependency>
-      <groupId>p2.osgi.bundle</groupId>
-      <artifactId>org.glassfish.jersey.media.jersey-media-json-jackson</artifactId>
-      <version>2.22.1.v20161117-2005</version>
-    </dependency>
+
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jaxrs</artifactId>
-      <version>3.6.3.Final</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jaxb-provider</artifactId>
-      <version>3.6.3.Final</version>
+      <version>${resteasy.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-spring</artifactId>
-      <version>3.6.3.Final</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.glassfish.jersey.media</groupId>
-      <artifactId>jersey-media-multipart</artifactId>
-      <version>2.1</version>
+      <version>${resteasy.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-server</artifactId>
-      <version>2.6</version>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>jaxrs-api</artifactId>
+      <version>3.0.12.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jaxb-provider</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-multipart-provider</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jackson2-provider</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.8.9</version>
     </dependency>
 
     <dependency>

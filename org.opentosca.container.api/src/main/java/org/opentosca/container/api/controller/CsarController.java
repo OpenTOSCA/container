@@ -2,6 +2,7 @@ package org.opentosca.container.api.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -12,26 +13,17 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
+
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.controller.content.DirectoryController;
 import org.opentosca.container.api.dto.CsarDTO;
 import org.opentosca.container.api.dto.CsarListDTO;
@@ -53,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Api
@@ -169,15 +160,48 @@ public class CsarController {
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
-  public Response uploadCsar(@FormDataParam(value = "file") final InputStream is,
-                             @FormDataParam("file") final FormDataContentDisposition file) {
-
-    if (is == null || file == null) {
+  public Response uploadCsar(MultipartFormDataInput input) {
+    InputPart formInput = input.getFormDataMap().get("file").get(0);
+    MultivaluedMap<String, String> headers = formInput.getHeaders();
+    String fileName = extractFileName(headers);
+    if (fileName == null) {
+      logger.info("Could not extract fileName from form input");
       return Response.status(Status.BAD_REQUEST).build();
     }
+    InputStream is = null;
+    try {
+      is = formInput.getBody(InputStream.class, null);
+      if (is == null) {
+        logger.warn("Could not read formInput as InputStream");
+        return Response.status(Status.BAD_REQUEST).build();
+      }
 
-    logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
-    return handleCsarUpload(file.getFileName(), is);
+      logger.info("Uploading new CSAR file \"{}\"", fileName);
+      return handleCsarUpload(fileName, is);
+    } catch (IOException e) {
+      return Response.serverError().entity(e).build();
+    } finally {
+      if (is != null) {
+        try {
+          is.close();
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      }
+    }
+  }
+
+  private String extractFileName(MultivaluedMap<String, String> headers) {
+    String[] contentDispostion = headers.getFirst("Content-Disposition").split("\\s*;\\s*");
+    for (String kvPair : contentDispostion) {
+      if (kvPair.startsWith("filename")) {
+        String[] name = kvPair.split("=");
+        String quoted = name[1].trim();
+        // drops the surrounding quotes
+        return quoted.substring(1, quoted.length() - 1);
+      }
+    }
+    return null;
   }
 
   @POST
@@ -316,5 +340,15 @@ public class CsarController {
       return Response.serverError().build();
     }
     return Response.noContent().build();
+  }
+
+  @OPTIONS
+  // deal with CORS preflight request
+  public Response options() {
+    return Response.ok()
+      .header("Access-Control-Request-Method", "POST")
+      .header("Allow", "OPTIONS, POST, GET")
+      .header("Accept", "application/json, application/xml, multipart/form-data")
+      .build();
   }
 }
