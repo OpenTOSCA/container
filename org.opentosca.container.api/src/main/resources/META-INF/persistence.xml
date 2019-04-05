@@ -46,6 +46,8 @@
     <class>org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint</class>
     <class>org.opentosca.container.core.model.endpoint.rest.RESTEndpoint</class>
 
+    <class>org.opentosca.container.core.model.capability.Capability</class>
+
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>

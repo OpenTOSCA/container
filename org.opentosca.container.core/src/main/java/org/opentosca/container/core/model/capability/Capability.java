@@ -3,26 +3,32 @@ package org.opentosca.container.core.model.capability;
 import org.opentosca.container.core.model.capability.provider.ProviderType;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-@Table(name = "CAPABILITIES")
+@Table(name = Capability.TABLE_NAME)
 @NamedQueries( {
   @NamedQuery(name = Capability.byProviderType, query = Capability.byProviderTypeQuery),
   @NamedQuery(name = Capability.byProvider, query = Capability.byProviderQuery)
 })
-public class Capability {
+public class Capability implements Serializable {
   public static final String byProviderType = "Capability.ByProviderType";
   public static final String byProvider = "Capability.ByProvider";
 
-  static final String byProviderTypeQuery = "SELECT Capability c WHERE c.ProviderType = :providerType";
-  static final String byProviderQuery = "SELECT Capability c WHERE c.ProviderType = :providerType AND c.ProviderName = :providerName";
+  static final String byProviderTypeQuery = "SELECT c FROM Capability c WHERE c.providerType = :providerType";
+  static final String byProviderQuery = "SELECT c FROM Capability c WHERE c.providerType = :providerType AND c.providerName = :providerName";
+  private static final long serialVersionUid = 684635434L;
+  public static final String TABLE_NAME = "CAPABILITIES";
 
   @Column(name = "Capability")
+  @Id
   private String capability;
   @Column(name = "ProviderName")
+  @Id
   private String providerName;
   @Enumerated(EnumType.STRING)
   @Column(name = "ProviderType")
+  @Id
   private ProviderType providerType;
 
   // required for JPA

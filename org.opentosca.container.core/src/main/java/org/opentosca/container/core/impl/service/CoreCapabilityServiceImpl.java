@@ -35,6 +35,10 @@ public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
 
   public CoreCapabilityServiceImpl() {
     this.em = EntityManagerProvider.createEntityManager();
+    // TRUNCATE capabilites table because startup will correctly register the capabilities
+    em.getTransaction().begin();
+    em.createNativeQuery("TRUNCATE TABLE " + Capability.TABLE_NAME).executeUpdate();
+    em.getTransaction().commit();
   }
 
   @Override
