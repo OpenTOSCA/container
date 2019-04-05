@@ -1,5 +1,6 @@
 package org.opentosca.container.api;
 
+import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 import org.opentosca.container.api.config.*;
 import org.opentosca.container.api.controller.*;
 import org.slf4j.Logger;
@@ -39,8 +40,11 @@ public class Application extends javax.ws.rs.core.Application {
 
   @Override
   public Set<Object> getSingletons() {
+    CorsFilter corsFilter = new CorsFilter();
+    corsFilter.getAllowedOrigins().add("*");
+
     return Stream.of(
-      new CorsFilter()
+      corsFilter
       , new PlainTextMessageBodyWriter()
       , new URI2XMLMessageBodyWriter()
       , new ObjectMapperProvider()

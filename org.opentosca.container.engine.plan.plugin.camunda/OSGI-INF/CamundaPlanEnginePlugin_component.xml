@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CamundaPlanEnginePlugin">
-   <implementation class="org.opentosca.container.engine.plan.plugin.camunda.CamundaPlanEnginePlugin"/>
-   <service>
-      <provide interface="org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService"/>
-   </service>
-   <reference bind="bindStorageService" cardinality="1..1" interface="org.opentosca.container.core.service.CsarStorageService" name="CsarStorageService" policy="static" unbind="unbindStorageService"/>
-   <reference bind="bindEndpointService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreEndpointService" name="ICoreEndpointService" policy="static" unbind="unbindEndpointService"/>
-</scr:component>

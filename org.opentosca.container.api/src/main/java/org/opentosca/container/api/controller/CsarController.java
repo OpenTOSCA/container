@@ -323,7 +323,6 @@ public class CsarController {
   @javax.ws.rs.Path("/{csar}")
   @ApiOperation(value = "Delete a CSAR")
   public Response deleteCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
-
     Csar csarContent;
     try {
       csarContent = storage.findById(new CsarId(id));
@@ -340,15 +339,5 @@ public class CsarController {
       return Response.serverError().build();
     }
     return Response.noContent().build();
-  }
-
-  @OPTIONS
-  // deal with CORS preflight request
-  public Response options() {
-    return Response.ok()
-      .header("Access-Control-Request-Method", "POST")
-      .header("Allow", "OPTIONS, POST, GET")
-      .header("Accept", "application/json, application/xml, multipart/form-data")
-      .build();
   }
 }
