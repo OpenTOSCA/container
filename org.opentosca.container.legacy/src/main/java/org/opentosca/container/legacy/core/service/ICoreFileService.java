@@ -52,7 +52,7 @@ public interface ICoreFileService {
    * @throws UserException   if {@code csarFile} is not a existent file, has wrong file extension, is
    *                         already stored or it's content is invalid, e.g. contains no TOSCA file or has an invalid
    *                         TOSCA meta file.
-   * @see org.opentosca.settings.Settings
+   * @see org.opentosca.container.core.common.Settings
    */
   public CSARID storeCSAR(Path csarFile) throws UserException, SystemException;
 
