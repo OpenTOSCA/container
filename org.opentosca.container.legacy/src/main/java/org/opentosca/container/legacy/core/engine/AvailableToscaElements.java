@@ -1,4 +1,4 @@
-package org.opentosca.container.core.engine.impl;
+package org.opentosca.container.legacy.core.engine;
 
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactType;
@@ -40,7 +40,7 @@ public enum AvailableToscaElements {
 
   CAPABILITY, ARTIFACTTEMPLATE, ARTIFACTTYPE, CAPABILITYDEFINITION, CAPABILITYTYPE, DEFINITIONS, DEPLOYMENTARTIFACT, IMPLEMENTATIONARTIFACT, INTERFACE, NODETEMPLATE, NODETYPE, NODETYPEIMPLEMENTATION, OPERATION, POLICY, POLICYTEMPLATE, POLICYTYPE, RELATIONSHIPTEMPLATE, RELATIONSHIPTYPE, REQUIREMENT, REQUIREMENTDEFINITION, REQUIREMENTTYPE, SERVICETEMPLATE, SOURCEELEMENT, TARGETELEMENT, RELATIONSHIPTYPEIMPLEMENTATION, PLAN;
 
-  Logger LOG = LoggerFactory.getLogger(AvailableToscaElements.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AvailableToscaElements.class);
 
 
   /**
@@ -50,8 +50,6 @@ public enum AvailableToscaElements {
    * @return The ENUM constant or null, if nothing matches.
    */
   public static AvailableToscaElements getElementName(final String name) {
-
-    final Logger LOG = LoggerFactory.getLogger(ToscaReferenceMapper.class);
 
     if (name.equals("ArtifactTemplate")) {
       return ARTIFACTTEMPLATE;
@@ -118,7 +116,6 @@ public enum AvailableToscaElements {
    * @return JAXB element class or null if it is none of the constants.
    */
   public Class<?> getElementClass() {
-    final Logger LOG = LoggerFactory.getLogger(ToscaReferenceMapper.class);
 
     switch (this) {
       case ARTIFACTTEMPLATE:

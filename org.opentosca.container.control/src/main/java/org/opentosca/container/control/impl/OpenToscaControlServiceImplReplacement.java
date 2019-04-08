@@ -41,19 +41,29 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaControlServiceImplReplacement.class);
 
-  @Inject
-  private IToscaEngineService toscaEngine;
-  @Inject
-  private DeploymentTracker deploymentTracker;
-  @Inject
-  private IPlanEngineService planEngine;
-  @Inject
-  private IPlanInvocationEngine planInvocationEngine;
-  @Inject
-  private CsarStorageService storage;
+  private final IToscaEngineService toscaEngine;
+  private final DeploymentTracker deploymentTracker;
+  private final IPlanEngineService planEngine;
+  private final IPlanInvocationEngine planInvocationEngine;
+  private final CsarStorageService storage;
   // used only for instanceIdOfCorrelation
+  private final ICSARInstanceManagementService instanceManagement;
+
   @Inject
-  private ICSARInstanceManagementService instanceManagement;
+  public OpenToscaControlServiceImplReplacement(IToscaEngineService toscaEngine,
+                                                DeploymentTracker deploymentTracker,
+                                                IPlanEngineService planEngine,
+                                                IPlanInvocationEngine planInvocationEngine,
+                                                CsarStorageService storage,
+                                                ICSARInstanceManagementService instanceManagement) {
+    this.toscaEngine = toscaEngine;
+    this.deploymentTracker = deploymentTracker;
+    this.planEngine = planEngine;
+    this.planInvocationEngine = planInvocationEngine;
+    this.storage = storage;
+
+    this.instanceManagement = instanceManagement;
+  }
 
   @Override
   public boolean invokeToscaProcessing(CsarId csar) {

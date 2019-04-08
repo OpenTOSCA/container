@@ -39,7 +39,6 @@ import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginServic
 import org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightUpdater;
 import org.opentosca.container.engine.plan.plugin.bpel.util.Messages;
 import org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater;
-import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

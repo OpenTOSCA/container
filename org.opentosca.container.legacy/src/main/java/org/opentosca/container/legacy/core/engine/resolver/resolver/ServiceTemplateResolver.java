@@ -3,7 +3,7 @@ package org.opentosca.container.legacy.core.engine.resolver.resolver;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
+import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.legacy.core.engine.resolver.resolver.data.ElementNamesEnum;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -45,7 +45,7 @@ public class ServiceTemplateResolver extends GenericResolver {
   @Inject
   private static IXMLSerializerService xmlSerializerService;
 
-  private final ToscaReferenceMapper toscaReferenceMapper;
+  private final IToscaReferenceMapper toscaReferenceMapper;
 
 
   /**
@@ -55,7 +55,7 @@ public class ServiceTemplateResolver extends GenericResolver {
    * @param referenceMapper
    * @param toscaReferenceMapper the toscaReferenceMapper used to store ServiceTemplateIds
    */
-  public ServiceTemplateResolver(final ReferenceMapper referenceMapper, ToscaReferenceMapper toscaReferenceMapper) {
+  public ServiceTemplateResolver(final ReferenceMapper referenceMapper, IToscaReferenceMapper toscaReferenceMapper) {
     super(referenceMapper);
     this.toscaReferenceMapper = toscaReferenceMapper;
   }

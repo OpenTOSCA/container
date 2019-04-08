@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.engine.NodeTemplateInstanceCounts;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.model.AbstractArtifact;

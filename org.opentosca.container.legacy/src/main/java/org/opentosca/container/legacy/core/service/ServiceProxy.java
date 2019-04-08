@@ -1,13 +1,12 @@
 package org.opentosca.container.legacy.core.service;
 
-import org.opentosca.container.core.engine.IToscaReferenceMapper;
+import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.legacy.core.plan.CorrelationHandler;
 import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.osgi.service.event.EventAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 
@@ -16,20 +15,19 @@ import javax.inject.Inject;
  * classes of this bundle.
  */
 @Deprecated
+@Service
 public class ServiceProxy {
 
   @Inject
-  public static IToscaEngineService toscaEngineService = null;
+  public static IToscaEngineService toscaEngineService;
   @Inject
-  public static IToscaReferenceMapper toscaReferenceMapper = null;
+  public static IToscaReferenceMapper toscaReferenceMapper;
   @Inject
-  public static IXMLSerializerService xmlSerializerService = null;
+  public static IXMLSerializerService xmlSerializerService;
   @Inject
-  public static ICSARInstanceManagementService csarInstanceManagement = null;
+  public static ICSARInstanceManagementService csarInstanceManagement;
   @Inject
   public static EventAdmin eventAdmin;
 
   public static CorrelationHandler correlationHandler = new CorrelationHandler();
-
-  private final Logger LOG = LoggerFactory.getLogger(ServiceProxy.class);
 }

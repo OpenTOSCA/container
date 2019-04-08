@@ -2,7 +2,7 @@ package org.opentosca.container.legacy.core.engine.resolver.resolver;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
+import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.legacy.core.engine.resolver.resolver.data.ElementNamesEnum;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.eclipse.winery.model.tosca.Definitions;
@@ -30,7 +30,7 @@ public class NodeTypeImplementationResolver extends GenericResolver {
 
   private final CSARID csarID;
 
-  private final ToscaReferenceMapper toscaReferenceMapper;
+  private final IToscaReferenceMapper toscaReferenceMapper;
 
 
   /**
@@ -42,7 +42,7 @@ public class NodeTypeImplementationResolver extends GenericResolver {
    * @param csarID
    */
   public NodeTypeImplementationResolver(final ReferenceMapper referenceMapper,
-                                        ToscaReferenceMapper toscaReferenceMapper, final CSARID csarID) {
+                                        IToscaReferenceMapper toscaReferenceMapper, final CSARID csarID) {
     super(referenceMapper);
     this.csarID = csarID;
     this.toscaReferenceMapper = toscaReferenceMapper;

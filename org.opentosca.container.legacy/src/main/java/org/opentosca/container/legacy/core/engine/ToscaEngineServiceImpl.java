@@ -21,15 +21,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.winery.model.tosca.*;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.engine.NodeTemplateInstanceCounts;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedImplementationArtifact;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.legacy.core.engine.resolver.PathResolver;
-import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
-import org.opentosca.container.core.engine.impl.consolidation.DefinitionsConsolidation;
+import org.opentosca.container.legacy.core.engine.consolidation.DefinitionsConsolidation;
 import org.opentosca.container.legacy.core.engine.resolver.resolver.DefinitionsResolver;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -58,22 +56,22 @@ import com.google.common.collect.Lists;
 @Service
 public class ToscaEngineServiceImpl implements IToscaEngineService {
 
-  @Inject
-  private static IXMLSerializerService xmlSerializerService;
-  @Inject
-  private static ICoreFileService coreFileService;
-
-  private static ToscaReferenceMapper toscaReferenceMapper = null;
 
   private static final Logger LOG = LoggerFactory.getLogger(ToscaEngineServiceImpl.class);
 
-  private DefinitionsResolver definitionsResolver = null;
-  private DefinitionsConsolidation definitionsConsolidation = null;
+  private final IXMLSerializerService xmlSerializerService;
+  private final ICoreFileService coreFileService;
+  private final IToscaReferenceMapper toscaReferenceMapper;
+  private final DefinitionsResolver definitionsResolver;
+  private final DefinitionsConsolidation definitionsConsolidation;
 
-  public ToscaEngineServiceImpl() {
-    toscaReferenceMapper = new ToscaReferenceMapper();
-    this.definitionsResolver = new DefinitionsResolver(toscaReferenceMapper);
-    this.definitionsConsolidation = new DefinitionsConsolidation(toscaReferenceMapper);
+  @Inject
+  public ToscaEngineServiceImpl(IXMLSerializerService xmlSerializerService, ICoreFileService coreFileService, IToscaReferenceMapper toscaReferenceMapper) {
+    this.xmlSerializerService = xmlSerializerService;
+    this.coreFileService = coreFileService;
+    this.toscaReferenceMapper = toscaReferenceMapper;
+    this.definitionsResolver = new DefinitionsResolver(this.toscaReferenceMapper);
+    this.definitionsConsolidation = new DefinitionsConsolidation(this.toscaReferenceMapper);
   }
 
   /**

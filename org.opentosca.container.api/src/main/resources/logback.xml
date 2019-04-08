@@ -16,6 +16,7 @@
   <logger name="io.moquette.persistence" level="OFF" />
   <logger name="io.netty" level="ERROR" />
   <logger name="messageLogger" level="ERROR" />
+  <logger name="org.apache.axis" level="WARN" />
   <logger name="org.apache.axis2" level="WARN" />
   <logger name="org.apache.axiom" level="WARN" />
   <logger name="org.apache.commons" level="WARN" />

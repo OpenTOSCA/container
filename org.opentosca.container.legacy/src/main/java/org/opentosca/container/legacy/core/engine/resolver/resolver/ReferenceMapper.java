@@ -13,7 +13,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
+import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.legacy.core.engine.resolver.resolver.data.ElementNamesEnum;
 import org.opentosca.container.legacy.core.engine.resolver.resolver.data.ReferenceResultWrapper;
@@ -81,7 +81,7 @@ public class ReferenceMapper {
 
   private final Logger LOG = LoggerFactory.getLogger(ReferenceMapper.class);
 
-  private final ToscaReferenceMapper toscaReferenceMapper;
+  private final IToscaReferenceMapper toscaReferenceMapper;
 
 
   /**
@@ -93,7 +93,7 @@ public class ReferenceMapper {
    * @param toscaReferenceMapper the toscaReferenceMapper to use for storage
    */
   public ReferenceMapper(final CSARID csarID, final Map<String, List<Document>> mapOfNSToDocuments,
-                         ToscaReferenceMapper toscaReferenceMapper) {
+                         IToscaReferenceMapper toscaReferenceMapper) {
     this.csarID = csarID;
     this.namespaceToDocument = mapOfNSToDocuments;
     this.xpath.setNamespaceContext(NAMESPACE_CONTEXT);

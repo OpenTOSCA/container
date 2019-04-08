@@ -1,4 +1,4 @@
-package org.opentosca.container.core.engine.impl.consolidation;
+package org.opentosca.container.legacy.core.engine.consolidation;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -13,13 +13,13 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TExportedOperation.Plan;
 import org.eclipse.winery.model.tosca.TPlan;
+import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -70,10 +70,10 @@ public class ExportedInterfacesConsolidation {
   };
 
   private final Logger LOG = LoggerFactory.getLogger(ExportedInterfacesConsolidation.class);
-  private final ToscaReferenceMapper toscaReferenceMapper;
+  private final IToscaReferenceMapper toscaReferenceMapper;
 
 
-  public ExportedInterfacesConsolidation(ToscaReferenceMapper referenceMapper) {
+  public ExportedInterfacesConsolidation(IToscaReferenceMapper referenceMapper) {
     this.toscaReferenceMapper = referenceMapper;
     this.xpath.setNamespaceContext(this.nscontext);
   }

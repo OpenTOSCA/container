@@ -12,7 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
+import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -57,9 +57,9 @@ public class DefinitionsResolver {
   private Map<String, List<Document>> mapOfNSToDocuments = new HashMap<>();
 
 
-  private final ToscaReferenceMapper toscaReferenceMapper;
+  private final IToscaReferenceMapper toscaReferenceMapper;
 
-  public DefinitionsResolver(ToscaReferenceMapper referenceMapper) {
+  public DefinitionsResolver(IToscaReferenceMapper referenceMapper) {
     this.toscaReferenceMapper = referenceMapper;
   }
 

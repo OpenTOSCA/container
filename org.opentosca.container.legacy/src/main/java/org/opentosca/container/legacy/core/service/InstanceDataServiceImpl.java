@@ -68,8 +68,7 @@ import org.w3c.dom.NodeList;
 public class InstanceDataServiceImpl implements IInstanceDataService {
   private static final Logger LOG = LoggerFactory.getLogger(InstanceDataServiceImpl.class);
 
-  @Inject
-  private static IToscaEngineService toscaEngineService;
+  private final IToscaEngineService toscaEngineService;
 
   private final ServiceTemplateInstanceRepository serviceRepository = new ServiceTemplateInstanceRepository();
   private final NodeTemplateInstanceRepository nodeRepository = new NodeTemplateInstanceRepository();
@@ -79,6 +78,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   private final ServiceInstanceDAO siDAO = new ServiceInstanceDAO();
   private final NodeInstanceDAO niDAO = new NodeInstanceDAO();
   private final RelationInstanceDAO riDAO = new RelationInstanceDAO();
+
+  @Inject
+  public InstanceDataServiceImpl(IToscaEngineService toscaEngineService) {
+    this.toscaEngineService = toscaEngineService;
+  }
 
   @Override
   @WebMethod(exclude = true)
@@ -157,15 +161,15 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     LOG.debug("Starting creating ServiceInstance for " + serviceTemplateID + " in " + csarID);
     // TODO: boolean flag for cascading creation? cool or not?
     // check if serviceTemplate doesn't exist
-    if (!doesServiceTemplateExist(InstanceDataServiceImpl.toscaEngineService, csarID, serviceTemplateID)) {
+    if (!doesServiceTemplateExist(toscaEngineService, csarID, serviceTemplateID)) {
       LOG.warn(String.format("Failed to create ServiceInstance for CSAR-ID: %s / serviceTemplateID: %s - was not found!", csarID, serviceTemplateID));
       throw new ReferenceNotFoundException("ServiceTemplate doesn't exist in the specified CSAR");
     }
     // retrieve serviceTemplateName
-    final String serviceTemplateName = InstanceDataServiceImpl.toscaEngineService.getNameOfReference(csarID, serviceTemplateID);
+    final String serviceTemplateName = toscaEngineService.getNameOfReference(csarID, serviceTemplateID);
     // get all min and maxCounts from the ServiceTemplate and construct
     // nodeInstances from it automatically
-    final NodeTemplateInstanceCounts instanceCounts = InstanceDataServiceImpl.toscaEngineService.getInstanceCountsOfNodeTemplatesByServiceTemplateID(csarID, serviceTemplateID);
+    final NodeTemplateInstanceCounts instanceCounts = toscaEngineService.getInstanceCountsOfNodeTemplatesByServiceTemplateID(csarID, serviceTemplateID);
 
     // creation of real objects
     ServiceInstance serviceInstance = new ServiceInstance(csarID, serviceTemplateID, serviceTemplateName);
@@ -345,24 +349,24 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     final ServiceInstance serviceInstance = serviceInstances.get(0);
 
     // check if nodeTemplate exists
-    if (!InstanceDataServiceImpl.toscaEngineService.doesNodeTemplateExist(csarId, serviceTemplateId, nodeTemplateID.getLocalPart())) {
+    if (!toscaEngineService.doesNodeTemplateExist(csarId, serviceTemplateId, nodeTemplateID.getLocalPart())) {
       final String msg = String.format("Failed to create NodeInstance: NodeTemplate: csar: %s serviceTemplateID: %s , nodeTemplateID: '%s' - could not be retrieved / does not exist",
           serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(), nodeTemplateID);
       LOG.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
 
-    final String nodeTemplateName = InstanceDataServiceImpl.toscaEngineService.getNameOfReference(csarId, nodeTemplateID);
+    final String nodeTemplateName = toscaEngineService.getNameOfReference(csarId, nodeTemplateID);
 
     // use localparts because serviceInstance QName namespace HAS to be the
     // same as the namespace of the nodeInstance
-    final QName nodeTypeOfNodeTemplate = InstanceDataServiceImpl.toscaEngineService.getNodeTypeOfNodeTemplate(csarId, serviceTemplateId,
+    final QName nodeTypeOfNodeTemplate = toscaEngineService.getNodeTypeOfNodeTemplate(csarId, serviceTemplateId,
         nodeTemplateID.getLocalPart());
 
     // use localparts because serviceInstance QName namespace HAS to be the
     // same as the namespace of the nodeInstance
     final Document propertiesOfNodeTemplate =
-      InstanceDataServiceImpl.toscaEngineService.getPropertiesOfTemplate(csarId, serviceTemplateId,
+      toscaEngineService.getPropertiesOfTemplate(csarId, serviceTemplateId,
         nodeTemplateID.getLocalPart()
           .toString());
 
@@ -388,15 +392,15 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     LOG.info("createRelationInstance(): {}", sourceInstanceId);
     LOG.info("createRelationInstance(): {}", targetInstanceId);
 
-    final String relationshipTemplateName = InstanceDataServiceImpl.toscaEngineService.getNameOfReference(csarId, relationshipTemplateID);
+    final String relationshipTemplateName = toscaEngineService.getNameOfReference(csarId, relationshipTemplateID);
 
     // use localparts because serviceInstance QName namespace HAS to be the
     // same as the namespace of the nodeInstance
-    final QName nodeTypeOfNodeTemplate = InstanceDataServiceImpl.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId, serviceTemplateId, relationshipTemplateID.getLocalPart());
+    final QName nodeTypeOfNodeTemplate = toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId, serviceTemplateId, relationshipTemplateID.getLocalPart());
 
     // use localparts because serviceInstance QName namespace HAS to be the
     // same as the namespace of the nodeInstance
-    final Document propertiesOfRelationshipTemplate = InstanceDataServiceImpl.toscaEngineService.getPropertiesOfTemplate(csarId, serviceTemplateId, relationshipTemplateID.getLocalPart().toString());
+    final Document propertiesOfRelationshipTemplate = toscaEngineService.getPropertiesOfTemplate(csarId, serviceTemplateId, relationshipTemplateID.getLocalPart().toString());
 
     final NodeInstance sourceInstance = getNodeInstances(URI.create(sourceInstanceId), null, null, null).get(0);
     final NodeInstance targetInstance = getNodeInstances(URI.create(targetInstanceId), null, null, null).get(0);
@@ -737,7 +741,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     }
 
     // check if the serviceTemplate has propertyMappings
-    final TBoundaryDefinitions boundaryDefs = InstanceDataServiceImpl.toscaEngineService.getBoundaryDefinitionsOfServiceTemplate(serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID());
+    final TBoundaryDefinitions boundaryDefs = toscaEngineService.getBoundaryDefinitionsOfServiceTemplate(serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID());
     if (boundaryDefs == null || boundaryDefs.getProperties() == null || boundaryDefs.getProperties().getPropertyMappings() == null) {
       // if there are no property mappings there is no need to update.
       // The properties can only be updated be external clients via setting properties by hand
@@ -957,7 +961,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   private Document createServiceInstancePropertiesFromServiceTemplate(final CSARID csarId,
                                                                       final QName serviceTemplateId) {
     LOG.debug("Creating initial ServiceInstance Properties for " + serviceTemplateId + " in " + csarId);
-    final TBoundaryDefinitions boundaryDefs = InstanceDataServiceImpl.toscaEngineService.getBoundaryDefinitionsOfServiceTemplate(csarId, serviceTemplateId);
+    final TBoundaryDefinitions boundaryDefs = toscaEngineService.getBoundaryDefinitionsOfServiceTemplate(csarId, serviceTemplateId);
 
     Element propertiesElement = null;
     if (boundaryDefs != null && boundaryDefs.getProperties() != null) {
