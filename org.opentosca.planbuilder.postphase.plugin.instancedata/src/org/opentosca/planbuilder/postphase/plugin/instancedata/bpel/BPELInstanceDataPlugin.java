@@ -30,7 +30,7 @@ public class BPELInstanceDataPlugin extends InstanceDataPlugin<BPELPlanContext> 
         new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // TODO FIXME this is a huge assumption right now! Not all management plans need
         // instance handling for provisioning
         if (context.getPlanType().equals(AbstractPlan.PlanType.BUILD)
@@ -42,7 +42,7 @@ public class BPELInstanceDataPlugin extends InstanceDataPlugin<BPELPlanContext> 
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
         return this.handler.handle(context, relationshipTemplate);
     }
 

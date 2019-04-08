@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel;
+package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -448,8 +448,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                 }
 
                 for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                    if (postPhasePlugin.canHandle(nodeTemplate)) {
-                        postPhasePlugin.handle(context, nodeTemplate);
+                    if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+                        postPhasePlugin.handleCreate(context, nodeTemplate);
                     }
                 }
             }

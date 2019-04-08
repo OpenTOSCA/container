@@ -71,7 +71,7 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
     }
 
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         // for this plugin to handle the given NodeTemplate following statements
         // must hold:
         // 1. The NodeTemplate has the Properties "ContainerPort" and "Port"
@@ -144,7 +144,7 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
     }
 
     @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
         // we can only handle nodeTemplates
         return false;
     }

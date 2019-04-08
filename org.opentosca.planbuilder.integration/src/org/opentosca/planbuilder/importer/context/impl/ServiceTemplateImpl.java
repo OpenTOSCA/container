@@ -68,7 +68,7 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
      * Initializes the internal TopologyTemplate of this ServiceTemplate
      */
     private void setUpTopologyTemplate() {
-        this.topologyTemplate = new TopologyTemplateImpl(this.serviceTemplate.getTopologyTemplate(), this.definitions);
+        this.topologyTemplate = new TopologyTemplateImpl(this.serviceTemplate.getTopologyTemplate(), this.definitions, this.getQName());
     }
 
     /**

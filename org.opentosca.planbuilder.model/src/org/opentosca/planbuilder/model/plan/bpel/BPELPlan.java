@@ -34,7 +34,7 @@ public class BPELPlan extends AbstractPlan {
 
     public BPELPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
                     final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
-                    final Set<Link> links) {
+                    final Collection<Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
     }
 

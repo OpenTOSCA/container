@@ -1,8 +1,9 @@
-package org.opentosca.planbuilder.plugins;
+package org.opentosca.planbuilder.plugins.artifactbased;
 
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**

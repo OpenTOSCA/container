@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel;
+package org.opentosca.planbuilder.core.bpel.artifactbasednodehandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,10 +13,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseParamOperationPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.plugins.context.Variable;
 
 /**

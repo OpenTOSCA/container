@@ -6,11 +6,13 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.AbstractPlanBuilder;
-import org.opentosca.planbuilder.core.bpel.BPELFreezeProcessBuilder;
-import org.opentosca.planbuilder.core.bpel.BPELBuildProcessBuilder;
-import org.opentosca.planbuilder.core.bpel.BPELDefrostProcessBuilder;
-import org.opentosca.planbuilder.core.bpel.BPELScaleOutProcessBuilder;
-import org.opentosca.planbuilder.core.bpel.BPELTerminationProcessBuilder;
+import org.opentosca.planbuilder.AbstractSimplePlanBuilder;
+import org.opentosca.planbuilder.AbstractTransformingPlanbuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBuildProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELDefrostProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELFreezeProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELScaleOutProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTerminationProcessBuilder;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -40,10 +42,55 @@ public abstract class AbstractImporter {
 	 * @return a BuildPlan if generating a BuildPlan was successful, else null
 	 */
 	public AbstractPlan buildPlan(final AbstractDefinitions defs, final String csarName, final QName serviceTemplate) {
-		final AbstractPlanBuilder planBuilder = new BPELBuildProcessBuilder();
+		final AbstractSimplePlanBuilder planBuilder = new BPELBuildProcessBuilder();
 		return planBuilder.buildPlan(csarName, defs, serviceTemplate);
 	}
 
+	protected List<AbstractPlan> buildTransformationPlans(final String sourceCsarName, final AbstractDefinitions sourceDefinitions,final String targetCsarName, final AbstractDefinitions targetDefinitions) {
+		final List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
+		
+		final AbstractTransformingPlanbuilder transformPlanBuilder = new AbstractTransformingPlanbuilder() {
+			
+			@Override
+			public List<AbstractPlan> buildPlans(String sourceCsarName, AbstractDefinitions sourceDefinitions,
+					String targetCsarName, AbstractDefinitions targetDefinitions) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public AbstractPlan buildPlan(String sourceCsarName, AbstractDefinitions sourceDefinitions,
+					QName sourceServiceTemplateId, String targetCsarName, AbstractDefinitions targetDefinitions,
+					QName targetServiceTemplateId) {
+				
+				AbstractServiceTemplate sourceServTemp = null;				
+				AbstractServiceTemplate targetServTemp = null;
+				
+				for(AbstractServiceTemplate servTemp : sourceDefinitions.getServiceTemplates()) {
+					if(servTemp.getQName().equals(sourceServiceTemplateId)) {
+						sourceServTemp = servTemp;
+						break;
+					}
+				}
+				
+				for(AbstractServiceTemplate servTemp : targetDefinitions.getServiceTemplates()) {
+					if(servTemp.getQName().equals(targetServiceTemplateId)) {
+						targetServTemp = servTemp;
+						break;
+					}
+				}
+						
+				return this.generateTFOG(sourceCsarName, sourceDefinitions, sourceServTemp, targetCsarName, targetDefinitions, targetServTemp);
+			}
+		};
+		
+		plans.add(transformPlanBuilder.buildPlan(sourceCsarName, sourceDefinitions, sourceDefinitions.getServiceTemplates().get(0).getQName(), targetCsarName, targetDefinitions, targetDefinitions.getServiceTemplates().get(0).getQName()));
+		
+		
+		
+		return plans;
+	}
+	
 	/**
 	 * Generates Plans for ServiceTemplates inside the given Definitions document
 	 *
@@ -55,7 +102,7 @@ public abstract class AbstractImporter {
 	public List<AbstractPlan> buildPlans(final AbstractDefinitions defs, final String csarName) {
 		final List<AbstractPlan> plans = new ArrayList<>();
 
-		final AbstractPlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
+		final AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
 
 		// FIXME: This does not work for me (Michael W. - 2018-02-19)
 		// if (!this.hasPolicies(defs)) {
@@ -70,11 +117,11 @@ public abstract class AbstractImporter {
 		// buildPlanBuilder = new PolicyAwareBPELBuildProcessBuilder();
 		// }
 
-		final AbstractPlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder();
-		final AbstractPlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder();
+		final AbstractSimplePlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder();
+		final AbstractSimplePlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder();
 
-		final AbstractPlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder();
-		final AbstractPlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder();
+		final AbstractSimplePlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder();
+		final AbstractSimplePlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder();
 
 
 		plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));

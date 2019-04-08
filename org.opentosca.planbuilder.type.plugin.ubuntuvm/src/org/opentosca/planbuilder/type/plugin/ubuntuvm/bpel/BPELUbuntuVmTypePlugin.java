@@ -27,7 +27,7 @@ public class BPELUbuntuVmTypePlugin extends UbuntuVmTypePlugin<BPELPlanContext> 
      * {@inheritDoc}
      */
     @Override
-    public boolean handle(final BPELPlanContext templateContext) {
+    public boolean handleCreate(final BPELPlanContext templateContext) {
         final AbstractNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
         if (nodeTemplate == null) {
             return false;
@@ -70,7 +70,7 @@ public class BPELUbuntuVmTypePlugin extends UbuntuVmTypePlugin<BPELPlanContext> 
     }
 
     @Override
-    public boolean handlePolicyAware(final BPELPlanContext templateContext) {
+    public boolean handlePolicyAwareCreate(final BPELPlanContext templateContext) {
         final AbstractNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
         if (nodeTemplate == null) {
             return false;

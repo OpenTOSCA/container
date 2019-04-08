@@ -7,12 +7,13 @@ import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
 import org.opentosca.planbuilder.plugins.activator.Activator;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -31,14 +32,14 @@ public class PluginRegistry {
 
     private BundleContext getCtx() {
         return Activator.ctx;
-    }
-
+    }    
+    
     /**
      * Returns all registered GenericPlugins
      *
      * @return a List of IPlanBuilderTypePlugin
      */
-    public List<IPlanBuilderTypePlugin<?>> getGenericPlugins() {
+    public List<IPlanBuilderTypePlugin<?>> getTypePlugins() {
         final List<IPlanBuilderTypePlugin<?>> plugins = new ArrayList<>();
         final BundleContext ctx = getCtx();
         try {
@@ -58,6 +59,27 @@ public class PluginRegistry {
 
         return plugins;
     }
+    
+    public List<IPlanBuilderPrePhasePlugin<?>> getPrePlugins() {
+        final List<IPlanBuilderPrePhasePlugin<?>> plugins = new ArrayList<>();
+        final BundleContext ctx = getCtx();
+        try {
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderPrePhasePlugin.class.getName(), null);
+
+            if (refs != null) {
+                for (final ServiceReference<?> ref : refs) {
+                    plugins.add((IPlanBuilderPrePhasePlugin<?>) ctx.getService(ref));
+                }
+
+            }
+        }
+        catch (final InvalidSyntaxException e) {
+            e.printStackTrace();
+        }
+
+        return plugins;
+    }    
 
     /**
      * Returns all registered ProvPhasePlugins
@@ -127,7 +149,7 @@ public class PluginRegistry {
 
         try {
             final ServiceReference<?>[] refs =
-                ctx.getAllServiceReferences(IPlanBuilderPrePhaseDAPlugin.class.getName(), null);
+                ctx.getAllServiceReferences(IPlanBuilderPrePhasePlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {

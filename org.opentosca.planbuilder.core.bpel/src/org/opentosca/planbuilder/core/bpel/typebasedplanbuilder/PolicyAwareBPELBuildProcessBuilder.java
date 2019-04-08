@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel;
+package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -16,6 +16,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
+import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
+import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
@@ -37,6 +39,7 @@ import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,17 +109,6 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
         this.opNames.add("start");
         // this.opNames.add("connectTo");
         // this.opNames.add("hostOn");
-    }
-
-    /**
-     * Returns the number of the plugins registered with this planbuilder
-     *
-     * @return integer denoting the count of plugins
-     */
-    public int registeredPlugins() {
-        return this.pluginRegistry.getGenericPlugins().size() + this.pluginRegistry.getDaPlugins().size()
-            + this.pluginRegistry.getIaPlugins().size() + this.pluginRegistry.getPostPlugins().size()
-            + this.pluginRegistry.getProvPlugins().size();
     }
 
     /*
@@ -277,33 +269,26 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                 // Note: if a generic plugin fails during execution the
                 // TemplateBuildPlan is broken!
 
+                for(IPlanBuilderPrePhasePlugin prePhasePlugin : this.pluginRegistry.getPrePlugins()) {
+                	if(prePhasePlugin.canHandleCreate(nodeTemplate)) {
+                		prePhasePlugin.handleCreate(context, nodeTemplate);
+                	}
+                }
+                
                 if (nodeTemplate.getPolicies().isEmpty()) {
                     final IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
-                    if (plugin == null) {
-                        PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
-                                                                     nodeTemplate.getId());
-                        final OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate, this.opNames);
-                        if (chain == null) {
-                            PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}",
-                                                                        nodeTemplate.getId());
-                        } else {
-                            PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}",
-                                                                         nodeTemplate.getId());
-                            chain.executeIAProvisioning(context);
-                            chain.executeDAProvisioning(context);
-                            chain.executeOperationProvisioning(context, this.opNames);
-                            handled = true;
-                        }
+                    if (plugin != null) {                        
+                        PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with type plugin {}",
+                        		nodeTemplate.getId(), plugin.getID());
+                        handled = plugin.handleCreate(context);
                     } else {
-                        PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with generic plugin",
-                                                                    nodeTemplate.getId());
-                        handled = plugin.handle(context);
-
+                    	PolicyAwareBPELBuildProcessBuilder.LOG.warn("Can't handle NodeTemplate {} with type plugin",
+                        		nodeTemplate.getId());
                     }
 
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandle(nodeTemplate)) {
-                            handled = postPhasePlugin.handle(context, nodeTemplate);
+                        if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+                            handled = postPhasePlugin.handleCreate(context, nodeTemplate);
                         }
                     }
                 } else {
@@ -373,12 +358,12 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                     } else {
                         PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with generic policy aware plugin",
                                                                     nodeTemplate.getId());
-                        handled = policyPlugin.handlePolicyAware(context);
+                        handled = policyPlugin.handlePolicyAwareCreate(context);
                     }
 
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandle(nodeTemplate)) {
-                            handled = postPhasePlugin.handle(context, nodeTemplate);
+                        if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+                            handled = postPhasePlugin.handleCreate(context, nodeTemplate);
                         }
                     }
 
@@ -396,38 +381,21 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                 // Note: if a generic plugin fails during execution the
                 // TemplateBuildPlan is broken here!
                 // TODO implement fallback
-                if (!canGenericPluginHandle(relationshipTemplate)) {
-                    PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains",
-                                                                 relationshipTemplate.getId());
-                    final OperationChain sourceChain =
-                        BPELScopeBuilder.createOperationChain(relationshipTemplate, true);
-                    final OperationChain targetChain =
-                        BPELScopeBuilder.createOperationChain(relationshipTemplate, false);
-
-                    // first execute provisioning on target, then on source
-                    if (targetChain != null) {
-                        PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}",
-                                                                    relationshipTemplate.getId());
-                        targetChain.executeIAProvisioning(context);
-                        targetChain.executeOperationProvisioning(context, this.opNames);
-                    }
-
-                    if (sourceChain != null) {
-                        PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}",
-                                                                    relationshipTemplate.getId());
-                        sourceChain.executeIAProvisioning(context);
-                        sourceChain.executeOperationProvisioning(context, this.opNames);
-                    }
-                    handled = true;
+                if (canGenericPluginHandle(relationshipTemplate)) {
+                	
+                	 PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin",
+                             relationshipTemplate.getId());
+                	 IPlanBuilderTypePlugin plugin = this.findTypePlugin(relationshipTemplate);
+                	 handled = handleWithTypePlugin(context, relationshipTemplate,plugin);
+                	
                 } else {
-                    PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin",
-                                                                relationshipTemplate.getId());
-                    handled = handleWithTypePlugin(context, relationshipTemplate);
+                	 PolicyAwareBPELBuildProcessBuilder.LOG.debug("Couldn't handle RelationshipTemplate {} with type plugin",
+                             relationshipTemplate.getId());
                 }
 
                 for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                    if (postPhasePlugin.canHandle(relationshipTemplate)) {
-                        handled = postPhasePlugin.handle(context, relationshipTemplate);
+                    if (postPhasePlugin.canHandleCreate(relationshipTemplate)) {
+                        handled = postPhasePlugin.handleCreate(context, relationshipTemplate);
                     }
                 }
             }
@@ -445,8 +413,8 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
      *         false
      */
     private boolean canGenericPluginHandle(final AbstractRelationshipTemplate relationshipTemplate) {
-        for (final IPlanBuilderTypePlugin plugin : this.pluginRegistry.getGenericPlugins()) {
-            if (plugin.canHandle(relationshipTemplate)) {
+        for (final IPlanBuilderTypePlugin plugin : this.pluginRegistry.getTypePlugins()) {
+            if (plugin.canHandleCreate(relationshipTemplate)) {
                 PolicyAwareBPELBuildProcessBuilder.LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}",
                                                             plugin.getID(), relationshipTemplate.getId());
                 return true;

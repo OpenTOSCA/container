@@ -65,7 +65,7 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     }
 
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
 
         if (!this.canHandleDockerContainerPropertiesAndDA(nodeTemplate)) {
             return false;
@@ -83,7 +83,7 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     }
 
     @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
         // we can only handle nodeTemplates
         return false;
     }

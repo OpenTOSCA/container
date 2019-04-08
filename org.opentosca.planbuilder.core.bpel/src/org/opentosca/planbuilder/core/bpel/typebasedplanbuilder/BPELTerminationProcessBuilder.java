@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel;
+package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -320,8 +320,8 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 BPELTerminationProcessBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
 
                 for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                    if (postPhasePlugin.canHandle(nodeTemplate)) {
-                        postPhasePlugin.handle(context, nodeTemplate);
+                    if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+                        postPhasePlugin.handleCreate(context, nodeTemplate);
                     }
                 }
             }

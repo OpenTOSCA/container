@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.core;
 
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
@@ -33,7 +34,7 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
      * opentosca.planbuilder.model.tosca.AbstractNodeTemplate)
      */
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         // we can't handle nodeTemplates
         return false;
     }
@@ -45,11 +46,11 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
      * opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate)
      */
     @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
 
         // check the relationshipType
         if (!ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType())
-                       .contains(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+                       .contains(Types.connectsToRelationType)) {
             return false;
         }
 

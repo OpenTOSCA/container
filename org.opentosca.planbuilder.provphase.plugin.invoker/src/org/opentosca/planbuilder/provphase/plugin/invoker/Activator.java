@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.provphase.plugin.invoker;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

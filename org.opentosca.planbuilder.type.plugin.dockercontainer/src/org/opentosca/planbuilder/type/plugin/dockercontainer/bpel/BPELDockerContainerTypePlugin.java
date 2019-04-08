@@ -20,12 +20,12 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     private final BPELDockerContainerTypePluginHandler handler = new BPELDockerContainerTypePluginHandler();
 
     @Override
-    public boolean handle(final BPELPlanContext templateContext) {
+    public boolean handleCreate(final BPELPlanContext templateContext) {
         if (templateContext.getNodeTemplate() == null) {
             // error
             return false;
         } else {
-            if (this.canHandle(templateContext.getNodeTemplate())) {
+            if (this.canHandleCreate(templateContext.getNodeTemplate())) {
                 return this.handler.handle(templateContext);
             }
         }

@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel;
+package org.opentosca.planbuilder.core.bpel.artifactbasednodehandler;
 
 import java.util.ArrayList;
 import java.util.List;

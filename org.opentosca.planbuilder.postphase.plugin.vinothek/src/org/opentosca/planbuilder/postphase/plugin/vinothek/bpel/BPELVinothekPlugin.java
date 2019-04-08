@@ -84,9 +84,9 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // check if the node is really a phpApp
-        if (this.canHandle(nodeTemplate)) {
+        if (this.canHandleCreate(nodeTemplate)) {
             final AbstractNodeTypeImplementation nodeImpl = this.selectNodeTypeImplementation(context);
             return this.handler.handle(context, nodeTemplate, nodeImpl);
         } else {
@@ -95,7 +95,7 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
         // only handling nodeTemplates
         return false;
     }

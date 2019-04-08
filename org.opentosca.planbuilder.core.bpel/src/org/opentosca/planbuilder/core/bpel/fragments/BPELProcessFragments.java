@@ -13,7 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.planbuilder.core.bpel.BPELFreezeProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.osgi.framework.FrameworkUtil;

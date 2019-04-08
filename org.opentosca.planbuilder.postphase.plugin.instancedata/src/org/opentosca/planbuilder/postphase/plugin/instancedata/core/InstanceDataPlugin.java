@@ -23,13 +23,13 @@ public abstract class InstanceDataPlugin<T extends PlanContext> implements IPlan
     private static final String PLAN_ID = "OpenTOSCA InstanceData Post Phase Plugin";
 
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         // we can handle nodes
         return true;
     }
 
     @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
         // we can't handle relations
         return true;
     }

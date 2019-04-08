@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -224,7 +225,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     private AbstractNodeTemplate fetchNodeConnectedWithHostedOn(final AbstractNodeTemplate nodeTemplate) {
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
             if (ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType())
-                          .contains(ModelUtils.TOSCABASETYPE_HOSTEDON)) {
+                          .contains(Types.hostedOnRelationType)) {
                 return relation.getTarget();
             }
         }

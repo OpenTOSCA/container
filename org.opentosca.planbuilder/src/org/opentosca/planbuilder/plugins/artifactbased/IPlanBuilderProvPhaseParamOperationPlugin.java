@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.plugins;
+package org.opentosca.planbuilder.plugins.artifactbased;
 
 import java.util.Map;
 

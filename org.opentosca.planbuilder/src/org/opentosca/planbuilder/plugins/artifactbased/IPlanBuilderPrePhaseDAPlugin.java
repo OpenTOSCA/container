@@ -1,8 +1,9 @@
-package org.opentosca.planbuilder.plugins;
+package org.opentosca.planbuilder.plugins.artifactbased;
 
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**
@@ -41,5 +42,9 @@ public interface IPlanBuilderPrePhaseDAPlugin<T extends PlanContext> extends IPl
      *         successful
      */
     public boolean handle(T context, AbstractDeploymentArtifact da, AbstractNodeTemplate infrastructureNodeTemplate);
+    
+    public boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
+    
+    public boolean handleCreate(T context, AbstractNodeTemplate nodeTemplate);
 
 }

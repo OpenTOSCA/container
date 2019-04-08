@@ -42,7 +42,7 @@ public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
      * opentosca.planbuilder.plugins.context.BPELPlanContext)
      */
     @Override
-    public boolean handle(final BPELPlanContext templateContext) {
+    public boolean handleCreate(final BPELPlanContext templateContext) {
         return this.handler.handle(templateContext);
     }
 

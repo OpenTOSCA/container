@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.type.plugin.connectsto.bpel.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -106,7 +107,7 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
     private AbstractNodeTemplate getNextNodeTemplate(final AbstractNodeTemplate node) {
         for (final AbstractRelationshipTemplate r : node.getOutgoingRelations()) {
             if (ModelUtils.getRelationshipTypeHierarchy(r.getRelationshipType())
-                          .contains(ModelUtils.TOSCABASETYPE_HOSTEDON)) {
+                          .contains(Types.hostedOnRelationType)) {
                 return r.getTarget();
             }
         }

@@ -3,6 +3,8 @@ package org.opentosca.planbuilder.model.tosca;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 /**
  * <p>
  * This class represents a TOSCA TopologyTemplate
@@ -15,6 +17,12 @@ import java.util.List;
  */
 public abstract class AbstractTopologyTemplate {
 
+	/**
+	 * Returns the id of the Service Template this Topology Template belongs to
+	 * @return a QName denoting the Service Template of this Topology Template
+	 */
+	public abstract QName getServiceTemplateId();
+	
     /**
      * Returns the NodeTemplates of this TopologyTemplate
      *

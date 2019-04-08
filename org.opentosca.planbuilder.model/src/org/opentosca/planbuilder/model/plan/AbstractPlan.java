@@ -66,14 +66,14 @@ public abstract class AbstractPlan {
 
     private final Collection<AbstractActivity> activites;
 
-    private final Set<Link> links;
+    private final Collection<Link> links;
 
     private final String id;
 
 
     public AbstractPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
                         final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
-                        final Set<Link> links) {
+                        final Collection<Link> links) {
         this.id = id;
         this.type = type;
         this.definitions = definitions;
@@ -123,7 +123,7 @@ public abstract class AbstractPlan {
         return this.activites;
     }
 
-    public Set<Link> getLinks() {
+    public Collection<Link> getLinks() {
         return this.links;
     }
 

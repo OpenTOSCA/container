@@ -20,7 +20,6 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
-import org.opentosca.planbuilder.core.bpel.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;

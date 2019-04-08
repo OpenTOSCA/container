@@ -10,7 +10,7 @@ public class BPELConfigureRelationsPlugin extends ConfigureRelationsPlugin<BPELP
     private final ConnectsToPluginHandler<BPELPlanContext> handler = new BPELConfigureRelationsPluginHandler();
 
     @Override
-    public boolean handle(final BPELPlanContext templateContext) {
+    public boolean handleCreate(final BPELPlanContext templateContext) {
         return this.handler.handle(templateContext);
     }
 }

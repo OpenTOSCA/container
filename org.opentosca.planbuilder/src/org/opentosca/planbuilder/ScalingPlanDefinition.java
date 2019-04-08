@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractCapability;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -143,16 +144,16 @@ public class ScalingPlanDefinition {
         for (final AbstractNodeTemplate nodeTemplate : this.selectionStrategy2BorderNodes) {
             final List<AbstractNodeTemplate> sinkNodes = new ArrayList<>();
 
-            ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_HOSTEDON, sinkNodes);
-            ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPENDSON, sinkNodes);
-            ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPLOYEDON, sinkNodes);
+            ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.hostedOnRelationType, sinkNodes);
+            ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, sinkNodes);
+            ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.deployedOnRelationType, sinkNodes);
 
             sinkNodes.remove(nodeTemplate);
 
             final List<AbstractRelationshipTemplate> outgoing =
-                ModelUtils.getOutgoingRelations(nodeTemplate, ModelUtils.TOSCABASETYPE_HOSTEDON,
-                                                ModelUtils.TOSCABASETYPE_DEPENDSON,
-                                                ModelUtils.TOSCABASETYPE_DEPLOYEDON);
+                ModelUtils.getOutgoingRelations(nodeTemplate, Types.hostedOnRelationType,
+                                                Types.dependsOnRelationType,
+                                                Types.deployedOnRelationType);
 
             this.nodeTemplatesRecursiveSelection.addAll(sinkNodes);
             this.relationshipTemplatesRecursiveSelection.addAll(outgoing);
@@ -226,7 +227,7 @@ public class ScalingPlanDefinition {
 
         final QName baseType = ModelUtils.getRelationshipBaseType(relationship);
 
-        if (baseType.equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+        if (baseType.equals(Types.connectsToRelationType)) {
             // if either the source or target is not in the nodesToScale
             // list =>
             // relation crosses border
@@ -235,9 +236,9 @@ public class ScalingPlanDefinition {
             } else if (!nodesToScale.contains(target)) {
                 return target;
             }
-        } else if (baseType.equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
-            | baseType.equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
-            | baseType.equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)) {
+        } else if (baseType.equals(Types.dependsOnRelationType)
+            | baseType.equals(Types.hostedOnRelationType)
+            | baseType.equals(Types.deployedOnRelationType)) {
             // if target is not in the nodesToScale list => relation crosses
             // border
             if (!nodesToScale.contains(target)) {

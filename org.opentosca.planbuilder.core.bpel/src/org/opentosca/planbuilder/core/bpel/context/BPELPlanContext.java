@@ -18,8 +18,9 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.core.bpel.BPELScopeBuilder;
-import org.opentosca.planbuilder.core.bpel.OperationChain;
+import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
+import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
@@ -78,9 +79,7 @@ public class BPELPlanContext implements PlanContext {
     public static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
     public static final String ServiceInstanceIDVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
     public static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";
-    public static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
-
-
+    public static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";       
 
     public static Variable getVariable(String varName) {
         return new Variable(null, varName);
@@ -755,7 +754,7 @@ public class BPELPlanContext implements PlanContext {
             ModelUtils.getInfrastructureEdges(getNodeTemplate(), infraEdges);
         } else {
             final AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-            if (ModelUtils.getRelationshipBaseType(template).equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+            if (ModelUtils.getRelationshipBaseType(template).equals(Types.connectsToRelationType)) {
                 ModelUtils.getInfrastructureEdges(template, infraEdges, true);
                 ModelUtils.getInfrastructureEdges(template, infraEdges, false);
             } else {
@@ -777,7 +776,7 @@ public class BPELPlanContext implements PlanContext {
             ModelUtils.getInfrastructureNodes(getNodeTemplate(), infrastructureNodes);
         } else {
             final AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-            if (ModelUtils.getRelationshipBaseType(template).equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+            if (ModelUtils.getRelationshipBaseType(template).equals(Types.connectsToRelationType)) {
                 ModelUtils.getInfrastructureNodes(template, infrastructureNodes, true);
                 ModelUtils.getInfrastructureNodes(template, infrastructureNodes, false);
             } else {

@@ -37,7 +37,7 @@ public class BPELConnectsToTypePlugin extends ConnectsToTypePlugin<BPELPlanConte
      * opentosca.planbuilder.plugins.context.BPELPlanContext)
      */
     @Override
-    public boolean handle(final BPELPlanContext templateContext) {
+    public boolean handleCreate(final BPELPlanContext templateContext) {
         return this.handler.handle(templateContext);
     }
 

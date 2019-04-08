@@ -16,6 +16,7 @@ import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -25,10 +26,17 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
-public abstract class AbstractDefrostPlanBuilder extends AbstractPlanBuilder {
+public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuilder {
     
     static QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes","FreezableComponent");
 
+
+	@Override
+	public PlanType createdPlanType() {
+		return PlanType.BUILD;
+	}
+
+    
     public static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
                                            final AbstractServiceTemplate serviceTemplate,
                                            final Collection<AbstractNodeTemplate> nodeTemplates,
@@ -111,12 +119,12 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractPlanBuilder {
         for (final AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
             final AbstractActivity activity = relationActivityMapping.get(relationshipTemplate);
             final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
-            if (baseType.equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+            if (baseType.equals(Types.connectsToRelationType)) {
                 links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getSource()), activity));
                 links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
-            } else if (baseType.equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
-                | baseType.equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
-                | baseType.equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)) {
+            } else if (baseType.equals(Types.dependsOnRelationType)
+                | baseType.equals(Types.hostedOnRelationType)
+                | baseType.equals(Types.deployedOnRelationType)) {
                 links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
                 links.add(new Link(activity, nodeActivityMapping.get(relationshipTemplate.getSource())));
             }
