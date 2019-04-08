@@ -37,7 +37,6 @@ import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
 import org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightUpdater;
-import org.opentosca.container.engine.plan.plugin.bpel.util.Messages;
 import org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +56,7 @@ import org.xml.sax.SAXException;
  * The endpoints for the update are retrieved through a service that implements the {@link ICoreEndpointService} interface.
  * </p>
  * <p>
- * The actual deployment is done on the endpoint which is declared in the {@link Messages} class.
+ * The actual deployment is done on the endpoint given in the properties.
  * The plugin uses {@link BpsConnector} or {@link OdeConnector} class to deploy the updated plan
  * unto the WSO2 BPS or Apache ODE behind the endpoint, respectively.
  * </p>
@@ -66,7 +65,6 @@ import org.xml.sax.SAXException;
  * @see ODEEndpointUpdater
  * @see BpsConnector
  * @see OdeConnector
- * @see Messages
  * @see ICoreEndpointService
  */
 @NonNullByDefault
@@ -76,47 +74,34 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
   public static final String BPS_ENGINE = "BPS";
 
   private static final Logger LOG = LoggerFactory.getLogger(BpelPlanEnginePlugin.class);
+  private static final String DEFAULT_ENGINE_URL = "http://localhost:9763/ode";
+  private static final String DEFAULT_ENGINE = "ODE";
+  private static final String DEFAULT_SERVICE_URL = "http://localhost:9763/ode/processes";
+  private static final String DEFAULT_ENGINE_LANGUAGE = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 
-  private static String ENGINE = Messages.BpelPlanEnginePlugin_engine;
-  private static String USERNAME = Messages.BpelPlanEnginePlugin_engineLoginName;
-  private static String PASSWORD = Messages.BpelPlanEnginePlugin_engineLoginPw;
-  private static String URL = Messages.BpelPlanEnginePlugin_engineAddress;
-  private static String SERVICESURL = Messages.BpelPlanEnginPlugin_engineServiceRootAddress;
+
+  private final String processEngine;
+  private final String username;
+  private final String password;
+  private final String url;
+  private final String servicesUrl;
 
   private final IFileAccessService fileAccessService;
   private final ICoreEndpointService endpointService;
   private final CsarStorageService storage;
 
   @Inject
+  // FIXME inject a Spring Environment to read the messages.properties and use these instead of the core settings
   public BpelPlanEnginePlugin(IFileAccessService fileAccessService, ICoreEndpointService endpointService, CsarStorageService storage) {
     this.fileAccessService = fileAccessService;
     this.endpointService = endpointService;
     this.storage = storage;
 
-    final String processEngine = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.engine");
-    if (processEngine != null) {
-      ENGINE = processEngine;
-    }
-
-    final String url = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.url");
-    if (url != null) {
-      URL = url;
-    }
-
-    final String servicesUrl = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.services.url");
-    if (servicesUrl != null) {
-      SERVICESURL = servicesUrl;
-    }
-
-    final String userName = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.username");
-    if (userName != null) {
-      USERNAME = userName;
-    }
-
-    final String password = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.password");
-    if (password != null) {
-      PASSWORD = password;
-    }
+    this.processEngine = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.engine", DEFAULT_ENGINE);
+    this.url = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.url", DEFAULT_ENGINE_URL);
+    this.servicesUrl = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.services.url", DEFAULT_SERVICE_URL);
+    this.username = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.username", "");
+    this.password = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.password", "");
   }
 
   /**
@@ -124,7 +109,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
    */
   @Override
   public String getLanguageUsed() {
-    return Messages.BpelPlanEnginePlugin_language;
+    return DEFAULT_ENGINE_LANGUAGE;
   }
 
   /**
@@ -133,7 +118,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
   @Override
   public List<String> getCapabilties() {
     final List<String> capabilities = new ArrayList<>();
-    for (final String capability : Messages.BpelPlanEnginePlugin_capabilities.split("[,;]")) {
+    for (final String capability : "http://docs.oasis-open.org/wsbpel/2.0/process/executable".split("[,;]")) {
       capabilities.add(capability.trim());
     }
     return capabilities;
@@ -169,7 +154,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     // changing endpoints in WSDLs
     ODEEndpointUpdater odeUpdater;
     try {
-      odeUpdater = new ODEEndpointUpdater(SERVICESURL, ENGINE);
+      odeUpdater = new ODEEndpointUpdater(servicesUrl, processEngine);
       portType = odeUpdater.getPortType(planContents);
       if (!odeUpdater.changeEndpoints(planContents, csarId.toOldCsarId())) {
         LOG.error("Not all endpoints used by the plan {} have been changed", planRef.getReference());
@@ -216,14 +201,14 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     String processId = "";
     Map<String, URI> endpoints = Collections.emptyMap();
     try {
-      if (ENGINE.equalsIgnoreCase(BPS_ENGINE)) {
+      if (processEngine.equalsIgnoreCase(BPS_ENGINE)) {
         final BpsConnector connector = new BpsConnector();
-        processId = connector.deploy(tempPlan, URL, USERNAME, PASSWORD);
-        endpoints = connector.getEndpointsForPID(processId, URL, USERNAME, PASSWORD);
+        processId = connector.deploy(tempPlan, url, username, password);
+        endpoints = connector.getEndpointsForPID(processId, url, username, password);
       } else {
         final OdeConnector connector = new OdeConnector();
-        processId = connector.deploy(tempPlan, URL);
-        endpoints = connector.getEndpointsForPID(processId, URL);
+        processId = connector.deploy(tempPlan, url);
+        endpoints = connector.getEndpointsForPID(processId, url);
       }
     } catch (final Exception e) {
       e.printStackTrace();
@@ -288,12 +273,12 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     }
 
     boolean wasUndeployed = false;
-    if (ENGINE.equalsIgnoreCase(BPS_ENGINE)) {
+    if (processEngine.equalsIgnoreCase(BPS_ENGINE)) {
       final BpsConnector connector = new BpsConnector();
-      wasUndeployed = connector.undeploy(planLocation.toFile(), URL, USERNAME, PASSWORD);
+      wasUndeployed = connector.undeploy(planLocation.toFile(), url, username, password);
     } else {
       final OdeConnector connector = new OdeConnector();
-      wasUndeployed = connector.undeploy(planLocation.toFile(), URL);
+      wasUndeployed = connector.undeploy(planLocation.toFile(), url);
     }
 
     // remove endpoint from core
@@ -368,6 +353,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
   @Override
   public String toString() {
-    return Messages.BpelPlanEnginePlugin_description;
+    return "openTOSCA PlanEngine WS-BPEL 2.0 Plugin v1.0";
   }
 }

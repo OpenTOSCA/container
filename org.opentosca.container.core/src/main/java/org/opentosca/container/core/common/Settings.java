@@ -68,6 +68,18 @@ public class Settings {
   }
 
   /**
+   * Retrieves a setting value, or a supplied default value if the setting is unknown
+   *
+   * @param setting      Name of the setting
+   * @param defaultValue A default value to use if the setting has not been set.
+   * @return The value of the setting with name <code>setting</code> or the default value if the setting was unknown.
+   */
+  public static String getSetting(final String setting, final String defaultValue) {
+    final String retrieved = settings.getProperty(setting);
+    return retrieved == null ? defaultValue : retrieved;
+  }
+
+  /**
    * Stores a setting.
    *
    * @param setting - name of the setting

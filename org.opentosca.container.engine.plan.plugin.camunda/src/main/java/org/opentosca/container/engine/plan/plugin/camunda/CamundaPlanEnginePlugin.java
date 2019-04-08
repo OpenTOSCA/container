@@ -32,7 +32,6 @@ import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
 import org.opentosca.container.engine.plan.plugin.camunda.iaenginecopies.CopyOfIAEnginePluginWarTomcatServiceImpl;
-import org.opentosca.container.engine.plan.plugin.camunda.util.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -56,13 +55,13 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 
   @Override
   public String getLanguageUsed() {
-    return Messages.CamundaPlanEnginePlugin_language;
+    return "http://www.omg.org/spec/BPMN/20100524/MODEL";
   }
 
   @Override
   public List<String> getCapabilties() {
     final List<String> capabilities = new ArrayList<>();
-    for (final String capability : Messages.CamundaPlanEnginePlugin_capabilities.split("[,;]")) {
+    for (final String capability : "http://www.omg.org/spec/BPMN/20100524/MODEL".split("[,;]")) {
       capabilities.add(capability.trim());
     }
     return capabilities;
@@ -230,6 +229,6 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 
   @Override
   public String toString() {
-    return Messages.CamundaPlanEnginePlugin_description;
+    return "OpenTOSCA PlanEngine Camunda BPMN 2.0 Plugin v1.0";
   }
 }
