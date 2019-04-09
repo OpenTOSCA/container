@@ -2,7 +2,7 @@ package org.opentosca.planbuilder.provphase.plugin.invoker.core.handler;
 
 import java.util.Map;
 
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.plugins.context.PlanContext;

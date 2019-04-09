@@ -25,8 +25,8 @@ import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -63,7 +63,7 @@ public class BPELPlanContext implements PlanContext {
     private final static Logger LOG = LoggerFactory.getLogger(BPELPlanContext.class);
 
     private static final String BPEL_PLAN_CONTEXT = "BPEL Plan Context";
-    private final BPELScopeActivity templateBuildPlan;
+    private final BPELScope templateBuildPlan;
     private final AbstractServiceTemplate serviceTemplate;
 
     private BPELPlanHandler buildPlanHandler;
@@ -238,7 +238,7 @@ public class BPELPlanContext implements PlanContext {
      * @param map a PropertyMap containing mappings for all Template properties of the TopologyTemplate
      *        the ServiceTemplate has
      */
-    public BPELPlanContext(final BPELScopeActivity templateBuildPlan, final PropertyMap map,
+    public BPELPlanContext(final BPELScope templateBuildPlan, final PropertyMap map,
                            final AbstractServiceTemplate serviceTemplateId) {
         this.templateBuildPlan = templateBuildPlan;
         this.serviceTemplate = serviceTemplateId;
@@ -559,7 +559,7 @@ public class BPELPlanContext implements PlanContext {
     }
 
     public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate) {
-        for (final BPELScopeActivity plan : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+        for (final BPELScope plan : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
             if (plan.getNodeTemplate() != null && plan.getNodeTemplate().equals(nodeTemplate)) {
                 return new BPELPlanContext(plan, this.propertyMap, this.serviceTemplate);
             }
@@ -672,7 +672,7 @@ public class BPELPlanContext implements PlanContext {
     private List<AbstractNodeTemplate> getAllNodeTemplates() {
         final List<AbstractNodeTemplate> list = new ArrayList<>();
 
-        for (final BPELScopeActivity template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+        for (final BPELScope template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
             if (template.getNodeTemplate() != null) {
                 list.add(template.getNodeTemplate());
             }
@@ -688,7 +688,7 @@ public class BPELPlanContext implements PlanContext {
     private List<AbstractRelationshipTemplate> getAllRelationshipTemplates() {
         final List<AbstractRelationshipTemplate> list = new ArrayList<>();
 
-        for (final BPELScopeActivity template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+        for (final BPELScope template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
             if (template.getNodeTemplate() == null) {
                 list.add(template.getRelationshipTemplate());
             }

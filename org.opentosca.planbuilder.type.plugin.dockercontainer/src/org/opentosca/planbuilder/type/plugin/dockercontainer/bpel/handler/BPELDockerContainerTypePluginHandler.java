@@ -11,7 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -56,9 +56,25 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             e.printStackTrace();
         }
     }
+    
+    public boolean handleTerminate(final BPELPlanContext context) {
+    	final List<AbstractNodeTemplate> nodes = new ArrayList<>();
+        ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
+
+        for (final AbstractNodeTemplate node : nodes) {
+            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
+                                                                                                        .getId())) {
+                return context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
+                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
+                                         null);
+
+            }
+        }
+        return false;
+    }
 
     @Override
-    public boolean handle(final BPELPlanContext templateContext) {
+    public boolean handleCreate(final BPELPlanContext templateContext) {
         if (templateContext.getNodeTemplate() == null) {
             BPELDockerContainerTypePluginHandler.LOG.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
             return false;

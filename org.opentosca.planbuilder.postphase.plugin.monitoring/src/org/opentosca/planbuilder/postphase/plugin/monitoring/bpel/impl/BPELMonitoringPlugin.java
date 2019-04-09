@@ -8,7 +8,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -144,5 +144,29 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
         }
         return null;
     }
+
+	@Override
+	public boolean handleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean handleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

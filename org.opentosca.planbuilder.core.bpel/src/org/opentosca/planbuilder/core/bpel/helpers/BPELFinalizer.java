@@ -16,7 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -60,19 +60,19 @@ public class BPELFinalizer {
         }
     }
 
-    private List<BPELScopeActivity> calcTopologicalOrdering(final List<BPELScopeActivity> templateBuildPlans) {
+    private List<BPELScope> calcTopologicalOrdering(final List<BPELScope> templateBuildPlans) {
         // will contain the order at the end
-        final List<BPELScopeActivity> topologicalOrder = new ArrayList<>();
+        final List<BPELScope> topologicalOrder = new ArrayList<>();
 
         // init marks
-        final Map<BPELScopeActivity, TopologicalSortMarking> markings = new HashMap<>();
+        final Map<BPELScope, TopologicalSortMarking> markings = new HashMap<>();
 
-        for (final BPELScopeActivity template : templateBuildPlans) {
+        for (final BPELScope template : templateBuildPlans) {
             markings.put(template, new TopologicalSortMarking());
         }
 
         while (hasUnmarkedNode(markings)) {
-            final BPELScopeActivity templateBuildPlan = getUnmarkedNode(markings);
+            final BPELScope templateBuildPlan = getUnmarkedNode(markings);
             visitTopologicalOrdering(templateBuildPlan, markings, topologicalOrder);
         }
 
@@ -150,7 +150,7 @@ public class BPELFinalizer {
 
         makeSequential(buildPlan);
 
-        for (final BPELScopeActivity templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
+        for (final BPELScope templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
             // check if any phase of this templatebuildplan has no child
             // elements, if it's empty, add an empty activity
             final Element prePhaseElement = templateBuildPlan.getBpelSequencePrePhaseElement();
@@ -263,8 +263,8 @@ public class BPELFinalizer {
         return doc.getFirstChild();
     }
 
-    private BPELScopeActivity getUnmarkedNode(final Map<BPELScopeActivity, TopologicalSortMarking> markings) {
-        for (final BPELScopeActivity plan : markings.keySet()) {
+    private BPELScope getUnmarkedNode(final Map<BPELScope, TopologicalSortMarking> markings) {
+        for (final BPELScope plan : markings.keySet()) {
             if (markings.get(plan).permMark == false & markings.get(plan).tempMark == false) {
                 return plan;
             }
@@ -272,7 +272,7 @@ public class BPELFinalizer {
         return null;
     }
 
-    private boolean hasUnmarkedNode(final Map<BPELScopeActivity, TopologicalSortMarking> markings) {
+    private boolean hasUnmarkedNode(final Map<BPELScope, TopologicalSortMarking> markings) {
         for (final TopologicalSortMarking marking : markings.values()) {
             if (marking.permMark == false & marking.tempMark == false) {
                 return true;
@@ -291,13 +291,13 @@ public class BPELFinalizer {
     public void makeSequential(final BPELPlan buildPlan) {
         BPELFinalizer.LOG.debug("Starting to transform BuildPlan {} to sequential provsioning",
                                 buildPlan.getBpelProcessElement().getAttribute("name"));
-        final List<BPELScopeActivity> templateBuildPlans = buildPlan.getTemplateBuildPlans();
+        final List<BPELScope> templateBuildPlans = buildPlan.getTemplateBuildPlans();
 
-        final List<BPELScopeActivity> sequentialOrder = calcTopologicalOrdering(templateBuildPlans);
+        final List<BPELScope> sequentialOrder = calcTopologicalOrdering(templateBuildPlans);
 
         Collections.reverse(sequentialOrder);
 
-        for (final BPELScopeActivity template : sequentialOrder) {
+        for (final BPELScope template : sequentialOrder) {
             BPELFinalizer.LOG.debug("Seq order: " + template.getBpelScopeElement().getAttribute("name"));
         }
 
@@ -306,18 +306,18 @@ public class BPELFinalizer {
             this.buildPlanHandler.removeLink(link, buildPlan);
         }
 
-        for (final BPELScopeActivity templateBuildPlan : templateBuildPlans) {
+        for (final BPELScope templateBuildPlan : templateBuildPlans) {
             this.scopeHandler.removeSources(templateBuildPlan);
             this.scopeHandler.removeTargets(templateBuildPlan);
         }
 
-        final Iterator<BPELScopeActivity> iter = sequentialOrder.iterator();
+        final Iterator<BPELScope> iter = sequentialOrder.iterator();
         if (iter.hasNext()) {
-            BPELScopeActivity target = iter.next();
+            BPELScope target = iter.next();
             BPELFinalizer.LOG.debug("Beginning connecting with " + target.getBpelScopeElement().getAttribute("name"));
             int counter = 0;
             while (iter.hasNext()) {
-                final BPELScopeActivity source = iter.next();
+                final BPELScope source = iter.next();
                 BPELFinalizer.LOG.debug("Connecting source " + source.getBpelScopeElement().getAttribute("name")
                     + " with target " + target.getBpelScopeElement().getAttribute("name"));
                 this.buildPlanHandler.addLink("seqEdge" + counter, buildPlan);
@@ -329,9 +329,9 @@ public class BPELFinalizer {
 
     }
 
-    private void visitTopologicalOrdering(final BPELScopeActivity templateBuildPlan,
-                                          final Map<BPELScopeActivity, TopologicalSortMarking> markings,
-                                          final List<BPELScopeActivity> topologicalOrder) {
+    private void visitTopologicalOrdering(final BPELScope templateBuildPlan,
+                                          final Map<BPELScope, TopologicalSortMarking> markings,
+                                          final List<BPELScope> topologicalOrder) {
 
         if (markings.get(templateBuildPlan).tempMark) {
             BPELFinalizer.LOG.error("Topological order detected cycle!");
@@ -339,7 +339,7 @@ public class BPELFinalizer {
         }
         if (!markings.get(templateBuildPlan).permMark && !markings.get(templateBuildPlan).tempMark) {
             markings.get(templateBuildPlan).tempMark = true;
-            for (final BPELScopeActivity successor : this.scopeHandler.getSuccessors(templateBuildPlan)) {
+            for (final BPELScope successor : this.scopeHandler.getSuccessors(templateBuildPlan)) {
                 visitTopologicalOrdering(successor, markings, topologicalOrder);
             }
             markings.get(templateBuildPlan).permMark = true;

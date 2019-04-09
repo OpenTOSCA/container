@@ -29,7 +29,7 @@ import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandl
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -136,7 +136,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
 			this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newDefreezePlan, propMap);
 
-			final List<BPELScopeActivity> changedActivities = runPlugins(newDefreezePlan, propMap);
+			final List<BPELScope> changedActivities = runPlugins(newDefreezePlan, propMap);
 
 			this.serviceInstanceInitializer.addCorrellationID(newDefreezePlan);
 
@@ -207,13 +207,13 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 	 * @param propMap         a PropertyMapping from NodeTemplate to Properties to
 	 *                        BPELVariables
 	 */
-	private List<BPELScopeActivity> runPlugins(final BPELPlan plan, final PropertyMap propMap) {
+	private List<BPELScope> runPlugins(final BPELPlan plan, final PropertyMap propMap) {
 
-		final List<BPELScopeActivity> changedActivities = new ArrayList<>();
+		final List<BPELScope> changedActivities = new ArrayList<>();
 
 		String statefulServiceTemplateUrlVarName = this.findStatefulServiceTemplateUrlVar(plan);
 
-		for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
+		for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
 			final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
 
 			if (templatePlan.getNodeTemplate() != null) {
@@ -250,11 +250,11 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 					}
 				}
 				
-				final IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
+				final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
 				if (plugin != null) {
 					BPELDefrostProcessBuilder.LOG.debug("Handling NodeTemplate {} with type plugin {}",
 							nodeTemplate.getId(), plugin.getID());
-					plugin.handleCreate(context);					
+					plugin.handleCreate(context, nodeTemplate);					
 				} else {					
 					BPELDefrostProcessBuilder.LOG.info("Can't handle NodeTemplate {} with type plugin",
 							nodeTemplate.getId());
@@ -274,11 +274,11 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken here!
 				// TODO implement fallback
-				if (canTypePluginHandle(relationshipTemplate)) {
+				if (pluginRegistry.canTypePluginHandleCreate(relationshipTemplate)) {
 					BPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin",
 							relationshipTemplate.getId());
-					IPlanBuilderTypePlugin plugin = this.findTypePlugin(relationshipTemplate);
-					handleWithTypePlugin(context, relationshipTemplate, plugin);
+					IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
+					this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);
 
 				} else {
 					BPELBuildProcessBuilder.LOG.debug("Couldn't handle RelationshipTemplate {} with type plugin",

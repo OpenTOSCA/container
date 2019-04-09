@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.postphase.plugin.instancedata.core;
+package org.opentosca.planbuilder.postphase.plugin.instancedata.bpel;
 
 import java.util.HashMap;
 import java.util.Map;

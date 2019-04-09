@@ -28,7 +28,7 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
@@ -862,9 +862,9 @@ public class BPELPlanHandler {
      * @param buildPlan the BuildPlan to get the TemplateBuildPlans from
      * @return a List of TemplateBuildPlans which handle RelationshipTemplates
      */
-    public List<BPELScopeActivity> getRelationshipTemplatePlans(final BPELPlan buildPlan) {
-        final List<BPELScopeActivity> relationshipPlans = new ArrayList<>();
-        for (final BPELScopeActivity template : buildPlan.getTemplateBuildPlans()) {
+    public List<BPELScope> getRelationshipTemplatePlans(final BPELPlan buildPlan) {
+        final List<BPELScope> relationshipPlans = new ArrayList<>();
+        for (final BPELScope template : buildPlan.getTemplateBuildPlans()) {
             if (this.bpelScopeHandler.isRelationshipTemplatePlan(template)) {
                 relationshipPlans.add(template);
             }
@@ -879,8 +879,8 @@ public class BPELPlanHandler {
      * @param buildPlan the BuildPlan to look in
      * @return a TemplateBuildPlan if it handles a Template with the given id, else null
      */
-    public BPELScopeActivity getTemplateBuildPlanById(final String id, final BPELPlan buildPlan) {
-        for (final BPELScopeActivity template : buildPlan.getTemplateBuildPlans()) {
+    public BPELScope getTemplateBuildPlanById(final String id, final BPELPlan buildPlan) {
+        for (final BPELScope template : buildPlan.getTemplateBuildPlans()) {
             // FIXME it looks a bit hacky.. it looks even more hacky if you look
             // at getRelationshipTemplatePlans(..), the ifs
             if (template.getNodeTemplate() != null && template.getNodeTemplate().getId().equals(id)) {
@@ -998,18 +998,18 @@ public class BPELPlanHandler {
     public void initializeBPELSkeleton(final BPELPlan plan, final String csarName) {
         plan.setCsarName(csarName);
 
-        final Map<AbstractActivity, BPELScopeActivity> abstract2bpelMap = new HashMap<>();
+        final Map<AbstractActivity, BPELScope> abstract2bpelMap = new HashMap<>();
 
         for (final AbstractActivity activity : plan.getActivites()) {
             if (activity instanceof ANodeTemplateActivity) {
                 final ANodeTemplateActivity ntActivity = (ANodeTemplateActivity) activity;
-                final BPELScopeActivity newEmpty3SequenceScopeBPELActivity =
+                final BPELScope newEmpty3SequenceScopeBPELActivity =
                     this.bpelScopeHandler.createTemplateBuildPlan(ntActivity.getNodeTemplate(), plan);
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
                 abstract2bpelMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);
             } else if (activity instanceof ARelationshipTemplateActivity) {
                 final ARelationshipTemplateActivity rtActivity = (ARelationshipTemplateActivity) activity;
-                final BPELScopeActivity newEmpty3SequenceScopeBPELActivity =
+                final BPELScope newEmpty3SequenceScopeBPELActivity =
                     this.bpelScopeHandler.createTemplateBuildPlan(rtActivity.getRelationshipTemplate(), plan);
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
                 abstract2bpelMap.put(rtActivity, newEmpty3SequenceScopeBPELActivity);
@@ -1024,8 +1024,8 @@ public class BPELPlanHandler {
 
     private void initializeConnectionsAsLinkInBPELPlan(final BPELPlan plan) {
         for (final Link link : plan.getLinks()) {
-            final BPELScopeActivity source = plan.getAbstract2BPEL().get(link.getSrcActiv());
-            final BPELScopeActivity target = plan.getAbstract2BPEL().get(link.getTrgActiv());
+            final BPELScope source = plan.getAbstract2BPEL().get(link.getSrcActiv());
+            final BPELScope target = plan.getAbstract2BPEL().get(link.getTrgActiv());
 
             if (source == null | target == null) {
                 continue;

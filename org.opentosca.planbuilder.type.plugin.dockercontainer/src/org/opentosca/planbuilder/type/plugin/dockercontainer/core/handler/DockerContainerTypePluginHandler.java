@@ -14,5 +14,5 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  *
  */
 public interface DockerContainerTypePluginHandler<T extends PlanContext> {
-    public boolean handle(final T context);
+    public boolean handleCreate(final T context);
 }

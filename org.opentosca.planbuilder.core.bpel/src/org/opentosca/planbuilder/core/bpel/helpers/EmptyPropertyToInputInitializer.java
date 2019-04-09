@@ -9,7 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Variable;
@@ -106,9 +106,9 @@ public class EmptyPropertyToInputInitializer {
         this.initializeEmptyPropertiesAsInputParam(buildPlan.getTemplateBuildPlans(), buildPlan, propMap);
     }
 
-    public void initializeEmptyPropertiesAsInputParam(final List<BPELScopeActivity> bpelActivities, final BPELPlan plan,
+    public void initializeEmptyPropertiesAsInputParam(final List<BPELScope> bpelActivities, final BPELPlan plan,
                                                       final PropertyMap propMap) {
-        for (final BPELScopeActivity templatePlan : bpelActivities) {
+        for (final BPELScope templatePlan : bpelActivities) {
             if (templatePlan.getNodeTemplate() != null) {
                 final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
                 final List<AbstractNodeTemplate> hostingNodes = new ArrayList<>();

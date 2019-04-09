@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
@@ -118,7 +118,7 @@ public class PropertyVariableInitializer {
      */
     public PropertyMap initializePropertiesAsVariables(final BPELPlan buildPlan) {
         final PropertyMap map = new PropertyMap();
-        for (final BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
+        for (final BPELScope templatePlan : buildPlan.getTemplateBuildPlans()) {
             this.initializePropertiesAsVariables(map, templatePlan);
         }
         return map;
@@ -130,7 +130,7 @@ public class PropertyVariableInitializer {
      * @param map a PropertyMap to save the mappings to
      * @param templatePlan the TemplateBuildPlan to initialize its properties
      */
-    public void initializePropertiesAsVariables(final PropertyMap map, final BPELScopeActivity templatePlan) {
+    public void initializePropertiesAsVariables(final PropertyMap map, final BPELScope templatePlan) {
         if (templatePlan.getRelationshipTemplate() != null) {
             // template corresponds to a relationshiptemplate
             initPropsAsVarsInRelationship(map, templatePlan);
@@ -146,7 +146,7 @@ public class PropertyVariableInitializer {
      * @param map the PropertyMap to save the result to
      * @param templatePlan a TemplateBuildPlan which handles a RelationshipTemplate
      */
-    private void initPropsAsVarsInRelationship(final PropertyMap map, final BPELScopeActivity templatePlan) {
+    private void initPropsAsVarsInRelationship(final PropertyMap map, final BPELScope templatePlan) {
         final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
         if (relationshipTemplate.getProperties() != null) {
             final Element propertyElement = relationshipTemplate.getProperties().getDOMElement();
@@ -192,7 +192,7 @@ public class PropertyVariableInitializer {
      * @param map a PropertyMap to save the result/mappings to
      * @param templatePlan a TemplateBuildPlan which handles a NodeTemplate
      */
-    private void initPropsAsVarsInNode(final PropertyMap map, final BPELScopeActivity templatePlan) {
+    private void initPropsAsVarsInNode(final PropertyMap map, final BPELScope templatePlan) {
         final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         if (nodeTemplate.getProperties() != null) {
             final Element propertyElement = nodeTemplate.getProperties().getDOMElement();

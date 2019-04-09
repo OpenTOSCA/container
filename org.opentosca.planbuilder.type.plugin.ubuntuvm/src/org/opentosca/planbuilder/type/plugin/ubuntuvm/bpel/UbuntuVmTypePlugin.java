@@ -42,52 +42,61 @@ public abstract class UbuntuVmTypePlugin<T extends PlanContext>
      */
     @Override
     public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
-        if (nodeTemplate == null) {
-            UbuntuVmTypePlugin.LOG.debug("NodeTemplate is null");
-        }
-        if (nodeTemplate.getType() == null) {
-            UbuntuVmTypePlugin.LOG.debug("NodeTemplate NodeType is null. NodeTemplate Id:" + nodeTemplate.getId());
-        }
-        if (nodeTemplate.getType().getId() == null) {
-            UbuntuVmTypePlugin.LOG.debug("NodeTemplate NodeType id is null");
-        }
-        // this plugin can handle all referenced nodeTypes
-        if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
-            return true;
-        } else if (Utils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
-            // checking if this vmNode is connected to a nodeTemplate of Type
-            // cloud provider (ec2, openstack) or docker engine, if not this
-            // plugin can't handle
-            // this node
-            for (final AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
-                if (Utils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())
-                    | Utils.isSupportedDockerEngineNodeType(relationshipTemplate.getTarget().getType().getId())) {
-                    return true;
-                }
-            }
-            return false;
-        } else if (Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
-            // checking whether this GENERIC ubuntu NodeTemplate is connected to
-            // a VM
-            // Node, after this checking whether the VM Node is connected to a
-            // EC2 Node
+       return this.allDependenciesAreMet(nodeTemplate);
+    }
+    
+    @Override
+	public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {		
+    	return this.allDependenciesAreMet(nodeTemplate);
+	}
+    
+    private boolean allDependenciesAreMet(AbstractNodeTemplate nodeTemplate) {
+    	 if (nodeTemplate == null) {
+             UbuntuVmTypePlugin.LOG.debug("NodeTemplate is null");
+         }
+         if (nodeTemplate.getType() == null) {
+             UbuntuVmTypePlugin.LOG.debug("NodeTemplate NodeType is null. NodeTemplate Id:" + nodeTemplate.getId());
+         }
+         if (nodeTemplate.getType().getId() == null) {
+             UbuntuVmTypePlugin.LOG.debug("NodeTemplate NodeType id is null");
+         }
+         // this plugin can handle all referenced nodeTypes
+         if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
+             return true;
+         } else if (Utils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
+             // checking if this vmNode is connected to a nodeTemplate of Type
+             // cloud provider (ec2, openstack) or docker engine, if not this
+             // plugin can't handle
+             // this node
+             for (final AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
+                 if (Utils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())
+                     | Utils.isSupportedDockerEngineNodeType(relationshipTemplate.getTarget().getType().getId())) {
+                     return true;
+                 }
+             }
+             return false;
+         } else if (Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
+             // checking whether this GENERIC ubuntu NodeTemplate is connected to
+             // a VM
+             // Node, after this checking whether the VM Node is connected to a
+             // EC2 Node
 
-            // check for generic UbuntuNodeType
-            if (nodeTemplate.getType().getId().equals(Types.ubuntuNodeType)) {
-                // here we check for a 3 node stack ubuntu -> vm -> cloud
-                // provider(ec2,openstack)
-                return this.checkIfConnectedToVMandCloudProvider(nodeTemplate);
-            } else {
+             // check for generic UbuntuNodeType
+             if (nodeTemplate.getType().getId().equals(Types.ubuntuNodeType)) {
+                 // here we check for a 3 node stack ubuntu -> vm -> cloud
+                 // provider(ec2,openstack)
+                 return this.checkIfConnectedToVMandCloudProvider(nodeTemplate);
+             } else {
 
-                // here we assume that a specific ubuntu image is selected as
-                // the nodeType e.g. ubuntu13.10server NodeType
-                // so we check only for a cloud provider
-                return this.checkIfConnectedToCloudProvider(nodeTemplate);
-            }
+                 // here we assume that a specific ubuntu image is selected as
+                 // the nodeType e.g. ubuntu13.10server NodeType
+                 // so we check only for a cloud provider
+                 return this.checkIfConnectedToCloudProvider(nodeTemplate);
+             }
 
-        } else {
-            return false;
-        }
+         } else {
+             return false;
+         }
     }
 
     /*
@@ -127,6 +136,12 @@ public abstract class UbuntuVmTypePlugin<T extends PlanContext>
         // this plugin doesn't handle relations
         return false;
     }
+    
+    @Override
+	public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+		// never handles a relationship
+		return false;
+	}
 
     /**
      * <p>

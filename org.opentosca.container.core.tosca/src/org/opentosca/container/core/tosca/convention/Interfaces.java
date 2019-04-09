@@ -45,4 +45,5 @@ public class Interfaces {
 	
 	 public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN = "http://opentosca.org/interfaces/pattern/container";
 	 public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE = "create";
+	 public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_TERMINATE = "terminate";
 }

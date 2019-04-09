@@ -24,7 +24,7 @@ import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandl
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -156,7 +156,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                 e.printStackTrace();
             }
 
-            final List<BPELScopeActivity> changedActivities = runPlugins(newFreezePlan, propMap);
+            final List<BPELScope> changedActivities = runPlugins(newFreezePlan, propMap);
 
             this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newFreezePlan,
                                                                           newFreezePlan.getBpelMainSequenceOutputAssignElement(),
@@ -344,13 +344,13 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
      * @param serviceTemplate the serviceTemplate the plan belongs to
      * @param propMap a PropertyMapping from NodeTemplate to Properties to BPELVariables
      */
-    private List<BPELScopeActivity> runPlugins(final BPELPlan plan, final PropertyMap propMap) {
+    private List<BPELScope> runPlugins(final BPELPlan plan, final PropertyMap propMap) {
 
-        final List<BPELScopeActivity> changedActivities = new ArrayList<>();
+        final List<BPELScope> changedActivities = new ArrayList<>();
 
         String statefulServiceTemplateUrlVarName = this.findStatefulServiceTemplateUrlVar(plan);
 
-        for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
+        for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
             if (templatePlan.getNodeTemplate() != null) {
 

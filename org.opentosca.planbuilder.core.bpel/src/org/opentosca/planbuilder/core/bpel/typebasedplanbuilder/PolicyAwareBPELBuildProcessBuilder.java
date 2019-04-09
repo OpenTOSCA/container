@@ -29,7 +29,7 @@ import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.P
 import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
@@ -258,7 +258,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
      *        of inside the BuidlPlan
      */
     private boolean runPlugins(final BPELPlan buildPlan, final PropertyMap map) {
-        for (final BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
+        for (final BPELScope templatePlan : buildPlan.getTemplateBuildPlans()) {
             boolean handled = false;
             if (templatePlan.getNodeTemplate() != null) {
                 // handling nodetemplate
@@ -276,11 +276,11 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                 }
                 
                 if (nodeTemplate.getPolicies().isEmpty()) {
-                    final IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
+                    final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
                     if (plugin != null) {                        
                         PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with type plugin {}",
                         		nodeTemplate.getId(), plugin.getID());
-                        handled = plugin.handleCreate(context);
+                        handled = plugin.handleCreate(context, nodeTemplate);
                     } else {
                     	PolicyAwareBPELBuildProcessBuilder.LOG.warn("Can't handle NodeTemplate {} with type plugin",
                         		nodeTemplate.getId());
@@ -293,7 +293,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                     }
                 } else {
                     // policy aware handling
-                    final IPlanBuilderPolicyAwareTypePlugin policyPlugin = findPolicyAwareTypePlugin(nodeTemplate);
+                    final IPlanBuilderPolicyAwareTypePlugin policyPlugin = this.pluginRegistry.findPolicyAwareTypePluginForCreation(nodeTemplate);
                     if (policyPlugin == null) {
                         PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
                                                                      nodeTemplate.getId());
@@ -314,7 +314,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                             for (final AbstractPolicy policy : policies) {
                                 boolean matched = false;
                                 for (final IPlanBuilderPolicyAwarePrePhasePlugin<?> policyPrePhasePlugin : this.pluginRegistry.getPolicyAwarePrePhasePlugins()) {
-                                    if (policyPrePhasePlugin.canHandle(nodeTemplate, policy)) {
+                                    if (policyPrePhasePlugin.canHandlePolicyAwareCreate(nodeTemplate, policy)) {
                                         compatiblePrePlugins.put(policy,
                                                                  (IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext>) policyPrePhasePlugin);
                                         matched = true;
@@ -342,7 +342,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                             } else {
 
                                 for (final AbstractPolicy policy : compatiblePrePlugins.keySet()) {
-                                    compatiblePrePlugins.get(policy).handle(context, nodeTemplate, policy);
+                                    compatiblePrePlugins.get(policy).handlePolicyAwareCreate(context, nodeTemplate, policy);
                                 }
 
                                 for (final AbstractPolicy policy : compatiblePostPlugins.keySet()) {
@@ -385,8 +385,8 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                 	
                 	 PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin",
                              relationshipTemplate.getId());
-                	 IPlanBuilderTypePlugin plugin = this.findTypePlugin(relationshipTemplate);
-                	 handled = handleWithTypePlugin(context, relationshipTemplate,plugin);
+                	 IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
+                	 handled = this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate,plugin);
                 	
                 } else {
                 	 PolicyAwareBPELBuildProcessBuilder.LOG.debug("Couldn't handle RelationshipTemplate {} with type plugin",

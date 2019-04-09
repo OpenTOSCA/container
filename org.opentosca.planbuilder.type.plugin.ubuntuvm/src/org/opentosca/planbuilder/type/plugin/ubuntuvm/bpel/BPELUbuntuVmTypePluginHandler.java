@@ -15,7 +15,7 @@ import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -403,9 +403,28 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         return true;
     }
+    
+    public boolean handleTerminateWithCloudProviderInterface(final BPELPlanContext context,
+                                                    final AbstractNodeTemplate nodeTemplate) {
+    	final List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
+        for (final AbstractNodeTemplate infraNode : infraNodes) {
+            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(infraNode.getType()
+                                                                                                              .getId())) {
+                // append logic to call terminateVM method on the
+                // node
+
+                return context.executeOperation(infraNode,
+                                         org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+                                         org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
+                                         null);
+
+            }
+        }
+        return false;
+    }
 
     @Override
-    public boolean handleWithCloudProviderInterface(final BPELPlanContext context,
+    public boolean handleCreateWithCloudProviderInterface(final BPELPlanContext context,
                                                     final AbstractNodeTemplate nodeTemplate) {
 
         // we need a cloud provider node

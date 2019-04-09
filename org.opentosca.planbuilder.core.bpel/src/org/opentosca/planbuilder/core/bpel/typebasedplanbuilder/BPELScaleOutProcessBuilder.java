@@ -30,7 +30,7 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -95,7 +95,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         this.opNames.add("start");
     }
 
-    private boolean addInstanceIdToOutput(final BPELScopeActivity activ) {
+    private boolean addInstanceIdToOutput(final BPELScope activ) {
         String outputName = "";
         if (activ.getNodeTemplate() != null) {
             outputName = "CreatedInstance_" + activ.getNodeTemplate().getId();
@@ -340,9 +340,9 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
             this.serviceInstanceInitializer.addCorrellationID(bpelScaleOutProcess);
 
-            final List<BPELScopeActivity> provScopeActivities = new ArrayList<>();
+            final List<BPELScope> provScopeActivities = new ArrayList<>();
 
-            for (final BPELScopeActivity act : bpelScaleOutProcess.getAbstract2BPEL().values()) {
+            for (final BPELScope act : bpelScaleOutProcess.getAbstract2BPEL().values()) {
                 if (act.getNodeTemplate() != null
                     && scalingPlanDefinition.nodeTemplates.contains(act.getNodeTemplate())) {
                     provScopeActivities.add(act);
@@ -371,7 +371,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             for (final AnnotatedAbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
                 final IScalingPlanBuilderSelectionPlugin selectionPlugin = findSelectionPlugin(stratNodeTemplate);
                 if (selectionPlugin != null) {
-                    final BPELScopeActivity scope =
+                    final BPELScope scope =
                         this.planHandler.getTemplateBuildPlanById(stratNodeTemplate.getId(), bpelScaleOutProcess);
                     selectionPlugin.handle(new BPELPlanContext(scope, propMap, serviceTemplate), stratNodeTemplate,
                                            new ArrayList<>(stratNodeTemplate.getAnnotations()));
@@ -647,12 +647,12 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         	}
         }
         
-        final IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
+        final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
         if (plugin != null) {
                         
             
             BPELScaleOutProcessBuilder.LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
-            plugin.handleCreate(context);
+            plugin.handleCreate(context, nodeTemplate);
             
         } else {
         	BPELScaleOutProcessBuilder.LOG.debug("Can't handle NodeTemplate {} with type plugin",
@@ -677,11 +677,11 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         // Note: if a generic plugin fails during execution the
         // TemplateBuildPlan is broken here!
         // TODO implement fallback
-        if (this.findTypePlugin(relationshipTemplate) == null) {
+        if (this.pluginRegistry.findTypePluginForCreation(relationshipTemplate) != null) {
         	BPELScaleOutProcessBuilder.LOG.info("Handling RelationshipTemplate {} with type plugin",
         			relationshipTemplate.getId());
-        	IPlanBuilderTypePlugin plugin =     this.findTypePlugin(relationshipTemplate);
-        	handleWithTypePlugin(context, relationshipTemplate,plugin);
+        	IPlanBuilderTypePlugin plugin =     this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
+        	this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate,plugin);
                        
         } else {
         	BPELScaleOutProcessBuilder.LOG.debug("Couldn't handle RelationshipTemplate {} with type plugin",

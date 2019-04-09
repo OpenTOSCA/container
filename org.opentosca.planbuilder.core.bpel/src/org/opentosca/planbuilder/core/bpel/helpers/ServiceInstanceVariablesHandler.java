@@ -16,7 +16,7 @@ import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -413,7 +413,7 @@ public class ServiceInstanceVariablesHandler {
         final String serviceTemplateUrlVarName =
             ServiceInstanceVariablesHandler.findServiceTemplateUrlVariableName(this.bpelProcessHandler, plan);
 
-        for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
+        for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
 
             if (templatePlan.getNodeTemplate() == null) {
                 continue;

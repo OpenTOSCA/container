@@ -27,7 +27,7 @@ public interface UbuntuVmTypePluginHandler<T extends PlanContext> {
      */
     public boolean handle(final T context, final AbstractNodeTemplate nodeTemplate);
 
-    public boolean handleWithCloudProviderInterface(final T context, final AbstractNodeTemplate nodeTemplate);
+    public boolean handleCreateWithCloudProviderInterface(final T context, final AbstractNodeTemplate nodeTemplate);
 
     /**
      * Provisions a Docker Ubuntu Container on a DockerEngine
