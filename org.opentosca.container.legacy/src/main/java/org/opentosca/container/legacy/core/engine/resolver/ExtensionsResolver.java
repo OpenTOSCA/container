@@ -1,4 +1,4 @@
-package org.opentosca.container.legacy.core.engine.resolver.resolver;
+package org.opentosca.container.legacy.core.engine.resolver;
 
 import org.eclipse.winery.model.tosca.Definitions;
 

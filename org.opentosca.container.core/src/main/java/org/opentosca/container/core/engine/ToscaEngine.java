@@ -14,42 +14,49 @@ import javax.xml.namespace.QName;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.winery.model.tosca.HasType;
+import org.eclipse.winery.model.tosca.*;
 import org.eclipse.winery.model.tosca.TEntityType.DerivedFrom;
-import org.eclipse.winery.model.tosca.TEntityTypeImplementation;
-import org.eclipse.winery.model.tosca.TImplementationArtifacts;
-import org.eclipse.winery.model.tosca.TInterface;
-import org.eclipse.winery.model.tosca.TInterfaces;
-import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TNodeType;
-import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
-import org.eclipse.winery.model.tosca.TOperation;
-import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
-import org.eclipse.winery.model.tosca.TRelationshipTemplate;
-import org.eclipse.winery.model.tosca.TRelationshipType;
-import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.visitor.Visitor;
 import org.opentosca.container.core.common.NotFoundException;
+import org.opentosca.container.core.common.xml.XMLHelper;
 import org.opentosca.container.core.model.csar.Csar;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 @NonNullByDefault
 public final class ToscaEngine {
 
-  public static TServiceTemplate findServiceTemplate(Csar csar, QName serviceTemplate) throws NotFoundException {
+  public static TServiceTemplate resolveServiceTemplate(Csar csar, QName serviceTemplate) throws NotFoundException {
     return csar.serviceTemplates().stream()
       .filter(st -> st.getId().equals(serviceTemplate.getLocalPart()))
       .findFirst()
       .orElseThrow(() -> new NotFoundException("Service template \"" + serviceTemplate + "\" could not be found"));
   }
 
-  public static TNodeTemplate findNodeTemplate(TServiceTemplate serviceTemplate, String nodeTemplate) throws NotFoundException {
+  public static TNodeTemplate resolveNodeTemplate(Csar csar, QName serviceTemplateId, String nodeTemplate) throws NotFoundException {
+    return resolveNodeTemplate(resolveServiceTemplate(csar, serviceTemplateId), nodeTemplate);
+  }
+
+  public static TNodeTemplate resolveNodeTemplate(TServiceTemplate serviceTemplate, String nodeTemplate) throws NotFoundException {
     TNodeTemplate nullable = serviceTemplate.getTopologyTemplate().getNodeTemplate(nodeTemplate);
     if (nullable == null) {
       throw new NotFoundException("Node template \"" + nodeTemplate + "\" could not be found");
     }
     return nullable;
+  }
+
+  public static TNodeTemplate getRelatedNodeTemplateWithin(TServiceTemplate serviceTemplate, TNodeTemplate template, QName relationshipType) {
+    return serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
+      .filter(candidate -> candidate instanceof TRelationshipTemplate)
+      .map(relation -> (TRelationshipTemplate) relation)
+      .filter((relation) -> relation.getType().equals(relationshipType)).filter(relation -> {
+        final Object source = relation.getSourceElement().getRef();
+        return source instanceof TNodeTemplate && source.equals(template);
+      }).map(relation -> relation.getTargetElement().getRef())
+      .filter((target) -> target instanceof TNodeTemplate)
+      .map(TNodeTemplate.class::cast)
+      .findFirst()
+      .orElse(null);
   }
 
   public static List<TInterface> getInterfaces(TNodeTemplate nodeTemplate, Csar csar) {
@@ -64,12 +71,10 @@ public final class ToscaEngine {
     return nullable == null ? Collections.emptyList() : nullable.getInterface();
   }
 
-  public static List<TNodeType> getNodeTypeHierarchy(Csar csar, String nodeTypeId) throws NotFoundException {
+  public static TNodeType resolveNodeTypeReference(Csar csar, String nodeTypeId) throws NotFoundException {
     final Comparator<TNodeType> compareById = Comparator.comparing(TNodeType::getName);
     List<TNodeType> nodeTypes = csar.nodeTypes();
-    Collections.sort(nodeTypes, compareById);
-
-    List<TNodeType> typeRefs = new ArrayList<>();
+    nodeTypes.sort(compareById);
 
     // this stub acts as base element to compare against for binary search
     final TNodeType stub = new TNodeType();
@@ -79,16 +84,25 @@ public final class ToscaEngine {
       // element not found
       throw new NotFoundException("The requested node type was not present in the given csar");
     }
-    TNodeType target = nodeTypes.get(index);
+    return nodeTypes.get(index);
+  }
 
+  public static List<TNodeType> getNodeTypeHierarchy(Csar csar, String nodeTypeId) throws NotFoundException {
+    final Comparator<TNodeType> compareById = Comparator.comparing(TNodeType::getName);
+    List<TNodeType> nodeTypes = csar.nodeTypes();
+    nodeTypes.sort(compareById);
+
+    List<TNodeType> typeRefs = new ArrayList<>();
+    TNodeType target = resolveNodeTypeReference(csar, nodeTypeId);
     typeRefs.add(target);
     // local introduced for correct null-analysis
+    final TNodeType stub = new TNodeType();
     DerivedFrom derivedFrom = target.getDerivedFrom();
     while (derivedFrom != null) {
       // update stub to take the ID of the supertype
       stub.setName(derivedFrom.getTypeRef().toString());
       // find the target in our nodeTypes
-      index = Collections.binarySearch(nodeTypes, stub, compareById);
+      int index = Collections.binarySearch(nodeTypes, stub, compareById);
       if (index < 0) {
         // target type not found
         return typeRefs;
@@ -286,6 +300,15 @@ public final class ToscaEngine {
     return plan;
   }
 
+  @NonNull
+  public static TArtifactTemplate resolveArtifactTemplate(Csar csar, QName artifactTemplateId) throws NotFoundException {
+    TArtifactTemplate artifactTemplate = csar.artifactTemplates().stream()
+      .filter(candidate -> candidate.getId().equals(artifactTemplateId.toString()))
+      .findFirst()
+      .orElseThrow(() -> new NotFoundException("No artifactTemplate matching " + artifactTemplateId + " was found in csar " + csar.id().csarName()));
+    return artifactTemplate;
+  }
+
   @Nullable
   public static TServiceTemplate containingServiceTemplate(Csar csar, TPlan toscaPlan) {
     return csar.serviceTemplates().stream()
@@ -302,5 +325,48 @@ public final class ToscaEngine {
       .filter(nti -> QName.valueOf(nti.getIdFromIdOrNameField()).equals(nodeTypeImplQname))
       .findFirst()
       .orElseThrow(() -> new NotFoundException("No node type implementation was found for the QName " + nodeTypeImplQname));
+  }
+
+  @Nullable
+  public static Document getArtifactTemplateProperties(Csar csar, QName artifactTemplateId) {
+    try {
+      return getEntityTemplateProperties(resolveArtifactTemplate(csar, artifactTemplateId));
+    } catch (NotFoundException missing) {
+      return null;
+    }
+  }
+
+  @Nullable
+  public static Document getNodeTemplateProperties(Csar csar, QName serviceTemplateId, String nodeTemplateId) {
+    try {
+      return getNodeTemplateProperties(resolveServiceTemplate(csar, serviceTemplateId), nodeTemplateId);
+    } catch (NotFoundException e) {
+      return null;
+    }
+  }
+
+  @Nullable
+  public static Document getNodeTemplateProperties(TServiceTemplate serviceTemplate, String nodeTemplateId) {
+    try {
+      return getEntityTemplateProperties(resolveNodeTemplate(serviceTemplate, nodeTemplateId));
+    } catch (NotFoundException e) {
+      return null;
+    }
+  }
+
+  @Nullable
+  public static Document getNodeTemplateProperties(TNodeTemplate nodeTemplate) {
+    return getEntityTemplateProperties(nodeTemplate);
+  }
+
+  @Nullable
+  private static Document getEntityTemplateProperties(TEntityTemplate template) {
+    return Optional.of(template)
+      .map(TEntityTemplate::getProperties)
+      .map(TEntityTemplate.Properties::getAny)
+      .filter(p -> p instanceof Element)
+      .map(Element.class::cast)
+      .map(XMLHelper::fromRootNode)
+      .orElse(null);
   }
 }

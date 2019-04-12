@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -15,6 +16,7 @@ import javax.ws.rs.client.Client;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.impl.plan.PlanLogHandler;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
@@ -35,8 +37,10 @@ import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
-import org.opentosca.container.legacy.core.service.ServiceProxy;
+import org.opentosca.container.legacy.core.engine.IToscaEngineService;
+import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,12 +72,34 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
   private final ResponseParser responseParser = new ResponseParser();
 
+  private final IToscaReferenceMapper toscaReferenceMapper;
+  private final CorrelationHandler correlationHandler;
+  private final ICSARInstanceManagementService csarInstanceManagement;
+  // FIXME don't use osgi?!
+  private final EventAdmin eventAdmin;
+  private final IToscaEngineService toscaEngineService;
+  private final IXMLSerializerService xmlSerializerService;
+
+  @Inject
+  public PlanInvocationEngine(IToscaReferenceMapper toscaReferenceMapper,
+                              CorrelationHandler correlationHandler,
+                              ICSARInstanceManagementService csarInstanceManagement,
+                              EventAdmin eventAdmin,
+                              IToscaEngineService toscaEngineService, IXMLSerializerService xmlSerializerService) {
+    this.toscaReferenceMapper = toscaReferenceMapper;
+    this.correlationHandler = correlationHandler;
+    this.csarInstanceManagement = csarInstanceManagement;
+    this.eventAdmin = eventAdmin;
+    this.toscaEngineService = toscaEngineService;
+    this.xmlSerializerService = xmlSerializerService;
+  }
+
   @Override
   public String invokePlan(final CSARID csarID, final QName serviceTemplateId, long serviceTemplateInstanceID,
                            final TPlanDTO givenPlan) throws UnsupportedEncodingException {
 
     // refill information that might not be sent
-    final TPlan storedPlan = ServiceProxy.toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
+    final TPlan storedPlan = toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
 
     if (null == storedPlan) {
       LOG.error("Plan " + givenPlan.getId() + " with name " + givenPlan.getName() + " is null!");
@@ -96,7 +122,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     // fill in the informations about this PublicPlan which is not provided
     // by the PublicPlan received by the REST API
     final Map<QName, TPlan> publicPlanMap =
-      ServiceProxy.toscaReferenceMapper.getCSARIDToPlans(csarID)
+      toscaReferenceMapper.getCSARIDToPlans(csarID)
         .get(PlanTypes.isPlanTypeURI(givenPlan.getPlanType()));
 
     if (null == publicPlanMap) {
@@ -105,9 +131,9 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     }
 
     planEvent.setCSARID(csarID.toString());
-    planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
-    planEvent.setInterfaceName(ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
-    planEvent.setOperationName(ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
+    planEvent.setInputMessageID(toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
+    planEvent.setInterfaceName(toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
+    planEvent.setOperationName(toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
     // planEvent.setOutputMessageID(storedPlan.getOutputMessageID());
     planEvent.setPlanLanguage(storedPlan.getPlanLanguage());
     planEvent.setPlanType(storedPlan.getPlanType());
@@ -175,24 +201,24 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     if (serviceTemplateInstanceID == -1) {
       serviceTemplateInstanceID = 1000 + (int) (Math.random() * (Integer.MAX_VALUE - 1000));
       // get new correlationID
-      correlationID = ServiceProxy.correlationHandler.getNewCorrelationID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID, planEvent, true);
+      correlationID = correlationHandler.getNewCorrelationID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID, planEvent, true);
     } else {
       // get new correlationID
-      correlationID = ServiceProxy.correlationHandler.getNewCorrelationID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID, planEvent, false);
+      correlationID = correlationHandler.getNewCorrelationID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID, planEvent, false);
     }
 
     // plan is of type build, thus create an instance and put the
     // CSARInstanceID into the plan
     ServiceTemplateInstanceID instanceID;
     if (PlanTypes.isPlanTypeURI(planEvent.getPlanType()).equals(PlanTypes.BUILD)) {
-      instanceID = ServiceProxy.csarInstanceManagement.createNewInstance(csarID, serviceTemplateId);
+      instanceID = csarInstanceManagement.createNewInstance(csarID, serviceTemplateId);
       planEvent.setCSARInstanceID(instanceID.getInstanceID());
     } else {
       instanceID = new ServiceTemplateInstanceID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID);
     }
-    ServiceProxy.csarInstanceManagement.correlateCSARInstanceWithPlanInstance(instanceID, correlationID);
-    ServiceProxy.csarInstanceManagement.setCorrelationAsActive(csarID, correlationID);
-    ServiceProxy.csarInstanceManagement.correlateCorrelationIdToPlan(correlationID, planEvent);
+    csarInstanceManagement.correlateCSARInstanceWithPlanInstance(instanceID, correlationID);
+    csarInstanceManagement.setCorrelationAsActive(csarID, correlationID);
+    csarInstanceManagement.correlateCorrelationIdToPlan(correlationID, planEvent);
 
     final Map<String, Object> eventValues = new Hashtable<>();
     eventValues.put("CSARID", csarID);
@@ -204,7 +230,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
     final Map<String, String> message =
       createRequest(csarID, serviceTemplateId,
-        ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
+        toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
         planEvent.getInputParameter(), correlationID);
 
     if (null == message) {
@@ -221,17 +247,17 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
     eventValues.put("BODY", message);
 
-    if (null == ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
+    if (null == toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
       LOG.warn(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
       eventValues.put("ASYNC", true);
-    } else if (ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
+    } else if (toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
       eventValues.put("ASYNC", true);
     } else {
       eventValues.put("ASYNC", false);
     }
     eventValues.put("MESSAGEID", correlationID);
 
-    ServiceProxy.csarInstanceManagement.storePublicPlanToHistory(correlationID, planEvent);
+    csarInstanceManagement.storePublicPlanToHistory(correlationID, planEvent);
 
     // Create a new instance
     final PlanInstanceRepository repository = new PlanInstanceRepository();
@@ -255,7 +281,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     // send the message to the service bus
     final Event event = new Event("org_opentosca_plans/requests", eventValues);
     LOG.debug("Send event with parameters for invocation with the CorrelationID \"{}\".", correlationID);
-    ServiceProxy.eventAdmin.sendEvent(event);
+    eventAdmin.sendEvent(event);
 
     return correlationID;
   }
@@ -265,14 +291,14 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
                                     long serviceTemplateInstanceID, final TPlanDTO givenPlan) {
 
     // refill information that might not be sent
-    final TPlan storedPlan = ServiceProxy.toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
+    final TPlan storedPlan = toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
     final PlanInvocationEvent planEvent = new PlanInvocationEvent();
     String correlationID;
 
     planEvent.setCSARID(csarID.toString());
-    planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
-    planEvent.setInterfaceName(ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
-    planEvent.setOperationName(ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
+    planEvent.setInputMessageID(toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
+    planEvent.setInterfaceName(toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
+    planEvent.setOperationName(toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
     // planEvent.setOutputMessageID(storedPlan.getOutputMessageID());
     planEvent.setPlanLanguage(storedPlan.getPlanLanguage());
     planEvent.setPlanType(storedPlan.getPlanType());
@@ -284,13 +310,13 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
       serviceTemplateInstanceID = 1000 + (int) (Math.random() * (Integer.MAX_VALUE - 1000));
       // get new correlationID
       correlationID =
-        ServiceProxy.correlationHandler.getNewCorrelationID(csarID, serviceTemplateId,
+        correlationHandler.getNewCorrelationID(csarID, serviceTemplateId,
           (int) serviceTemplateInstanceID, planEvent, true);
     } else {
       // get new correlationID
 
       correlationID =
-        ServiceProxy.correlationHandler.getNewCorrelationID(csarID, serviceTemplateId,
+        correlationHandler.getNewCorrelationID(csarID, serviceTemplateId,
           (int) serviceTemplateInstanceID, planEvent, false);
     }
 
@@ -298,14 +324,14 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     // CSARInstanceID into the plan
     ServiceTemplateInstanceID instanceID;
     if (PlanTypes.isPlanTypeURI(planEvent.getPlanType()).equals(PlanTypes.BUILD)) {
-      instanceID = ServiceProxy.csarInstanceManagement.createNewInstance(csarID, serviceTemplateId);
+      instanceID = csarInstanceManagement.createNewInstance(csarID, serviceTemplateId);
       planEvent.setCSARInstanceID(instanceID.getInstanceID());
     } else {
       instanceID = new ServiceTemplateInstanceID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID);
     }
-    ServiceProxy.csarInstanceManagement.correlateCSARInstanceWithPlanInstance(instanceID, correlationID);
-    ServiceProxy.csarInstanceManagement.setCorrelationAsActive(csarID, correlationID);
-    ServiceProxy.csarInstanceManagement.correlateCorrelationIdToPlan(correlationID, planEvent);
+    csarInstanceManagement.correlateCSARInstanceWithPlanInstance(instanceID, correlationID);
+    csarInstanceManagement.setCorrelationAsActive(csarID, correlationID);
+    csarInstanceManagement.correlateCorrelationIdToPlan(correlationID, planEvent);
 
     return correlationID;
   }
@@ -327,7 +353,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
       LOG.debug("Deployment Rules are fulfilled. Continuing the provisioning.");
     }
     // refill information that might not be sent
-    final TPlan storedPlan = ServiceProxy.toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
+    final TPlan storedPlan = toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
     if (null == storedPlan) {
       LOG.error("Plan " + givenPlan.getId() + " with name " + givenPlan.getName() + " is null!");
       return;
@@ -350,7 +376,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
     // fill in the informations about this PublicPlan which is not provided
     // by the PublicPlan received by the REST API
-    final Map<QName, TPlan> publicPlanMap = ServiceProxy.toscaReferenceMapper.getCSARIDToPlans(csarID)
+    final Map<QName, TPlan> publicPlanMap = toscaReferenceMapper.getCSARIDToPlans(csarID)
       .get(PlanTypes.isPlanTypeURI(givenPlan.getPlanType()));
 
     if (null == publicPlanMap) {
@@ -359,9 +385,9 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     }
 
     planEvent.setCSARID(csarID.toString());
-    planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
-    planEvent.setInterfaceName(ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
-    planEvent.setOperationName(ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
+    planEvent.setInputMessageID(toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
+    planEvent.setInterfaceName(toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
+    planEvent.setOperationName(toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
     // planEvent.setOutputMessageID(storedPlan.getOutputMessageID());
     planEvent.setPlanLanguage(storedPlan.getPlanLanguage());
     planEvent.setPlanType(storedPlan.getPlanType());
@@ -422,7 +448,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
     LOG.debug("complete the list of parameters {}", givenPlan.getId());
 
-    final Map<String, String> message = createRequest(csarID, serviceTemplateId, ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()), planEvent.getInputParameter(), correlationID);
+    final Map<String, String> message = createRequest(csarID, serviceTemplateId, toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()), planEvent.getInputParameter(), correlationID);
 
     if (null == message) {
       LOG.error("Failed to construct parameter list for plan {} of type {}", givenPlan.getId(), givenPlan.getPlanLanguage());
@@ -437,17 +463,17 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
     eventValues.put("BODY", message);
 
-    if (null == ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
+    if (null == toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
       LOG.warn(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
       eventValues.put("ASYNC", true);
-    } else if (ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
+    } else if (toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
       eventValues.put("ASYNC", true);
     } else {
       eventValues.put("ASYNC", false);
     }
     eventValues.put("MESSAGEID", correlationID);
 
-    ServiceProxy.csarInstanceManagement.storePublicPlanToHistory(correlationID, planEvent);
+    csarInstanceManagement.storePublicPlanToHistory(correlationID, planEvent);
 
     // Create a new instance
     final PlanInstanceRepository repository = new PlanInstanceRepository();
@@ -471,14 +497,14 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     // send the message to the service bus
     final Event event = new Event("org_opentosca_plans/requests", eventValues);
     LOG.debug("Send event with parameters for invocation with the CorrelationID \"{}\".", correlationID);
-    ServiceProxy.eventAdmin.sendEvent(event);
+    eventAdmin.sendEvent(event);
   }
 
   @Override
   public void correctCorrelationToServiceTemplateInstanceIdMapping(final CSARID csarID, final QName serviceTemplateId,
                                                                    final String corrId,
                                                                    final int correctSTInstanceId) {
-    ServiceProxy.correlationHandler.correlateBuildPlanCorrToServiceTemplateInstanceId(csarID, serviceTemplateId,
+    correlationHandler.correlateBuildPlanCorrToServiceTemplateInstanceId(csarID, serviceTemplateId,
       corrId, correctSTInstanceId);
   }
 
@@ -488,14 +514,14 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     final Map<String, String> map = new HashMap<>();
     final List<Document> docs = new ArrayList<>();
 
-    final List<QName> serviceTemplates = ServiceProxy.toscaEngineService.getServiceTemplatesInCSAR(csarID);
+    final List<QName> serviceTemplates = toscaEngineService.getServiceTemplatesInCSAR(csarID);
     for (final QName serviceTemplate : serviceTemplates) {
-      final List<String> nodeTemplates = ServiceProxy.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarID, serviceTemplate);
+      final List<String> nodeTemplates = toscaEngineService.getNodeTemplatesOfServiceTemplate(csarID, serviceTemplate);
       for (final String nodeTemplate : nodeTemplates) {
-        final Document doc = ServiceProxy.toscaEngineService.getPropertiesOfTemplate(csarID, serviceTemplate, nodeTemplate);
+        final Document doc = toscaEngineService.getPropertiesOfTemplate(csarID, serviceTemplate, nodeTemplate);
         if (null != doc) {
           docs.add(doc);
-          LOG.trace("Found property document: {}", ServiceProxy.xmlSerializerService.getXmlSerializer().docToString(doc, false));
+          LOG.trace("Found property document: {}", xmlSerializerService.getXmlSerializer().docToString(doc, false));
         }
       }
     }
@@ -560,7 +586,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
   public void handleEvent(final Event eve) {
 
     final String correlationID = (String) eve.getProperty("MESSAGEID");
-    PlanInvocationEvent event = ServiceProxy.csarInstanceManagement.getPlanFromHistory(correlationID);
+    PlanInvocationEvent event = csarInstanceManagement.getPlanFromHistory(correlationID);
     final String planLanguage = event.getPlanLanguage();
     LOG.trace("The correlation ID is {} and plan language is {}", correlationID, planLanguage);
 
@@ -592,8 +618,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         // map.put(param.getName(), value);
       }
 
-      ServiceProxy.csarInstanceManagement.getOutputForCorrelation(correlationID).putAll(map);
-      ServiceProxy.csarInstanceManagement.setCorrelationAsFinished(csarID, correlationID);
+      csarInstanceManagement.getOutputForCorrelation(correlationID).putAll(map);
+      csarInstanceManagement.setCorrelationAsFinished(csarID, correlationID);
 
       // Update state
       final PlanInstanceRepository repository = new PlanInstanceRepository();
@@ -612,22 +638,22 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
       }
 
       // save
-      final ServiceTemplateInstanceID instanceID = ServiceProxy.csarInstanceManagement.getInstanceForCorrelation(correlationID);
+      final ServiceTemplateInstanceID instanceID = csarInstanceManagement.getInstanceForCorrelation(correlationID);
       LOG.debug("The instanceID is: " + instanceID);
-      ServiceProxy.csarInstanceManagement.storeCorrelationForAnInstance(instanceID.getCsarId(), instanceID, correlationID);
+      csarInstanceManagement.storeCorrelationForAnInstance(instanceID.getCsarId(), instanceID, correlationID);
 
       if (event.isHasFailed()) {
         LOG.info("The process instance was not successful.");
       } else {
         if (PlanTypes.isPlanTypeURI(event.getPlanType()).equals(PlanTypes.TERMINATION)) {
-          final boolean deletion = ServiceProxy.csarInstanceManagement.deleteInstance(instanceID.getCsarId(), instanceID);
+          final boolean deletion = csarInstanceManagement.deleteInstance(instanceID.getCsarId(), instanceID);
           LOG.debug("Delete of instance returns: " + deletion);
         }
       }
     } else if (planLanguage.startsWith(nsBPMN)) {
       final Object response = eve.getProperty("RESPONSE");
       LOG.debug("Received an event with a REST response: {}", response);
-      event = ServiceProxy.csarInstanceManagement.getPlanFromHistory(correlationID);
+      event = csarInstanceManagement.getPlanFromHistory(correlationID);
       LOG.trace("Found invocation in plan history for instance: {}", event.getCSARInstanceID());
       final CSARID csarID = new CSARID(event.getCSARID());
 
@@ -680,7 +706,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         }
       }
 
-      final ICSARInstanceManagementService instMngr = ServiceProxy.csarInstanceManagement;
+      final ICSARInstanceManagementService instMngr = csarInstanceManagement;
       final Map<String, String> map = instMngr.getOutputForCorrelation(correlationID);
 
       for (final TParameterDTO param : event.getOutputParameter()) {
@@ -715,8 +741,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         map.put(param.getName(), value);
       }
 
-      ServiceProxy.csarInstanceManagement.getOutputForCorrelation(correlationID).putAll(map);
-      ServiceProxy.csarInstanceManagement.setCorrelationAsFinished(csarID, correlationID);
+      csarInstanceManagement.getOutputForCorrelation(correlationID).putAll(map);
+      csarInstanceManagement.setCorrelationAsFinished(csarID, correlationID);
 
       // Update state
       final PlanInstanceRepository repository = new PlanInstanceRepository();
@@ -729,15 +755,15 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
       }
 
       // save
-      final ServiceTemplateInstanceID instanceID = ServiceProxy.csarInstanceManagement.getInstanceForCorrelation(correlationID);
+      final ServiceTemplateInstanceID instanceID = csarInstanceManagement.getInstanceForCorrelation(correlationID);
       LOG.debug("The instanceID is: " + instanceID);
-      ServiceProxy.csarInstanceManagement.storeCorrelationForAnInstance(instanceID.getCsarId(), instanceID, correlationID);
+      csarInstanceManagement.storeCorrelationForAnInstance(instanceID.getCsarId(), instanceID, correlationID);
 
       if (event.isHasFailed()) {
         LOG.info("The process instance was not successful.");
       } else {
         if (PlanTypes.isPlanTypeURI(event.getPlanType()).equals(PlanTypes.TERMINATION)) {
-          final boolean deletion = ServiceProxy.csarInstanceManagement.deleteInstance(instanceID.getCsarId(), instanceID);
+          final boolean deletion = csarInstanceManagement.deleteInstance(instanceID.getCsarId(), instanceID);
           LOG.debug("Delete of instance returns: " + deletion);
         }
       }
@@ -746,7 +772,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
       return;
     }
 
-    ServiceProxy.correlationHandler.removeCorrelation(correlationID);
+    correlationHandler.removeCorrelation(correlationID);
   }
 
   /**
@@ -754,7 +780,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
    */
   @Override
   public List<String> getActiveCorrelationsOfInstance(final ServiceTemplateInstanceID csarInstanceID) {
-    return ServiceProxy.correlationHandler.getActiveCorrelationsOfInstance(csarInstanceID);
+    return correlationHandler.getActiveCorrelationsOfInstance(csarInstanceID);
 
   }
 
@@ -764,7 +790,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
   @Override
   public TPlanDTO getActivePublicPlanOfInstance(final ServiceTemplateInstanceID csarInstanceID,
                                                 final String correlationID) {
-    return ServiceProxy.correlationHandler.getPlanDTOForCorrelation(csarInstanceID, correlationID);
+    return correlationHandler.getPlanDTOForCorrelation(csarInstanceID, correlationID);
   }
 
   @Override

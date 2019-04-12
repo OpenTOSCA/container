@@ -27,15 +27,12 @@ public class InvokeOperationRoute extends RouteBuilder {
   @Override
   public void configure() throws Exception {
 
-    final ParameterCheckProcessor checkProcessor = new ParameterCheckProcessor();
-    final InvocationRequestProcessor requestProcessor = new InvocationRequestProcessor();
-
     // handle exceptions
     onException(Exception.class).setBody(property(Exchange.EXCEPTION_CAUGHT)).to("direct:handleResponse");
 
     // check if all needed parameters are specified. If this is the case set
     // requestID (for the response) and send request to further processing.
-    from(MainRoute.INVOKE_ENDPOINT).doTry().process(checkProcessor).doCatch(ApplicationBusExternalException.class)
+    from(MainRoute.INVOKE_ENDPOINT).doTry().process(ParameterCheckProcessor.BEAN_NAME).doCatch(ApplicationBusExternalException.class)
       .end().choice().when(property(Exchange.EXCEPTION_CAUGHT).isNull())
       .setHeader(APPLICATION_BUS_REQUEST_ID_HEADER,
         method(RequestID.class, "getNextID"))
@@ -48,11 +45,13 @@ public class InvokeOperationRoute extends RouteBuilder {
 
     // check if matching plugin is available and send request to it.
     // Otherwise throw exception.
-    from("direct:invokeProcess").setExchangePattern(ExchangePattern.InOut).process(requestProcessor).choice()
+    from("direct:invokeProcess").setExchangePattern(ExchangePattern.InOut)
+      .process(InvocationRequestProcessor.BEAN_NAME)
+      .choice()
       .when(header(APPLICATION_BUS_PLUGIN_ENDPOINT_HEADER).isNotNull())
-      .to("direct:toPlugin").endChoice().otherwise()
-      .throwException(new ApplicationBusInternalException(
-        "No matching Application Bus Plugin found."));
+        .to("direct:toPlugin").endChoice()
+      .otherwise()
+        .throwException(new ApplicationBusInternalException("No matching Application Bus Plugin found."));
 
     // send to plugin
     from("direct:toPlugin").doTry().recipientList(header(APPLICATION_BUS_PLUGIN_ENDPOINT_HEADER)).end()

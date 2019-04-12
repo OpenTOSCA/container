@@ -14,6 +14,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
 
     <winery.version>2.0.0-SNAPSHOT</winery.version>
+    <camel.version>2.18.3</camel.version>
   </properties>
 
   <repositories>
@@ -66,7 +67,6 @@
     <module>org.opentosca.bus.application.plugin.jsonhttp.service.impl</module>
     <module>org.opentosca.bus.application.plugin.service</module>
     <module>org.opentosca.bus.application.service</module>
-    <module>org.opentosca.bus.application.service.impl</module>
     <module>org.opentosca.container.api</module>
     <module>org.opentosca.planbuilder</module>
     <module>org.opentosca.planbuilder.core.bpel</module>
@@ -183,6 +183,23 @@
         <artifactId>org.osgi.core</artifactId>
         <version>4.3.1</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-core</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-spring</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 </project>

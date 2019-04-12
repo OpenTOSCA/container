@@ -3,11 +3,13 @@ package org.opentosca.bus.application.service.impl.processor;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.bus.application.model.constants.ApplicationBusConstants;
 import org.opentosca.bus.application.model.exception.ApplicationBusExternalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * ParameterCheckProcessor of the Application Bus.<br>
@@ -16,15 +18,17 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+@Component(ParameterCheckProcessor.BEAN_NAME)
+@NonNullByDefault
 public class ParameterCheckProcessor implements Processor {
 
-  final private static Logger LOG = LoggerFactory.getLogger(ParameterCheckProcessor.class);
+  public static final String BEAN_NAME = "parameterCheckProcessor";
+  private static final Logger LOG = LoggerFactory.getLogger(ParameterCheckProcessor.class);
 
   @Override
   public void process(final Exchange exchange) throws ApplicationBusExternalException {
 
     LOG.info("Checking if all needed parameters are specified...");
-
     final Message message = exchange.getIn();
 
     @Nullable final Integer serviceInstanceID =

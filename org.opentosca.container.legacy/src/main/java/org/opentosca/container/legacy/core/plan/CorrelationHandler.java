@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Singleton;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -13,11 +14,14 @@ import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * This class manages active PublicPlans which are still running or response is not processed yet.
  */
 @Deprecated
+@Service
+@Singleton
 public class CorrelationHandler {
 
   long lastMilli = 0;
@@ -35,10 +39,6 @@ public class CorrelationHandler {
   /**
    * Synchronized method for creating a new CorrelationID for a PublicPlan.
    *
-   * @param csarInstanceID
-   * @param serviceTemplateId
-   * @param b
-   * @param publicPlan
    * @return CorrelationID
    */
   public synchronized String getNewCorrelationID(final CSARID csarID, final QName serviceTemplateId,

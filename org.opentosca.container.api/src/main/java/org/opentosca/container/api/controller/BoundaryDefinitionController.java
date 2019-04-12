@@ -74,7 +74,7 @@ public class BoundaryDefinitionController {
 
     final TServiceTemplate serviceTemplate;
     try {
-      serviceTemplate = ToscaEngine.findServiceTemplate(csar, QName.valueOf(servicetemplate));
+      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, QName.valueOf(servicetemplate));
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       throw new NotFoundException(e);
     }
@@ -105,7 +105,7 @@ public class BoundaryDefinitionController {
     final Csar csar = this.storage.findById(new CsarId(csarId));
     final TServiceTemplate serviceTemplate;
     try {
-      serviceTemplate = ToscaEngine.findServiceTemplate(csar, QName.valueOf(servicetemplate));
+      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, QName.valueOf(servicetemplate));
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       throw new NotFoundException(e);
     }
@@ -136,7 +136,7 @@ public class BoundaryDefinitionController {
     final Csar csar = this.storage.findById(new CsarId(csarId));
     final TServiceTemplate serviceTemplate;
     try {
-      serviceTemplate = ToscaEngine.findServiceTemplate(csar, QName.valueOf(servicetemplate));
+      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, QName.valueOf(servicetemplate));
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       throw new NotFoundException(e);
     }
@@ -172,7 +172,7 @@ public class BoundaryDefinitionController {
     final Csar csar = this.storage.findById(new CsarId(csarId));
     final TServiceTemplate serviceTemplate;
     try {
-      serviceTemplate = ToscaEngine.findServiceTemplate(csar, QName.valueOf(servicetemplate));
+      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, QName.valueOf(servicetemplate));
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       throw new NotFoundException(e);
     }

@@ -63,7 +63,7 @@ public class NodeTemplateService {
 
     List<TNodeTemplate> nodeTemplates;
     try {
-      nodeTemplates = ToscaEngine.findServiceTemplate(csar, new QName(serviceTemplateQName))
+      nodeTemplates = ToscaEngine.resolveServiceTemplate(csar, new QName(serviceTemplateQName))
         .getTopologyTemplate()
         .getNodeTemplates();
     } catch (NotFoundException e) {
@@ -89,8 +89,8 @@ public class NodeTemplateService {
   public NodeTemplateDTO getNodeTemplateById(final String csarId, final QName serviceTemplateQName,
                                              final String nodeTemplateId) throws NotFoundException {
     final Csar csar = storage.findById(new CsarId(csarId));
-    TServiceTemplate serviceTemplate = ToscaEngine.findServiceTemplate(csar, serviceTemplateQName);
-    TNodeTemplate nodeTemplate = ToscaEngine.findNodeTemplate(serviceTemplate, nodeTemplateId);
+    TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateQName);
+    TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(serviceTemplate, nodeTemplateId);
 
     return createNodeTemplate(nodeTemplate, csar);
   }
@@ -107,9 +107,9 @@ public class NodeTemplateService {
   public boolean hasNodeTemplate(final String csarId, final QName serviceTemplateQName, final String nodeTemplateId) {
     final Csar csar = this.storage.findById(new CsarId(csarId));
     try {
-      TServiceTemplate serviceTemplate = ToscaEngine.findServiceTemplate(csar, serviceTemplateQName);
+      TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateQName);
       @SuppressWarnings("unused")
-      TNodeTemplate indicator = ToscaEngine.findNodeTemplate(serviceTemplate, nodeTemplateId);
+      TNodeTemplate indicator = ToscaEngine.resolveNodeTemplate(serviceTemplate, nodeTemplateId);
       return true;
     } catch (NotFoundException e) {
       return false;
@@ -130,8 +130,8 @@ public class NodeTemplateService {
                                               final String nodeTemplateId) throws NotFoundException {
     final Csar csar = storage.findById(new CsarId(csarId));
 
-    TServiceTemplate serviceTemplate = ToscaEngine.findServiceTemplate(csar, serviceTemplateQName);
-    TNodeTemplate nodeTemplate = ToscaEngine.findNodeTemplate(serviceTemplate, nodeTemplateId);
+    TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateQName);
+    TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(serviceTemplate, nodeTemplateId);
 
     TEntityTemplate.Properties ntProps = nodeTemplate.getProperties();
     final Document properties = ModelUtil.createDocumentFromElement((Element) ntProps.getAny());

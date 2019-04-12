@@ -1,10 +1,8 @@
 package org.opentosca.bus.application.service.impl.route;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.application.service.impl.processor.IsFinishedProcessor;
-
 
 /**
  * IsFinishedRoute of the Application Bus.<br>
@@ -18,14 +16,8 @@ public class IsFinishedRoute extends RouteBuilder {
 
   @Override
   public void configure() throws Exception {
-
-    final Processor isFinishedProcessor = new IsFinishedProcessor();
-
     // handle exceptions
     onException(Exception.class).setBody(property(Exchange.EXCEPTION_CAUGHT));
-
-    from(MainRoute.IS_FINISHED_ENDPOINT).process(isFinishedProcessor);
-
+    from(MainRoute.IS_FINISHED_ENDPOINT).process(IsFinishedProcessor.BEAN_NAME);
   }
-
 }

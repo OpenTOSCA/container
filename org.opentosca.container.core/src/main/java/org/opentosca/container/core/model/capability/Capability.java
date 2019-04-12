@@ -12,13 +12,15 @@ import java.io.Serializable;
   @NamedQuery(name = Capability.byProvider, query = Capability.byProviderQuery)
 })
 public class Capability implements Serializable {
+  public static final String TABLE_NAME = "CAPABILITIES";
+
   public static final String byProviderType = "Capability.ByProviderType";
   public static final String byProvider = "Capability.ByProvider";
 
   static final String byProviderTypeQuery = "SELECT c FROM Capability c WHERE c.providerType = :providerType";
   static final String byProviderQuery = "SELECT c FROM Capability c WHERE c.providerType = :providerType AND c.providerName = :providerName";
+
   private static final long serialVersionUid = 684635434L;
-  public static final String TABLE_NAME = "CAPABILITIES";
 
   @Column(name = "Capability")
   @Id
@@ -63,5 +65,19 @@ public class Capability implements Serializable {
 
   public void setProviderType(ProviderType providerType) {
     this.providerType = providerType;
+  }
+
+  @Override
+  public int hashCode() {
+    return capability.hashCode() ^ providerName.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof Capability)) { return false; }
+    Capability other = (Capability) o;
+    return capability.equals(other.capability)
+      && providerName.equals(other.providerName)
+      && providerType.equals(other.providerType);
   }
 }

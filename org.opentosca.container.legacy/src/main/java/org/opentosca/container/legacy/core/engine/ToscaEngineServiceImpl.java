@@ -28,7 +28,7 @@ import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedImplementat
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.legacy.core.engine.resolver.PathResolver;
 import org.opentosca.container.legacy.core.engine.consolidation.DefinitionsConsolidation;
-import org.opentosca.container.legacy.core.engine.resolver.resolver.DefinitionsResolver;
+import org.opentosca.container.legacy.core.engine.resolver.DefinitionsResolver;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.eclipse.winery.model.tosca.TArtifactReference.Exclude;
@@ -54,6 +54,7 @@ import com.google.common.collect.Lists;
  * @see IToscaEngineService
  */
 @Service
+@Deprecated
 public class ToscaEngineServiceImpl implements IToscaEngineService {
 
 

@@ -1,4 +1,4 @@
-package org.opentosca.container.legacy.core.engine.resolver.resolver;
+package org.opentosca.container.legacy.core.engine.resolver;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -18,7 +18,6 @@ import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.eclipse.winery.model.tosca.Definitions;
 import org.eclipse.winery.model.tosca.TImport;
-import org.opentosca.container.legacy.core.engine.resolver.PathResolver;
 import org.opentosca.container.legacy.core.model.CSARContent;
 import org.opentosca.container.legacy.core.service.ICoreFileService;
 import org.slf4j.Logger;

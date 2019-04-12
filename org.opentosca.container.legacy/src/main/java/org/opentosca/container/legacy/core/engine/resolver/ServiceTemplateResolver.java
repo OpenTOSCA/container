@@ -1,11 +1,11 @@
-package org.opentosca.container.legacy.core.engine.resolver.resolver;
+package org.opentosca.container.legacy.core.engine.resolver;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
-import org.opentosca.container.legacy.core.engine.resolver.resolver.data.ElementNamesEnum;
+import org.opentosca.container.legacy.core.engine.resolver.data.ElementNamesEnum;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.eclipse.winery.model.tosca.Definitions;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;

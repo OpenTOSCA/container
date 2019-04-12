@@ -1,8 +1,8 @@
-package org.opentosca.container.legacy.core.engine.resolver.resolver;
+package org.opentosca.container.legacy.core.engine.resolver;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.legacy.core.engine.resolver.resolver.data.ElementNamesEnum;
+import org.opentosca.container.legacy.core.engine.resolver.data.ElementNamesEnum;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 
 /**

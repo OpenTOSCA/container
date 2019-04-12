@@ -8,6 +8,7 @@ import org.opentosca.container.core.service.IFileAccessService;
 import org.eclipse.winery.model.tosca.Definitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Implementation of the interface
@@ -16,7 +17,8 @@ import org.slf4j.LoggerFactory;
  * @author Christian Endres - endrescn@studi.informatik.uni-stuttgart.de
  * @see org.opentosca.container.core.engine.xml.IXMLSerializerService
  */
-public class XMLSerializerServiceImpl implements IXMLSerializerService {
+@Service
+class XMLSerializerServiceImpl implements IXMLSerializerService {
 
   private IXMLSerializer xmlSerializer;
   private IFileAccessService fileAccessService = null;
