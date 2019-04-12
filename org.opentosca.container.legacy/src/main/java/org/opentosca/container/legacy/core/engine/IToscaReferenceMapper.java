@@ -234,23 +234,6 @@ public interface IToscaReferenceMapper {
    */
   QName getContainingDefinitionsID(CSARID csarID, QName elementID);
 
-  /**
-   * Stores the message element id of a plan, parsed from a WSDL.
-   *
-   * @param csarID
-   * @param planID
-   */
-  void storePlanInputMessageID(CSARID csarID, QName planID, QName messageID);
-
-  /**
-   * Returns the message element id of a plan, parsed from a WSDL.
-   *
-   * @param csarID
-   * @param planID
-   * @return
-   */
-  QName getPlanInputMessageID(CSARID csarID, QName planID);
-
   String getIntferaceNameOfPlan(CSARID csarID, QName planID);
 
   String getOperationNameOfPlan(CSARID csarID, QName planID);

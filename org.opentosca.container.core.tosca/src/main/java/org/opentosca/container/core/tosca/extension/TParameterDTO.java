@@ -105,4 +105,23 @@ public class TParameterDTO {
     this.required = value;
   }
 
+  public static class Converter {
+    public static org.eclipse.winery.model.tosca.TParameter toToscaElement(TParameterDTO dto) {
+      org.eclipse.winery.model.tosca.TParameter element = new org.eclipse.winery.model.tosca.TParameter();
+      element.setName(dto.name);
+      element.setRequired(dto.required);
+      element.setType(dto.type);
+      return element;
+    }
+
+    public static org.opentosca.container.core.tosca.extension.TParameter toEntity(TParameterDTO dto) {
+      org.opentosca.container.core.tosca.extension.TParameter entity = new org.opentosca.container.core.tosca.extension.TParameter();
+      entity.setName(dto.name);
+      entity.setRequired(dto.required);
+      entity.setType(dto.type);
+      entity.setValue(dto.value);
+      return entity;
+    }
+  }
+
 }

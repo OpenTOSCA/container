@@ -46,9 +46,6 @@ public class ResponseParser {
       new PlanInvocationEvent(csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
       ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
       ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
-      ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, planID),
-        null, // TODO
-      // !!!
       false, // not active anymore
       false));
     // delete correlation as running plan
@@ -93,9 +90,6 @@ public class ResponseParser {
       new PlanInvocationEvent(csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
       ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
       ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
-      ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, planID),
-      null, // TODO
-      // !!!
       false, // not active anymore
       false));
     // delete correlation as running plan

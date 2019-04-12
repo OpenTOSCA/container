@@ -11,10 +11,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.namespace.QName;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.omg.Dynamic.Parameter;
 
 @XmlRootElement(name = "PlanInvocationEvent")
 @XmlAccessorType(XmlAccessType.FIELD)
+@NonNullByDefault
 public class PlanInvocationEvent {
 
   @XmlElement(name = "InputParameter", namespace = "http://www.opentosca.org/ConsolidatedTOSCA", required = true)
@@ -38,10 +41,6 @@ public class PlanInvocationEvent {
   protected String interfaceName;
   @XmlAttribute(name = "OperationName", required = true)
   protected String operationName;
-  @XmlAttribute(name = "InputMessageID", required = true)
-  protected QName inputMessageID;
-  @XmlAttribute(name = "OutputMessageID", required = true)
-  protected QName outputMessageID;
   @XmlAttribute(name = "PlanLanguage", required = true)
   @XmlSchemaType(name = "anyURI")
   protected String planLanguage;
@@ -55,8 +54,7 @@ public class PlanInvocationEvent {
 
   public PlanInvocationEvent(final String csarID, final TPlanDTO dto, final String correlationID,
                              final int csarInstanceID, final String ifaceName, final String opName,
-                             final QName inputMessageID, final QName outputMessageID, final boolean active,
-                             final boolean failed) {
+                             final boolean active, final boolean failed) {
     this.inputParameter = new ArrayList<>();
     this.inputParameter.addAll(dto.getInputParameters().getInputParameter());
     this.outputParameter = new ArrayList<>();
@@ -69,8 +67,6 @@ public class PlanInvocationEvent {
     this.csarInstanceID = csarInstanceID;
     this.interfaceName = ifaceName;
     this.operationName = opName;
-    this.inputMessageID = inputMessageID;
-    this.outputMessageID = outputMessageID;
     this.planLanguage = dto.getPlanLanguage();
     this.isActive = active;
     this.hasFailed = failed;
@@ -244,42 +240,6 @@ public class PlanInvocationEvent {
    */
   public void setOperationName(final String value) {
     this.operationName = value;
-  }
-
-  /**
-   * Gets the value of the inputMessageID property.
-   *
-   * @return possible object is {@link QName }
-   */
-  public QName getInputMessageID() {
-    return this.inputMessageID;
-  }
-
-  /**
-   * Sets the value of the inputMessageID property.
-   *
-   * @param value allowed object is {@link QName }
-   */
-  public void setInputMessageID(final QName value) {
-    this.inputMessageID = value;
-  }
-
-  /**
-   * Gets the value of the outputMessageID property.
-   *
-   * @return possible object is {@link QName }
-   */
-  public QName getOutputMessageID() {
-    return this.outputMessageID;
-  }
-
-  /**
-   * Sets the value of the outputMessageID property.
-   *
-   * @param value allowed object is {@link QName }
-   */
-  public void setOutputMessageID(final QName value) {
-    this.outputMessageID = value;
   }
 
   /**

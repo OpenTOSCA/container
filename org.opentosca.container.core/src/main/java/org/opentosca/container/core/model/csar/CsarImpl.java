@@ -7,11 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -26,15 +22,7 @@ import org.eclipse.winery.common.ids.definitions.NodeTypeImplementationId;
 import org.eclipse.winery.common.ids.definitions.RelationshipTypeImplementationId;
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.selfservice.Application;
-import org.eclipse.winery.model.tosca.TArtifactTemplate;
-import org.eclipse.winery.model.tosca.TDefinitions;
-import org.eclipse.winery.model.tosca.TExportedOperation;
-import org.eclipse.winery.model.tosca.TNodeType;
-import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
-import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
-import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.*;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.backend.SelfServiceMetaDataUtils;
@@ -117,8 +105,14 @@ public class CsarImpl implements Csar {
 
   @Override
   public List<TExportedOperation> exportedOperations() {
-    // FIXME
-    throw new UnsupportedOperationException("not yet implemented");
+    return serviceTemplates().stream()
+      .map(TServiceTemplate::getBoundaryDefinitions)
+      .map(TBoundaryDefinitions::getInterfaces)
+      .map(TBoundaryDefinitions.Interfaces::getInterface)
+      .flatMap(Collection::stream)
+      .map(TExportedInterface::getOperation)
+      .flatMap(Collection::stream)
+      .collect(Collectors.toList());
   }
 
   @Override

@@ -1,11 +1,6 @@
 package org.opentosca.container.core.engine;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -367,6 +362,34 @@ public final class ToscaEngine {
       .filter(p -> p instanceof Element)
       .map(Element.class::cast)
       .map(XMLHelper::fromRootNode)
+      .orElse(null);
+  }
+
+  @Nullable
+  public static TExportedOperation findReferencingOperationWithin(TServiceTemplate serviceTemplate, TPlan plan) {
+    return Optional.of(serviceTemplate)
+      .map(TServiceTemplate::getBoundaryDefinitions)
+      .map(TBoundaryDefinitions::getInterfaces)
+      .map(TBoundaryDefinitions.Interfaces::getInterface)
+      .orElse(Collections.emptyList())
+      .stream()
+      .map(TExportedInterface::getOperation)
+      .flatMap(Collection::stream)
+      .filter(operation -> operation.getPlan().getPlanRef().equals(plan))
+      .findFirst()
+      .orElse(null);
+  }
+
+  @Nullable
+  public static TExportedInterface findReferencingInterfaceWithin(TServiceTemplate serviceTemplate, TExportedOperation operation) {
+    return Optional.of(serviceTemplate)
+      .map(TServiceTemplate::getBoundaryDefinitions)
+      .map(TBoundaryDefinitions::getInterfaces)
+      .map(TBoundaryDefinitions.Interfaces::getInterface)
+      .orElse(Collections.emptyList())
+      .stream()
+      .filter(iface -> iface.getOperation().contains(operation))
+      .findFirst()
       .orElse(null);
   }
 }

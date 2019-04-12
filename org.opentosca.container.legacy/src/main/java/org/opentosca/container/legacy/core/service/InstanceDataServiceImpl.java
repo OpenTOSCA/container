@@ -24,7 +24,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.container.core.common.ReferenceNotFoundException;
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.NodeTemplateInstanceCounts;
+import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.impl.persistence.Converters;
 import org.opentosca.container.core.impl.persistence.DaoUtil;
 import org.opentosca.container.core.impl.persistence.NodeInstanceDAO;
@@ -46,6 +48,8 @@ import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.opentosca.container.legacy.core.engine.IToscaEngineService;
+import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
+import org.opentosca.container.legacy.core.engine.ToscaEngineServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -107,14 +107,10 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
   }
 
   @Override
-  public String invokePlanInvocation(CsarId csar, TServiceTemplate serviceTemplate, long instanceId,
+  public String invokePlanInvocation(CsarId csarId, TServiceTemplate serviceTemplate, long instanceId,
                                      TPlanDTO plan) throws UnsupportedEncodingException {
-    if (planInvocationEngine == null) {
-      LOGGER.error("PlanInvocationEngine is not available!");
-      return null;
-    }
     LOGGER.info("Invoking Plan [{}]", plan.getName());
-    final String correlationId = planInvocationEngine.invokePlan(csar.toOldCsarId(), new QName(serviceTemplate.getId()), instanceId, plan);
+    final String correlationId = planInvocationEngine.invokePlan(csarId, new QName(serviceTemplate.getId()), instanceId, plan);
     if (correlationId != null) {
       LOGGER.info("Plan Invocation was sucessful.");
     } else {

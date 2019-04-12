@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
@@ -15,8 +16,7 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
  */
 public interface IPlanInvocationEngine {
 
-  public String createCorrelationId(final CSARID csarID, final QName serviceTemplateId,
-                                    long serviceTemplateInstanceID, final TPlanDTO givenPlan);
+  public String createCorrelationId(final CsarId csarID, final QName serviceTemplateId, long serviceTemplateInstanceID, final TPlanDTO givenPlan);
 
   /**
    * Invoke a PublicPlan for a CSAR. If this PublicPlan is of Type OTHERMANAGEMENT or TERMINATION, the
@@ -28,14 +28,11 @@ public interface IPlanInvocationEngine {
    * @return boolean about success
    * @throws UnsupportedEncodingException
    */
-  public void invokePlan(CSARID csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan,
-                         String correlationID) throws UnsupportedEncodingException;
+  public void invokePlan(CsarId csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan, String correlationID) throws UnsupportedEncodingException;
 
-  public String invokePlan(CSARID csarID, QName serviceTemplateId, long serviceTemplateInstanceID,
-                           TPlanDTO plan) throws UnsupportedEncodingException;
+  public String invokePlan(CsarId csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan) throws UnsupportedEncodingException;
 
-  public void correctCorrelationToServiceTemplateInstanceIdMapping(CSARID csarID, QName serviceTemplateId,
-                                                                   String corrId, int correctSTInstanceId);
+  public void correctCorrelationToServiceTemplateInstanceIdMapping(CsarId csarID, QName serviceTemplateId, String corrId, int correctSTInstanceId);
 
   /**
    * Returns a list of CorrelationIDs of activce PublicPlans of a CSARInstance.

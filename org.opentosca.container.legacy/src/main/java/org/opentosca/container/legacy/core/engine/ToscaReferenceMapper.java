@@ -60,7 +60,6 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
   private final Map<CSARID, Map<QName, TPolicies>> csarIDToPolicies = new HashMap<>();
   private final Map<CSARID, Map<QName, String>> mapDefinitionsIDToLocationString = new HashMap<>();
   private final Map<CSARID, Map<QName, QName>> mapElementIDToDefinitionsID = new HashMap<>();
-  private final Map<CSARID, Map<QName, QName>> mapCSARIDToPlanIDToInputMessageID = new HashMap<>();
 
   private final Map<CSARID, Map<QName, Map<String, Map<String, QName>>>> mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan =
     new HashMap<>();
@@ -670,29 +669,10 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
   }
 
   @Override
-  public void storePlanInputMessageID(final CSARID csarID, final QName planID, final QName messageID) {
-    Map<QName, QName> planToMessage =
-      this.mapCSARIDToPlanIDToInputMessageID.computeIfAbsent(csarID, id -> new HashMap<>());
-    if (null != planToMessage.get(planID)) {
-      LOG.error("There is already a message ID stored for CSAR {} and Plan {}", csarID, planID);
-    } else {
-      planToMessage.put(planID, messageID);
-    }
-
-  }
-
-  @Override
-  public QName getPlanInputMessageID(final CSARID csarID, final QName planID) {
-    return this.mapCSARIDToPlanIDToInputMessageID.getOrDefault(csarID, Collections.emptyMap()).getOrDefault(planID,
-      null);
-  }
-
-  @Override
   public void storeServiceTemplateBoundsPlan(final CSARID csarID, final QName serviceTemplateID,
                                              final String interfaceName, final String opName, final QName planID) {
     mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan.computeIfAbsent(csarID, id -> new HashMap<>())
-      .computeIfAbsent(serviceTemplateID,
-        id -> new HashMap<>())
+      .computeIfAbsent(serviceTemplateID, id -> new HashMap<>())
       .computeIfAbsent(interfaceName, name -> new HashMap<>())
       .put(opName, planID);
   }
@@ -701,8 +681,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
   public String getIntferaceNameOfPlan(final CSARID csarID, final QName planID) {
     return mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan.getOrDefault(csarID, Collections.emptyMap())
       .values().stream()
-      .flatMap(serviceTemplate -> serviceTemplate.entrySet()
-        .stream())
+      .flatMap(serviceTemplate -> serviceTemplate.entrySet().stream())
       .filter(entry -> entry.getValue().values()
         .stream()
         .anyMatch(planID::equals))
@@ -713,10 +692,8 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
   public String getOperationNameOfPlan(final CSARID csarID, final QName planID) {
     return mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan.getOrDefault(csarID, Collections.emptyMap())
       .values().stream()
-      .flatMap(interfaceToOpToPlan -> interfaceToOpToPlan.values()
-        .stream())
-      .flatMap(opToPlan -> opToPlan.entrySet()
-        .stream())
+      .flatMap(interfaceToOpToPlan -> interfaceToOpToPlan.values().stream())
+      .flatMap(opToPlan -> opToPlan.entrySet().stream())
       .filter(entry -> entry.getValue().equals(planID))
       .map(Map.Entry::getKey).findFirst().orElse(null);
   }

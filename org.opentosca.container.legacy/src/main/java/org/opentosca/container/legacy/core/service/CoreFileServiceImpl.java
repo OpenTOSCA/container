@@ -22,6 +22,7 @@ import org.opentosca.container.legacy.core.model.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 
@@ -35,13 +36,18 @@ import static java.nio.file.FileVisitResult.CONTINUE;
  * @see CSARContent
  */
 @Deprecated
-// explicitly not marked as a service to allow changing the baseDirectory
+@Service
 public class CoreFileServiceImpl implements ICoreFileService {
 
   private static final Logger LOG = LoggerFactory.getLogger(CoreFileServiceImpl.class);
 
   private static final CSARMetaDataJPAStore JPA_STORE = new CSARMetaDataJPAStore();
   private final Path baseDirectory;
+
+  @Deprecated
+  public CoreFileServiceImpl() {
+    this(Settings.CONTAINER_STORAGE_BASEPATH);
+  }
 
   public CoreFileServiceImpl(Path baseDirectory) {
     this.baseDirectory = baseDirectory;
