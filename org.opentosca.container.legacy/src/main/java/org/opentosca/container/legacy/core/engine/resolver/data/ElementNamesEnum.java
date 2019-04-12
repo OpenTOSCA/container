@@ -1,4 +1,4 @@
-package org.opentosca.container.legacy.core.engine.resolver.resolver.data;
+package org.opentosca.container.legacy.core.engine.resolver.data;
 
 /**
  * This enum provides the correct names of TOSCA elements which are searched by the ReferenceMapper

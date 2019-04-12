@@ -19,10 +19,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.winery</groupId>
       <artifactId>org.eclipse.winery.model.tosca</artifactId>
     </dependency>

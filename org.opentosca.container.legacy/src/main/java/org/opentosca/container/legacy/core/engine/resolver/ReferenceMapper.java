@@ -1,4 +1,4 @@
-package org.opentosca.container.legacy.core.engine.resolver.resolver;
+package org.opentosca.container.legacy.core.engine.resolver;
 
 import java.util.Iterator;
 import java.util.List;
@@ -15,8 +15,8 @@ import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
-import org.opentosca.container.legacy.core.engine.resolver.resolver.data.ElementNamesEnum;
-import org.opentosca.container.legacy.core.engine.resolver.resolver.data.ReferenceResultWrapper;
+import org.opentosca.container.legacy.core.engine.resolver.data.ElementNamesEnum;
+import org.opentosca.container.legacy.core.engine.resolver.data.ReferenceResultWrapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Properties.PropertyMappings;
 import org.eclipse.winery.model.tosca.TCapability;

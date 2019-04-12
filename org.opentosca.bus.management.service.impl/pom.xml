@@ -31,10 +31,6 @@
       <artifactId>org.osgi.core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.bus.management.invocation.plugin</artifactId>
       <version>${project.version}</version>

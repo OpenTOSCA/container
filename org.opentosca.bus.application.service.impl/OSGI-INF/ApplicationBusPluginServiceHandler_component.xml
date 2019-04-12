@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.bus.application.service.impl.servicehandler.ApplicationBusPluginServiceHandler">
-   <implementation class="org.opentosca.bus.application.service.impl.servicehandler.ApplicationBusPluginServiceHandler"/>
-   <reference bind="bindPluginService" cardinality="0..n" interface="org.opentosca.bus.application.plugin.service.IApplicationBusPluginService" name="IApplicationBusPluginService" policy="dynamic" unbind="unbindPluginService"/>
-</scr:component>

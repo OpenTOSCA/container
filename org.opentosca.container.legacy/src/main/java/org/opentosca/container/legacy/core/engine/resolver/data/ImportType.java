@@ -1,4 +1,4 @@
-package org.opentosca.container.legacy.core.engine.resolver.resolver.data;
+package org.opentosca.container.legacy.core.engine.resolver.data;
 
 /**
  * This enum maps URIs of specifications to an enum value. The URIs are representing types of

@@ -1,4 +1,4 @@
-package org.opentosca.container.legacy.core.engine.resolver.resolver.data;
+package org.opentosca.container.legacy.core.engine.resolver.data;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;

@@ -31,4 +31,7 @@
 
   <bean class="org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin" />
   <bean class="org.opentosca.container.engine.plan.plugin.camunda.CamundaPlanEnginePlugin" />
+  <bean class="org.opentosca.container.core.engine.xml.impl.XMLSerializerServiceImpl" />
+
+  <import resource="classpath*:/META-INF/spring/context.xml" />
 </beans>
