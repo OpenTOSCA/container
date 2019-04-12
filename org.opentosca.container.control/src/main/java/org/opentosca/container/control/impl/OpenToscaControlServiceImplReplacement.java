@@ -3,16 +3,13 @@ package org.opentosca.container.control.impl;
 import static org.opentosca.container.core.model.deployment.process.DeploymentProcessState.*;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
@@ -37,11 +34,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
+@NonNullByDefault
 public class OpenToscaControlServiceImplReplacement implements OpenToscaControlService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaControlServiceImplReplacement.class);
 
-  private final IToscaEngineService toscaEngine;
   private final DeploymentTracker deploymentTracker;
   private final IPlanEngineService planEngine;
   private final IPlanInvocationEngine planInvocationEngine;
@@ -50,13 +47,11 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
   private final ICSARInstanceManagementService instanceManagement;
 
   @Inject
-  public OpenToscaControlServiceImplReplacement(IToscaEngineService toscaEngine,
-                                                DeploymentTracker deploymentTracker,
+  public OpenToscaControlServiceImplReplacement(DeploymentTracker deploymentTracker,
                                                 IPlanEngineService planEngine,
                                                 IPlanInvocationEngine planInvocationEngine,
                                                 CsarStorageService storage,
                                                 ICSARInstanceManagementService instanceManagement) {
-    this.toscaEngine = toscaEngine;
     this.deploymentTracker = deploymentTracker;
     this.planEngine = planEngine;
     this.planInvocationEngine = planInvocationEngine;
@@ -69,31 +64,13 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
   public boolean invokeToscaProcessing(CsarId csar) {
     LOGGER.debug("Start resolving ServiceTemplates of [{}]", csar.csarName());
     deploymentTracker.storeDeploymentState(csar, TOSCAPROCESSING_ACTIVE);
-    // FIXME: We cannot resolve definitions based on the bridge, because the definitions resolution
-    // accesses the ToscaMetaFile. That file is not in the imported CSAR representation.
-    // Additionally the CsarImporter largely takes care of definitions resolution for us!
-    // use new ToscaMetaFileReplacement(csar); to obtain a suitable toscametafile
-    // FIXME: resolving definitions doesn't actually resolve the definitions. Well it does, but it stores them into
-    // the ToscaReferenceMapper in addition to resolving them. As such this method should become unnecessar
-    if (true || toscaEngine.resolveDefinitions(csar.toOldCsarId())) {
-      LOGGER.info("Processing of Definitions completed successfully for [{}]", csar.csarName());
-      deploymentTracker.storeDeploymentState(csar, TOSCA_PROCESSED);
-      return true;
-    } else {
-      LOGGER.info("Processing of Definitions failed for [{}]", csar.csarName());
-      deploymentTracker.storeDeploymentState(csar, STORED);
-      return false;
-    }
+    LOGGER.info("Processing of Definitions completed successfully for [{}]", csar.csarName());
+    deploymentTracker.storeDeploymentState(csar, TOSCA_PROCESSED);
+    return true;
   }
 
   @Override
   public boolean generatePlans(CsarId csarId, ServiceTemplateId serviceTemplate) {
-    // assumption: current deployment state is IAS_DEPLOYED
-    if (planEngine == null) {
-      LOGGER.error("PlanEngine is not alive!");
-      return false;
-    }
-
     Csar csar = storage.findById(csarId);
     final TServiceTemplate entryServiceTemplate = csar.entryServiceTemplate();
     if (entryServiceTemplate == null) {
@@ -199,12 +176,10 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
   @Override
   public List<String> deleteCsar(CsarId csarId) {
     List<String> errors = new ArrayList<>();
-    // FIXME: undeployPlans
     final Csar csar = storage.findById(csarId);
 
-    if (!toscaEngine.clearCSARContent(csarId.toOldCsarId())) {
-      LOGGER.warn("Could not clear CSAR information about {} from ToscaEngine!", csarId.csarName());
-      errors.add("Could not delete TOSCA data.");
+    if (!undeployAllPlans(csar)) {
+      errors.add("Failed to undeploy all plans for csar " + csarId);
     }
     deploymentTracker.deleteDeploymentState(csarId);
     // FIXME removeEndpoints
@@ -214,6 +189,40 @@ public class OpenToscaControlServiceImplReplacement implements OpenToscaControlS
       errors.add(e.getMessage());
     }
     return errors;
+  }
+
+  /**
+   * Undeploys all plans associated with the given csar
+   *
+   * @return true, if undeploying all plans was successful, false otherwise
+   */
+  private boolean undeployAllPlans(Csar csar) {
+    return csar.serviceTemplates().stream().allMatch(st -> undeployAllPlans(csar.id(), st));
+  }
+
+  /**
+   * Undeploys all plans associated to the given serviceTemplate
+   *
+   * @return true, if undeploying all plans was successful, false otherwise
+   */
+  private boolean undeployAllPlans(CsarId csarId,TServiceTemplate serviceTemplate) {
+    TPlans plans = serviceTemplate.getPlans();
+    if (plans == null) {
+      LOGGER.info("No Plans to undeploy");
+      return true;
+    }
+    String namespace = plans.getTargetNamespace();
+    if (namespace == null) {
+      // Plans has no targetNamespace, fallback to ServiceTemplate namespace
+      namespace = serviceTemplate.getTargetNamespace();
+    }
+    List<TPlan> undeployed = new ArrayList<>();
+    for (final TPlan plan : plans.getPlan()) {
+      if (!planEngine.undeployPlan(plan, namespace, csarId)) {
+        undeployed.add(plan);
+      }
+    }
+    return undeployed.isEmpty();
   }
 
   @Override

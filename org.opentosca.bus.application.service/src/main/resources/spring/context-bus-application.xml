@@ -7,7 +7,11 @@
                            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
+
+  <context:annotation-config />
   <context:component-scan base-package="org.opentosca.bus.application.service.impl.processor" />
+
+  <bean class="org.opentosca.bus.application.service.impl.ContainerProxy" />
 
   <camel:camelContext>
     <camel:packageScan>

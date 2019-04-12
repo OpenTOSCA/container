@@ -11,23 +11,21 @@
   </description>
 
   <context:annotation-config />
+
   <context:component-scan base-package="org.opentosca.container.api.controller" />
   <context:component-scan base-package="org.opentosca.container.api.service" />
-  <context:component-scan base-package="org.opentosca.container.control.impl" />
-  <context:component-scan base-package="org.opentosca.container.engine.plan.impl" />
 
-  <context:component-scan base-package="org.opentosca.container.legacy.core.service" />
-  <context:component-scan base-package="org.opentosca.container.legacy.core.engine" />
-  <context:component-scan base-package="org.opentosca.container.legacy.core.plan" />
-
-  <context:component-scan base-package="org.opentosca.planbuilder.export" />
-  <context:component-scan base-package="org.opentosca.planbuilder.importer" />
-
+  <!-- configuration for external modules -->
   <context:component-scan base-package="org.opentosca.deployment.checks" />
 
+  <context:component-scan base-package="org.opentosca.container.engine.plan.impl" />
   <bean class="org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin" />
   <bean class="org.opentosca.container.engine.plan.plugin.camunda.CamundaPlanEnginePlugin" />
 
+  <!-- importing external module's own configuration -->
   <import resource="classpath:/spring/context-container-core.xml" />
   <import resource="classpath:/spring/context-bus-application.xml" />
+  <import resource="classpath:/spring/context-planbuilder.xml" />
+  <import resource="classpath:/spring/context-legacy.xml" />
+  <import resource="classpath:/spring/context-control.xml" />
 </beans>

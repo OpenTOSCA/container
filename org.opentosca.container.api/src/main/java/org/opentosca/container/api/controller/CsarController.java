@@ -297,20 +297,15 @@ public class CsarController {
 
     // FIXME maybe this only makes sense when we have generated plans :/
     this.controlService.declareStored(csarId);
-    boolean success = this.controlService.invokeToscaProcessing(csarId);
-    if (success) {
-      final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
-      for (final TServiceTemplate serviceTemplate : serviceTemplates) {
-        logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-        if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
-          logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-          success = false;
-        }
-      }
-    }
 
-    if (!success) {
-      return Response.serverError().build();
+    final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
+    for (final TServiceTemplate serviceTemplate : serviceTemplates) {
+      logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
+      if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
+        logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
+        // FIXME do a rollback!
+        return Response.serverError().build();
+      }
     }
 
     logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());

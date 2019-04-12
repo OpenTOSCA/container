@@ -2,11 +2,8 @@ package org.opentosca.container.legacy.core.plan;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientBuilder;
@@ -15,9 +12,16 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.client.Client;
 import javax.xml.namespace.QName;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.impl.plan.PlanLogHandler;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -28,6 +32,7 @@ import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.opentosca.container.core.service.IPlanLogHandler;
@@ -62,6 +67,7 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  */
 @Service
+@NonNullByDefault
 public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler {
 
   private static final ServiceTemplateInstanceRepository stiRepo = new ServiceTemplateInstanceRepository();
@@ -76,31 +82,33 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
   private final CorrelationHandler correlationHandler;
   private final ICSARInstanceManagementService csarInstanceManagement;
   // FIXME don't use osgi?!
+  @Nullable
   private final EventAdmin eventAdmin;
-  private final IToscaEngineService toscaEngineService;
   private final IXMLSerializerService xmlSerializerService;
+  private final CsarStorageService csarStorage;
 
   @Inject
   public PlanInvocationEngine(IToscaReferenceMapper toscaReferenceMapper,
                               CorrelationHandler correlationHandler,
                               ICSARInstanceManagementService csarInstanceManagement,
-                              EventAdmin eventAdmin,
-                              IToscaEngineService toscaEngineService, IXMLSerializerService xmlSerializerService) {
+//                              EventAdmin eventAdmin,
+                              IXMLSerializerService xmlSerializerService,
+                              CsarStorageService csarStorage) {
     this.toscaReferenceMapper = toscaReferenceMapper;
     this.correlationHandler = correlationHandler;
     this.csarInstanceManagement = csarInstanceManagement;
-    this.eventAdmin = eventAdmin;
-    this.toscaEngineService = toscaEngineService;
+    this.eventAdmin = null;
     this.xmlSerializerService = xmlSerializerService;
+    this.csarStorage = csarStorage;
   }
 
   @Override
   public String invokePlan(final CSARID csarID, final QName serviceTemplateId, long serviceTemplateInstanceID,
                            final TPlanDTO givenPlan) throws UnsupportedEncodingException {
 
+    final Csar csar = csarStorage.findById(new CsarId(csarID));
     // refill information that might not be sent
-    final TPlan storedPlan = toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
-
+    final TPlan storedPlan = csar.plans().stream().filter(tPlan -> tPlan.getId().equals(givenPlan.getId())).findFirst().orElse(null);
     if (null == storedPlan) {
       LOG.error("Plan " + givenPlan.getId() + " with name " + givenPlan.getName() + " is null!");
       return null;
@@ -121,9 +129,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
     // fill in the informations about this PublicPlan which is not provided
     // by the PublicPlan received by the REST API
-    final Map<QName, TPlan> publicPlanMap =
-      toscaReferenceMapper.getCSARIDToPlans(csarID)
-        .get(PlanTypes.isPlanTypeURI(givenPlan.getPlanType()));
+    final Map<QName, TPlan> publicPlanMap = toscaReferenceMapper.getCSARIDToPlans(csarID).get(PlanTypes.isPlanTypeURI(givenPlan.getPlanType()));
 
     if (null == publicPlanMap) {
       LOG.error("Wrong type! \"" + givenPlan.getPlanType() + "\"");
@@ -512,19 +518,13 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
                                            final QName planInputMessageID, final List<TParameterDTO> inputParameter,
                                            final String correlationID) throws UnsupportedEncodingException {
     final Map<String, String> map = new HashMap<>();
-    final List<Document> docs = new ArrayList<>();
 
-    final List<QName> serviceTemplates = toscaEngineService.getServiceTemplatesInCSAR(csarID);
-    for (final QName serviceTemplate : serviceTemplates) {
-      final List<String> nodeTemplates = toscaEngineService.getNodeTemplatesOfServiceTemplate(csarID, serviceTemplate);
-      for (final String nodeTemplate : nodeTemplates) {
-        final Document doc = toscaEngineService.getPropertiesOfTemplate(csarID, serviceTemplate, nodeTemplate);
-        if (null != doc) {
-          docs.add(doc);
-          LOG.trace("Found property document: {}", xmlSerializerService.getXmlSerializer().docToString(doc, false));
-        }
-      }
-    }
+    final Csar csar = csarStorage.findById(new CsarId(csarID));
+    final List<Document> docs = csar.serviceTemplates().stream()
+      .flatMap(st -> st.getTopologyTemplate().getNodeTemplates().stream())
+      .map(ToscaEngine::getNodeTemplateProperties)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
 
     LOG.trace("Processing a list of {} parameters", inputParameter.size());
     for (final TParameterDTO para : inputParameter) {

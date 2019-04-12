@@ -7,15 +7,10 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
   <description>
-    Configuration for Spring-Bean service discovery across container.core
+    Configuration for Spring-Bean service discovery and injection across container.control
   </description>
 
   <context:annotation-config />
-  <context:component-scan base-package="org.opentosca.container.core.impl.plan" />
-  <context:component-scan base-package="org.opentosca.container.core.impl.service" />
-  <context:component-scan base-package="org.opentosca.container.core.service.impl" />
-  <context:component-scan base-package="org.opentosca.container.core.engine.impl" />
 
-  <bean class="org.opentosca.container.core.engine.xml.impl.XMLSerializerServiceImpl" />
-
+  <bean class="org.opentosca.container.control.impl.OpenToscaControlServiceImplReplacement" />
 </beans>
