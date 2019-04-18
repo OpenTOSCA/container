@@ -11,35 +11,27 @@ package org.opentosca.planbuilder.plugins.context;
  */
 public class Variable {
 
-    private final String templateId;
+
     private final String variableName;
 
     /**
      * Contructor
      *
-     * @param templateId a TemplateId
      * @param variableName a property variable name
      */
-    public Variable(final String templateId, final String variableName) {
-        this.templateId = templateId;
+    public Variable(final String variableName) {
+     
         this.variableName = variableName;
     }
 
     /**
-     * Returns the property variable name of this wrapper
+     * Returns the variable name of this wrapper
      *
      * @return a String containing the property variable name
      */
-    public String getName() {
+    public String getVariableName() {
         return this.variableName;
     }
 
-    /**
-     * Returns the template id of this wrapper
-     *
-     * @return a String containing the TemplateId
-     */
-    public String getTemplateId() {
-        return this.templateId;
-    }
+    
 }

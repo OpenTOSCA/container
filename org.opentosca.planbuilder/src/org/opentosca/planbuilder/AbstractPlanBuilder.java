@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
@@ -22,34 +23,7 @@ public abstract class AbstractPlanBuilder {
 
 	abstract public PlanType createdPlanType();
 
-	protected AbstractActivity findRelationshipTemplateActivity(final Collection<AbstractActivity> activities,
-			final AbstractRelationshipTemplate relationshipTemplate, final ActivityType type) {
-		for (final AbstractActivity activity : activities) {
-			if (activity.getType().equals(type)) {
-				if (activity instanceof ARelationshipTemplateActivity) {
-					if (((ARelationshipTemplateActivity) activity).getRelationshipTemplate()
-							.equals(relationshipTemplate)) {
-						return activity;
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	protected AbstractActivity findNodeTemplateActivity(final Collection<AbstractActivity> activities,
-			final AbstractNodeTemplate nodeTemplate, final ActivityType type) {
-		for (final AbstractActivity activity : activities) {
-			if (activity.getType().equals(type)) {
-				if (activity instanceof ANodeTemplateActivity) {
-					if (((ANodeTemplateActivity) activity).getNodeTemplate().equals(nodeTemplate)) {
-						return activity;
-					}
-				}
-			}
-		}
-		return null;
-	}
+	
 
 	/**
 	 * Returns the number of the plugins registered with this planbuilder

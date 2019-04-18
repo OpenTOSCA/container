@@ -63,9 +63,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
 
             if (paths.isEmpty()) {
                 for (final AbstractRelationshipTemplate relation : stratNodeTemplate.getIngoingRelations()) {
-                    abstractScaleOutPlan.getLinks().add(new Link(activity,
-                        findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()), relation,
-                                                         ActivityType.PROVISIONING)));
+                    abstractScaleOutPlan.getLinks().add(new Link(activity, abstractScaleOutPlan.findRelationshipTemplateActivity(relation, ActivityType.PROVISIONING)));
                 }
             }
 
@@ -96,19 +94,15 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
                     if (relationshipTemplate.getSource().equals(stratNodeTemplate)
                         | relationshipTemplate.getTarget().equals(stratNodeTemplate)) {
 
-                        AbstractActivity provRelationActivity =
-                            findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
-                                                             relationshipTemplate, ActivityType.PROVISIONING);
+                        AbstractActivity provRelationActivity = abstractScaleOutPlan.findRelationshipTemplateActivity(relationshipTemplate, ActivityType.PROVISIONING);
+                            
                         if (provRelationActivity == null) {
                             provRelationActivity =
                                 new ARelationshipTemplateActivity(relationshipTemplate + "provisioning_acvtivity",
                                     ActivityType.PROVISIONING, relationshipTemplate);
                         }
 
-                        final AbstractActivity recursiveRelationActivity =
-                            findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
-                                                             path.get(path.size() - 1),
-                                                             ActivityType.RECURSIVESELECTION);
+                        final AbstractActivity recursiveRelationActivity =abstractScaleOutPlan.findRelationshipTemplateActivity(relationshipTemplate, ActivityType.RECURSIVESELECTION);                            
 
                         abstractScaleOutPlan.getLinks().add(new Link(recursiveRelationActivity, provRelationActivity));
                     }

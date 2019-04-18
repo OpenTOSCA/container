@@ -13,6 +13,7 @@ import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELDefrostProce
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELScaleOutProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTerminationProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTransformationProcessBuilder;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -31,58 +32,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  */
 public abstract class AbstractImporter {
 
-	/**
-	 * Creates a BuildPlan for the given ServiceTemplate
-	 *
-	 * @param defs            an AbstractDefinitions
-	 * @param csarName        the File name of the CSAR the Definitions document is
-	 *                        defined in
-	 * @param serviceTemplate a QName representing a ServiceTemplate inside the
-	 *                        given Definitions Document
-	 * @return a BuildPlan if generating a BuildPlan was successful, else null
-	 */
-	public AbstractPlan buildPlan(final AbstractDefinitions defs, final String csarName, final QName serviceTemplate) {
-		final AbstractSimplePlanBuilder planBuilder = new BPELBuildProcessBuilder();
-		return planBuilder.buildPlan(csarName, defs, serviceTemplate);
-	}
-
 	protected List<AbstractPlan> buildTransformationPlans(final String sourceCsarName, final AbstractDefinitions sourceDefinitions,final String targetCsarName, final AbstractDefinitions targetDefinitions) {
 		final List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
 		
-		final AbstractTransformingPlanbuilder transformPlanBuilder = new AbstractTransformingPlanbuilder() {
-			
-			@Override
-			public List<AbstractPlan> buildPlans(String sourceCsarName, AbstractDefinitions sourceDefinitions,
-					String targetCsarName, AbstractDefinitions targetDefinitions) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public AbstractPlan buildPlan(String sourceCsarName, AbstractDefinitions sourceDefinitions,
-					QName sourceServiceTemplateId, String targetCsarName, AbstractDefinitions targetDefinitions,
-					QName targetServiceTemplateId) {
-				
-				AbstractServiceTemplate sourceServTemp = null;				
-				AbstractServiceTemplate targetServTemp = null;
-				
-				for(AbstractServiceTemplate servTemp : sourceDefinitions.getServiceTemplates()) {
-					if(servTemp.getQName().equals(sourceServiceTemplateId)) {
-						sourceServTemp = servTemp;
-						break;
-					}
-				}
-				
-				for(AbstractServiceTemplate servTemp : targetDefinitions.getServiceTemplates()) {
-					if(servTemp.getQName().equals(targetServiceTemplateId)) {
-						targetServTemp = servTemp;
-						break;
-					}
-				}
-						
-				return this.generateTFOG(sourceCsarName, sourceDefinitions, sourceServTemp, targetCsarName, targetDefinitions, targetServTemp);
-			}
-		};
+		
+		final BPELTransformationProcessBuilder  transformPlanBuilder = new BPELTransformationProcessBuilder();
 		
 		plans.add(transformPlanBuilder.buildPlan(sourceCsarName, sourceDefinitions, sourceDefinitions.getServiceTemplates().get(0).getQName(), targetCsarName, targetDefinitions, targetDefinitions.getServiceTemplates().get(0).getQName()));
 		

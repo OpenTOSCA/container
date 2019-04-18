@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel.helpers;
+package org.opentosca.planbuilder.core.tosca.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -176,10 +176,13 @@ public class SituationTriggerRegistration {
 
     private final BPELProcessFragments fragments;
     private final BPELPlanHandler handler;
+	private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
+
 
     public SituationTriggerRegistration() throws ParserConfigurationException {
         this.fragments = new BPELProcessFragments();
         this.handler = new BPELPlanHandler();
+        this.serviceInstanceHandler = new SimplePlanBuilderServiceInstanceHandler();
     }
 
     public boolean handle(final AbstractServiceTemplate serviceTemplate, final BPELPlan plan) {
@@ -221,7 +224,7 @@ public class SituationTriggerRegistration {
                 if (trigger.serviceInstanceId.equals("Build")) {
                     // fetch serviceInstance from buildPlan
                     final String serviceInstanceIdVar =
-                        ServiceInstanceVariablesHandler.findServiceInstanceIdVarName(this.handler, plan);
+                        this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
                     appendAssignServiceInstanceIdFromServiceInstanceIdVar(plan, serviceInstanceIdVar, varName,
                                                                           plan.getBpelMainFlowElement());
                 }

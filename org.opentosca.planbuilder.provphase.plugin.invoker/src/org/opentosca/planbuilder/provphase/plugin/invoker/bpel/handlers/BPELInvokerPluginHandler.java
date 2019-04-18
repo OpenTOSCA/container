@@ -74,7 +74,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 
         // create variables
         logMessageTempStringVarName =
-            context.createGlobalStringVariable(logMessageTempStringVarName, logMessageContent).getName();
+            context.createGlobalStringVariable(logMessageTempStringVarName, logMessageContent).getVariableName();
 
         final String logMessageReqVarName = createLogRequestMsgVar(context);
         final String planInstanceURLVar = findPlanInstanceURLVar(context);
@@ -852,7 +852,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         try {
             Node assignNode = loadAssignXpathQueryToStringVarFragmentAsNode("assign" + templateContext.getIdForNames(),
                                                                             containerAPIAbsoluteURIXPathQuery,
-                                                                            containerAPIAbsoluteURIVar.getName());
+                                                                            containerAPIAbsoluteURIVar.getVariableName());
             assignNode = templateContext.importNode(assignNode);
 
             switch (appendToPrePhase) {
@@ -887,7 +887,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             templateContext.createGlobalStringVariable(mkdirScriptVarName, ubuntuFolderPathScript);
 
         // quick and dirty hack to check if we're using old or new properties
-        final String cleanName = serverIp.getName().substring(serverIp.getName().lastIndexOf("_") + 1);
+        final String cleanName = serverIp.getVariableName().substring(serverIp.getVariableName().lastIndexOf("_") + 1);
 
         final List<String> runScriptInputParams = getRunScriptParams(infraTemplate);
 
@@ -948,7 +948,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
          */
         final Map<String, Variable> transferFileRequestInputParams = new HashMap<>();
 
-        final String cleanName2 = serverIp.getName().substring(serverIp.getName().lastIndexOf("_") + 1);
+        final String cleanName2 = serverIp.getVariableName().substring(serverIp.getVariableName().lastIndexOf("_") + 1);
 
         final List<String> transferFileInputParams = getTransferFileParams(infraTemplate);
 

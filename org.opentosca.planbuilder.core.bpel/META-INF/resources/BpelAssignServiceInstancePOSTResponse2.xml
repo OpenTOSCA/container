@@ -29,7 +29,7 @@
 	</bpel:copy>
 	<bpel:copy>
 		<bpel:from variable="$serviceTemplateURLVarName">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string(concat($$serviceTemplateURLVarName, '/buildplans/', '$planName', '/instances/', $$ServiceInstanceCorrelationID))]]></bpel:query>
+			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string(concat($$ServiceInstanceURLVarName, '/managementplans/', '$planName', '/instances/', $$ServiceInstanceCorrelationID))]]></bpel:query>
 		</bpel:from>
 		<bpel:to variable="$planInstanceURL"></bpel:to>
 	</bpel:copy>

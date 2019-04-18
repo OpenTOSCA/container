@@ -8,6 +8,7 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public abstract class AbstractSimplePlanBuilder extends AbstractPlanBuilder {
 	 *         ServiceTemplate denoted by the given QName isn't found inside the
 	 *         Definitions document null is returned instead
 	 */
-	abstract public AbstractPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId);
+	abstract public AbstractPlan buildPlan(String csarName, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplateId);
 
 	/**
 	 * <p>

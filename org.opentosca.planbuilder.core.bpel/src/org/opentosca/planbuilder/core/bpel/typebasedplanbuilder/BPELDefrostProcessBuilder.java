@@ -19,13 +19,14 @@ import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBui
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
-import org.opentosca.planbuilder.core.bpel.helpers.EmptyPropertyToInputInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
+import org.opentosca.planbuilder.core.tosca.handlers.EmptyPropertyToInputHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler.Property2VariableMapping;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
@@ -43,6 +44,7 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,9 +59,9 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 	private BPELPlanHandler planHandler;
 
 	// class for initializing properties inside the build plan
-	private final PropertyVariableInitializer propertyInitializer;
+	private final PropertyVariableHandler propertyInitializer;
 	// adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-	private ServiceInstanceVariablesHandler serviceInstanceInitializer;
+	private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
 	// adds nodeInstanceIDs to each templatePlan
 	private NodeRelationInstanceVariablesHandler instanceVarsHandler;
 	// class for finalizing build plans (e.g when some template didn't receive
@@ -67,7 +69,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 	private final BPELFinalizer finalizer;
 
 	private QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes", "StatefulComponent");
-	private final EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
+	private final EmptyPropertyToInputHandler emptyPropInit = new EmptyPropertyToInputHandler();
 
 	// accepted operations for provisioning
 	private final List<String> provisioningOpNames = new ArrayList<>();
@@ -75,16 +77,19 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
 	private BPELProcessFragments bpelFragments;
 
+	private CorrelationIDInitializer correlationHandler;
+
 	public BPELDefrostProcessBuilder() {
 		try {
 			this.planHandler = new BPELPlanHandler();
-			this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
+			this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
 			this.instanceVarsHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
 			this.bpelFragments = new BPELProcessFragments();
+			this.correlationHandler = new CorrelationIDInitializer();
 		} catch (final ParserConfigurationException e) {
 			BPELDefrostProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
-		this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
+		this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
 		this.finalizer = new BPELFinalizer();
 
 		this.provisioningOpNames.add("install");
@@ -96,10 +101,18 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
 	@Override
 	public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
-			final QName serviceTemplateId) {
+			final AbstractServiceTemplate serviceTemplate) {
 		BPELDefrostProcessBuilder.LOG.info("Making Concrete Plans");
 
-		for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+		
+			
+			if(!this.isDefrostable(serviceTemplate)) {
+				BPELDefrostProcessBuilder.LOG.warn(
+						"Couldn't create DeFreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
+						serviceTemplate.getQName().toString(), definitions.getId(), csarName);
+				return null;
+			}
+			
 			String namespace;
 			if (serviceTemplate.getTargetNamespace() != null) {
 				namespace = serviceTemplate.getTargetNamespace();
@@ -122,42 +135,53 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
 			this.planHandler.initializeBPELSkeleton(newDefreezePlan, csarName);
 
-			this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newDefreezePlan);
-			this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newDefreezePlan);
+			this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newDefreezePlan,serviceTemplate);
+			this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newDefreezePlan,serviceTemplate);
 
-			final PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newDefreezePlan);
+			final Property2VariableMapping propMap = this.propertyInitializer.initializePropertiesAsVariables(newDefreezePlan, serviceTemplate);
 
 			// instanceDataAPI handling is done solely trough this extension
 			this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
 					newDefreezePlan);
 
 			// initialize instanceData handling
-			this.serviceInstanceInitializer.initializeInstanceDataFromInput(newDefreezePlan);
+			this.serviceInstanceInitializer.appendCreateServiceInstanceVarsAndAnitializeWithInstanceDataAPI(newDefreezePlan);
 
-			this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newDefreezePlan, propMap);
+			String serviceInstanceUrl = this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(newDefreezePlan);
+			String serviceInstanceId = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newDefreezePlan);
+			String serviceTemplateUrl = this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newDefreezePlan);
+			
+			this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl,serviceTemplate);
 
-			final List<BPELScope> changedActivities = runPlugins(newDefreezePlan, propMap);
+			final List<BPELScope> changedActivities = runPlugins(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl);
 
-			this.serviceInstanceInitializer.addCorrellationID(newDefreezePlan);
+			this.correlationHandler.addCorrellationID(newDefreezePlan);
+
+			String serviceInstanceURLVarName = this.serviceInstanceInitializer
+					.findServiceInstanceUrlVariableName(newDefreezePlan);
 
 			this.serviceInstanceInitializer.appendSetServiceInstanceState(newDefreezePlan,
-					newDefreezePlan.getBpelMainFlowElement(), "CREATING");
+					newDefreezePlan.getBpelMainFlowElement(), "CREATING", serviceInstanceURLVarName);
 			this.serviceInstanceInitializer.appendSetServiceInstanceState(newDefreezePlan,
-					newDefreezePlan.getBpelMainSequenceOutputAssignElement(), "CREATED");
+					newDefreezePlan.getBpelMainSequenceOutputAssignElement(), "CREATED", serviceInstanceURLVarName);
 			this.finalizer.finalize(newDefreezePlan);
 
 			BPELDefrostProcessBuilder.LOG.debug("Created Plan:");
 			BPELDefrostProcessBuilder.LOG.debug(ModelUtils.getStringFromDoc(newDefreezePlan.getBpelDocument()));
 
 			return newDefreezePlan;
-		}
-
-		BPELDefrostProcessBuilder.LOG.warn(
-				"Couldn't create DeFreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-				serviceTemplateId.toString(), definitions.getId(), csarName);
-		return null;
 	}
 
+	private boolean isDefrostable(AbstractServiceTemplate serviceTemplate) {
+		
+		for(AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+			if(this.isDefrostable(nodeTemplate)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private boolean isDefrostable(AbstractNodeTemplate nodeTemplate) {
 		return Objects.nonNull(this.getLoadStateOperation(nodeTemplate))
 				&& this.hasFreezeableComponentPolicy(nodeTemplate);
@@ -207,14 +231,14 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 	 * @param propMap         a PropertyMapping from NodeTemplate to Properties to
 	 *                        BPELVariables
 	 */
-	private List<BPELScope> runPlugins(final BPELPlan plan, final PropertyMap propMap) {
+	private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl) {
 
 		final List<BPELScope> changedActivities = new ArrayList<>();
 
 		String statefulServiceTemplateUrlVarName = this.findStatefulServiceTemplateUrlVar(plan);
-
+		
 		for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
-			final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
+			final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl);
 
 			if (templatePlan.getNodeTemplate() != null) {
 				// create a context for the node
@@ -243,19 +267,19 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken!
-				
+
 				for (final IPlanBuilderPrePhasePlugin prePlugin : this.pluginRegistry.getPrePlugins()) {
-					if (prePlugin.canHandleCreate(templatePlan.getNodeTemplate())) {						
+					if (prePlugin.canHandleCreate(templatePlan.getNodeTemplate())) {
 						prePlugin.handleCreate(context, templatePlan.getNodeTemplate());
 					}
 				}
-				
+
 				final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
 				if (plugin != null) {
 					BPELDefrostProcessBuilder.LOG.debug("Handling NodeTemplate {} with type plugin {}",
 							nodeTemplate.getId(), plugin.getID());
-					plugin.handleCreate(context, nodeTemplate);					
-				} else {					
+					plugin.handleCreate(context, nodeTemplate);
+				} else {
 					BPELDefrostProcessBuilder.LOG.info("Can't handle NodeTemplate {} with type plugin",
 							nodeTemplate.getId());
 				}
@@ -296,12 +320,8 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 		return changedActivities;
 	}
 
-	private static boolean containsString(String s, String subString) {
-		return s.indexOf(subString) > -1 ? true : false;
-	}
-
 	private boolean isRunning(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-		final Variable state = context.getPropertyVariable(nodeTemplate, "State");
+		final PropertyVariable state = context.getPropertyVariable(nodeTemplate, "State");
 		if (state != null) {
 			if (BPELPlanContext.getVariableContent(state, context).equals("Running")) {
 				return true;
@@ -315,17 +335,15 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 		BPELDefrostProcessBuilder.LOG.info("Builing the Plans");
 		final List<AbstractPlan> plans = new ArrayList<>();
 		for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-			QName serviceTemplateId;
-			// targetNamespace attribute doesn't has to be set, so we check it
-			if (serviceTemplate.getTargetNamespace() != null) {
-				serviceTemplateId = new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId());
-			} else {
-				serviceTemplateId = new QName(definitions.getTargetNamespace(), serviceTemplate.getId());
+			
+			if(!this.isDefrostable(serviceTemplate)) {
+				continue;
 			}
+			
 
 			BPELDefrostProcessBuilder.LOG.debug("ServiceTemplate {} has no DefreezePlan, generating a new plan",
-					serviceTemplateId.toString());
-			final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplateId);
+					serviceTemplate.getQName().toString());
+			final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplate);
 
 			if (newBuildPlan != null) {
 				BPELDefrostProcessBuilder.LOG

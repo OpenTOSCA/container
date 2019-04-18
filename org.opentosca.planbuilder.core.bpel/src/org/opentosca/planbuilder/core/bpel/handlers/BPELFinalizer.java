@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel.helpers;
+package org.opentosca.planbuilder.core.bpel.handlers;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -13,8 +13,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.slf4j.Logger;

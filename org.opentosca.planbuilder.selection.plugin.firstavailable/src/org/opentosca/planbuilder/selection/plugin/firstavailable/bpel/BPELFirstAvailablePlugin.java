@@ -9,8 +9,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.selection.plugin.firstavailable.core.FirstAvailablePlugin;
@@ -56,10 +56,7 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
         // fetch instance variables
         final String nodeTemplateInstanceURLVar = findInstanceURLVar(context, nodeTemplate.getId(), true);
         final String nodeTemplateInstanceIDVar = findInstanceIDVar(context, nodeTemplate.getId(), true);
-        final String serviceTemplateUrlVar =
-            ServiceInstanceVariablesHandler.getServiceTemplateURLVariableName(context.getMainVariableNames());
-
-
+        final String serviceTemplateUrlVar = context.getServiceTemplateURLVar();
 
         if (nodeTemplateInstanceURLVar == null | serviceTemplateUrlVar == null | nodeTemplateInstanceIDVar == null) {
             return false;
@@ -113,8 +110,8 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
         try {
             final NodeRelationInstanceVariablesHandler nodeInit =
                 new NodeRelationInstanceVariablesHandler(new BPELPlanHandler());
-
-            nodeInit.addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate);
+            
+            nodeInit.addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate,context.getServiceTemplate());
         }
         catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.opentosca.planbuilder.core.bpel.helpers.TOSCAManagementInfrastructureNodeTemplate;
+import org.opentosca.planbuilder.core.tosca.handlers.TOSCAManagementInfrastructureNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;

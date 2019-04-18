@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
@@ -18,7 +20,7 @@ public abstract class AbstractPlan {
 
 	// general categories
 	public enum PlanType {
-		BUILD, MANAGE, TERMINATE;
+		BUILD, MANAGE, TERMINATE, TRANSFORMATION;
 
 		public String getString() {
 			switch (this) {
@@ -26,6 +28,8 @@ public abstract class AbstractPlan {
 				return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan";
 			case TERMINATE:
 				return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan";
+			case TRANSFORMATION:
+				return "http://opentosca.org/plantypes/TransformationPlan";
 			default:
 				// every other plan is a management plan
 			case MANAGE:
@@ -162,6 +166,53 @@ public abstract class AbstractPlan {
 		}
 
 		return sources;
+	}
+
+	public AbstractActivity findRelationshipTemplateActivity(final AbstractRelationshipTemplate relationshipTemplate, final ActivityType type) {
+		for (final AbstractActivity activity : this.findRelationshipTemplateActivities(relationshipTemplate)) {
+			if (activity.getType().equals(type)) {
+				return activity;
+			}
+		}
+		return null;
+	}
+
+	public Collection<AbstractActivity> findNodeTemplateActivities(AbstractNodeTemplate nodeTemplate) {
+		Collection<AbstractActivity> foundActivities = new HashSet<AbstractActivity>();
+		for (final AbstractActivity activity : this.activites) {
+
+			if (activity instanceof ANodeTemplateActivity) {
+				if (((ANodeTemplateActivity) activity).getNodeTemplate().equals(nodeTemplate)) {
+					foundActivities.add(activity);
+				}
+			}
+
+		}
+		return foundActivities;
+	}
+
+	public Collection<AbstractActivity> findRelationshipTemplateActivities(
+			AbstractRelationshipTemplate relationshipTemplate) {
+		Collection<AbstractActivity> foundActivities = new HashSet<AbstractActivity>();
+		for (final AbstractActivity activity : this.activites) {
+
+			if (activity instanceof ARelationshipTemplateActivity) {
+				if (((ARelationshipTemplateActivity) activity).getRelationshipTemplate().equals(relationshipTemplate)) {
+					foundActivities.add(activity);
+				}
+			}
+
+		}
+		return foundActivities;
+	}
+
+	public AbstractActivity findNodeTemplateActivity(final AbstractNodeTemplate nodeTemplate, final ActivityType type) {
+		for (final AbstractActivity activity : this.findNodeTemplateActivities(nodeTemplate)) {
+			if (activity.getType().equals(type)) {
+				return activity;
+			}
+		}
+		return null;
 	}
 
 	@Override

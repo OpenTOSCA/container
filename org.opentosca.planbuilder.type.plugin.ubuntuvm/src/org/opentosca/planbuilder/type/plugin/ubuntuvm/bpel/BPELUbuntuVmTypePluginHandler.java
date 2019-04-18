@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.LoggerFactory;
@@ -270,7 +272,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         }
 
         // find sshUser and sshKey
-        Variable sshUserVariable = context.getPropertyVariable("SSHUser", true);
+        PropertyVariable sshUserVariable = context.getPropertyVariable("SSHUser", true);
         if (sshUserVariable == null) {
             sshUserVariable = context.getPropertyVariable("SSHUser");
         }
@@ -286,7 +288,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             }
         }
 
-        Variable sshKeyVariable = context.getPropertyVariable("SSHPrivateKey", true);
+        PropertyVariable sshKeyVariable = context.getPropertyVariable("SSHPrivateKey", true);
         if (sshKeyVariable == null) {
             sshKeyVariable = context.getPropertyVariable("SSHPrivateKey");
         }
@@ -329,7 +331,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         for (final String externalParameter : BPELUbuntuVmTypePluginHandler.createEC2InstanceExternalInputParams) {
             // find the variable for the inputparam
 
-            Variable variable = context.getPropertyVariable(externalParameter, true);
+        	PropertyVariable variable = context.getPropertyVariable(externalParameter, true);
             if (variable == null) {
                 variable = context.getPropertyVariable(externalParameter);
             }
@@ -482,7 +484,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         }
 
         // find sshUser and sshKey
-        Variable sshUserVariable = null;
+        PropertyVariable sshUserVariable = null;
         for (final String userName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate, userName);
             if (sshUserVariable == null) {
@@ -509,7 +511,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             }
         }
 
-        Variable sshKeyVariable = null;
+        PropertyVariable sshKeyVariable = null;
 
         for (final String passwordName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate, passwordName);
@@ -556,7 +558,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         for (final String externalParameter : BPELUbuntuVmTypePluginHandler.createVMInstanceExternalInputParams) {
             // find the variable for the inputparam
 
-            Variable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
+        	PropertyVariable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
             if (variable == null) {
                 variable = context.getPropertyVariable(externalParameter, true);
             }
@@ -690,7 +692,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // sudo iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
         for (final Variable var : portVariables) {
-            xpathQuery += "' sudo iptables -A INPUT -p tcp -m tcp --dport ',$" + var.getName() + ",' -j ACCEPT &',";
+            xpathQuery += "' sudo iptables -A INPUT -p tcp -m tcp --dport ',$" + var.getVariableName() + ",' -j ACCEPT &',";
         }
 
         xpathQuery += "' sudo iptables -A INPUT -j DROP')";
@@ -700,7 +702,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         try {
             Node assignIpTables =
                 new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("assignIpTablesScript"
-                    + System.currentTimeMillis(), xpathQuery, ipTablesScriptVariable.getName());
+                    + System.currentTimeMillis(), xpathQuery, ipTablesScriptVariable.getVariableName());
             assignIpTables = context.importNode(assignIpTables);
             context.getProvisioningPhaseElement().appendChild(assignIpTables);
         }
@@ -753,11 +755,11 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
     private List<Variable> fetchPortPropertyVariable(final BPELPlanContext context,
                                                      final AbstractNodeTemplate nodeTemplate) {
-        final List<Variable> variables = context.getPropertyVariables(nodeTemplate);
+        final Collection<PropertyVariable> nodePropertyVariables = context.getPropertyVariables(nodeTemplate);
         final List<Variable> portVariables = new ArrayList<>();
 
-        for (final Variable variable : variables) {
-            if (variable.getName().contains("Port")) {
+        for (final Variable variable : nodePropertyVariables) {
+            if (variable.getVariableName().contains("Port")) {
                 portVariables.add(variable);
             }
         }
@@ -792,7 +794,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         }
 
         // lookup DockerEngineURL in the docker engine node
-        final Variable dockerEngineURLVariable =
+        final PropertyVariable dockerEngineURLVariable =
             context.getPropertyVariable(dockerEngineNodeTemplate, "DockerEngineURL");
         if (dockerEngineURLVariable == null) {
             BPELUbuntuVmTypePluginHandler.LOG.warn("Docker Engine Node doesn't have DockerEngineURL property");
@@ -809,7 +811,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         }
 
         // lookup DockerEngineCertificate in the docker engine node
-        final Variable dockerEngineCertificateVariable =
+        final PropertyVariable dockerEngineCertificateVariable =
             context.getPropertyVariable(dockerEngineNodeTemplate, "DockerEngineCertificate");
         if (dockerEngineCertificateVariable == null) {
             BPELUbuntuVmTypePluginHandler.LOG.warn("Docker Engine Node doesn't have DockerEngineCertificate property");
@@ -862,7 +864,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         }
 
         // find sshUser and sshKey
-        Variable sshUserVariable = null;
+        PropertyVariable sshUserVariable = null;
         for (final String userName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate, userName);
             if (sshUserVariable == null) {
@@ -884,7 +886,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             }
         }
 
-        Variable sshKeyVariable = null;
+        PropertyVariable sshKeyVariable = null;
         for (final String passwordName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate, passwordName);
             if (sshKeyVariable == null) {
@@ -1012,7 +1014,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         }
 
         // find sshUser and sshKey
-        Variable sshUserVariable = null;
+        PropertyVariable sshUserVariable = null;
         for (final String userName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate, userName);
             if (sshUserVariable == null) {
@@ -1039,7 +1041,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             }
         }
 
-        Variable sshKeyVariable = null;
+        PropertyVariable sshKeyVariable = null;
 
         for (final String passwordName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate, passwordName);
@@ -1086,7 +1088,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         for (final String externalParameter : BPELUbuntuVmTypePluginHandler.localCreateVMInstanceExternalInputParams) {
             // find the variable for the inputparam
 
-            Variable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
+        	PropertyVariable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
             if (variable == null) {
                 variable = context.getPropertyVariable(externalParameter, true);
             }
@@ -1185,7 +1187,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
     }
 
     private Variable getUbtuntuAMIId(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-        Variable vmImageId = context.getPropertyVariable("VMImageID", true);
+    	PropertyVariable vmImageId = context.getPropertyVariable("VMImageID", true);
 
         // here either the ubuntu connected to the provider this handler is
         // working on hasn't a version in the ID (ubuntu version must be written

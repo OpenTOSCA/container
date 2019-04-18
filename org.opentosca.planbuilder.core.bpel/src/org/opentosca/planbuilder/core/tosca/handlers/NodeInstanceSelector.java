@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel.helpers;
+package org.opentosca.planbuilder.core.tosca.handlers;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,11 +12,13 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler.Property2VariableMapping;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -33,13 +35,13 @@ public class NodeInstanceSelector {
 
     private BPELProcessFragments bpelFragments;
     private BPELPlanHandler bpelProcessHandler;
-    private ServiceInstanceVariablesHandler serviceInstanceInitializer;
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
 
     public NodeInstanceSelector() {
         try {
             this.bpelFragments = new BPELProcessFragments();
             this.bpelProcessHandler = new BPELPlanHandler();
-            this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
+            this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
         }
         catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
@@ -63,7 +65,7 @@ public class NodeInstanceSelector {
         this.bpelProcessHandler.addIntegerVariable(relationInstancesCountVarName, plan);
 
         // fetch serviceInstance VarName
-        final String serviceInstanceVarName = this.serviceInstanceInitializer.getServiceInstanceVariableName(plan);
+        final String serviceInstanceVarName = this.serviceInstanceInitializer.getServiceTemplateURLVariableName(plan);
 
         if (serviceInstanceVarName == null) {
             return;
@@ -167,7 +169,7 @@ public class NodeInstanceSelector {
      * @param plan the plan to add the bpel code to
      */
     public void addNodeInstanceUpdate(final Set<AbstractNodeTemplate> nodes, final BPELPlan plan,
-                                      final PropertyMap propMap) {
+                                      final Property2VariableMapping propMap, AbstractServiceTemplate serviceTemplate) {
         final String instanceDataAPIResponseVarName = createRESTResponseVar(plan);
 
         for (final AbstractNodeTemplate nodeTemplate : nodes) {
@@ -175,7 +177,7 @@ public class NodeInstanceSelector {
             String nodeInstanceIDVarName = null;
             try {
                 nodeInstanceIDVarName = new NodeRelationInstanceVariablesHandler(
-                    this.bpelProcessHandler).findInstanceIdVarName(plan, nodeTemplate.getId(), true);
+                    this.bpelProcessHandler).findInstanceUrlVarName(plan, serviceTemplate, nodeTemplate.getId(), true);
             }
             catch (final ParserConfigurationException e) {
                 // TODO Auto-generated catch block
@@ -187,7 +189,7 @@ public class NodeInstanceSelector {
             }
 
             this.addNodeInstanceUpdate(nodeTemplate, plan, propMap, nodeInstanceIDVarName,
-                                       instanceDataAPIResponseVarName);
+                                       instanceDataAPIResponseVarName, serviceTemplate);
         }
     }
 
@@ -204,8 +206,8 @@ public class NodeInstanceSelector {
     }
 
     public void addNodeInstanceUpdate(final AbstractNodeTemplate nodeTemplate, final BPELPlan plan,
-                                      final PropertyMap propMap, final String nodeInstanceIDVarName,
-                                      final String instanceDataAPIResponseVarName) {
+                                      final Property2VariableMapping propMap, final String nodeInstanceIDVarName,
+                                      final String instanceDataAPIResponseVarName, AbstractServiceTemplate serviceTemplate) {
         // check whether the nodeTemplate has properties, if not, skip the
         // update
         if (nodeTemplate.getProperties() == null) {
@@ -236,11 +238,13 @@ public class NodeInstanceSelector {
             if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
                 final Element childElement = (Element) propChildNodes.item(index);
                 // find bpelVariable
-                final String bpelVarName =
-                    propMap.getPropertyMappingMap(nodeTemplate.getId()).get(childElement.getLocalName());
-                if (bpelVarName != null) {
-                    element2BpelVarNameMap.put(childElement, bpelVarName);
+                
+                for(PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
+                	if(var.getPropertyName().equals(childElement.getLocalName())) {
+                		element2BpelVarNameMap.put(childElement, var.getVariableName());
+                	}
                 }
+                               
             }
         }
 

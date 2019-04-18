@@ -53,7 +53,7 @@ public class ModelUtils {
     private final static Logger LOG = LoggerFactory.getLogger(ModelUtils.class);
 
     public static String makeValidNCName(final String string) {    	
-        return string.replaceAll("\\.", "_").replaceAll(" ", "_");
+        return string.replaceAll("\\.", "_").replaceAll(" ", "_").replace("{", "_").replace("}", "_").replace("/", "_").replace(":", "_");
     }
 
     /**

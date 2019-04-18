@@ -20,7 +20,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -32,6 +32,8 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
+import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
@@ -61,8 +63,6 @@ public class BPELPlanHandler {
     private final DocumentBuilderFactory documentBuilderFactory;
     private final DocumentBuilder documentBuilder;
 
-    private final NodeRelationInstanceVariablesHandler instanceInit;
-
     private final ObjectFactory ddFactory;
 
     private final BPELScopeHandler bpelScopeHandler;
@@ -79,7 +79,6 @@ public class BPELPlanHandler {
         this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
         this.bpelScopeHandler = new BPELScopeHandler();
         this.ddFactory = new ObjectFactory();
-        this.instanceInit = new NodeRelationInstanceVariablesHandler(this);
     }
 
     /**
@@ -114,11 +113,15 @@ public class BPELPlanHandler {
             addedNamespace = addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
         }
 
-        final String varName = varNamePrefix + System.currentTimeMillis();
+        String varName = varNamePrefix + System.currentTimeMillis();
 
         final QName stringXsdDeclQName = new QName(xsdNamespace, "string", xsdPrefix);
 
-        addVariable(varName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
+        boolean added = addVariable(varName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
+        while(!added) {
+        	varName = varNamePrefix + System.currentTimeMillis();
+        	added = addVariable(varName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
+        }
 
         return varName;
     }
@@ -435,17 +438,10 @@ public class BPELPlanHandler {
                                   buildPlan.getBpelProcessElement().getAttribute("name"));
         return buildPlan.getWsdl().addPartnerLinkType(partnerLinkTypeName, roleName1, portType1, roleName2, portType2);
     }
-
-    /**
-     * Adds a propertyVariable to the buildPlan
-     *
-     * @param name the name of the propertyVariable
-     * @param plan the BuildPlan to add the propertyVariable to
-     * @return true if adding the PropertyVariable to the BuildPlan, else false
-     */
-    public boolean addPropertyVariable(final String name, final BPELPlan buildPlan) {
-        return addVariable("prop_" + name, BPELPlan.VariableType.TYPE,
-                           new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"), buildPlan);
+        
+    public boolean addStringVariable(final String name, final BPELPlan plan) {    	    	
+    	return addVariable(name, BPELPlan.VariableType.TYPE,
+                new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"), plan);
     }
 
     /**
@@ -611,7 +607,7 @@ public class BPELPlanHandler {
      * @param buildPlan the buildPlan where this has to happen
      * @return true
      */
-    public boolean assignVariableStringValue(final String variableName, final String variableValue,
+    public boolean assignInitValueToVariable(final String variableName, final String variableValue,
                                              final BPELPlan buildPlan) {
         BPELPlanHandler.LOG.debug("Trying to add assign of variable {} with value {} to BuildPlan {}", variableName,
                                   variableValue, buildPlan.getBpelProcessElement().getAttribute("name"));
@@ -1041,18 +1037,10 @@ public class BPELPlanHandler {
             this.bpelScopeHandler.connect(source, target, linkName);
 
         }
-    }
-
-    /**
-     * Adds a copy to the main assign of the given BuildPlan to initialize the variable
-     *
-     * @param propertyName the name of the propertyVariable
-     * @param value the value to initialize the variable with
-     * @param buildPlan the BuildPlan to add the copy to
-     * @return true if adding the copy was successful, else false
-     */
-    public boolean initializePropertyVariable(final String propertyName, final String value, final BPELPlan buildPlan) {
-        return assignVariableStringValue("prop_" + propertyName, value, buildPlan);
+    }    
+    
+    public boolean assignInitValueToVariable(Variable var, String value, BPELPlan plan) {
+    	return assignInitValueToVariable(var.getVariableName(), value, plan);
     }
 
     /**

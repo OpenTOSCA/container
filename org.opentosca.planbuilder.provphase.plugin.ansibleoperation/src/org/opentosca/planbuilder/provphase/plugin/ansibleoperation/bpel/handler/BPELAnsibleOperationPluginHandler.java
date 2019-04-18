@@ -25,6 +25,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core.handler.AnsibleOperationPluginHandler;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
@@ -151,7 +152,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         final Map<String, Variable> runScriptRequestInputParams = new HashMap<>();
         // dirty check if we use old style properties
         final String cleanPropName =
-            serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+            serverIpPropWrapper.getVariableName().substring(serverIpPropWrapper.getVariableName().lastIndexOf("_") + 1);
         switch (cleanPropName) {
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                 runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
@@ -276,7 +277,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
 
         // fetch server ip of the vm this apache http php module will be
         // installed on
-        Variable serverIpPropWrapper = null;
+        PropertyVariable serverIpPropWrapper = null;
         for (final String serverIp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = templateContext.getPropertyVariable(infrastructureNodeTemplate, serverIp);
             if (serverIpPropWrapper != null) {
@@ -290,7 +291,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         }
 
         // find sshUser and sshKey
-        Variable sshUserVariable = null;
+        PropertyVariable sshUserVariable = null;
         for (final String vmUserName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserName);
             if (sshUserVariable != null) {
@@ -308,7 +309,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                 sshUserVariable = null;
             }
         }
-        Variable sshKeyVariable = null;
+        PropertyVariable sshKeyVariable = null;
         for (final String vmUserPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserPassword);
             if (sshKeyVariable != null) {
@@ -330,7 +331,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         if (sshUserVariable == null) {
             // dirty check if we use old style properties
             final String cleanPropName =
-                serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+                serverIpPropWrapper.getVariableName().substring(serverIpPropWrapper.getVariableName().lastIndexOf("_") + 1);
             switch (cleanPropName) {
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                     LOG.debug("Adding sshUser field to plan input");
@@ -353,7 +354,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         if (sshKeyVariable == null) {
             // dirty check if we use old style properties
             final String cleanPropName =
-                serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+                serverIpPropWrapper.getVariableName().substring(serverIpPropWrapper.getVariableName().lastIndexOf("_") + 1);
             switch (cleanPropName) {
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                     LOG.debug("Adding sshUser field to plan input");

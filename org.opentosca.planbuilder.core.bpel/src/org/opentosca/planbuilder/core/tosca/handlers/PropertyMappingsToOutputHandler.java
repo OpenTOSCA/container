@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel.helpers;
+package org.opentosca.planbuilder.core.tosca.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler.Property2VariableMapping;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractBoundaryDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -22,6 +22,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractPropertyMapping;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplateProperties;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -40,9 +41,9 @@ import org.w3c.dom.NodeList;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public class PropertyMappingsToOutputInitializer {
+public class PropertyMappingsToOutputHandler {
 
-    private final static Logger LOG = LoggerFactory.getLogger(PropertyMappingsToOutputInitializer.class);
+    private final static Logger LOG = LoggerFactory.getLogger(PropertyMappingsToOutputHandler.class);
 
     /**
      * <p>
@@ -69,7 +70,7 @@ public class PropertyMappingsToOutputInitializer {
          */
         protected void addMapping(final String serviceTemplatePropertyLocalName, final String templateId,
                                   final String templatePropertyLocalName) {
-            PropertyMappingsToOutputInitializer.LOG.debug("Adding ServiceTemplate Property Mapping, serviceTemplate property localName {}, templateId {} and template property localName {}",
+            PropertyMappingsToOutputHandler.LOG.debug("Adding ServiceTemplate Property Mapping, serviceTemplate property localName {}, templateId {} and template property localName {}",
                                                           serviceTemplatePropertyLocalName, templateId,
                                                           templatePropertyLocalName);
             if (this.internalArray.length == 1) {
@@ -90,7 +91,7 @@ public class PropertyMappingsToOutputInitializer {
         private void printInternalArray() {
             for (int index_1 = 0; index_1 < this.internalArray.length; index_1++) {
                 for (int index_2 = 0; index_2 < this.internalArray[index_1].length; index_2++) {
-                    PropertyMappingsToOutputInitializer.LOG.debug("index1: " + index_1 + " index2: " + index_2
+                    PropertyMappingsToOutputHandler.LOG.debug("index1: " + index_1 + " index2: " + index_2
                         + " value: " + this.internalArray[index_1][index_2]);
                 }
             }
@@ -102,7 +103,7 @@ public class PropertyMappingsToOutputInitializer {
          * @param serviceTemplatePropertyName a localName of serviceTemplate property
          */
         protected void removeServiceTemplatePropertyMapping(final String serviceTemplatePropertyName) {
-            PropertyMappingsToOutputInitializer.LOG.debug("Removin ServiceTemplate Property Mapping for serviceTemplate Property {}",
+            PropertyMappingsToOutputHandler.LOG.debug("Removin ServiceTemplate Property Mapping for serviceTemplate Property {}",
                                                           serviceTemplatePropertyName);
             for (int index = 0; index < this.internalArray.length; index++) {
                 if (this.internalArray[index][0] != null
@@ -192,32 +193,13 @@ public class PropertyMappingsToOutputInitializer {
      *        inside the plan
      */
     public void initializeBuildPlanOutput(final AbstractDefinitions definitions, final BPELPlan buildPlan,
-                                          final PropertyMap propMap) {
-        final QName serviceTemplateId = buildPlan.getServiceTemplate().getQName();
-
-        // fetch serviceTemplate and boundaryDefinitions
-        AbstractServiceTemplate buildPlanServiceTemplate = null;
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-            if (serviceTemplate.getQName().equals(serviceTemplateId)) {
-                PropertyMappingsToOutputInitializer.LOG.debug("Found ServiceTemplate {}", serviceTemplate.getQName());
-                buildPlanServiceTemplate = serviceTemplate;
-            }
-        }
-
-        if (buildPlanServiceTemplate == null) {
-            PropertyMappingsToOutputInitializer.LOG.error("ServiceTemplate {} was not found in given Definitions {}",
-                                                          serviceTemplateId.toString(),
-                                                          "{" + definitions.getTargetNamespace() + "}"
-                                                              + definitions.getId());
-            return;
-        }
-
-        final ServiceTemplatePropertyToPropertyMapping mapping = getMappings(buildPlanServiceTemplate, propMap);
+                                          final Property2VariableMapping propMap, AbstractServiceTemplate serviceTemplate) {
+        final ServiceTemplatePropertyToPropertyMapping mapping = getMappings(serviceTemplate, propMap);
         if (mapping == null) {
-            PropertyMappingsToOutputInitializer.LOG.warn("Couldn't generate mapping, BuildPlan Output may be empty");
+            PropertyMappingsToOutputHandler.LOG.warn("Couldn't generate mapping, BuildPlan Output may be empty");
             return;
         }
-        initializeAssignOutput(buildPlan, propMap, mapping);
+        initializeAssignOutput(buildPlan, propMap, mapping, serviceTemplate);
 
     }
 
@@ -230,8 +212,8 @@ public class PropertyMappingsToOutputInitializer {
      * @param propMap a PropertyMap containing the variable names of the properties
      * @param mapping the mappings from serviceTemplate Properties to template properties
      */
-    private void initializeAssignOutput(final BPELPlan buildPlan, final PropertyMap propMap,
-                                        final ServiceTemplatePropertyToPropertyMapping mapping) {
+    private void initializeAssignOutput(final BPELPlan buildPlan, final Property2VariableMapping propMap,
+                                        final ServiceTemplatePropertyToPropertyMapping mapping, AbstractServiceTemplate serviceTemplate) {
         try {
             final BPELPlanHandler buildPlanHandler = new BPELPlanHandler();
             final BPELPlanHandler processHandler = new BPELPlanHandler();
@@ -243,7 +225,7 @@ public class PropertyMappingsToOutputInitializer {
                 // add copy to assign
                 final String templatePropertyName = mapping.getTemplatePropertyName(serviceTemplatePropertyName);
                 if (templatePropertyName == null) {
-                    PropertyMappingsToOutputInitializer.LOG.warn("TemplatePropertyName is null");
+                    PropertyMappingsToOutputHandler.LOG.warn("TemplatePropertyName is null");
                     failedServiceTemplateProperties.add(serviceTemplatePropertyName);
                     continue;
                 }
@@ -260,17 +242,24 @@ public class PropertyMappingsToOutputInitializer {
                 } else {
                     final String templateId = mapping.getTemplateId(serviceTemplatePropertyName);
                     if (templateId == null) {
-                        PropertyMappingsToOutputInitializer.LOG.warn("TemplateId of mapping is null!");
+                        PropertyMappingsToOutputHandler.LOG.warn("TemplateId of mapping is null!");
                         failedServiceTemplateProperties.add(serviceTemplatePropertyName);
                         continue;
                     }
-                    final String propVarName = propMap.getPropertyMappingMap(templateId).get(templatePropertyName);
-                    if (propVarName == null) {
-                        PropertyMappingsToOutputInitializer.LOG.warn("PropertyVarName is null");
+                    
+                    boolean assigned = false;
+                    for(PropertyVariable var : propMap.getPropertyVariables(serviceTemplate, templateId)) {
+                    	if(var.getPropertyName().equals(templatePropertyName)) {
+                    		assigned = true;
+                    		processHandler.assginOutputWithVariableValue(var.getVariableName(), serviceTemplatePropertyName, buildPlan);
+                    	}
+                    }
+                                        
+                    if (!assigned) {
+                        PropertyMappingsToOutputHandler.LOG.warn("PropertyVarName is null");
                         failedServiceTemplateProperties.add(serviceTemplatePropertyName);
                         continue;
                     }
-                    processHandler.assginOutputWithVariableValue(propVarName, serviceTemplatePropertyName, buildPlan);
                 }
             }
 
@@ -280,7 +269,7 @@ public class PropertyMappingsToOutputInitializer {
 
         }
         catch (final ParserConfigurationException e) {
-            PropertyMappingsToOutputInitializer.LOG.error("Couldn't initialize a Handler, BuildPlan OutputMessage may be empty",
+            PropertyMappingsToOutputHandler.LOG.error("Couldn't initialize a Handler, BuildPlan OutputMessage may be empty",
                                                           e);
             return;
         }
@@ -314,12 +303,12 @@ public class PropertyMappingsToOutputInitializer {
      * @return a Mapping from ServiceTemplate properties to Template properties
      */
     private ServiceTemplatePropertyToPropertyMapping getMappings(final AbstractServiceTemplate buildPlanServiceTemplate,
-                                                                 final PropertyMap propMap) {
+                                                                 final Property2VariableMapping propMap) {
         final ServiceTemplatePropertyToPropertyMapping mappingWrapper = new ServiceTemplatePropertyToPropertyMapping();
 
         final AbstractBoundaryDefinitions boundaryDefinitions = buildPlanServiceTemplate.getBoundaryDefinitions();
         if (boundaryDefinitions == null) {
-            PropertyMappingsToOutputInitializer.LOG.warn("No BoundaryDefinitions in ServiceTemplate {} found. Output of BuildPlan maybe empty.",
+            PropertyMappingsToOutputHandler.LOG.warn("No BoundaryDefinitions in ServiceTemplate {} found. Output of BuildPlan maybe empty.",
                                                          buildPlanServiceTemplate.getQName().toString());
             return null;
         }
@@ -328,14 +317,14 @@ public class PropertyMappingsToOutputInitializer {
         final AbstractServiceTemplateProperties serviceTemplateProps = boundaryDefinitions.getProperties();
 
         if (serviceTemplateProps == null) {
-            PropertyMappingsToOutputInitializer.LOG.warn("ServiceTemplate has no Properties defined");
+            PropertyMappingsToOutputHandler.LOG.warn("ServiceTemplate has no Properties defined");
             return null;
         }
         // get the propertyElement and propertyMappings
         final AbstractProperties serviceTemplateProperties = serviceTemplateProps.getProperties();
 
         if (serviceTemplateProperties == null) {
-            PropertyMappingsToOutputInitializer.LOG.warn("ServiceTemplate has no Properties defined");
+            PropertyMappingsToOutputHandler.LOG.warn("ServiceTemplate has no Properties defined");
             return null;
         }
 
@@ -343,7 +332,7 @@ public class PropertyMappingsToOutputInitializer {
         final Element propElement = serviceTemplateProperties.getDOMElement();
 
         if (propElement == null) {
-            PropertyMappingsToOutputInitializer.LOG.warn("ServiceTemplate has no Properties defined");
+            PropertyMappingsToOutputHandler.LOG.warn("ServiceTemplate has no Properties defined");
             return null;
         }
 
@@ -374,7 +363,7 @@ public class PropertyMappingsToOutputInitializer {
             boolean isConcatQuery = false;
             if (isConcatQuery(targetPropertyRef)) {
                 isConcatQuery = true;
-                templatePropLocalName = injectBPELVariables(propertyMapping.getTargetPropertyRef(), propMap);
+                templatePropLocalName = injectBPELVariables(propertyMapping.getTargetPropertyRef(), propMap,buildPlanServiceTemplate);
 
             } else {
                 Element templateElement = null;
@@ -388,13 +377,13 @@ public class PropertyMappingsToOutputInitializer {
                 }
 
                 if (templateElement == null) {
-                    PropertyMappingsToOutputInitializer.LOG.warn("Referenced Template {} in ServiceTemplate {} has no Properties defined, continueing with other PropertyMapping",
+                    PropertyMappingsToOutputHandler.LOG.warn("Referenced Template {} in ServiceTemplate {} has no Properties defined, continueing with other PropertyMapping",
                                                                  templateId,
                                                                  buildPlanServiceTemplate.getQName().toString());
                     continue;
                 }
 
-                PropertyMappingsToOutputInitializer.LOG.debug("Adding Mapping for ServiceTemplateProperty {}, TemplateId {} and TemplateProperty {}",
+                PropertyMappingsToOutputHandler.LOG.debug("Adding Mapping for ServiceTemplateProperty {}, TemplateId {} and TemplateProperty {}",
                                                               serviceTemplatePropLocalName, templateId,
                                                               templateElement.getLocalName());
 
@@ -403,19 +392,19 @@ public class PropertyMappingsToOutputInitializer {
             }
 
             if (templatePropLocalName == null) {
-                PropertyMappingsToOutputInitializer.LOG.warn("Referenced Template {} in ServiceTemplate {} has no Properties defined, continueing with other PropertyMapping",
+                PropertyMappingsToOutputHandler.LOG.warn("Referenced Template {} in ServiceTemplate {} has no Properties defined, continueing with other PropertyMapping",
                                                              templateId,
                                                              buildPlanServiceTemplate.getQName().toString());
                 continue;
             }
 
             if (serviceTemplatePropLocalName == null) {
-                PropertyMappingsToOutputInitializer.LOG.warn("Couldn't find Property Element for ServiceTemplate {} , continueing with other PropertyMapping",
+                PropertyMappingsToOutputHandler.LOG.warn("Couldn't find Property Element for ServiceTemplate {} , continueing with other PropertyMapping",
                                                              buildPlanServiceTemplate.getQName().toString());
                 continue;
             }
             if (!isConcatQuery && templateId == null) {
-                PropertyMappingsToOutputInitializer.LOG.warn("targetObjectRef for ServiceTemplate {} not set, continueing with other PropertyMapping",
+                PropertyMappingsToOutputHandler.LOG.warn("targetObjectRef for ServiceTemplate {} not set, continueing with other PropertyMapping",
                                                              buildPlanServiceTemplate.getQName().toString());
                 continue;
             }
@@ -427,7 +416,7 @@ public class PropertyMappingsToOutputInitializer {
         return mappingWrapper;
     }
 
-    private String injectBPELVariables(final String targetPropertyRef, final PropertyMap propMap) {
+    private String injectBPELVariables(final String targetPropertyRef, final Property2VariableMapping propMap, AbstractServiceTemplate serviceTemplate) {
         final String testQuery = targetPropertyRef.trim();
 
         if (!testQuery.endsWith(")")) {
@@ -466,19 +455,17 @@ public class PropertyMappingsToOutputInitializer {
                 final String nodeTemplateName = queryParts[0];
                 final String propertyName = queryParts[2];
 
-                final Map<String, String> propertyName2BPELVarMap = propMap.getPropertyMappingMap(nodeTemplateName);
-                if (propertyName2BPELVarMap == null) {
-                    return null;
-                } else if (propertyName2BPELVarMap.isEmpty()) {
-                    return null;
+                boolean addedVar = false;
+                for(PropertyVariable var : propMap.getPropertyVariables(serviceTemplate, nodeTemplateName)) {
+                	if(var.getPropertyName().equals(propertyName)) {
+                		addedVar = true;
+                		augmentedFunctionParts.add("$" + var.getVariableName());
+                	}
                 }
-
-                final String bpelVarName = propertyName2BPELVarMap.get(propertyName);
-                if (bpelVarName == null) {
-                    return null;
-                }
-
-                augmentedFunctionParts.add("$" + bpelVarName);
+                
+                if(!addedVar) {
+                	return null;
+                }                                
             }
         }
 
@@ -524,7 +511,7 @@ public class PropertyMappingsToOutputInitializer {
     private String getTemplatePropertyLocalName(final Element serviceTemplatePropElement, final String xpathExpr) {
         try {
             final XPath xPath = XPathFactory.newInstance().newXPath();
-            PropertyMappingsToOutputInitializer.LOG.debug("Executing XPath Expression {} on Node {}", xpathExpr,
+            PropertyMappingsToOutputHandler.LOG.debug("Executing XPath Expression {} on Node {}", xpathExpr,
                                                           serviceTemplatePropElement);
             final NodeList nodes =
                 (NodeList) xPath.evaluate(xpathExpr, serviceTemplatePropElement, XPathConstants.NODESET);
@@ -534,14 +521,14 @@ public class PropertyMappingsToOutputInitializer {
                 final Node node = nodes.item(0);
                 return node.getLocalName();
             } else {
-                PropertyMappingsToOutputInitializer.LOG.error("XPath expression {} on Element {} returned multiple Nodes",
+                PropertyMappingsToOutputHandler.LOG.error("XPath expression {} on Element {} returned multiple Nodes",
                                                               xpathExpr, serviceTemplatePropElement);
                 return null;
             }
 
         }
         catch (final XPathExpressionException e1) {
-            PropertyMappingsToOutputInitializer.LOG.error("XPath Expression for serviceTemplatePropetyRef isn't valid",
+            PropertyMappingsToOutputHandler.LOG.error("XPath Expression for serviceTemplatePropetyRef isn't valid",
                                                           e1);
         }
         return null;
