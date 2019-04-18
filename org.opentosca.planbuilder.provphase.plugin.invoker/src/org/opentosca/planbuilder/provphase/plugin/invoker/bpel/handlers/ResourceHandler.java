@@ -61,8 +61,8 @@ public class ResourceHandler {
     }
 
     /**
-     * Generates a BPEL Copy element to use in BPEL Assigns, which sets the WS-Addressing ReplyTo Header
-     * for the specified request variable
+     * Generates a BPEL Copy element to use in BPEL Assigns, which sets the WS-Addressing ReplyTo
+     * Header for the specified request variable
      *
      * @param partnerLinkName the name of the BPEL partnerLink that will be used as String
      * @param requestVariableName the name of the BPEL Variable used for an asynchronous request as
@@ -87,8 +87,8 @@ public class ResourceHandler {
     }
 
     /**
-     * Generates a BPEL Copy element to use in BPEL Assigns, which sets the WS-Addressing ReplyTo Header
-     * for the specified request variable
+     * Generates a BPEL Copy element to use in BPEL Assigns, which sets the WS-Addressing ReplyTo
+     * Header for the specified request variable
      *
      * @param partnerLinkName the name of the BPEL partnerLink that will be used as String
      * @param requestVariableName the name of the BPEL Variable used for an asynchronous request as
@@ -199,8 +199,8 @@ public class ResourceHandler {
      *
      * @param partnerLinkName the name of the partnerLink to use
      * @param invokerRequestVarName the name of the invoker request message
-     * @param invokerRequestVarPartName the name of the message part of the referenced invoker request
-     *        message variable
+     * @param invokerRequestVarPartName the name of the message part of the referenced invoker
+     *        request message variable
      * @param invokerParamName the name of the invoker param to assign
      * @return a DOM node containing a BPEL copy element
      * @throws SAXException is thrown when parsing internal files fail
@@ -225,8 +225,8 @@ public class ResourceHandler {
      *
      * @param partnerLinkName the name of the partnerLink to use
      * @param invokerRequestVarName the name of the invoker request message
-     * @param invokerRequestVarPartName the name of the message part of the referenced invoker request
-     *        message variable
+     * @param invokerRequestVarPartName the name of the message part of the referenced invoker
+     *        request message variable
      * @param invokerParamName the name of the invoker param to assign
      * @return a String containing a BPEL copy element
      * @throws IOException is thrown when reading internal files fail
@@ -312,6 +312,7 @@ public class ResourceHandler {
         // first the easy ones
         assignTemplateString = assignTemplateString.replace("{csarName}", csarName);
         assignTemplateString = assignTemplateString.replace("{serviceInstanceID}", "");
+        assignTemplateString = assignTemplateString.replace("{planCorrelation}", "");
 
         if (nodeInstanceIdVarName != null) {
             assignTemplateString = assignTemplateString.replace("{nodeInstanceID}", "");
@@ -365,6 +366,11 @@ public class ResourceHandler {
             }
         }
 
+        // assign correlation id
+        String correlationIdCopyString = generateCorrelationIdCopy(requestVarName, requestVarPartName);
+        correlationIdCopyString = correlationIdCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+        assignTemplateString = assignTemplateString.replace("{copies}", correlationIdCopyString + "{copies}");
+
         // assign serviceInstanceID
         String serviceInstanceCopyString =
             generateServiceInstanceIDCopy(serviceInstanceIdVarName, requestVarName, requestVarPartName);
@@ -411,8 +417,8 @@ public class ResourceHandler {
     }
 
     /**
-     * Generates a BPEL Copy which sets the MessageId of an Invoker Message Body to a given prefix and
-     * the current date
+     * Generates a BPEL Copy which sets the MessageId of an Invoker Message Body to a given prefix
+     * and the current date
      *
      * @param requestVariableName the name of the request variable with an invoker message body
      * @param requestVariabelPartName the name of the part which has the invoker message body
@@ -435,8 +441,8 @@ public class ResourceHandler {
     }
 
     /**
-     * Generates a BPEL Copy which sets the MessageId of an Invoker Message Body to a given prefix and
-     * the current date
+     * Generates a BPEL Copy which sets the MessageId of an Invoker Message Body to a given prefix
+     * and the current date
      *
      * @param requestVariableName the name of the request variable with an invoker message body
      * @param requestVariabelPartName the name of the part which has the invoker message body
@@ -477,9 +483,9 @@ public class ResourceHandler {
                 + variableName + "\"/>";
         /*
          * <bpel:receive name="ReceiveCreateEC2Instance" operation="createEC2InstanceCallback"
-         * partnerLink="ec2VmPl1" portType="ns0:EC2VMIAAsyncServiceCallback" variable="createEc2Response3">
-         * <bpel:correlations> <bpel:correlation initiate="no" set="createEc2CorrelationSet8"/>
-         * </bpel:correlations> </bpel:receive>
+         * partnerLink="ec2VmPl1" portType="ns0:EC2VMIAAsyncServiceCallback"
+         * variable="createEc2Response3"> <bpel:correlations> <bpel:correlation initiate="no"
+         * set="createEc2CorrelationSet8"/> </bpel:correlations> </bpel:receive>
          */
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(receiveString));
@@ -521,7 +527,8 @@ public class ResourceHandler {
      *
      * @param variableName the Response Message variable name
      * @param part the part name of response message
-     * @param toscaWsdlMappings Mappings from TOSCA Output Parameters to WSDL Response message Elements
+     * @param toscaWsdlMappings Mappings from TOSCA Output Parameters to WSDL Response message
+     *        Elements
      * @param paramPropertyMappings Mappings from TOSCA Output Parameters to Properties
      * @param assignName the name attribute of the assign
      * @param MessageDeclId the XML Schema Declaration of the Response Message as QName
@@ -546,7 +553,8 @@ public class ResourceHandler {
      *
      * @param variableName the Response Message variable name
      * @param part the part name of response message
-     * @param toscaWsdlMappings Mappings from TOSCA Output Parameters to WSDL Response message Elements
+     * @param toscaWsdlMappings Mappings from TOSCA Output Parameters to WSDL Response message
+     *        Elements
      * @param paramPropertyMappings Mappings from TOSCA Output Parameters to Properties
      * @param assignName the name attribute of the assign
      * @param MessageDeclId the XML Schema Declaration of the Response Message as QName
@@ -602,8 +610,8 @@ public class ResourceHandler {
     }
 
     /**
-     * Generates a BPEL Copy snippet from a single variable to a invoker message body, where the value
-     * of the variable is added as ServiceInstanceID to the invoker message.
+     * Generates a BPEL Copy snippet from a single variable to a invoker message body, where the
+     * value of the variable is added as ServiceInstanceID to the invoker message.
      *
      * @param bpelVarName the Name of the BPEL variable to use
      * @param requestVarName the name of the request variable holding a invoker request
@@ -623,8 +631,29 @@ public class ResourceHandler {
     }
 
     /**
-     * Generates a BPEL Copy snippet from a single variable to a invoker message body, where the value
-     * of the variable is added as ServiceInstanceID to the invoker message.
+     * Generates a BPEL Copy snippet from the plan input message 'CorrelationID' property to the
+     * invoker message
+     *
+     * @param requestVarName the name of the request variable holding a invoker request
+     * @param requestVarPartName the name of part inside the invoker request message
+     * @return a String containing a BPEL copy element
+     * @throws IOException when reading internal files fails
+     */
+    private String generateCorrelationIdCopy(final String requestVarName,
+                                             final String requestVarPartName) throws IOException {
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+                                     .getResource("correlationIDCopy.xml");
+        final File correlationIdCopy = new File(FileLocator.toFileURL(url).getPath());
+        String correlationIdCopyString = FileUtils.readFileToString(correlationIdCopy);
+        correlationIdCopyString = correlationIdCopyString.replace("{requestVarName}", requestVarName);
+        correlationIdCopyString = correlationIdCopyString.replace("{requestVarPartName}", requestVarPartName);
+
+        return correlationIdCopyString;
+    }
+
+    /**
+     * Generates a BPEL Copy snippet from a single variable to a invoker message body, where the
+     * value of the variable is added as ServiceInstanceID to the invoker message.
      *
      * @param bpelVarName the Name of the BPEL variable to use
      * @param requestVarName the name of the request variable holding a invoker request

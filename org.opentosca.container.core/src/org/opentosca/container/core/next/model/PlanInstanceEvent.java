@@ -25,7 +25,11 @@ public class PlanInstanceEvent extends PersistenceObject {
 
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date timestamp;
+    private Date startTimestamp;
+
+    @Column(nullable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date endTimestamp;
 
     private String status;
 
@@ -40,7 +44,7 @@ public class PlanInstanceEvent extends PersistenceObject {
 
 
     public PlanInstanceEvent() {
-        this.timestamp = new Date();
+        this.startTimestamp = new Date();
     }
 
     public PlanInstanceEvent(final String status, final String type, final String message) {
@@ -57,12 +61,20 @@ public class PlanInstanceEvent extends PersistenceObject {
         return super.getId();
     }
 
-    public Date getTimestamp() {
-        return this.timestamp;
+    public Date getStartTimestamp() {
+        return this.startTimestamp;
     }
 
-    public void setTimestamp(final Date timestamp) {
-        this.timestamp = timestamp;
+    public void setStartTimestamp(final Date timestamp) {
+        this.startTimestamp = timestamp;
+    }
+
+    public Date getEndTimestamp() {
+        return this.endTimestamp;
+    }
+
+    public void setEndTimestamp(final Date timestamp) {
+        this.endTimestamp = timestamp;
     }
 
     public String getStatus() {
