@@ -323,7 +323,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         try {
             Node assignNode = null;
             // TODO FIXME See line 570
-            if (context.getPlanType().equals(PlanType.TERMINATE)) {
+//            if (context.getPlanType().equals(PlanType.TERMINATE)) {
                 assignNode =
                     this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId, serviceTemplateId,
                                                                                           serviceInstanceIdVarName,
@@ -335,19 +335,19 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                                                                                           templateId,
                                                                                           internalExternalPropsInput);
 
-            } else {
-                assignNode =
-                    this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId, serviceTemplateId,
-                                                                                          serviceInstanceIdVarName,
-                                                                                          nodeInstanceUrlVarName,
-                                                                                          operationName,
-                                                                                          String.valueOf(System.currentTimeMillis()),
-                                                                                          requestVariableName,
-                                                                                          InputMessagePartName,
-                                                                                          interfaceName, isNodeTemplate,
-                                                                                          templateId,
-                                                                                          internalExternalPropsInput);
-            }
+//            } else {
+//                assignNode =
+//                    this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId, serviceTemplateId,
+//                                                                                          serviceInstanceIdVarName,
+//                                                                                          nodeInstanceUrlVarName,
+//                                                                                          operationName,
+//                                                                                          String.valueOf(System.currentTimeMillis()),
+//                                                                                          requestVariableName,
+//                                                                                          InputMessagePartName,
+//                                                                                          interfaceName, isNodeTemplate,
+//                                                                                          templateId,
+//                                                                                          internalExternalPropsInput);
+//            }
 
             assignNode = context.importNode(assignNode);
 
@@ -566,7 +566,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         // add request message assign to prov phase scope
         try {
             Node assignNode = null;
-            if (context.getPlanType().equals(PlanType.TERMINATE)) {
+//            if (context.getPlanType().equals(PlanType.TERMINATE)) {
                 // TODO FIXME, right now the termination plans are able to call operations of node Instances for
                 // that the instanceID can be null at runtime e.g. when removing a DockerContainer the operation
                 // removeContainer of the DockerEngine is called for that the nodeInstanceId is not fetched at the
@@ -587,21 +587,21 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                                                                                           templateId,
                                                                                           internalExternalPropsInput);
 
-            } else {
-
-                assignNode =
-                    this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
-                                                                                          context.getServiceTemplateId(),
-                                                                                          serviceInstanceIdVarName,
-                                                                                          nodeInstanceUrlVarName,
-                                                                                          operationName,
-                                                                                          String.valueOf(System.currentTimeMillis()),
-                                                                                          requestVariableName,
-                                                                                          InputMessagePartName,
-                                                                                          interfaceName, isNodeTemplate,
-                                                                                          templateId,
-                                                                                          internalExternalPropsInput);
-            }
+//            } else {
+//
+//                assignNode =
+//                    this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
+//                                                                                          context.getServiceTemplateId(),
+//                                                                                          serviceInstanceIdVarName,
+//                                                                                          nodeInstanceUrlVarName,
+//                                                                                          operationName,
+//                                                                                          String.valueOf(System.currentTimeMillis()),
+//                                                                                          requestVariableName,
+//                                                                                          InputMessagePartName,
+//                                                                                          interfaceName, isNodeTemplate,
+//                                                                                          templateId,
+//                                                                                          internalExternalPropsInput);
+//            }
             assignNode = context.importNode(assignNode);
 
             Node addressingCopyInit = this.resHandler.generateAddressingInitAsNode(requestVariableName);

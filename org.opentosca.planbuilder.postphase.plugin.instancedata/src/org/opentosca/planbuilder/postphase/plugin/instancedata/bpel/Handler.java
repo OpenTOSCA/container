@@ -739,7 +739,7 @@ public class Handler {
 		} else {
 			// fetch nodeTemplate
 			final AbstractNodeTemplate sourceNodeTemplate = context.getRelationshipTemplate().getSource();
-			injectionPreElement = context.createContext(sourceNodeTemplate).getPrePhaseElement();
+			injectionPreElement = context.createContext(sourceNodeTemplate).getPostPhaseElement();
 			injectionPostElement = context.createContext(sourceNodeTemplate).getPostPhaseElement();
 		}
 

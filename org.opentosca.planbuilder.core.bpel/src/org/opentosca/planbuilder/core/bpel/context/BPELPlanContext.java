@@ -85,6 +85,8 @@ public class BPELPlanContext implements PlanContext {
 	private final String serviceInstanceURLVarName;
 	private final String serviceInstanceIDVarName;
 	private final String serviceTemplateURLVarName;
+	
+	private final String csarFileName;
 
 	/**
 	 * Constructor
@@ -98,7 +100,7 @@ public class BPELPlanContext implements PlanContext {
 	 */
 	public BPELPlanContext(final BPELScope templateBuildPlan, final Property2VariableMapping map,
 			final AbstractServiceTemplate serviceTemplateId, String serviceInstanceURLVarName,
-			String serviceInstanceIDVarName, String serviceTemplateURLVarName) {
+			String serviceInstanceIDVarName, String serviceTemplateURLVarName, String csarFileName) {
 		this.templateBuildPlan = templateBuildPlan;
 		this.serviceTemplate = serviceTemplateId;
 
@@ -115,6 +117,7 @@ public class BPELPlanContext implements PlanContext {
 		this.serviceInstanceIDVarName = serviceInstanceIDVarName;
 		this.serviceTemplateURLVarName = serviceTemplateURLVarName;
 		this.serviceInstanceURLVarName = serviceInstanceURLVarName;
+		this.csarFileName = csarFileName;
 	}
 
 	public static Variable getVariable(String varName) {
@@ -483,7 +486,7 @@ public class BPELPlanContext implements PlanContext {
 		for (final BPELScope plan : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
 			if (plan.getNodeTemplate() != null && plan.getNodeTemplate().equals(nodeTemplate)) {
 				return new BPELPlanContext(plan, this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName,
-						this.serviceInstanceIDVarName, this.serviceTemplateURLVarName);
+						this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.csarFileName);
 			}
 		}
 		return null;
@@ -555,7 +558,7 @@ public class BPELPlanContext implements PlanContext {
 		// the node for the scope
 		final BPELPlanContext context = new BPELPlanContext(this.templateBuildPlan, this.propertyMap,
 				this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-				this.serviceTemplateURLVarName);
+				this.serviceTemplateURLVarName, this.csarFileName);
 
 		context.templateBuildPlan.setNodeTemplate(nodeTemplate);
 		context.templateBuildPlan.setRelationshipTemplate(null);
@@ -638,7 +641,7 @@ public class BPELPlanContext implements PlanContext {
 	 * @return a String with the file name of the CSAR
 	 */
 	public String getCSARFileName() {
-		return this.templateBuildPlan.getBuildPlan().getCsarName();
+		return this.csarFileName;
 	}
 
 	/**
@@ -778,7 +781,7 @@ public class BPELPlanContext implements PlanContext {
 
 		final BPELPlanContext context = new BPELPlanContext(this.templateBuildPlan, this.propertyMap,
 				this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-				this.serviceTemplateURLVarName);
+				this.serviceTemplateURLVarName, this.csarFileName);
 
 		context.templateBuildPlan.setNodeTemplate(null);
 		context.templateBuildPlan.setRelationshipTemplate(relationshipTemplate);
@@ -814,7 +817,7 @@ public class BPELPlanContext implements PlanContext {
 		// the node for the scope
 		final BPELPlanContext context = new BPELPlanContext(this.templateBuildPlan, this.propertyMap,
 				this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-				this.serviceTemplateURLVarName);
+				this.serviceTemplateURLVarName, this.csarFileName);
 
 		context.templateBuildPlan.setNodeTemplate(nodeTemplate);
 		context.templateBuildPlan.setRelationshipTemplate(null);
@@ -865,7 +868,7 @@ public class BPELPlanContext implements PlanContext {
 		// the node for the scope
 		final BPELPlanContext context = new BPELPlanContext(this.templateBuildPlan, this.propertyMap,
 				this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-				this.serviceTemplateURLVarName);
+				this.serviceTemplateURLVarName, this.csarFileName);
 
 		context.templateBuildPlan.setNodeTemplate(nodeTemplate);
 		context.templateBuildPlan.setRelationshipTemplate(null);

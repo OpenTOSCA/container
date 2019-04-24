@@ -16,7 +16,7 @@ import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.core.tosca.handlers.EmptyPropertyToInputHandler;
 import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyMappingsToOutputHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
 import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.tosca.handlers.SituationTriggerRegistration;
@@ -63,7 +63,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	private final PropertyVariableHandler propertyInitializer;
 	// class for initializing output with boundarydefinitions of a
 	// serviceTemplate
-	private final PropertyMappingsToOutputHandler propertyOutputInitializer;
+	private final ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
 	// adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
 
 	private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
@@ -102,7 +102,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 		}
 		// TODO seems ugly
 		this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
-		this.propertyOutputInitializer = new PropertyMappingsToOutputHandler();
+		this.propertyOutputInitializer = new ServiceTemplateBoundaryPropertyMappingsToOutputHandler();
 		this.finalizer = new BPELFinalizer();
 	}
 
@@ -168,9 +168,9 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 				String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newBuildPlan);
 				String serviceTemplateUrl = this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newBuildPlan);
 
-				this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, serviceTemplate);
+				this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, serviceTemplate, csarName);
 
-				runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl);
+				runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarName);
 
 				this.correlationHandler.addCorrellationID(newBuildPlan);
 
@@ -242,12 +242,12 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	 * @param map       a PropertyMap which contains mappings from Template to
 	 *                  Property and to variable name of inside the BuidlPlan
 	 */
-	private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map, String serviceInstanceUrl, String serviceInstanceID, String serviceTemplateUrl) {
+	private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map, String serviceInstanceUrl, String serviceInstanceID, String serviceTemplateUrl, String csarFileName) {
 	
 		
 		
 		for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
-			final BPELPlanContext context = new BPELPlanContext(bpelScope, map, buildPlan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceID,serviceTemplateUrl);
+			final BPELPlanContext context = new BPELPlanContext(bpelScope, map, buildPlan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceID,serviceTemplateUrl, csarFileName);
 			if (bpelScope.getNodeTemplate() != null) {
 
 				final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();

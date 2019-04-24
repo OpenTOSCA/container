@@ -31,6 +31,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.controller.content.DirectoryController;
 import org.opentosca.container.api.dto.CsarDTO;
 import org.opentosca.container.api.dto.CsarListDTO;
+import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.util.ModelUtil;
@@ -320,6 +321,43 @@ public class CsarController {
 
         return Response.noContent().build();
     }
+    
+    @POST
+    @Path("/transform")
+    @ApiOperation(value = "Transform this CSAR to a new CSAR")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
+    	
+    	String sourceCsarName = request.getSourceCsarName();
+    	String targetCsarName = request.getTargetCsarName();
+    	
+    	
+    	
+    	CSARID csarId = this.csarService.generateTransformationPlans(new CSARID(sourceCsarName), new CSARID(targetCsarName));
+    	
+    	this.controlService.setDeploymentProcessStateStored(csarId);
+        boolean success = this.controlService.invokeTOSCAProcessing(csarId);
+
+        if (success) {
+            final List<QName> serviceTemplates =
+                this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId);
+            for (final QName serviceTemplate : serviceTemplates) {
+                logger.info("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
+                            csarId.getFileName());
+                if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
+                    logger.error("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
+                                 csarId.getFileName());
+                    success = false;
+                }
+            }
+        }
+    	
+    	
+    	return Response.ok().build();
+    }
+    
+
 
     public void setCsarService(final CsarService csarService) {
         this.csarService = csarService;

@@ -63,13 +63,8 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
 	@Override
 	public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
 		// TODO FIXME this is a huge assumption right now! Not all management plans need
-		// instance handling for provisioning
-		if (context.getPlanType().equals(AbstractPlan.PlanType.BUILD)
-				|| context.getPlanType().equals(AbstractPlan.PlanType.MANAGE)) {
-			return this.handler.handleBuild(context, nodeTemplate);
-		} else {
-			return false;
-		}
+		// instance handling for provisioning		
+		return this.handler.handleBuild(context, nodeTemplate);		
 	}
 
 	@Override

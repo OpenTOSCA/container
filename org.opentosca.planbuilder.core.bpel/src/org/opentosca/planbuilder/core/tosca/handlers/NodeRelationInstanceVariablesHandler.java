@@ -103,8 +103,11 @@ public class NodeRelationInstanceVariablesHandler {
      * @param instanceDataUrlVarName the name of the variable holding the url to the instanceDataAPI
      * @return
      */
-    public boolean addInstanceFindLogic(final BPELScope templatePlan, final String serviceTemplateUrlVarName,
-                                        final String instanceDataUrlVarName, final String query, AbstractServiceTemplate serviceTemplate) {
+    public boolean addNodeInstanceFindLogic(final BPELScope templatePlan, final String serviceTemplateUrlVarName, final String query, AbstractServiceTemplate serviceTemplate) {
+    	
+    	if(templatePlan.getNodeTemplate() == null) {
+    		throw new RuntimeException("Can't create instance find logic only for nodes");
+    	}
         // add XML Schema Namespace for the logic
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -251,7 +254,7 @@ public class NodeRelationInstanceVariablesHandler {
 
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getNodeTemplate() != null) {
-                check &= addInstanceFindLogic(templatePlan, serviceTemplateUrlVarName, InstanceDataAPIUrlKeyword,
+                check &= addNodeInstanceFindLogic(templatePlan, serviceTemplateUrlVarName,
                                               queryForNodeInstances, serviceTemplate);
             }
         }

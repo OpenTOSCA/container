@@ -130,9 +130,15 @@ public class PropertyVariableHandler {
      */
     public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan buildPlan, AbstractServiceTemplate serviceTemplate) {
         final Property2VariableMapping map = new Property2VariableMapping();
-        for (final BPELScope templatePlan : buildPlan.getTemplateBuildPlans()) {
-            this.initializePropertiesAsVariables(map, templatePlan, serviceTemplate);
+        
+        for(AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+        	
+        	this.initializePropertiesAsVariables(map, buildPlan.getTemplateBuildPlan(nodeTemplate), serviceTemplate);
         }
+        
+        for(AbstractRelationshipTemplate relationshipTemplate :serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
+        	this.initializePropertiesAsVariables(map, buildPlan.getTemplateBuildPlan(relationshipTemplate), serviceTemplate);
+        }        
         return map;
     }
 

@@ -75,4 +75,9 @@ public class Types {
     
     public static final QName TOSCABASETYPE_OS =
             new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "OperatingSystem");
+    
+    
+    // ArtifactTypes
+    public static final QName scriptArtifactType = new QName(
+			"http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
 }

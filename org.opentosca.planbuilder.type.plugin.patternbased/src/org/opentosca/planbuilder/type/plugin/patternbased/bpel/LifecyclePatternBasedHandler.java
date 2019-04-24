@@ -7,8 +7,10 @@ import java.util.Set;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
@@ -62,6 +64,44 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
 		return result;
 	}
+	
+	
+	private boolean isImplementedAsScript(AbstractInterface iface, AbstractOperation op, AbstractNodeTemplate nodeTemplate) {				
+		for(AbstractNodeTypeImplementation impl : nodeTemplate.getImplementations()) {
+			for(AbstractImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
+				if(implArtifact.getInterfaceName().equals(iface.getName())) {					
+					if(implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
+						return true;
+					}					
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	// This method looks for runScript and transferFile operation on the hosting infrastructure
+	private boolean checkForRunScriptAndTransferFile(AbstractNodeTemplate nodeTemplate) {
+		
+		Set<AbstractNodeTemplate> nodeTemplates = this.getNodesForMatching(nodeTemplate);
+		
+		boolean foundRunScript = false;
+		boolean foundTransferFile = false;
+		for(AbstractNodeTemplate node : nodeTemplates) {
+			for(AbstractInterface iface : node.getType().getInterfaces()) {
+				for(AbstractOperation op : iface.getOperations()) {
+					if(op.getName().equals("runScript")) {
+						foundRunScript = true;
+					}
+					if(op.getName().equals("transferFile")) {
+						foundTransferFile = true;
+					}
+				}
+			}			
+		}
+		
+		return foundRunScript & foundTransferFile;
+	}
 
 	private Set<AbstractNodeTemplate> getNodesForMatching(AbstractNodeTemplate nodeTemplate) {
 		Set<AbstractNodeTemplate> nodesForMatching = new HashSet<AbstractNodeTemplate>();
@@ -80,6 +120,9 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
 		Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
 
+		// Small check if we have to find runScript and transferFile operations
+		boolean hasScriptImplementation = false;
+		
 		// check if the lifecycle operations can be matched against the nodes
 		AbstractOperation op = null;
 		AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
@@ -87,15 +130,25 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
 			return false;
 		}
+		
+		hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
 
 		if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate)) != null)
 				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
 			return false;
 		}
 
+		hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
+		
 		if (((op = this.getLifecyclePatternStartMethod(nodeTemplate)) != null)
 				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
 			return false;
+		}
+		
+		hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
+		
+		if(hasScriptImplementation) {
+			return this.checkForRunScriptAndTransferFile(nodeTemplate);
 		}
 
 		return true;
@@ -109,6 +162,9 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
 		Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
 
+		// Small check if we have to find runScript and transferFile operations
+				boolean hasScriptImplementation = false;
+		
 		// check if the lifecycle operations can be matched against the nodes
 		AbstractOperation op = null;
 		AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
@@ -117,11 +173,19 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 			return false;
 		}
 
+		hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
+		
 		if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate)) != null)
 				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
 			return false;
 		}
+		
+		hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
 
+		if(hasScriptImplementation) {
+			return this.checkForRunScriptAndTransferFile(nodeTemplate);
+		}
+		
 		return true;
 	}
 

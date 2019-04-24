@@ -92,6 +92,8 @@ public class PlanService {
         }
         return null;
     }
+    
+
 
     public String invokePlan(final CSARID csarId, final QName serviceTemplate, final long serviceTemplateInstanceId,
                              final TPlan plan, final List<TParameter> parameters) {
@@ -129,6 +131,11 @@ public class PlanService {
         return false;
     }
 
+    
+    public PlanInstance getPlanInstanceByCorrelationId(String correlationId) {
+    	return this.planInstanceRepository.findByCorrelationId(correlationId);
+    }
+    
     /**
      * Gets the indicated plan instance and performs sanity checks insuring that the plan belongs to the
      * service template, the instance belongs to the plan, and belongs to the service template instance

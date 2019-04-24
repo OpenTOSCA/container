@@ -168,7 +168,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 				e.printStackTrace();
 			}
 
-			final List<BPELScope> changedActivities = runPlugins(newFreezePlan, propMap);
+			final List<BPELScope> changedActivities = runPlugins(newFreezePlan, propMap, csarName);
 
 			String serviceInstanceURLVarName = this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(newFreezePlan);
 			this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newFreezePlan,
@@ -353,7 +353,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 	 * @param propMap         a PropertyMapping from NodeTemplate to Properties to
 	 *                        BPELVariables
 	 */
-	private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap) {
+	private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap, String csarName) {
 
 		final List<BPELScope> changedActivities = new ArrayList<>();
 
@@ -365,7 +365,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 		
 		
 		for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
-			final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl);
+			final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
 			if (templatePlan.getNodeTemplate() != null) {
 
 				// create a context for the node

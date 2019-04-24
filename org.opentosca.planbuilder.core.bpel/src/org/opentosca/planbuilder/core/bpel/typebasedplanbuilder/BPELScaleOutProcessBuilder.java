@@ -116,9 +116,9 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     private void addRecursiveInstanceSelection(final BPELPlan plan, final Property2VariableMapping map,
-                                               final AbstractNodeTemplate nodeTemplate, AbstractServiceTemplate serviceTemplate) {
+                                               final AbstractNodeTemplate nodeTemplate, AbstractServiceTemplate serviceTemplate, String csarFileName) {
         // fetch nodeInstance Variable to store the result at the end
-        final BPELPlanContext nodeContext = this.createContext(nodeTemplate, plan, map);
+        final BPELPlanContext nodeContext = this.createContext(nodeTemplate, plan, map, csarFileName);
 
         final String nodeInstanceVarName =
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate, nodeTemplate.getId(), true);
@@ -128,7 +128,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         if (relationshipTemplate == null) {
             return;
         }
-        final BPELPlanContext relationContext = this.createContext(relationshipTemplate, plan, map);
+        final BPELPlanContext relationContext = this.createContext(relationshipTemplate, plan, map, csarFileName);
         final String relationInstanceVarName =
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate, relationshipTemplate.getId(), false);
 
@@ -198,14 +198,14 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     private void addRecursiveInstanceSelection(final BPELPlan plan, final Property2VariableMapping map,
-                                               final AbstractRelationshipTemplate relationshipTemplate, AbstractServiceTemplate serviceTemplate) {
+                                               final AbstractRelationshipTemplate relationshipTemplate, AbstractServiceTemplate serviceTemplate, String csarFileName) {
         // fetch relationInstance variable of relationship template
-        final BPELPlanContext relationContext = this.createContext(relationshipTemplate, plan, map);
+        final BPELPlanContext relationContext = this.createContext(relationshipTemplate, plan, map, csarFileName);
         final String relationshipTemplateInstanceVarName =
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate,relationshipTemplate.getId(), false);
 
         // fetch nodeInstance variable of source node template
-        final BPELPlanContext nodeContext = this.createContext(relationshipTemplate.getTarget(), plan, map);
+        final BPELPlanContext nodeContext = this.createContext(relationshipTemplate.getTarget(), plan, map,csarFileName);
         final String nodeTemplateInstanceVarName =
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate, relationshipTemplate.getTarget().getId(), true);
 
@@ -362,18 +362,18 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     		String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(bpelScaleOutProcess);
     		String serviceTemplateUrl = this.serviceInstanceHandler.findServiceTemplateUrlVariableName(bpelScaleOutProcess);
 
-            this.emptyPropInit.initializeEmptyPropertiesAsInputParam(provScopeActivities, bpelScaleOutProcess, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, serviceTemplate);
+            this.emptyPropInit.initializeEmptyPropertiesAsInputParam(provScopeActivities, bpelScaleOutProcess, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, serviceTemplate, csarName);
 
             this.runProvisioningLogicGeneration(bpelScaleOutProcess, propMap, scalingPlanDefinition.nodeTemplates,
-                                                scalingPlanDefinition.relationshipTemplates, serviceInstanceUrl,serviceInstanceId,serviceTemplateUrl);
+                                                scalingPlanDefinition.relationshipTemplates, serviceInstanceUrl,serviceInstanceId,serviceTemplateUrl,csarName);
             
             // add generic instance selection
 
             for (final AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplatesRecursiveSelection) {
-                this.addRecursiveInstanceSelection(bpelScaleOutProcess, propMap, relationshipTemplate, serviceTemplate);
+                this.addRecursiveInstanceSelection(bpelScaleOutProcess, propMap, relationshipTemplate, serviceTemplate, csarName);
             }
             for (final AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplatesRecursiveSelection) {
-                this.addRecursiveInstanceSelection(bpelScaleOutProcess, propMap, nodeTemplate,serviceTemplate);
+                this.addRecursiveInstanceSelection(bpelScaleOutProcess, propMap, nodeTemplate,serviceTemplate, csarName);
             }
 
             for (final AnnotatedAbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
@@ -381,7 +381,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                 if (selectionPlugin != null) {
                     final BPELScope scope =
                         this.planHandler.getTemplateBuildPlanById(stratNodeTemplate.getId(), bpelScaleOutProcess);
-                    selectionPlugin.handle(new BPELPlanContext(scope, propMap, serviceTemplate, serviceInstanceUrl,serviceInstanceId,serviceTemplateUrl), stratNodeTemplate,
+                    selectionPlugin.handle(new BPELPlanContext(scope, propMap, serviceTemplate, serviceInstanceUrl,serviceInstanceId,serviceTemplateUrl,csarName), stratNodeTemplate,
                                            new ArrayList<>(stratNodeTemplate.getAnnotations()));
                 }
             }
@@ -410,25 +410,25 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, final BPELPlan plan,
-                                         final Property2VariableMapping map) {
+                                         final Property2VariableMapping map, String csarFileName) {
     	
     	String serviceInstanceUrl = this.serviceInstanceHandler.findServiceInstanceUrlVariableName(plan);
 		String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
 		String serviceTemplateUrl = this.serviceInstanceHandler.findServiceTemplateUrlVariableName(plan);
     	
         return new BPELPlanContext(this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map,
-            plan.getServiceTemplate(),serviceInstanceUrl,serviceInstanceId,serviceTemplateUrl);
+            plan.getServiceTemplate(),serviceInstanceUrl,serviceInstanceId,serviceTemplateUrl, csarFileName);
     }
 
     public BPELPlanContext createContext(final AbstractRelationshipTemplate relationshipTemplate, final BPELPlan plan,
-                                         final Property2VariableMapping map) {
+                                         final Property2VariableMapping map, String csarFileName) {
     	
      	String serviceInstanceUrl = this.serviceInstanceHandler.findServiceInstanceUrlVariableName(plan);
     		String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
     		String serviceTemplateUrl = this.serviceInstanceHandler.findServiceTemplateUrlVariableName(plan);
     	
         return new BPELPlanContext(this.planHandler.getTemplateBuildPlanById(relationshipTemplate.getId(), plan), map,
-            plan.getServiceTemplate(),serviceInstanceUrl,serviceInstanceId,serviceTemplateUrl);
+            plan.getServiceTemplate(),serviceInstanceUrl,serviceInstanceId,serviceTemplateUrl, csarFileName);
     }
 
     private AbstractNodeTemplate fetchNodeTemplate(final AbstractTopologyTemplate topologyTemplate,
@@ -651,10 +651,10 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     private void runProvisioningLogicGeneration(final BPELPlan plan, final AbstractNodeTemplate nodeTemplate,
-                                                final Property2VariableMapping map, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl) {    	
+                                                final Property2VariableMapping map, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl, String csarFileName) {    	
         // handling nodetemplate
         final BPELPlanContext context = new BPELPlanContext(
-            this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map, plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId,serviceTemplateUrl);
+            this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map, plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId,serviceTemplateUrl, csarFileName);
         // check if we have a generic plugin to handle the template
         // Note: if a generic plugin fails during execution the
         // TemplateBuildPlan is broken!
@@ -686,10 +686,10 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
     private void runProvisioningLogicGeneration(final BPELPlan plan,
                                                 final AbstractRelationshipTemplate relationshipTemplate,
-                                                final Property2VariableMapping map) {
+                                                final Property2VariableMapping map, String csarFileName) {
         // handling relationshiptemplate
 
-        final BPELPlanContext context = this.createContext(relationshipTemplate, plan, map);
+        final BPELPlanContext context = this.createContext(relationshipTemplate, plan, map, csarFileName);
 
         // check if we have a generic plugin to handle the template
         // Note: if a generic plugin fails during execution the
@@ -715,12 +715,12 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
     private void runProvisioningLogicGeneration(final BPELPlan plan, final Property2VariableMapping map,
                                                 final List<AbstractNodeTemplate> nodeTemplates,
-                                                final List<AbstractRelationshipTemplate> relationshipTemplates, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl) {
+                                                final List<AbstractRelationshipTemplate> relationshipTemplates, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl, String csarFileName) {
         for (final AbstractNodeTemplate node : nodeTemplates) {
-            this.runProvisioningLogicGeneration(plan, node, map, serviceInstanceUrl,serviceInstanceId,serviceTemplateUrl);
+            this.runProvisioningLogicGeneration(plan, node, map, serviceInstanceUrl,serviceInstanceId,serviceTemplateUrl, csarFileName);
         }
         for (final AbstractRelationshipTemplate relation : relationshipTemplates) {
-            this.runProvisioningLogicGeneration(plan, relation, map);
+            this.runProvisioningLogicGeneration(plan, relation, map, csarFileName);
         }
     }
 

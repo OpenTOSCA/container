@@ -117,7 +117,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 				"?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED", serviceTemplate);
 		this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan, propMap,serviceTemplate);
 
-		final List<BPELScope> changedActivities = runPlugins(newTerminationPlan, propMap);
+		final List<BPELScope> changedActivities = runPlugins(newTerminationPlan, propMap, csarName);
 
 		String serviceInstanceURLVarName = this.serviceInstanceHandler
 				.findServiceInstanceUrlVariableName(newTerminationPlan);		
@@ -137,7 +137,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 		for (final BPELScope activ : changedActivities) {
 			if (activ.getNodeTemplate() != null) {
 				final BPELPlanContext context = new BPELPlanContext(activ, propMap,
-						newTerminationPlan.getServiceTemplate(),serviceInstanceURLVarName,serviceInstanceId,serviceTemplateURLVarName);
+						newTerminationPlan.getServiceTemplate(),serviceInstanceURLVarName,serviceInstanceId,serviceTemplateURLVarName, csarName);
 				this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getNodeTemplate(),
 						"?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 			}
@@ -185,7 +185,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 	 * @param propMap         a PropertyMapping from NodeTemplate to Properties to
 	 *                        BPELVariables
 	 */
-	private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap) {
+	private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap, String csarName) {
 
 		String serviceInstanceUrl = this.serviceInstanceHandler.findServiceInstanceUrlVariableName(plan);
 		String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
@@ -199,7 +199,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 				final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
 				// .. that are VM nodeTypes
 				// create context for the templatePlan
-				final BPELPlanContext context = new BPELPlanContext(bpelScope, propMap, plan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId,serviceTemplateUrl);
+				final BPELPlanContext context = new BPELPlanContext(bpelScope, propMap, plan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId,serviceTemplateUrl, csarName);
 				this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate, plan.findNodeTemplateActivity(nodeTemplate, ActivityType.TERMINATION));
 			}
 

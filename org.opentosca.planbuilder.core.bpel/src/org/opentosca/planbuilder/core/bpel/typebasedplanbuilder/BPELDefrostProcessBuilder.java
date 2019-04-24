@@ -151,9 +151,9 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 			String serviceInstanceId = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newDefreezePlan);
 			String serviceTemplateUrl = this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newDefreezePlan);
 			
-			this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl,serviceTemplate);
+			this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl,serviceTemplate, csarName);
 
-			final List<BPELScope> changedActivities = runPlugins(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl);
+			final List<BPELScope> changedActivities = runPlugins(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
 
 			this.correlationHandler.addCorrellationID(newDefreezePlan);
 
@@ -231,14 +231,14 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 	 * @param propMap         a PropertyMapping from NodeTemplate to Properties to
 	 *                        BPELVariables
 	 */
-	private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl) {
+	private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl, String csarFileName) {
 
 		final List<BPELScope> changedActivities = new ArrayList<>();
 
 		String statefulServiceTemplateUrlVarName = this.findStatefulServiceTemplateUrlVar(plan);
 		
 		for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
-			final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl);
+			final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarFileName);
 
 			if (templatePlan.getNodeTemplate() != null) {
 				// create a context for the node

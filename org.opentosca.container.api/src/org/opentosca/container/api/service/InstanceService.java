@@ -19,6 +19,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.Property;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceProperty;
@@ -111,6 +112,10 @@ public class InstanceService {
     public Collection<ServiceTemplateInstance> getServiceTemplateInstances(final QName serviceTemplate) {
         logger.debug("Requesting instances of ServiceTemplate \"{}\"...", serviceTemplate);
         return this.serviceTemplateInstanceRepository.findByTemplateId(serviceTemplate);
+    }
+    
+    public ServiceTemplateInstance getServiceTemplateInstanceByCorrelationId(String correlationId) {    	    	
+    	return this.serviceTemplateInstanceRepository.findAll().stream().filter(s -> s.getPlanInstances().stream().anyMatch(p -> p.getCorrelationId().equals(correlationId))).findFirst().get();    	    	
     }
 
     public ServiceTemplateInstance getServiceTemplateInstance(final Long id) {
@@ -209,7 +214,8 @@ public class InstanceService {
             throw new NotFoundException(msg);
         }
 
-        if (pi.getServiceTemplateInstance() == null) {
+        // If the found plan is a build plan there shouldn't be a service template instance available, if it is a transformation plan the service instance mustn't be of the service template the new service instance should belong to
+        if ((pi.getType().equals(PlanType.BUILD) & pi.getServiceTemplateInstance() == null) || (pi.getType().equals(PlanType.TRANSFORMATION) & !pi.getServiceTemplateInstance().getTemplateId().toString().equals(serviceTemplateQName))) {
             final QName stqn = QName.valueOf(serviceTemplateQName);
             final ServiceTemplateInstance result = this.createServiceTemplateInstance(csar, stqn, pi);
 
@@ -236,6 +242,7 @@ public class InstanceService {
         instance.setState(ServiceTemplateInstanceState.INITIAL);
         instance.addProperty(property);
         instance.addPlanInstance(buildPlanInstance);
+        instance.setCreationCorrelationId(buildPlanInstance.getCorrelationId());
         this.serviceTemplateInstanceRepository.add(instance);
         new PlanInstanceRepository().update(buildPlanInstance);
 

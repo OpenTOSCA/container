@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.tosca.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -105,21 +106,19 @@ public class EmptyPropertyToInputHandler {
 	}
 
 	public void initializeEmptyPropertiesAsInputParam(final BPELPlan buildPlan, final Property2VariableMapping propMap,
-			String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl, AbstractServiceTemplate serviceTemplate) {
+			String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl, AbstractServiceTemplate serviceTemplate, String csarName) {
 		this.initializeEmptyPropertiesAsInputParam(buildPlan.getTemplateBuildPlans(), buildPlan, propMap,
-				serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, serviceTemplate);
+				serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, serviceTemplate, csarName);
 	}
 
-	public void initializeEmptyPropertiesAsInputParam(final List<BPELScope> bpelActivities, final BPELPlan plan,
-			final Property2VariableMapping propMap, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl, AbstractServiceTemplate serviceTemplate) {
+	public void initializeEmptyPropertiesAsInputParam(final Collection<BPELScope> bpelActivities, final BPELPlan plan,
+			final Property2VariableMapping propMap, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl, AbstractServiceTemplate serviceTemplate, String csarName) {
 		for (final BPELScope templatePlan : bpelActivities) {
 			if (templatePlan.getNodeTemplate() != null) {
-				final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
-				final List<AbstractNodeTemplate> hostingNodes = new ArrayList<>();
-				ModelUtils.getNodesFromNodeToSink(nodeTemplate, hostingNodes);
+				final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();				
 
 				final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate(),
-						serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl);
+						serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
 
 				
 				if (propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate).isEmpty()) {
@@ -130,11 +129,9 @@ public class EmptyPropertyToInputHandler {
 				for(PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {				
 					if (!BPELPlanContext.isVariableValueEmpty(var, context)) {
 						String content = BPELPlanContext.getVariableContent(var, context);
-						if (content.startsWith("get_input")) {
-							if (content.contains("get_input:")) {
+						if (content.startsWith("get_input:")) {							
 								content = content.replace("get_input:", "").trim();
-								addToPlanInput(plan, content, var, context);
-							}
+								addToPlanInput(plan, content, var, context);							
 						}
 					}
 				}				

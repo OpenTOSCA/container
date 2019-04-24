@@ -124,7 +124,8 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
             }
 
             for (final TPlan plan : plans.getPlan()) {
-                if (!OpenToscaControlServiceImpl.planEngine.deployPlan(plan, namespace, csarID)) {
+
+            	if (!OpenToscaControlServiceImpl.planEngine.deployPlan(plan, namespace, csarID)) {
                     listOfUndeployedPlans.add(plan);
                 }
             }

@@ -24,7 +24,7 @@ import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.core.tosca.handlers.EmptyPropertyToInputHandler;
 import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyMappingsToOutputHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
 import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler.Property2VariableMapping;
@@ -69,7 +69,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
 	private final PropertyVariableHandler propertyInitializer;
 	// class for initializing output with boundarydefinitions of a
 	// serviceTemplate
-	private final PropertyMappingsToOutputHandler propertyOutputInitializer;
+	private final ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
 	// adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
 
 	private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
@@ -104,7 +104,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
 		}
 		// TODO seems ugly
 		this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
-		this.propertyOutputInitializer = new PropertyMappingsToOutputHandler();
+		this.propertyOutputInitializer = new ServiceTemplateBoundaryPropertyMappingsToOutputHandler();
 		this.finalizer = new BPELFinalizer();
 		this.opNames.add("install");
 		this.opNames.add("configure");
@@ -184,9 +184,9 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
 		String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(newBuildPlan);
 		String serviceTemplateUrl = this.serviceInstanceHandler.findServiceTemplateUrlVariableName(newBuildPlan);
 		
-		this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl,serviceTemplate);
+		this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl,serviceTemplate, csarName);
 
-		runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl);
+		runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
 
 		this.correlationHandler.addCorrellationID(newBuildPlan);
 
@@ -244,7 +244,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
 	 * @param map       a PropertyMap which contains mappings from Template to
 	 *                  Property and to variable name of inside the BuidlPlan
 	 */
-	private boolean runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl) {
+	private boolean runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map, String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl, String csarName) {
 			
 		
 		for (final BPELScope templatePlan : buildPlan.getTemplateBuildPlans()) {
@@ -253,7 +253,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
 				// handling nodetemplate
 				final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 				BPELPolicyAwareBuildProcessBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
-				final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl);
+				final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken!
@@ -366,7 +366,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
 			} else {
 				// handling relationshiptemplate
 				final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
-				final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl);
+				final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate(),serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl,csarName);
 
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
