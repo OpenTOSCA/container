@@ -144,10 +144,8 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         // create bpel assign with created query
         try {
             // create assign and append
-            Node assignNode = loadAssignXpathQueryToStringVarFragmentAsNode(
-                                                                            "assignValuesToAddConnection"
-                                                                                + System.currentTimeMillis(),
-                                                                            xpathQuery, bashCommandVariable.getVariableName());
+            Node assignNode = loadAssignXpathQueryToStringVarFragmentAsNode("assignValuesToAddConnection"
+                + System.currentTimeMillis(), xpathQuery, bashCommandVariable.getVariableName());
             assignNode = templateContext.importNode(assignNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignNode);
         }

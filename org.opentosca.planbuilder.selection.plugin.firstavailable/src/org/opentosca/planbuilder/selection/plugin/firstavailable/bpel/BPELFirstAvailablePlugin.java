@@ -110,8 +110,9 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
         try {
             final NodeRelationInstanceVariablesHandler nodeInit =
                 new NodeRelationInstanceVariablesHandler(new BPELPlanHandler());
-            
-            nodeInit.addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate,context.getServiceTemplate());
+
+            nodeInit.addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate,
+                                                                    context.getServiceTemplate());
         }
         catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block

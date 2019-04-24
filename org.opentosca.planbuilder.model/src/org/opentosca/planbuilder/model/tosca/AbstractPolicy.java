@@ -22,32 +22,33 @@ public abstract class AbstractPolicy {
 
     public abstract AbstractPolicyTemplate getTemplate();
 
-    
+
     @Override
-    public boolean equals(Object object) {    	
-    	if(!(object instanceof AbstractPolicy)) {
-    		return false;
-    	}
-    	
-    	AbstractPolicy policy = (AbstractPolicy) object;
-    	
-    	if(!policy.getName().equals(this.getName())) {
-    		return false;
-    	}
-    	
-    	if((policy.getProperties() == null & policy.getProperties() == null ) || !(policy.getProperties().equals(this.getProperties()))) {
-    		return false;
-    	}
-    	
-    	if(!(policy.getType().equals(this.getType()))) {
-    		return false;
-    	}
-    	
-    	if(!(policy.getTemplate().equals(this.getTemplate()))) {
-    		return false;
-    	}
-    	
-    	return true;
+    public boolean equals(Object object) {
+        if (!(object instanceof AbstractPolicy)) {
+            return false;
+        }
+
+        AbstractPolicy policy = (AbstractPolicy) object;
+
+        if (!policy.getName().equals(this.getName())) {
+            return false;
+        }
+
+        if ((policy.getProperties() == null & policy.getProperties() == null)
+            || !(policy.getProperties().equals(this.getProperties()))) {
+            return false;
+        }
+
+        if (!(policy.getType().equals(this.getType()))) {
+            return false;
+        }
+
+        if (!(policy.getTemplate().equals(this.getTemplate()))) {
+            return false;
+        }
+
+        return true;
     }
 
 }

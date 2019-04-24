@@ -95,7 +95,8 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
     }
 
     @Override
-    public boolean handleCreate(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(final BPELPlanContext context,
+                                final AbstractRelationshipTemplate relationshipTemplate) {
         // only handling nodeTemplates
         return false;
     }
@@ -191,28 +192,28 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
         return null;
     }
 
-	@Override
-	public boolean handleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean handleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean handleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean handleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }

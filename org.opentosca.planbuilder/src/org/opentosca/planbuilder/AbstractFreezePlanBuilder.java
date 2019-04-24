@@ -31,12 +31,12 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
     QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
 
 
-	@Override
-	public PlanType createdPlanType() {
-		return PlanType.TERMINATE;
-	}
+    @Override
+    public PlanType createdPlanType() {
+        return PlanType.TERMINATE;
+    }
 
-    
+
     protected AbstractPlan generateFOG(final String id, final AbstractDefinitions definitions,
                                        final AbstractServiceTemplate serviceTemplate) {
 
@@ -78,8 +78,7 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
             if (baseType.equals(Types.connectsToRelationType)) {
                 links.add(new Link(activity, mapping.get(relationshipTemplate.getSource())));
                 links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
-            } else if (baseType.equals(Types.dependsOnRelationType)
-                | baseType.equals(Types.hostedOnRelationType)
+            } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
                 | baseType.equals(Types.deployedOnRelationType)) {
                 links.add(new Link(mapping.get(relationshipTemplate.getSource()), activity));
                 links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));

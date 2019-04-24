@@ -16,287 +16,288 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
-	public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
 
-		AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
+        AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
 
-		Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
+        Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
 
-		AbstractOperation op = null;
-		boolean result = true;
+        AbstractOperation op = null;
+        boolean result = true;
 
-		if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate)) != null)
-				&& hasCompleteMatching(nodesForMatching, iface, op)) {
-			result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
-		}
+        if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate)) != null)
+            && hasCompleteMatching(nodesForMatching, iface, op)) {
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
+        }
 
-		if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate)) != null)
-				&& hasCompleteMatching(nodesForMatching, iface, op)) {
-			result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
-		}
+        if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate)) != null)
+            && hasCompleteMatching(nodesForMatching, iface, op)) {
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
+        }
 
-		if (((op = this.getLifecyclePatternStartMethod(nodeTemplate)) != null)
-				&& hasCompleteMatching(nodesForMatching, iface, op)) {
-			result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
-		}
+        if (((op = this.getLifecyclePatternStartMethod(nodeTemplate)) != null)
+            && hasCompleteMatching(nodesForMatching, iface, op)) {
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
+        }
 
-		return result;
-	}
-	
-	public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+        return result;
+    }
 
-		AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
+    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
 
-		Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
+        AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
 
-		AbstractOperation op = null;
-		boolean result = true;
+        Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
 
-		if (((op = this.getLifecyclePatternStopMethod(nodeTemplate)) != null)
-				&& hasCompleteMatching(nodesForMatching, iface, op)) {
-			result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
-		}
+        AbstractOperation op = null;
+        boolean result = true;
 
-		if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate)) != null)
-				&& hasCompleteMatching(nodesForMatching, iface, op)) {
-			result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
-		}
+        if (((op = this.getLifecyclePatternStopMethod(nodeTemplate)) != null)
+            && hasCompleteMatching(nodesForMatching, iface, op)) {
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
+        }
 
-		return result;
-	}
-	
-	
-	private boolean isImplementedAsScript(AbstractInterface iface, AbstractOperation op, AbstractNodeTemplate nodeTemplate) {				
-		for(AbstractNodeTypeImplementation impl : nodeTemplate.getImplementations()) {
-			for(AbstractImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
-				if(implArtifact.getInterfaceName().equals(iface.getName())) {					
-					if(implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
-						return true;
-					}					
-				}
-			}
-		}
-		
-		return false;
-	}
-	
-	// This method looks for runScript and transferFile operation on the hosting infrastructure
-	private boolean checkForRunScriptAndTransferFile(AbstractNodeTemplate nodeTemplate) {
-		
-		Set<AbstractNodeTemplate> nodeTemplates = this.getNodesForMatching(nodeTemplate);
-		
-		boolean foundRunScript = false;
-		boolean foundTransferFile = false;
-		for(AbstractNodeTemplate node : nodeTemplates) {
-			for(AbstractInterface iface : node.getType().getInterfaces()) {
-				for(AbstractOperation op : iface.getOperations()) {
-					if(op.getName().equals("runScript")) {
-						foundRunScript = true;
-					}
-					if(op.getName().equals("transferFile")) {
-						foundTransferFile = true;
-					}
-				}
-			}			
-		}
-		
-		return foundRunScript & foundTransferFile;
-	}
+        if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate)) != null)
+            && hasCompleteMatching(nodesForMatching, iface, op)) {
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
+        }
 
-	private Set<AbstractNodeTemplate> getNodesForMatching(AbstractNodeTemplate nodeTemplate) {
-		Set<AbstractNodeTemplate> nodesForMatching = new HashSet<AbstractNodeTemplate>();
+        return result;
+    }
 
-		nodesForMatching.add(nodeTemplate);
-		ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, nodesForMatching);
-		ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.hostedOnRelationType, nodesForMatching);
-		return nodesForMatching;
-	}
 
-	public boolean isProvisionableByLifecyclePattern(final AbstractNodeTemplate nodeTemplate) {
+    private boolean isImplementedAsScript(AbstractInterface iface, AbstractOperation op,
+                                          AbstractNodeTemplate nodeTemplate) {
+        for (AbstractNodeTypeImplementation impl : nodeTemplate.getImplementations()) {
+            for (AbstractImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
+                if (implArtifact.getInterfaceName().equals(iface.getName())) {
+                    if (implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
+                        return true;
+                    }
+                }
+            }
+        }
 
-		if (!hasLifecycleProvisioningMethods(nodeTemplate)) {
-			return false;
-		}
+        return false;
+    }
 
-		Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
+    // This method looks for runScript and transferFile operation on the hosting infrastructure
+    private boolean checkForRunScriptAndTransferFile(AbstractNodeTemplate nodeTemplate) {
 
-		// Small check if we have to find runScript and transferFile operations
-		boolean hasScriptImplementation = false;
-		
-		// check if the lifecycle operations can be matched against the nodes
-		AbstractOperation op = null;
-		AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
-		if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate)) != null)
-				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
-			return false;
-		}
-		
-		hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
+        Set<AbstractNodeTemplate> nodeTemplates = this.getNodesForMatching(nodeTemplate);
 
-		if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate)) != null)
-				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
-			return false;
-		}
+        boolean foundRunScript = false;
+        boolean foundTransferFile = false;
+        for (AbstractNodeTemplate node : nodeTemplates) {
+            for (AbstractInterface iface : node.getType().getInterfaces()) {
+                for (AbstractOperation op : iface.getOperations()) {
+                    if (op.getName().equals("runScript")) {
+                        foundRunScript = true;
+                    }
+                    if (op.getName().equals("transferFile")) {
+                        foundTransferFile = true;
+                    }
+                }
+            }
+        }
 
-		hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
-		
-		if (((op = this.getLifecyclePatternStartMethod(nodeTemplate)) != null)
-				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
-			return false;
-		}
-		
-		hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
-		
-		if(hasScriptImplementation) {
-			return this.checkForRunScriptAndTransferFile(nodeTemplate);
-		}
+        return foundRunScript & foundTransferFile;
+    }
 
-		return true;
-	}
-	
-	public boolean isDeprovisionableByLifecyclePattern(final AbstractNodeTemplate nodeTemplate) {
+    private Set<AbstractNodeTemplate> getNodesForMatching(AbstractNodeTemplate nodeTemplate) {
+        Set<AbstractNodeTemplate> nodesForMatching = new HashSet<AbstractNodeTemplate>();
 
-		if (!hasLifecycleProvisioningMethods(nodeTemplate)) {
-			return false;
-		}
+        nodesForMatching.add(nodeTemplate);
+        ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, nodesForMatching);
+        ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.hostedOnRelationType, nodesForMatching);
+        return nodesForMatching;
+    }
 
-		Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
+    public boolean isProvisionableByLifecyclePattern(final AbstractNodeTemplate nodeTemplate) {
 
-		// Small check if we have to find runScript and transferFile operations
-				boolean hasScriptImplementation = false;
-		
-		// check if the lifecycle operations can be matched against the nodes
-		AbstractOperation op = null;
-		AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
-		if (((op = this.getLifecyclePatternStopMethod(nodeTemplate)) != null)
-				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
-			return false;
-		}
+        if (!hasLifecycleProvisioningMethods(nodeTemplate)) {
+            return false;
+        }
 
-		hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
-		
-		if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate)) != null)
-				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
-			return false;
-		}
-		
-		hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
+        Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
 
-		if(hasScriptImplementation) {
-			return this.checkForRunScriptAndTransferFile(nodeTemplate);
-		}
-		
-		return true;
-	}
+        // Small check if we have to find runScript and transferFile operations
+        boolean hasScriptImplementation = false;
 
-	public Collection<AbstractNodeTemplate> getMatchedNodesForProvisioning(AbstractNodeTemplate nodeTemplate) {
+        // check if the lifecycle operations can be matched against the nodes
+        AbstractOperation op = null;
+        AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
+        if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate)) != null)
+            && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            return false;
+        }
 
-		if (!hasLifecycleProvisioningMethods(nodeTemplate)) {
-			return null;
-		}
+        hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
 
-		Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
+        if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate)) != null)
+            && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            return false;
+        }
 
-		// check if the lifecycle operations can be matched against the nodes
-		AbstractOperation op = null;
-		AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
-		if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate)) != null)
-				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
-			OperationMatching matching = this.createPropertyToParameterMatching(nodesForMatching, iface, op);
-			nodesForMatching.addAll(matching.matchedNodes);
-		}
+        hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
 
-		if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate)) != null)
-				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
-			OperationMatching matching = this.createPropertyToParameterMatching(nodesForMatching, iface, op);
-			nodesForMatching.addAll(matching.matchedNodes);
-		}
+        if (((op = this.getLifecyclePatternStartMethod(nodeTemplate)) != null)
+            && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            return false;
+        }
 
-		if (((op = this.getLifecyclePatternStartMethod(nodeTemplate)) != null)
-				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
-			OperationMatching matching = this.createPropertyToParameterMatching(nodesForMatching, iface, op);
-			nodesForMatching.addAll(matching.matchedNodes);
-		}
-		return nodesForMatching;
-	}
-	
-	public Collection<AbstractNodeTemplate> getMatchedNodesForDeprovisioning(AbstractNodeTemplate nodeTemplate) {
+        hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
 
-		if (!hasLifecycleProvisioningMethods(nodeTemplate)) {
-			return null;
-		}
+        if (hasScriptImplementation) {
+            return this.checkForRunScriptAndTransferFile(nodeTemplate);
+        }
 
-		Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
+        return true;
+    }
 
-		// check if the lifecycle operations can be matched against the nodes
-		AbstractOperation op = null;
-		AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
-		if (((op = this.getLifecyclePatternStopMethod(nodeTemplate)) != null)
-				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
-			OperationMatching matching = this.createPropertyToParameterMatching(nodesForMatching, iface, op);
-			nodesForMatching.addAll(matching.matchedNodes);
-		}
+    public boolean isDeprovisionableByLifecyclePattern(final AbstractNodeTemplate nodeTemplate) {
 
-		if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate)) != null)
-				&& !hasCompleteMatching(nodesForMatching, iface, op)) {
-			OperationMatching matching = this.createPropertyToParameterMatching(nodesForMatching, iface, op);
-			nodesForMatching.addAll(matching.matchedNodes);
-		}
+        if (!hasLifecycleProvisioningMethods(nodeTemplate)) {
+            return false;
+        }
 
-		return nodesForMatching;
-	}
+        Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
 
-	private boolean hasLifecycleProvisioningMethods(AbstractNodeTemplate nodeTemplate) {
-		if (this.getLifecyclePatternInstallMethod(nodeTemplate) != null
-				|| this.getLifecyclePatternConfigureMethod(nodeTemplate) != null
-				|| this.getLifecyclePatternStartMethod(nodeTemplate) != null) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+        // Small check if we have to find runScript and transferFile operations
+        boolean hasScriptImplementation = false;
 
-	private AbstractInterface getLifecyclePatternInterface(final AbstractNodeTemplate nodeTemplate) {
-		for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-			if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE)) {
-				return iface;
-			}
-		}
-		return null;
-	}
+        // check if the lifecycle operations can be matched against the nodes
+        AbstractOperation op = null;
+        AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
+        if (((op = this.getLifecyclePatternStopMethod(nodeTemplate)) != null)
+            && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            return false;
+        }
 
-	private AbstractOperation getLifecyclePatternStartMethod(final AbstractNodeTemplate nodeTemplate) {
-		return this.getLifecyclePatternMethod(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START);
-	}
+        hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
 
-	private AbstractOperation getLifecyclePatternInstallMethod(final AbstractNodeTemplate nodeTemplate) {
-		return this.getLifecyclePatternMethod(nodeTemplate,
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_INSTALL);
-	}
+        if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate)) != null)
+            && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            return false;
+        }
 
-	private AbstractOperation getLifecyclePatternConfigureMethod(final AbstractNodeTemplate nodeTemplate) {
-		return this.getLifecyclePatternMethod(nodeTemplate,
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_CONFIGURE);
-	}
+        hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate);
 
-	private AbstractOperation getLifecyclePatternStopMethod(final AbstractNodeTemplate nodeTemplate) {
-		return this.getLifecyclePatternMethod(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP);
-	}
+        if (hasScriptImplementation) {
+            return this.checkForRunScriptAndTransferFile(nodeTemplate);
+        }
 
-	private AbstractOperation getLifecyclePatternUninstallMethod(final AbstractNodeTemplate nodeTemplate) {
-		return this.getLifecyclePatternMethod(nodeTemplate,
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_UNINSTALL);
-	}
+        return true;
+    }
 
-	private AbstractOperation getLifecyclePatternMethod(AbstractNodeTemplate nodeTemplate, String lifecycleMethod) {
-		AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
-		if (iface != null) {
-			for (final AbstractOperation op : iface.getOperations()) {
-				if (op.getName().equals(lifecycleMethod)) {
-					return op;
-				}
-			}
-		}
-		return null;
-	}
+    public Collection<AbstractNodeTemplate> getMatchedNodesForProvisioning(AbstractNodeTemplate nodeTemplate) {
+
+        if (!hasLifecycleProvisioningMethods(nodeTemplate)) {
+            return null;
+        }
+
+        Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
+
+        // check if the lifecycle operations can be matched against the nodes
+        AbstractOperation op = null;
+        AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
+        if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate)) != null)
+            && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            OperationMatching matching = this.createPropertyToParameterMatching(nodesForMatching, iface, op);
+            nodesForMatching.addAll(matching.matchedNodes);
+        }
+
+        if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate)) != null)
+            && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            OperationMatching matching = this.createPropertyToParameterMatching(nodesForMatching, iface, op);
+            nodesForMatching.addAll(matching.matchedNodes);
+        }
+
+        if (((op = this.getLifecyclePatternStartMethod(nodeTemplate)) != null)
+            && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            OperationMatching matching = this.createPropertyToParameterMatching(nodesForMatching, iface, op);
+            nodesForMatching.addAll(matching.matchedNodes);
+        }
+        return nodesForMatching;
+    }
+
+    public Collection<AbstractNodeTemplate> getMatchedNodesForDeprovisioning(AbstractNodeTemplate nodeTemplate) {
+
+        if (!hasLifecycleProvisioningMethods(nodeTemplate)) {
+            return null;
+        }
+
+        Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
+
+        // check if the lifecycle operations can be matched against the nodes
+        AbstractOperation op = null;
+        AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
+        if (((op = this.getLifecyclePatternStopMethod(nodeTemplate)) != null)
+            && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            OperationMatching matching = this.createPropertyToParameterMatching(nodesForMatching, iface, op);
+            nodesForMatching.addAll(matching.matchedNodes);
+        }
+
+        if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate)) != null)
+            && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            OperationMatching matching = this.createPropertyToParameterMatching(nodesForMatching, iface, op);
+            nodesForMatching.addAll(matching.matchedNodes);
+        }
+
+        return nodesForMatching;
+    }
+
+    private boolean hasLifecycleProvisioningMethods(AbstractNodeTemplate nodeTemplate) {
+        if (this.getLifecyclePatternInstallMethod(nodeTemplate) != null
+            || this.getLifecyclePatternConfigureMethod(nodeTemplate) != null
+            || this.getLifecyclePatternStartMethod(nodeTemplate) != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private AbstractInterface getLifecyclePatternInterface(final AbstractNodeTemplate nodeTemplate) {
+        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE)) {
+                return iface;
+            }
+        }
+        return null;
+    }
+
+    private AbstractOperation getLifecyclePatternStartMethod(final AbstractNodeTemplate nodeTemplate) {
+        return this.getLifecyclePatternMethod(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START);
+    }
+
+    private AbstractOperation getLifecyclePatternInstallMethod(final AbstractNodeTemplate nodeTemplate) {
+        return this.getLifecyclePatternMethod(nodeTemplate,
+                                              Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_INSTALL);
+    }
+
+    private AbstractOperation getLifecyclePatternConfigureMethod(final AbstractNodeTemplate nodeTemplate) {
+        return this.getLifecyclePatternMethod(nodeTemplate,
+                                              Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_CONFIGURE);
+    }
+
+    private AbstractOperation getLifecyclePatternStopMethod(final AbstractNodeTemplate nodeTemplate) {
+        return this.getLifecyclePatternMethod(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP);
+    }
+
+    private AbstractOperation getLifecyclePatternUninstallMethod(final AbstractNodeTemplate nodeTemplate) {
+        return this.getLifecyclePatternMethod(nodeTemplate,
+                                              Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_UNINSTALL);
+    }
+
+    private AbstractOperation getLifecyclePatternMethod(AbstractNodeTemplate nodeTemplate, String lifecycleMethod) {
+        AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
+        if (iface != null) {
+            for (final AbstractOperation op : iface.getOperations()) {
+                if (op.getName().equals(lifecycleMethod)) {
+                    return op;
+                }
+            }
+        }
+        return null;
+    }
 }

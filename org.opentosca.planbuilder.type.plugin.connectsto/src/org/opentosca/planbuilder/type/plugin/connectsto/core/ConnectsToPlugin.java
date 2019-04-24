@@ -78,19 +78,19 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
     @Override
     public String getID() {
         return ConnectsToPlugin.PLUGIN_ID;
-    }    
+    }
 
-	@Override
-	public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
-		// TODO we have to define the semantics of a disconnect first
-		return false;
-	}
+    @Override
+    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+        // TODO we have to define the semantics of a disconnect first
+        return false;
+    }
 
 
-	@Override
-	public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
-		// will never be used for nodeTemplates
-		return false;
-	}
+    @Override
+    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+        // will never be used for nodeTemplates
+        return false;
+    }
 
 }

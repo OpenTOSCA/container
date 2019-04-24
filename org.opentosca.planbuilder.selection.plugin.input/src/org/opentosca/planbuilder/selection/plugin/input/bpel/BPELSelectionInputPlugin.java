@@ -61,7 +61,8 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
 
         try {
             new NodeRelationInstanceVariablesHandler(
-                new BPELPlanHandler()).addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate,context.getServiceTemplate());
+                new BPELPlanHandler()).addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate,
+                                                                                      context.getServiceTemplate());
         }
         catch (final ParserConfigurationException e) {
             e.printStackTrace();

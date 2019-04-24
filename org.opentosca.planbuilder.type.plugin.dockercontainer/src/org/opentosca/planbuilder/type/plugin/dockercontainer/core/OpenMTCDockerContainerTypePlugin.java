@@ -87,18 +87,18 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
         // we can only handle nodeTemplates
         return false;
     }
-    
-    @Override
-	public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
-	@Override
-	public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
-		// we can handle only nodeTemplates
-		return false;
-	}
+    @Override
+    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+        // we can handle only nodeTemplates
+        return false;
+    }
 
     public boolean canHandleDockerContainerPropertiesAndDA(final AbstractNodeTemplate nodeTemplate) {
         // for this method to return true, the given NodeTemplate must hold

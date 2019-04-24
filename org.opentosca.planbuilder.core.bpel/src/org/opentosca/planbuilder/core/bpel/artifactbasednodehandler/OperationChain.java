@@ -130,8 +130,8 @@ public class OperationChain {
      * <b>Info:</b> A ProvisioningCandidate may not have an appropiate order of operations set
      * </p>
      *
-     * @param context a BPELPlanContext which is initialized for either a
-     *        NodeTemplate or RelationshipTemplate this ProvisioningChain belongs to
+     * @param context a BPELPlanContext which is initialized for either a NodeTemplate or
+     *        RelationshipTemplate this ProvisioningChain belongs to
      * @return returns false only when execution of a plugin inside the ProvisioningCandidate failed,
      *         else true. There may be no ProvisioningCandidate available, because there is no need for
      *         operation to call. In this case true is also returned.

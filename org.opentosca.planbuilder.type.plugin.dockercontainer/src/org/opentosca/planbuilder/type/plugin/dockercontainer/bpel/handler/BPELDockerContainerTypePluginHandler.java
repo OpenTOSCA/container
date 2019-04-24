@@ -57,17 +57,17 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             e.printStackTrace();
         }
     }
-    
+
     public boolean handleTerminate(final BPELPlanContext context) {
-    	final List<AbstractNodeTemplate> nodes = new ArrayList<>();
+        final List<AbstractNodeTemplate> nodes = new ArrayList<>();
         ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
 
         for (final AbstractNodeTemplate node : nodes) {
             if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
                                                                                                         .getId())) {
                 return context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
-                                         null);
+                                                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
+                                                null);
 
             }
         }
@@ -101,7 +101,8 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                                                                           "concat($"
                                                                                               + containerPortVar.getVariableName()
                                                                                               + ",',',$"
-                                                                                              + portVar.getVariableName() + ")",
+                                                                                              + portVar.getVariableName()
+                                                                                              + ")",
                                                                                           portMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
@@ -145,7 +146,8 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         // <ContainerMountPath>/etc/openmtc/certs</ContainerMountPath>
         // <HostMountFiles>/home/ubuntu/ca-smartorchestra.crt</HostMountFiles>
 
-        final PropertyVariable containerMountPath = templateContext.getPropertyVariable(nodeTemplate, "ContainerMountPath");
+        final PropertyVariable containerMountPath =
+            templateContext.getPropertyVariable(nodeTemplate, "ContainerMountPath");
 
         Variable remoteVolumeDataVariable = null;
         PropertyVariable hostVolumeDataVariable = null;

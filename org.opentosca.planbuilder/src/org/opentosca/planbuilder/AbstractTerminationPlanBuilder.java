@@ -26,61 +26,60 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanBuilder {
 
-	
 
-	@Override
-	public PlanType createdPlanType() {
-		return PlanType.TERMINATE;
-	}
 
-	
-	protected AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
-			final AbstractServiceTemplate serviceTemplate) {
-		return AbstractTerminationPlanBuilder.generateTOG(id, definitions, serviceTemplate,
-				serviceTemplate.getTopologyTemplate().getNodeTemplates(),
-				serviceTemplate.getTopologyTemplate().getRelationshipTemplates());
-	}
+    @Override
+    public PlanType createdPlanType() {
+        return PlanType.TERMINATE;
+    }
 
-	protected static AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
-			final AbstractServiceTemplate serviceTemplate, Collection<AbstractNodeTemplate> nodes,
-			Collection<AbstractRelationshipTemplate> relations) {
 
-		final Collection<AbstractActivity> activities = new ArrayList<>();
-		final Set<Link> links = new HashSet<>();
-		final Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<>();
+    protected AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
+                                       final AbstractServiceTemplate serviceTemplate) {
+        return AbstractTerminationPlanBuilder.generateTOG(id, definitions, serviceTemplate,
+                                                          serviceTemplate.getTopologyTemplate().getNodeTemplates(),
+                                                          serviceTemplate.getTopologyTemplate()
+                                                                         .getRelationshipTemplates());
+    }
 
-		for (final AbstractNodeTemplate nodeTemplate : nodes) {
-			final ANodeTemplateActivity activity = new ANodeTemplateActivity(
-					nodeTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, nodeTemplate);
-			activities.add(activity);
-			mapping.put(nodeTemplate, activity);
-		}
+    protected static AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
+                                              final AbstractServiceTemplate serviceTemplate,
+                                              Collection<AbstractNodeTemplate> nodes,
+                                              Collection<AbstractRelationshipTemplate> relations) {
 
-		for (final AbstractRelationshipTemplate relationshipTemplate : relations) {
-			final ARelationshipTemplateActivity activity = new ARelationshipTemplateActivity(
-					relationshipTemplate.getId() + "_termination_activity", ActivityType.TERMINATION,
-					relationshipTemplate);
-			activities.add(activity);
+        final Collection<AbstractActivity> activities = new ArrayList<>();
+        final Set<Link> links = new HashSet<>();
+        final Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<>();
 
-			final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
+        for (final AbstractNodeTemplate nodeTemplate : nodes) {
+            final ANodeTemplateActivity activity = new ANodeTemplateActivity(
+                nodeTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, nodeTemplate);
+            activities.add(activity);
+            mapping.put(nodeTemplate, activity);
+        }
 
-			if (baseType.equals(Types.connectsToRelationType)) {
-				links.add(new Link(activity, mapping.get(relationshipTemplate.getSource())));
-				links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
-			} else if (baseType.equals(Types.dependsOnRelationType)
-					| baseType.equals(Types.hostedOnRelationType)
-					| baseType.equals(Types.deployedOnRelationType)) {
-				links.add(new Link(mapping.get(relationshipTemplate.getSource()), activity));
-				links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
-			}
+        for (final AbstractRelationshipTemplate relationshipTemplate : relations) {
+            final ARelationshipTemplateActivity activity = new ARelationshipTemplateActivity(
+                relationshipTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, relationshipTemplate);
+            activities.add(activity);
 
-		}
+            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
 
-		final AbstractPlan abstractTerminationPlan = new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions,
-				serviceTemplate, activities, links) {
-		};
+            if (baseType.equals(Types.connectsToRelationType)) {
+                links.add(new Link(activity, mapping.get(relationshipTemplate.getSource())));
+                links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
+            } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
+                | baseType.equals(Types.deployedOnRelationType)) {
+                links.add(new Link(mapping.get(relationshipTemplate.getSource()), activity));
+                links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
+            }
 
-		return abstractTerminationPlan;		
-	}
+        }
+
+        final AbstractPlan abstractTerminationPlan =
+            new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions, serviceTemplate, activities, links) {};
+
+        return abstractTerminationPlan;
+    }
 
 }

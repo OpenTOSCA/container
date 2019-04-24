@@ -106,8 +106,7 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
 
     private AbstractNodeTemplate getNextNodeTemplate(final AbstractNodeTemplate node) {
         for (final AbstractRelationshipTemplate r : node.getOutgoingRelations()) {
-            if (ModelUtils.getRelationshipTypeHierarchy(r.getRelationshipType())
-                          .contains(Types.hostedOnRelationType)) {
+            if (ModelUtils.getRelationshipTypeHierarchy(r.getRelationshipType()).contains(Types.hostedOnRelationType)) {
                 return r.getTarget();
             }
         }

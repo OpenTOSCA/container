@@ -16,61 +16,62 @@ import javax.xml.namespace.QName;
  */
 public abstract class AbstractDeploymentArtifact {
 
-	/**
-	 * Returns the ArtifactType of this DeploymentArtifact
-	 *
-	 * @return a QName
-	 */
-	public abstract QName getArtifactType();
+    /**
+     * Returns the ArtifactType of this DeploymentArtifact
+     *
+     * @return a QName
+     */
+    public abstract QName getArtifactType();
 
-	/**
-	 * Returns the ArtifactTemplate of this DeploymentArtifact
-	 *
-	 * @return an AbstractArtifactTemplate
-	 */
-	public abstract AbstractArtifactTemplate getArtifactRef();
+    /**
+     * Returns the ArtifactTemplate of this DeploymentArtifact
+     *
+     * @return an AbstractArtifactTemplate
+     */
+    public abstract AbstractArtifactTemplate getArtifactRef();
 
-	/**
-	 * Returns the name of this DeploymentArtifact
-	 *
-	 * @return a String
-	 */
-	public abstract String getName();
+    /**
+     * Returns the name of this DeploymentArtifact
+     *
+     * @return a String
+     */
+    public abstract String getName();
 
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof AbstractDeploymentArtifact)) {
-			return false;
-		}
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AbstractDeploymentArtifact)) {
+            return false;
+        }
 
-		AbstractDeploymentArtifact da = (AbstractDeploymentArtifact) obj;
+        AbstractDeploymentArtifact da = (AbstractDeploymentArtifact) obj;
 
-		// This may be to restrictive as a check, as only the artifacttemplate of a DA(/IA) determines what a DA (or IA) does anyway 
-		//		if (!da.getName().equals(this.getName())) {
-		//			return false;
-		//		}
+        // This may be to restrictive as a check, as only the artifacttemplate of a DA(/IA) determines what
+        // a DA (or IA) does anyway
+        // if (!da.getName().equals(this.getName())) {
+        // return false;
+        // }
 
-		if (!da.getArtifactType().equals(this.getArtifactType())) {
-			return false;
-		}
+        if (!da.getArtifactType().equals(this.getArtifactType())) {
+            return false;
+        }
 
-		List<AbstractArtifactReference> daRefs = da.getArtifactRef().getArtifactReferences();
+        List<AbstractArtifactReference> daRefs = da.getArtifactRef().getArtifactReferences();
 
-		// TODO maybe we need to check for include and exclude patterns at some point
-		for (AbstractArtifactReference daRef : daRefs) {
-			boolean matched = false;
-			for (AbstractArtifactReference thisRef : this.getArtifactRef().getArtifactReferences()) {
-				if (daRef.getReference().equals(thisRef.getReference())) {
-					matched = true;
-				}
-			}
+        // TODO maybe we need to check for include and exclude patterns at some point
+        for (AbstractArtifactReference daRef : daRefs) {
+            boolean matched = false;
+            for (AbstractArtifactReference thisRef : this.getArtifactRef().getArtifactReferences()) {
+                if (daRef.getReference().equals(thisRef.getReference())) {
+                    matched = true;
+                }
+            }
 
-			if (!matched) {
-				return false;
-			}
-		}
+            if (!matched) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
 }

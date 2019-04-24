@@ -14,8 +14,7 @@ public class BPELOpenMTCDockerContainerTypePlugin extends OpenMTCDockerContainer
     public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         if (templateContext.getNodeTemplate() != null && this.canHandleCreate(nodeTemplate)) {
             if (this.canHandleGateway(templateContext.getNodeTemplate())) {
-                return this.handler.handleOpenMTCGateway(templateContext,
-                                                         findConnectedBackend(nodeTemplate));
+                return this.handler.handleOpenMTCGateway(templateContext, findConnectedBackend(nodeTemplate));
             } else if (this.canHandleProtocolAdapter(templateContext.getNodeTemplate())) {
                 return this.handler.handleOpenMTCProtocolAdapter(templateContext,
                                                                  findConnectedGateway(templateContext.getNodeTemplate()),
@@ -25,21 +24,21 @@ public class BPELOpenMTCDockerContainerTypePlugin extends OpenMTCDockerContainer
         return false;
     }
 
-	@Override
-	public boolean handleCreate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
-		return false;
-	}
+    @Override
+    public boolean handleCreate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+        return false;
+    }
 
-	@Override
-	public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }

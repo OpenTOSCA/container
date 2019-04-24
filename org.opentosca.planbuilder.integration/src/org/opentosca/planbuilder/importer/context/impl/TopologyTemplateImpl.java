@@ -46,12 +46,13 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
      * @param topologyTemplate a JAXB TTopologyTemplate
      * @param definitions a DefinitionsImpl
      */
-    public TopologyTemplateImpl(final TTopologyTemplate topologyTemplate, final DefinitionsImpl definitions, final QName serviceTemplateId) {
+    public TopologyTemplateImpl(final TTopologyTemplate topologyTemplate, final DefinitionsImpl definitions,
+                                final QName serviceTemplateId) {
         this.topologyTemplate = topologyTemplate;
         this.definitions = definitions;
         this.serviceTemplateId = serviceTemplateId;
         setUpTemplates();
-        setUpRelations();              
+        setUpRelations();
     }
 
     /**
@@ -208,9 +209,9 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
         }
     }
 
-	@Override
-	public QName getServiceTemplateId() {
-		return this.serviceTemplateId;
-	}
+    @Override
+    public QName getServiceTemplateId() {
+        return this.serviceTemplateId;
+    }
 
 }

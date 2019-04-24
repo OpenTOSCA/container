@@ -331,7 +331,8 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         if (sshUserVariable == null) {
             // dirty check if we use old style properties
             final String cleanPropName =
-                serverIpPropWrapper.getVariableName().substring(serverIpPropWrapper.getVariableName().lastIndexOf("_") + 1);
+                serverIpPropWrapper.getVariableName()
+                                   .substring(serverIpPropWrapper.getVariableName().lastIndexOf("_") + 1);
             switch (cleanPropName) {
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                     LOG.debug("Adding sshUser field to plan input");
@@ -354,7 +355,8 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         if (sshKeyVariable == null) {
             // dirty check if we use old style properties
             final String cleanPropName =
-                serverIpPropWrapper.getVariableName().substring(serverIpPropWrapper.getVariableName().lastIndexOf("_") + 1);
+                serverIpPropWrapper.getVariableName()
+                                   .substring(serverIpPropWrapper.getVariableName().lastIndexOf("_") + 1);
             switch (cleanPropName) {
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                     LOG.debug("Adding sshUser field to plan input");

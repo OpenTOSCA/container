@@ -27,16 +27,16 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;;
 public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder {
 
 
-	@Override
-	public PlanType createdPlanType() {
-		return PlanType.BUILD;
-	}
+    @Override
+    public PlanType createdPlanType() {
+        return PlanType.BUILD;
+    }
 
-	
+
     protected static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
-                                           final AbstractServiceTemplate serviceTemplate,
-                                           final Collection<AbstractNodeTemplate> nodeTemplates,
-                                           final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
+                                              final AbstractServiceTemplate serviceTemplate,
+                                              final Collection<AbstractNodeTemplate> nodeTemplates,
+                                              final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
         final Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
@@ -54,7 +54,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
     }
 
     protected static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
-                                           final AbstractServiceTemplate serviceTemplate) {
+                                              final AbstractServiceTemplate serviceTemplate) {
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
@@ -100,8 +100,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
             if (baseType.equals(Types.connectsToRelationType)) {
                 links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getSource()), activity));
                 links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
-            } else if (baseType.equals(Types.dependsOnRelationType)
-                | baseType.equals(Types.hostedOnRelationType)
+            } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
                 | baseType.equals(Types.deployedOnRelationType)) {
                 links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
                 links.add(new Link(activity, nodeActivityMapping.get(relationshipTemplate.getSource())));

@@ -224,7 +224,7 @@ public class BPELScopeBuilder {
         BPELScopeBuilder.reorderProvCandidates(chain);
 
         // TODO consistency plugins
-        final List<String> array= new ArrayList<>();
+        final List<String> array = new ArrayList<>();
 
         array.add(operationName);
         // select provisioning
@@ -239,7 +239,8 @@ public class BPELScopeBuilder {
      * @param nodeTemplate an AbstractNodeTemplate to create a ProvisioningChain for
      * @return a complete ProvisioningChain
      */
-    public static OperationChain createOperationChain(final AbstractNodeTemplate nodeTemplate, final List<String> operationNames) {
+    public static OperationChain createOperationChain(final AbstractNodeTemplate nodeTemplate,
+                                                      final List<String> operationNames) {
         // get nodetype implementations
         final List<AbstractNodeTypeImplementation> nodeTypeImpls = nodeTemplate.getImplementations();
 
@@ -470,21 +471,21 @@ public class BPELScopeBuilder {
         // select first candidate set where the provisioning candidate uses the given operations
 
         int selectedCandidateSet = -1;
-        for(int i = 0 ; i <chain.provCandidates.size() ; i++) {
+        for (int i = 0; i < chain.provCandidates.size(); i++) {
 
-            for(final AbstractOperation op : chain.provCandidates.get(i).ops) {
-                if(operationNames.contains(op.getName())) {
+            for (final AbstractOperation op : chain.provCandidates.get(i).ops) {
+                if (operationNames.contains(op.getName())) {
                     selectedCandidateSet = i;
                     break;
                 }
             }
-            if(selectedCandidateSet != -1 ) {
+            if (selectedCandidateSet != -1) {
                 break;
             }
         }
 
 
-        if(selectedCandidateSet != -1) {
+        if (selectedCandidateSet != -1) {
             chain.selectedCandidateSet = selectedCandidateSet;
         }
 

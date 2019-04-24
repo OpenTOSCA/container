@@ -33,7 +33,7 @@ public class PropertyVariableHandler {
     private final static Logger LOG = LoggerFactory.getLogger(PropertyVariableHandler.class);
 
     private final BPELPlanHandler planHandler;
-    
+
     private final static String TOSCAPROPERTYSUFFIX = "toscaProperty";
 
     /**
@@ -47,67 +47,78 @@ public class PropertyVariableHandler {
      *
      */
     public class Property2VariableMapping {
-        
+
         private final Collection<PropertyVariable> propertyVariables;
-    
-        
+
+
         /**
          * Constructor
          */
         public Property2VariableMapping() {
             this.propertyVariables = new HashSet<PropertyVariable>();
         }
-       
-        public boolean addPropertyMapping(final AbstractServiceTemplate serviceTemplate, final AbstractNodeTemplate nodeTemplate, final String propertyName,
+
+        public boolean addPropertyMapping(final AbstractServiceTemplate serviceTemplate,
+                                          final AbstractNodeTemplate nodeTemplate, final String propertyName,
                                           final String propertyVariableName) {
-        	
-        	return this.propertyVariables.add(new PropertyVariable(serviceTemplate, nodeTemplate, propertyVariableName, propertyName));        
+
+            return this.propertyVariables.add(new PropertyVariable(serviceTemplate, nodeTemplate, propertyVariableName,
+                propertyName));
         }
-        
-        public boolean addPropertyMapping(final AbstractServiceTemplate serviceTemplate, final AbstractRelationshipTemplate relationshipTemplate, final String propertyName,
-                final String propertyVariableName) {
-        	
-        	return this.propertyVariables.add(new PropertyVariable(serviceTemplate, relationshipTemplate, propertyVariableName, propertyName));
+
+        public boolean addPropertyMapping(final AbstractServiceTemplate serviceTemplate,
+                                          final AbstractRelationshipTemplate relationshipTemplate,
+                                          final String propertyName, final String propertyVariableName) {
+
+            return this.propertyVariables.add(new PropertyVariable(serviceTemplate, relationshipTemplate,
+                propertyVariableName, propertyName));
         }
-                  
-        public Collection<PropertyVariable> getPropertyVariables(AbstractServiceTemplate serviceTemplate, String templateId) {
-        	Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
-        	for(PropertyVariable var : this.propertyVariables) {
-        		if(var.getServiceTemplate().equals(serviceTemplate) && var.isNodeTemplatePropertyVariable() && var.getNodeTemplate().getId().equals(templateId)) {
-        			toReturn.add(var);
-        		}
-        		
-        		if(var.getServiceTemplate().equals(serviceTemplate) && !var.isNodeTemplatePropertyVariable() && var.getRelationshipTemplate().getId().equals(templateId)) {
-        			toReturn.add(var);
-        		}
-        	}
-        	return toReturn;
+
+        public Collection<PropertyVariable> getPropertyVariables(AbstractServiceTemplate serviceTemplate,
+                                                                 String templateId) {
+            Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
+            for (PropertyVariable var : this.propertyVariables) {
+                if (var.getServiceTemplate().equals(serviceTemplate) && var.isNodeTemplatePropertyVariable()
+                    && var.getNodeTemplate().getId().equals(templateId)) {
+                    toReturn.add(var);
+                }
+
+                if (var.getServiceTemplate().equals(serviceTemplate) && !var.isNodeTemplatePropertyVariable()
+                    && var.getRelationshipTemplate().getId().equals(templateId)) {
+                    toReturn.add(var);
+                }
+            }
+            return toReturn;
         }
-        
-        public Collection<PropertyVariable> getNodePropertyVariables(AbstractServiceTemplate serviceTemplate, AbstractNodeTemplate nodeTemplate) {
-        	Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
-        	
-        	for(PropertyVariable variable : this.propertyVariables){
-        		if( variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().equals(serviceTemplate) && variable.getNodeTemplate().equals(nodeTemplate)) {
-        			toReturn.add(variable);
-        		}
-        	}
-        	
-        	return toReturn;
+
+        public Collection<PropertyVariable> getNodePropertyVariables(AbstractServiceTemplate serviceTemplate,
+                                                                     AbstractNodeTemplate nodeTemplate) {
+            Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
+
+            for (PropertyVariable variable : this.propertyVariables) {
+                if (variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().equals(serviceTemplate)
+                    && variable.getNodeTemplate().equals(nodeTemplate)) {
+                    toReturn.add(variable);
+                }
+            }
+
+            return toReturn;
         }
-        
-        public Collection<PropertyVariable> getRelationPropertyVariables(AbstractServiceTemplate serviceTemplate, AbstractRelationshipTemplate relationshipTemplate) {
-        	Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
-        	
-        	for(PropertyVariable variable : this.propertyVariables){
-        		if( !variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().equals(serviceTemplate) && variable.getRelationshipTemplate().equals(relationshipTemplate)) {
-        			toReturn.add(variable);
-        		}
-        	}
-        	
-        	return toReturn;
+
+        public Collection<PropertyVariable> getRelationPropertyVariables(AbstractServiceTemplate serviceTemplate,
+                                                                         AbstractRelationshipTemplate relationshipTemplate) {
+            Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
+
+            for (PropertyVariable variable : this.propertyVariables) {
+                if (!variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().equals(serviceTemplate)
+                    && variable.getRelationshipTemplate().equals(relationshipTemplate)) {
+                    toReturn.add(variable);
+                }
+            }
+
+            return toReturn;
         }
-        
+
     }
 
     /**
@@ -128,17 +139,20 @@ public class PropertyVariableHandler {
      * @return a PropertyMap which holds mappings from Template to Template Property and BuildPlan
      *         variable
      */
-    public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan buildPlan, AbstractServiceTemplate serviceTemplate) {
+    public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan buildPlan,
+                                                                    AbstractServiceTemplate serviceTemplate) {
         final Property2VariableMapping map = new Property2VariableMapping();
-        
-        for(AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-        	
-        	this.initializePropertiesAsVariables(map, buildPlan.getTemplateBuildPlan(nodeTemplate), serviceTemplate);
+
+        for (AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+
+            this.initializePropertiesAsVariables(map, buildPlan.getTemplateBuildPlan(nodeTemplate), serviceTemplate);
         }
-        
-        for(AbstractRelationshipTemplate relationshipTemplate :serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
-        	this.initializePropertiesAsVariables(map, buildPlan.getTemplateBuildPlan(relationshipTemplate), serviceTemplate);
-        }        
+
+        for (AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate()
+                                                                                .getRelationshipTemplates()) {
+            this.initializePropertiesAsVariables(map, buildPlan.getTemplateBuildPlan(relationshipTemplate),
+                                                 serviceTemplate);
+        }
         return map;
     }
 
@@ -148,7 +162,8 @@ public class PropertyVariableHandler {
      * @param map a PropertyMap to save the mappings to
      * @param templatePlan the TemplateBuildPlan to initialize its properties
      */
-    public void initializePropertiesAsVariables(final Property2VariableMapping map, final BPELScope templatePlan, AbstractServiceTemplate serviceTemplate) {
+    public void initializePropertiesAsVariables(final Property2VariableMapping map, final BPELScope templatePlan,
+                                                AbstractServiceTemplate serviceTemplate) {
         if (templatePlan.getRelationshipTemplate() != null) {
             // template corresponds to a relationshiptemplate
             initPropsAsVarsInRelationship(map, templatePlan, serviceTemplate);
@@ -164,7 +179,8 @@ public class PropertyVariableHandler {
      * @param map the PropertyMap to save the result to
      * @param templatePlan a TemplateBuildPlan which handles a RelationshipTemplate
      */
-    private void initPropsAsVarsInRelationship(final Property2VariableMapping map, final BPELScope templatePlan, AbstractServiceTemplate serviceTemplate) {
+    private void initPropsAsVarsInRelationship(final Property2VariableMapping map, final BPELScope templatePlan,
+                                               AbstractServiceTemplate serviceTemplate) {
         final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
         if (relationshipTemplate.getProperties() != null) {
             final Element propertyElement = relationshipTemplate.getProperties().getDOMElement();
@@ -176,12 +192,12 @@ public class PropertyVariableHandler {
 
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
                 String propVarName = this.createPropertyVariableName(serviceTemplate, relationshipTemplate, propName);
-                		
-                while(!this.planHandler.addStringVariable(propVarName, templatePlan.getBuildPlan())){
-                	propVarName = this.createPropertyVariableName(serviceTemplate, relationshipTemplate, propName);
+
+                while (!this.planHandler.addStringVariable(propVarName, templatePlan.getBuildPlan())) {
+                    propVarName = this.createPropertyVariableName(serviceTemplate, relationshipTemplate, propName);
                 }
-                
-                map.addPropertyMapping(serviceTemplate, relationshipTemplate, propName, propVarName);                
+
+                map.addPropertyMapping(serviceTemplate, relationshipTemplate, propName, propVarName);
                 // String value =
                 // propertyElement.getChildNodes().item(i).getFirstChild().getNodeValue();
                 String value = "";
@@ -196,23 +212,29 @@ public class PropertyVariableHandler {
                 PropertyVariableHandler.LOG.debug("Setting property variable " + propVarName);
                 PropertyVariableHandler.LOG.debug("with value: " + value);
 
-                // tempID_PropLocalName as property variable name                                
+                // tempID_PropLocalName as property variable name
 
                 if (!value.trim().isEmpty() && !value.trim().equals("")) {
                     // init the variable with the node value
-                	this.planHandler.assignInitValueToVariable(propVarName, value, templatePlan.getBuildPlan());
+                    this.planHandler.assignInitValueToVariable(propVarName, value, templatePlan.getBuildPlan());
                 }
 
             }
         }
     }
-    
-    private String createPropertyVariableName(AbstractServiceTemplate serviceTemplate, AbstractRelationshipTemplate relationshipTemplate, String propertyName) {
-    	return ModelUtils.makeValidNCName(serviceTemplate.getQName().toString())+ "_" + ModelUtils.makeValidNCName(relationshipTemplate.getId()) + "_" + propertyName + "_" + TOSCAPROPERTYSUFFIX + System.currentTimeMillis();
+
+    private String createPropertyVariableName(AbstractServiceTemplate serviceTemplate,
+                                              AbstractRelationshipTemplate relationshipTemplate, String propertyName) {
+        return ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
+            + ModelUtils.makeValidNCName(relationshipTemplate.getId()) + "_" + propertyName + "_" + TOSCAPROPERTYSUFFIX
+            + System.currentTimeMillis();
     }
-    
-    private String createPropertyVariableName(AbstractServiceTemplate serviceTemplate, AbstractNodeTemplate nodeTemplate, String propertyName) {
-    	return ModelUtils.makeValidNCName(serviceTemplate.getQName().toString())+ "_" + ModelUtils.makeValidNCName(nodeTemplate.getId()) + "_" + propertyName + "_" + TOSCAPROPERTYSUFFIX + System.currentTimeMillis();
+
+    private String createPropertyVariableName(AbstractServiceTemplate serviceTemplate,
+                                              AbstractNodeTemplate nodeTemplate, String propertyName) {
+        return ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
+            + ModelUtils.makeValidNCName(nodeTemplate.getId()) + "_" + propertyName + "_" + TOSCAPROPERTYSUFFIX
+            + System.currentTimeMillis();
     }
 
     /**
@@ -221,7 +243,8 @@ public class PropertyVariableHandler {
      * @param map a PropertyMap to save the result/mappings to
      * @param templatePlan a TemplateBuildPlan which handles a NodeTemplate
      */
-    private void initPropsAsVarsInNode(final Property2VariableMapping map, final BPELScope templatePlan, AbstractServiceTemplate serviceTemplate) {
+    private void initPropsAsVarsInNode(final Property2VariableMapping map, final BPELScope templatePlan,
+                                       AbstractServiceTemplate serviceTemplate) {
         final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         if (nodeTemplate.getProperties() != null) {
             final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
@@ -234,12 +257,12 @@ public class PropertyVariableHandler {
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
                 String propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);
 
-                
-                while(!this.planHandler.addStringVariable(propVarName, templatePlan.getBuildPlan())){
-                	propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);
+
+                while (!this.planHandler.addStringVariable(propVarName, templatePlan.getBuildPlan())) {
+                    propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);
                 }
 
-                map.addPropertyMapping(serviceTemplate, nodeTemplate, propName, propVarName);                
+                map.addPropertyMapping(serviceTemplate, nodeTemplate, propName, propVarName);
 
                 String value = "";
 

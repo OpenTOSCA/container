@@ -52,8 +52,8 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @return true iff this plugin can handle the given relationshipTemplate
      */
     public boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
-    
-    
+
+
     /**
      * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of
      * the given NodeTemplate and send it to the Component it belongs to

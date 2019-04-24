@@ -27,16 +27,16 @@ import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuilder {
-    
-    static QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes","FreezableComponent");
+
+    static QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
 
 
-	@Override
-	public PlanType createdPlanType() {
-		return PlanType.BUILD;
-	}
+    @Override
+    public PlanType createdPlanType() {
+        return PlanType.BUILD;
+    }
 
-    
+
     public static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
                                            final AbstractServiceTemplate serviceTemplate,
                                            final Collection<AbstractNodeTemplate> nodeTemplates,
@@ -84,28 +84,28 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
                                                      final Map<AbstractRelationshipTemplate, AbstractActivity> relationActivityMapping,
                                                      final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
         Collection<AbstractNodeTemplate> nodeToStart = AbstractDefrostPlanBuilder.calculateNodesToStart(nodeTemplates);
-        
+
         for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
-            
-            if(nodeToStart.contains(nodeTemplate)) {
-                final AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_no_activity",
-                                                                            ActivityType.NONE, nodeTemplate);
+
+            if (nodeToStart.contains(nodeTemplate)) {
+                final AbstractActivity activity =
+                    new ANodeTemplateActivity(nodeTemplate.getId() + "_no_activity", ActivityType.NONE, nodeTemplate);
                 activities.add(activity);
                 nodeActivityMapping.put(nodeTemplate, activity);
 
-            } else if (AbstractDefrostPlanBuilder.hasFreezeableComponentPolicy(nodeTemplate)){
+            } else if (AbstractDefrostPlanBuilder.hasFreezeableComponentPolicy(nodeTemplate)) {
                 final AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_defrost_activity",
-                                                                            ActivityType.DEFROST, nodeTemplate);
+                    ActivityType.DEFROST, nodeTemplate);
                 activities.add(activity);
                 nodeActivityMapping.put(nodeTemplate, activity);
-                
+
             } else {
-                final AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity",
-                                                                            ActivityType.PROVISIONING, nodeTemplate);
+                final AbstractActivity activity = new ANodeTemplateActivity(
+                    nodeTemplate.getId() + "_provisioning_activity", ActivityType.PROVISIONING, nodeTemplate);
                 activities.add(activity);
                 nodeActivityMapping.put(nodeTemplate, activity);
             }
-            
+
         }
 
         for (final AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
@@ -122,8 +122,7 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
             if (baseType.equals(Types.connectsToRelationType)) {
                 links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getSource()), activity));
                 links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
-            } else if (baseType.equals(Types.dependsOnRelationType)
-                | baseType.equals(Types.hostedOnRelationType)
+            } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
                 | baseType.equals(Types.deployedOnRelationType)) {
                 links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
                 links.add(new Link(activity, nodeActivityMapping.get(relationshipTemplate.getSource())));
@@ -131,33 +130,33 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
 
         }
     }
-    
+
     private static Collection<AbstractNodeTemplate> calculateNodesToStart(Collection<AbstractNodeTemplate> nodes) {
         Collection<AbstractNodeTemplate> nodesToStart = new HashSet<AbstractNodeTemplate>();
-        
-        for(AbstractNodeTemplate node : nodes) {
+
+        for (AbstractNodeTemplate node : nodes) {
             List<AbstractNodeTemplate> nodesToSink = new ArrayList<AbstractNodeTemplate>();
-            ModelUtils.getNodesFromNodeToSink(node, Types.hostedOnRelationType, nodesToSink);                       
-            for(AbstractNodeTemplate nodeToSink : nodesToSink) {
-                if(!nodeToSink.equals(node) && AbstractDefrostPlanBuilder.hasFreezeableComponentPolicy(nodeToSink)) {
+            ModelUtils.getNodesFromNodeToSink(node, Types.hostedOnRelationType, nodesToSink);
+            for (AbstractNodeTemplate nodeToSink : nodesToSink) {
+                if (!nodeToSink.equals(node) && AbstractDefrostPlanBuilder.hasFreezeableComponentPolicy(nodeToSink)) {
                     nodesToStart.add(node);
                     break;
                 }
             }
         }
-        
+
         return nodesToStart;
     }
-    
+
     protected static boolean hasFreezeableComponentPolicy(AbstractNodeTemplate nodeTemplate) {
-        for(AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if(policy.getType().getId().equals(AbstractDefrostPlanBuilder.freezableComponentPolicy)) {
+        for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
+            if (policy.getType().getId().equals(AbstractDefrostPlanBuilder.freezableComponentPolicy)) {
                 return true;
             }
         }
         return false;
     }
-    
-    
+
+
 
 }

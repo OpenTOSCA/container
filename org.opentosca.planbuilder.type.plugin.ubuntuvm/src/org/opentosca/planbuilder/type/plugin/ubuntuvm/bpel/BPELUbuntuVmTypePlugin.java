@@ -107,11 +107,11 @@ public class BPELUbuntuVmTypePlugin extends UbuntuVmTypePlugin<BPELPlanContext> 
         return false;
     }
 
-	
-	
-	@Override
-	public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
-		BPELUbuntuVmTypePlugin.LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
+
+
+    @Override
+    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+        BPELUbuntuVmTypePlugin.LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
 
         // cloudprovider node is handled by doing nothing
         if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
@@ -145,20 +145,20 @@ public class BPELUbuntuVmTypePlugin extends UbuntuVmTypePlugin<BPELPlanContext> 
             return true;
         }
         return false;
-		
-	}
-    
-	@Override
-	public boolean handleCreate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
-		// never handles a relationship
-		return false;
-	}
 
-	@Override
-	public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
-		// never handles a relationship
-		return false;
-	}
+    }
 
-	
+    @Override
+    public boolean handleCreate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+        // never handles a relationship
+        return false;
+    }
+
+    @Override
+    public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+        // never handles a relationship
+        return false;
+    }
+
+
 }

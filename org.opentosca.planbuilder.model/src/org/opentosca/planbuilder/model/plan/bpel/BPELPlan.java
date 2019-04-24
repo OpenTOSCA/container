@@ -213,23 +213,24 @@ public class BPELPlan extends AbstractPlan {
     public List<BPELScope> getTemplateBuildPlans() {
         return this.templateBuildPlans;
     }
-    
+
     public BPELScope getTemplateBuildPlan(AbstractNodeTemplate nodeTemplate) {
-    	for(BPELScope scope : this.getTemplateBuildPlans()) {
-    		if(scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate)) {
-    			return scope;
-    		}
-    	}
-    	return null;
+        for (BPELScope scope : this.getTemplateBuildPlans()) {
+            if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate)) {
+                return scope;
+            }
+        }
+        return null;
     }
-    
+
     public BPELScope getTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate) {
-    	for(BPELScope scope : this.getTemplateBuildPlans()) {
-    		if(scope.getRelationshipTemplate() != null && scope.getRelationshipTemplate().equals(relationshipTemplate)) {
-    			return scope;
-    		}
-    	}
-    	return null;
+        for (BPELScope scope : this.getTemplateBuildPlans()) {
+            if (scope.getRelationshipTemplate() != null
+                && scope.getRelationshipTemplate().equals(relationshipTemplate)) {
+                return scope;
+            }
+        }
+        return null;
     }
 
     /**

@@ -17,12 +17,13 @@ import javax.xml.namespace.QName;
  */
 public abstract class AbstractTopologyTemplate {
 
-	/**
-	 * Returns the id of the Service Template this Topology Template belongs to
-	 * @return a QName denoting the Service Template of this Topology Template
-	 */
-	public abstract QName getServiceTemplateId();
-	
+    /**
+     * Returns the id of the Service Template this Topology Template belongs to
+     * 
+     * @return a QName denoting the Service Template of this Topology Template
+     */
+    public abstract QName getServiceTemplateId();
+
     /**
      * Returns the NodeTemplates of this TopologyTemplate
      *

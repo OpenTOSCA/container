@@ -151,8 +151,7 @@ public class ScalingPlanDefinition {
             sinkNodes.remove(nodeTemplate);
 
             final List<AbstractRelationshipTemplate> outgoing =
-                ModelUtils.getOutgoingRelations(nodeTemplate, Types.hostedOnRelationType,
-                                                Types.dependsOnRelationType,
+                ModelUtils.getOutgoingRelations(nodeTemplate, Types.hostedOnRelationType, Types.dependsOnRelationType,
                                                 Types.deployedOnRelationType);
 
             this.nodeTemplatesRecursiveSelection.addAll(sinkNodes);
@@ -236,8 +235,7 @@ public class ScalingPlanDefinition {
             } else if (!nodesToScale.contains(target)) {
                 return target;
             }
-        } else if (baseType.equals(Types.dependsOnRelationType)
-            | baseType.equals(Types.hostedOnRelationType)
+        } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
             | baseType.equals(Types.deployedOnRelationType)) {
             // if target is not in the nodesToScale list => relation crosses
             // border

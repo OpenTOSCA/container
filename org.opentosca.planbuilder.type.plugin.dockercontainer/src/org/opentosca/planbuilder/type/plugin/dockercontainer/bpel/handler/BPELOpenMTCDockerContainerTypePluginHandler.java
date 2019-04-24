@@ -116,7 +116,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
                                                                                           "concat($"
                                                                                               + containerPortVar.getVariableName()
                                                                                               + ",',',$"
-                                                                                              + portVar.getVariableName() + ")",
+                                                                                              + portVar.getVariableName()
+                                                                                              + ")",
                                                                                           portMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
@@ -198,8 +199,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
     }
 
     private String createDeviceMapping(final PropertyVariable sensorDeviceId, final List<Variable> resourceNames) {
-        LOG.debug("Creating OpenMTC FS20 Adapater Device Mapping JSON for sensor device " + sensorDeviceId.getVariableName()
-            + " " + sensorDeviceId.getNodeTemplate().getId());
+        LOG.debug("Creating OpenMTC FS20 Adapater Device Mapping JSON for sensor device "
+            + sensorDeviceId.getVariableName() + " " + sensorDeviceId.getNodeTemplate().getId());
         String baseString = "DEVICE_MAPPINGS={\"',";
 
         for (int i = 0; i < resourceNames.size(); i++) {
@@ -291,14 +292,16 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
                                                                                           "concat($"
                                                                                               + containerPortVar.getVariableName()
                                                                                               + ",',',$"
-                                                                                              + portVar.getVariableName() + ")",
+                                                                                              + portVar.getVariableName()
+                                                                                              + ")",
                                                                                           portMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
             // read the container ID from within properties
 
-            final String queryContainerIdXpath = "substring-before($" + gatewayContainerIdsVar.getVariableName() + ", ';')";
+            final String queryContainerIdXpath =
+                "substring-before($" + gatewayContainerIdsVar.getVariableName() + ", ';')";
 
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignContainerIdForLinking",
@@ -307,10 +310,10 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
-            String envVarConcatXpathQuery =
-                "concat('EP=http://',$" + gatewayContainerIpVar.getVariableName() + ",':',$" + gatewayContainerPortVar.getVariableName()
-                    + ",';','ORIGINATOR_PRE=//smartorchestra.de/',$" + tenantIdVar.getVariableName() + ",'~',$"
-                    + instanceIdVar.getVariableName() + ",';LOGGING_LEVEL=INFO;DEVICES=[];SIM=false;";
+            String envVarConcatXpathQuery = "concat('EP=http://',$" + gatewayContainerIpVar.getVariableName() + ",':',$"
+                + gatewayContainerPortVar.getVariableName() + ",';','ORIGINATOR_PRE=//smartorchestra.de/',$"
+                + tenantIdVar.getVariableName() + ",'~',$" + instanceIdVar.getVariableName()
+                + ",';LOGGING_LEVEL=INFO;DEVICES=[];SIM=false;";
             if (resourceNames.isEmpty()) {
                 envVarConcatXpathQuery += "')";
             } else {

@@ -42,9 +42,9 @@ public interface IPlanBuilderPrePhaseDAPlugin<T extends PlanContext> extends IPl
      *         successful
      */
     public boolean handle(T context, AbstractDeploymentArtifact da, AbstractNodeTemplate infrastructureNodeTemplate);
-    
+
     public boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
-    
+
     public boolean handleCreate(T context, AbstractNodeTemplate nodeTemplate);
 
 }

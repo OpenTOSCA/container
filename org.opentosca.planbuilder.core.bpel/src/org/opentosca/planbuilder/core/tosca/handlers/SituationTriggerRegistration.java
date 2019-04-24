@@ -176,7 +176,7 @@ public class SituationTriggerRegistration {
 
     private final BPELProcessFragments fragments;
     private final BPELPlanHandler handler;
-	private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
 
 
     public SituationTriggerRegistration() throws ParserConfigurationException {
@@ -223,8 +223,7 @@ public class SituationTriggerRegistration {
                 // TODO set serviceInstanceId
                 if (trigger.serviceInstanceId.equals("Build")) {
                     // fetch serviceInstance from buildPlan
-                    final String serviceInstanceIdVar =
-                        this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
+                    final String serviceInstanceIdVar = this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
                     appendAssignServiceInstanceIdFromServiceInstanceIdVar(plan, serviceInstanceIdVar, varName,
                                                                           plan.getBpelMainFlowElement());
                 }

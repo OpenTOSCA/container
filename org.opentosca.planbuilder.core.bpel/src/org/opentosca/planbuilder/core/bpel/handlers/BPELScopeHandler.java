@@ -234,8 +234,7 @@ public class BPELScopeHandler {
      * @param buildPlan the BuildPlan the new TemplateBuildPlan should belong to
      * @return a new TemplateBuildPlann skeleton for the given NodeTemplate
      */
-    public BPELScope createTemplateBuildPlan(final AbstractNodeTemplate nodeTemplate,
-                                                     final BPELPlan buildPlan) {
+    public BPELScope createTemplateBuildPlan(final AbstractNodeTemplate nodeTemplate, final BPELPlan buildPlan) {
         final BPELScope templatePlan = this.createTemplateBuildPlan(buildPlan);
         this.setName(this.getNCNameFromString(nodeTemplate.getId()), templatePlan);
         templatePlan.setNodeTemplate(nodeTemplate);
@@ -250,7 +249,7 @@ public class BPELScopeHandler {
      * @return a new TemplateBuildPlan skeleton
      */
     public BPELScope createTemplateBuildPlan(final AbstractRelationshipTemplate relationshipTemplate,
-                                                     final BPELPlan buildPlan) {
+                                             final BPELPlan buildPlan) {
         final BPELScope templatePlan = this.createTemplateBuildPlan(buildPlan);
         this.setName(relationshipTemplate.getId(), templatePlan);
         templatePlan.setRelationshipTemplate(relationshipTemplate);

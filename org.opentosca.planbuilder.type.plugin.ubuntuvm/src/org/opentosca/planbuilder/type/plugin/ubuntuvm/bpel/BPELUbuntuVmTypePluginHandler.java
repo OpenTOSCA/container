@@ -331,7 +331,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         for (final String externalParameter : BPELUbuntuVmTypePluginHandler.createEC2InstanceExternalInputParams) {
             // find the variable for the inputparam
 
-        	PropertyVariable variable = context.getPropertyVariable(externalParameter, true);
+            PropertyVariable variable = context.getPropertyVariable(externalParameter, true);
             if (variable == null) {
                 variable = context.getPropertyVariable(externalParameter);
             }
@@ -405,10 +405,10 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         return true;
     }
-    
+
     public boolean handleTerminateWithCloudProviderInterface(final BPELPlanContext context,
-                                                    final AbstractNodeTemplate nodeTemplate) {
-    	final List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
+                                                             final AbstractNodeTemplate nodeTemplate) {
+        final List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
         for (final AbstractNodeTemplate infraNode : infraNodes) {
             if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(infraNode.getType()
                                                                                                               .getId())) {
@@ -416,9 +416,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 // node
 
                 return context.executeOperation(infraNode,
-                                         org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
-                                         org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
-                                         null);
+                                                org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+                                                org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
+                                                null);
 
             }
         }
@@ -427,7 +427,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
     @Override
     public boolean handleCreateWithCloudProviderInterface(final BPELPlanContext context,
-                                                    final AbstractNodeTemplate nodeTemplate) {
+                                                          final AbstractNodeTemplate nodeTemplate) {
 
         // we need a cloud provider node
         final AbstractNodeTemplate cloudProviderNodeTemplate = findCloudProviderNode(nodeTemplate);
@@ -558,7 +558,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         for (final String externalParameter : BPELUbuntuVmTypePluginHandler.createVMInstanceExternalInputParams) {
             // find the variable for the inputparam
 
-        	PropertyVariable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
+            PropertyVariable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
             if (variable == null) {
                 variable = context.getPropertyVariable(externalParameter, true);
             }
@@ -692,7 +692,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // sudo iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
         for (final Variable var : portVariables) {
-            xpathQuery += "' sudo iptables -A INPUT -p tcp -m tcp --dport ',$" + var.getVariableName() + ",' -j ACCEPT &',";
+            xpathQuery +=
+                "' sudo iptables -A INPUT -p tcp -m tcp --dport ',$" + var.getVariableName() + ",' -j ACCEPT &',";
         }
 
         xpathQuery += "' sudo iptables -A INPUT -j DROP')";
@@ -1088,7 +1089,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         for (final String externalParameter : BPELUbuntuVmTypePluginHandler.localCreateVMInstanceExternalInputParams) {
             // find the variable for the inputparam
 
-        	PropertyVariable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
+            PropertyVariable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
             if (variable == null) {
                 variable = context.getPropertyVariable(externalParameter, true);
             }
@@ -1187,7 +1188,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
     }
 
     private Variable getUbtuntuAMIId(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-    	PropertyVariable vmImageId = context.getPropertyVariable("VMImageID", true);
+        PropertyVariable vmImageId = context.getPropertyVariable("VMImageID", true);
 
         // here either the ubuntu connected to the provider this handler is
         // working on hasn't a version in the ID (ubuntu version must be written

@@ -118,9 +118,9 @@ public class BPELPlanHandler {
         final QName stringXsdDeclQName = new QName(xsdNamespace, "string", xsdPrefix);
 
         boolean added = addVariable(varName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
-        while(!added) {
-        	varName = varNamePrefix + System.currentTimeMillis();
-        	added = addVariable(varName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
+        while (!added) {
+            varName = varNamePrefix + System.currentTimeMillis();
+            added = addVariable(varName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
         }
 
         return varName;
@@ -438,10 +438,10 @@ public class BPELPlanHandler {
                                   buildPlan.getBpelProcessElement().getAttribute("name"));
         return buildPlan.getWsdl().addPartnerLinkType(partnerLinkTypeName, roleName1, portType1, roleName2, portType2);
     }
-        
-    public boolean addStringVariable(final String name, final BPELPlan plan) {    	    	
-    	return addVariable(name, BPELPlan.VariableType.TYPE,
-                new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"), plan);
+
+    public boolean addStringVariable(final String name, final BPELPlan plan) {
+        return addVariable(name, BPELPlan.VariableType.TYPE,
+                           new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"), plan);
     }
 
     /**
@@ -1037,10 +1037,10 @@ public class BPELPlanHandler {
             this.bpelScopeHandler.connect(source, target, linkName);
 
         }
-    }    
-    
+    }
+
     public boolean assignInitValueToVariable(Variable var, String value, BPELPlan plan) {
-    	return assignInitValueToVariable(var.getVariableName(), value, plan);
+        return assignInitValueToVariable(var.getVariableName(), value, plan);
     }
 
     /**

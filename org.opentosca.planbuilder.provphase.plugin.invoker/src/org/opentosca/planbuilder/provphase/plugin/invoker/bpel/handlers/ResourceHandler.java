@@ -358,7 +358,8 @@ public class ResourceHandler {
             } else {
                 // parameter is internal, fetch value from bpel variable
                 String copyString =
-                    generateServiceInvokerInternalParamCopyString(internalExternalProps.get(propertyName).getVariableName(),
+                    generateServiceInvokerInternalParamCopyString(internalExternalProps.get(propertyName)
+                                                                                       .getVariableName(),
                                                                   requestVarName, requestVarPartName, propertyName);
                 copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                 assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");

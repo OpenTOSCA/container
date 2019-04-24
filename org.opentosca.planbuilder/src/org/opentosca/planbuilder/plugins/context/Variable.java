@@ -20,7 +20,7 @@ public class Variable {
      * @param variableName a property variable name
      */
     public Variable(final String variableName) {
-     
+
         this.variableName = variableName;
     }
 
@@ -33,5 +33,5 @@ public class Variable {
         return this.variableName;
     }
 
-    
+
 }

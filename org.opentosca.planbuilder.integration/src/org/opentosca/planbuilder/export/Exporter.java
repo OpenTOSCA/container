@@ -496,8 +496,8 @@ public class Exporter extends AbstractExporter {
                 plan.setPlanType(PlanType.TERMINATE.getString());
                 break;
             case TRANSFORMATION:
-            	plan.setPlanType(PlanType.TRANSFORMATION.getString());
-            	break;
+                plan.setPlanType(PlanType.TRANSFORMATION.getString());
+                break;
             default:
                 // every other plan is a management plan
             case MANAGE:

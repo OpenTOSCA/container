@@ -17,22 +17,22 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractPlanBuilder {
 
-	protected final PluginRegistry pluginRegistry = new PluginRegistry();
+    protected final PluginRegistry pluginRegistry = new PluginRegistry();
 
-	private final static Logger LOG = LoggerFactory.getLogger(AbstractPlanBuilder.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AbstractPlanBuilder.class);
 
-	abstract public PlanType createdPlanType();
+    abstract public PlanType createdPlanType();
 
-	
 
-	/**
-	 * Returns the number of the plugins registered with this planbuilder
-	 *
-	 * @return integer denoting the count of plugins
-	 */
-	public int registeredPlugins() {
-		return this.pluginRegistry.getTypePlugins().size() + this.pluginRegistry.getDaPlugins().size()
-				+ this.pluginRegistry.getIaPlugins().size() + this.pluginRegistry.getPostPlugins().size()
-				+ this.pluginRegistry.getProvPlugins().size();
-	}
+
+    /**
+     * Returns the number of the plugins registered with this planbuilder
+     *
+     * @return integer denoting the count of plugins
+     */
+    public int registeredPlugins() {
+        return this.pluginRegistry.getTypePlugins().size() + this.pluginRegistry.getDaPlugins().size()
+            + this.pluginRegistry.getIaPlugins().size() + this.pluginRegistry.getPostPlugins().size()
+            + this.pluginRegistry.getProvPlugins().size();
+    }
 }

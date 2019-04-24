@@ -207,7 +207,8 @@ public class NodeInstanceSelector {
 
     public void addNodeInstanceUpdate(final AbstractNodeTemplate nodeTemplate, final BPELPlan plan,
                                       final Property2VariableMapping propMap, final String nodeInstanceIDVarName,
-                                      final String instanceDataAPIResponseVarName, AbstractServiceTemplate serviceTemplate) {
+                                      final String instanceDataAPIResponseVarName,
+                                      AbstractServiceTemplate serviceTemplate) {
         // check whether the nodeTemplate has properties, if not, skip the
         // update
         if (nodeTemplate.getProperties() == null) {
@@ -238,13 +239,13 @@ public class NodeInstanceSelector {
             if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
                 final Element childElement = (Element) propChildNodes.item(index);
                 // find bpelVariable
-                
-                for(PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
-                	if(var.getPropertyName().equals(childElement.getLocalName())) {
-                		element2BpelVarNameMap.put(childElement, var.getVariableName());
-                	}
+
+                for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
+                    if (var.getPropertyName().equals(childElement.getLocalName())) {
+                        element2BpelVarNameMap.put(childElement, var.getVariableName());
+                    }
                 }
-                               
+
             }
         }
 

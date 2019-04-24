@@ -27,7 +27,8 @@ import org.w3c.dom.NodeList;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public abstract class DockerContainerTypePlugin<T extends PlanContext> implements IPlanBuilderTypePlugin<T>, IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
+public abstract class DockerContainerTypePlugin<T extends PlanContext> implements IPlanBuilderTypePlugin<T>,
+                                               IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
 
     private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder Type Plugin DockerContainer";
 
@@ -71,8 +72,8 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
     }
 
     @Override
-	public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
-    	if (nodeTemplate.getProperties() == null) {
+    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+        if (nodeTemplate.getProperties() == null) {
             return false;
         }
 
@@ -101,7 +102,7 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
             }
             if (childNodeList.item(index).getLocalName().equals("ContainerID")) {
                 check++;
-            } 
+            }
         }
 
         if (check != 1) {
@@ -113,9 +114,9 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
         // check whether the nodeTemplate is connected to a DockerEngine Node
 
         return DockerContainerTypePlugin.isConnectedToDockerEnginerNode(nodeTemplate);
-	}
+    }
 
-    
+
     @Override
     public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         // for this plugin to handle the given NodeTemplate following statements

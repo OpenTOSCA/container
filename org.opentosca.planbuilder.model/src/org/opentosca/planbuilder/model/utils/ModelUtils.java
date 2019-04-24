@@ -52,8 +52,9 @@ public class ModelUtils {
 
     private final static Logger LOG = LoggerFactory.getLogger(ModelUtils.class);
 
-    public static String makeValidNCName(final String string) {    	
-        return string.replaceAll("\\.", "_").replaceAll(" ", "_").replace("{", "_").replace("}", "_").replace("/", "_").replace(":", "_");
+    public static String makeValidNCName(final String string) {
+        return string.replaceAll("\\.", "_").replaceAll(" ", "_").replace("{", "_").replace("}", "_").replace("/", "_")
+                     .replace(":", "_");
     }
 
     /**
@@ -255,8 +256,8 @@ public class ModelUtils {
         }
     }
 
-    
-    
+
+
     /**
      * Calculates all Infrastructure Nodes of all Infrastructure Paths originating from the given
      * NodeTemplate
@@ -346,7 +347,7 @@ public class ModelUtils {
         final List<QName> typeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType());
         for (final QName type : typeHierarchy) {
             ModelUtils.LOG.debug("Checking Type in Hierarchy, type: " + type.toString());
-            if (type.equals(Types.TOSCABASETYPE_SERVER)){
+            if (type.equals(Types.TOSCABASETYPE_SERVER)) {
                 return type;
             } else if (type.equals(Types.TOSCABASETYPE_OS)) {
                 return type;
