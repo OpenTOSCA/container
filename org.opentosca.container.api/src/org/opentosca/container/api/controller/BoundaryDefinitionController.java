@@ -24,6 +24,7 @@ import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.PropertiesDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.PropertyMappingDTO;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.util.UriUtil;
@@ -32,6 +33,7 @@ import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
+import org.opentosca.container.core.tosca.model.TEntityTemplate;
 import org.opentosca.container.core.tosca.model.TExportedInterface;
 import org.opentosca.container.core.tosca.model.TExportedOperation;
 import org.opentosca.container.core.tosca.model.TPlan;
@@ -103,20 +105,36 @@ public class BoundaryDefinitionController {
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
-        final String xmlFragment =
-            this.referenceMapper.getServiceTemplateBoundsPropertiesContent(csarContent.getCSARID(),
-                                                                           QName.valueOf(servicetemplate));
+        final Object xmlFragment =
+            this.referenceMapper.getServiceTemplateBoundsPropertiesXMLFragment(csarContent.getCSARID(),
+                                                                               QName.valueOf(servicetemplate));
         final List<TPropertyMapping> propertyMappings =
             this.referenceMapper.getPropertyMappings(csarContent.getCSARID(), QName.valueOf(servicetemplate));
-
         final PropertiesDTO dto = new PropertiesDTO();
         logger.debug("XML Fragement: {}", xmlFragment);
         dto.setXmlFragment(xmlFragment);
 
         if (propertyMappings != null) {
             logger.debug("Found <{}> property mappings", propertyMappings.size());
-            dto.setPropertyMappings(propertyMappings);
+            final List<PropertyMappingDTO> propertyMappingDTOs = propertyMappings.stream().map(mapping -> {
+
+                final PropertyMappingDTO result = new PropertyMappingDTO();
+                result.setServiceTemplatePropertyRef(mapping.getServiceTemplatePropertyRef());
+                result.setTargetPropertyRef(mapping.getTargetPropertyRef());
+
+                if (!(mapping.getTargetObjectRef() instanceof TEntityTemplate)) {
+                    logger.error("Unexpected mapping target detected for the property ("
+                        + mapping.getServiceTemplatePropertyRef() + ")");
+                } else {
+                    result.setTargetObjectRef(((TEntityTemplate) mapping.getTargetObjectRef()).getId());
+                }
+
+                return result;
+            }).collect(Collectors.toList());
+
+            dto.setPropertyMappings(propertyMappingDTOs);
         }
+
         dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
 
         return Response.ok(dto).build();
