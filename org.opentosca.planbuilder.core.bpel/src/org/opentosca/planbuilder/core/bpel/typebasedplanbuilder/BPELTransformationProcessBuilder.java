@@ -196,6 +196,12 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
+                                                                  transformationBPELPlan.getBpelMainFlowElement(),
+                                                                  "MIGRATING", sourceServiceInstanceURL);
+        this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
+                                                                  transformationBPELPlan.getBpelMainFlowElement(),
+                                                                  "CREATING", targetServiceInstanceURL);
+        this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
                                                                   transformationBPELPlan.getBpelMainSequenceOutputAssignElement(),
                                                                   "MIGRATED", sourceServiceInstanceURL);
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
