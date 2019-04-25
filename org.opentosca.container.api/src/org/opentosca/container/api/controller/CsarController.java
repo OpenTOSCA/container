@@ -34,6 +34,7 @@ import org.opentosca.container.api.dto.CsarListDTO;
 import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.service.CsarService;
+import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
@@ -331,14 +332,13 @@ public class CsarController {
     	
     	String sourceCsarName = request.getSourceCsarName();
     	String targetCsarName = request.getTargetCsarName();
-    	
-    	
-    	
+    		
     	CSARID csarId = this.csarService.generateTransformationPlans(new CSARID(sourceCsarName), new CSARID(targetCsarName));
     	
     	this.controlService.setDeploymentProcessStateStored(csarId);
         boolean success = this.controlService.invokeTOSCAProcessing(csarId);
 
+        
         if (success) {
             final List<QName> serviceTemplates =
                 this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId);
@@ -351,10 +351,13 @@ public class CsarController {
                     success = false;
                 }
             }
+        }    	                 
+        
+        if(success) {            
+            return Response.ok().build();
+        } else {
+            return Response.serverError().build();
         }
-    	
-    	
-    	return Response.ok().build();
     }
     
 
