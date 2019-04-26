@@ -33,6 +33,7 @@
 
   <modules>
     <module>org.opentosca.broker.mqtt</module>
+    <module>org.opentosca.bus</module>
     <module>org.opentosca.container.config.logging</module>
     <module>org.opentosca.container.connector.bps</module>
     <module>org.opentosca.container.connector.ode</module>
@@ -45,28 +46,6 @@
     <module>org.opentosca.container.engine.plan.plugin.camunda</module>
     <module>org.opentosca.container.portability</module>
     <module>org.opentosca.deployment.checks</module>
-    <module>org.opentosca.bus.management</module>
-    <module>org.opentosca.bus.management.api.osgievent</module>
-    <module>org.opentosca.bus.management.api.resthttp</module>
-    <module>org.opentosca.bus.management.api.soaphttp</module>
-    <module>org.opentosca.bus.management.deployment.plugin</module>
-    <module>org.opentosca.bus.management.deployment.plugin.script</module>
-    <module>org.opentosca.bus.management.deployment.plugin.tomcat</module>
-    <module>org.opentosca.bus.management.deployment.plugin.remote</module>
-    <module>org.opentosca.bus.management.invocation.plugin</module>
-    <module>org.opentosca.bus.management.invocation.plugin.script</module>
-    <module>org.opentosca.bus.management.invocation.plugin.rest</module>
-    <module>org.opentosca.bus.management.invocation.plugin.soaphttp</module>
-    <module>org.opentosca.bus.management.invocation.plugin.remote</module>
-    <module>org.opentosca.bus.management.service</module>
-    <module>org.opentosca.bus.management.service.impl</module>
-    <module>org.opentosca.bus.application.api.jsonhttp</module>
-    <module>org.opentosca.bus.application.api.resthttp</module>
-    <module>org.opentosca.bus.application.api.soaphttp</module>
-    <module>org.opentosca.bus.application.model</module>
-    <module>org.opentosca.bus.application.plugin.jsonhttp.service.impl</module>
-    <module>org.opentosca.bus.application.plugin.service</module>
-    <module>org.opentosca.bus.application.service</module>
     <module>org.opentosca.container.api</module>
     <module>org.opentosca.planbuilder</module>
     <module>org.opentosca.planbuilder.core.bpel</module>
@@ -183,23 +162,6 @@
         <artifactId>org.osgi.core</artifactId>
         <version>4.3.1</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-core</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-spring</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-
     </dependencies>
   </dependencyManagement>
 </project>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.opentosca.container.control.impl.OpenToscaControlServiceImplReplacement">
-   <implementation class="org.opentosca.container.control.impl.OpenToscaControlServiceImplReplacement"/>
+   <implementation class="org.opentosca.container.control.org.opentosca.bus.management.impl.OpenToscaControlServiceImpl"/>
    <service>
       <provide interface="org.opentosca.container.control.OpenToscaControlService"/>
    </service>

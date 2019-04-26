@@ -11,6 +11,7 @@
   </description>
 
   <context:annotation-config />
+
   <context:component-scan base-package="org.opentosca.container.core.impl.plan" />
   <context:component-scan base-package="org.opentosca.container.core.impl.service" />
   <context:component-scan base-package="org.opentosca.container.core.service.impl" />
