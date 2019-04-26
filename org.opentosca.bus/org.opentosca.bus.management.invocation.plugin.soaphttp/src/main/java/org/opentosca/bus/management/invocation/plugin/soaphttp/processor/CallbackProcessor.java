@@ -17,6 +17,7 @@ import org.apache.cxf.headers.Header;
 import org.opentosca.bus.management.invocation.plugin.soaphttp.ManagementBusInvocationPluginSoapHttp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -32,6 +33,7 @@ import org.w3c.dom.Element;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+@Component
 public class CallbackProcessor implements Processor {
 
   final private static Logger LOG = LoggerFactory.getLogger(CallbackProcessor.class);

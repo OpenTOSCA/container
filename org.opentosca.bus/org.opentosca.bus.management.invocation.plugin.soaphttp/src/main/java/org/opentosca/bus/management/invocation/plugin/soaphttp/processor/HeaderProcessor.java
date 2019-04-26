@@ -14,6 +14,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.cxf.CxfPayload;
 import org.apache.cxf.binding.soap.SoapHeader;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -31,6 +32,7 @@ import org.xml.sax.SAXException;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+@Component
 public class HeaderProcessor implements Processor {
 
   @Override

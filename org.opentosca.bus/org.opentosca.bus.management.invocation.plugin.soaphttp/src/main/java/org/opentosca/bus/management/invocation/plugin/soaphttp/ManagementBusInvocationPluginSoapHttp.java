@@ -12,17 +12,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.camel.ConsumerTemplate;
-import org.apache.camel.Exchange;
-import org.apache.camel.Message;
-import org.apache.camel.ProducerTemplate;
+import org.apache.camel.*;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.soaphttp.route.AsyncRoute;
-import org.opentosca.bus.management.invocation.plugin.soaphttp.util.Messages;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -45,18 +42,20 @@ import com.predic8.wsdl.WSDLParser;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
-public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvocationPluginService {
+@Component
+public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvocationPluginService, CamelContextAware {
 
-  final private static Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginSoapHttp.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginSoapHttp.class);
 
   // Supported types defined in messages.properties.
-  static final private String TYPES = Messages.SoapSIEnginePlugin_types;
+  private static final String TYPES = "SOAP/HTTP";
+  private static final String CALLBACK = "callback";
+  private static final String REQUST_RESPONSE = "request-response";
+  private static final String REQUEST_ONLY = "request-only";
 
   private static Map<String, Exchange> exchangeMap = Collections.synchronizedMap(new HashMap<String, Exchange>());
 
-  final String CALLBACK = "callback";
-  final String REQUST_RESPONSE = "request-response";
-  final String REQUEST_ONLY = "request-only";
+  private CamelContext camelContext;
 
   @Override
   public Exchange invoke(Exchange exchange) {
@@ -92,7 +91,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
     Document document = null;
 
-    ManagementBusInvocationPluginSoapHttp.LOG.info("Creating invocation message.");
+    LOG.info("Creating invocation message.");
 
     if (params instanceof HashMap) {
 
@@ -105,7 +104,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
       final WSDLParser parser = new WSDLParser();
 
-      ManagementBusInvocationPluginSoapHttp.LOG.info("Parsing WSDL at: {}.", endpoint);
+      LOG.info("Parsing WSDL at: {}.", endpoint);
 
       Definitions wsdl;
 
@@ -119,10 +118,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         } catch (final Exception e) {
           // handle exception
           if (++count == maxTries) {
-            ManagementBusInvocationPluginSoapHttp.LOG.error("Unable to access the wsdl at: {}.", endpoint);
+            LOG.error("Unable to access the wsdl at: {}.", endpoint);
             throw e;
           } else {
-            ManagementBusInvocationPluginSoapHttp.LOG.warn("Problem accessing the wsdl at: {}. Retry... ({}/{})",
+            LOG.warn("Problem accessing the wsdl at: {}. Retry... ({}/{})",
               endpoint, count, maxTries);
             try {
               Thread.sleep(10000);
@@ -137,17 +136,17 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       searchOperation:
       for (final Binding bind : wsdl.getBindings()) {
 
-        ManagementBusInvocationPluginSoapHttp.LOG.debug("Binding: {}", bind);
+        LOG.debug("Binding: {}", bind);
 
         if (bind.getProtocol().toString().toLowerCase().contains("soap")) {
 
           for (final BindingOperation op : bind.getOperations()) {
-            ManagementBusInvocationPluginSoapHttp.LOG.debug("Operation: {} =? {}", op.getName(),
+            LOG.debug("Operation: {} =? {}", op.getName(),
               operationName);
 
             if (op.getName().equals(operationName)) {
               final String portType = bind.getPortType().getName();
-              ManagementBusInvocationPluginSoapHttp.LOG.debug("PortType: {}", portType);
+              LOG.debug("PortType: {}", portType);
               final String rootElementWithPrefix =
                 wsdl.getElementNameForOperation(operationName, portType);
               final com.predic8.schema.Element element =
@@ -155,7 +154,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
               rootElementName = element.getName();
               rootElementNamespaceURI =
                 (String) element.getNamespace(rootElementWithPrefix.replace(":" + rootElementName, ""));
-              ManagementBusInvocationPluginSoapHttp.LOG.debug("Root ElementName: {} with NamespaceURI: {}",
+              LOG.debug("Root ElementName: {} with NamespaceURI: {}",
                 rootElementName, rootElementNamespaceURI);
 
               // Check if request-response ,callback or
@@ -208,7 +207,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       }
 
       if (messagingPattern == null) {
-        ManagementBusInvocationPluginSoapHttp.LOG.error("No invokable operation found. Invocation aborted!");
+        LOG.error("No invokable operation found. Invocation aborted!");
         return null;
       }
       document = mapToDoc(rootElementNamespaceURI, rootElementName, paramsMap);
@@ -222,34 +221,31 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
     }
 
     if (messagingPattern == null) {
-      ManagementBusInvocationPluginSoapHttp.LOG.error("Can't determine which kind of invocation is needed. Invocation aborted.");
+      LOG.error("Can't determine which kind of invocation is needed. Invocation aborted.");
       return null;
     }
 
-    ManagementBusInvocationPluginSoapHttp.LOG.debug("Invoking the web service.");
+    LOG.debug("Invoking the web service.");
 
-    final ProducerTemplate template = Activator.camelContext.createProducerTemplate();
-
-    final ConsumerTemplate consumer = Activator.camelContext.createConsumerTemplate();
+    final ProducerTemplate template = camelContext.createProducerTemplate();
+    final ConsumerTemplate consumer = camelContext.createConsumerTemplate();
 
     Document response = null;
-
-    ManagementBusInvocationPluginSoapHttp.LOG.debug("Messaging pattern: {}", messagingPattern);
-
+    LOG.debug("Messaging pattern: {}", messagingPattern);
     if (messagingPattern.equals(this.REQUST_RESPONSE)) {
-      ManagementBusInvocationPluginSoapHttp.LOG.debug("Sync invocation.");
+      LOG.debug("Sync invocation.");
       response = template.requestBodyAndHeaders("direct:Sync-WS-Invoke", document, headers, Document.class);
     } else if (messagingPattern.equals(this.REQUEST_ONLY)) {
-      ManagementBusInvocationPluginSoapHttp.LOG.debug("Request-only invocation.");
+      LOG.debug("Request-only invocation.");
       template.sendBodyAndHeaders("direct:RequestOnly-WS-Invoke", document, headers);
       return null;
     } else if (messagingPattern.equals(this.CALLBACK)) {
 
-      ManagementBusInvocationPluginSoapHttp.LOG.debug("Async invocation.");
+      LOG.debug("Async invocation.");
 
       final String messageID = message.getMessageId();
 
-      ManagementBusInvocationPluginSoapHttp.LOG.debug("Storing exchange message with MessageID: {}", messageID);
+      LOG.debug("Storing exchange message with MessageID: {}", messageID);
 
       ManagementBusInvocationPluginSoapHttp.exchangeMap.put(messageID, exchange);
 
@@ -271,13 +267,13 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
         final Message mes = ex.getIn();
 
-        ManagementBusInvocationPluginSoapHttp.LOG.debug("Got Message with ID: {}", messageID);
-        ManagementBusInvocationPluginSoapHttp.LOG.debug("Stored MessageIDs: {}",
+        LOG.debug("Got Message with ID: {}", messageID);
+        LOG.debug("Stored MessageIDs: {}",
           ManagementBusInvocationPluginSoapHttp.exchangeMap.keySet()
             .toString());
 
         if (ManagementBusInvocationPluginSoapHttp.exchangeMap.containsKey(messageID)) {
-          ManagementBusInvocationPluginSoapHttp.LOG.debug("MessageID found");
+          LOG.debug("MessageID found");
           exchange = ManagementBusInvocationPluginSoapHttp.exchangeMap.get(messageID);
 
           response = mes.getBody(Document.class);
@@ -292,7 +288,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
     if (exchange.getIn().getHeader("ParamsMode") != null
       && exchange.getIn().getHeader("ParamsMode").equals("HashMap")) {
 
-      ManagementBusInvocationPluginSoapHttp.LOG.debug("Transforming Document to HashMap...");
+      LOG.debug("Transforming Document to HashMap...");
 
       final HashMap<String, String> responseMap = MBUtils.docToMap(response, false);
 
@@ -302,9 +298,9 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       exchange.getIn().setBody(response);
     }
 
-    ManagementBusInvocationPluginSoapHttp.LOG.debug("Returning exchange with MessageID: {}",
+    LOG.debug("Returning exchange with MessageID: {}",
       exchange.getIn().getMessageId());
-    ManagementBusInvocationPluginSoapHttp.LOG.debug("Returning body: {}", exchange.getIn().getBody().toString());
+    LOG.debug("Returning body: {}", exchange.getIn().getBody().toString());
 
     return exchange;
   }
@@ -359,7 +355,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
     // Plan should be invoked
     if (message.getHeader(MBHeader.PLANID_QNAME.toString()) != null) {
 
-      ManagementBusInvocationPluginSoapHttp.LOG.debug("Invoking a plan with document as input.");
+      LOG.debug("Invoking a plan with document as input.");
 
       // Caller already knows if invocation is sync or async.
       if (message.getHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString()) != null) {
@@ -386,7 +382,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       // Operation of IA should be invoked
     } else {
 
-      ManagementBusInvocationPluginSoapHttp.LOG.debug("Invoking an operation of an implementation artifact with document as input.");
+      LOG.debug("Invoking an operation of an implementation artifact with document as input.");
 
       final Boolean hasOutputDefinedInWSDL = hasOutputDefinedInWSDL(endpoint, operationName);
 
@@ -424,7 +420,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
     try {
       documentBuilder = documentBuilderFactory.newDocumentBuilder();
     } catch (final ParserConfigurationException e) {
-      ManagementBusInvocationPluginSoapHttp.LOG.error("Some error occured.");
+      LOG.error("Some error occured.");
       e.printStackTrace();
     }
 
@@ -453,7 +449,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
   @Override
   public List<String> getSupportedTypes() {
-    ManagementBusInvocationPluginSoapHttp.LOG.debug("Getting Types: {}.",
+    LOG.debug("Getting Types: {}.",
       ManagementBusInvocationPluginSoapHttp.TYPES);
     final List<String> types = new ArrayList<>();
 
@@ -461,5 +457,15 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       types.add(type.trim());
     }
     return types;
+  }
+
+  @Override
+  public void setCamelContext(CamelContext camelContext) {
+    this.camelContext = camelContext;
+  }
+
+  @Override
+  public CamelContext getCamelContext() {
+    return this.camelContext;
   }
 }
