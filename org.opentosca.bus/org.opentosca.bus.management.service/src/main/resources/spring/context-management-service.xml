@@ -15,6 +15,11 @@
 
   <context:component-scan base-package="org.opentosca.bus.management.impl.collaboration" />
 
+  <!-- import the context definitions for invocation plugins -->
+  <import resource="classpath*:/spring/context-bus-invocation-plugin.xml" />
+  <!-- import the context definitions for deployment plugins -->
+  <import resource="classpath*:/spring/context-bus-deployment-plugin.xml" />
+
   <camel:camelContext>
     <camel:packageScan>
       <camel:package>org.opentosca.bus.management.impl.collaboration.route</camel:package>
