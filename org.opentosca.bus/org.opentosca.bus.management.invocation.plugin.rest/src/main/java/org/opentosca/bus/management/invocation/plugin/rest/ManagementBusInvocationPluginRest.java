@@ -22,6 +22,7 @@ import org.opentosca.bus.management.invocation.plugin.rest.model.DataAssign;
 import org.opentosca.bus.management.invocation.plugin.rest.model.DataAssign.Operations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -47,40 +48,29 @@ import com.google.gson.JsonObject;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @author Christian Endres - christian.endres@iaas.informatik.uni-stuttgart.de
  */
+@Component
 public class ManagementBusInvocationPluginRest implements IManagementBusInvocationPluginService, CamelContextAware {
-
-
   final private static Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginRest.class);
 
-  private CamelContext camelContext;
-
   // Supported types defined in messages.properties.
-  static final private String TYPES = "REST";
-
+  private static final String TYPES = "REST";
   // Default Values of specific content
-  final String PARAMS = "queryString";
-  final String ENDPOINT = "no";
-  final String CONTENTTYPE = "urlencoded";
-  final String METHOD = "POST";
+  private static final String PARAMS = "queryString";
+  private static final String ENDPOINT = "no";
+  private static final String CONTENTTYPE = "urlencoded";
+  private static final String METHOD = "POST";
+
+  private CamelContext camelContext;
 
   @SuppressWarnings("unchecked")
   @Override
   public Exchange invoke(Exchange exchange) {
-
     final Message message = exchange.getIn();
-
     final Object params = message.getBody();
-    final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
-    final String interfaceName = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
     final String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
-    final Document specificContenet = message.getHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), Document.class);
 
     LOG.debug("Invoke REST call at {}.", endpoint);
-
-    HashMap<String, String> paramsMap = null;
-    final Document paramsDoc = null;
-    final boolean isDoc = false;
-
+    final Map<String, String> paramsMap;
     if (params instanceof HashMap) {
       paramsMap = (HashMap<String, String>) params;
     } else {
@@ -88,13 +78,18 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
       return null;
     }
 
+    final Document specificContent = message.getHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), Document.class);
+    final Document paramsDoc = null;
     DataAssign dataAssign = null;
-    if (specificContenet != null) {
+    if (specificContent != null) {
       LOG.debug("Unmarshalling provided artifact specific content.");
-      dataAssign = unmarshall(specificContenet);
+      dataAssign = unmarshall(specificContent);
     }
 
+    final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
+    final String interfaceName = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
     Operation operation = null;
+    final boolean isDoc = false;
     if (dataAssign != null) {
       LOG.debug("Searching for correct operation.");
       operation = getOperation(dataAssign, operationName, interfaceName);
@@ -105,37 +100,31 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
     headers.put(Exchange.HTTP_METHOD, this.METHOD);
     headers.put(Exchange.CONTENT_TYPE, "application/json");
 
-    Object body = null;
 
     final ContentType contentTypeParam = ContentType.JSON;
 
     LOG.debug("ParamsParam set: params into payload.");
 
     // ...as xml
+    final Object body;
     if (contentTypeParam != null && !contentTypeParam.value().equalsIgnoreCase(this.CONTENTTYPE)) {
-
-      LOG.debug("ContenttypeParam set: params into payload as {}.",
-        contentTypeParam);
-
+      LOG.debug("ContenttypeParam set: params into payload as {}.", contentTypeParam);
       body = mapToJSON(paramsMap);
-    }
-    // ...as urlencoded String
-    else {
-
+    } else {
+      // ...as urlencoded String
       LOG.debug("Params into payload as urlencoded String.");
-
       if (paramsDoc != null || paramsMap != null) {
         final String queryString = getQueryString(paramsDoc, paramsMap);
         body = queryString;
+      } else {
+        body = null;
       }
-
     }
 
     final ProducerTemplate template = camelContext.createProducerTemplate();
     // the dummyhost uri is ignored, so this is ugly but intended
 
-    // deployment of plan may be not finished at this point, thus, poll for
-    // successful invocation
+    // deployment of plan may be not finished at this point, thus, poll for successful invocation
     String responseString = null;
     final long maxWaitTime = 5000;
     final long startMillis = System.currentTimeMillis();
@@ -163,15 +152,12 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
         e.printStackTrace();
       }
     } while (null == responseString);
-
     LOG.info("Response of the REST call: " + responseString);
 
-    exchange = createResponseExchange(exchange, responseString, operationName, isDoc);
-
-    return exchange;
+    return createResponseExchange(exchange, responseString, operationName, isDoc);
   }
 
-  private Object mapToJSON(final HashMap<String, String> paramsMap) {
+  private Object mapToJSON(final Map<String, String> paramsMap) {
     final JsonObject vars = new JsonObject();
     for (final String key : paramsMap.keySet()) {
       final JsonObject details = new JsonObject();
@@ -192,20 +178,13 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
    * @param paramsMap to create queryString from.
    * @return created queryString
    */
-  private String getQueryString(final Document paramsDoc, HashMap<String, String> paramsMap) {
-
+  private String getQueryString(final Document paramsDoc, Map<String, String> paramsMap) {
     LOG.debug("Creating queryString...");
-
     if (paramsDoc != null) {
-
       paramsMap = docToMap(paramsDoc);
-
     }
-
     final String queryString = mapToQueryString(paramsMap);
-
     LOG.debug("Created queryString: {}", queryString);
-
     return queryString;
   }
 
@@ -215,28 +194,18 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
    * @param params to generate the queryString from.
    * @return the queryString.
    */
-  private String mapToQueryString(final HashMap<String, String> params) {
-
+  private String mapToQueryString(final Map<String, String> params) {
     LOG.debug("Transfering the map: {} into a queryString...", params);
-
     final StringBuilder query = new StringBuilder();
-
     for (final Entry<String, String> entry : params.entrySet()) {
-
       query.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
-
     }
-
     // remove last "&"
     final int length = query.length();
-
     if (length > 0) {
-
       query.deleteCharAt(length - 1);
     }
-
     return query.toString();
-
   }
 
   /**
@@ -246,7 +215,6 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
    * @return Document or null if string wasn't valid xml.
    */
   private Document stringToDoc(final String string) {
-
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder;
     Document doc = null;
@@ -267,29 +235,22 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
    * @param queryString to generate the map from.
    * @return HashMap or null if string wasn't a valid queryString.
    */
-  private HashMap<String, String> queryStringToMap(final String queryString) {
-
+  private Map<String, String> queryStringToMap(final String queryString) {
     LOG.debug("Transfering the queryString: {} into a HashMap...", queryString);
-
     final String[] params = queryString.split("&");
-    final HashMap<String, String> map = new HashMap<>();
+    final Map<String, String> map = new HashMap<>();
     for (final String param : params) {
       try {
-
         final String name = param.split("=")[0];
         final String value = param.split("=")[1];
-
         if (name.matches("\\w+")) {
-
           map.put(name, value);
         }
-
       } catch (final IndexOutOfBoundsException e) {
         LOG.debug("Response isn't queryString.");
         return null;
       }
     }
-
     LOG.debug("Transfered HashMap: {}", map.toString());
     return map;
   }
@@ -301,25 +262,18 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
    * @return http path.
    */
   private String getHttpPath(final Operation operation) {
-
     final StringBuilder httpPath = new StringBuilder();
     final String intName = operation.getInterfaceName();
     final String opName = operation.getName();
-
     if (intName != null) {
       httpPath.append(intName);
     }
-
     if (opName != null) {
-
       if (intName != null) {
-        httpPath.append("/").append(opName);
-
-      } else {
-        httpPath.append(opName);
+        httpPath.append("/");
       }
+      httpPath.append(opName);
     }
-
     return httpPath.toString();
   }
 
@@ -333,35 +287,23 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
    */
   private Operation getOperation(final DataAssign dataAssign, final String operationName,
                                  final String interfaceName) {
-
     final List<Operation> operations = dataAssign.getOperations().getOperation();
-
     for (final Operation op : operations) {
-
       final String provOpName = op.getName();
       final String provIntName = op.getInterfaceName();
-
-      LOG.debug("Provided operation name: {}. Needed: {}", provOpName,
-        operationName);
-      LOG.debug("Provided interface name: {}. Needed: {}", provIntName,
-        interfaceName);
-
+      LOG.debug("Provided operation name: {}. Needed: {}", provOpName, operationName);
+      LOG.debug("Provided interface name: {}. Needed: {}", provIntName, interfaceName);
       if (op.getName() == null && op.getInterfaceName() == null) {
         LOG.debug("Operation found. No operation name nor interfaceName is specified meaning this IA implements just one operation or the provided information count for all implemented operations.");
         return op;
-
       } else if (op.getName() != null && op.getName().equalsIgnoreCase(operationName)) {
-
         if (op.getInterfaceName() == null || interfaceName == null) {
           LOG.debug("Operation found. No interfaceName specified.");
           return op;
-
         } else if (op.getInterfaceName().equalsIgnoreCase(interfaceName)) {
           LOG.debug("Operation found. Interface name matches too.");
           return op;
-
         }
-
       } else if (op.getInterfaceName() != null && op.getName() == null
         && op.getInterfaceName().equalsIgnoreCase(interfaceName)) {
         LOG.debug("Operation found. Provided information count for all operations of the specified interface.");
@@ -377,15 +319,13 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
    * @param doc to be transfered to a map.
    * @return transfered map.
    */
-  private HashMap<String, String> docToMap(final Document doc) {
-    final HashMap<String, String> map = new HashMap<>();
+  private Map<String, String> docToMap(final Document doc) {
+    final Map<String, String> map = new HashMap<>();
 
     final DocumentTraversal traversal = (DocumentTraversal) doc;
-    final NodeIterator iterator =
-      traversal.createNodeIterator(doc.getDocumentElement(), NodeFilter.SHOW_ELEMENT, null, true);
+    final NodeIterator iterator = traversal.createNodeIterator(doc.getDocumentElement(), NodeFilter.SHOW_ELEMENT, null, true);
 
     for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
-
       final String name = ((Element) node).getTagName();
       final StringBuilder content = new StringBuilder();
       final NodeList children = node.getChildNodes();
@@ -395,12 +335,10 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
           content.append(child.getTextContent());
         }
       }
-
       if (!content.toString().trim().isEmpty()) {
         map.put(name, content.toString());
       }
     }
-
     return map;
   }
 
@@ -411,31 +349,25 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
    * @param paramsMap
    * @return the created Document.
    */
-  private Document mapToDoc(final String operationName, final HashMap<String, String> paramsMap) {
-
+  private Document mapToDoc(final String operationName, final Map<String, String> paramsMap) {
     Document document;
-
     final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder documentBuilder = null;
+    final DocumentBuilder documentBuilder;
     try {
       documentBuilder = documentBuilderFactory.newDocumentBuilder();
     } catch (final ParserConfigurationException e) {
       e.printStackTrace();
+      return null;
     }
-
     document = documentBuilder.newDocument();
 
     final Element rootElement = document.createElement(operationName);
     document.appendChild(rootElement);
-
-    Element mapElement;
     for (final Entry<String, String> entry : paramsMap.entrySet()) {
-      mapElement = document.createElement(entry.getKey());
+      final Element mapElement = document.createElement(entry.getKey());
       mapElement.setTextContent(entry.getValue());
       rootElement.appendChild(mapElement);
-
     }
-
     return document;
   }
 
@@ -453,46 +385,32 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
    */
   private Exchange createResponseExchange(final Exchange exchange, final String responseString,
                                           final String operationName, final boolean isDoc) {
-
     LOG.debug("Handling the response: {}.", responseString);
-
     Document responseDoc = stringToDoc(responseString);
-    HashMap<String, String> responseMap;
 
     // response was xml
     if (responseDoc != null) {
-
       LOG.debug("Reponse is xml formatted.");
-
       if (isDoc) {
-
         LOG.debug("Returning response xml formatted..");
         exchange.getIn().setBody(responseDoc);
-
       } else {
-
         LOG.debug("Transfering xml response into a Hashmap...");
-        responseMap = docToMap(responseDoc);
+        Map<String, String> responseMap = docToMap(responseDoc);
         LOG.debug("Returning response as HashMap.");
         exchange.getIn().setBody(responseMap);
       }
-    }
+    } else {
     // response should be queryString
-    else {
-
-      responseMap = queryStringToMap(responseString);
-
+      Map<String, String> responseMap = queryStringToMap(responseString);
       if (responseMap == null || responseMap.isEmpty()) {
         LOG.debug("Response isn't neihter xml nor queryString. Returning the reponse: {} as string.",
           responseString);
         exchange.getIn().setBody(responseString);
       } else if (isDoc) {
-
         LOG.debug("Transfering response into xml...");
         responseDoc = mapToDoc(operationName, responseMap);
-
         exchange.getIn().setBody(responseDoc);
-
       } else {
         LOG.debug("Returning response as HashMap.");
         exchange.getIn().setBody(responseMap);
@@ -514,26 +432,18 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
       doc.getElementsByTagNameNS("http://www.siengine.restplugin.org/SpecificContentRestSchema", "DataAssign");
 
     final Node node = nodeList.item(0);
-
-    JAXBContext jc;
-
     try {
-
-      jc = JAXBContext.newInstance("org.opentosca.bus.management.plugins.rest.service.impl.model");
+      final JAXBContext jc = JAXBContext.newInstance("org.opentosca.bus.management.plugins.rest.service.impl.model");
       final Unmarshaller unmarshaller = jc.createUnmarshaller();
       final DataAssign dataAssign = (DataAssign) unmarshaller.unmarshal(node);
 
-      LOG.debug("Artifact specific content successfully marshalled.");
-
+      LOG.debug("Artifact specific content successfully unmarshalled.");
       return dataAssign;
-
     } catch (final JAXBException e) {
       LOG.warn("Couldn't unmarshall provided artifact specific content!");
       e.printStackTrace();
     }
-
     LOG.debug("No unmarshallable artifact specific content provided. Using default values now.");
-
     return null;
   }
 
