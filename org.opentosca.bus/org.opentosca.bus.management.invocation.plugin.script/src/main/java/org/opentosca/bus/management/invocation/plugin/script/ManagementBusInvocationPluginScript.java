@@ -12,9 +12,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Message;
-import org.apache.camel.ProducerTemplate;
+import org.apache.camel.*;
 import org.apache.commons.io.FilenameUtils;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
@@ -43,7 +41,7 @@ import org.w3c.dom.NodeList;
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  */
 @Service
-public class ManagementBusInvocationPluginScript implements IManagementBusInvocationPluginService {
+public class ManagementBusInvocationPluginScript implements IManagementBusInvocationPluginService, CamelContextAware {
 
   final private static String PLACEHOLDER_TARGET_FILE_PATH = "{TARGET_FILE_PATH}";
   final private static String PLACEHOLDER_TARGET_FILE_FOLDER_PATH = "{TARGET_FILE_FOLDER_PATH}";
@@ -56,8 +54,16 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
   final private static Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginScript.class);
 
+  private final IToscaEngineService toscaEngineService;
+  private final ArtifactTypesHandler typesHandler;
+
+  private CamelContext camelContext;
+
   @Inject
-  private static IToscaEngineService toscaEngineService;
+  public ManagementBusInvocationPluginScript(IToscaEngineService toscaEngineService, ArtifactTypesHandler typesHandler) {
+    this.toscaEngineService = toscaEngineService;
+    this.typesHandler = typesHandler;
+  }
 
   @Override
   public Exchange invoke(final Exchange exchange) {
@@ -337,7 +343,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
    * in defined the corresponding *.xml file.
    */
   private void installPackages(final QName artifactType, final HashMap<String, Object> headers) {
-    final List<String> requiredPackages = ArtifactTypesHandler.getRequiredPackages(artifactType);
+    final List<String> requiredPackages = typesHandler.getRequiredPackages(artifactType);
     if (requiredPackages.isEmpty()) {
       LOG.debug("ArtifactType: {} needs no packages to install.", requiredPackages, artifactType);
       return;
@@ -402,7 +408,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                                                          final QName artifactTemplateID, final Object params) {
     LOG.debug("Creating ArtifactType specific command for artifactType {}:...", artifactType);
 
-    final List<String> commands = ArtifactTypesHandler.getCommands(artifactType);
+    final List<String> commands = typesHandler.getCommands(artifactType);
     String commandsString = String.join(" && ", commands);
     LOG.debug("Defined generic command for ArtifactType {} : {} ", artifactType, commandsString);
 
@@ -486,7 +492,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                                            final HashMap<String, Object> headers) {
     LOG.debug("Invoking the Management Bus...");
 
-    final ProducerTemplate template = Activator.camelContext.createProducerTemplate();
+    final ProducerTemplate template = camelContext.createProducerTemplate();
     final Object response = template.requestBodyAndHeaders("bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA", paramsMap, headers);
     LOG.debug("Invocation finished: {}", response);
     return response;
@@ -494,6 +500,16 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
   @Override
   public List<String> getSupportedTypes() {
-    return ArtifactTypesHandler.getSupportedTypes().stream().map(QName::toString).collect(Collectors.toList());
+    return typesHandler.getSupportedTypes().stream().map(QName::toString).collect(Collectors.toList());
+  }
+
+  @Override
+  public void setCamelContext(CamelContext camelContext) {
+    this.camelContext = camelContext;
+  }
+
+  @Override
+  public CamelContext getCamelContext() {
+    return camelContext;
   }
 }

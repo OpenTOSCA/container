@@ -3,21 +3,20 @@ package org.opentosca.bus.management.invocation.plugin.script.typeshandler;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
+import javax.inject.Singleton;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.bus.management.invocation.plugin.script.model.artifacttypes.Artifacttype;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Handles the config files (located in artifacttypes folder) for the different supported
@@ -25,78 +24,63 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  */
+@Service
+@Singleton
 public class ArtifactTypesHandler {
+  private static final String ARTIFACT_TYPES_DEFINTION_FOLDER = "/artifacttypes";
+  private static final Logger LOG = LoggerFactory.getLogger(ArtifactTypesHandler.class);
 
-  private static final String ARTIFACT_TYPES_DEFINTION_FOLDER = "/META-INF/artifacttypes";
+  private final Map<QName, Artifacttype> artifactTypes = new HashMap<>();
 
-  final private static Logger LOG = LoggerFactory.getLogger(ArtifactTypesHandler.class);
-
-  private static HashMap<QName, Artifacttype> artifact_types = new HashMap<>();
-
-  /**
-   * Initially reads all ArtifactTypes config files.
-   *
-   * @param bundleContext
-   */
-  public static void init(final BundleContext bundleContext) {
-
-    ArtifactTypesHandler.LOG.debug("Registering the supported ArtifactTypes...");
-
-    File[] types_definitions_files = null;
-
-    URL bundleResURL = null;
-    URL fileResURL = null;
-    File typesFolder = null;
-
+  public ArtifactTypesHandler() {
+    LOG.debug("Registering the supported ArtifactTypes...");
+    final File typesFolder;
     try {
-      bundleResURL = bundleContext.getBundle().getEntry(ARTIFACT_TYPES_DEFINTION_FOLDER);
-      // convert bundle resource URL to file URL
-      fileResURL = FileLocator.toFileURL(bundleResURL);
-      typesFolder = new File(fileResURL.getPath());
-    } catch (final IOException e) {
-      ArtifactTypesHandler.LOG.error("", e);
+      URL artifactTypeFolder = getClass().getClassLoader().getResource(ARTIFACT_TYPES_DEFINTION_FOLDER);
+      typesFolder = new File(artifactTypeFolder.toURI());
+    } catch (final URISyntaxException e) {
+      LOG.error("Failed to transform resource URL to File reference", e);
+      // Do not under any circumstances blow up the containing JVM by throwing something here
+      return;
     }
 
-    if (typesFolder == null) {
-      ArtifactTypesHandler.LOG.error("Can't get ArtifactTypes configuration files.");
-    }
-
+    final File[] typeDefinitions;
     if (typesFolder != null && typesFolder.isDirectory()) {
-      types_definitions_files = typesFolder.listFiles((FileFilter) pathname -> {
+      typeDefinitions = typesFolder.listFiles((FileFilter) pathname -> {
         final String name = pathname.getName().toLowerCase();
         return name.endsWith(".xml") && pathname.isFile();
       });
+    } else {
+      LOG.debug("No supported ArtifactTypes found.");
+      return;
     }
 
-    if (types_definitions_files != null) {
-
-      for (final File type_defintion_file : types_definitions_files) {
-
-        JAXBContext jaxbContext;
-
-        try {
-
-          jaxbContext = JAXBContext.newInstance(Artifacttype.class);
-          final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-          final Artifacttype artitacttype = (Artifacttype) jaxbUnmarshaller.unmarshal(type_defintion_file);
-
-          final String artifactTypeName = artitacttype.getName();
-          final String artifactTypeNamespace = artitacttype.getNamespace();
-
-          final QName artifactType = new QName(artifactTypeNamespace, artifactTypeName);
-
-          ArtifactTypesHandler.LOG.debug("Supported ArtifactType found: {}", artifactType);
-
-          artifact_types.put(artifactType, artitacttype);
-
-        } catch (final JAXBException e) {
-          e.printStackTrace();
-        }
+    final JAXBContext jaxbContext;
+    final Unmarshaller jaxbUnmarshaller;
+    try {
+      jaxbContext = JAXBContext.newInstance(Artifacttype.class);
+      jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+    } catch (final JAXBException e) {
+      LOG.error("Coule not create JAXBContext for Artifacttype deserialization", e);
+      return;
+    }
+    for (final File typeDefinition : typeDefinitions) {
+      final Artifacttype artifactType;
+      try {
+        artifactType = (Artifacttype) jaxbUnmarshaller.unmarshal(typeDefinition);
+      } catch (JAXBException e) {
+        LOG.warn("Failed to deserialize type definition {} with JAXBException", typeDefinition, e);
+        continue;
       }
-    } else {
-      ArtifactTypesHandler.LOG.debug("No supported ArtifactTypes found.");
+      final String artifactTypeName = artifactType.getName();
+      final String artifactTypeNamespace = artifactType.getNamespace();
+      final QName qName = new QName(artifactTypeNamespace, artifactTypeName);
+
+      LOG.debug("Supported ArtifactType found: {}", artifactType);
+      artifactTypes.put(qName, artifactType);
     }
   }
+
 
   /**
    * Returns the required packages of the specified ArtifactType.
@@ -104,18 +88,13 @@ public class ArtifactTypesHandler {
    * @param artifactType
    * @return the required packages of the specified ArtifactType.
    */
-  public static List<String> getRequiredPackages(final QName artifactType) {
-
-    List<String> requiredPackages = new ArrayList<>();
-
-    if (artifact_types.containsKey(artifactType)) {
-      requiredPackages = artifact_types.get(artifactType).getPackages().getPackage();
-    } else {
-      ArtifactTypesHandler.LOG.warn("ArtifactType: {} is not supported!", artifactType);
+  public List<String> getRequiredPackages(final QName artifactType) {
+    if (!artifactTypes.containsKey(artifactType)) {
+      LOG.warn("ArtifactType: {} is not supported!", artifactType);
+      return Collections.emptyList();
     }
-
-    ArtifactTypesHandler.LOG.debug("Required packages of artifactType: {} : {}", artifactType, requiredPackages);
-
+    List<String> requiredPackages = artifactTypes.get(artifactType).getPackages().getPackage();
+    LOG.debug("Required packages of artifactType: {} : {}", artifactType, requiredPackages);
     return requiredPackages;
   }
 
@@ -125,32 +104,22 @@ public class ArtifactTypesHandler {
    * @param artifactType
    * @return the defined commands of the specified ArtifactType.
    */
-  public static List<String> getCommands(final QName artifactType) {
-
-    List<String> commands = new ArrayList<>();
-
-    if (artifact_types.containsKey(artifactType)) {
-      commands = artifact_types.get(artifactType).getCommands().getCommand();
-    } else {
-      ArtifactTypesHandler.LOG.warn("ArtifactType: {} is not supported!", artifactType);
+  public List<String> getCommands(final QName artifactType) {
+    if (!artifactTypes.containsKey(artifactType)) {
+      LOG.warn("ArtifactType: {} is not supported!", artifactType);
+      return Collections.emptyList();
     }
-
-    ArtifactTypesHandler.LOG.debug("Commands to run for artifactType: {} : {}", artifactType, commands);
-
+    List<String> commands = artifactTypes.get(artifactType).getCommands().getCommand();
+    LOG.debug("Commands to run for artifactType: {} : {}", artifactType, commands);
     return commands;
   }
 
   /**
    * @return the supported Types of the plugin. Based on the available *.xml files.
    */
-  public static List<QName> getSupportedTypes() {
-
-    final ArrayList<QName> supportedTypes = new ArrayList<>(artifact_types.keySet());
-
-    ArtifactTypesHandler.LOG.debug("SupportedTypes: {}", supportedTypes);
-
+  public List<QName> getSupportedTypes() {
+    final ArrayList<QName> supportedTypes = new ArrayList<>(artifactTypes.keySet());
+    LOG.debug("SupportedTypes: {}", supportedTypes);
     return supportedTypes;
-
   }
-
 }
