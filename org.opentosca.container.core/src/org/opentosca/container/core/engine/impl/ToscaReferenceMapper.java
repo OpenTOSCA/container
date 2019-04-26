@@ -1,5 +1,6 @@
 package org.opentosca.container.core.engine.impl;
 
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -27,6 +29,7 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.model.TBoundaryDefinitions;
 import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Policies;
+import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Properties;
 import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Properties.PropertyMappings;
 import org.opentosca.container.core.tosca.model.TDefinitions;
 import org.opentosca.container.core.tosca.model.TExportedInterface;
@@ -1266,6 +1269,15 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
             return properties.get(serviceTemplateID);
         }
         return null;
+    }
+
+    @Override
+    public Object getServiceTemplateBoundsPropertiesXMLFragment(final CSARID csarID, final QName serviceTemplateID) {
+        final String content = this.getServiceTemplateBoundsPropertiesContent(csarID, serviceTemplateID);
+        final Object result = JAXB.unmarshal(new StringReader(content), TBoundaryDefinitions.Properties.class);
+        final TBoundaryDefinitions.Properties properties = (Properties) result;
+
+        return properties.getAny();
     }
 
     @Override

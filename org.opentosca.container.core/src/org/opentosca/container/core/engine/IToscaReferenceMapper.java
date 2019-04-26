@@ -304,6 +304,8 @@ public interface IToscaReferenceMapper {
 
     public String getServiceTemplateBoundsPropertiesContent(CSARID csarID, QName serviceTemplateID);
 
+    public Object getServiceTemplateBoundsPropertiesXMLFragment(CSARID csarID, QName serviceTemplateID);
+
     public PropertyMappings getServiceTemplateBoundsPropertyMappings(CSARID csarID, QName serviceTemplateID);
 
     public List<String> getServiceTemplateBoundsPropertiesContent(CSARID csarID);
