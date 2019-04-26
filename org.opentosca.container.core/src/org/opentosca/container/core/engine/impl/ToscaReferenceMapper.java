@@ -1273,12 +1273,11 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 
     @Override
     public Object getServiceTemplateBoundsPropertiesXMLFragment(final CSARID csarID, final QName serviceTemplateID) {
-
         final String content = this.getServiceTemplateBoundsPropertiesContent(csarID, serviceTemplateID);
         final Object result = JAXB.unmarshal(new StringReader(content), TBoundaryDefinitions.Properties.class);
         final TBoundaryDefinitions.Properties properties = (Properties) result;
-        return properties.getAny();
 
+        return properties.getAny();
     }
 
     @Override

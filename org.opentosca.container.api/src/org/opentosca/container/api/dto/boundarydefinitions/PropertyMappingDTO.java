@@ -52,7 +52,4 @@ public class PropertyMappingDTO {
     public void setTargetPropertyRef(final String targetPropertyRef) {
         this.targetPropertyRef = targetPropertyRef;
     }
-
-
-
 }
