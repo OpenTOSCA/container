@@ -31,9 +31,19 @@ public class Interfaces {
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT = "StoreStateServiceEndpoint";
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE = "defrost";
 
-
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_PACKAGENAMES = "PackageNames";
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SCRIPT = "Script";
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_TARGETABSOLUTPATH = "TargetAbsolutePath";
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SOURCEURLORLOCALPATH = "SourceURLorLocalPath";
+	
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE = "http://www.example.com/interfaces/lifecycle";
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_INSTALL = "install";
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_CONFIGURE = "configure";
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START = "start";
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP = "stop";
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_UNINSTALL = "uninstall";
+	
+	 public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN = "http://opentosca.org/interfaces/pattern/container";
+	 public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE = "create";
+	 public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_TERMINATE = "terminate";
 }

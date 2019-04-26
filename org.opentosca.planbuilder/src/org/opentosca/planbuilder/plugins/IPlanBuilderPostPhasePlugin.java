@@ -25,7 +25,7 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param nodeTemplate the NodeTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
-    public boolean handle(T context, AbstractNodeTemplate nodeTemplate);
+    public boolean handleCreate(T context, AbstractNodeTemplate nodeTemplate);
 
     /**
      * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of
@@ -35,7 +35,7 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param relationshipTemplate the RelationshipTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
-    public boolean handle(T context, AbstractRelationshipTemplate relationshipTemplate);
+    public boolean handleCreate(T context, AbstractRelationshipTemplate relationshipTemplate);
 
     /**
      * Evaluates whether the given NodeTemplate can be handled by this post phase plugin.
@@ -43,7 +43,7 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param nodeTemplate An AbstractNodeTemplate
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    public boolean canHandle(AbstractNodeTemplate nodeTemplate);
+    public boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
 
     /**
      * Evaluates whether the given RelationshipTemplate can be handled by this post phase plugin.
@@ -51,5 +51,42 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param relationshipTemplate An AbstractRelationshipTemplate
      * @return true iff this plugin can handle the given relationshipTemplate
      */
-    public boolean canHandle(AbstractRelationshipTemplate relationshipTemplate);
+    public boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
+
+
+    /**
+     * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of
+     * the given NodeTemplate and send it to the Component it belongs to
+     *
+     * @param context a TemplatePlanContext for accessing data inside the BuildPlan
+     * @param nodeTemplate the NodeTemplate the plugin should handle
+     * @return true if generating the Fragment of this Plugin was successful, else false
+     */
+    public boolean handleTerminate(T context, AbstractNodeTemplate nodeTemplate);
+
+    /**
+     * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of
+     * the given RelationshipTemplate and send it to the Component it belongs to
+     *
+     * @param context a TemplatePlanContext for accessing data inside the BuildPlan
+     * @param relationshipTemplate the RelationshipTemplate the plugin should handle
+     * @return true if generating the Fragment of this Plugin was successful, else false
+     */
+    public boolean handleTerminate(T context, AbstractRelationshipTemplate relationshipTemplate);
+
+    /**
+     * Evaluates whether the given NodeTemplate can be handled by this post phase plugin.
+     *
+     * @param nodeTemplate An AbstractNodeTemplate
+     * @return true iff this plugin can handle the given nodeTemplate
+     */
+    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate);
+
+    /**
+     * Evaluates whether the given RelationshipTemplate can be handled by this post phase plugin.
+     *
+     * @param relationshipTemplate An AbstractRelationshipTemplate
+     * @return true iff this plugin can handle the given relationshipTemplate
+     */
+    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate);
 }

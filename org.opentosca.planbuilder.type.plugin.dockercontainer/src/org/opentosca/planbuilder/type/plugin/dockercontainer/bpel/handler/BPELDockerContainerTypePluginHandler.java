@@ -11,12 +11,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin;
@@ -57,8 +58,24 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         }
     }
 
+    public boolean handleTerminate(final BPELPlanContext context) {
+        final List<AbstractNodeTemplate> nodes = new ArrayList<>();
+        ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
+
+        for (final AbstractNodeTemplate node : nodes) {
+            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
+                                                                                                        .getId())) {
+                return context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
+                                                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
+                                                null);
+
+            }
+        }
+        return false;
+    }
+
     @Override
-    public boolean handle(final BPELPlanContext templateContext) {
+    public boolean handleCreate(final BPELPlanContext templateContext) {
         if (templateContext.getNodeTemplate() == null) {
             BPELDockerContainerTypePluginHandler.LOG.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
             return false;
@@ -82,10 +99,11 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             Node assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignPortMapping",
                                                                                           "concat($"
-                                                                                              + containerPortVar.getName()
+                                                                                              + containerPortVar.getVariableName()
                                                                                               + ",',',$"
-                                                                                              + portVar.getName() + ")",
-                                                                                          portMappingVar.getName());
+                                                                                              + portVar.getVariableName()
+                                                                                              + ")",
+                                                                                          portMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
         }
@@ -119,7 +137,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         final Variable dockerEngineUrlVar = templateContext.getPropertyVariable(dockerEngineNode, "DockerEngineURL");
 
         // determine whether we work with an ImageId or a zipped DockerContainer
-        final Variable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
+        final PropertyVariable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
 
 
 
@@ -128,10 +146,11 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         // <ContainerMountPath>/etc/openmtc/certs</ContainerMountPath>
         // <HostMountFiles>/home/ubuntu/ca-smartorchestra.crt</HostMountFiles>
 
-        final Variable containerMountPath = templateContext.getPropertyVariable(nodeTemplate, "ContainerMountPath");
+        final PropertyVariable containerMountPath =
+            templateContext.getPropertyVariable(nodeTemplate, "ContainerMountPath");
 
         Variable remoteVolumeDataVariable = null;
-        Variable hostVolumeDataVariable = null;
+        PropertyVariable hostVolumeDataVariable = null;
         Variable vmIpVariable = null;
         Variable vmPrivateKeyVariable = null;
 
@@ -237,7 +256,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             Node assignContainerEnvNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignVolumeDataVariable",
                                                                                           remoteVolumeDataVarAssignQuery,
-                                                                                          remoteVolumeDataVariable.getName());
+                                                                                          remoteVolumeDataVariable.getVariableName());
             assignContainerEnvNode = context.importNode(assignContainerEnvNode);
             context.getProvisioningPhaseElement().appendChild(assignContainerEnvNode);
         }
@@ -267,7 +286,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         boolean foundEnvVar = false;
         for (final String propName : propertyNames) {
             if (propName.startsWith("ENV_")) {
-                final Variable propVar = context.getPropertyVariable(nodeTemplate, propName);
+                final PropertyVariable propVar = context.getPropertyVariable(nodeTemplate, propName);
 
                 String varContent = context.getVariableContent(propVar, context);
 
@@ -296,7 +315,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                 final AbstractNodeTemplate refNode = getNode(nodeTemplateId, context);
                                 final Variable refProp = context.getPropertyVariable(refNode, propertyName);
 
-                                envVarXpathQuery += ",$" + refProp.getName();
+                                envVarXpathQuery += ",$" + refProp.getVariableName();
                                 varContent = varContent.replace(dynamicContent + "]", "");
 
 
@@ -323,13 +342,13 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                         final Variable refProp = context.getPropertyVariable(refNode, propertyName);
                         foundEnvVar = true;
                         final String envVarName = propName.replaceFirst("ENV_", "");
-                        envVarXpathQuery += "'" + envVarName + "=',$" + refProp.getName() + ",';',";
+                        envVarXpathQuery += "'" + envVarName + "=',$" + refProp.getVariableName() + ",';',";
 
                     }
                 } else {
                     foundEnvVar = true;
                     final String envVarName = propName.replaceFirst("ENV_", "");
-                    envVarXpathQuery += "'" + envVarName + "=',$" + propVar.getName() + ",';',";
+                    envVarXpathQuery += "'" + envVarName + "=',$" + propVar.getVariableName() + ",';',";
                 }
             }
         }
@@ -348,7 +367,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             Node assignContainerEnvNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignEnvironmentVariables",
                                                                                           envVarXpathQuery,
-                                                                                          envMappingVar.getName());
+                                                                                          envMappingVar.getVariableName());
             assignContainerEnvNode = context.importNode(assignContainerEnvNode);
             context.getProvisioningPhaseElement().appendChild(assignContainerEnvNode);
         }
@@ -402,7 +421,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         try {
             Node assignNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignDockerContainerFileRef"
-                    + System.currentTimeMillis(), artifactPathQuery, dockerContainerFileRefVar.getName());
+                    + System.currentTimeMillis(), artifactPathQuery, dockerContainerFileRefVar.getVariableName());
             assignNode = context.importNode(assignNode);
             context.getProvisioningPhaseElement().appendChild(assignNode);
         }

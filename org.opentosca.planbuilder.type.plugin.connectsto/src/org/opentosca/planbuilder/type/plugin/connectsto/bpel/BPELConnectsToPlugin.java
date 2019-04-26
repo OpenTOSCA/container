@@ -4,6 +4,8 @@ package org.opentosca.planbuilder.type.plugin.connectsto.bpel;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.type.plugin.connectsto.bpel.handler.BPELConnectsToPluginHandler;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.ConnectsToPlugin;
 
@@ -42,8 +44,32 @@ public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
      * opentosca.planbuilder.plugins.context.BPELPlanContext)
      */
     @Override
-    public boolean handle(final BPELPlanContext templateContext) {
+    public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#handle(org.
+     * opentosca.planbuilder.plugins.context.BPELPlanContext)
+     */
+    @Override
+    public boolean handleCreate(final BPELPlanContext templateContext,
+                                AbstractRelationshipTemplate relationshipTemplate) {
         return this.handler.handle(templateContext);
+    }
+
+    @Override
+    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+        // we never handle a terminate on nodeTemplates here
+        return false;
+    }
+
+    @Override
+    public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+        // TODO we have to define the semantics of a disconnect first
+        return false;
     }
 
 }

@@ -16,12 +16,12 @@ public abstract class ConfigureRelationsPlugin<T extends PlanContext> implements
     public static final String OPERATION_POST_CONFIGURE_TARGET = "postConfigureTarget";
 
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
         final List<AbstractInterface> interfaces = relationshipTemplate.getRelationshipType().getInterfaces();
         for (final AbstractInterface i : interfaces) {
             if (i.getName().equalsIgnoreCase(INTERFACE_NAME)) {
@@ -34,5 +34,17 @@ public abstract class ConfigureRelationsPlugin<T extends PlanContext> implements
     @Override
     public String getID() {
         return getClass().getCanonicalName();
+    }
+
+    @Override
+    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+        // TODO we have to define the semantics of a disconnect first
+        return false;
+    }
+
+    @Override
+    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+        // TODO we have to define the semantics of a disconnect first
+        return false;
     }
 }

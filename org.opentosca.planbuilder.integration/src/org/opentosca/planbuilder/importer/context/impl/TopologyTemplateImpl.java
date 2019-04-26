@@ -3,6 +3,8 @@ package org.opentosca.planbuilder.importer.context.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 import org.oasis_open.docs.tosca.ns._2011._12.TCapability;
 import org.oasis_open.docs.tosca.ns._2011._12.TEntityTemplate;
 import org.oasis_open.docs.tosca.ns._2011._12.TNodeTemplate;
@@ -32,6 +34,7 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
     private final static Logger LOG = LoggerFactory.getLogger(TopologyTemplateImpl.class);
 
     private TTopologyTemplate topologyTemplate = null;
+    private QName serviceTemplateId;
     private final List<AbstractNodeTemplate> nodeTemplates = new ArrayList<>();
     private final List<AbstractRelationshipTemplate> relationshipTemplates = new ArrayList<>();
     private DefinitionsImpl definitions = null;
@@ -43,9 +46,11 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
      * @param topologyTemplate a JAXB TTopologyTemplate
      * @param definitions a DefinitionsImpl
      */
-    public TopologyTemplateImpl(final TTopologyTemplate topologyTemplate, final DefinitionsImpl definitions) {
+    public TopologyTemplateImpl(final TTopologyTemplate topologyTemplate, final DefinitionsImpl definitions,
+                                final QName serviceTemplateId) {
         this.topologyTemplate = topologyTemplate;
         this.definitions = definitions;
+        this.serviceTemplateId = serviceTemplateId;
         setUpTemplates();
         setUpRelations();
     }
@@ -202,6 +207,11 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
 
             }
         }
+    }
+
+    @Override
+    public QName getServiceTemplateId() {
+        return this.serviceTemplateId;
     }
 
 }

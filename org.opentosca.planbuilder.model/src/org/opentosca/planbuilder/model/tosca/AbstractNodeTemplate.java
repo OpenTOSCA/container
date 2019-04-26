@@ -117,10 +117,13 @@ public abstract class AbstractNodeTemplate {
     public boolean equals(final Object o) {
         if (o instanceof AbstractNodeTemplate) {
             final AbstractNodeTemplate node = (AbstractNodeTemplate) o;
-            if (node.getId().equals(this.getId())) {
-                return true;
+            if (!node.getId().equals(this.getId())) {
+                return false;
             }
-            return false;
+            if (!node.getType().equals(this.getType())) {
+                return false;
+            }
+            return true;
 
         } else {
             return false;

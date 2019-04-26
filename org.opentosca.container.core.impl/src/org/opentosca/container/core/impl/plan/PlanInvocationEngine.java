@@ -104,7 +104,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         }
 
         planEvent.setCSARID(csarID.toString());
-        planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
+        //planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
         planEvent.setInterfaceName(ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
         planEvent.setOperationName(ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
         // planEvent.setOutputMessageID(storedPlan.getOutputMessageID());
@@ -208,7 +208,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
         final Map<String, String> message =
             createRequest(csarID, serviceTemplateId,
-                          ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
+            		null,
+                         // ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
                           planEvent.getInputParameter(), correlationID);
 
         if (null == message) {
@@ -275,7 +276,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         String correlationID;
 
         planEvent.setCSARID(csarID.toString());
-        planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
+        //planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
         planEvent.setInterfaceName(ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
         planEvent.setOperationName(ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
         // planEvent.setOutputMessageID(storedPlan.getOutputMessageID());
@@ -374,8 +375,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
             }
 
             planEvent.setCSARID(csarID.toString());
-            planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID,
-                                                                                                givenPlan.getId()));
+//            planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID,
+//                                                                                                givenPlan.getId()));
             planEvent.setInterfaceName(ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID,
                                                                                                 givenPlan.getId()));
             planEvent.setOperationName(ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID,
@@ -444,7 +445,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
             final Map<String, String> message =
                 createRequest(csarID, serviceTemplateId,
-                              ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
+                              null,
+                              //ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
                               planEvent.getInputParameter(), correlationID);
 
             if (null == message) {

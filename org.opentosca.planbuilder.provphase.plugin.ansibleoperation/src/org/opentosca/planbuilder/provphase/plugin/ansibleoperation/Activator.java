@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.provphase.plugin.ansibleoperation;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.provphase.plugin.ansibleoperation.bpel.BPELAnsibleOperationPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

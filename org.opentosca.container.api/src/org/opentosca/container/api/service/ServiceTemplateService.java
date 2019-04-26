@@ -26,6 +26,8 @@ public class ServiceTemplateService {
 
         return this.csarService.getServiceTemplates(csarContent.getCSARID());
     }
+    
+    
 
     public Document getPropertiesOfServicTemplate(final CSARID csarId, final QName serviceTemplateId) {
         logger.debug("Getting ServiceTemplate properties for " + serviceTemplateId + " in " + csarId);

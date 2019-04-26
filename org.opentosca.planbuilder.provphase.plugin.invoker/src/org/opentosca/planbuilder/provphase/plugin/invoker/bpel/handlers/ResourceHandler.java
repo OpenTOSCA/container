@@ -358,7 +358,8 @@ public class ResourceHandler {
             } else {
                 // parameter is internal, fetch value from bpel variable
                 String copyString =
-                    generateServiceInvokerInternalParamCopyString(internalExternalProps.get(propertyName).getName(),
+                    generateServiceInvokerInternalParamCopyString(internalExternalProps.get(propertyName)
+                                                                                       .getVariableName(),
                                                                   requestVarName, requestVarPartName, propertyName);
                 copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                 assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
@@ -589,7 +590,7 @@ public class ResourceHandler {
                     "<bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\""
                         + toscaParam + "\"]/following-sibling::*[local-name()=\"value\"]]]></bpel:query>";
                 final String internalToString =
-                    "</bpel:from><bpel:to variable=\"" + propWrapper.getName() + "\"/></bpel:copy>";
+                    "</bpel:from><bpel:to variable=\"" + propWrapper.getVariableName() + "\"/></bpel:copy>";
                 assignAsString += internalCopyString;
                 assignAsString += internalQueryString;
                 assignAsString += internalToString;

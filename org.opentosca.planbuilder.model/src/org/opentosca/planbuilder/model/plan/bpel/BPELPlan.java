@@ -11,6 +11,8 @@ import java.util.Set;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -34,7 +36,7 @@ public class BPELPlan extends AbstractPlan {
 
     public BPELPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
                     final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
-                    final Set<Link> links) {
+                    final Collection<Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
     }
 
@@ -106,7 +108,7 @@ public class BPELPlan extends AbstractPlan {
 
     // variable for TemplateBuildPlans, makes it easier or handlers and
     // planbuilder to hold it here extra
-    private List<BPELScopeActivity> templateBuildPlans = new ArrayList<>();
+    private List<BPELScope> templateBuildPlans = new ArrayList<>();
     // imported files of the whole buildplan, to keep track for export
     private Set<File> importedFiles;
 
@@ -122,7 +124,7 @@ public class BPELPlan extends AbstractPlan {
 
     int internalCounterId = 0;
 
-    private Map<AbstractActivity, BPELScopeActivity> abstract2bpelMap;
+    private Map<AbstractActivity, BPELScope> abstract2bpelMap;
 
     public static final String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 
@@ -208,8 +210,27 @@ public class BPELPlan extends AbstractPlan {
      *
      * @return a List of TemplateBuildPlan
      */
-    public List<BPELScopeActivity> getTemplateBuildPlans() {
+    public List<BPELScope> getTemplateBuildPlans() {
         return this.templateBuildPlans;
+    }
+
+    public BPELScope getTemplateBuildPlan(AbstractNodeTemplate nodeTemplate) {
+        for (BPELScope scope : this.getTemplateBuildPlans()) {
+            if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate)) {
+                return scope;
+            }
+        }
+        return null;
+    }
+
+    public BPELScope getTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate) {
+        for (BPELScope scope : this.getTemplateBuildPlans()) {
+            if (scope.getRelationshipTemplate() != null
+                && scope.getRelationshipTemplate().equals(relationshipTemplate)) {
+                return scope;
+            }
+        }
+        return null;
     }
 
     /**
@@ -218,7 +239,7 @@ public class BPELPlan extends AbstractPlan {
      * @param template a TemplateBuildPlan to add
      * @return true iff adding was successful
      */
-    public boolean addTemplateBuildPlan(final BPELScopeActivity template) {
+    public boolean addTemplateBuildPlan(final BPELScope template) {
         return this.templateBuildPlans.add(template);
     }
 
@@ -227,7 +248,7 @@ public class BPELPlan extends AbstractPlan {
      *
      * @param templateBuildPlans a List of TemplateBuildPlan
      */
-    public void setTemplateBuildPlans(final List<BPELScopeActivity> templateBuildPlans) {
+    public void setTemplateBuildPlans(final List<BPELScope> templateBuildPlans) {
         this.templateBuildPlans = templateBuildPlans;
     }
 
@@ -529,11 +550,11 @@ public class BPELPlan extends AbstractPlan {
         this.internalCounterId = id;
     }
 
-    public void setAbstract2BPELMapping(final Map<AbstractActivity, BPELScopeActivity> abstract2bpelMap) {
+    public void setAbstract2BPELMapping(final Map<AbstractActivity, BPELScope> abstract2bpelMap) {
         this.abstract2bpelMap = abstract2bpelMap;
     }
 
-    public Map<AbstractActivity, BPELScopeActivity> getAbstract2BPEL() {
+    public Map<AbstractActivity, BPELScope> getAbstract2BPEL() {
         return this.abstract2bpelMap;
     }
 }

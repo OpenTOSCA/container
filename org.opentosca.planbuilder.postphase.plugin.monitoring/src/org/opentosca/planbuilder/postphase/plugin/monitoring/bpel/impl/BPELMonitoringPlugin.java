@@ -8,7 +8,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -44,11 +44,11 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // a double check basically
         // FIXME somehow the canHandle method should already include the planType but not with context
         // object itself as it allows to manipulate the plan already
-        if (!this.canHandle(nodeTemplate)) {
+        if (!this.canHandleCreate(nodeTemplate)) {
             return false;
         }
 
@@ -68,12 +68,13 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(final BPELPlanContext context,
+                                final AbstractRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         // what we are basically looking for:
         // <Interface name="Monitor">
         // <Operation name="deployAgent"/>
@@ -91,7 +92,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
@@ -143,6 +144,30 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean handleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean handleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }

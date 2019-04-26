@@ -1,7 +1,7 @@
 package org.opentosca.planbuilder.prephase.plugin.fileupload;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.BPELPrePhasePlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -42,7 +42,7 @@ public class Activator implements BundleActivator {
         this.iaRegistration =
             Activator.context.registerService(IPlanBuilderPrePhaseIAPlugin.class.getName(), Activator.plugin, null);
         this.daRegistration =
-            Activator.context.registerService(IPlanBuilderPrePhaseDAPlugin.class.getName(), Activator.plugin, null);
+            Activator.context.registerService(IPlanBuilderPrePhasePlugin.class.getName(), Activator.plugin, null);
     }
 
     /**

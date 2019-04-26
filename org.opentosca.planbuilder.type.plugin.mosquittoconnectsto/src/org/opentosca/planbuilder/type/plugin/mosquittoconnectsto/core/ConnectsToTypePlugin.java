@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core;
 
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
@@ -27,7 +28,7 @@ public abstract class ConnectsToTypePlugin<T extends PlanContext> implements IPl
      * opentosca.planbuilder.model.tosca.AbstractNodeTemplate)
      */
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         // we can't handle nodeTemplates
         return false;
     }
@@ -39,7 +40,7 @@ public abstract class ConnectsToTypePlugin<T extends PlanContext> implements IPl
      * opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate)
      */
     @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
 
         // check the relationshipType
         if (!relationshipTemplate.getType()
@@ -57,7 +58,7 @@ public abstract class ConnectsToTypePlugin<T extends PlanContext> implements IPl
 
         for (final AbstractRelationshipTemplate relation : relationshipTemplate.getTarget().getOutgoingRelations()) {
             // cycle trough outgoing hostedOn relations
-            if (ModelUtils.getRelationshipBaseType(relation).equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
+            if (ModelUtils.getRelationshipBaseType(relation).equals(Types.hostedOnRelationType)
                 && relation.getTarget().getType().getId().equals(ConnectsToTypePluginConstants.MOSQUITTO_NODETYPE)) {
                 // found mosquitto -> found stack: topic -hostedOn->
                 // mosquitto

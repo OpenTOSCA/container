@@ -1,7 +1,7 @@
 package org.opentosca.planbuilder.type.plugin.patternbased;
 
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.type.plugin.patternbased.bpel.BPELPatternBasedPlugin;
+import org.opentosca.planbuilder.type.plugin.patternbased.bpel.PatternBasedPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -32,7 +32,7 @@ public class Activator implements BundleActivator {
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
         this.registration =
-            Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(), new BPELPatternBasedPlugin(), null);
+            Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(), new PatternBasedPlugin(), null);
 
     }
 

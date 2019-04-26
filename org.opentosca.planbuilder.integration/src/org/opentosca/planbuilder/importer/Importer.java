@@ -34,8 +34,6 @@ public class Importer extends AbstractImporter {
 
     private final CSARHandler handler = new CSARHandler();
 
-
-
     /**
      * Generates a List of BuildPlans for the given CSARID. The BuildPlans are generated for the
      * ServiceTemplates inside the Entry-Definitions Document, that haven't got a BuildPlan yet.
@@ -43,7 +41,7 @@ public class Importer extends AbstractImporter {
      * @param csarId the CSARID for the CSAR the BuildPlans should be generated
      * @return a List of BuildPlan
      */
-    public List<AbstractPlan> importDefs(final CSARID csarId) {
+    public List<AbstractPlan> generatePlans(final CSARID csarId) {
         try {
             final CSARContent content = this.handler.getCSARContentForID(csarId);
             final AbstractDefinitions defs = this.createContext(content);
@@ -59,6 +57,26 @@ public class Importer extends AbstractImporter {
         return new ArrayList<>();
     }
 
+    public List<AbstractPlan> generateTransformationPlans(final CSARID sourceCsarId, final CSARID targetCsarId) {
+        final List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
+        try {
+            final CSARContent sourceCsarContent = this.handler.getCSARContentForID(sourceCsarId);
+            final AbstractDefinitions sourceDefs = this.createContext(sourceCsarContent);
+            final CSARContent targetCsarContent = this.handler.getCSARContentForID(targetCsarId);
+            final AbstractDefinitions targetDefs = this.createContext(targetCsarContent);
+
+            plans.addAll(this.buildTransformationPlans(sourceCsarId.getFileName(), sourceDefs,
+                                                       targetCsarId.getFileName(), targetDefs));
+            return plans;
+        }
+        catch (final UserException e) {
+            Importer.LOG.error("Some error within input", e);
+        }
+        catch (final SystemException e) {
+            Importer.LOG.error("Some internal error", e);
+        }
+        return new ArrayList<>();
+    }
 
     /**
      * Returns a TOSCA Definitions object which contains the Entry-ServiceTemplate
@@ -78,7 +96,6 @@ public class Importer extends AbstractImporter {
         }
         return null;
     }
-
 
     /**
      * Creates an AbstractDefinitions Object of the given CSARContent

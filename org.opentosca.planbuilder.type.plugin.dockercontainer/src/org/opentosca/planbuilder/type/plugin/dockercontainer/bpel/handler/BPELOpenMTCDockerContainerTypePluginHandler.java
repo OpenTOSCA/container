@@ -12,11 +12,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELDockerContainerTypePlugin;
@@ -113,29 +114,30 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             Node assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignPortMapping",
                                                                                           "concat($"
-                                                                                              + containerPortVar.getName()
+                                                                                              + containerPortVar.getVariableName()
                                                                                               + ",',',$"
-                                                                                              + portVar.getName() + ")",
-                                                                                          portMappingVar.getName());
+                                                                                              + portVar.getVariableName()
+                                                                                              + ")",
+                                                                                          portMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
-            String envVarXpathQuery = "concat('ONEM2M_CSE_ID=',$" + tenantIdVar.getName() + ",'~',$"
-                + instanceIdVar.getName()
+            String envVarXpathQuery = "concat('ONEM2M_CSE_ID=',$" + tenantIdVar.getVariableName() + ",'~',$"
+                + instanceIdVar.getVariableName()
                 + ",';LOGGING_LEVEL=INFO;ONEM2M_REGISTRATION_DISABLED=false;ONEM2M_SSL_CRT=;ONEM2M_NOTIFICATION_DISABLED=false;ONEM2M_SP_ID=',$"
-                + onem2mspIdVar.getName() + ",';EXTERNAL_IP=',$" + ownIp.getName() + ")";
+                + onem2mspIdVar.getVariableName() + ",';EXTERNAL_IP=',$" + ownIp.getVariableName() + ")";
 
             if (backendNodeTemplate != null) {
                 envVarXpathQuery = envVarXpathQuery.substring(0, envVarXpathQuery.length() - 1);
-                envVarXpathQuery += ",';ONEM2M_REMOTE_CSE_POA=',$" + backendIpVar.getName();
-                envVarXpathQuery += ",';ONEM2M_REMOTE_CSE_ID=',$" + backendCSEIdVar.getName() + ")";
+                envVarXpathQuery += ",';ONEM2M_REMOTE_CSE_POA=',$" + backendIpVar.getVariableName();
+                envVarXpathQuery += ",';ONEM2M_REMOTE_CSE_ID=',$" + backendCSEIdVar.getVariableName() + ")";
             }
 
             // assign environment variable mappings
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignEnvironmentVariables",
                                                                                           envVarXpathQuery,
-                                                                                          envMappingVar.getName());
+                                                                                          envMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
         }
@@ -169,7 +171,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         final Variable dockerEngineUrlVar = templateContext.getPropertyVariable(dockerEngineNode, "DockerEngineURL");
 
         // determine whether we work with an ImageId or a zipped DockerContainer
-        final Variable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
+        final PropertyVariable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
 
         if (containerImageVar == null || BPELPlanContext.isVariableValueEmpty(containerImageVar, templateContext)) {
             // handle with DA -> construct URL to the DockerImage .zip
@@ -196,19 +198,19 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         return dataChannelNTs;
     }
 
-    private String createDeviceMapping(final Variable sensorDeviceId, final List<Variable> resourceNames) {
-        LOG.debug("Creating OpenMTC FS20 Adapater Device Mapping JSON for sensor device " + sensorDeviceId.getName()
-            + " " + sensorDeviceId.getTemplateId());
+    private String createDeviceMapping(final PropertyVariable sensorDeviceId, final List<Variable> resourceNames) {
+        LOG.debug("Creating OpenMTC FS20 Adapater Device Mapping JSON for sensor device "
+            + sensorDeviceId.getVariableName() + " " + sensorDeviceId.getNodeTemplate().getId());
         String baseString = "DEVICE_MAPPINGS={\"',";
 
         for (int i = 0; i < resourceNames.size(); i++) {
             LOG.debug("Adding resourceName: " + resourceNames.get(i));
             LOG.debug("Index is " + i);
-            baseString += "$" + sensorDeviceId.getName() + ",'_" + i + "','\"";
+            baseString += "$" + sensorDeviceId.getVariableName() + ",'_" + i + "','\"";
             if (i + 1 == resourceNames.size()) {
-                baseString += ": \"',$" + resourceNames.get(i).getName() + ",'\"',";
+                baseString += ": \"',$" + resourceNames.get(i).getVariableName() + ",'\"',";
             } else {
-                baseString += ": \"',$" + resourceNames.get(i).getName() + ",'\",\"',";
+                baseString += ": \"',$" + resourceNames.get(i).getVariableName() + ",'\",\"',";
             }
         }
 
@@ -248,7 +250,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         final Variable gatewayContainerIdsVar = templateContext.getPropertyVariable(openMtcGateway, "ContainerID");
         final Variable gatewayContainerPortVar = templateContext.getPropertyVariable(openMtcGateway, "Port");
         final Variable gatewayContainerIpVar = templateContext.getPropertyVariable(openMtcGateway, "ContainerIP");
-        final Variable sensorDeviceId =
+        final PropertyVariable sensorDeviceId =
             templateContext.getPropertyVariable(protocolAdapterDeviceNodeTemplate, "DeviceID");
 
         final List<AbstractNodeTemplate> dataChannels =
@@ -288,28 +290,30 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             Node assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignPortMapping",
                                                                                           "concat($"
-                                                                                              + containerPortVar.getName()
+                                                                                              + containerPortVar.getVariableName()
                                                                                               + ",',',$"
-                                                                                              + portVar.getName() + ")",
-                                                                                          portMappingVar.getName());
+                                                                                              + portVar.getVariableName()
+                                                                                              + ")",
+                                                                                          portMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
             // read the container ID from within properties
 
-            final String queryContainerIdXpath = "substring-before($" + gatewayContainerIdsVar.getName() + ", ';')";
+            final String queryContainerIdXpath =
+                "substring-before($" + gatewayContainerIdsVar.getVariableName() + ", ';')";
 
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignContainerIdForLinking",
                                                                                           queryContainerIdXpath,
-                                                                                          gatewayContainerIdVar.getName());
+                                                                                          gatewayContainerIdVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
-            String envVarConcatXpathQuery =
-                "concat('EP=http://',$" + gatewayContainerIpVar.getName() + ",':',$" + gatewayContainerPortVar.getName()
-                    + ",';','ORIGINATOR_PRE=//smartorchestra.de/',$" + tenantIdVar.getName() + ",'~',$"
-                    + instanceIdVar.getName() + ",';LOGGING_LEVEL=INFO;DEVICES=[];SIM=false;";
+            String envVarConcatXpathQuery = "concat('EP=http://',$" + gatewayContainerIpVar.getVariableName() + ",':',$"
+                + gatewayContainerPortVar.getVariableName() + ",';','ORIGINATOR_PRE=//smartorchestra.de/',$"
+                + tenantIdVar.getVariableName() + ",'~',$" + instanceIdVar.getVariableName()
+                + ",';LOGGING_LEVEL=INFO;DEVICES=[];SIM=false;";
             if (resourceNames.isEmpty()) {
                 envVarConcatXpathQuery += "')";
             } else {
@@ -320,7 +324,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignEnvironmentVariables",
                                                                                           envVarConcatXpathQuery,
-                                                                                          envMappingVar.getName());
+                                                                                          envMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
@@ -329,15 +333,15 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignDevices",
                                                                                           deviceMappingConcatXpathQuery,
-                                                                                          deviceMappingVar.getName());
+                                                                                          deviceMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
-            final String linksConcatXpathQuery = "concat($" + gatewayContainerIdVar.getName() + ",'')";
+            final String linksConcatXpathQuery = "concat($" + gatewayContainerIdVar.getVariableName() + ",'')";
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignLinks",
                                                                                           linksConcatXpathQuery,
-                                                                                          linksVar.getName());
+                                                                                          linksVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
         }
@@ -371,7 +375,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         final Variable dockerEngineUrlVar = templateContext.getPropertyVariable(dockerEngineNode, "DockerEngineURL");
 
         // determine whether we work with an ImageId or a zipped DockerContainer
-        final Variable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
+        final PropertyVariable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
 
         if (containerImageVar == null || BPELPlanContext.isVariableValueEmpty(containerImageVar, templateContext)) {
             // handle with DA -> construct URL to the DockerImage .zip
@@ -403,7 +407,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         try {
             Node assignNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignDockerContainerFileRef"
-                    + System.currentTimeMillis(), artifactPathQuery, dockerContainerFileRefVar.getName());
+                    + System.currentTimeMillis(), artifactPathQuery, dockerContainerFileRefVar.getVariableName());
             assignNode = context.importNode(assignNode);
             context.getProvisioningPhaseElement().appendChild(assignNode);
         }

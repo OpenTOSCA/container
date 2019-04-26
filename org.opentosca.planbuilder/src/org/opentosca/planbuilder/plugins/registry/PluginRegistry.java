@@ -3,16 +3,21 @@ package org.opentosca.planbuilder.plugins.registry;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opentosca.planbuilder.AbstractPlanBuilder;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
 import org.opentosca.planbuilder.plugins.activator.Activator;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -38,7 +43,7 @@ public class PluginRegistry {
      *
      * @return a List of IPlanBuilderTypePlugin
      */
-    public List<IPlanBuilderTypePlugin<?>> getGenericPlugins() {
+    public List<IPlanBuilderTypePlugin<?>> getTypePlugins() {
         final List<IPlanBuilderTypePlugin<?>> plugins = new ArrayList<>();
         final BundleContext ctx = getCtx();
         try {
@@ -48,6 +53,27 @@ public class PluginRegistry {
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
                     plugins.add((IPlanBuilderTypePlugin<?>) ctx.getService(ref));
+                }
+
+            }
+        }
+        catch (final InvalidSyntaxException e) {
+            e.printStackTrace();
+        }
+
+        return plugins;
+    }
+
+    public List<IPlanBuilderPrePhasePlugin<?>> getPrePlugins() {
+        final List<IPlanBuilderPrePhasePlugin<?>> plugins = new ArrayList<>();
+        final BundleContext ctx = getCtx();
+        try {
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderPrePhasePlugin.class.getName(), null);
+
+            if (refs != null) {
+                for (final ServiceReference<?> ref : refs) {
+                    plugins.add((IPlanBuilderPrePhasePlugin<?>) ctx.getService(ref));
                 }
 
             }
@@ -127,7 +153,7 @@ public class PluginRegistry {
 
         try {
             final ServiceReference<?>[] refs =
-                ctx.getAllServiceReferences(IPlanBuilderPrePhaseDAPlugin.class.getName(), null);
+                ctx.getAllServiceReferences(IPlanBuilderPrePhasePlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
@@ -266,6 +292,78 @@ public class PluginRegistry {
             e.printStackTrace();
         }
         return plugins;
+    }
+
+    public boolean canTypePluginHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+        if (this.findTypePluginForCreation(nodeTemplate) != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean canTypePluginHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+        if (this.findTypePluginForCreation(relationshipTemplate) != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public IPlanBuilderPolicyAwareTypePlugin<?> findPolicyAwareTypePluginForCreation(final AbstractNodeTemplate nodeTemplate) {
+        for (final IPlanBuilderPolicyAwareTypePlugin<?> plugin : this.getPolicyAwareTypePlugins()) {
+            if (plugin.canHandlePolicyAwareCreate(nodeTemplate)) {
+                return plugin;
+            }
+        }
+        return null;
+    }
+
+    public IPlanBuilderTypePlugin<?> findTypePluginForTermination(final AbstractRelationshipTemplate relationshipTemplate) {
+        for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
+            if (plugin.canHandleTerminate(relationshipTemplate)) {
+                return plugin;
+            }
+        }
+        return null;
+    }
+
+    public IPlanBuilderTypePlugin<?> findTypePluginForTermination(final AbstractNodeTemplate nodeTemplate) {
+        for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
+            if (plugin.canHandleTerminate(nodeTemplate)) {
+                return plugin;
+            }
+        }
+        return null;
+    }
+
+    public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractNodeTemplate nodeTemplate) {
+        for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
+            if (plugin.canHandleCreate(nodeTemplate)) {
+                return plugin;
+            }
+        }
+        return null;
+    }
+
+    public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractRelationshipTemplate relationshipTemplate) {
+        for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
+            if (plugin.canHandleCreate(relationshipTemplate)) {
+                return plugin;
+            }
+        }
+        return null;
+    }
+
+    public boolean handleCreateWithTypePlugin(final PlanContext context, final AbstractNodeTemplate nodeTemplate,
+                                              IPlanBuilderTypePlugin plugin) {
+        return plugin.handleCreate(context, nodeTemplate);
+    }
+
+    public boolean handleCreateWithTypePlugin(final PlanContext context,
+                                              final AbstractRelationshipTemplate relationshipTemplate,
+                                              IPlanBuilderTypePlugin plugin) {
+        return plugin.handleCreate(context, relationshipTemplate);
     }
 
 }

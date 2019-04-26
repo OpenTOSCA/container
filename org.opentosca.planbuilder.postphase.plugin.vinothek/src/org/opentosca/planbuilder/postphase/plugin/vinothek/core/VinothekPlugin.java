@@ -27,14 +27,14 @@ public abstract class VinothekPlugin<T extends PlanContext> implements IPlanBuil
         new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         // if the nodeTemplate is some kind of PhpApp we're happy
         return ModelUtils.checkForTypeInHierarchy(nodeTemplate, phpApp)
             || ModelUtils.checkForTypeInHierarchy(nodeTemplate, bpelProcess);
     }
 
     @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
         // only handling nodeTemplates
         return false;
     }

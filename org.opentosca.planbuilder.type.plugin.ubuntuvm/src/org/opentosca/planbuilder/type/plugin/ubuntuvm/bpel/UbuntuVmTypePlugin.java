@@ -41,7 +41,16 @@ public abstract class UbuntuVmTypePlugin<T extends PlanContext>
      * {@inheritDoc}
      */
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+        return this.allDependenciesAreMet(nodeTemplate);
+    }
+
+    @Override
+    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+        return this.allDependenciesAreMet(nodeTemplate);
+    }
+
+    private boolean allDependenciesAreMet(AbstractNodeTemplate nodeTemplate) {
         if (nodeTemplate == null) {
             UbuntuVmTypePlugin.LOG.debug("NodeTemplate is null");
         }
@@ -97,8 +106,8 @@ public abstract class UbuntuVmTypePlugin<T extends PlanContext>
      * canHandlePolicyAware(org.opentosca.planbuilder.model.tosca. AbstractNodeTemplate)
      */
     @Override
-    public boolean canHandlePolicyAware(final AbstractNodeTemplate nodeTemplate) {
-        boolean canHandle = this.canHandle(nodeTemplate);
+    public boolean canHandlePolicyAwareCreate(final AbstractNodeTemplate nodeTemplate) {
+        boolean canHandle = this.canHandleCreate(nodeTemplate);
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
             if (policy.getType().getId().equals(this.noPublicAccessPolicyType)
@@ -123,8 +132,14 @@ public abstract class UbuntuVmTypePlugin<T extends PlanContext>
      * {@inheritDoc}
      */
     @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
         // this plugin doesn't handle relations
+        return false;
+    }
+
+    @Override
+    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+        // never handles a relationship
         return false;
     }
 

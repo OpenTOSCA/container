@@ -43,6 +43,7 @@ import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.export.exporters.SimpleFileExporter;
 import org.opentosca.planbuilder.integration.layer.AbstractExporter;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.osgi.framework.BundleContext;
@@ -489,15 +490,18 @@ public class Exporter extends AbstractExporter {
 
         switch (generatedPlan.getType()) {
             case BUILD:
-                plan.setPlanType("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan");
+                plan.setPlanType(PlanType.BUILD.getString());
                 break;
             case TERMINATE:
-                plan.setPlanType("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan");
+                plan.setPlanType(PlanType.TERMINATE.getString());
+                break;
+            case TRANSFORMATION:
+                plan.setPlanType(PlanType.TRANSFORMATION.getString());
                 break;
             default:
                 // every other plan is a management plan
             case MANAGE:
-                plan.setPlanType("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan");
+                plan.setPlanType(PlanType.MANAGE.getString());
                 break;
         }
 

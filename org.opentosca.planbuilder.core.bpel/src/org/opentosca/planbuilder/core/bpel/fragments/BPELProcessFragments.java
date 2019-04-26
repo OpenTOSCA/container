@@ -13,7 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.planbuilder.core.bpel.BPELFreezeProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.osgi.framework.FrameworkUtil;
@@ -118,23 +118,22 @@ public class BPELProcessFragments {
         return template;
     }
 
-    public Node createHTTPPOST(final String urlVarName, final String requestVarName, final String responseVarName) throws IOException,
-                                                                                                  SAXException {
-        String template = this.loadFragmentResourceAsString("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml");
+    public Node createHTTPPOST(final String urlVarName, final String requestVarName,
+                               final String responseVarName) throws IOException, SAXException {
+        String template =
+            this.loadFragmentResourceAsString("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml");
         template = template.replaceAll("\\$InstanceDataURLVar", urlVarName);
         template = template.replaceAll("\\$RequestVarName", requestVarName);
         template = template.replaceAll("\\$ResponseVarName", responseVarName);
         return this.transformStringToNode(template);
     }
-    public Node createHTTPPOST(final String urlVarName,  final String responseVarName) throws IOException,
-    SAXException {
-String template = this.loadFragmentResourceAsString("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
-template = template.replaceAll("\\$InstanceDataURLVar", urlVarName);
-template = template.replaceAll("\\$ResponseVarName", responseVarName);
-return this.transformStringToNode(template);
-}
 
-
+    public Node createHTTPPOST(final String urlVarName, final String responseVarName) throws IOException, SAXException {
+        String template = this.loadFragmentResourceAsString("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
+        template = template.replaceAll("\\$InstanceDataURLVar", urlVarName);
+        template = template.replaceAll("\\$ResponseVarName", responseVarName);
+        return this.transformStringToNode(template);
+    }
 
     public String createAssignVarToVarWithXpathQueries(final String assignName, final String fromVarName,
                                                        final String part1, final String toVarName, final String part2,
@@ -368,7 +367,6 @@ return this.transformStringToNode(template);
         return template;
     }
 
-
     public String createBPEL4RESTLightPlanInstanceLOGsPOST(final String urlVarName,
                                                            final String stringVarNameWithLogContent,
                                                            final String unassignedLogReqMessage) throws IOException {
@@ -449,7 +447,8 @@ return this.transformStringToNode(template);
         String template =
             this.loadFragmentResourceAsString("BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml");
 
-        // <!-- $ServiceTemplateURLVarKeyword, $relationshipTemplateId, $nodeInstanceIdVarName,
+        // <!-- $ServiceTemplateURLVarKeyword, $relationshipTemplateId,
+        // $nodeInstanceIdVarName,
         // $ResponseVarName-->
 
         template = template.replace("$ServiceTemplateURLVarKeyword", serviceTemplateUrlVarName);
@@ -552,7 +551,6 @@ return this.transformStringToNode(template);
         return template;
     }
 
-
     /**
      * Creates a RESTExtension GET to fetch properties of NodeInstance
      *
@@ -622,7 +620,6 @@ return this.transformStringToNode(template);
             generateServiceInstanceRequestMessageAssign(inputMessageElementLocalName, anyElementariableName);
         return this.transformStringToNode(templateString);
     }
-
 
     /**
      * Generates an assign activity that fetches the value of the input message and writes it into a
@@ -706,8 +703,6 @@ return this.transformStringToNode(template);
         return bpel4RestString;
     }
 
-
-
     public File getOpenTOSCAAPISchemaFile() throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("schemas/opentoscaapischema.xsd");
         final File schemaFile = new File(FileLocator.toFileURL(url).getPath());
@@ -725,8 +720,6 @@ return this.transformStringToNode(template);
     public QName getOpenToscaApiLogMsgReqElementQName() {
         return new QName("http://opentosca.org/api", "log");
     }
-
-
 
     /**
      * Generates a BPEL POST at the given InstanceDataAPI with the given ServiceTemplate id to create a
@@ -907,18 +900,23 @@ return this.transformStringToNode(template);
      * @throws IOException is thrown when reading internal files fail
      * @throws SAXException is thrown when parsing internal files fail
      */
-    public Node generateServiceInstanceDataVarsAssignAsNode(final String serviceInstanceResponseVarName,
-                                                            final String serviceInstanceURLVarName,
-                                                            final String serviceTemplateInstancesURLVar,
-                                                            final String serviceInstanceIdVarName,
-                                                            final String serviceTemplateURLVarName,
-                                                            final String planName,
-                                                            final String buildPlanUrlVarName) throws IOException,
-                                                                                              SAXException {
+    public Node generateServiceInstanceDataVarsAssignForBuildPlansAsNode(final String serviceInstanceResponseVarName,
+                                                                         final String serviceInstanceURLVarName,
+                                                                         final String serviceTemplateInstancesURLVar,
+                                                                         final String serviceInstanceIdVarName,
+                                                                         final String serviceTemplateURLVarName,
+                                                                         final String serviceInstanceCorrelationIdVarName,
+                                                                         final String planName,
+                                                                         final String buildPlanUrlVarName) throws IOException,
+                                                                                                           SAXException {
         final String templateString =
-            generateServiceInstanceDataVarsAssignAsString(serviceInstanceResponseVarName, serviceInstanceURLVarName,
-                                                          serviceTemplateInstancesURLVar, serviceInstanceIdVarName,
-                                                          serviceTemplateURLVarName, planName, buildPlanUrlVarName);
+            generateServiceInstanceDataVarsAssignForBuildPlansAsString(serviceInstanceResponseVarName,
+                                                                       serviceInstanceURLVarName,
+                                                                       serviceTemplateInstancesURLVar,
+                                                                       serviceInstanceIdVarName,
+                                                                       serviceTemplateURLVarName,
+                                                                       serviceInstanceCorrelationIdVarName, planName,
+                                                                       buildPlanUrlVarName);
         return this.transformStringToNode(templateString);
     }
 
@@ -931,13 +929,14 @@ return this.transformStringToNode(template);
      * @throws IOException is thrown when reading internal files fail
      */
 
-    public String generateServiceInstanceDataVarsAssignAsString(final String serviceInstanceResponseVarName,
-                                                                final String serviceInstanceURLVarName,
-                                                                final String serviceTemplateInstancesURLVar,
-                                                                final String serviceInstanceIdVarName,
-                                                                final String serviceTemplateURLVarName,
-                                                                final String planName,
-                                                                final String buildPlanUrlVarName) throws IOException {
+    public String generateServiceInstanceDataVarsAssignForBuildPlansAsString(final String serviceInstanceResponseVarName,
+                                                                             final String serviceInstanceURLVarName,
+                                                                             final String serviceTemplateInstancesURLVar,
+                                                                             final String serviceInstanceIdVarName,
+                                                                             final String serviceTemplateURLVarName,
+                                                                             final String serviceInstanceCorrelationIdVarName,
+                                                                             final String planName,
+                                                                             final String buildPlanUrlVarName) throws IOException {
         String bpelAssignString = this.loadFragmentResourceAsString("BpelAssignServiceInstancePOSTResponse.xml");
         // <!-- $assignName $ServiceInstanceResponseVarName
         // $ServiceInstanceURLVarName-->
@@ -951,12 +950,61 @@ return this.transformStringToNode(template);
         bpelAssignString = bpelAssignString.replaceAll("\\$serviceTemplateURLVarName", serviceTemplateURLVarName);
         bpelAssignString =
             bpelAssignString.replaceAll("\\$serviceTemplateInstancesURLVar", serviceTemplateInstancesURLVar);
+        bpelAssignString =
+            bpelAssignString.replaceAll("\\$ServiceInstanceCorrelationID", serviceInstanceCorrelationIdVarName);
         bpelAssignString = bpelAssignString.replaceAll("\\$planName", planName);
         bpelAssignString = bpelAssignString.replaceAll("\\$planInstanceURL", buildPlanUrlVarName);
 
         return bpelAssignString;
     }
 
-    
+    public Node generateServiceInstanceDataVarsAssignForManagementPlansAsNode(final String serviceInstanceResponseVarName,
+                                                                              final String serviceInstanceURLVarName,
+                                                                              final String serviceTemplateInstancesURLVar,
+                                                                              final String serviceInstanceIdVarName,
+                                                                              final String serviceTemplateURLVarName,
+                                                                              final String serviceInstanceCorrelationIdVarName,
+                                                                              final String planName,
+                                                                              final String buildPlanUrlVarName) throws IOException,
+                                                                                                                SAXException {
+        final String templateString =
+            generateServiceInstanceDataVarsAssignForManagementPlansAsString(serviceInstanceResponseVarName,
+                                                                            serviceInstanceURLVarName,
+                                                                            serviceTemplateInstancesURLVar,
+                                                                            serviceInstanceIdVarName,
+                                                                            serviceTemplateURLVarName,
+                                                                            serviceInstanceCorrelationIdVarName,
+                                                                            planName, buildPlanUrlVarName);
+        return this.transformStringToNode(templateString);
+    }
+
+    public String generateServiceInstanceDataVarsAssignForManagementPlansAsString(final String serviceInstanceResponseVarName,
+                                                                                  final String serviceInstanceURLVarName,
+                                                                                  final String serviceTemplateInstancesURLVar,
+                                                                                  final String serviceInstanceIdVarName,
+                                                                                  final String serviceTemplateURLVarName,
+                                                                                  final String serviceInstanceCorrelationIdVarName,
+                                                                                  final String planName,
+                                                                                  final String buildPlanUrlVarName) throws IOException {
+        String bpelAssignString = this.loadFragmentResourceAsString("BpelAssignServiceInstancePOSTResponse2.xml");
+        // <!-- $assignName $ServiceInstanceResponseVarName
+        // $ServiceInstanceURLVarName-->
+
+        bpelAssignString =
+            bpelAssignString.replaceAll("\\$assignName", "assignServiceInstance" + System.currentTimeMillis());
+        bpelAssignString =
+            bpelAssignString.replaceAll("\\$ServiceInstanceResponseVarName", serviceInstanceResponseVarName);
+        bpelAssignString = bpelAssignString.replaceAll("\\$ServiceInstanceURLVarName", serviceInstanceURLVarName);
+        bpelAssignString = bpelAssignString.replaceAll("\\$ServiceInstanceIDVarName", serviceInstanceIdVarName);
+        bpelAssignString = bpelAssignString.replaceAll("\\$serviceTemplateURLVarName", serviceTemplateURLVarName);
+        bpelAssignString =
+            bpelAssignString.replaceAll("\\$serviceTemplateInstancesURLVar", serviceTemplateInstancesURLVar);
+        bpelAssignString =
+            bpelAssignString.replaceAll("\\$ServiceInstanceCorrelationID", serviceInstanceCorrelationIdVarName);
+        bpelAssignString = bpelAssignString.replaceAll("\\$planName", planName);
+        bpelAssignString = bpelAssignString.replaceAll("\\$planInstanceURL", buildPlanUrlVarName);
+
+        return bpelAssignString;
+    }
 
 }

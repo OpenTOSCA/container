@@ -5,13 +5,12 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.plugins.context.Variable;
-import org.opentosca.planbuilder.prephase.plugin.fileupload.core.handler.PrePhasePluginHandler;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlanContext> {
+public class BPELPrePhasePluginHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELPrePhasePluginHandler.class);
 
@@ -53,14 +52,13 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
      *
      * @param context a TemplateContext
      * @param da the DeploymentArtifact to deploy
-     * @param nodeTemplate the NodeTemplate which is used as InfrastructureNode
+     * @param infraNodeTemplate the NodeTemplate which is used as InfrastructureNode
      * @return true iff adding logic was successful
      */
-    @Override
     public boolean handle(final BPELPlanContext context, final AbstractDeploymentArtifact da,
-                          final AbstractNodeTemplate nodeTemplate) {
+                          final AbstractNodeTemplate infraNodeTemplate) {
         final List<AbstractArtifactReference> refs = da.getArtifactRef().getArtifactReferences();
-        return this.handle(context, refs, da.getName(), nodeTemplate);
+        return this.handle(context, refs, da.getName(), infraNodeTemplate);
     }
 
     /**
@@ -72,7 +70,6 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
      * @param nodeTemplate the NodeTemplate which is used as InfrastructureNode
      * @return true iff adding logic was successful
      */
-    @Override
     public boolean handle(final BPELPlanContext context, final AbstractImplementationArtifact ia,
                           final AbstractNodeTemplate nodeTemplate) {
         // fetch references
@@ -130,7 +127,6 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
             }
         }
 
-
         Variable sshKeyVariable = null;
         for (final String vmLoginPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginPassword);
@@ -138,7 +134,6 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
                 break;
             }
         }
-
 
         // adds field into plan input message to give the plan it's own address
         // for the invoker PortType (callback etc.). This is needed as WSO2 BPS

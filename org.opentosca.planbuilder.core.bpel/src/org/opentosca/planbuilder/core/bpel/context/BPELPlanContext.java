@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.bpel.context;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,14 +19,17 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.core.bpel.BPELScopeBuilder;
-import org.opentosca.planbuilder.core.bpel.OperationChain;
+import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
+import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
-import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.core.tosca.handlers.AbstractServiceInstanceHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler.Property2VariableMapping;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -34,6 +38,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +67,7 @@ public class BPELPlanContext implements PlanContext {
     private final static Logger LOG = LoggerFactory.getLogger(BPELPlanContext.class);
 
     private static final String BPEL_PLAN_CONTEXT = "BPEL Plan Context";
-    private final BPELScopeActivity templateBuildPlan;
+    private final BPELScope templateBuildPlan;
     private final AbstractServiceTemplate serviceTemplate;
 
     private BPELPlanHandler buildPlanHandler;
@@ -71,56 +76,94 @@ public class BPELPlanContext implements PlanContext {
 
     private final BPELScopeHandler bpelTemplateHandler;
 
-    private final PropertyMap propertyMap;
+    private final Property2VariableMapping propertyMap;
 
     private final String planNamespace = "ba.example";
 
-    public static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
-    public static final String ServiceInstanceIDVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
-    public static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";
-    public static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
+    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
+    private final String serviceInstanceURLVarName;
+    private final String serviceInstanceIDVarName;
+    private final String serviceTemplateURLVarName;
 
+    private final String csarFileName;
 
-    public static Variable getVariable(String varName) {
-        return new Variable(null, varName);
+    /**
+     * Constructor
+     *
+     * @param templateBuildPlan the TemplateBuildPlan of a Template
+     * @param serviceTemplateName the name of the ServiceTemplate where the Template of the context
+     *        originates
+     * @param map a PropertyMap containing mappings for all Template properties of the TopologyTemplate
+     *        the ServiceTemplate has
+     */
+    public BPELPlanContext(final BPELScope templateBuildPlan, final Property2VariableMapping map,
+                           final AbstractServiceTemplate serviceTemplateId, String serviceInstanceURLVarName,
+                           String serviceInstanceIDVarName, String serviceTemplateURLVarName, String csarFileName) {
+        this.templateBuildPlan = templateBuildPlan;
+        this.serviceTemplate = serviceTemplateId;
+
+        try {
+            this.buildPlanHandler = new BPELPlanHandler();
+            this.bpelProcessHandler = new BPELPlanHandler();
+            this.nodeRelationInstanceHandler = new NodeRelationInstanceVariablesHandler(this.bpelProcessHandler);
+        }
+        catch (final ParserConfigurationException e) {
+            BPELPlanContext.LOG.warn("Coulnd't initialize internal handlers", e);
+        }
+        this.bpelTemplateHandler = new BPELScopeHandler();
+        this.propertyMap = map;
+
+        this.serviceInstanceIDVarName = serviceInstanceIDVarName;
+        this.serviceTemplateURLVarName = serviceTemplateURLVarName;
+        this.serviceInstanceURLVarName = serviceInstanceURLVarName;
+        this.csarFileName = csarFileName;
     }
 
-    public static String getVariableContent(final Variable variable, final BPELPlanContext context) {
+    public static Variable getVariable(String varName) {
+        return new Variable(varName);
+    }
+
+    public static String getVariableContent(final PropertyVariable variable, final BPELPlanContext context) {
         // check whether the property is empty --> external parameter
         if (Objects.nonNull(variable)) {
-            for (final AbstractNodeTemplate node : context.getNodeTemplates()) {
-                if (node.getId().equals(variable.getTemplateId())) {
-                    if (node.getProperties() == null) {
-                        continue;
-                    }
-                    final NodeList children = node.getProperties().getDOMElement().getChildNodes();
-                    for (int i = 0; i < children.getLength(); i++) {
-                        final Node child = children.item(i);
-                        if (child.getNodeType() != 1) {
+            if (variable.isNodeTemplatePropertyVariable()) {
+
+                for (final AbstractNodeTemplate node : context.getNodeTemplates()) {
+                    if (node.equals(variable.getNodeTemplate())) {
+                        if (node.getProperties() == null) {
                             continue;
                         }
-                        final String variableName = variable.getName();
-                        if (variable.getName().endsWith("_" + child.getLocalName())) {
-                            // check if content is empty
-                            return children.item(i).getTextContent();
+                        final NodeList children = node.getProperties().getDOMElement().getChildNodes();
+                        for (int i = 0; i < children.getLength(); i++) {
+                            final Node child = children.item(i);
+                            if (child.getNodeType() != 1) {
+                                continue;
+                            }
+
+                            if (variable.getPropertyName().equals(child.getLocalName())) {
+                                // check if content is empty
+                                return child.getTextContent();
+                            }
                         }
                     }
                 }
-            }
 
-            for (final AbstractRelationshipTemplate relation : context.getRelationshipTemplates()) {
-                if (relation.getId().equals(variable.getTemplateId())) {
-                    final NodeList children = relation.getProperties().getDOMElement().getChildNodes();
-                    for (int i = 0; i < children.getLength(); i++) {
-                        if (variable.getName().endsWith(children.item(i).getLocalName())) {
-                            // check if content is empty
-                            return children.item(i).getTextContent();
+            } else {
+
+                for (final AbstractRelationshipTemplate relation : context.getRelationshipTemplates()) {
+                    if (relation.equals(variable.getRelationshipTemplate())) {
+                        final NodeList children = relation.getProperties().getDOMElement().getChildNodes();
+                        for (int i = 0; i < children.getLength(); i++) {
+                            if (variable.getPropertyName().equals(children.item(i).getLocalName())) {
+                                // check if content is empty
+                                return children.item(i).getTextContent();
+                            }
                         }
                     }
                 }
-            }
 
+            }
         }
         return null;
     }
@@ -132,127 +175,35 @@ public class BPELPlanContext implements PlanContext {
      * @param context the context the variable belongs to
      * @return true iff the content of the given variable is empty in the topology template property
      */
-    public static boolean isVariableValueEmpty(final Variable variable, final BPELPlanContext context) {
+    public static boolean isVariableValueEmpty(final PropertyVariable variable, final BPELPlanContext context) {
         final String content = BPELPlanContext.getVariableContent(variable, context);
         return content == null || content.isEmpty();
     }
 
+    public AbstractServiceTemplate getServiceTemplate() {
+        return this.serviceTemplate;
+    }
+
     public String getServiceTemplateURLVar() {
-        // check whether main sequence already contains service instance calls
-        // to container API
-        final List<String> mainVarNames = getMainVariableNames();
-
-        String instanceDataUrlVarName = null;
-        for (final String varName : mainVarNames) {
-            // pretty lame but should work
-
-            if (varName.contains(ServiceTemplateURLVarKeyword)) {
-                instanceDataUrlVarName = varName;
-            }
-        }
-
-        // if at least one is null we need to init the whole
-
-        if (instanceDataUrlVarName == null) {
-            return null;
-        }
-
-        return instanceDataUrlVarName;
+        return this.serviceTemplateURLVarName;
     }
 
     public String getServiceInstanceIDVarName() {
-        // check whether main sequence already contains service instance calls
-        // to container API
-        final List<String> mainVarNames = getMainVariableNames();
-        String serviceInstanceVarName = null;
-        for (final String varName : mainVarNames) {
-            // pretty lame but should work
-            if (varName.contains(ServiceInstanceIDVarKeyword)) {
-                serviceInstanceVarName = varName;
-            }
-
-        }
-
-        if (serviceInstanceVarName == null) {
-            return null;
-        }
-        return serviceInstanceVarName;
+        return this.serviceInstanceIDVarName;
     }
 
     public String getServiceInstanceURLVarName() {
-        // check whether main sequence already contains service instance calls
-        // to container API
-        final List<String> mainVarNames = getMainVariableNames();
-        String serviceInstanceVarName = null;
-        String instanceDataUrlVarName = null;
-        for (final String varName : mainVarNames) {
-            // pretty lame but should work
-            if (varName.contains(ServiceInstanceURLVarKeyword)) {
-                serviceInstanceVarName = varName;
-            }
-            if (varName.contains(InstanceDataAPIUrlKeyword)) {
-                instanceDataUrlVarName = varName;
-            }
-        }
-
-        // if at least one is null we need to init the whole
-
-        if (instanceDataUrlVarName == null) {
-            return null;
-        }
-
-        if (serviceInstanceVarName == null) {
-            return null;
-        }
-        return serviceInstanceVarName;
+        return this.serviceInstanceURLVarName;
     }
 
     public String findInstanceURLVar(final String templateId, final boolean isNode) {
-        final String instanceURLVarName =
-            (isNode ? "node" : "relationship") + "InstanceURL_" + ModelUtils.makeValidNCName(templateId) + "_";
-        for (final String varName : getMainVariableNames()) {
-            if (varName.contains(instanceURLVarName)) {
-                return varName;
-            }
-        }
-        return null;
+        return this.nodeRelationInstanceHandler.findInstanceUrlVarName(this.templateBuildPlan.getBuildPlan(),
+                                                                       this.serviceTemplate, templateId, isNode);
     }
 
     public String findInstanceIDVar(final String templateId, final boolean isNode) {
-        final String instanceURLVarName =
-            (isNode ? "node" : "relationship") + "InstanceID_" + ModelUtils.makeValidNCName(templateId) + "_";
-        final List<String> varNames = getMainVariableNames();
-        for (final String varName : varNames) {
-            if (varName.contains(instanceURLVarName)) {
-                return varName;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Constructor
-     *
-     * @param templateBuildPlan the TemplateBuildPlan of a Template
-     * @param serviceTemplateName the name of the ServiceTemplate where the Template of the context
-     *        originates
-     * @param map a PropertyMap containing mappings for all Template properties of the TopologyTemplate
-     *        the ServiceTemplate has
-     */
-    public BPELPlanContext(final BPELScopeActivity templateBuildPlan, final PropertyMap map,
-                           final AbstractServiceTemplate serviceTemplateId) {
-        this.templateBuildPlan = templateBuildPlan;
-        this.serviceTemplate = serviceTemplateId;
-
-        try {
-            this.buildPlanHandler = new BPELPlanHandler();
-            this.bpelProcessHandler = new BPELPlanHandler();
-        }
-        catch (final ParserConfigurationException e) {
-            BPELPlanContext.LOG.warn("Coulnd't initialize internal handlers", e);
-        }
-        this.bpelTemplateHandler = new BPELScopeHandler();
-        this.propertyMap = map;
+        return this.nodeRelationInstanceHandler.findInstanceIdVarName(this.serviceTemplate, templateId, isNode,
+                                                                      getMainVariableNames());
     }
 
     /**
@@ -264,7 +215,8 @@ public class BPELPlanContext implements PlanContext {
      */
     public boolean addAssignFromInput2VariableToMainAssign(final String inputRequestLocalName,
                                                            final Variable internalVariable) {
-        return this.bpelProcessHandler.assignVariableValueFromInput(internalVariable.getName(), inputRequestLocalName,
+        return this.bpelProcessHandler.assignVariableValueFromInput(internalVariable.getVariableName(),
+                                                                    inputRequestLocalName,
                                                                     this.templateBuildPlan.getBuildPlan());
     }
 
@@ -334,18 +286,8 @@ public class BPELPlanContext implements PlanContext {
                                                           this.templateBuildPlan.getBuildPlan());
     }
 
-    public List<Variable> getPropertyVariables(final AbstractNodeTemplate nodeTemplate) {
-        final List<Variable> vars = new ArrayList<>();
-
-        final Map<String, String> propMap = this.propertyMap.getPropertyMappingMap(nodeTemplate.getId());
-
-        for (final String localName : propMap.keySet()) {
-            final Variable var = this.getPropertyVariable(nodeTemplate, localName);
-            if (var != null) {
-                vars.add(var);
-            }
-        }
-        return vars;
+    public Collection<PropertyVariable> getPropertyVariables(final AbstractNodeTemplate nodeTemplate) {
+        return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate);
     }
 
     /**
@@ -380,34 +322,6 @@ public class BPELPlanContext implements PlanContext {
         // get porttypes inside partnerlinktype
         final QName portType1 = wsdl.getPortType1FromPartnerLinkType(partnerLinkType);
         final QName portType2 = wsdl.getPortType2FromPartnerLinkType(partnerLinkType);
-        // QName portTypeToAdd;
-        // if (portType1.getNamespaceURI().equals(this.planNamespace) &&
-        // portType1.getLocalPart().equals(this.portName)) {
-        // portTypeToAdd = portType2;
-        // } else {
-        // portTypeToAdd = portType1;
-        // }
-
-        // check for port in used wsdl
-        // List<File> wsdlFiles = this.getWSDLFiles();
-        // for (File wsdlFile : wsdlFiles) {
-        // try {
-        // if (this.containsPortType(portTypeToAdd, wsdlFile)) {
-        // // List<Port> ports =
-        // // this.getPortsInWSDLFileForPortType(portTypeToAdd,
-        // // wsdlFile);
-        // List<Service> services =
-        // this.getServiceInWSDLFileForPortType(portTypeToAdd, wsdlFile);
-        // List<Port> ports = this.getPortsFromService(services.get(0));
-        // this.buildPlanHandler.addInvokeToDeploy(partnerLinkName,
-        // services.get(0).getQName(), ports.get(0).getName(), buildPlan);
-        // }
-        // } catch (WSDLException e) {
-        // e.printStackTrace();
-        // return false;
-        // }
-        //
-        // }
         final List<File> wsdlFiles = getWSDLFiles();
         for (final File wsdlFile : wsdlFiles) {
             try {
@@ -560,9 +474,10 @@ public class BPELPlanContext implements PlanContext {
     }
 
     public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate) {
-        for (final BPELScopeActivity plan : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+        for (final BPELScope plan : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
             if (plan.getNodeTemplate() != null && plan.getNodeTemplate().equals(nodeTemplate)) {
-                return new BPELPlanContext(plan, this.propertyMap, this.serviceTemplate);
+                return new BPELPlanContext(plan, this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName,
+                    this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.csarFileName);
             }
         }
         return null;
@@ -588,11 +503,11 @@ public class BPELPlanContext implements PlanContext {
      */
     public Variable createGlobalStringVariable(final String variableName, final String initVal) {
         final String varName = variableName + "_" + getIdForNames();
-        boolean check = this.buildPlanHandler.addPropertyVariable(varName, this.templateBuildPlan.getBuildPlan());
-        check &= this.buildPlanHandler.initializePropertyVariable(varName, initVal == null ? "" : initVal,
-                                                                  this.templateBuildPlan.getBuildPlan());
+        boolean check = this.buildPlanHandler.addStringVariable(varName, this.templateBuildPlan.getBuildPlan());
+        check &= this.buildPlanHandler.assignInitValueToVariable(varName, initVal == null ? "" : initVal,
+                                                                 this.templateBuildPlan.getBuildPlan());
         if (check) {
-            return new Variable(getTemplateId(), "prop_" + varName);
+            return new Variable(varName);
         } else {
             return null;
         }
@@ -629,8 +544,9 @@ public class BPELPlanContext implements PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context =
-            new BPELPlanContext(this.templateBuildPlan, this.propertyMap, this.serviceTemplate);
+        final BPELPlanContext context = new BPELPlanContext(this.templateBuildPlan, this.propertyMap,
+            this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+            this.serviceTemplateURLVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -651,13 +567,13 @@ public class BPELPlanContext implements PlanContext {
         return true;
     }
 
-    public Variable generateVariableWithRandomValue() {
+    public Variable createVariableWithRandomValue() {
         final String varName = "randomVar" + getIdForNames();
-        boolean check = this.buildPlanHandler.addPropertyVariable(varName, this.templateBuildPlan.getBuildPlan());
-        check &= this.buildPlanHandler.initializePropertyVariable(varName, String.valueOf(System.currentTimeMillis()),
-                                                                  this.templateBuildPlan.getBuildPlan());
+        boolean check = this.buildPlanHandler.addStringVariable(varName, this.templateBuildPlan.getBuildPlan());
+        check &= this.buildPlanHandler.assignInitValueToVariable(varName, String.valueOf(System.currentTimeMillis()),
+                                                                 this.templateBuildPlan.getBuildPlan());
         if (check) {
-            return new Variable(getTemplateId(), "prop_" + varName);
+            return new Variable(varName);
         } else {
             return null;
 
@@ -673,7 +589,7 @@ public class BPELPlanContext implements PlanContext {
     private List<AbstractNodeTemplate> getAllNodeTemplates() {
         final List<AbstractNodeTemplate> list = new ArrayList<>();
 
-        for (final BPELScopeActivity template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+        for (final BPELScope template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
             if (template.getNodeTemplate() != null) {
                 list.add(template.getNodeTemplate());
             }
@@ -689,7 +605,7 @@ public class BPELPlanContext implements PlanContext {
     private List<AbstractRelationshipTemplate> getAllRelationshipTemplates() {
         final List<AbstractRelationshipTemplate> list = new ArrayList<>();
 
-        for (final BPELScopeActivity template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+        for (final BPELScope template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
             if (template.getNodeTemplate() == null) {
                 list.add(template.getRelationshipTemplate());
             }
@@ -713,7 +629,7 @@ public class BPELPlanContext implements PlanContext {
      * @return a String with the file name of the CSAR
      */
     public String getCSARFileName() {
-        return this.templateBuildPlan.getBuildPlan().getCsarName();
+        return this.csarFileName;
     }
 
     /**
@@ -755,7 +671,7 @@ public class BPELPlanContext implements PlanContext {
             ModelUtils.getInfrastructureEdges(getNodeTemplate(), infraEdges);
         } else {
             final AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-            if (ModelUtils.getRelationshipBaseType(template).equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+            if (ModelUtils.getRelationshipBaseType(template).equals(Types.connectsToRelationType)) {
                 ModelUtils.getInfrastructureEdges(template, infraEdges, true);
                 ModelUtils.getInfrastructureEdges(template, infraEdges, false);
             } else {
@@ -777,7 +693,7 @@ public class BPELPlanContext implements PlanContext {
             ModelUtils.getInfrastructureNodes(getNodeTemplate(), infrastructureNodes);
         } else {
             final AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-            if (ModelUtils.getRelationshipBaseType(template).equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+            if (ModelUtils.getRelationshipBaseType(template).equals(Types.connectsToRelationType)) {
                 ModelUtils.getInfrastructureNodes(template, infrastructureNodes, true);
                 ModelUtils.getInfrastructureNodes(template, infrastructureNodes, false);
             } else {
@@ -818,133 +734,12 @@ public class BPELPlanContext implements PlanContext {
     }
 
     /**
-     * Returns a Map with ToscaParameter Names as Key and a Wrapper for
-     * (TemplateId,PropertyVariableName) as Value.
-     *
-     * The Parameters to Property Mapping is calculated on all Infrastructure Element (Nodes, Edges) of
-     * the Template this context belongs to.
-     *
-     * @param toscaParameters Set of Parameter Names for which the list of internal properties or
-     *        external properties should be calculated
-     * @return Map<String, TemplatePropWrapper> if a value is null, it indicates that the parameter is
-     *         external. The Key is a TOSCA Operation Parameters and value is a Mapping from TemplateId
-     *         to Property Variable name
-     */
-    // this method is to mighty -> non-deterministic
-    @Deprecated
-    public Map<String, Variable> getInternalExternalParameters(final Set<String> toscaParameters) {
-        // initialize hashmap to save found matches
-        final Map<String, Variable> matchMap = new HashMap<>();
-        for (final String param : toscaParameters) {
-            matchMap.put(param, null);
-        }
-
-        // check for properties inside context template
-        String id;
-        NodeList TemplateChilde = null;
-        if (getNodeTemplate() != null && getNodeTemplate().getProperties() != null
-            && getNodeTemplate().getProperties().getDOMElement() != null) {
-            id = getNodeTemplate().getId();
-            TemplateChilde = getNodeTemplate().getProperties().getDOMElement().getChildNodes();
-        } else if (getRelationshipTemplate() != null && getRelationshipTemplate().getProperties() != null
-            && getRelationshipTemplate().getProperties().getDOMElement() != null) {
-            id = getRelationshipTemplate().getId();
-            TemplateChilde = getRelationshipTemplate().getProperties().getDOMElement().getChildNodes();
-        }
-        if (TemplateChilde != null) {
-            for (int index = 0; index < TemplateChilde.getLength(); index++) {
-                final Node nodeTemplateProp = TemplateChilde.item(index);
-                if (matchMap.containsKey(nodeTemplateProp.getLocalName())
-                    && matchMap.get(nodeTemplateProp.getLocalName()) == null) {
-                    matchMap.put(nodeTemplateProp.getLocalName(), new Variable(getNodeTemplate().getId(),
-                        getVarNameOfTemplateProperty(nodeTemplateProp.getLocalName())));
-                }
-            }
-        }
-
-        // check for matches first on the infrastructure
-        for (final AbstractNodeTemplate infraNode : this.getInfrastructureNodes()) {
-            if (infraNode.getProperties() == null || infraNode.getProperties().getDOMElement() == null) {
-                continue;
-            }
-            final NodeList infraNodePropChilde = infraNode.getProperties().getDOMElement().getChildNodes();
-            for (int index = 0; index < infraNodePropChilde.getLength(); index++) {
-                final Node infraNodeProp = infraNodePropChilde.item(index);
-                if (matchMap.containsKey(infraNodeProp.getLocalName())
-                    && matchMap.get(infraNodeProp.getLocalName()) == null) {
-                    matchMap.put(infraNodeProp.getLocalName(), new Variable(infraNode.getId(),
-                        getVariableNameOfProperty(infraNode.getId(), infraNodeProp.getLocalName())));
-                }
-            }
-        }
-
-        for (final AbstractRelationshipTemplate infraEdge : getInfrastructureEdges()) {
-            if (infraEdge.getProperties() == null || infraEdge.getProperties().getDOMElement() == null) {
-                continue;
-            }
-            final NodeList infraNodePropChilde = infraEdge.getProperties().getDOMElement().getChildNodes();
-            for (int index = 0; index < infraNodePropChilde.getLength(); index++) {
-                final Node infraEdgeProp = infraNodePropChilde.item(index);
-                if (matchMap.containsKey(infraEdgeProp.getLocalName())
-                    && matchMap.get(infraEdgeProp.getLocalName()) == null) {
-                    matchMap.put(infraEdgeProp.getLocalName(), new Variable(infraEdge.getId(),
-                        getVariableNameOfProperty(infraEdge.getId(), infraEdgeProp.getLocalName())));
-                }
-            }
-        }
-
-        // then on everything else
-        for (final AbstractNodeTemplate infraNode : getAllNodeTemplates()) {
-            if (infraNode.getProperties() == null || infraNode.getProperties().getDOMElement() == null) {
-                continue;
-            }
-            final NodeList infraNodePropChilde = infraNode.getProperties().getDOMElement().getChildNodes();
-            for (int index = 0; index < infraNodePropChilde.getLength(); index++) {
-                final Node infraNodeProp = infraNodePropChilde.item(index);
-                if (matchMap.containsKey(infraNodeProp.getLocalName())
-                    && matchMap.get(infraNodeProp.getLocalName()) == null) {
-                    matchMap.put(infraNodeProp.getLocalName(), new Variable(infraNode.getId(),
-                        getVariableNameOfProperty(infraNode.getId(), infraNodeProp.getLocalName())));
-                }
-            }
-        }
-
-        for (final AbstractRelationshipTemplate infraEdge : getAllRelationshipTemplates()) {
-            if (infraEdge.getProperties() == null || infraEdge.getProperties().getDOMElement() == null) {
-                continue;
-            }
-            final NodeList infraNodePropChilde = infraEdge.getProperties().getDOMElement().getChildNodes();
-            for (int index = 0; index < infraNodePropChilde.getLength(); index++) {
-                final Node infraEdgeProp = infraNodePropChilde.item(index);
-                if (matchMap.containsKey(infraEdgeProp.getLocalName())
-                    && matchMap.get(infraEdgeProp.getLocalName()) == null) {
-                    matchMap.put(infraEdgeProp.getLocalName(), new Variable(infraEdge.getId(),
-                        getVariableNameOfProperty(infraEdge.getId(), infraEdgeProp.getLocalName())));
-                }
-            }
-        }
-
-        return matchMap;
-    }
-
-    /**
      * Returns the names of the global variables defined in the buildPlan this context belongs to
      *
      * @return a List of Strings representing the global variable names
      */
     public List<String> getMainVariableNames() {
         return this.bpelProcessHandler.getMainVariableNames(this.templateBuildPlan.getBuildPlan());
-    }
-
-    /**
-     * Returns a NCName String of the given String
-     *
-     * @param string a String to convert
-     * @return the String which is a NCName
-     */
-    public String getNCNameFromString(final String string) {
-        // TODO check if this enough
-        return string.replace(" ", "_");
     }
 
     public boolean executeOperation(final AbstractRelationshipTemplate relationshipTemplate, final String interfaceName,
@@ -970,8 +765,9 @@ public class BPELPlanContext implements PlanContext {
         final AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
         final AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
 
-        final BPELPlanContext context =
-            new BPELPlanContext(this.templateBuildPlan, this.propertyMap, this.serviceTemplate);
+        final BPELPlanContext context = new BPELPlanContext(this.templateBuildPlan, this.propertyMap,
+            this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+            this.serviceTemplateURLVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(null);
         context.templateBuildPlan.setRelationshipTemplate(relationshipTemplate);
@@ -1007,8 +803,9 @@ public class BPELPlanContext implements PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context =
-            new BPELPlanContext(this.templateBuildPlan, this.propertyMap, this.serviceTemplate);
+        final BPELPlanContext context = new BPELPlanContext(this.templateBuildPlan, this.propertyMap,
+            this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+            this.serviceTemplateURLVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -1058,8 +855,9 @@ public class BPELPlanContext implements PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context =
-            new BPELPlanContext(this.templateBuildPlan, this.propertyMap, this.serviceTemplate);
+        final BPELPlanContext context = new BPELPlanContext(this.templateBuildPlan, this.propertyMap,
+            this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+            this.serviceTemplateURLVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -1221,40 +1019,26 @@ public class BPELPlanContext implements PlanContext {
      * name
      *
      * @param nodeTemplate a nodeTemplate to look for the property in
-     * @param localName the name of the searched property
+     * @param propertyName the name of the searched property
      * @return a Variable object representing the property
      */
-    public Variable getPropertyVariable(final AbstractNodeTemplate nodeTemplate, final String localName) {
-        if (nodeTemplate.getProperties() == null || nodeTemplate.getProperties().getDOMElement() == null) {
-            return null;
-        }
-
-        final NodeList propertyNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
-        for (int index = 0; index < propertyNodes.getLength(); index++) {
-            final Node propertyNode = propertyNodes.item(index);
-            if (propertyNode.getNodeType() == Node.ELEMENT_NODE && propertyNode.getLocalName().equals(localName)) {
-                return new Variable(nodeTemplate.getId(),
-                    getVariableNameOfProperty(nodeTemplate.getId(), propertyNode.getLocalName()));
+    public PropertyVariable getPropertyVariable(final AbstractNodeTemplate nodeTemplate, final String propertyName) {
+        for (PropertyVariable propertyVariable : this.propertyMap.getNodePropertyVariables(this.serviceTemplate,
+                                                                                           nodeTemplate)) {
+            if (propertyVariable.getPropertyName().equals(propertyName)) {
+                return propertyVariable;
             }
         }
-
         return null;
     }
 
-    public Variable getPropertyVariable(final AbstractRelationshipTemplate relationshipTemplate,
-                                        final String propertyName) {
-        if (relationshipTemplate.getProperties() == null
-            || relationshipTemplate.getProperties().getDOMElement() == null) {
-            return null;
-        }
+    public PropertyVariable getPropertyVariable(final AbstractRelationshipTemplate relationshipTemplate,
+                                                final String propertyName) {
 
-        final NodeList propertyNodes = relationshipTemplate.getProperties().getDOMElement().getChildNodes();
-        for (int index = 0; index < propertyNodes.getLength(); index++) {
-            final Node propertyNode = propertyNodes.item(index);
-            if (propertyNode.getNodeType() == Node.ELEMENT_NODE && propertyNode.getLocalName().equals(propertyName)) {
-                return new Variable(relationshipTemplate.getId(),
-                    getVariableNameOfProperty(relationshipTemplate.getId(), propertyNode.getLocalName()));
-
+        for (PropertyVariable var : this.propertyMap.getRelationPropertyVariables(this.serviceTemplate,
+                                                                                  relationshipTemplate)) {
+            if (var.getPropertyName().equals(propertyName)) {
+                return var;
             }
         }
         return null;
@@ -1268,33 +1052,17 @@ public class BPELPlanContext implements PlanContext {
      * @return a Variable Object with TemplateId and Name, if null the whole Topology has no Property
      *         with the specified localName
      */
-    public Variable getPropertyVariable(final String localName) {
+    public PropertyVariable getPropertyVariable(final String localName) {
         // then on everything else
         for (final AbstractNodeTemplate infraNode : getAllNodeTemplates()) {
-            if (infraNode.getProperties() == null || infraNode.getProperties().getDOMElement() == null) {
-                continue;
-            }
-            final NodeList infraNodePropChilde = infraNode.getProperties().getDOMElement().getChildNodes();
-            for (int index = 0; index < infraNodePropChilde.getLength(); index++) {
-                final Node infraNodeProp = infraNodePropChilde.item(index);
-                if (localName.equals(infraNodeProp.getLocalName())) {
-                    return new Variable(infraNode.getId(),
-                        getVariableNameOfProperty(infraNode.getId(), infraNodeProp.getLocalName()));
-                }
+            if (this.getPropertyVariable(infraNode, localName) != null) {
+                return this.getPropertyVariable(infraNode, localName);
             }
         }
 
         for (final AbstractRelationshipTemplate infraEdge : getAllRelationshipTemplates()) {
-            if (infraEdge.getProperties() == null || infraEdge.getProperties().getDOMElement() == null) {
-                continue;
-            }
-            final NodeList infraNodePropChilde = infraEdge.getProperties().getDOMElement().getChildNodes();
-            for (int index = 0; index < infraNodePropChilde.getLength(); index++) {
-                final Node infraEdgeProp = infraNodePropChilde.item(index);
-                if (localName.equals(infraEdgeProp.getLocalName())) {
-                    return new Variable(infraEdge.getId(),
-                        getVariableNameOfProperty(infraEdge.getId(), infraEdgeProp.getLocalName()));
-                }
+            if (this.getPropertyVariable(infraEdge, localName) != null) {
+                return this.getPropertyVariable(infraEdge, localName);
             }
         }
 
@@ -1306,18 +1074,18 @@ public class BPELPlanContext implements PlanContext {
      * Looks for a Property with the same localName as the given String. The search is on either the
      * Infrastructure on the Source or Target of the Template this TemplateContext belongs to.
      *
-     * @param localName a String
-     * @param forSource whether to look in direction of the sinks or sources (If Template is
+     * @param propertyName a String
+     * @param directionSink whether to look in direction of the sinks or sources (If Template is
      *        NodeTemplate) or to search on the Source-/Target-Interface (if template is
      *        RelationshipTemplate)
      * @return a Variable Object with TemplateId and Name, if null the whole Infrastructure has no
      *         Property with the specified localName
      */
-    public Variable getPropertyVariable(final String localName, final boolean forSource) {
+    public PropertyVariable getPropertyVariable(final String propertyName, final boolean directionSink) {
         final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
 
         if (isNodeTemplate()) {
-            if (forSource) {
+            if (directionSink) {
                 // get all NodeTemplates that are reachable from this
                 // nodeTemplate
                 ModelUtils.getNodesFromNodeToSink(getNodeTemplate(), infraNodes);
@@ -1325,7 +1093,7 @@ public class BPELPlanContext implements PlanContext {
                 ModelUtils.getNodesFromNodeToSource(getNodeTemplate(), infraNodes);
             }
         } else {
-            if (forSource) {
+            if (directionSink) {
                 ModelUtils.getNodesFromNodeToSink(getRelationshipTemplate().getSource(), infraNodes);
             } else {
                 ModelUtils.getNodesFromRelationToSink(getRelationshipTemplate(), infraNodes);
@@ -1333,15 +1101,10 @@ public class BPELPlanContext implements PlanContext {
         }
 
         for (final AbstractNodeTemplate infraNode : infraNodes) {
-            if (infraNode.getProperties() == null || infraNode.getProperties().getDOMElement() == null) {
-                continue;
-            }
-            final NodeList infraNodePropChilde = infraNode.getProperties().getDOMElement().getChildNodes();
-            for (int index = 0; index < infraNodePropChilde.getLength(); index++) {
-                final Node infraNodeProp = infraNodePropChilde.item(index);
-                if (localName.equals(infraNodeProp.getLocalName())) {
-                    return new Variable(infraNode.getId(),
-                        getVariableNameOfProperty(infraNode.getId(), infraNodeProp.getLocalName()));
+
+            for (PropertyVariable var : this.propertyMap.getNodePropertyVariables(this.serviceTemplate, infraNode)) {
+                if (var.getPropertyName().equals(propertyName)) {
+                    return var;
                 }
             }
         }
@@ -1440,9 +1203,9 @@ public class BPELPlanContext implements PlanContext {
      */
     public String getVariableNameOfInfraNodeProperty(final String propertyName) {
         for (final AbstractNodeTemplate infraNode : this.getInfrastructureNodes()) {
-            if (this.propertyMap.getPropertyMappingMap(infraNode.getId()) != null
-                && this.propertyMap.getPropertyMappingMap(infraNode.getId()).containsKey(propertyName)) {
-                return this.propertyMap.getPropertyMappingMap(infraNode.getId()).get(propertyName);
+            String varName = null;
+            if ((varName = this.getVariableNameOfProperty(infraNode, propertyName)) != null) {
+                return varName;
             }
         }
         return null;
@@ -1455,29 +1218,25 @@ public class BPELPlanContext implements PlanContext {
      * @param propertyName the LocalName of a Template Property
      * @return a String containing the variable name, else null
      */
-    public String getVariableNameOfProperty(final String templateId, final String propertyName) {
-        if (this.propertyMap.getPropertyMappingMap(templateId) != null) {
-            return this.propertyMap.getPropertyMappingMap(templateId).get(propertyName);
-        } else {
-            return null;
+    public String getVariableNameOfProperty(final AbstractNodeTemplate templateId, final String propertyName) {
+        for (PropertyVariable variable : this.propertyMap.getNodePropertyVariables(this.serviceTemplate, templateId)) {
+            if (variable.getPropertyName().equals(propertyName)) {
+                return variable.getVariableName();
+            }
         }
+        return null;
     }
 
-    /**
-     * Returns the name of variable which the given property name belongs to
-     *
-     * @param propertyName a LocalName of a Property of the Template this context belongs to
-     * @return a String containing the variable name of the property, else null
-     */
-    public String getVarNameOfTemplateProperty(final String propertyName) {
-        Map<String, String> propertyMapping = null;
-        if (this.templateBuildPlan.getNodeTemplate() != null) {
-            propertyMapping = this.propertyMap.getPropertyMappingMap(this.templateBuildPlan.getNodeTemplate().getId());
-        } else {
-            propertyMapping =
-                this.propertyMap.getPropertyMappingMap(this.templateBuildPlan.getRelationshipTemplate().getId());
+    public String getVariableNameOfProperty(final AbstractRelationshipTemplate templateId, final String propertyName) {
+
+        for (PropertyVariable propVar : this.propertyMap.getRelationPropertyVariables(this.serviceTemplate,
+                                                                                      templateId)) {
+            if (propVar.getPropertyName().equals(propertyName)) {
+                return propVar.getVariableName();
+            }
         }
-        return propertyMapping.get(propertyName);
+        return null;
+
     }
 
     /**
@@ -1625,6 +1384,6 @@ public class BPELPlanContext implements PlanContext {
         check &= this.buildPlanHandler.addImportToBpel(type.getNamespaceURI(), xmlSchemaFile.getAbsolutePath(),
                                                        "http://www.w3.org/2001/XMLSchema",
                                                        this.templateBuildPlan.getBuildPlan());
-        return true;
+        return check;
     }
 }

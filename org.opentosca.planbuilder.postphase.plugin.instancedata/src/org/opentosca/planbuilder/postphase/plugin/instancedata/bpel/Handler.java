@@ -16,10 +16,11 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
@@ -27,8 +28,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
-import org.opentosca.planbuilder.postphase.plugin.instancedata.core.InstanceStates;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -87,7 +88,6 @@ public class Handler {
 
         return stateVarName;
     }
-
 
     public String createInstanceURLVar(final BPELPlanContext context, final String templateId) {
         final String instanceURLVarName = (context.getRelationshipTemplate() == null ? "node" : "relationship")
@@ -293,7 +293,7 @@ public class Handler {
             // and send
             // first build a mapping from property variable names to dom element
             final Map<String, Node> propertyVarNameToDOMMapping =
-                buildMappingsFromVarNameToDomElement(context, nodeTemplate.getProperties());
+                buildMappingsFromVarNameToDomElement(context, nodeTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
                 // values into the instance data db.
@@ -485,7 +485,6 @@ public class Handler {
 
         // fetch all assigns that assign an invoke async operation request
 
-
         final Element provisioningPhaseElement = context.getProvisioningPhaseElement();
         final List<Element> assignContentElements = fetchInvokerCallAssigns(provisioningPhaseElement);
 
@@ -643,8 +642,6 @@ public class Handler {
             }
         }
 
-
-
         // needs property update only if the node has properties
         if (hasProps) {
             final Element postPhaseElement = context.getPostPhaseElement();
@@ -692,7 +689,7 @@ public class Handler {
         // and send
         // first build a mapping from property variable names to dom element
         final Map<String, Node> propertyVarNameToDOMMapping =
-            buildMappingsFromVarNameToDomElement(context, nodeTemplate.getProperties());
+            buildMappingsFromVarNameToDomElement(context, nodeTemplate);
         try {
             // then generate an assign to have code that writes the runtime
             // values into the instance data db.
@@ -773,15 +770,14 @@ public class Handler {
         final String targetInstanceVarName =
             context.findInstanceIDVar(context.getRelationshipTemplate().getTarget().getId(), true);
 
-
         if (ModelUtils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType())
-                      .contains(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+                      .contains(Types.connectsToRelationType)) {
             injectionPreElement = context.getPrePhaseElement();
             injectionPostElement = context.getPostPhaseElement();
         } else {
             // fetch nodeTemplate
             final AbstractNodeTemplate sourceNodeTemplate = context.getRelationshipTemplate().getSource();
-            injectionPreElement = context.createContext(sourceNodeTemplate).getPrePhaseElement();
+            injectionPreElement = context.createContext(sourceNodeTemplate).getPostPhaseElement();
             injectionPostElement = context.createContext(sourceNodeTemplate).getPostPhaseElement();
         }
 
@@ -864,7 +860,6 @@ public class Handler {
         if (relationInstanceIDVarName == null) {
             return false;
         }
-
 
         try {
             // save relationInstance url from response
@@ -971,7 +966,7 @@ public class Handler {
             // and send
             // first build a mapping from property variable names to dom element
             final Map<String, Node> propertyVarNameToDOMMapping =
-                buildMappingsFromVarNameToDomElement(context, relationshipTemplate.getProperties());
+                buildMappingsFromVarNameToDomElement(context, relationshipTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
                 // values into the instance data db.
@@ -1113,8 +1108,8 @@ public class Handler {
      *         complete, e.g. some bpel variable was not found or the properties weren't parsed right.
      */
     private Map<String, Node> buildMappingsFromVarNameToDomElement(final BPELPlanContext context,
-                                                                   final AbstractProperties properties) {
-        final Element propRootElement = properties.getDOMElement();
+                                                                   AbstractNodeTemplate nodeTemplate) {
+        final Element propRootElement = nodeTemplate.getProperties().getDOMElement();
 
         final Map<String, Node> mapping = new HashMap<>();
 
@@ -1125,7 +1120,28 @@ public class Handler {
             final Node child = childList.item(i);
             if (child.getNodeType() == Node.ELEMENT_NODE) {
                 final String propertyName = child.getLocalName();
-                final String propVarName = context.getVarNameOfTemplateProperty(propertyName);
+                final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
+                mapping.put(propVarName, child);
+            }
+
+        }
+        return mapping;
+    }
+
+    private Map<String, Node> buildMappingsFromVarNameToDomElement(final BPELPlanContext context,
+                                                                   AbstractRelationshipTemplate relationshipTemplate) {
+        final Element propRootElement = relationshipTemplate.getProperties().getDOMElement();
+
+        final Map<String, Node> mapping = new HashMap<>();
+
+        // get list of child elements
+        final NodeList childList = propRootElement.getChildNodes();
+
+        for (int i = 0; i < childList.getLength(); i++) {
+            final Node child = childList.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                final String propertyName = child.getLocalName();
+                final String propVarName = context.getVariableNameOfProperty(relationshipTemplate, propertyName);
                 mapping.put(propVarName, child);
             }
 
@@ -1167,10 +1183,10 @@ public class Handler {
         // find properties which store passwords
         // find their variables
         final Collection<Variable> pwVariables = new ArrayList<>();
-        final Collection<Variable> variables = context.getPropertyVariables(nodeTemplate);
+        final Collection<PropertyVariable> nodePropertyVariables = context.getPropertyVariables(nodeTemplate);
 
-        for (final Variable var : variables) {
-            if (var.getName().contains("Password")) {
+        for (final Variable var : nodePropertyVariables) {
+            if (var.getVariableName().contains("Password")) {
                 pwVariables.add(var);
             }
         }
@@ -1189,12 +1205,12 @@ public class Handler {
         final String cmdStringVal = createPlaceHolderPwCheckCmdString(pwVariables);
         final Variable cmdVar = context.createGlobalStringVariable(cmdStringName, cmdStringVal);
 
-        final String xPathReplacementCmd = createPlaceholderReplaceingXPath(cmdVar.getName(), pwVariables);
+        final String xPathReplacementCmd = createPlaceholderReplaceingXPath(cmdVar.getVariableName(), pwVariables);
 
         try {
             Node assignPlaceholder =
                 this.bpelFrags.createAssignXpathQueryToStringVarFragmentAsNode("replacePlaceholdersOfPWCheck"
-                    + System.currentTimeMillis(), xPathReplacementCmd, cmdVar.getName());
+                    + System.currentTimeMillis(), xPathReplacementCmd, cmdVar.getVariableName());
             assignPlaceholder = context.importNode(assignPlaceholder);
             context.getPrePhaseElement().appendChild(assignPlaceholder);
         }
@@ -1263,7 +1279,7 @@ public class Handler {
         // check result and eventually throw error
 
         Node ifTrueThrowError =
-            this.bpelFrags.createIfTrueThrowsError("contains($" + outputVar.getName() + ",'false')",
+            this.bpelFrags.createIfTrueThrowsError("contains($" + outputVar.getVariableName() + ",'false')",
                                                    new QName("http://opentosca.org/plans/faults", "PasswordWeak"));
         ifTrueThrowError = context.importNode(ifTrueThrowError);
         context.getPrePhaseElement().appendChild(ifTrueThrowError);
@@ -1277,7 +1293,7 @@ public class Handler {
 
         for (final Variable var : pwVariables) {
             xpath = "replace(" + xpath;
-            xpath += "'" + var.getName() + "'," + "$" + var.getName() + ")";
+            xpath += "'" + var.getVariableName() + "'," + "$" + var.getVariableName() + ")";
         }
 
         return xpath;
@@ -1290,7 +1306,7 @@ public class Handler {
         String cmdString = "";
 
         for (final Variable var : pwVariables) {
-            cmdString += "if echo \"" + var.getName()
+            cmdString += "if echo \"" + var.getVariableName()
                 + "\" | grep -Eq \"(?=^.{8,255}$)((?=.*\\d)(?!.*\\s)(?=.*[A-Z])(?=.*[a-z]))^.*\"; then : else echo \"false\" fi;";
         }
 

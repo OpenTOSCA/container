@@ -27,7 +27,8 @@ import org.w3c.dom.NodeList;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public abstract class DockerContainerTypePlugin<T extends PlanContext> implements IPlanBuilderTypePlugin<T> {
+public abstract class DockerContainerTypePlugin<T extends PlanContext> implements IPlanBuilderTypePlugin<T>,
+                                               IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
 
     private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder Type Plugin DockerContainer";
 
@@ -71,7 +72,53 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
     }
 
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+        if (nodeTemplate.getProperties() == null) {
+            return false;
+        }
+
+        boolean correctNodeType = false;
+        final List<QName> typeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType());
+
+        if (typeHierarchy.contains(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_NODETYPE)) {
+            correctNodeType |= true;
+        }
+
+        if (typeHierarchy.contains(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_NODETYPE2)) {
+            correctNodeType |= true;
+        }
+
+        if (!correctNodeType) {
+            return false;
+        }
+
+        final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
+        final NodeList childNodeList = propertyElement.getChildNodes();
+
+        int check = 0;
+        for (int index = 0; index < childNodeList.getLength(); index++) {
+            if (childNodeList.item(index).getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            if (childNodeList.item(index).getLocalName().equals("ContainerID")) {
+                check++;
+            }
+        }
+
+        if (check != 1) {
+            return false;
+        }
+
+        // minimum properties are available
+
+        // check whether the nodeTemplate is connected to a DockerEngine Node
+
+        return DockerContainerTypePlugin.isConnectedToDockerEnginerNode(nodeTemplate);
+    }
+
+
+    @Override
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         // for this plugin to handle the given NodeTemplate following statements
         // must hold:
         // 1. The NodeTemplate has the Properties "ContainerPort" and "Port"
@@ -144,7 +191,7 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
     }
 
     @Override
-    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
         // we can only handle nodeTemplates
         return false;
     }

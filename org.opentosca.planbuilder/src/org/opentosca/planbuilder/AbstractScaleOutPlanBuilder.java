@@ -12,6 +12,7 @@ import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -27,7 +28,14 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
+public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuilder {
+
+
+    @Override
+    public PlanType createdPlanType() {
+        return PlanType.MANAGE;
+    }
+
 
     public AbstractPlan generateSOG(final String id, final AbstractDefinitions defintions,
                                     final AbstractServiceTemplate serviceTemplate,
@@ -56,8 +64,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
             if (paths.isEmpty()) {
                 for (final AbstractRelationshipTemplate relation : stratNodeTemplate.getIngoingRelations()) {
                     abstractScaleOutPlan.getLinks().add(new Link(activity,
-                        findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()), relation,
-                                                         ActivityType.PROVISIONING)));
+                        abstractScaleOutPlan.findRelationshipTemplateActivity(relation, ActivityType.PROVISIONING)));
                 }
             }
 
@@ -89,8 +96,9 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
                         | relationshipTemplate.getTarget().equals(stratNodeTemplate)) {
 
                         AbstractActivity provRelationActivity =
-                            findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
-                                                             relationshipTemplate, ActivityType.PROVISIONING);
+                            abstractScaleOutPlan.findRelationshipTemplateActivity(relationshipTemplate,
+                                                                                  ActivityType.PROVISIONING);
+
                         if (provRelationActivity == null) {
                             provRelationActivity =
                                 new ARelationshipTemplateActivity(relationshipTemplate + "provisioning_acvtivity",
@@ -98,9 +106,8 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
                         }
 
                         final AbstractActivity recursiveRelationActivity =
-                            findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
-                                                             path.get(path.size() - 1),
-                                                             ActivityType.RECURSIVESELECTION);
+                            abstractScaleOutPlan.findRelationshipTemplateActivity(relationshipTemplate,
+                                                                                  ActivityType.RECURSIVESELECTION);
 
                         abstractScaleOutPlan.getLinks().add(new Link(recursiveRelationActivity, provRelationActivity));
                     }

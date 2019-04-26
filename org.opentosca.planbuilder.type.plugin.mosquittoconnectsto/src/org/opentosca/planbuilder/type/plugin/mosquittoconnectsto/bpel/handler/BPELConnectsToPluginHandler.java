@@ -17,10 +17,11 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core.handler.ConnectsToTypePluginHandler;
@@ -92,9 +93,9 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         }
 
         /* fetch user, key, ip and ubuntuTemplateId of client stack */
-        Variable clientVmIp = null;
-        Variable clientVmUser = null;
-        Variable clientVmPass = null;
+        PropertyVariable clientVmIp = null;
+        PropertyVariable clientVmUser = null;
+        PropertyVariable clientVmPass = null;
         String ubuntuTemplateId = null;
 
         infrastructureNodes = new ArrayList<>();
@@ -137,16 +138,14 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
 
         // create bpel query which replaces topicName and hostName with real
         // values
-        final String xpathQuery = "replace(replace($" + bashCommandVariable.getName() + ",'topicName',$"
-            + topicName.getName() + "),'hostName',$" + mosquittoVmIp.getName() + ")";
+        final String xpathQuery = "replace(replace($" + bashCommandVariable.getVariableName() + ",'topicName',$"
+            + topicName.getVariableName() + "),'hostName',$" + mosquittoVmIp.getVariableName() + ")";
 
         // create bpel assign with created query
         try {
             // create assign and append
-            Node assignNode = loadAssignXpathQueryToStringVarFragmentAsNode(
-                                                                            "assignValuesToAddConnection"
-                                                                                + System.currentTimeMillis(),
-                                                                            xpathQuery, bashCommandVariable.getName());
+            Node assignNode = loadAssignXpathQueryToStringVarFragmentAsNode("assignValuesToAddConnection"
+                + System.currentTimeMillis(), xpathQuery, bashCommandVariable.getVariableName());
             assignNode = templateContext.importNode(assignNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignNode);
         }
