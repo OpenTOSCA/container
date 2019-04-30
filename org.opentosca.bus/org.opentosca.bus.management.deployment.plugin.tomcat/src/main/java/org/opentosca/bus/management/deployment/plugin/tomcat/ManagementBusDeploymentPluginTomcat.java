@@ -87,90 +87,89 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
 
     LOG.debug("Trying to deploy IA on Tomcat.");
     final Message message = exchange.getIn();
-
-    String endpoint = null;
-
     @SuppressWarnings("unchecked") final List<String> artifactReferences =
       message.getHeader(MBHeader.ARTIFACTREFERENCES_LISTSTRING.toString(), List.class);
 
     // get URL of the WAR-File that has to be deployed
     final URL warURL = getWARFileReference(artifactReferences);
-
-    if (warURL != null) {
-      // get the WAR artifact as file
-      final File warFile = getWarFile(warURL);
-
-      if (warFile != null) {
-        // get file name of the WAR-File
-        final String fileName = FilenameUtils.getBaseName(warURL.getPath());
-
-        // retrieve ServiceEndpoint property from exchange headers
-        String endpointSuffix =
-          message.getHeader(MBHeader.ARTIFACTSERVICEENDPOINT_STRING.toString(), String.class);
-
-        if (endpointSuffix != null) {
-          LOG.info("Endpoint suffix from header: {}", endpointSuffix);
-        } else {
-          LOG.info("No endpoint suffix defined.");
-          endpointSuffix = "";
-        }
-
-        // if placeholder is defined the deployment is done in the topology
-        final String placeholderBegin = "/PLACEHOLDER_";
-        final String placeholderEnd = "_PLACEHOLDER/";
-        if (endpointSuffix.toString().contains(placeholderBegin)
-          && endpointSuffix.toString().contains(placeholderEnd)) {
-
-          // just return a created endpoint and do not perform deployment
-          final String placeholder =
-            endpointSuffix.substring(endpointSuffix.indexOf(placeholderBegin),
-              endpointSuffix.indexOf(placeholderEnd) + placeholderEnd.length());
-
-          LOG.info("Placeholder defined: {}. Deployment is done as part of the topology and not on the management infrastructure. ",
-            placeholder);
-
-          final String endpointBegin = endpointSuffix.substring(0, endpointSuffix.indexOf(placeholderBegin));
-          final String endpointEnd =
-            endpointSuffix.substring(endpointSuffix.lastIndexOf(placeholderEnd) + placeholderEnd.length());
-
-          // We assume that the WAR-File in the topology is deployed at the default port
-          // 8080 and only with the file name as path. Find a better solution which looks
-          // into the topology and determines the correct endpoint.
-          endpoint = endpointBegin + placeholder + ":8080/" + fileName + "/" + endpointEnd;
-        } else {
-
-          // check if Tomcat is running to continue deployment
-          if (isRunning()) {
-            LOG.info("Tomcat is running and can be accessed.");
-
-            final QName typeImplementation =
-              message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
-
-            final String triggeringContainer =
-              message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
-
-            // perform deployment on management infrastructure
-            endpoint = deployWAROnTomcat(warFile, triggeringContainer, typeImplementation, fileName);
-
-            if (endpoint != null) {
-              // add endpoint suffix to endpoint of deployed WAR
-              endpoint = endpoint.concat(endpointSuffix);
-              LOG.info("Complete endpoint of IA {}: {}", fileName,
-                endpoint);
-            }
-          } else {
-            LOG.error("Deployment failed: Tomcat is not running or can´t be accessed");
-          }
-        }
-
-        // delete the temporary file
-        warFile.delete();
-      } else {
-        LOG.error("Deployment failed: unable to retrieve WAR-File from URL");
-      }
-    } else {
+    if (warURL == null) {
       LOG.error("Deployment failed: no referenced WAR-File found");
+      message.setHeader(MBHeader.ENDPOINT_URI.toString(), null);
+      return exchange;
     }
+
+    // get the WAR artifact as file
+    final File warFile = getWarFile(warURL);
+    if (warFile == null) {
+      LOG.error("Deployment failed: unable to retrieve WAR-File from URL");
+      message.setHeader(MBHeader.ENDPOINT_URI.toString(), null);
+      return exchange;
+    }
+
+    // get file name of the WAR-File
+    final String fileName = FilenameUtils.getBaseName(warURL.getPath());
+    // retrieve ServiceEndpoint property from exchange headers
+    final String endpointSuffix =
+      message.getHeader(MBHeader.ARTIFACTSERVICEENDPOINT_STRING.toString(), "", String.class);
+
+    if (endpointSuffix.equals("")) {
+      LOG.info("No endpoint suffix defined.");
+    } else {
+      LOG.info("Endpoint suffix from header: {}", endpointSuffix);
+    }
+
+    // if placeholder is defined the deployment is done in the topology
+    final String placeholderBegin = "/PLACEHOLDER_";
+    final String placeholderEnd = "_PLACEHOLDER/";
+    String endpoint = null;
+    if (endpointSuffix.toString().contains(placeholderBegin)
+      && endpointSuffix.toString().contains(placeholderEnd)) {
+
+      // just return a created endpoint and do not perform deployment
+      final String placeholder =
+        endpointSuffix.substring(endpointSuffix.indexOf(placeholderBegin),
+          endpointSuffix.indexOf(placeholderEnd) + placeholderEnd.length());
+
+      LOG.info("Placeholder defined: {}. Deployment is done as part of the topology and not on the management infrastructure. ",
+        placeholder);
+
+      final String endpointBegin = endpointSuffix.substring(0, endpointSuffix.indexOf(placeholderBegin));
+      final String endpointEnd =
+        endpointSuffix.substring(endpointSuffix.lastIndexOf(placeholderEnd) + placeholderEnd.length());
+
+      // We assume that the WAR-File in the topology is deployed at the default port
+      // 8080 and only with the file name as path. Find a better solution which looks
+      // into the topology and determines the correct endpoint.
+      endpoint = endpointBegin + placeholder + ":8080/" + fileName + "/" + endpointEnd;
+    } else {
+
+      // check if Tomcat is running to continue deployment
+      if (!isRunning()) {
+        LOG.error("Deployment failed: Tomcat is not running or can´t be accessed");
+        message.setHeader(MBHeader.ENDPOINT_URI.toString(), null);
+        return exchange;
+      }
+      LOG.info("Tomcat is running and can be accessed.");
+
+      final QName typeImplementation =
+        message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
+
+      final String triggeringContainer =
+        message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
+
+      // perform deployment on management infrastructure
+      endpoint = deployWAROnTomcat(warFile, triggeringContainer, typeImplementation, fileName);
+
+      if (endpoint != null) {
+        // add endpoint suffix to endpoint of deployed WAR
+        endpoint = endpoint.concat(endpointSuffix);
+        LOG.info("Complete endpoint of IA {}: {}", fileName, endpoint);
+      }
+    }
+
+    // delete the temporary file
+    // it's not terrible if we don't get to clean this up, it will be deleted once the JVM terminates or we overwrite it
+    warFile.delete();
 
     // set endpoint and pass camel exchange back to caller
     message.setHeader(MBHeader.ENDPOINT_URI.toString(), getURI(endpoint));
@@ -179,56 +178,46 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
 
   @Override
   public Exchange invokeImplementationArtifactUndeployment(final Exchange exchange) {
-
     LOG.debug("Trying to undeploy IA from Tomcat.");
     final Message message = exchange.getIn();
-
     // set operation state to false and only change after successful undeployment
     message.setHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), false);
-
     // get endpoint from header to calculate deployment path
     final URI endpointURI = message.getHeader(MBHeader.ENDPOINT_URI.toString(), URI.class);
 
-    if (endpointURI != null) {
-      final String endpoint = endpointURI.toString();
-      LOG.debug("Endpoint for undeployment: {}", endpoint);
-
-      // delete Tomcat URL prefix from endpoint
-      String deployPath = endpoint.replace(Settings.ENGINE_IA_TOMCAT_URL, "");
-
-      // delete ServiceEndpoint suffix from endpoints
-      deployPath = deployPath.substring(0, StringUtils.ordinalIndexOf(deployPath, "/", 4));
-
-      // command to perform deployment on Tomcat from local file
-      final String undeploymentURL = Settings.ENGINE_IA_TOMCAT_URL + "/manager/text/undeploy?path=" + deployPath;
-      LOG.debug("Undeployment command: {}", undeploymentURL);
-
-      try {
-        // perform undeployment request on Tomcat
-        final HttpResponse httpResponse =
-          this.httpService.Get(undeploymentURL, Settings.ENGINE_IA_TOMCAT_USERNAME,
-            Settings.ENGINE_IA_TOMCAT_PASSWORD);
-        final String response = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
-
-        LOG.debug("Tomcat response: {}", response);
-
-        // check if WAR-File was undeployed successfully
-        if (response.contains("OK - Undeployed application at context path [" + deployPath + "]")) {
-
-          LOG.debug("IA successfully undeployed from Tomcat!");
-          message.setHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), true);
-
-        } else {
-          LOG.error("Undeployment not successfully!");
-        }
-      } catch (final IOException e) {
-        LOG.error("IOException occured while undeploying the WAR-File: {}!",
-          e);
-      }
-    } else {
+    if (endpointURI == null) {
       LOG.error("No endpoint defined. Undeployment not possible!");
+      return exchange;
     }
 
+    final String endpoint = endpointURI.toString();
+    LOG.debug("Endpoint for undeployment: {}", endpoint);
+    // delete Tomcat URL prefix from endpoint
+    String deployPath = endpoint.replace(Settings.ENGINE_IA_TOMCAT_URL, "");
+    // delete ServiceEndpoint suffix from endpoints
+    deployPath = deployPath.substring(0, StringUtils.ordinalIndexOf(deployPath, "/", 4));
+
+    // command to perform deployment on Tomcat from local file
+    final String undeploymentURL = Settings.ENGINE_IA_TOMCAT_URL + "/manager/text/undeploy?path=" + deployPath;
+    LOG.debug("Undeployment command: {}", undeploymentURL);
+
+    try {
+      // perform undeployment request on Tomcat
+      final HttpResponse httpResponse = this.httpService.Get(undeploymentURL, Settings.ENGINE_IA_TOMCAT_USERNAME, Settings.ENGINE_IA_TOMCAT_PASSWORD);
+      final String response = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
+
+      LOG.debug("Tomcat response: {}", response);
+
+      // check if WAR-File was undeployed successfully
+      if (response.contains("OK - Undeployed application at context path [" + deployPath + "]")) {
+        LOG.debug("IA successfully undeployed from Tomcat!");
+        message.setHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), true);
+      } else {
+        LOG.error("Undeployment not successfully!");
+      }
+    } catch (final IOException e) {
+      LOG.error("IOException occured while undeploying the WAR-File: {}!", e);
+    }
     return exchange;
   }
 
@@ -436,14 +425,13 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
    * @return URI representation of the String if convertible, null otherwise
    */
   private URI getURI(final String string) {
-    URI uri = null;
     if (string != null) {
       try {
-        uri = new URI(string);
+        return new URI(string);
       } catch (final URISyntaxException e) {
         LOG.error("Failed to transform String to URI: {} ", string);
       }
     }
-    return uri;
+    return null;
   }
 }
