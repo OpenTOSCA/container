@@ -48,13 +48,11 @@ public class ManagementBusDeploymentPluginRemote implements IManagementBusDeploy
 
   @Override
   public Exchange invokeImplementationArtifactDeployment(final Exchange exchange) {
-
     LOG.debug("Trying to deploy IA on remote OpenTOSCA Container.");
     final Message message = exchange.getIn();
 
     // create empty request message (only headers needed)
     final CollaborationMessage requestBody = new CollaborationMessage(new KeyValueMap(), null);
-
     // perform remote deployment
     final Exchange response = requestSender.sendRequestToRemoteContainer(message, RemoteOperations.INVOKE_IA_DEPLOYMENT, requestBody, 0);
 
@@ -69,13 +67,11 @@ public class ManagementBusDeploymentPluginRemote implements IManagementBusDeploy
 
   @Override
   public Exchange invokeImplementationArtifactUndeployment(final Exchange exchange) {
-
     LOG.debug("Trying to undeploy IA on remote OpenTOSCA Container.");
     final Message message = exchange.getIn();
 
     // create empty request message (only headers needed)
     final CollaborationMessage requestBody = new CollaborationMessage(new KeyValueMap(), null);
-
     // perform remote undeployment
     final Exchange response = requestSender.sendRequestToRemoteContainer(message, RemoteOperations.INVOKE_IA_UNDEPLOYMENT, requestBody,
         0);
@@ -94,7 +90,6 @@ public class ManagementBusDeploymentPluginRemote implements IManagementBusDeploy
    * {@inheritDoc}
    */
   public List<String> getSupportedTypes() {
-
     // This plug-in supports only the special type 'remote' which is used to forward deployment
     // requests to other OpenTOSCA Containers.
     return Collections.singletonList(Constants.REMOTE_TYPE);
@@ -105,7 +100,6 @@ public class ManagementBusDeploymentPluginRemote implements IManagementBusDeploy
    * {@inheritDoc}
    */
   public List<String> getCapabilties() {
-
     // This plug-in is intended to move deployment requests from one OpenTOSCA Container to
     // another one. At the destination OpenTOSCA Container the deployment is done by one of the
     // other available deployment plug-ins. Therefore, it has to be checked if this other

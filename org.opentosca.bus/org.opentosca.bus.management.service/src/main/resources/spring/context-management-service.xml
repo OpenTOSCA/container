@@ -4,16 +4,16 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd
-                           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/beans http://www.springframework.or /schema/beans/spring-beans.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 
   <context:annotation-config />
 
-  <bean class="org.opentosca.bus.management.impl.ManagementBusServiceImpl" />
-  <bean class="org.opentosca.bus.management.impl.PluginRegistry" />
+  <bean class="org.opentosca.bus.management.service.impl.ManagementBusServiceImpl" />
+  <bean class="org.opentosca.bus.management.service.impl.PluginRegistry" />
 
-  <context:component-scan base-package="org.opentosca.bus.management.impl.collaboration" />
+  <context:component-scan base-package="org.opentosca.bus.management.service.impl.collaboration" />
 
   <!-- import the context definitions for invocation plugins -->
   <import resource="classpath*:/spring/context-bus-invocation-plugin.xml" />
@@ -22,8 +22,8 @@
 
   <camel:camelContext>
     <camel:packageScan>
-      <camel:package>org.opentosca.bus.management.impl.collaboration.route</camel:package>
-      <camel:package>org.opentosca.bus.management.impl.collaboration.processor</camel:package>
+      <camel:package>org.opentosca.bus.management.service.impl.collaboration.route</camel:package>
+      <camel:package>org.opentosca.bus.management.service.impl.collaboration.processor</camel:package>
     </camel:packageScan>
   </camel:camelContext>
 </beans>
