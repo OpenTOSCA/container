@@ -159,35 +159,34 @@ public class ServiceTemplateInstanceController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a service template instance", response = ServiceTemplateInstanceDTO.class)
     public Response getServiceTemplateInstance(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
-
         final ServiceTemplateInstance instance = resolveInstance(id, this.serviceTemplateId);
-
         final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
-        
-
 
         // Build plan: Determine plan instance that created this service
         // template instance
-        final PlanInstance pi = this.findPlanInstance(instance);
+        final PlanInstance pi = findPlanInstance(instance);
 
         // Add a link
         String path = "";
         URI uri = null;
-        if(pi.getType().equals(PlanType.BUILD)){
-        	//url to the build plan instance
-        	path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";
-        	uri = this.uriInfo.getBaseUriBuilder().path(path).build(this.csarId, this.serviceTemplateId,
-        					pi.getTemplateId().getLocalPart(), pi.getCorrelationId());	
+
+        if (pi.getType().equals(PlanType.BUILD)) {
+            // url to the build plan instance
+            path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";
+            uri = this.uriInfo.getBaseUriBuilder().path(path).build(this.csarId, this.serviceTemplateId,
+                                                                    pi.getTemplateId().getLocalPart(),
+                                                                    pi.getCorrelationId());
         } else {
-        	// url to the transformation plan instance which created this instance from another service instance
-        	path = "/csars/{csar}/servicetemplates/{servicetemplate}/instances/{serviceinstance}/managementplans/{plan}/instances/{instance}";
-        	uri = this.uriInfo.getBaseUriBuilder().path(path).build(pi.getServiceTemplateInstance().getCsarId().getFileName(), pi.getServiceTemplateInstance().getTemplateId().toString(), pi.getServiceTemplateInstance().getId(),
-					pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
+            // url to the transformation plan instance which created this instance from another service instance
+            path =
+                "/csars/{csar}/servicetemplates/{servicetemplate}/instances/{serviceinstance}/managementplans/{plan}/instances/{instance}";
+            uri = this.uriInfo.getBaseUriBuilder().path(path)
+                              .build(pi.getServiceTemplateInstance().getCsarId().getFileName(),
+                                     pi.getServiceTemplateInstance().getTemplateId().toString(),
+                                     pi.getServiceTemplateInstance().getId(), pi.getTemplateId().getLocalPart(),
+                                     pi.getCorrelationId());
         }
-        
-        
-        
-        
+
         dto.add(Link.fromUri(UriUtil.encode(uri)).rel("build_plan_instance").build());
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "managementplans", false, "managementplans"));
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
@@ -199,14 +198,16 @@ public class ServiceTemplateInstanceController {
 
         return Response.ok(dto).build();
     }
-    
-    private PlanInstance findPlanInstance(ServiceTemplateInstance instance) {    	
-    	if(instance.getPlanInstances() != null && !instance.getPlanInstances().isEmpty()) {
-    		return instance.getPlanInstances().stream().filter(p -> p.getType().equals(PlanType.BUILD)).findFirst().get();
-    	} else {
-    		// there is no build plan instance for this service instances which implies there is a transformation plan responsible for creating this service instance
-    		return this.planService.getPlanInstanceByCorrelationId(instance.getCreationCorrelationId());
-    	}        	
+
+    private PlanInstance findPlanInstance(final ServiceTemplateInstance instance) {
+        if (instance.getPlanInstances() != null && !instance.getPlanInstances().isEmpty()) {
+            return instance.getPlanInstances().stream().filter(p -> p.getType().equals(PlanType.BUILD)).findFirst()
+                           .get();
+        } else {
+            // there is no build plan instance for this service instances which implies there is a
+            // transformation plan responsible for creating this service instance
+            return this.planService.getPlanInstanceByCorrelationId(instance.getCreationCorrelationId());
+        }
     }
 
     @DELETE
@@ -253,7 +254,8 @@ public class ServiceTemplateInstanceController {
     @Produces({MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response getServiceTemplateInstanceProperties(@PathParam("id") final Long id) {
-        final Document properties = this.instanceService.getServiceTemplateInstanceProperties(id);
+        final Document properties = this.instanceService.evaluateServiceTemplateInstanceProperties(id);
+        // final Document properties = this.instanceService.getServiceTemplateInstanceProperties(id);
         if (properties == null) {
             return Response.noContent().build();
         } else {
@@ -276,7 +278,6 @@ public class ServiceTemplateInstanceController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @ApiOperation(hidden = true, value = "")
     public Response updateServiceTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
-
         try {
             this.instanceService.setServiceTemplateInstanceProperties(id, request);
         }
@@ -304,7 +305,7 @@ public class ServiceTemplateInstanceController {
         // We only need to check that the instance belongs to the template, the rest is
         // guaranteed while this is a sub-resource
         final ServiceTemplateInstance instance = this.instanceService.getServiceTemplateInstance(instanceId);
-        
+
         if (!instance.getTemplateId().equals(QName.valueOf(templateId))) {
             logger.info("Service template instance <{}> could not be found", instanceId);
             throw new NotFoundException(String.format("Service template instance <%s> could not be found", instanceId));

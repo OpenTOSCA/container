@@ -14,6 +14,8 @@ import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
+import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
@@ -66,15 +68,16 @@ public class InstanceService {
     private RelationshipTemplateService relationshipTemplateService;
     private NodeTemplateService nodeTemplateService;
     private ServiceTemplateService serviceTemplateService;
+    private IToscaEngineService engineService;
+    private IToscaReferenceMapper referenceMapper;
     private final DocumentConverter converter = new DocumentConverter();
 
-    private Document convertPropertyToDocument(final Property property) {
+    public Document convertPropertyToDocument(final Property property) {
         return (Document) this.converter.convertDataValueToObjectValue(property.getValue(), null);
     }
 
     /**
-     * Converts an xml document to an xml-based property sui/table for service or node template
-     * instances
+     * Converts an xml document to an xml-based property suitable for service or node template instances
      *
      * @param propertyDoc
      * @param type
@@ -83,10 +86,10 @@ public class InstanceService {
      * @throws IllegalAccessException
      * @throws IllegalArgumentException
      */
-    private <T extends Property> T convertDocumentToProperty(final Document propertyDoc,
-                                                             final Class<T> type) throws InstantiationException,
-                                                                                  IllegalAccessException,
-                                                                                  IllegalArgumentException {
+    public <T extends Property> T convertDocumentToProperty(final Document propertyDoc,
+                                                            final Class<T> type) throws InstantiationException,
+                                                                                 IllegalAccessException,
+                                                                                 IllegalArgumentException {
 
         if (propertyDoc == null) {
             final String msg =
@@ -105,6 +108,10 @@ public class InstanceService {
 
     /* Service Template Instances */
     /******************************/
+    public IToscaReferenceMapper getReferenceMapper() {
+        return this.referenceMapper;
+    }
+
     public Collection<ServiceTemplateInstance> getServiceTemplateInstances(final String serviceTemplate) {
         return this.getServiceTemplateInstances(QName.valueOf(serviceTemplate));
     }
@@ -113,9 +120,13 @@ public class InstanceService {
         logger.debug("Requesting instances of ServiceTemplate \"{}\"...", serviceTemplate);
         return this.serviceTemplateInstanceRepository.findByTemplateId(serviceTemplate);
     }
-    
-    public ServiceTemplateInstance getServiceTemplateInstanceByCorrelationId(String correlationId) {    	    	
-    	return this.serviceTemplateInstanceRepository.findAll().stream().filter(s -> s.getPlanInstances().stream().anyMatch(p -> p.getCorrelationId().equals(correlationId))).findFirst().get();    	    	
+
+    public ServiceTemplateInstance getServiceTemplateInstanceByCorrelationId(final String correlationId) {
+        return this.serviceTemplateInstanceRepository.findAll().stream()
+                                                     .filter(s -> s.getPlanInstances().stream()
+                                                                   .anyMatch(p -> p.getCorrelationId()
+                                                                                   .equals(correlationId)))
+                                                     .findFirst().get();
     }
 
     public ServiceTemplateInstance getServiceTemplateInstance(final Long id) {
@@ -155,7 +166,22 @@ public class InstanceService {
         this.serviceTemplateInstanceRepository.update(service);
     }
 
-    public Document getServiceTemplateInstanceProperties(final Long id) throws NotFoundException {
+    /**
+     * Evaluates the property mappings of a boundary definition's properties against the xml fragment
+     * representing these properties and uses node template instances for this purpose.
+     *
+     * @param serviceTemplateInstanceId the id of the service template instance whose property mappings
+     *        we want to evaluate
+     * @return the xml fragment representing the properties after property mappings are evaluated
+     * @throws NotFoundException thrown when the id does not correspond to a service template instance
+     */
+    public Document evaluateServiceTemplateInstanceProperties(final Long id) throws NotFoundException {
+        final PropertyMappingsHelper helper = new PropertyMappingsHelper(this);
+
+        return helper.evaluatePropertyMappings(id);
+    }
+
+    public Document getServiceTemplateInstanceRawProperties(final Long id) throws NotFoundException {
         final ServiceTemplateInstance service = getServiceTemplateInstance(id);
         final Optional<ServiceTemplateInstanceProperty> firstProp = service.getProperties().stream().findFirst();
 
@@ -214,8 +240,12 @@ public class InstanceService {
             throw new NotFoundException(msg);
         }
 
-        // If the found plan is a build plan there shouldn't be a service template instance available, if it is a transformation plan the service instance mustn't be of the service template the new service instance should belong to
-        if ((pi.getType().equals(PlanType.BUILD) & pi.getServiceTemplateInstance() == null) || (pi.getType().equals(PlanType.TRANSFORMATION) & !pi.getServiceTemplateInstance().getTemplateId().toString().equals(serviceTemplateQName))) {
+        // If the found plan is a build plan there shouldn't be a service template instance available, if it
+        // is a transformation plan the service instance mustn't be of the service template the new service
+        // instance should belong to
+        if (pi.getType().equals(PlanType.BUILD) & pi.getServiceTemplateInstance() == null
+            || pi.getType().equals(PlanType.TRANSFORMATION)
+                & !pi.getServiceTemplateInstance().getTemplateId().toString().equals(serviceTemplateQName)) {
             final QName stqn = QName.valueOf(serviceTemplateQName);
             final ServiceTemplateInstance result = this.createServiceTemplateInstance(csar, stqn, pi);
 
@@ -317,6 +347,7 @@ public class InstanceService {
         logger.debug("Node Template Instance <" + id + "> not found.");
         throw new NotFoundException("Node Template Instance <" + id + "> not found.");
     }
+
 
     public NodeTemplateInstanceState getNodeTemplateInstanceState(final String serviceTemplateQName,
                                                                   final String nodeTemplateId, final Long id) {
@@ -700,6 +731,7 @@ public class InstanceService {
         throw new RuntimeException("SituationTriggerInstance <" + id + "> not found.");
     }
 
+
     /* Service Injection */
     /*********************/
 
@@ -713,6 +745,14 @@ public class InstanceService {
 
     public void setServiceTemplateService(final ServiceTemplateService serviceTemplateService) {
         this.serviceTemplateService = serviceTemplateService;
+    }
+
+    public void setEngineService(final IToscaEngineService engineService) {
+        this.engineService = engineService;
+        // We cannot inject an instance of {@link IToscaReferenceMapper} since
+        // it is manually created in our default implementation of {@link
+        // IToscaEngineService}
+        this.referenceMapper = this.engineService.getToscaReferenceMapper();
     }
 
 }
