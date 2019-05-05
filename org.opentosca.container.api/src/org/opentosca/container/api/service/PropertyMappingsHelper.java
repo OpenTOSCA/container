@@ -36,33 +36,25 @@ public class PropertyMappingsHelper {
 
     /**
      * Evaluates the property mappings of a boundary definition's properties against the xml fragment
-     * representing these properties and uses node template instances for this purpose.
+     * representing these properties and uses node template instances for this purpose. The resulting
+     * service template instance is not automatically persisted in the DB.
      *
-     * @param serviceTemplateInstanceId the id of the service template instance whose property mappings
-     *        we want to evaluate
-     * @return the xml fragment representing the properties after property mappings are evaluated
-     * @throws NotFoundException thrown when the id does not correspond to a service template instance
+     * @param serviceTemplateInstance the the service template instance whose property mappings we want
+     *        to evaluate
      */
-    public Document evaluatePropertyMappings(final Long serviceTemplateInstanceId) throws NotFoundException {
-        final ServiceTemplateInstance serviceInstance =
-            this.instanceService.getServiceTemplateInstance(serviceTemplateInstanceId);
-
+    public void evaluatePropertyMappings(final ServiceTemplateInstance serviceInstance) throws NotFoundException {
         if (serviceInstance == null) {
-            final String msg = String.format("Failed to retrieve ServiceInstance: '%s'", serviceInstance);
-            throw new NotFoundException(msg);
+            return;
         }
 
-        final Document propertiesAsXML =
-            this.instanceService.getServiceTemplateInstanceRawProperties(serviceTemplateInstanceId);
+        final Document propertiesAsXML = serviceInstance.getPropertiesAsDocument();
 
         // check if the serviceInstance has properties
         if (propertiesAsXML == null) {
-            return null;
+            return;
         }
 
         updateServiceInstanceProperties(serviceInstance, propertiesAsXML);
-
-        return propertiesAsXML;
     }
 
     private void updateServiceInstanceProperties(final ServiceTemplateInstance serviceInstance,
@@ -145,7 +137,6 @@ public class PropertyMappingsHelper {
         catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
             logger.error("Failed to store properties in service template instance object. Reason {}", e.getMessage());
         }
-        // this.siDAO.storeServiceInstance(serviceInstance);
     }
 
     private List<Element> queryElementList(final Element node, final String xpathQuery) {
