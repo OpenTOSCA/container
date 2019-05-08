@@ -203,6 +203,7 @@ public class ServiceTemplateInstanceController {
         return this.planService.getPlanInstanceByCorrelationId(instance.getCreationCorrelationId());      	
     }
 
+
     @DELETE
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
