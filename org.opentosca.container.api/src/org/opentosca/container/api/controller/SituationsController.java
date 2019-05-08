@@ -140,7 +140,8 @@ public class SituationsController {
 
         ServiceTemplateInstance serviceInstance;
         try {
-            serviceInstance = this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId());
+            serviceInstance =
+                this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId(), false);
         }
         catch (final NotFoundException e) {
             serviceInstance = null;
