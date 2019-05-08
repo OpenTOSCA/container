@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.postphase.plugin.vinothek;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.bpel.BPELVinothekPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

@@ -17,8 +17,8 @@ Export-Package: org.opentosca.planbuilder.core.bpel,
  org.opentosca.planbuilder.core.bpel.context,
  org.opentosca.planbuilder.core.bpel.fragments,
  org.opentosca.planbuilder.core.bpel.handlers,
- org.opentosca.planbuilder.core.bpel.typebasedplanbuilder,
- org.opentosca.planbuilder.core.tosca.handlers
+ org.opentosca.planbuilder.core.bpel.tosca.handlers,
+ org.opentosca.planbuilder.core.bpel.typebasedplanbuilder
 Require-Bundle: org.opentosca.planbuilder.model;bundle-version="2.0.0",
  org.opentosca.planbuilder,
  org.opentosca.container.core.tosca;bundle-version="2.0.0",

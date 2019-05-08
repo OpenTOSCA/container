@@ -18,6 +18,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.bpel.handler.BPELVinothekPluginHandler;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.core.VinothekPlugin;
 
@@ -213,6 +214,35 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
     @Override
     public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
         // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public int getPriority() {
+        return 1;
+    }
+
+    @Override
+    public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
+                                AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpdate(AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
+                                AbstractRelationshipTemplate sourceRelationshipTemplate,
+                                AbstractRelationshipTemplate targetRelationshipTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpdate(AbstractRelationshipTemplate sourceRelationshipTemplate,
+                                   AbstractRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 

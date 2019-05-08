@@ -91,6 +91,10 @@ public class NodeTemplateInstanceController {
                     }
                 }
             }
+            
+            if(!i.getServiceTemplateInstance().getTemplateId().toString().equals(this.servicetemplate)) {
+                continue;
+            }
 
             final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(i);
             dto.add(UriUtil.generateSubResourceLink(this.uriInfo, dto.getId().toString(), false, "self"));

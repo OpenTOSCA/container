@@ -1,7 +1,7 @@
 package org.opentosca.planbuilder.type.plugin.ubuntuvm;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwareTypePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel.BPELUbuntuVmTypePlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

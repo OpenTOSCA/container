@@ -8,7 +8,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.selection.plugin.input.core.SelectionInputPlugin;
 import org.w3c.dom.Node;
@@ -69,6 +69,11 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
         }
 
         return true;
+    }
+
+    @Override
+    public int getPriority() {
+        return 1;
     }
 
 }

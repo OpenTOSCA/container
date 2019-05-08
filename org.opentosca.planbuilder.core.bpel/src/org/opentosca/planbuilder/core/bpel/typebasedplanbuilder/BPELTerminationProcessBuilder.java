@@ -13,20 +13,21 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler.Property2VariableMapping;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -122,6 +123,9 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan, propMap,
                                                                                 serviceTemplate);
 
+        this.instanceVarsHandler.addRelationInstanceFindLogic(newTerminationPlan, "?state=CREATED&amp;state=INITIAL",
+                                                              serviceTemplate);
+
         final List<BPELScope> changedActivities = runPlugins(newTerminationPlan, propMap, csarName);
 
         String serviceInstanceURLVarName =
@@ -138,15 +142,21 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
         this.finalizer.finalize(newTerminationPlan);
 
-        // add for each loop over found node instances to terminate each running
+        // add for each loop over found node and relation instances to terminate each running
         // instance
         for (final BPELScope activ : changedActivities) {
             if (activ.getNodeTemplate() != null) {
                 final BPELPlanContext context =
-                    new BPELPlanContext(activ, propMap, newTerminationPlan.getServiceTemplate(),
+                    new BPELPlanContext(newTerminationPlan, activ, propMap, newTerminationPlan.getServiceTemplate(),
                         serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName, csarName);
                 this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getNodeTemplate(),
                                                                    "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
+            } else {
+                final BPELPlanContext context =
+                    new BPELPlanContext(newTerminationPlan, activ, propMap, newTerminationPlan.getServiceTemplate(),
+                        serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName, csarName);
+                this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getRelationshipTemplate(),
+                                                                   "?state=CREATED&amp;state=INITIAL");
             }
         }
 
@@ -205,11 +215,14 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
                 // .. that are VM nodeTypes
                 // create context for the templatePlan
-                final BPELPlanContext context = new BPELPlanContext(bpelScope, propMap, plan.getServiceTemplate(),
+                final BPELPlanContext context = new BPELPlanContext(plan, bpelScope, propMap, plan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
-                this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate,
-                                                      plan.findNodeTemplateActivity(nodeTemplate,
-                                                                                    ActivityType.TERMINATION));
+                this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
+            } else {
+                AbstractRelationshipTemplate relationshipTempalte = bpelScope.getRelationshipTemplate();
+                final BPELPlanContext context = new BPELPlanContext(plan, bpelScope, propMap, plan.getServiceTemplate(),
+                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
+                this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTempalte);
             }
 
         }

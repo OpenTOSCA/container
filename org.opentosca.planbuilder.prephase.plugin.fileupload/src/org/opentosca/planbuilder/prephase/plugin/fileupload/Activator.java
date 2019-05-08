@@ -1,7 +1,7 @@
 package org.opentosca.planbuilder.prephase.plugin.fileupload;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.BPELPrePhasePlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

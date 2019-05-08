@@ -5,6 +5,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.bpel.handler.BPELConnectsToPluginHandler;
 import org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core.ConnectsToTypePlugin;
 
@@ -71,6 +72,12 @@ public class BPELConnectsToTypePlugin extends ConnectsToTypePlugin<BPELPlanConte
     public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
         // TODO we have to define the semantics of a disconnect first
         return false;
+    }
+
+    @Override
+    public int getPriority() {
+        // connection should be handled by the generic plugin, but this can be used for specific mosquitto connections
+        return 0;
     }
 
 }

@@ -17,8 +17,10 @@ import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.utils.PluginUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePluginPluginConstants;
@@ -154,7 +156,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         Variable vmIpVariable = null;
         Variable vmPrivateKeyVariable = null;
 
-        if (containerMountPath != null && !BPELPlanContext.isVariableValueEmpty(containerMountPath, templateContext)) {
+        if (containerMountPath != null && !PluginUtils.isVariableValueEmpty(containerMountPath)) {
 
             final List<AbstractDeploymentArtifact> volumeDas = fetchVolumeDeploymentArtifacts(nodeTemplate);
 
@@ -165,7 +167,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             hostVolumeDataVariable = templateContext.getPropertyVariable(nodeTemplate, "HostMountFiles");
 
             if (hostVolumeDataVariable != null
-                && !BPELPlanContext.isVariableValueEmpty(hostVolumeDataVariable, templateContext)) {
+                && !PluginUtils.isVariableValueEmpty(hostVolumeDataVariable)) {
                 final AbstractNodeTemplate infraNode = findInfrastructureTemplate(templateContext, dockerEngineNode);
                 vmIpVariable = findVMIP(templateContext, infraNode);
                 vmPrivateKeyVariable = findPrivateKey(templateContext, infraNode);
@@ -174,7 +176,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
 
 
-        if (containerImageVar == null || BPELPlanContext.isVariableValueEmpty(containerImageVar, templateContext)) {
+        if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
             // handle with DA -> construct URL to the DockerImage .zip
 
             final AbstractDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate);
@@ -194,7 +196,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         }
     }
 
-    private AbstractNodeTemplate findInfrastructureTemplate(final BPELPlanContext context,
+    private AbstractNodeTemplate findInfrastructureTemplate(final PlanContext context,
                                                             final AbstractNodeTemplate nodeTemplate) {
         final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
         ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
@@ -209,7 +211,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return null;
     }
 
-    private Variable findVMIP(final BPELPlanContext templateContext, final AbstractNodeTemplate infraTemplate) {
+    private Variable findVMIP(final PlanContext templateContext, final AbstractNodeTemplate infraTemplate) {
         Variable serverIpPropWrapper = null;
         for (final String serverIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = templateContext.getPropertyVariable(infraTemplate, serverIpName);
@@ -220,7 +222,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return serverIpPropWrapper;
     }
 
-    private Variable findPrivateKey(final BPELPlanContext templateContext, final AbstractNodeTemplate infraTemplate) {
+    private Variable findPrivateKey(final PlanContext templateContext, final AbstractNodeTemplate infraTemplate) {
         Variable sshKeyVariable = null;
         for (final String vmLoginPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginPassword);
@@ -288,7 +290,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             if (propName.startsWith("ENV_")) {
                 final PropertyVariable propVar = context.getPropertyVariable(nodeTemplate, propName);
 
-                String varContent = context.getVariableContent(propVar, context);
+                String varContent = propVar.getContent();
 
                 // FIXME brutal hack right now
                 if (varContent.contains("get_property")) {
@@ -383,7 +385,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return envMappingVar;
     }
 
-    private AbstractNodeTemplate getNode(final String id, final BPELPlanContext ctx) {
+    private AbstractNodeTemplate getNode(final String id, final PlanContext ctx) {
 
         for (final AbstractNodeTemplate nodeTemplate : ctx.getNodeTemplates()) {
             if (nodeTemplate.getId().equals(id)) {
@@ -482,8 +484,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
         this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                  "planCallbackAddress_invoker", createDEInternalExternalPropsInput,
+                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, createDEInternalExternalPropsInput,
                                   createDEInternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         return true;
@@ -537,8 +538,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
         this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                  "planCallbackAddress_invoker", createDEInternalExternalPropsInput,
+                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, createDEInternalExternalPropsInput,
                                   createDEInternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         return true;

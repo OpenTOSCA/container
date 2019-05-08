@@ -15,8 +15,9 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 
 /**
@@ -167,6 +168,35 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     @Override
     public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
         // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public int getPriority() {
+        return 1;
+    }
+
+    @Override
+    public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
+                                AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpdate(AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
+                                AbstractRelationshipTemplate sourceRelationshipTemplate,
+                                AbstractRelationshipTemplate targetRelationshipTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpdate(AbstractRelationshipTemplate sourceRelationshipTemplate,
+                                   AbstractRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 

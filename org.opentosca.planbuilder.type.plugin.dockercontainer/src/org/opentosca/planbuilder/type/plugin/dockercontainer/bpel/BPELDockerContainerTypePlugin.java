@@ -6,6 +6,7 @@ import java.util.HashSet;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.handler.BPELDockerContainerTypePluginHandler;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin;
 
@@ -69,6 +70,12 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
+    }
+
+    @Override
+    public int getPriority() {
+        // specific first than generic handling
+        return 0;
     }
 
 }

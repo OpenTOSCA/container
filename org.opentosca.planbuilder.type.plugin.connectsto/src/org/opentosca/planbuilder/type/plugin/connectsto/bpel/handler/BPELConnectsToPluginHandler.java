@@ -21,6 +21,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
 import org.osgi.framework.FrameworkUtil;
@@ -202,7 +203,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * @param propName the name of the property
      * @return the property if found, null otherwise
      */
-    private Variable searchPropertyInStack(final BPELPlanContext templateContext, AbstractNodeTemplate currentNode,
+    private Variable searchPropertyInStack(final PlanContext templateContext, AbstractNodeTemplate currentNode,
                                            final String propName) {
         while (currentNode != null) {
             final Variable property = templateContext.getPropertyVariable(currentNode, propName);

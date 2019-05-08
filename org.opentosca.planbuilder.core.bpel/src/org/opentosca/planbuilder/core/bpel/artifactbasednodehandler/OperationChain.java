@@ -13,12 +13,13 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
 
 /**
  * <p>
@@ -106,7 +107,7 @@ public class OperationChain {
      *         There may be no IACandidate available, because there is no need for IA's to provision. In
      *         this case true is also returned.
      */
-    public boolean executeIAProvisioning(final BPELPlanContext context) {
+    public boolean executeIAProvisioning(final PlanContext context) {
         boolean check = true;
         if (!this.iaCandidates.isEmpty()) {
             final IANodeTypeImplCandidate iaCandidate = this.iaCandidates.get(this.selectedCandidateSet);

@@ -4,8 +4,8 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPlugin;
 
 /**
  * <p>

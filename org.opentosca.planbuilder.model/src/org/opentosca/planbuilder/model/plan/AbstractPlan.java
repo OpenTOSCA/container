@@ -20,7 +20,7 @@ public abstract class AbstractPlan {
 
     // general categories
     public enum PlanType {
-        BUILD, MANAGE, TERMINATE, TRANSFORMATION;
+        BUILD, MANAGE, TERMINATE, TRANSFORM;
 
         public String getString() {
             switch (this) {
@@ -28,7 +28,7 @@ public abstract class AbstractPlan {
                     return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan";
                 case TERMINATE:
                     return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan";
-                case TRANSFORMATION:
+                case TRANSFORM:
                     return "http://opentosca.org/plantypes/TransformationPlan";
                 default:
                     // every other plan is a management plan
@@ -73,6 +73,8 @@ public abstract class AbstractPlan {
     private final Collection<Link> links;
 
     private final String id;
+    
+    int internalCounterId = 0; 
 
     public AbstractPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
                         final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
@@ -211,6 +213,24 @@ public abstract class AbstractPlan {
             }
         }
         return null;
+    }
+    
+    /**
+     * Returns a id for the plugins to make their declarations unique
+     *
+     * @return an Integer
+     */
+    public int getInternalCounterId() {
+        return this.internalCounterId;
+    }
+
+    /**
+     * Sets the id
+     *
+     * @param id an Integer
+     */
+    public void setInternalCounterId(final int id) {
+        this.internalCounterId = id;
     }
 
     @Override

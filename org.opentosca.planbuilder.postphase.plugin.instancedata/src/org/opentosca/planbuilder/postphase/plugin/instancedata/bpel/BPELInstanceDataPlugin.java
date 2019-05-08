@@ -7,8 +7,9 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -47,7 +48,7 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
 
     @Override
     public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
-        return false;
+        return true;
     }
 
     @Override
@@ -64,13 +65,13 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
     public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // TODO FIXME this is a huge assumption right now! Not all management plans need
         // instance handling for provisioning
-        return this.handler.handleBuild(context, nodeTemplate);
+        return this.handler.handleCreate(context, nodeTemplate);
     }
 
     @Override
     public boolean handleCreate(final BPELPlanContext context,
                                 final AbstractRelationshipTemplate relationshipTemplate) {
-        return this.handler.handle(context, relationshipTemplate);
+        return this.handler.handleCreate(context, relationshipTemplate);
     }
 
     @Override
@@ -104,6 +105,49 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
 
     @Override
     public boolean handleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+        return this.handler.handleTerminate(context, relationshipTemplate);
+    }
+
+    @Override
+    public int getPriority() {
+        return 1;
+    }
+
+    @Override
+    public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
+                                AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+        if(this.canHandleUpdate(sourceNodeTemplate, targetNodeTemplate)) {
+            return this.handler.handleUpdate(sourceContext, targetContext, sourceNodeTemplate, targetNodeTemplate);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpdate(AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+        // this plugin can create instance data for only equal nodeTemplates as of now
+        if(sourceNodeTemplate.getType().getId().equals(targetNodeTemplate.getType().getId())) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
+                                AbstractRelationshipTemplate sourceRelationshipTemplate,
+                                AbstractRelationshipTemplate targetRelationshipTemplate) {
+
+        if(this.canHandleUpdate(sourceRelationshipTemplate, targetRelationshipTemplate)) {
+            return this.handler.handleUpdate(sourceContext, targetContext, sourceRelationshipTemplate, targetRelationshipTemplate);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpdate(AbstractRelationshipTemplate sourceRelationshipTemplate,
+                                   AbstractRelationshipTemplate targetRelationshipTemplate) {
+        if(sourceRelationshipTemplate.getType().equals(targetRelationshipTemplate.getType())) {
+            return true;
+        }
         return false;
     }
 

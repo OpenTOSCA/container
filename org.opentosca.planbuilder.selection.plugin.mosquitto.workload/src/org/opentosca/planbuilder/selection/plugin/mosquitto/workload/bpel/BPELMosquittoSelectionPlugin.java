@@ -85,4 +85,9 @@ public class BPELMosquittoSelectionPlugin extends MosquittoSelectionPlugin<BPELP
         return true;
     }
 
+    @Override
+    public int getPriority() {
+        return 1;
+    }
+
 }

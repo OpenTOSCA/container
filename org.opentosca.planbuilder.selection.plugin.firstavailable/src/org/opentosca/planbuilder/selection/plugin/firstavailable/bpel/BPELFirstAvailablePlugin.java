@@ -9,8 +9,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.selection.plugin.firstavailable.core.FirstAvailablePlugin;
@@ -120,6 +120,11 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
         }
 
         return true;
+    }
+
+    @Override
+    public int getPriority() {
+        return 1;
     }
 
 }

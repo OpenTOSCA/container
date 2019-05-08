@@ -89,13 +89,9 @@ public class Utils {
      * @return a boolean. True if the given nodeType is a cloud provider nodeType
      */
     public static boolean isSupportedCloudProviderNodeType(final QName nodeType) {
-        if (nodeType.equals(Types.amazonEc2NodeType) | nodeType.equals(Types.openStackNodeType)
+        return nodeType.equals(Types.amazonEc2NodeType) | nodeType.equals(Types.openStackNodeType)
             | nodeType.equals(Types.openStackLiberty12NodeType) | nodeType.equals(Types.vmWareVsphere55NodeType)
-            | nodeType.equals(Types.localHypervisor) | nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE)) {
-            return true;
-        }
-
-        return false;
+            | nodeType.equals(Types.localHypervisor) | nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE);
     }
 
     /**
@@ -201,13 +197,21 @@ public class Utils {
      * @return a boolean. True if given nodeType is a virtual machine nodeType
      */
     public static boolean isSupportedVMNodeType(final QName nodeType) {
-
-        if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
+        return nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
             || nodeType.equals(Types.ubuntu1404ServerVmNodeType3) || nodeType.equals(Types.ubuntu1604ServerVmNodeType)
-            || nodeType.equals(Types.ubuntu1804ServerVmNodeType) || nodeType.equals(Types.raspbianJessieOSNodeType)) {
-            return true;
-        }
-        return false;
+            || nodeType.equals(Types.ubuntu1804ServerVmNodeType);                    
+    }
+    
+    public static boolean isSupportedOSNodeType(final QName nodeType) {
+        return nodeType.equals(Types.raspbianJessieOSNodeType);            
+    }
+    
+    public static boolean isSupportedDeviceNodeType(final QName nodeType) {
+        return nodeType.equals(Types.raspberryPi3);            
+    }
+    
+    public static boolean isSupportedHardwareNodeType(final QName nodeType) {
+        return nodeType.equals(Types.fs20Adapater);
     }
 
     /**

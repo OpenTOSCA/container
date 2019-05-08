@@ -11,6 +11,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.ConfigureRelationsPlugin;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
@@ -90,7 +91,7 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
         return parameters;
     }
 
-    private Variable findPropertyInTopology(final BPELPlanContext templateContext, final AbstractNodeTemplate node,
+    private Variable findPropertyInTopology(final PlanContext templateContext, final AbstractNodeTemplate node,
                                             final String name) {
         AbstractNodeTemplate n = node;
         while (n != null) {

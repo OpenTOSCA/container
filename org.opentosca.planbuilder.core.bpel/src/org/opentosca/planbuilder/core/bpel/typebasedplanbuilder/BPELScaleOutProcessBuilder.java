@@ -21,11 +21,10 @@ import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
-import org.opentosca.planbuilder.core.tosca.handlers.EmptyPropertyToInputHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler.Property2VariableMapping;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.EmptyPropertyToInputHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -38,10 +37,12 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IScalingPlanBuilderSelectionPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -129,7 +130,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         if (relationshipTemplate == null) {
             return;
         }
-        final BPELPlanContext relationContext = this.createContext(relationshipTemplate, plan, map, csarFileName);
+        final PlanContext relationContext = this.createContext(relationshipTemplate, plan, map, csarFileName);
         final String relationInstanceVarName =
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate, relationshipTemplate.getId(), false);
 
@@ -206,7 +207,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate, relationshipTemplate.getId(), false);
 
         // fetch nodeInstance variable of source node template
-        final BPELPlanContext nodeContext =
+        final PlanContext nodeContext =
             this.createContext(relationshipTemplate.getTarget(), plan, map, csarFileName);
         final String nodeTemplateInstanceVarName =
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate,
@@ -391,7 +392,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                 if (selectionPlugin != null) {
                     final BPELScope scope =
                         this.planHandler.getTemplateBuildPlanById(stratNodeTemplate.getId(), bpelScaleOutProcess);
-                    selectionPlugin.handle(new BPELPlanContext(scope, propMap, serviceTemplate, serviceInstanceUrl,
+                    selectionPlugin.handle(new BPELPlanContext(bpelScaleOutProcess,scope, propMap, serviceTemplate, serviceInstanceUrl,
                         serviceInstanceId, serviceTemplateUrl, csarName), stratNodeTemplate,
                                            new ArrayList<>(stratNodeTemplate.getAnnotations()));
                 }
@@ -427,7 +428,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
         String serviceTemplateUrl = this.serviceInstanceHandler.findServiceTemplateUrlVariableName(plan);
 
-        return new BPELPlanContext(this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map,
+        return new BPELPlanContext(plan,this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map,
             plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarFileName);
     }
 
@@ -438,7 +439,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
         String serviceTemplateUrl = this.serviceInstanceHandler.findServiceTemplateUrlVariableName(plan);
 
-        return new BPELPlanContext(this.planHandler.getTemplateBuildPlanById(relationshipTemplate.getId(), plan), map,
+        return new BPELPlanContext(plan,this.planHandler.getTemplateBuildPlanById(relationshipTemplate.getId(), plan), map,
             plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarFileName);
     }
 
@@ -667,7 +668,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                                                 String csarFileName) {
         // handling nodetemplate
         final BPELPlanContext context =
-            new BPELPlanContext(this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map,
+            new BPELPlanContext(plan,this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map,
                 plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarFileName);
         // check if we have a generic plugin to handle the template
         // Note: if a generic plugin fails during execution the

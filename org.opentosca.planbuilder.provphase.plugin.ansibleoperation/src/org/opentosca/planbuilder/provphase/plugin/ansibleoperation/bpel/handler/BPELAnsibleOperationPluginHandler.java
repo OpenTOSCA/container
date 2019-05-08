@@ -25,6 +25,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core.handler.AnsibleOperationPluginHandler;
@@ -123,7 +124,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         return runShScriptStringVar;
     }
 
-    private Variable appendBPELAssignOperationShScript(final BPELPlanContext templateContext,
+    private Variable appendBPELAssignOperationShScript(final PlanContext templateContext,
                                                        final AbstractOperation operation,
                                                        final AbstractArtifactReference reference,
                                                        final AbstractImplementationArtifact ia,
@@ -159,8 +160,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                 runScriptRequestInputParams.put("sshKey", sshKeyVariable);
                 runScriptRequestInputParams.put("sshUser", sshUserVariable);
                 runScriptRequestInputParams.put("script", runShScriptStringVar);
-                this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu",
-                                          "planCallbackAddress_invoker", runScriptRequestInputParams,
+                this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", runScriptRequestInputParams,
                                           new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
 
                 break;
@@ -171,8 +171,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                 runScriptRequestInputParams.put("VMUserName", sshUserVariable);
                 runScriptRequestInputParams.put("Script", runShScriptStringVar);
                 this.invokerPlugin.handle(templateContext, templateId, true, "runScript",
-                                          Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                          "planCallbackAddress_invoker", runScriptRequestInputParams,
+                                          Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
                                           new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
                 break;
             default:
@@ -303,7 +302,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         if (sshUserVariable == null) {
             return false;
         } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshUserVariable, templateContext)) {
+            if (sshUserVariable.getContent() == null || sshUserVariable.getContent().isEmpty()) {
                 // the property isn't set in the topology template -> we set it
                 // null here so it will be handled as an external parameter
                 sshUserVariable = null;
@@ -321,7 +320,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         if (sshKeyVariable == null) {
             return false;
         } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshKeyVariable, templateContext)) {
+            if (sshKeyVariable.getContent() == null || sshKeyVariable.getContent().isEmpty()) {
                 // see sshUserVariable..
                 sshKeyVariable = null;
             }

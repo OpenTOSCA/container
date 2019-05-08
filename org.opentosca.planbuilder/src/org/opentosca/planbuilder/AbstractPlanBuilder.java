@@ -1,16 +1,7 @@
 package org.opentosca.planbuilder;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
-import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.plan.AbstractActivity;
-import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +15,14 @@ public abstract class AbstractPlanBuilder {
     abstract public PlanType createdPlanType();
 
 
+    public boolean isRunning(final AbstractNodeTemplate nodeTemplate) {
+        if (nodeTemplate.getProperties() != null) {
+            String val = nodeTemplate.getProperties().asMap().get("State");
+            return val != null && val.equals("Running");
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Returns the number of the plugins registered with this planbuilder

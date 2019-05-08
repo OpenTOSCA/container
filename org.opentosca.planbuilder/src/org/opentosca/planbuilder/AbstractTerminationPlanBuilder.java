@@ -64,14 +64,24 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanB
             activities.add(activity);
 
             final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
+            AbstractActivity sourceActivity = mapping.get(relationshipTemplate.getSource());
+            AbstractActivity targetActivity = mapping.get(relationshipTemplate.getTarget());
 
             if (baseType.equals(Types.connectsToRelationType)) {
-                links.add(new Link(activity, mapping.get(relationshipTemplate.getSource())));
-                links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
+                if (sourceActivity != null) {
+                    links.add(new Link(activity, sourceActivity));
+                }
+                if (targetActivity != null) {
+                    links.add(new Link(activity, targetActivity));
+                }
             } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
                 | baseType.equals(Types.deployedOnRelationType)) {
-                links.add(new Link(mapping.get(relationshipTemplate.getSource()), activity));
-                links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
+                if (sourceActivity != null) {
+                    links.add(new Link(sourceActivity, activity));
+                }
+                if (targetActivity != null) {
+                    links.add(new Link(activity, targetActivity));
+                }
             }
 
         }
