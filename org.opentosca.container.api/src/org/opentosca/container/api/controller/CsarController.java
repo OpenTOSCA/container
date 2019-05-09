@@ -265,16 +265,19 @@ public class CsarController {
         }
 
         try {
+        	// Checks the CSAR for open requirements
             if (ModelUtil.hasOpenRequirements(csarId, this.engineService)) {
 
                 if (repoAvailable) {
                     while (parallelUploadThread.isAlive()) {
                         // wait till the upload is finished
                     }
-                    this.controlService.deleteCSAR(csarId);
+                    // Don't delete since it can be placed onto existing instances
+                    // this.controlService.deleteCSAR(csarId);
+                    logger.error("CSAR has open requirements and could be placed instead");
                     return Response.status(Response.Status.NOT_ACCEPTABLE)
                                    .entity("{ \"Location\": \""
-                                       + wc.getServiceTemplateURI(QName.valueOf(strB.toString())).toString() + "\" }")
+                                       + wc.getServiceTemplateURI(QName.valueOf(strB.toString())).toString() + "\", \"Placement\": \"true\", \"CsarId\": \"" + csarId+ "\" }")
                                    .build();
                 } else {
                     logger.error("CSAR has open requirments but Winery repository is not available");

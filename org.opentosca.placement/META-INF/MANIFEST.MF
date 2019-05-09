@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Placement of Component Applications
+Bundle-SymbolicName: org.opentosca.placement
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.opentosca.placement
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Service-Component: OSGI-INF/PlacementService_component.xml
