@@ -123,13 +123,13 @@ public class ExportedInterfacesConsolidation {
 
                         mapTypeToPlan.get(PlanTypes.isPlanTypeURI(toscaPlan.getPlanType())).put(planID, toscaPlan);
 
-                        this.toscaReferenceMapper.storePlanInputMessageID(csarID, planID,
-                                                                          this.getInputMessageQName(csarID,
-                                                                                                    iface.getName(),
-                                                                                                    operation.getName(),
-                                                                                                    toscaPlan.getId(),
-                                                                                                    toscaPlan,
-                                                                                                    this.toscaReferenceMapper.getListOfWSDLForCSAR(csarID)));
+//                        this.toscaReferenceMapper.storePlanInputMessageID(csarID, planID,
+//                                                                          this.getInputMessageQName(csarID,
+//                                                                                                    iface.getName(),
+//                                                                                                    operation.getName(),
+//                                                                                                    toscaPlan.getId(),
+//                                                                                                    toscaPlan,
+//                                                                                                    this.toscaReferenceMapper.getListOfWSDLForCSAR(csarID)));
 
                     } else {
                         // just need the plans

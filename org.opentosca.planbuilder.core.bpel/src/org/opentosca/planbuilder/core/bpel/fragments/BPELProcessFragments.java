@@ -212,12 +212,12 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fail
      * @throws SAXException is thrown when parsing internal files fail
      */
-    public Node createAssignFromNodeInstancePropertyToBPELVariableAsNode(final String assignName,
+    public Node createAssignFromInstancePropertyToBPELVariableAsNode(final String assignName,
                                                                          final String nodeInstancePropertyResponseVarName,
                                                                          final Map<Element, String> propElement2BpelVarNameMap) throws IOException,
                                                                                                                                 SAXException {
         final String templateString =
-            createAssignFromNodeInstancePropertyToBPELVariableAsString(assignName, nodeInstancePropertyResponseVarName,
+            createAssignFromInstancePropertyToBPELVariableAsString(assignName, nodeInstancePropertyResponseVarName,
                                                                        propElement2BpelVarNameMap);
         return this.transformStringToNode(templateString);
     }
@@ -233,7 +233,7 @@ public class BPELProcessFragments {
      * @return a String containing a BPEL assign activity
      * @throws IOException is thrown when reading internal files fail
      */
-    public String createAssignFromNodeInstancePropertyToBPELVariableAsString(final String assignName,
+    public String createAssignFromInstancePropertyToBPELVariableAsString(final String assignName,
                                                                              final String nodeInstancePropertyResponseVarName,
                                                                              final Map<Element, String> propElement2BpelVarNameMap) throws IOException {
         final String template = this.loadFragmentResourceAsString("BpelCopyFromPropertyVarToNodeInstanceProperty.xml");
@@ -259,7 +259,23 @@ public class BPELProcessFragments {
         return assignString;
     }
 
-    public String createAssignSelectFirstReferenceAndAssignToStringVar(final String referencesResponseVarName,
+    public String createAssignSelectFirstRelationInstanceFromResponse(final String referencesResponseVarName, final String resultVarName) throws IOException {
+        String bpelAssignString =
+            this.loadFragmentResourceAsString("BpelAssignSelectFromRelationInstancesRequestToStringVar.xml");
+
+        bpelAssignString =
+            bpelAssignString.replaceAll("\\$assignName", "assignSelectFirstReference" + System.currentTimeMillis());
+        bpelAssignString = bpelAssignString.replaceAll("\\$stringVarName", resultVarName);
+        bpelAssignString = bpelAssignString.replaceAll("\\$NodeInstancesResponseVarName", referencesResponseVarName);
+        return bpelAssignString;
+    }
+    
+    public Node createAssignSelectFirstRelationInstanceFromResponseAsNode(final String referencesResponseVarName, final String resultVarName) throws SAXException, IOException {
+        final String templateString = this.createAssignSelectFirstRelationInstanceFromResponse(referencesResponseVarName, resultVarName);
+        return this.transformStringToNode(templateString);
+    }
+    
+    public String createAssignSelectFirstNodeInstanceAndAssignToStringVar(final String referencesResponseVarName,
                                                                        final String stringVarName) throws IOException {
         // BpelAssignSelectFromNodeInstancesRequestToStringVar.xml
         // <!-- $assignName, $stringVarName, $NodeInstancesResponseVarName -->
@@ -273,11 +289,11 @@ public class BPELProcessFragments {
         return bpelAssignString;
     }
 
-    public Node createAssignSelectFirstReferenceAndAssignToStringVarAsNode(final String referencesResponseVarName,
+    public Node createAssignSelectFirstNodeInstanceAndAssignToStringVarAsNode(final String referencesResponseVarName,
                                                                            final String stringVarName) throws IOException,
                                                                                                        SAXException {
         final String templateString =
-            createAssignSelectFirstReferenceAndAssignToStringVar(referencesResponseVarName, stringVarName);
+            createAssignSelectFirstNodeInstanceAndAssignToStringVar(referencesResponseVarName, stringVarName);
         return this.transformStringToNode(templateString);
     }
 
@@ -550,6 +566,34 @@ public class BPELProcessFragments {
 
         return template;
     }
+    
+    public Node createRESTExtensionGETForRelationInstanceDataAsNode(final String serviceTemplateUrlVar,
+                                                                    final String responseVarName,
+                                                                    final String templateId,
+                                                                    final String query) throws SAXException, IOException {
+        final String templateString =
+            createRESTExtensionGETForRelationInstanceDataAsString(serviceTemplateUrlVar, responseVarName, templateId,
+                                                              query);
+        return this.transformStringToNode(templateString);
+    }
+    
+    public String createRESTExtensionGETForRelationInstanceDataAsString(final String serviceTemplateUrlVar,
+                                                                    final String responseVarName,
+                                                                    final String templateId,
+                                                                    final String query) throws IOException {
+        String template = this.loadFragmentResourceAsString("BPEL4RESTLightGET_RelationInstance_InstanceDataAPI.xml");
+        template = template.replaceAll("\\$InstanceDataURLVar", serviceTemplateUrlVar);
+        template = template.replaceAll("\\$ResponseVarName", responseVarName);
+        template = template.replaceAll("\\$templateId", templateId);
+
+        if (query != null) {
+            template = template.replace("?query", query);
+        } else {
+            template = template.replace("?query", "");
+        }
+
+        return template;
+    }
 
     /**
      * Creates a RESTExtension GET to fetch properties of NodeInstance
@@ -560,11 +604,11 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fails
      * @throws SAXException is thrown when parsing internal files fails
      */
-    public Node createRESTExtensionGETForNodeInstancePropertiesAsNode(final String nodeInstanceIDUrl,
+    public Node createRESTExtensionGETForInstancePropertiesAsNode(final String nodeInstanceIDUrl,
                                                                       final String responseVarName) throws IOException,
                                                                                                     SAXException {
         final String templateString =
-            createRESTExtensionGETForNodeInstancePropertiesAsString(nodeInstanceIDUrl, responseVarName);
+            createRESTExtensionGETForInstancePropertiesAsString(nodeInstanceIDUrl, responseVarName);
         return this.transformStringToNode(templateString);
     }
 
@@ -576,7 +620,7 @@ public class BPELProcessFragments {
      * @return a String containing a BPEL RESTExtension Activity
      * @throws IOException is thrown when reading internal files fails
      */
-    public String createRESTExtensionGETForNodeInstancePropertiesAsString(final String nodeInstanceIDUrl,
+    public String createRESTExtensionGETForInstancePropertiesAsString(final String nodeInstanceIDUrl,
                                                                           final String responseVarName) throws IOException {
         // <!-- $urlVarName, $ResponseVarName -->
         String template = this.loadFragmentResourceAsString("BPEL4RESTLightGET_NodeInstance_Properties.xml");

@@ -21,8 +21,10 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.utils.PluginUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -45,6 +47,13 @@ import org.xml.sax.SAXException;
 public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<BPELPlanContext> {
 
     private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePluginHandler.class);
+    
+    public static final QName noPublicAccessPolicyType =
+        new QName("http://opentosca.org/policytypes", "NoPublicAccessPolicy");
+    public static final QName publicAccessPolicyType =
+        new QName("http://opentosca.org/policytypes", "PublicAccessPolicy");
+    public static final QName onlyModeledPortsPolicyType =
+        new QName("http://opentosca.org/policytypes", "OnlyModeledPortsPolicyType");
 
     // create method external input parameters without CorrelationId (old)
     private final static String[] createEC2InstanceExternalInputParams =
@@ -281,7 +290,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         if (sshUserVariable == null) {
             return false;
         } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshUserVariable, context)) {
+            if (PluginUtils.isVariableValueEmpty(sshUserVariable)) {
                 // the property isn't set in the topology template -> we set it
                 // null here so it will be handled as an external parameter
                 sshUserVariable = null;
@@ -297,7 +306,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         if (sshKeyVariable == null) {
             return false;
         } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshKeyVariable, context)) {
+            if (PluginUtils.isVariableValueEmpty(sshKeyVariable)) {
                 // see sshUserVariable..
                 sshKeyVariable = null;
             }
@@ -353,7 +362,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 BPELUbuntuVmTypePluginHandler.LOG.debug("Found property variable " + externalParameter);
             }
 
-            if (BPELPlanContext.isVariableValueEmpty(variable, context)) {
+            if (PluginUtils.isVariableValueEmpty(variable)) {
                 BPELUbuntuVmTypePluginHandler.LOG.debug("Variable value is empty, adding to plan input");
                 createEC2InternalExternalPropsInput.put(externalParameter, null);
             } else {
@@ -399,8 +408,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         startRequestInputParams.put("sshUser", sshUserVariable);
         startRequestInputParams.put("sshKey", sshKeyVariable);
 
-        this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu",
-                                    "planCallbackAddress_invoker", startRequestInputParams,
+        this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu", startRequestInputParams,
                                     new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
 
         return true;
@@ -498,7 +506,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         if (sshUserVariable == null) {
             return false;
         } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshUserVariable, context)) {
+            if (PluginUtils.isVariableValueEmpty(sshUserVariable)) {
                 // the property isn't set in the topology template -> we set it
                 // null here so it will be handled as an external parameter
                 LOG.debug("Adding sshUser field to plan input");
@@ -526,7 +534,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         if (sshKeyVariable == null) {
             return false;
         } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshKeyVariable, context)) {
+            if (PluginUtils.isVariableValueEmpty(sshKeyVariable)) {
                 // see sshUserVariable..
                 LOG.debug("Adding sshKey field to plan input");
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
@@ -581,7 +589,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 BPELUbuntuVmTypePluginHandler.LOG.debug("Found property variable " + externalParameter);
             }
 
-            if (BPELPlanContext.isVariableValueEmpty(variable, context)) {
+            if (PluginUtils.isVariableValueEmpty(variable)) {
                 BPELUbuntuVmTypePluginHandler.LOG.debug("Variable value is empty, adding to plan input");
 
                 // add the new property name to input
@@ -598,8 +606,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // check if there is an access policy attached
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().equals(UbuntuVmTypePlugin.noPublicAccessPolicyType)
-                | policy.getType().getId().equals(UbuntuVmTypePlugin.publicAccessPolicyType)) {
+            if (policy.getType().getId().equals(this.noPublicAccessPolicyType)
+                | policy.getType().getId().equals(this.publicAccessPolicyType)) {
                 final Element policyPropertyRootElement = policy.getProperties().getDOMElement();
                 if (policyPropertyRootElement.getLocalName().equals("SecurityGroup")) {
                     final String securityGroup = policyPropertyRootElement.getTextContent();
@@ -642,8 +650,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, cloudProviderNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
-                                    "planCallbackAddress_invoker", createEC2InternalExternalPropsInput,
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, createEC2InternalExternalPropsInput,
                                     createEC2InternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         /*
@@ -662,12 +669,11 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                    "planCallbackAddress_invoker", startRequestInputParams, startRequestOutputParams,
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams, startRequestOutputParams,
                                     BPELScopePhaseType.PROVISIONING);
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().equals(UbuntuVmTypePlugin.onlyModeledPortsPolicyType)) {
+            if (policy.getType().getId().equals(this.onlyModeledPortsPolicyType)) {
                 final List<Variable> modeledPortsVariables = fetchModeledPortsOfInfrastructure(context, nodeTemplate);
                 modeledPortsVariables.add(context.createGlobalStringVariable("vmSshPort", "22"));
                 addIpTablesScriptLogic(context, modeledPortsVariables, serverIpPropWrapper, sshUserVariable,
@@ -734,12 +740,11 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                    "planCallbackAddress_invoker", startRequestInputParams, startRequestOutputParams,
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams, startRequestOutputParams,
                                     BPELScopePhaseType.PROVISIONING);
     }
 
-    private List<Variable> fetchModeledPortsOfInfrastructure(final BPELPlanContext context,
+    private List<Variable> fetchModeledPortsOfInfrastructure(final PlanContext context,
                                                              final AbstractNodeTemplate nodeTemplate) {
         final List<Variable> portVariables = new ArrayList<>();
 
@@ -754,7 +759,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         return portVariables;
     }
 
-    private List<Variable> fetchPortPropertyVariable(final BPELPlanContext context,
+    private List<Variable> fetchPortPropertyVariable(final PlanContext context,
                                                      final AbstractNodeTemplate nodeTemplate) {
         final Collection<PropertyVariable> nodePropertyVariables = context.getPropertyVariables(nodeTemplate);
         final List<Variable> portVariables = new ArrayList<>();
@@ -802,7 +807,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             return false;
         }
 
-        if (BPELPlanContext.isVariableValueEmpty(dockerEngineURLVariable, context)) {
+        if (PluginUtils.isVariableValueEmpty(dockerEngineURLVariable)) {
             BPELUbuntuVmTypePluginHandler.LOG.debug("Variable value is empty, adding to plan input");
 
             // add the new property name to input
@@ -819,7 +824,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             return false;
         }
 
-        if (BPELPlanContext.isVariableValueEmpty(dockerEngineCertificateVariable, context)) {
+        if (PluginUtils.isVariableValueEmpty(dockerEngineCertificateVariable)) {
             BPELUbuntuVmTypePluginHandler.LOG.debug("Variable value is empty, adding to plan input");
 
             // add the new property name to input
@@ -879,7 +884,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         if (sshUserVariable == null) {
             return false;
         } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshUserVariable, context)) {
+            if (PluginUtils.isVariableValueEmpty(sshUserVariable)) {
                 LOG.debug("Adding sshUser field to plan input");
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
                 context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME,
@@ -901,7 +906,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         if (sshKeyVariable == null) {
             return false;
         } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshKeyVariable, context)) {
+            if (PluginUtils.isVariableValueEmpty(sshKeyVariable)) {
                 LOG.debug("Adding sshKey field to plan input");
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
                 context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD,
@@ -933,8 +938,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         LOG.debug(dockerEngineNodeTemplate.getId() + " " + dockerEngineNodeTemplate.getType());
         this.invokerOpPlugin.handle(context, dockerEngineNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                    "planCallbackAddress_invoker", createDEInternalExternalPropsInput,
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, createDEInternalExternalPropsInput,
                                     createDEInternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         /*
@@ -952,8 +956,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                    "planCallbackAddress_invoker", startRequestInputParams, startRequestOutputParams,
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams, startRequestOutputParams,
                                     BPELScopePhaseType.PROVISIONING);
 
         return true;
@@ -1029,7 +1032,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         if (sshUserVariable == null) {
             return false;
         } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshUserVariable, context)) {
+            if (PluginUtils.isVariableValueEmpty(sshUserVariable)) {
                 // the property isn't set in the topology template -> we set it
                 // null here so it will be handled as an external parameter
                 BPELUbuntuVmTypePluginHandler.LOG.debug("Adding sshUser field to plan input");
@@ -1057,7 +1060,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         if (sshKeyVariable == null) {
             return false;
         } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshKeyVariable, context)) {
+            if (PluginUtils.isVariableValueEmpty(sshKeyVariable)) {
                 // see sshUserVariable..
                 BPELUbuntuVmTypePluginHandler.LOG.debug("Adding sshKey field to plan input");
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
@@ -1116,7 +1119,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 BPELUbuntuVmTypePluginHandler.LOG.debug("Found property variable " + externalParameter);
             }
 
-            if (BPELPlanContext.isVariableValueEmpty(variable, context)) {
+            if (PluginUtils.isVariableValueEmpty(variable)) {
                 BPELUbuntuVmTypePluginHandler.LOG.debug("Variable value is empty, adding to plan input");
 
                 // add the new property name to input
@@ -1161,8 +1164,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, cloudProviderNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
-                                    "planCallbackAddress_invoker", createEC2InternalExternalPropsInput,
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, createEC2InternalExternalPropsInput,
                                     createEC2InternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         /*
@@ -1180,8 +1182,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                    "planCallbackAddress_invoker", startRequestInputParams, startRequestOutputParams,
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams, startRequestOutputParams,
                                     BPELScopePhaseType.PROVISIONING);
 
         return true;
@@ -1193,7 +1194,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // here either the ubuntu connected to the provider this handler is
         // working on hasn't a version in the ID (ubuntu version must be written
         // in AMIId property then) or something went really wrong
-        if (BPELPlanContext.isVariableValueEmpty(vmImageId, context)) {
+        if (PluginUtils.isVariableValueEmpty(vmImageId)) {
             // we'll set a global variable with the necessary ubuntu image
             // ubuntuAMIIdVar =
             // context.createGlobalStringVariable("ubuntu_AMIId",

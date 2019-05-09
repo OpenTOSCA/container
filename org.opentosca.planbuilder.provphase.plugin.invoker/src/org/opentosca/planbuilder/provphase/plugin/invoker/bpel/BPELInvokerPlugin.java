@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -14,9 +16,12 @@ import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderCompensationOperationPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokerPluginHandler;
-import org.opentosca.planbuilder.provphase.plugin.invoker.core.InvokerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +32,20 @@ import org.slf4j.LoggerFactory;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
+public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<BPELPlanContext>,
+                               IPlanBuilderProvPhaseParamOperationPlugin<BPELPlanContext>, IPlanBuilderCompensationOperationPlugin<BPELPlanContext> {
+
+    private static final String PLUGIN_ID = "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
+
+    @Override
+    public boolean canHandle(final QName operationArtifactType) {
+        return true;
+    }
+
+    @Override
+    public String getID() {
+        return PLUGIN_ID;
+    }
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
     private final BPELInvokerPluginHandler handler = new BPELInvokerPluginHandler();
@@ -72,8 +90,7 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
         }
 
         try {
-            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       null, inputParams, new HashMap<String, Variable>(), phase);
+            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(), inputParams, new HashMap<String, Variable>(), phase);
         }
         catch (final Exception e) {
             e.printStackTrace();
@@ -101,8 +118,7 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
         }
 
         try {
-            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       null, inputParams, new HashMap<String, Variable>(),
+            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(), inputParams, new HashMap<String, Variable>(),
                                        BPELScopePhaseType.PROVISIONING);
         }
         catch (final Exception e) {
@@ -127,12 +143,10 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
      * @return true iff adding logic for Invoker call was successful
      */
     public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
-                          final String operationName, final String interfaceName, final String callbackAddressVarName,
-                          final Map<String, Variable> internalExternalPropsInput,
+                          final String operationName, final String interfaceName, final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput, final BPELScopePhaseType phase) {
         try {
-            return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
-                                       callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput,
+            return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName, internalExternalPropsInput, internalExternalPropsOutput,
                                        phase);
         }
         catch (final Exception e) {
@@ -230,8 +244,7 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
         }
 
         try {
-            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       null, inputParams, outputParams, BPELScopePhaseType.PROVISIONING);
+            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(), inputParams, outputParams, BPELScopePhaseType.PROVISIONING);
         }
         catch (final IOException e) {
             e.printStackTrace();
@@ -264,6 +277,51 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public int getPriority() {
+        return 1;
+    }
+
+    @Override
+    public boolean handle(BPELPlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                          Map<AbstractParameter, Variable> param2propertyMapping,
+                          AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
+                          Map<AbstractParameter, Variable> compensationParam2VariableMapping) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean handle(BPELPlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                          Map<AbstractParameter, Variable> param2propertyMapping,
+                          AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
+                          Map<AbstractParameter, Variable> compensationParam2VariableMapping,
+                          BPELScopePhaseType phase) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean handle(BPELPlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                          Map<AbstractParameter, Variable> param2propertyMapping,
+                          Map<AbstractParameter, Variable> param2PropertyOutputMapping,
+                          AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
+                          Map<AbstractParameter, Variable> compensationParam2VariableMapping) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean handle(BPELPlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                          Map<AbstractParameter, Variable> param2propertyMapping,
+                          Map<AbstractParameter, Variable> param2PropertyOutputMapping,
+                          AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
+                          Map<AbstractParameter, Variable> compensationParam2VariableMapping,
+                          BPELScopePhaseType phase) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }

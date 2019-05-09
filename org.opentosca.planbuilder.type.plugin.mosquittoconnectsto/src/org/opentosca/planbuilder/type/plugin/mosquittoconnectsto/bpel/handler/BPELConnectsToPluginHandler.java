@@ -23,6 +23,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.utils.PluginUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core.handler.ConnectsToTypePluginHandler;
 import org.osgi.framework.FrameworkUtil;
@@ -164,13 +165,13 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         runScriptRequestInputParams.put("VMIP", clientVmIp);
 
         // these two are requested from the input message if they are not set
-        if (!BPELPlanContext.isVariableValueEmpty(clientVmUser, templateContext)) {
+        if (!PluginUtils.isVariableValueEmpty(clientVmUser)) {
             runScriptRequestInputParams.put("VMUserName", clientVmUser);
         } else {
             runScriptRequestInputParams.put("VMUserName", null);
         }
 
-        if (!BPELPlanContext.isVariableValueEmpty(clientVmPass, templateContext)) {
+        if (!PluginUtils.isVariableValueEmpty(clientVmPass)) {
             runScriptRequestInputParams.put("VMPrivateKey", clientVmPass);
         } else {
             runScriptRequestInputParams.put("VMPrivateKey", null);
@@ -179,8 +180,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         runScriptRequestInputParams.put("Script", bashCommandVariable);
 
         this.invokerPlugin.handle(templateContext, ubuntuTemplateId, true, "runScript",
-                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                  "planCallbackAddress_invoker", runScriptRequestInputParams,
+                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
                                   new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
 
         return true;

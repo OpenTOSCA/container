@@ -288,5 +288,10 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
     public List<AbstractPolicy> getPolicies() {
         return this.policies;
     }
+    
+    @Override
+    public String toString() {
+        return "Def: " + this.definitions.getId() + " Id: " + this.getId() + " Name: " + this.getName();
+    }
 
 }

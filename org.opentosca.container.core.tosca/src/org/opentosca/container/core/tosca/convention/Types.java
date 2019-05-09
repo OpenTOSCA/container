@@ -3,6 +3,8 @@ package org.opentosca.container.core.tosca.convention;
 import javax.xml.namespace.QName;
 
 public class Types {
+    
+    // TODO refactor this class into some kind of configuration file to make it much more flexible ?
 
     // TODO Remove the old stuff
     // cloud provider nodeTypes (old)
@@ -48,7 +50,8 @@ public class Types {
     public final static QName ubuntu1804ServerVmNodeType =
         new QName("http://opentosca.org/nodetypes", "Ubuntu-VM_18.04-w1");
 
-    // raspbian nodeTypes
+    // OS
+    // raspbian OS nodeType
     public final static QName raspbianJessieOSNodeType = new QName("http://opentosca.org/nodetypes", "RaspbianJessie");
 
     // remote host nodeType for nodes not managed by opentosca
@@ -80,4 +83,10 @@ public class Types {
     // ArtifactTypes
     public static final QName scriptArtifactType = new QName(
 			"http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
+    
+    // hardware, such as sensors, actuators and devices
+    public static final QName raspberryPi3 = new QName("http://opentosca.org/nodetypes","RaspberryPI3");
+    public static final QName fs20Adapater = new QName("http://opentosca.org/nodetypes","FS20_USBDongle");
+    
+    
 }

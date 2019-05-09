@@ -17,8 +17,10 @@ import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.utils.PluginUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELDockerContainerTypePlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.handler.OpenMTCDockerContainerTypePluginHandler;
@@ -173,7 +175,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         // determine whether we work with an ImageId or a zipped DockerContainer
         final PropertyVariable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
 
-        if (containerImageVar == null || BPELPlanContext.isVariableValueEmpty(containerImageVar, templateContext)) {
+        if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
             // handle with DA -> construct URL to the DockerImage .zip
 
             final AbstractDeploymentArtifact da =
@@ -185,7 +187,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         return false;
     }
 
-    private List<AbstractNodeTemplate> fetchDataChannels(final BPELPlanContext templateContext,
+    private List<AbstractNodeTemplate> fetchDataChannels(final PlanContext templateContext,
                                                          final AbstractNodeTemplate protocolAdapterDerviceNodeTemplate) {
         final List<AbstractNodeTemplate> dataChannelNTs = new ArrayList<>();
 
@@ -377,7 +379,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         // determine whether we work with an ImageId or a zipped DockerContainer
         final PropertyVariable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
 
-        if (containerImageVar == null || BPELPlanContext.isVariableValueEmpty(containerImageVar, templateContext)) {
+        if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
             // handle with DA -> construct URL to the DockerImage .zip
 
             final AbstractDeploymentArtifact da =
@@ -456,8 +458,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
 
         this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                  "planCallbackAddress_invoker", createDEInternalExternalPropsInput,
+                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, createDEInternalExternalPropsInput,
                                   createDEInternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         return true;
