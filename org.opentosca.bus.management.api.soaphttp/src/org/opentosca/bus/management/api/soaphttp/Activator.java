@@ -42,11 +42,9 @@ public class Activator implements BundleActivator {
         final CxfHeaderFilterStrategy headerStrategy = new CxfHeaderFilterStrategy();
         headerStrategy.setRelayHeaders(false);
 
-        bundleContext.registerService(CxfHeaderFilterStrategy.class, headerStrategy, null);
+        bundleContext.registerService(CxfHeaderFilterStrategy.class, headerStrategy, null);        
 
-        final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
-
-        final DefaultCamelContext camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
+        final DefaultCamelContext camelContext = new OsgiDefaultCamelContext(bundleContext);
         camelContext.addRoutes(new Route());
         camelContext.start();
 

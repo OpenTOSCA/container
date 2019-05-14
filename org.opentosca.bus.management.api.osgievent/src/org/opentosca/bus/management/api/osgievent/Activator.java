@@ -37,8 +37,8 @@ public class Activator implements BundleActivator {
 
         Activator.apiID = bundleContext.getBundle().getSymbolicName();
 
-        final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
-        Activator.camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
+        
+        Activator.camelContext = new OsgiDefaultCamelContext(bundleContext);
         Activator.camelContext.addRoutes(new Route());
         Activator.camelContext.start();
         Activator.LOG.info("Management Bus-OSGI-Event API started!");
