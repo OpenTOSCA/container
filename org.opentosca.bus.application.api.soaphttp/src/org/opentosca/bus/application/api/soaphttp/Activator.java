@@ -27,8 +27,7 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
 
-        final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
-        final DefaultCamelContext camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
+        final DefaultCamelContext camelContext = new OsgiDefaultCamelContext(bundleContext);
 
         camelContext.addRoutes(new Route());
 

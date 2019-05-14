@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.postphase.plugin.monitoring.bpel.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -109,7 +110,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
 
         for (final AbstractNodeTemplate infraNodeTemplate : infraNodes) {
             int propMatchCount = 0;
-            final List<String> propNames = ModelUtils.getPropertyNames(infraNodeTemplate);
+            final Collection<String> propNames = ModelUtils.getPropertyNames(infraNodeTemplate);
             for (final String propName : propNames) {
                 if (Utils.isSupportedVirtualMachineIPProperty(propName)) {
                     sshIpVar = context.getPropertyVariable(propName);

@@ -46,9 +46,8 @@ public class Activator implements BundleActivator {
 
         // get bundle name, used as routing endpoint
         bundleID = bundleContext.getBundle().getSymbolicName();
-
-        final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
-        camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
+        
+        camelContext = new OsgiDefaultCamelContext(bundleContext);
 
         // register routes
         camelContext.addRoutes(new MainRoute());
