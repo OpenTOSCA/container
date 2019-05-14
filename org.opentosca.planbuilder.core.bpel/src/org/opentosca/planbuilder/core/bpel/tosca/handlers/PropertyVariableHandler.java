@@ -137,6 +137,8 @@ public class PropertyVariableHandler {
                 if (!value.trim().isEmpty() && !value.trim().equals("")) {
                     // init the variable with the node value
                     this.planHandler.assignInitValueToVariable(propVarName, value, templatePlan.getBuildPlan());
+                } else {
+                    this.planHandler.assignInitValueToVariable(propVarName, "", templatePlan.getBuildPlan());
                 }
 
             }
