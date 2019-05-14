@@ -64,6 +64,7 @@ public class RequestProcessor implements Processor {
 
         ParamsMap paramsMap = null;
         Doc doc = null;
+        String planCorrelationID = null;
         String csarIDString = null;
         String serviceInstanceID = null;
         String callbackAddress = null;
@@ -90,6 +91,9 @@ public class RequestProcessor implements Processor {
             final InvokeOperationAsync invokeIaRequest = (InvokeOperationAsync) exchange.getIn().getBody();
 
             csarIDString = invokeIaRequest.getCsarID();
+
+            planCorrelationID = invokeIaRequest.getPlanCorrelationID();
+            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
 
             serviceInstanceID = invokeIaRequest.getServiceInstanceID();
             exchange.getIn().setHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), new URI(serviceInstanceID));
@@ -183,6 +187,9 @@ public class RequestProcessor implements Processor {
             final InvokeOperationSync invokeIaRequest = (InvokeOperationSync) exchange.getIn().getBody();
 
             csarIDString = invokeIaRequest.getCsarID();
+
+            planCorrelationID = invokeIaRequest.getPlanCorrelationID();
+            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
 
             serviceInstanceID = invokeIaRequest.getServiceInstanceID();
             exchange.getIn().setHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), new URI(serviceInstanceID));

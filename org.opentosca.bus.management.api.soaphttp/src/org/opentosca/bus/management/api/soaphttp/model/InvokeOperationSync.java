@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="PlanCorrelationID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="CsarID" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="ServiceInstanceID" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="NodeInstanceID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
@@ -52,11 +53,13 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "invokeOperationSync",
-         propOrder = {"csarID", "serviceInstanceID", "nodeInstanceID", "serviceTemplateIDNamespaceURI",
-                      "serviceTemplateIDLocalPart", "nodeTemplateID", "relationshipTemplateID", "interfaceName",
-                      "operationName", "params", "doc"})
+         propOrder = {"planCorrelation", "csarID", "serviceInstanceID", "nodeInstanceID",
+                      "serviceTemplateIDNamespaceURI", "serviceTemplateIDLocalPart", "nodeTemplateID",
+                      "relationshipTemplateID", "interfaceName", "operationName", "params", "doc"})
 public class InvokeOperationSync {
 
+    @XmlElement(name = "PlanCorrelationID")
+    protected String planCorrelation;
     @XmlElement(name = "CsarID", required = true)
     protected String csarID;
     @XmlElement(name = "ServiceInstanceID", required = true)
@@ -79,6 +82,26 @@ public class InvokeOperationSync {
     protected ParamsMap params;
     @XmlElement(name = "Doc")
     protected Doc doc;
+
+    /**
+     * Gets the value of the PlanCorrelationID property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getPlanCorrelationID() {
+        return this.planCorrelation;
+    }
+
+    /**
+     * Sets the value of the PlanCorrelationID property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setPlanCorrelationID(final String value) {
+        this.planCorrelation = value;
+    }
 
     /**
      * Gets the value of the csarID property.

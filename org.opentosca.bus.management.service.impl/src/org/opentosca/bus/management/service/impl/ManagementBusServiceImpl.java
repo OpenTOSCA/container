@@ -3,6 +3,7 @@ package org.opentosca.bus.management.service.impl;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
@@ -102,8 +104,28 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     public void invokeIA(final Exchange exchange) {
         LOG.debug("Starting Management Bus: InvokeIA");
 
+        // log event to monitor the IA execution time
+        final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "IA_DURATION_LOG", "");
+
+        final Message message = exchange.getIn();
+
         final URI serviceInstanceID = exchange.getIn().getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
         LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
+
+        final String nodeTemplateID = message.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
+        LOG.debug("NodeTemplateID: {}", nodeTemplateID);
+
+        final String relationship = message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), String.class);
+        LOG.debug("RelationshipTemplateID: {}", relationship);
+
+        final String neededInterface = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
+        LOG.debug("Interface: {}", neededInterface);
+
+        final String neededOperation = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
+        LOG.debug("Operation: {}", neededOperation);
+
+        final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+        LOG.debug("Correlation ID: {}", correlationID);
 
         // get the ServiceTemplateInstance ID Long from the serviceInstanceID URI
         Long serviceTemplateInstanceID = null;
@@ -122,10 +144,28 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // operation invocation is only possible with retrieved ServiceTemplateInstance ID
         if (Objects.nonNull(serviceTemplateInstanceID)) {
-            invokeIA(exchange, serviceTemplateInstanceID);
+            invokeIA(exchange, serviceTemplateInstanceID, nodeTemplateID, relationship, neededInterface,
+                     neededOperation);
         } else {
             LOG.error("Unable to invoke operation without ServiceTemplateInstance ID!");
             handleResponse(exchange);
+        }
+
+        if (Objects.nonNull(correlationID)) {
+            // add end timestamp and log message with duration
+            event.setEndTimestamp(new Date());
+            final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
+            event.setMessage("Finished execution of IA for NodeTemplate '" + nodeTemplateID + "' interface '"
+                + neededInterface + "' and operation '" + neededOperation + "' after " + duration + "ms");
+            LOG.info("IA execution duration: {}ms", duration);
+
+            // update plan in repository with new log event
+            final PlanInstanceRepository repo = new PlanInstanceRepository();
+            final PlanInstance plan = repo.findByCorrelationId(correlationID);
+            if (Objects.nonNull(plan)) {
+                plan.addEvent(event);
+                repo.update(plan);
+            }
         }
     }
 
@@ -136,8 +176,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @param exchange exchange containing the header fields which identify the current operation
      * @param serviceTemplateInstanceID service instance which contains the instance data to update
      *        the input parameters
+     * @param neededInterface the interface of the searched operation
+     * @param neededOperation the searched operation
      */
-    private void invokeIA(final Exchange exchange, final Long serviceTemplateInstanceID) {
+    private void invokeIA(final Exchange exchange, final Long serviceTemplateInstanceID, final String nodeTemplateID,
+                          final String relationship, final String neededInterface, final String neededOperation) {
         final Message message = exchange.getIn();
 
         final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
@@ -145,18 +188,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
         LOG.debug("serviceTemplateID: {}", serviceTemplateID);
-
-        final String nodeTemplateID = message.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
-        LOG.debug("NodeTemplateID: {}", nodeTemplateID);
-
-        final String relationship = message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), String.class);
-        LOG.debug("RelationshipTemplateID: {}", relationship);
-
-        final String neededInterface = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
-        LOG.debug("Interface: {}", neededInterface);
-
-        final String neededOperation = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
-        LOG.debug("Operation: {}", neededOperation);
 
         QName typeID = null;
         if (Objects.nonNull(nodeTemplateID)) {
@@ -499,6 +530,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         LOG.debug("Starting Management Bus: InvokePlan");
 
+        // log event to monitor the plan execution time
+        final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_DURATION_LOG", "");
+
         final Message message = exchange.getIn();
 
         final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
@@ -513,7 +547,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (correlationID != null) {
 
             // get the PlanInstance object which contains all needed information
-            final PlanInstance plan = new PlanInstanceRepository().findByCorrelationId(correlationID);
+            final PlanInstanceRepository repo = new PlanInstanceRepository();
+            PlanInstance plan = repo.findByCorrelationId(correlationID);
 
             if (plan != null) {
                 LOG.debug("Plan ID: {}", plan.getTemplateId());
@@ -560,6 +595,18 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!",
                              plan.getTemplateId(), csarID);
                 }
+
+                // add end timestamp and log message with duration
+                event.setEndTimestamp(new Date());
+                final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
+                event.setMessage("Finished plan execution with correlation id " + correlationID + " after " + duration
+                    + "ms");
+                LOG.info("Plan execution duration: {}ms", duration);
+
+                // update plan in repository with new log event
+                plan = repo.findByCorrelationId(correlationID);
+                plan.addEvent(event);
+                repo.update(plan);
             } else {
                 LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
             }

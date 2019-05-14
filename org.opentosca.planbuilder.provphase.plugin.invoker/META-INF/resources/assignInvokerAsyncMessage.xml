@@ -5,6 +5,7 @@
 			<bpel:literal>
 				<impl:invokeOperationAsync xmlns:impl="http://siserver.org/schema"
 					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+					<impl:PlanCorrelationID>{planCorrelation}</impl:PlanCorrelationID>
 					<impl:CsarID>{csarName}</impl:CsarID>
 					<impl:ServiceInstanceID>{serviceInstanceID}</impl:ServiceInstanceID>
 					<impl:NodeInstanceID>{nodeInstanceID}</impl:NodeInstanceID>	
