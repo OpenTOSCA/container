@@ -1,22 +1,14 @@
 package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.planbuilder.AbstractDefrostPlanBuilder;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
@@ -31,25 +23,18 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
-import org.opentosca.planbuilder.plugins.context.PropertyVariable;
-import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
@@ -68,14 +53,12 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
 
-    private QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes", "StatefulComponent");
+    private final QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes", "StatefulComponent");
     private final EmptyPropertyToInputHandler emptyPropInit = new EmptyPropertyToInputHandler();
 
     // accepted operations for provisioning
     private final List<String> provisioningOpNames = new ArrayList<>();
     private final List<String> defrostOpNames = new ArrayList<>();
-
-    private BPELProcessFragments bpelFragments;
 
     private CorrelationIDInitializer correlationHandler;
 
@@ -84,7 +67,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
             this.instanceVarsHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
-            this.bpelFragments = new BPELProcessFragments();
+            new BPELProcessFragments();
             this.correlationHandler = new CorrelationIDInitializer();
         }
         catch (final ParserConfigurationException e) {
@@ -148,9 +131,11 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         // initialize instanceData handling
         this.serviceInstanceInitializer.appendCreateServiceInstanceVarsAndAnitializeWithInstanceDataAPI(newDefreezePlan);
 
-        String serviceInstanceUrl = this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(newDefreezePlan);
-        String serviceInstanceId = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newDefreezePlan);
-        String serviceTemplateUrl = this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newDefreezePlan);
+        final String serviceInstanceUrl =
+            this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(newDefreezePlan);
+        final String serviceInstanceId = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newDefreezePlan);
+        final String serviceTemplateUrl =
+            this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newDefreezePlan);
 
         this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newDefreezePlan, propMap, serviceInstanceUrl,
                                                                  serviceInstanceId, serviceTemplateUrl, serviceTemplate,
@@ -161,7 +146,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
         this.correlationHandler.addCorrellationID(newDefreezePlan);
 
-        String serviceInstanceURLVarName =
+        final String serviceInstanceURLVarName =
             this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(newDefreezePlan);
 
         this.serviceInstanceInitializer.appendSetServiceInstanceState(newDefreezePlan,
@@ -178,9 +163,9 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         return newDefreezePlan;
     }
 
-    private boolean isDefrostable(AbstractServiceTemplate serviceTemplate) {
+    private boolean isDefrostable(final AbstractServiceTemplate serviceTemplate) {
 
-        for (AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+        for (final AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             if (this.isDefrostable(nodeTemplate)) {
                 return true;
             }
@@ -188,13 +173,12 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         return false;
     }
 
-    private boolean isDefrostable(AbstractNodeTemplate nodeTemplate) {
-        return Objects.nonNull(this.getLoadStateOperation(nodeTemplate))
-            && this.hasFreezeableComponentPolicy(nodeTemplate);
+    private boolean isDefrostable(final AbstractNodeTemplate nodeTemplate) {
+        return Objects.nonNull(getLoadStateOperation(nodeTemplate)) && hasFreezeableComponentPolicy(nodeTemplate);
     }
 
-    private AbstractInterface getLoadStateInterface(AbstractNodeTemplate nodeTemplate) {
-        for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+    private AbstractInterface getLoadStateInterface(final AbstractNodeTemplate nodeTemplate) {
+        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
             if (!iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE)) {
                 continue;
             }
@@ -204,10 +188,10 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         return null;
     }
 
-    private AbstractOperation getLoadStateOperation(AbstractNodeTemplate nodeTemplate) {
-        AbstractInterface iface = this.getLoadStateInterface(nodeTemplate);
+    private AbstractOperation getLoadStateOperation(final AbstractNodeTemplate nodeTemplate) {
+        final AbstractInterface iface = getLoadStateInterface(nodeTemplate);
         if (iface != null) {
-            for (AbstractOperation op : iface.getOperations()) {
+            for (final AbstractOperation op : iface.getOperations()) {
                 if (!op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE)) {
                     continue;
                 }
@@ -218,8 +202,8 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         return null;
     }
 
-    private String findStatefulServiceTemplateUrlVar(BPELPlan plan) {
-        for (String varName : this.planHandler.getMainVariableNames(plan)) {
+    private String findStatefulServiceTemplateUrlVar(final BPELPlan plan) {
+        for (final String varName : this.planHandler.getMainVariableNames(plan)) {
             if (varName.contains("statefulServiceTemplateUrl")) {
                 return varName;
             }
@@ -237,12 +221,12 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
      * @param propMap a PropertyMapping from NodeTemplate to Properties to BPELVariables
      */
     private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap,
-                                       String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl,
-                                       String csarFileName) {
+                                       final String serviceInstanceUrl, final String serviceInstanceId,
+                                       final String serviceTemplateUrl, final String csarFileName) {
 
         final List<BPELScope> changedActivities = new ArrayList<>();
 
-        String statefulServiceTemplateUrlVarName = this.findStatefulServiceTemplateUrlVar(plan);
+        final String statefulServiceTemplateUrlVarName = findStatefulServiceTemplateUrlVar(plan);
 
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(plan, templatePlan, propMap, plan.getServiceTemplate(),
@@ -251,8 +235,8 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             if (templatePlan.getNodeTemplate() != null) {
                 // create a context for the node
 
-                AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
-                boolean alreadyHandled = false;
+                final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+                final boolean alreadyHandled = false;
 
                 List<String> operationNames = this.provisioningOpNames;
 
@@ -260,7 +244,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
                     operationNames = this.defrostOpNames;
                 }
 
-                if (this.isRunning(templatePlan.getNodeTemplate())) {
+                if (isRunning(templatePlan.getNodeTemplate())) {
                     BPELBuildProcessBuilder.LOG.debug("Skipping the provisioning of NodeTemplate "
                         + templatePlan.getNodeTemplate().getId() + "  beacuse state=running is set.");
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
@@ -306,10 +290,11 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
                 // Note: if a generic plugin fails during execution the
                 // TemplateBuildPlan is broken here!
                 // TODO implement fallback
-                if (pluginRegistry.canTypePluginHandleCreate(relationshipTemplate)) {
+                if (this.pluginRegistry.canTypePluginHandleCreate(relationshipTemplate)) {
                     BPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin",
                                                      relationshipTemplate.getId());
-                    IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
+                    final IPlanBuilderTypePlugin plugin =
+                        this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
                     this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);
 
                 } else {
@@ -326,7 +311,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
         }
         return changedActivities;
-    }    
+    }
 
     @Override
     public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {

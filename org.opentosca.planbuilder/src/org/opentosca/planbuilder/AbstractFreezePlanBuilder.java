@@ -51,12 +51,12 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
         // Get all node templates which are sources only --> that don't
         for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
 
-            if (this.hasFreezableComponentPolicy(nodeTemplate)) {
+            if (hasFreezableComponentPolicy(nodeTemplate)) {
                 final ANodeTemplateActivity activity = new ANodeTemplateActivity(
                     nodeTemplate.getId() + "_freeze_activity", ActivityType.FREEZE, nodeTemplate);
                 activities.add(activity);
                 mapping.put(nodeTemplate, activity);
-            } else if (!this.hasStatefulComponentPolicy(nodeTemplate)) {
+            } else if (!hasStatefulComponentPolicy(nodeTemplate)) {
                 final ANodeTemplateActivity activity = new ANodeTemplateActivity(
                     nodeTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, nodeTemplate);
                 activities.add(activity);
@@ -80,9 +80,9 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
                 links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
             } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
                 | baseType.equals(Types.deployedOnRelationType)) {
-                links.add(new Link(mapping.get(relationshipTemplate.getSource()), activity));
-                links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
-            }
+                    links.add(new Link(mapping.get(relationshipTemplate.getSource()), activity));
+                    links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
+                }
 
         }
 
@@ -92,21 +92,20 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
         return abstractTerminationPlan;
     }
 
-    protected boolean hasStatefulComponentPolicy(AbstractNodeTemplate nodeTemplate) {
-        return this.hasPolicy(nodeTemplate, this.statefulComponentPolicy);
+    protected boolean hasStatefulComponentPolicy(final AbstractNodeTemplate nodeTemplate) {
+        return hasPolicy(nodeTemplate, this.statefulComponentPolicy);
     }
 
-    protected boolean hasFreezableComponentPolicy(AbstractNodeTemplate nodeTemplate) {
-        return this.hasPolicy(nodeTemplate, this.freezableComponentPolicy);
+    protected boolean hasFreezableComponentPolicy(final AbstractNodeTemplate nodeTemplate) {
+        return hasPolicy(nodeTemplate, this.freezableComponentPolicy);
     }
 
-    private boolean hasPolicy(AbstractNodeTemplate nodeTemplate, QName policyType) {
-        for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
+    private boolean hasPolicy(final AbstractNodeTemplate nodeTemplate, final QName policyType) {
+        for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
             if (policy.getType().getId().equals(policyType)) {
                 return true;
             }
         }
         return false;
     }
-
 }
