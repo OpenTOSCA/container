@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -624,11 +625,13 @@ public class ModelUtils {
 
     public static List<String> getPropertyNames(final AbstractNodeTemplate nodeTemplate) {
         final List<String> propertyNames = new ArrayList<>();
-        final NodeList propertyNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
-        for (int index = 0; index < propertyNodes.getLength(); index++) {
-            final Node propertyNode = propertyNodes.item(index);
-            if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
-                propertyNames.add(propertyNode.getLocalName());
+        if (Objects.nonNull(nodeTemplate.getProperties())) {
+            final NodeList propertyNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
+            for (int index = 0; index < propertyNodes.getLength(); index++) {
+                final Node propertyNode = propertyNodes.item(index);
+                if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
+                    propertyNames.add(propertyNode.getLocalName());
+                }
             }
         }
         return propertyNames;
