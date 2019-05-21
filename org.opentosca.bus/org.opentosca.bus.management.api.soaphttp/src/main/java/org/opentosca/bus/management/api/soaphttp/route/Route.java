@@ -2,6 +2,7 @@ package org.opentosca.bus.management.api.soaphttp.route;
 
 import java.net.URL;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
@@ -12,10 +13,11 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cxf.common.header.CxfHeaderFilterStrategy;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
-import org.opentosca.bus.management.api.soaphttp.Activator;
 import org.opentosca.bus.management.api.soaphttp.processor.RequestProcessor;
 import org.opentosca.bus.management.api.soaphttp.processor.ResponseProcessor;
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.legacy.core.engine.IToscaEngineService;
+import org.springframework.stereotype.Component;
 
 /**
  * Route of the Management Bus-SOAP/HTTP-API.<br>
@@ -34,6 +36,7 @@ import org.opentosca.container.core.common.Settings;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+@Component
 public class Route extends RouteBuilder {
 
   public final static String PUBLIC_ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";
@@ -41,6 +44,13 @@ public class Route extends RouteBuilder {
   public final static QName PORTTYPE = new QName("http://siserver.org/wsdl", "InvokePortType");
 
   private final static String ENDPOINT = "http://0.0.0.0:8081/invoker";
+
+  private final IToscaEngineService toscaEngineService;
+
+  @Inject
+  public Route(IToscaEngineService toscaEngineService){
+    this.toscaEngineService = toscaEngineService;
+  }
 
   @Override
   public void configure() throws Exception {
@@ -79,13 +89,13 @@ public class Route extends RouteBuilder {
     responseJaxb.setPartClass("org.opentosca.bus.management.api.soaphttp.model.InvokeResponse");
     responseJaxb.setPartNamespace(new QName("http://siserver.org/schema", "invokeResponse"));
 
-    final Processor requestProcessor = new RequestProcessor();
+    final Processor requestProcessor = new RequestProcessor(toscaEngineService);
     final Processor responseProcessor = new ResponseProcessor();
 
     this.from(INVOKE_ENDPOINT).unmarshal(requestJaxb).process(requestProcessor).choice().when(INVOKE_IA)
       .to(MANAGEMENT_BUS_IA).when(INVOKE_PLAN).to(MANAGEMENT_BUS_PLAN).end();
 
-    this.from("direct-vm:" + Activator.apiID).process(responseProcessor).marshal(responseJaxb).choice().when(ASYNC)
+    this.from("direct-vm:" + RequestProcessor.API_ID).process(responseProcessor).marshal(responseJaxb).choice().when(ASYNC)
       .recipientList(this.simple(CALLBACK_ENDPOINT)).end();
   }
 }

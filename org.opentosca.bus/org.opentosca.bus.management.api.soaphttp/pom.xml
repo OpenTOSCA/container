@@ -12,23 +12,19 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
-      <version>2.18.3</version>
+      <version>${camel.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-cxf</artifactId>
-      <version>2.18.3</version>
+      <version>${camel.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core-osgi</artifactId>
-      <version>2.18.3</version>
+      <artifactId>camel-jaxb</artifactId>
+      <version>${camel.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>
@@ -39,11 +35,6 @@
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.container.core</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-jaxb</artifactId>
-      <version>2.18.3</version>
     </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>

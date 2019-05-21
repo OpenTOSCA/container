@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -16,7 +17,6 @@ import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.headers.Header;
-import org.opentosca.bus.management.api.soaphttp.Activator;
 import org.opentosca.bus.management.api.soaphttp.model.Doc;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationAsync;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationSync;
@@ -29,9 +29,9 @@ import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.legacy.core.engine.IToscaEngineService;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -51,21 +51,21 @@ import com.google.gson.Gson;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @see MBHeader
  */
+@Component
 public class RequestProcessor implements Processor {
 
   private static final Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
+  public static final String API_ID = "org.opentosca.bus.management.api.soaphttp";
+
+  private final IToscaEngineService toscaEngineService;
+
+  @Inject
+  public RequestProcessor(IToscaEngineService toscaEngineService){
+    this.toscaEngineService = toscaEngineService;
+  }
 
   @Override
   public void process(final Exchange exchange) throws Exception {
-
-    ParamsMap paramsMap = null;
-    Doc doc = null;
-    String csarIDString = null;
-    String serviceInstanceID = null;
-    String callbackAddress = null;
-    String messageID = null;
-    String interfaceName = null;
-    String operationName = null;
 
     // copy SOAP headers in camel exchange object
     LOG.debug("copy SOAP headers in camel exchange object");
@@ -78,6 +78,14 @@ public class RequestProcessor implements Processor {
       }
     }
 
+    ParamsMap paramsMap = null;
+    Doc doc = null;
+    String csarIDString = null;
+    String serviceInstanceID = null;
+    String callbackAddress = null;
+    String messageID = null;
+    String interfaceName = null;
+    String operationName = null;
     if (exchange.getIn().getBody() instanceof InvokeOperationAsync) {
 
       LOG.debug("Processing async operation invocation");
@@ -106,12 +114,6 @@ public class RequestProcessor implements Processor {
       exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
 
       // Support new Deployment Artifact Header
-      // FIXME ERMH
-      final ServiceReference<?> servRef =
-        Activator.bundleContext.getServiceReference(IToscaEngineService.class.getName());
-      final IToscaEngineService toscaEngineService =
-        (IToscaEngineService) Activator.bundleContext.getService(servRef);
-
       final List<ResolvedDeploymentArtifact> resolvedDAs = new ArrayList<>();
       if (nodeTemplateID != null) {
         final QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
@@ -170,9 +172,7 @@ public class RequestProcessor implements Processor {
 
       exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokeIA");
 
-    }
-
-    if (exchange.getIn().getBody() instanceof InvokeOperationSync) {
+    } else if (exchange.getIn().getBody() instanceof InvokeOperationSync) {
 
       LOG.debug("Processing sync operation invocation");
 
@@ -213,9 +213,7 @@ public class RequestProcessor implements Processor {
 
       exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokeIA");
 
-    }
-
-    if (exchange.getIn().getBody() instanceof InvokePlan) {
+    } else if (exchange.getIn().getBody() instanceof InvokePlan) {
 
       LOG.debug("Processing plan invocation");
 
@@ -259,7 +257,7 @@ public class RequestProcessor implements Processor {
 
     exchange.getIn().setHeader(MBHeader.CSARID.toString(), csarID);
     exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
-    exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), Activator.apiID);
+    exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), API_ID);
 
     if (paramsMap != null) {
       // put key-value params into camel exchange body as hashmap
@@ -281,10 +279,8 @@ public class RequestProcessor implements Processor {
       document.appendChild(element);
 
       exchange.getIn().setBody(document);
-
     } else {
       exchange.getIn().setBody(null);
     }
-
   }
 }

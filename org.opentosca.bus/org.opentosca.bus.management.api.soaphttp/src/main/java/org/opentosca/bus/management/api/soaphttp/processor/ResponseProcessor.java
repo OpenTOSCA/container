@@ -35,9 +35,7 @@ public class ResponseProcessor implements Processor {
 
   @Override
   public void process(final Exchange exchange) throws Exception {
-
     ResponseProcessor.LOG.debug("Processing the response...");
-
     final InvokeResponse invokeResponse = new InvokeResponse();
 
     if (exchange.getIn().getBody() instanceof HashMap) {
@@ -46,25 +44,18 @@ public class ResponseProcessor implements Processor {
 
       final HashMap<String, String> responseMap = exchange.getIn().getBody(HashMap.class);
 
-      ParamsMapItemType mapItem;
       final ParamsMap paramsMap = new ParamsMap();
-
       for (final Entry<String, String> entry : responseMap.entrySet()) {
         final String key = entry.getKey();
         final String value = entry.getValue();
-        mapItem = new ParamsMapItemType();
+        ParamsMapItemType mapItem = new ParamsMapItemType();
         mapItem.setKey(key);
         mapItem.setValue(value);
         paramsMap.getParam().add(mapItem);
       }
-
       invokeResponse.setParams(paramsMap);
-
       exchange.getIn().setBody(invokeResponse);
-
-    }
-
-    if (exchange.getIn().getBody() instanceof Document) {
+    } else if (exchange.getIn().getBody() instanceof Document) {
 
       ResponseProcessor.LOG.debug("Response is of type Document.");
 
@@ -84,7 +75,6 @@ public class ResponseProcessor implements Processor {
 
     // Async
     if (exchange.getIn().getHeader("MessageID") != null) {
-
       final String messageID = exchange.getIn().getHeader("MessageID", String.class);
 
       exchange.getIn().setHeader("operationName", "callback");
@@ -92,9 +82,7 @@ public class ResponseProcessor implements Processor {
 
       exchange.getIn().setHeader("RelatesTo", messageID);
       invokeResponse.setMessageID(messageID);
-
     }
-
   }
 
 }

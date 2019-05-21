@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/beans http://www.springframework.or /schema/beans/spring-beans.xsd
+                           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  <context:annotation-config />
+
+  <camel:camelContext>
+    <camel:packageScan>
+      <camel:package>org.opentosca.bus.management.api.soaphttp.route</camel:package>
+      <camel:package>org.opentosca.bus.management.api.soaphttp.processor</camel:package>
+    </camel:packageScan>
+  </camel:camelContext>
+  <bean id="dropAllMessageHeadersStrategy" class="org.apache.camel.component.cxf.common.header.CxfHeaderFilterStrategy">
+    <!--   Set relayHeaders to false to drop all SOAP headers  -->
+    <property name="relayHeaders" value="false"/>
+  </bean>
+</beans>
