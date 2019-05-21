@@ -1191,10 +1191,11 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
     private Variable getUbtuntuAMIId(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         PropertyVariable vmImageId = context.getPropertyVariable("VMImageID", true);
 
+        
         // here either the ubuntu connected to the provider this handler is
         // working on hasn't a version in the ID (ubuntu version must be written
         // in AMIId property then) or something went really wrong
-        if (PluginUtils.isVariableValueEmpty(vmImageId)) {
+        if (vmImageId == null || PluginUtils.isVariableValueEmpty(vmImageId)) {
             // we'll set a global variable with the necessary ubuntu image
             // ubuntuAMIIdVar =
             // context.createGlobalStringVariable("ubuntu_AMIId",

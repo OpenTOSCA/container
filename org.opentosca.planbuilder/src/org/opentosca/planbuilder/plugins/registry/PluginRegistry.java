@@ -329,21 +329,33 @@ public class PluginRegistry {
     }
 
     public IPlanBuilderTypePlugin<?> findTypePluginForTermination(final AbstractNodeTemplate nodeTemplate) {
+        int highestPrio = -1;
+        IPlanBuilderTypePlugin<?> candidate = null;
+        
         for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
             if (plugin.canHandleTerminate(nodeTemplate)) {
-                return plugin;
+                if(highestPrio < plugin.getPriority()) {
+                    candidate = plugin;
+                    highestPrio = plugin.getPriority();
+                }                
             }
         }
-        return null;
+        return candidate;
     }
 
     public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractNodeTemplate nodeTemplate) {
+        int highestPrio = -1;
+        IPlanBuilderTypePlugin<?> candidate = null;
+            
         for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
             if (plugin.canHandleCreate(nodeTemplate)) {
-                return plugin;
+                if(highestPrio < plugin.getPriority()) {
+                    candidate = plugin;
+                    highestPrio = plugin.getPriority();
+                }                
             }
         }
-        return null;
+        return candidate;
     }
 
     public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractRelationshipTemplate relationshipTemplate) {
