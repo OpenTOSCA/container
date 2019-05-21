@@ -50,6 +50,7 @@ public abstract class PrePhasePlugin<T extends PlanContext>
     new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
   private static final QName dockerContainerArtefactType =
     new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
+  private static final QName stateArtifactType = new QName("http://opentosca.org/artifacttypes", "State");
 
   /**
    * {@inheritDoc}
@@ -61,10 +62,7 @@ public abstract class PrePhasePlugin<T extends PlanContext>
       for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(infrastructureNodeType)) {
         PrePhasePlugin.LOG.debug("Checking if type: " + artType.toString() + " and infrastructure nodeType: "
           + nodeType.toString() + " can be handled");
-
-        if (this.isSupportedDeploymentPair(artType, nodeType, true)) {
-          return true;
-        }
+        return this.isSupportedDeploymentPair(artType, nodeType, true);
       }
     }
 
@@ -172,6 +170,11 @@ public abstract class PrePhasePlugin<T extends PlanContext>
     }
 
     if (PrePhasePlugin.tdlConfigurationArtifactType.equals(artifactType)) {
+      isSupportedArtifactType |= true;
+    }
+
+    // We always support state artifacts.
+    if (PrePhasePlugin.stateArtifactType.equals(artifactType)) {
       isSupportedArtifactType |= true;
     }
 

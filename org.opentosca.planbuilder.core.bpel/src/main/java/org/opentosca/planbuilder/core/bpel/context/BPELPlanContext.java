@@ -1,11 +1,7 @@
 package org.opentosca.planbuilder.core.bpel.context;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -103,24 +99,30 @@ public class BPELPlanContext implements PlanContext {
     this.propertyMap = map;
   }
 
+  public static Variable getVariable(String varName) {
+    return new Variable(null, varName);
+  }
+
   public static String getVariableContent(final Variable variable, final BPELPlanContext context) {
     // check whether the property is empty --> external parameter
+    if (!Objects.nonNull(variable)) {
+      return null;
+    }
     for (final AbstractNodeTemplate node : context.getNodeTemplates()) {
-      if (node.getId().equals(variable.getTemplateId())) {
-        if (node.getProperties() == null) {
+      if (!node.getId().equals(variable.getTemplateId())
+        || node.getProperties() == null) {
+        continue;
+      }
+      final NodeList children = node.getProperties().getDOMElement().getChildNodes();
+      for (int i = 0; i < children.getLength(); i++) {
+        final Node child = children.item(i);
+        if (child.getNodeType() != 1) {
           continue;
         }
-        final NodeList children = node.getProperties().getDOMElement().getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-          final Node child = children.item(i);
-          if (child.getNodeType() != 1) {
-            continue;
-          }
-          final String variableName = variable.getName();
-          if (variable.getName().endsWith("_" + child.getLocalName())) {
-            // check if content is empty
-            return children.item(i).getTextContent();
-          }
+        final String variableName = variable.getName();
+        if (variable.getName().endsWith("_" + child.getLocalName())) {
+          // check if content is empty
+          return children.item(i).getTextContent();
         }
       }
     }
@@ -136,6 +138,7 @@ public class BPELPlanContext implements PlanContext {
         }
       }
     }
+
     return null;
   }
 

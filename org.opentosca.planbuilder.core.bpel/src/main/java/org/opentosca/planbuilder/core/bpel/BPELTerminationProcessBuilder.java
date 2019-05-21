@@ -270,12 +270,11 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
       // we handle only nodeTemplates..
       if (templatePlan.getNodeTemplate() != null) {
         // .. that are VM nodeTypes
+        // create context for the templatePlan
+        final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
         if (org.opentosca.container.core.tosca.convention.Utils.isSupportedVMNodeType(templatePlan.getNodeTemplate()
           .getType()
           .getId())) {
-          // create context for the templatePlan
-          final BPELPlanContext context =
-            new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
           // fetch infrastructure node (cloud provider)
           final List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
           for (final AbstractNodeTemplate infraNode : infraNodes) {
@@ -294,10 +293,6 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
           }
 
         } else {
-          // check whether this node is a docker container
-          final BPELPlanContext context =
-            new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
-
           if (!isDockerContainer(context.getNodeTemplate())) {
             continue;
           }
@@ -320,7 +315,6 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
         final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         BPELTerminationProcessBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
-        final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
           if (postPhasePlugin.canHandle(nodeTemplate)) {

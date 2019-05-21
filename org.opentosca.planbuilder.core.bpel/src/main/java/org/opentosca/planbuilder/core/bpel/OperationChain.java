@@ -71,16 +71,12 @@ public class OperationChain {
    * Executes the first found DACandidate to provision DA's with the appropiate plugins set in the
    * candidate
    * </p>
-   * <<<<<<< HEAD:org.opentosca.planbuilder/src/org/opentosca/planbuilder/bpel/OperationChain.java
    *
    * @param context a TemplatePlanContext which is initialized for either a NodeTemplate or
-   *                RelationshipTemplate this ProvisioningChain belongs to
-   * @param context a BPELPlanContext which is initialized for either a NodeTemplate or
-   *                RelationshipTemplate this ProvisioningChain belongs to
+   *        RelationshipTemplate this ProvisioningChain belongs to
    * @return returns false only when execution of a plugin inside the DACandidate failed, else true.
-   * There may be no IACandidate available, because there is no need for DA's to provision. In
-   * this case true is also returned. >>>>>>>
-   * 7fb1de30cb2e364216bdc2947145a6dc64014652:org.opentosca.planbuilder.core.bpel/src/org/opentosca/planbuilder/core/bpel/OperationChain.java
+   *         There may be no DACandidate available, because there is no need for DA's to provision. In
+   *         this case true is also returned.
    */
   public boolean executeDAProvisioning(final BPELPlanContext context) {
     boolean check = true;
@@ -101,16 +97,12 @@ public class OperationChain {
    * Executes the first found IACandidate to provision IA's with the appropiate plugins set in the
    * candidate
    * </p>
-   * <<<<<<< HEAD:org.opentosca.planbuilder/src/org/opentosca/planbuilder/bpel/OperationChain.java
    *
-   * @param context a TemplatePlanContext which is initialized for either a NodeTemplate or
-   *                RelationshipTemplate this ProvisioningChain belongs to
    * @param context a BPELPlanContext which is initialized for either a NodeTemplate or
    *                RelationshipTemplate this ProvisioningChain belongs to
    * @return returns false only when execution of a plugin inside the IACandidate failed, else true.
-   * There may be no IACandidate available, because there is no need for IA's to provision. In
-   * this case true is also returned. >>>>>>>
-   * 7fb1de30cb2e364216bdc2947145a6dc64014652:org.opentosca.planbuilder.core.bpel/src/org/opentosca/planbuilder/core/bpel/OperationChain.java
+   *         There may be no IACandidate available, because there is no need for IA's to provision. In
+   *         this case true is also returned.
    */
   public boolean executeIAProvisioning(final BPELPlanContext context) {
     boolean check = true;
@@ -135,15 +127,12 @@ public class OperationChain {
    * <p>
    * <b>Info:</b> A ProvisioningCandidate may not have an appropiate order of operations set
    * </p>
-   * <<<<<<< HEAD:org.opentosca.planbuilder/src/org/opentosca/planbuilder/bpel/OperationChain.java
    *
-   * @param context a TemplatePlanContext which is initialized for either a =======
-   * @param context a BPELPlanContext which is initialized for either a >>>>>>>
-   *                7fb1de30cb2e364216bdc2947145a6dc64014652:org.opentosca.planbuilder.core.bpel/src/org/opentosca/planbuilder/core/bpel/OperationChain.java
-   *                NodeTemplate or RelationshipTemplate this ProvisioningChain belongs to
+   * @param context a BPELPlanContext which is initialized for either a
+   *        NodeTemplate or RelationshipTemplate this ProvisioningChain belongs to
    * @return returns false only when execution of a plugin inside the ProvisioningCandidate failed,
-   * else true. There may be no ProvisioningCandidate available, because there is no need for
-   * operation to call. In this case true is also returned.
+   *         else true. There may be no ProvisioningCandidate available, because there is no need for
+   *         operation to call. In this case true is also returned.
    */
   public boolean executeOperationProvisioning(final BPELPlanContext context) {
     boolean check = true;
@@ -165,18 +154,12 @@ public class OperationChain {
    * appropiate plugins set in the candidate. The order of calling each operation provisioning is
    * represented in the given list of strings
    * </p>
-   * <<<<<<< HEAD:org.opentosca.planbuilder/src/org/opentosca/planbuilder/bpel/OperationChain.java
    *
-   * @param context        a TemplatePlanContext which is initialized for either a NodeTemplate or
-   *                       RelationshipTemplate this ProvisioningChain belongs to
-   * @param operationNames a List of String denoting an order of operations (name attribute) =======
-   * @param context        a BPELPlanContext which is initialized for either a NodeTemplate or
-   *                       RelationshipTemplate this ProvisioningChain belongs to
-   * @param operationNames a List of String denoting an order of operations (name attribute) >>>>>>>
-   *                       7fb1de30cb2e364216bdc2947145a6dc64014652:org.opentosca.planbuilder.core.bpel/src/org/opentosca/planbuilder/core/bpel/OperationChain.java
+   * @param context a BPELPlanContext which is initialized for either a NodeTemplate or
+   *        RelationshipTemplate this ProvisioningChain belongs to
    * @return returns false only when execution of a plugin inside the ProvisioningCandidate failed,
-   * else true. There may be no ProvisioningCandidate available, because there is no need for
-   * operation to call. In this case true is also returned.
+   *         else true. There may be no ProvisioningCandidate available, because there is no need for
+   *         operation to call. In this case true is also returned.
    */
   public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames) {
     boolean check = true;

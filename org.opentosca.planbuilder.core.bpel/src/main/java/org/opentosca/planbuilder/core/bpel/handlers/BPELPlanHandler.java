@@ -20,6 +20,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
+import org.opentosca.planbuilder.core.bpel.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
@@ -27,6 +28,7 @@ import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
@@ -102,18 +104,18 @@ public class BPELPlanHandler {
   }
 
   public String addGlobalStringVariable(final String varNamePrefix, final BPELPlan plan) {
-    final QName stringXsdDeclQName =
-      new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd" + System.currentTimeMillis());
-
     final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
-    final String xsdPrefix = "xsd" + System.currentTimeMillis();
-    addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
 
-    final String serviceTemplateURLVarName = varNamePrefix + System.currentTimeMillis();
+    String xsdPrefix = null;
+    do {
+      xsdPrefix = "xsd" + System.currentTimeMillis();
+    } while (addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan));
 
-    addVariable(serviceTemplateURLVarName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
+    final String varName = varNamePrefix + System.currentTimeMillis();
+    final QName stringXsdDeclQName = new QName(xsdNamespace, "string", xsdPrefix);
 
-    return serviceTemplateURLVarName;
+    addVariable(varName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
+    return varName;
   }
 
   /**
@@ -337,11 +339,10 @@ public class BPELPlanHandler {
    * @return true if the namespace isn't alread used, else false
    */
   public boolean addNamespaceToBPELDoc(final String prefix, final String namespace, final BPELPlan buildPlan) {
-    BPELPlanHandler.LOG.debug("Adding namespace {} to BuildPlan {}", namespace,
-      buildPlan.getBpelProcessElement().getAttribute("name"));
+    BPELPlanHandler.LOG.debug("Adding namespace {} to BuildPlan {}", namespace, buildPlan.getBpelProcessElement().getAttribute("name"));
     buildPlan.getBpelProcessElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + prefix, namespace);
-    // TODO make a real check
-    return true;
+    String test2 = buildPlan.getBpelProcessElement().getAttribute("xmlns:" + prefix);
+    return !test2.isEmpty();
   }
 
   /**
@@ -1295,4 +1296,14 @@ public class BPELPlanHandler {
     return new QName(namespace, qname.getLocalPart(), prefix);
   }
 
+  public String createAnyTypeVar(final BPELPlan plan) {
+    // add XMLSchema Namespace for the logic
+    final String xsdPrefix = "xsd" + System.currentTimeMillis();
+    final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+    this.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
+    // create Response Variable for interaction
+    final String varName = "anyTypeVariable" + System.currentTimeMillis();
+    this.addVariable(varName, VariableType.TYPE, new QName(xsdNamespace, "anyType", xsdPrefix), plan);
+    return varName;
+  }
 }

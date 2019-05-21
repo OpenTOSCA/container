@@ -130,13 +130,7 @@ public class Utils {
     }
 
     // code for new namespace http://opentosca.org/NodeTypes
-    if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
-      || nodeType.equals(Types.ubuntu1404ServerVmNodeType3)) {
-      return true;
-    }
-
-    // code for raspbian and stuff
-    if (nodeType.equals(Types.raspbianJessieOSNodeType)) {
+    if (isSupportedVMNodeType(nodeType)) {
       return true;
     }
 
@@ -203,7 +197,12 @@ public class Utils {
    * @return a boolean. True if given nodeType is a virtual machine nodeType
    */
   public static boolean isSupportedVMNodeType(final QName nodeType) {
-    return !nodeType.equals(Types.raspbianJessieOSNodeType) && Utils.isSupportedInfrastructureNodeType(nodeType);
+    return nodeType.equals(Types.ubuntu1404ServerVmNodeType)
+      || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
+      || nodeType.equals(Types.ubuntu1404ServerVmNodeType3)
+      || nodeType.equals(Types.ubuntu1604ServerVmNodeType)
+      || nodeType.equals(Types.ubuntu1804ServerVmNodeType)
+      || nodeType.equals(Types.raspbianJessieOSNodeType);
   }
 
   /**

@@ -178,10 +178,12 @@ public class NodeRelationInstanceVariablesHandler {
    * @return true iff adding a NodeInstanceID Var was successful
    */
   public boolean addInstanceURLVarToTemplatePlan(final BPELScopeActivity templatePlan) {
-    final String xsdPrefix = "xsd" + System.currentTimeMillis();
     final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
 
-    this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
+    String xsdPrefix = null;
+    do {
+      xsdPrefix = "xsd" + System.currentTimeMillis();
+    } while (!bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan()));
 
     String templateId = "";
     String prefix = "";

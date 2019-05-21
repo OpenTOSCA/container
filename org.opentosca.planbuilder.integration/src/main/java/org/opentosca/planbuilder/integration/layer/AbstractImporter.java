@@ -6,7 +6,9 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.AbstractPlanBuilder;
+import org.opentosca.planbuilder.core.bpel.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.BPELBuildProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.BPELDefrostProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.BPELScaleOutProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.BPELTerminationProcessBuilder;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -22,6 +24,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Jan Ruthardt - st107755@stud.uni-stuttgart.de
  */
 public abstract class AbstractImporter {
 
@@ -34,6 +37,12 @@ public abstract class AbstractImporter {
 //  @Inject
 //  @Named("bpelScaleOutProcessBuilder")
   private AbstractPlanBuilder bpelScaleOutProcessBuilder = new BPELScaleOutProcessBuilder();
+//  @Inject
+//  @Named("bpelFreezeProcessBuilder")
+  private AbstractPlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder();
+//  @Inject
+//  @Named("bpelDefrostProcessBuilder")
+  private AbstractPlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder();
 
   /**
    * Creates a BuildPlan for the given ServiceTemplate
@@ -60,6 +69,8 @@ public abstract class AbstractImporter {
   public List<AbstractPlan> buildPlans(final AbstractDefinitions defs, final String csarName) {
     final List<AbstractPlan> plans = new ArrayList<>();
     // FIXME: This does not work for me (Michael W. - 2018-02-19)
+    // if (!this.hasPolicies(defs)) {
+    // buildPlanBuilder = new BPELBuildProcessBuildeplanr();
     // Because policies must be enforced when they are set on the the topology, if
     // the planbuilder doesn't understand them it doesn't generate a plan -> doesn't work for you
     //
@@ -72,6 +83,9 @@ public abstract class AbstractImporter {
     plans.addAll(bpelScaleOutProcessBuilder.buildPlans(csarName, defs));
     plans.addAll(bpelBuildProcessBuilder.buildPlans(csarName, defs));
     plans.addAll(bpelTerminationBuilder.buildPlans(csarName, defs));
+    plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
+    plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
+
     return plans;
   }
 

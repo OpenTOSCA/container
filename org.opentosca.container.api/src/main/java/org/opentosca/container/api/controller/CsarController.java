@@ -251,35 +251,7 @@ public class CsarController {
     }
 
     // FIXME I'm pretty sure that invoking ToscaProcessing is unnecessary with the new model
-    this.controlService.invokeToscaProcessing(csarId);
     Csar storedCsar = storage.findById(csarId);
-    if (ModelUtil.hasOpenRequirements(storedCsar)) {
-      final WineryConnector wc = new WineryConnector();
-      if (wc.isWineryRepositoryAvailable()) {
-        QName serviceTemplate = null;
-        try {
-          serviceTemplate = wc.uploadCSAR(tempFile.toFile());
-        } catch (URISyntaxException | IOException e) {
-          logger.warn("Failed to upload CSAR to winery repository to satisfy missing requirements", e);
-        }
-        this.controlService.deleteCsar(csarId);
-        if (serviceTemplate == null) {
-          return Response.serverError().build();
-        }
-        return Response.notAcceptable(Collections.emptyList())
-          .entity("{ \"Location\": \"" + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }")
-          .build();
-      } else {
-        logger.error("CSAR has open requirements, but Winery repository is not available");
-        try {
-          this.storage.deleteCSAR(csarId);
-        } catch (Exception log) {
-          logger.warn("Failed to delete CSAR [{}] with open requirements on import", csarId.csarName());
-        }
-        return Response.serverError().build();
-      }
-    }
-
     try {
       if (!this.csarService.generatePlans(storedCsar)) {
         logger.warn("Planning the CSAR failed");
@@ -306,6 +278,53 @@ public class CsarController {
         // FIXME do a rollback!
         return Response.serverError().build();
       }
+    }
+
+    // TODO this is such a brutal hack, won't go through reviews....
+    final WineryConnector wc = new WineryConnector();
+    boolean repoAvailable = wc.isWineryRepositoryAvailable();
+
+    final StringBuilder strB = new StringBuilder();
+    // quick and dirty parallel thread to upload the csar to the container repository
+    // This is needed for the state save feature
+    Thread parallelUploadThread = new Thread(() -> {
+      if (wc.isWineryRepositoryAvailable()) {
+        try {
+          strB.append(wc.uploadCSAR(tempFile.toFile(), false));
+        }  catch (IOException | URISyntaxException e) {
+          e.printStackTrace();
+        }
+      }
+    });
+
+    if (repoAvailable) {
+      parallelUploadThread.start();
+    }
+
+    try {
+      if (ModelUtil.hasOpenRequirements(storedCsar)) {
+        if (repoAvailable) {
+          while (parallelUploadThread.isAlive()) {
+            // wait till the upload is finished
+          }
+          this.controlService.deleteCsar(csarId);
+          return Response.status(Response.Status.NOT_ACCEPTABLE)
+            .entity("{ \"Location\": \"" + wc.getServiceTemplateURI(QName.valueOf(strB.toString())).toString() + "\" }")
+            .build();
+        } else {
+          logger.error("CSAR has open requirements but Winery repository is not available");
+          try {
+            this.storage.deleteCSAR(csarId);
+          } catch (Exception log) {
+            logger.warn("Failed to delete CSAR [{}] with open requirements on import", csarId.csarName());
+          }
+          return Response.serverError().build();
+        }
+      }
+    }
+    catch (final Exception e) {
+      logger.error("Error resolving open requirements: {}", e.getMessage(), e);
+      return Response.serverError().build();
     }
 
     logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());
