@@ -3,15 +3,13 @@ package org.opentosca.planbuilder.plugins.registry;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePostPhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.*;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
+import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Singleton;
@@ -37,6 +35,7 @@ public class PluginRegistry {
   private final List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = new ArrayList<>();
   private final List<IPlanBuilderPrePhaseDAPlugin<?>> daPlugins = new ArrayList<>();
   private final List<IPlanBuilderPostPhasePlugin<?>> postPlugins = new ArrayList<>();
+  private final List<IPlanBuilderPrePhasePlugin<?>> prePhasePlugins = new ArrayList<>();
   private final List<IScalingPlanBuilderSelectionPlugin<?>> selectionPlugins = new ArrayList<>();
   private final List<IPlanBuilderPolicyAwareTypePlugin<?>> policyAwareTypePlugins = new ArrayList<>();
   private final List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> policyAwarePostPhasePlugins = new ArrayList<>();
@@ -74,6 +73,14 @@ public class PluginRegistry {
 
   public void unregister(IPlanBuilderPrePhaseDAPlugin<?> plugin) {
     daPlugins.remove(plugin);
+  }
+
+  public void register(IPlanBuilderPrePhasePlugin<?> plugin) {
+    prePhasePlugins.add(plugin);
+  }
+
+  public void unregister(IPlanBuilderPrePhasePlugin<?> plugin) {
+    prePhasePlugins.remove(plugin);
   }
 
   public void register(IPlanBuilderPostPhasePlugin<?> plugin) {
@@ -121,8 +128,11 @@ public class PluginRegistry {
    *
    * @return a List of IPlanBuilderTypePlugin
    */
-  public List<IPlanBuilderTypePlugin<?>> getGenericPlugins() {
+  public List<IPlanBuilderTypePlugin<?>> getTypePlugins() {
     return genericPlugins;
+  }
+  public List<IPlanBuilderPrePhasePlugin<?>> getPrePlugins() {
+    return prePhasePlugins;
   }
 
   /**
@@ -180,6 +190,70 @@ public class PluginRegistry {
 
   public List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> getPolicyAwarePrePhasePlugins() {
     return policyAwarePrePhasePlugins;
+  }
+
+  public boolean canTypePluginHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    return this.findTypePluginForCreation(nodeTemplate) != null;
+  }
+
+  public boolean canTypePluginHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    return this.findTypePluginForCreation(relationshipTemplate) != null;
+  }
+
+  public IPlanBuilderPolicyAwareTypePlugin<?> findPolicyAwareTypePluginForCreation(final AbstractNodeTemplate nodeTemplate) {
+    for (final IPlanBuilderPolicyAwareTypePlugin<?> plugin : this.getPolicyAwareTypePlugins()) {
+      if (plugin.canHandlePolicyAwareCreate(nodeTemplate)) {
+        return plugin;
+      }
+    }
+    return null;
+  }
+
+  public IPlanBuilderTypePlugin<?> findTypePluginForTermination(final AbstractRelationshipTemplate relationshipTemplate) {
+    for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
+      if (plugin.canHandleTerminate(relationshipTemplate)) {
+        return plugin;
+      }
+    }
+    return null;
+  }
+
+  public IPlanBuilderTypePlugin<?> findTypePluginForTermination(final AbstractNodeTemplate nodeTemplate) {
+    for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
+      if (plugin.canHandleTerminate(nodeTemplate)) {
+        return plugin;
+      }
+    }
+    return null;
+  }
+
+  public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractNodeTemplate nodeTemplate) {
+    for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
+      if (plugin.canHandleCreate(nodeTemplate)) {
+        return plugin;
+      }
+    }
+    return null;
+  }
+
+  public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractRelationshipTemplate relationshipTemplate) {
+    for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
+      if (plugin.canHandleCreate(relationshipTemplate)) {
+        return plugin;
+      }
+    }
+    return null;
+  }
+
+  public boolean handleCreateWithTypePlugin(final PlanContext context, final AbstractNodeTemplate nodeTemplate,
+                                            IPlanBuilderTypePlugin plugin) {
+    return plugin.handleCreate(context, nodeTemplate);
+  }
+
+  public boolean handleCreateWithTypePlugin(final PlanContext context,
+                                            final AbstractRelationshipTemplate relationshipTemplate,
+                                            IPlanBuilderTypePlugin plugin) {
+    return plugin.handleCreate(context, relationshipTemplate);
   }
 
 }

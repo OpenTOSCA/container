@@ -45,6 +45,9 @@ public class ServiceTemplateInstance extends PersistenceObject {
   @Column(name = "TEMPLATE_ID", nullable = false)
   private QName templateId;
 
+  @Column(name ="CREATION_CORRELATION_ID", nullable = true)
+  private String creationCorrelationId;
+
   @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
   @JsonIgnore
@@ -77,6 +80,9 @@ public class ServiceTemplateInstance extends PersistenceObject {
   }
 
   public void addPlanInstance(final PlanInstance planInstance) {
+    if (!planInstance.getType().equals(PlanType.BUILD)) {
+      return;
+    }
     this.planInstances.add(planInstance);
     if (planInstance.getServiceTemplateInstance() != this) {
       planInstance.setServiceTemplateInstance(this);
@@ -114,6 +120,14 @@ public class ServiceTemplateInstance extends PersistenceObject {
     this.templateId = templateId;
   }
 
+  public String getCreationCorrelationId() {
+    return this.creationCorrelationId;
+  }
+
+  public void setCreationCorrelationId(String creationCorrelationId) {
+    this.creationCorrelationId = creationCorrelationId;
+  }
+
   public Collection<ServiceTemplateInstanceProperty> getProperties() {
     return this.properties;
   }
@@ -139,9 +153,9 @@ public class ServiceTemplateInstance extends PersistenceObject {
   @JsonProperty("properties")
   public Map<String, String> getPropertiesAsMap() {
     final PropertyParser parser = new PropertyParser();
-    final ServiceTemplateInstanceProperty prop =
-      getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
-        .collect(Collectors.reducing((a, b) -> null)).orElse(null);
+    final ServiceTemplateInstanceProperty prop = getProperties().stream()
+      .filter(p -> p.getType().equalsIgnoreCase("xml"))
+      .collect(Collectors.reducing((a, b) -> null)).orElse(null);
     if (prop != null) {
       return parser.parse(prop.getValue());
     }

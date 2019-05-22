@@ -69,4 +69,15 @@ public class Types {
   public final static QName KVM_QEMU_VM_TYPE = new QName("http://opentosca.org/nodetypes", "KVM_QEMU_VM");
   public final static QName KVM_QEMU_HYPERVISOR_TYPE =
     new QName("http://opentosca.org/nodetypes", "KVM_QEMU_Hypervisor");
+
+  public static final QName TOSCABASETYPE_SERVER =
+    new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "Server");
+
+  public static final QName TOSCABASETYPE_OS =
+    new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "OperatingSystem");
+
+
+  // ArtifactTypes
+  public static final QName scriptArtifactType = new QName(
+    "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
 }

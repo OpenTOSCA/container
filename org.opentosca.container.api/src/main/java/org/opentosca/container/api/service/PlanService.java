@@ -68,6 +68,10 @@ public class PlanService {
       .collect(Collectors.toList());
   }
 
+  public PlanInstance getPlanInstanceByCorrelationId(String correlationId) {
+    return planInstanceRepository.findByCorrelationId(correlationId);
+  }
+
   public PlanInstance resolvePlanInstance(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, String planInstanceId, PlanTypes... planTypes) {
     TPlan plan = csar.plans().stream()
       .filter(tplan -> tplan.getId().equals(planId) && Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))

@@ -37,4 +37,15 @@ public class Interfaces {
     "TargetAbsolutePath";
   public static final String OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SOURCEURLORLOCALPATH =
     "SourceURLorLocalPath";
+
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE = "http://www.example.com/interfaces/lifecycle";
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_INSTALL = "install";
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_CONFIGURE = "configure";
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START = "start";
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP = "stop";
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_UNINSTALL = "uninstall";
+
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN = "http://opentosca.org/interfaces/pattern/container";
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE = "create";
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_TERMINATE = "terminate";
 }

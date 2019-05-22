@@ -11,6 +11,8 @@ import java.util.Set;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,509 +30,531 @@ import org.w3c.dom.Element;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public class BPELPlan extends AbstractPlan {
 
-  public static final String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
-
-  public static final String xpath2Namespace = "urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0";
-
-  public Map<String, String> namespaceMap = new HashMap<>();
-
-  // xml document
-  private Document bpelProcessDocument;
-
-  // variables associated with the bpel xml document itself
-  private Element bpelProcessElement;
-  private Element bpelExtensionsElement;
-  private List<Element> bpelImportElements;
-  private Element bpelPartnerLinksElement;
-  private Element bpelProcessVariablesElement;
-
-  // variables associated with the bpel orchestration
-  // the main sequence element of this process
-  private Element bpelMainSequenceElement;
-  // assign element for property assigns
-  private Element bpelMainSequencePropertyAssignElement;
-  // assign element for output
-  private Element bpelMainSequenceOutputAssignElement;
-  // the main receive element of this process
-  private Element bpelMainSequenceReceiveElement;
-  // the main reply element, it is an invoke element for the callback
-  private Element bpelMainSequenceCallbackInvokeElement;
-  // the main flow element, all scopes are defined here on which the plugins
-  // will work on
-  private Element bpelMainFlowElement;
-  private Element bpelMainFlowLinksElement;
-
-  // variable for TemplateBuildPlans, makes it easier or handlers and
-  // planbuilder to hold it here extra
-  private List<BPELScopeActivity> templateBuildPlans = new ArrayList<>();
-  // imported files of the whole buildplan, to keep track for export
-  private Set<File> importedFiles;
-
-  // var for apache ode deployment deskriptor
-  private Deploy deploymentDeskriptor;
-
-  // the file name of the csar the serviceTemplate and this buildPlan belongs
-  // to
-  private String csarName = null;
-
-  // wsdl related stuff
-  private GenericWsdlWrapper processWsdl = null;
-
-  private int internalCounterId = 0;
-
-  private Map<AbstractActivity, BPELScopeActivity> abstract2bpelMap;
-
-  private String toscaInterfaceName = null;
-  private String toscaOperationName = null;
-
-  public BPELPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
-                  final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
-                  final Set<Link> links) {
-    super(id, type, definitions, serviceTemplate, activities, links);
-  }
-
-  /**
-   * <p>
-   * Defines which variables the model allows to define
-   * <p>
-   * Copyright 2013 IAAS University of Stuttgart <br>
-   * <br>
-   *
-   * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
-   */
-  public enum VariableType {
-    MESSAGE, TYPE, ELEMENT
-  }
-
-  /**
-   * <p>
-   * Defines which imports the model allows to define
-   * <p>
-   * Copyright 2013 IAAS University of Stuttgart <br>
-   * <br>
-   *
-   * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
-   */
-  public enum ImportType {
-    WSDL, XSD;
-
-    @Override
-    public String toString() {
-      switch (this) {
-        case XSD:
-          return "http://www.w3.org/2001/XMLSchema";
-        case WSDL:
-          return "http://schemas.xmlsoap.org/wsdl/";
-        default:
-          return null;
-      }
+    public BPELPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
+                    final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
+                    final Collection<Link> links) {
+        super(id, type, definitions, serviceTemplate, activities, links);
     }
-  }
 
-  public void setTOSCAInterfaceName(final String name) {
-    this.toscaInterfaceName = name;
-  }
-
-  public void setTOSCAOperationname(final String name) {
-    this.toscaOperationName = name;
-  }
-
-  public String getTOSCAInterfaceName() {
-    if (this.toscaInterfaceName != null) {
-      return this.toscaInterfaceName;
-    } else {
-      return this.bpelProcessElement.getAttribute("name");
+    /**
+     * <p>
+     * Defines which variables the model allows to define
+     * <p>
+     * Copyright 2013 IAAS University of Stuttgart <br>
+     * <br>
+     *
+     * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+     *
+     */
+    public enum VariableType {
+        MESSAGE, TYPE, ELEMENT
     }
-  }
 
-  public String getTOSCAOperationName() {
-    if (this.toscaOperationName != null) {
-      return this.toscaOperationName;
-    } else {
-      return getBpelMainSequenceReceiveElement().getAttribute("operation");
+    /**
+     * <p>
+     * Defines which imports the model allows to define
+     * <p>
+     * Copyright 2013 IAAS University of Stuttgart <br>
+     * <br>
+     *
+     * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+     *
+     */
+    public enum ImportType {
+        WSDL, XSD;
+
+        @Override
+        public String toString() {
+            switch (this) {
+                case XSD:
+                    return "http://www.w3.org/2001/XMLSchema";
+                case WSDL:
+                    return "http://schemas.xmlsoap.org/wsdl/";
+                default:
+                    return null;
+            }
+        }
     }
-  }
 
-  /**
-   * Returns the csar file name this BuildPlan belongs to
-   *
-   * @return a String
-   */
-  public String getCsarName() {
-    return this.csarName;
-  }
+    // xml document
+    private Document bpelProcessDocument;
 
-  /**
-   * Sets the csar file name this BuildPlan belongs to
-   *
-   * @param csarName a String
-   */
-  public void setCsarName(final String csarName) {
-    this.csarName = csarName;
-  }
+    // variables associated with the bpel xml document itself
+    private Element bpelProcessElement;
+    private Element bpelExtensionsElement;
+    private List<Element> bpelImportElements;
+    private Element bpelPartnerLinksElement;
+    private Element bpelProcessVariablesElement;
 
-  /**
-   * Returns all files this bBuildPlan has imported
-   *
-   * @return a List of File
-   */
-  public Set<File> getImportedFiles() {
-    return this.importedFiles;
-  }
+    // variables associated with the bpel orchestration
+    // the main sequence element of this process
+    private Element bpelMainSequenceElement;
+    // assign element for property assigns
+    private Element bpelMainSequencePropertyAssignElement;
+    // assign element for output
+    private Element bpelMainSequenceOutputAssignElement;
+    // the main receive element of this process
+    private Element bpelMainSequenceReceiveElement;
+    // the main reply element, it is an invoke element for the callback
+    private Element bpelMainSequenceCallbackInvokeElement;
+    // the main flow element, all scopes are defined here on which the plugins
+    // will work on
+    private Element bpelMainFlowElement;
+    private Element bpelMainFlowLinksElement;
 
-  /**
-   * Sets the imported files of this BuildPlan
-   *
-   * @param files a List of File
-   */
-  public void setImportedFiles(final Set<File> files) {
-    this.importedFiles = files;
-  }
+    // variable for TemplateBuildPlans, makes it easier or handlers and
+    // planbuilder to hold it here extra
+    private List<BPELScope> templateBuildPlans = new ArrayList<>();
+    // imported files of the whole buildplan, to keep track for export
+    private Set<File> importedFiles;
 
-  /**
-   * Adds a file to the imported files of this BuildPlan
-   *
-   * @param file the File to add as imported file
-   * @return true iff adding was successful
-   */
-  public boolean addImportedFile(final File file) {
-    return this.importedFiles.add(file);
-  }
+    // var for apache ode deployment deskriptor
+    private Deploy deploymentDeskriptor;
 
-  /**
-   * Returns the TemplateBuildPlans this BuildPlan contains
-   *
-   * @return a List of TemplateBuildPlan
-   */
-  public List<BPELScopeActivity> getTemplateBuildPlans() {
-    return this.templateBuildPlans;
-  }
+    // the file name of the csar the serviceTemplate and this buildPlan belongs
+    // to
+    private String csarName = null;
 
-  /**
-   * Adds a TemplateBuildPlan to this BuildPlan
-   *
-   * @param template a TemplateBuildPlan to add
-   * @return true iff adding was successful
-   */
-  public boolean addTemplateBuildPlan(final BPELScopeActivity template) {
-    return this.templateBuildPlans.add(template);
-  }
+    // wsdl related stuff
+    private GenericWsdlWrapper processWsdl = null;
 
-  /**
-   * Sets the TemplateBuildPlans of this BuildPlan
-   *
-   * @param templateBuildPlans a List of TemplateBuildPlan
-   */
-  public void setTemplateBuildPlans(final List<BPELScopeActivity> templateBuildPlans) {
-    this.templateBuildPlans = templateBuildPlans;
-  }
+    int internalCounterId = 0;
 
-  /**
-   * Returns the the main BPEL Flow Element of this BuildPlan
-   *
-   * @return a DOM Element which is a BPEL Flow ELement
-   */
-  public Element getBpelMainFlowLinksElement() {
-    return this.bpelMainFlowLinksElement;
-  }
+    private Map<AbstractActivity, BPELScope> abstract2bpelMap;
 
-  /**
-   * Sets the Links Element for the flow element of this BuildPlan
-   *
-   * @param bpelMainFlowLinksElement a DOM Element
-   */
-  public void setBpelMainFlowLinksElement(final Element bpelMainFlowLinksElement) {
-    this.bpelMainFlowLinksElement = bpelMainFlowLinksElement;
-  }
+    public static final String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 
-  /**
-   * Returns the DOM Document of this BuildPlan
-   *
-   * @return a DOM Document
-   */
-  public Document getBpelDocument() {
-    return this.bpelProcessDocument;
-  }
+    public static final String xpath2Namespace = "urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0";
 
-  /**
-   * Sets the BPEL Document of this BuildPlan
-   *
-   * @param bpelProcessDocument a DOM Document
-   */
-  public void setBpelDocument(final Document bpelProcessDocument) {
-    this.bpelProcessDocument = bpelProcessDocument;
-  }
+    private String toscaInterfaceName = null;
+    private String toscaOperationName = null;
 
-  /**
-   * Returns the BPEL process element of this BuildPlan
-   *
-   * @return a DOM Element
-   */
-  public Element getBpelProcessElement() {
-    return this.bpelProcessElement;
-  }
+    public Map<String, String> namespaceMap = new HashMap<>();
 
-  /**
-   * Sets the BPEL Process element of this BuildPlan
-   *
-   * @param bpelProcessElement a DOM Element
-   */
-  public void setBpelProcessElement(final Element bpelProcessElement) {
-    this.bpelProcessElement = bpelProcessElement;
-  }
+    public void setTOSCAInterfaceName(final String name) {
+        this.toscaInterfaceName = name;
+    }
 
-  /**
-   * Returns the BPEL Extensions element of this BuildPlan
-   *
-   * @return a DOM Element
-   */
-  public Element getBpelExtensionsElement() {
-    return this.bpelExtensionsElement;
-  }
+    public void setTOSCAOperationname(final String name) {
+        this.toscaOperationName = name;
+    }
 
-  /**
-   * Sets the BPEL Extensions element of this BuildPlan
-   *
-   * @param bpelExtensionsElement a DOM Element
-   */
-  public void setBpelExtensionsElement(final Element bpelExtensionsElement) {
-    this.bpelExtensionsElement = bpelExtensionsElement;
-  }
+    public String getTOSCAInterfaceName() {
+        if (this.toscaInterfaceName != null) {
+            return this.toscaInterfaceName;
+        } else {
+            return this.bpelProcessElement.getAttribute("name");
+        }
+    }
 
-  /**
-   * Returns a List of DOM Element which are import BPEL Import elements
-   *
-   * @return a List of DOM Element
-   */
-  public List<Element> getBpelImportElements() {
-    return this.bpelImportElements;
-  }
+    public String getTOSCAOperationName() {
+        if (this.toscaOperationName != null) {
+            return this.toscaOperationName;
+        } else {
+            return getBpelMainSequenceReceiveElement().getAttribute("operation");
+        }
+    }
 
-  /**
-   * Adds a import element to this BuildPlan
-   *
-   * @param bpelImportsElement a DOM Element
-   * @return true iff adding was successful
-   */
-  public boolean addBpelImportElement(final Element bpelImportsElement) {
-    return this.bpelImportElements.add(bpelImportsElement);
-  }
+    /**
+     * Returns the csar file name this BuildPlan belongs to
+     *
+     * @return a String
+     */
+    public String getCsarName() {
+        return this.csarName;
+    }
 
-  /**
-   * Sets the BPEL imports of this BuildPlan
-   *
-   * @param bpelImportElements a List of DOM Element
-   */
-  public void setBpelImportElements(final List<Element> bpelImportElements) {
-    this.bpelImportElements = bpelImportElements;
-  }
+    /**
+     * Sets the csar file name this BuildPlan belongs to
+     *
+     * @param csarName a String
+     */
+    public void setCsarName(final String csarName) {
+        this.csarName = csarName;
+    }
 
-  /**
-   * Returns the BPEL Partnerlinks element of this BuildPlan
-   *
-   * @return a DOM Element
-   */
-  public Element getBpelPartnerLinksElement() {
-    return this.bpelPartnerLinksElement;
-  }
+    /**
+     * Returns all files this bBuildPlan has imported
+     *
+     * @return a List of File
+     */
+    public Set<File> getImportedFiles() {
+        return this.importedFiles;
+    }
 
-  /**
-   * Sets the BPEL Partnerlink element of this BuildPlan
-   *
-   * @param bpelPartnerLinksElement a DOM Element
-   */
-  public void setBpelPartnerLinksElement(final Element bpelPartnerLinksElement) {
-    this.bpelPartnerLinksElement = bpelPartnerLinksElement;
-  }
+    /**
+     * Sets the imported files of this BuildPlan
+     *
+     * @param files a List of File
+     */
+    public void setImportedFiles(final Set<File> files) {
+        this.importedFiles = files;
+    }
 
-  /**
-   * Returns the global BPEL Variables element of this BuildPlan
-   *
-   * @return a DOM Element
-   */
-  public Element getBpelProcessVariablesElement() {
-    return this.bpelProcessVariablesElement;
-  }
+    /**
+     * Adds a file to the imported files of this BuildPlan
+     *
+     * @param file the File to add as imported file
+     * @return true iff adding was successful
+     */
+    public boolean addImportedFile(final File file) {
+        return this.importedFiles.add(file);
+    }
 
-  /**
-   * Sets the gloval BPEL Variables Element of this BuildPlan
-   *
-   * @param bpelProcessVariablesElement a DOM Element
-   */
-  public void setBpelProcessVariablesElement(final Element bpelProcessVariablesElement) {
-    this.bpelProcessVariablesElement = bpelProcessVariablesElement;
-  }
+    /**
+     * Returns the TemplateBuildPlans this BuildPlan contains
+     *
+     * @return a List of TemplateBuildPlan
+     */
+    public List<BPELScope> getTemplateBuildPlans() {
+        return this.templateBuildPlans;
+    }
 
-  /**
-   * Returns the main BPEL Sequence element of this BuildPlan
-   *
-   * @return a DOM Element
-   */
-  public Element getBpelMainSequenceElement() {
-    return this.bpelMainSequenceElement;
-  }
+    public BPELScope getTemplateBuildPlan(AbstractNodeTemplate nodeTemplate) {
+        for (BPELScope scope : this.getTemplateBuildPlans()) {
+            if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate)) {
+                return scope;
+            }
+        }
+        return null;
+    }
 
-  /**
-   * Sets the main BPEL Sequence element of this BuildPlan
-   *
-   * @param bpelMainSequenceElement a DOM Element
-   */
-  public void setBpelMainSequenceElement(final Element bpelMainSequenceElement) {
-    this.bpelMainSequenceElement = bpelMainSequenceElement;
-  }
+    public BPELScope getTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate) {
+        for (BPELScope scope : this.getTemplateBuildPlans()) {
+            if (scope.getRelationshipTemplate() != null
+                && scope.getRelationshipTemplate().equals(relationshipTemplate)) {
+                return scope;
+            }
+        }
+        return null;
+    }
 
-  /**
-   * Returns the main BPEL Receive element of this BuildPlan
-   *
-   * @return a DOM Element
-   */
-  public Element getBpelMainSequenceReceiveElement() {
-    return this.bpelMainSequenceReceiveElement;
-  }
+    /**
+     * Adds a TemplateBuildPlan to this BuildPlan
+     *
+     * @param template a TemplateBuildPlan to add
+     * @return true iff adding was successful
+     */
+    public boolean addTemplateBuildPlan(final BPELScope template) {
+        return this.templateBuildPlans.add(template);
+    }
 
-  /**
-   * Sets the main BPEL Receive element of this BuildPlan
-   *
-   * @param bpelMainSequenceReceiveElement a DOM Element
-   */
-  public void setBpelMainSequenceReceiveElement(final Element bpelMainSequenceReceiveElement) {
-    this.bpelMainSequenceReceiveElement = bpelMainSequenceReceiveElement;
-  }
+    /**
+     * Sets the TemplateBuildPlans of this BuildPlan
+     *
+     * @param templateBuildPlans a List of TemplateBuildPlan
+     */
+    public void setTemplateBuildPlans(final List<BPELScope> templateBuildPlans) {
+        this.templateBuildPlans = templateBuildPlans;
+    }
 
-  /**
-   * Returns the main BPEL Invoke Element for Callback of this BuildPlan
-   *
-   * @return a DOM Element
-   */
-  public Element getBpelMainSequenceCallbackInvokeElement() {
-    return this.bpelMainSequenceCallbackInvokeElement;
-  }
+    /**
+     * Returns the the main BPEL Flow Element of this BuildPlan
+     *
+     * @return a DOM Element which is a BPEL Flow ELement
+     */
+    public Element getBpelMainFlowLinksElement() {
+        return this.bpelMainFlowLinksElement;
+    }
 
-  /**
-   * Sets the main BPEL Invoke element for Callback of this BuildPlan
-   *
-   * @param bpelMainSequenceCallbackInvokeElement a DOM Element
-   */
-  public void setBpelMainSequenceCallbackInvokeElement(final Element bpelMainSequenceCallbackInvokeElement) {
-    this.bpelMainSequenceCallbackInvokeElement = bpelMainSequenceCallbackInvokeElement;
-  }
+    /**
+     * Sets the Links Element for the flow element of this BuildPlan
+     *
+     * @param bpelMainFlowLinksElement a DOM Element
+     */
+    public void setBpelMainFlowLinksElement(final Element bpelMainFlowLinksElement) {
+        this.bpelMainFlowLinksElement = bpelMainFlowLinksElement;
+    }
 
-  /**
-   * Returns the main BPEL Flow element of this BuildPlan
-   *
-   * @return a DOM Element
-   */
-  public Element getBpelMainFlowElement() {
-    return this.bpelMainFlowElement;
-  }
+    /**
+     * Returns the DOM Document of this BuildPlan
+     *
+     * @return a DOM Document
+     */
+    public Document getBpelDocument() {
+        return this.bpelProcessDocument;
+    }
 
-  /**
-   * Sets the main BPEL Flow element of this BuildPlan
-   *
-   * @param bpelMainFlowElement a DOM Element
-   */
-  public void setBpelMainFlowElement(final Element bpelMainFlowElement) {
-    this.bpelMainFlowElement = bpelMainFlowElement;
-  }
+    /**
+     * Sets the BPEL Document of this BuildPlan
+     *
+     * @param bpelProcessDocument a DOM Document
+     */
+    public void setBpelDocument(final Document bpelProcessDocument) {
+        this.bpelProcessDocument = bpelProcessDocument;
+    }
 
-  /**
-   * Returns the WSDL of this BuildPlan
-   *
-   * @return a GenericWsdlWrapper
-   */
-  public GenericWsdlWrapper getWsdl() {
-    return this.processWsdl;
-  }
+    /**
+     * Returns the BPEL process element of this BuildPlan
+     *
+     * @return a DOM Element
+     */
+    public Element getBpelProcessElement() {
+        return this.bpelProcessElement;
+    }
 
-  /**
-   * Sets the WSDL of this BuildPlan
-   *
-   * @param processWsdl a GenericWsdlWrapper
-   */
-  public void setProcessWsdl(final GenericWsdlWrapper processWsdl) {
-    this.processWsdl = processWsdl;
-  }
+    /**
+     * Sets the BPEL Process element of this BuildPlan
+     *
+     * @param bpelProcessElement a DOM Element
+     */
+    public void setBpelProcessElement(final Element bpelProcessElement) {
+        this.bpelProcessElement = bpelProcessElement;
+    }
 
-  /**
-   * Returns the main BPEL assign element for properties of this BuildPlan
-   *
-   * @return a DOM Element
-   */
-  public Element getBpelMainSequencePropertyAssignElement() {
-    return this.bpelMainSequencePropertyAssignElement;
-  }
+    /**
+     * Returns the BPEL Extensions element of this BuildPlan
+     *
+     * @return a DOM Element
+     */
+    public Element getBpelExtensionsElement() {
+        return this.bpelExtensionsElement;
+    }
 
-  /**
-   * Sets the main BPEL assign element for properties of this BuildPlan
-   *
-   * @param bpelMainSequencePropertyAssignElement a DOM Element
-   */
-  public void setBpelMainSequencePropertyAssignElement(final Element bpelMainSequencePropertyAssignElement) {
-    this.bpelMainSequencePropertyAssignElement = bpelMainSequencePropertyAssignElement;
-  }
+    /**
+     * Sets the BPEL Extensions element of this BuildPlan
+     *
+     * @param bpelExtensionsElement a DOM Element
+     */
+    public void setBpelExtensionsElement(final Element bpelExtensionsElement) {
+        this.bpelExtensionsElement = bpelExtensionsElement;
+    }
 
-  /**
-   * Returns the DeploymentDeskriptor of this BuildPlan
-   *
-   * @return a JAXB Deploy Object
-   */
-  public Deploy getDeploymentDeskriptor() {
-    return this.deploymentDeskriptor;
-  }
+    /**
+     * Returns a List of DOM Element which are import BPEL Import elements
+     *
+     * @return a List of DOM Element
+     */
+    public List<Element> getBpelImportElements() {
+        return this.bpelImportElements;
+    }
 
-  /**
-   * Set the DeploymentDeskriptor of this BuildPlan
-   *
-   * @param deploymentDeskriptor a JAXB Deploy Object
-   */
-  public void setDeploymentDeskriptor(final Deploy deploymentDeskriptor) {
-    this.deploymentDeskriptor = deploymentDeskriptor;
-  }
+    /**
+     * Adds a import element to this BuildPlan
+     *
+     * @param bpelImportsElement a DOM Element
+     * @return true iff adding was successful
+     */
+    public boolean addBpelImportElement(final Element bpelImportsElement) {
+        return this.bpelImportElements.add(bpelImportsElement);
+    }
 
-  /**
-   * Returns the main BPEL Assign element for the output of this BuildPlan
-   *
-   * @return a DOM Element
-   */
-  public Element getBpelMainSequenceOutputAssignElement() {
-    return this.bpelMainSequenceOutputAssignElement;
-  }
+    /**
+     * Sets the BPEL imports of this BuildPlan
+     *
+     * @param bpelImportElements a List of DOM Element
+     */
+    public void setBpelImportElements(final List<Element> bpelImportElements) {
+        this.bpelImportElements = bpelImportElements;
+    }
 
-  /**
-   * Sets the main BPEL Assign element for the ouput of this BuildPlan
-   *
-   * @param bpelMainSequenceOutputAssignElement a DOM Element
-   */
-  public void setBpelMainSequenceOutputAssignElement(final Element bpelMainSequenceOutputAssignElement) {
-    this.bpelMainSequenceOutputAssignElement = bpelMainSequenceOutputAssignElement;
-  }
+    /**
+     * Returns the BPEL Partnerlinks element of this BuildPlan
+     *
+     * @return a DOM Element
+     */
+    public Element getBpelPartnerLinksElement() {
+        return this.bpelPartnerLinksElement;
+    }
 
-  /**
-   * Returns a id for the plugins to make their declarations unique
-   *
-   * @return an Integer
-   */
-  public int getInternalCounterId() {
-    return this.internalCounterId;
-  }
+    /**
+     * Sets the BPEL Partnerlink element of this BuildPlan
+     *
+     * @param bpelPartnerLinksElement a DOM Element
+     */
+    public void setBpelPartnerLinksElement(final Element bpelPartnerLinksElement) {
+        this.bpelPartnerLinksElement = bpelPartnerLinksElement;
+    }
 
-  /**
-   * Sets the id
-   *
-   * @param id an Integer
-   */
-  public void setInternalCounterId(final int id) {
-    this.internalCounterId = id;
-  }
+    /**
+     * Returns the global BPEL Variables element of this BuildPlan
+     *
+     * @return a DOM Element
+     */
+    public Element getBpelProcessVariablesElement() {
+        return this.bpelProcessVariablesElement;
+    }
 
-  public void setAbstract2BPELMapping(final Map<AbstractActivity, BPELScopeActivity> abstract2bpelMap) {
-    this.abstract2bpelMap = abstract2bpelMap;
-  }
+    /**
+     * Sets the gloval BPEL Variables Element of this BuildPlan
+     *
+     * @param bpelProcessVariablesElement a DOM Element
+     */
+    public void setBpelProcessVariablesElement(final Element bpelProcessVariablesElement) {
+        this.bpelProcessVariablesElement = bpelProcessVariablesElement;
+    }
 
-  public Map<AbstractActivity, BPELScopeActivity> getAbstract2BPEL() {
-    return this.abstract2bpelMap;
-  }
+    /**
+     * Returns the main BPEL Sequence element of this BuildPlan
+     *
+     * @return a DOM Element
+     */
+    public Element getBpelMainSequenceElement() {
+        return this.bpelMainSequenceElement;
+    }
+
+    /**
+     * Sets the main BPEL Sequence element of this BuildPlan
+     *
+     * @param bpelMainSequenceElement a DOM Element
+     */
+    public void setBpelMainSequenceElement(final Element bpelMainSequenceElement) {
+        this.bpelMainSequenceElement = bpelMainSequenceElement;
+    }
+
+    /**
+     * Returns the main BPEL Receive element of this BuildPlan
+     *
+     * @return a DOM Element
+     */
+    public Element getBpelMainSequenceReceiveElement() {
+        return this.bpelMainSequenceReceiveElement;
+    }
+
+    /**
+     * Sets the main BPEL Receive element of this BuildPlan
+     *
+     * @param bpelMainSequenceReceiveElement a DOM Element
+     */
+    public void setBpelMainSequenceReceiveElement(final Element bpelMainSequenceReceiveElement) {
+        this.bpelMainSequenceReceiveElement = bpelMainSequenceReceiveElement;
+    }
+
+    /**
+     * Returns the main BPEL Invoke Element for Callback of this BuildPlan
+     *
+     * @return a DOM Element
+     */
+    public Element getBpelMainSequenceCallbackInvokeElement() {
+        return this.bpelMainSequenceCallbackInvokeElement;
+    }
+
+    /**
+     * Sets the main BPEL Invoke element for Callback of this BuildPlan
+     *
+     * @param bpelMainSequenceCallbackInvokeElement a DOM Element
+     */
+    public void setBpelMainSequenceCallbackInvokeElement(final Element bpelMainSequenceCallbackInvokeElement) {
+        this.bpelMainSequenceCallbackInvokeElement = bpelMainSequenceCallbackInvokeElement;
+    }
+
+    /**
+     * Returns the main BPEL Flow element of this BuildPlan
+     *
+     * @return a DOM Element
+     */
+    public Element getBpelMainFlowElement() {
+        return this.bpelMainFlowElement;
+    }
+
+    /**
+     * Sets the main BPEL Flow element of this BuildPlan
+     *
+     * @param bpelMainFlowElement a DOM Element
+     */
+    public void setBpelMainFlowElement(final Element bpelMainFlowElement) {
+        this.bpelMainFlowElement = bpelMainFlowElement;
+    }
+
+    /**
+     * Returns the WSDL of this BuildPlan
+     *
+     * @return a GenericWsdlWrapper
+     */
+    public GenericWsdlWrapper getWsdl() {
+        return this.processWsdl;
+    }
+
+    /**
+     * Sets the WSDL of this BuildPlan
+     *
+     * @param processWsdl a GenericWsdlWrapper
+     */
+    public void setProcessWsdl(final GenericWsdlWrapper processWsdl) {
+        this.processWsdl = processWsdl;
+    }
+
+    /**
+     * Returns the main BPEL assign element for properties of this BuildPlan
+     *
+     * @return a DOM Element
+     */
+    public Element getBpelMainSequencePropertyAssignElement() {
+        return this.bpelMainSequencePropertyAssignElement;
+    }
+
+    /**
+     * Sets the main BPEL assign element for properties of this BuildPlan
+     *
+     * @param bpelMainSequencePropertyAssignElement a DOM Element
+     */
+    public void setBpelMainSequencePropertyAssignElement(final Element bpelMainSequencePropertyAssignElement) {
+        this.bpelMainSequencePropertyAssignElement = bpelMainSequencePropertyAssignElement;
+    }
+
+    /**
+     * Returns the DeploymentDeskriptor of this BuildPlan
+     *
+     * @return a JAXB Deploy Object
+     */
+    public Deploy getDeploymentDeskriptor() {
+        return this.deploymentDeskriptor;
+    }
+
+    /**
+     * Set the DeploymentDeskriptor of this BuildPlan
+     *
+     * @param deploymentDeskriptor a JAXB Deploy Object
+     */
+    public void setDeploymentDeskriptor(final Deploy deploymentDeskriptor) {
+        this.deploymentDeskriptor = deploymentDeskriptor;
+    }
+
+    /**
+     * Returns the main BPEL Assign element for the output of this BuildPlan
+     *
+     * @return a DOM Element
+     */
+    public Element getBpelMainSequenceOutputAssignElement() {
+        return this.bpelMainSequenceOutputAssignElement;
+    }
+
+    /**
+     * Sets the main BPEL Assign element for the ouput of this BuildPlan
+     *
+     * @param bpelMainSequenceOutputAssignElement a DOM Element
+     */
+    public void setBpelMainSequenceOutputAssignElement(final Element bpelMainSequenceOutputAssignElement) {
+        this.bpelMainSequenceOutputAssignElement = bpelMainSequenceOutputAssignElement;
+    }
+
+    /**
+     * Returns a id for the plugins to make their declarations unique
+     *
+     * @return an Integer
+     */
+    public int getInternalCounterId() {
+        return this.internalCounterId;
+    }
+
+    /**
+     * Sets the id
+     *
+     * @param id an Integer
+     */
+    public void setInternalCounterId(final int id) {
+        this.internalCounterId = id;
+    }
+
+    public void setAbstract2BPELMapping(final Map<AbstractActivity, BPELScope> abstract2bpelMap) {
+        this.abstract2bpelMap = abstract2bpelMap;
+    }
+
+    public Map<AbstractActivity, BPELScope> getAbstract2BPEL() {
+        return this.abstract2bpelMap;
+    }
 }

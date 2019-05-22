@@ -27,6 +27,7 @@ import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.opentosca.container.api.controller.content.DirectoryController;
 import org.opentosca.container.api.dto.CsarDTO;
 import org.opentosca.container.api.dto.CsarListDTO;
+import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.util.ModelUtil;
@@ -353,5 +354,32 @@ public class CsarController {
       return Response.serverError().build();
     }
     return Response.noContent().build();
+  }
+
+  @POST
+  @javax.ws.rs.Path("/transform")
+  @ApiOperation(value = "Transform this CSAR to a new CSAR")
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
+    CsarId csarId = this.csarService.generateTransformationPlans(new CsarId(request.getSourceCsarName()), new CsarId(request.getTargetCsarName()));
+    this.controlService.declareStored(csarId);
+
+    boolean success = this.controlService.invokeToscaProcessing(csarId);
+    if (success) {
+      Csar storedCsar = storage.findById(csarId);
+      final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
+      for (final TServiceTemplate serviceTemplate : serviceTemplates) {
+        logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
+        if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
+          logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
+          success = false;
+        }
+      }
+    }
+
+    return success
+      ? Response.ok().build()
+      : Response.serverError().build();
   }
 }

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
@@ -24,9 +25,9 @@ public abstract class TestUtil {
 
     final List<RelationshipTemplateInstance> outgoingRelations =
       nodeTemplateInstance.getOutgoingRelations().stream()
-        .filter(r -> r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
-          || r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)
-          || r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_HOSTEDON))
+        .filter(r -> r.getTemplateType().equals(Types.dependsOnRelationType)
+          || r.getTemplateType().equals(Types.deployedOnRelationType)
+          || r.getTemplateType().equals(Types.hostedOnRelationType))
         .collect(Collectors.toList());
 
     for (final RelationshipTemplateInstance r : outgoingRelations) {
@@ -49,8 +50,8 @@ public abstract class TestUtil {
     // Only follow deployedOn and hostedOn relations
     final List<RelationshipTemplateInstance> outgoingRelations =
       nodeTemplateInstance.getOutgoingRelations().stream()
-        .filter(r -> r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)
-          || r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_HOSTEDON))
+        .filter(r -> r.getTemplateType().equals(Types.deployedOnRelationType)
+          || r.getTemplateType().equals(Types.hostedOnRelationType))
         .collect(Collectors.toList());
     for (final RelationshipTemplateInstance r : outgoingRelations) {
       final NodeTemplateInstance target = r.getTarget();

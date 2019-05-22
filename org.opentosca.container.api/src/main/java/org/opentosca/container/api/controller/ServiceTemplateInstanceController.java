@@ -151,13 +151,22 @@ public class ServiceTemplateInstanceController {
 
     // Build plan: Determine plan instance that created this service
     // template instance
-    final PlanInstance pi =
-      instance.getPlanInstances().stream().filter(p -> p.getType().equals(PlanType.BUILD)).findFirst().get();
+    final PlanInstance pi = findPlanInstance(instance);
     // Add a link
-    final String path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";
-    final URI uri =
-      this.uriInfo.getBaseUriBuilder().path(path).build(csar.id().csarName(), serviceTemplate.getId(),
+    String path = "";
+    URI uri = null;
+    if(pi.getType().equals(PlanType.BUILD)){
+      //url to the build plan instance
+      path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";
+      uri = this.uriInfo.getBaseUriBuilder().path(path).build(csar.id().csarName(), serviceTemplate.getId(),
         pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
+    } else {
+      // url to the transformation plan instance which created this instance from another service instance
+      path = "/csars/{csar}/servicetemplates/{servicetemplate}/instances/{serviceinstance}/managementplans/{plan}/instances/{instance}";
+      uri = this.uriInfo.getBaseUriBuilder().path(path).build(pi.getServiceTemplateInstance().getCsarId().csarName(), pi.getServiceTemplateInstance().getTemplateId().toString(), pi.getServiceTemplateInstance().getId(),
+        pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
+    }
+
     dto.add(Link.fromUri(UriUtil.encode(uri)).rel("build_plan_instance").build());
     dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "managementplans", false, "managementplans"));
     dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
@@ -168,6 +177,15 @@ public class ServiceTemplateInstanceController {
     dto.add(UriUtil.generateSelfLink(this.uriInfo));
 
     return Response.ok(dto).build();
+  }
+
+  private PlanInstance findPlanInstance(ServiceTemplateInstance instance) {
+    if(instance.getPlanInstances() != null && !instance.getPlanInstances().isEmpty()) {
+      return instance.getPlanInstances().stream().filter(p -> p.getType().equals(PlanType.BUILD)).findFirst().get();
+    } else {
+      // there is no build plan instance for this service instances which implies there is a transformation plan responsible for creating this service instance
+      return planService.getPlanInstanceByCorrelationId(instance.getCreationCorrelationId());
+    }
   }
 
   @DELETE

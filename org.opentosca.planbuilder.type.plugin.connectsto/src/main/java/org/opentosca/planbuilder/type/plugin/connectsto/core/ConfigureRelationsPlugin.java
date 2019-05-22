@@ -10,29 +10,41 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 public abstract class ConfigureRelationsPlugin<T extends PlanContext> implements IPlanBuilderTypePlugin<T> {
 
-  public static final String INTERFACE_NAME =
-    "http://docs.oasis-open.org/tosca/ns/2011/12/interfaces/relationship/configure";
-  public static final String OPERATION_POST_CONFIGURE_SOURCE = "postConfigureSource";
-  public static final String OPERATION_POST_CONFIGURE_TARGET = "postConfigureTarget";
+    public static final String INTERFACE_NAME =
+        "http://docs.oasis-open.org/tosca/ns/2011/12/interfaces/relationship/configure";
+    public static final String OPERATION_POST_CONFIGURE_SOURCE = "postConfigureSource";
+    public static final String OPERATION_POST_CONFIGURE_TARGET = "postConfigureTarget";
 
-  @Override
-  public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
-    return false;
-  }
-
-  @Override
-  public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
-    final List<AbstractInterface> interfaces = relationshipTemplate.getRelationshipType().getInterfaces();
-    for (final AbstractInterface i : interfaces) {
-      if (i.getName().equalsIgnoreCase(INTERFACE_NAME)) {
-        return true;
-      }
+    @Override
+    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+        return false;
     }
-    return false;
-  }
 
-  @Override
-  public String getID() {
-    return getClass().getCanonicalName();
-  }
+    @Override
+    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+        final List<AbstractInterface> interfaces = relationshipTemplate.getRelationshipType().getInterfaces();
+        for (final AbstractInterface i : interfaces) {
+            if (i.getName().equalsIgnoreCase(INTERFACE_NAME)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String getID() {
+        return getClass().getCanonicalName();
+    }
+
+    @Override
+    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+        // TODO we have to define the semantics of a disconnect first
+        return false;
+    }
+
+    @Override
+    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+        // TODO we have to define the semantics of a disconnect first
+        return false;
+    }
 }

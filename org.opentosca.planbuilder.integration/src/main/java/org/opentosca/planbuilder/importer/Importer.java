@@ -16,7 +16,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -27,66 +26,88 @@ import org.springframework.stereotype.Service;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
-@Service
 public class Importer extends AbstractImporter {
 
-  final private static Logger LOG = LoggerFactory.getLogger(Importer.class);
+    final private static Logger LOG = LoggerFactory.getLogger(Importer.class);
 
-  private final CSARHandler handler = new CSARHandler();
+    private final CSARHandler handler = new CSARHandler();
 
-
-  /**
-   * Generates a List of BuildPlans for the given CSARID. The BuildPlans are generated for the
-   * ServiceTemplates inside the Entry-Definitions Document, that haven't got a BuildPlan yet.
-   *
-   * @param csarId the CSARID for the CSAR the BuildPlans should be generated
-   * @return a List of BuildPlan
-   */
-  public List<AbstractPlan> importDefs(final CSARID csarId) {
-    try {
-      final CSARContent content = this.handler.getCSARContentForID(csarId);
-      final AbstractDefinitions defs = this.createContext(content);
-      final List<AbstractPlan> plans = this.buildPlans(defs, csarId.getFileName());
-      return plans;
-    } catch (final UserException e) {
-      Importer.LOG.error("Some error within input", e);
-    } catch (final SystemException e) {
-      Importer.LOG.error("Some internal error", e);
+    /**
+     * Generates a List of BuildPlans for the given CSARID. The BuildPlans are generated for the
+     * ServiceTemplates inside the Entry-Definitions Document, that haven't got a BuildPlan yet.
+     *
+     * @param csarId the CSARID for the CSAR the BuildPlans should be generated
+     * @return a List of BuildPlan
+     */
+    public List<AbstractPlan> generatePlans(final CSARID csarId) {
+        try {
+            final CSARContent content = this.handler.getCSARContentForID(csarId);
+            final AbstractDefinitions defs = this.createContext(content);
+            final List<AbstractPlan> plans = this.buildPlans(defs, csarId.getFileName());
+            return plans;
+        }
+        catch (final UserException e) {
+            Importer.LOG.error("Some error within input", e);
+        }
+        catch (final SystemException e) {
+            Importer.LOG.error("Some internal error", e);
+        }
+        return new ArrayList<>();
     }
-    return new ArrayList<>();
-  }
 
+    public List<AbstractPlan> generateTransformationPlans(final CSARID sourceCsarId, final CSARID targetCsarId) {
+        final List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
+        try {
+            final CSARContent sourceCsarContent = this.handler.getCSARContentForID(sourceCsarId);
+            final AbstractDefinitions sourceDefs = this.createContext(sourceCsarContent);
+            final CSARContent targetCsarContent = this.handler.getCSARContentForID(targetCsarId);
+            final AbstractDefinitions targetDefs = this.createContext(targetCsarContent);
 
-  /**
-   * Returns a TOSCA Definitions object which contains the Entry-ServiceTemplate
-   *
-   * @param csarId an ID of a CSAR
-   * @return an AbstractDefinitions object
-   */
-  public AbstractDefinitions getMainDefinitions(final CSARID csarId) {
-    try {
-      return this.createContext(this.handler.getCSARContentForID(csarId));
-    } catch (final UserException e) {
-      Importer.LOG.error("Some error within input", e);
-    } catch (final SystemException e) {
-      Importer.LOG.error("Some internal error", e);
+            plans.addAll(this.buildTransformationPlans(sourceCsarId.getFileName(), sourceDefs,
+                                                       targetCsarId.getFileName(), targetDefs));
+            return plans;
+        }
+        catch (final UserException e) {
+            Importer.LOG.error("Some error within input", e);
+        }
+        catch (final SystemException e) {
+            Importer.LOG.error("Some internal error", e);
+        }
+        return new ArrayList<>();
     }
-    return null;
-  }
 
+    /**
+     * Returns a TOSCA Definitions object which contains the Entry-ServiceTemplate
+     *
+     * @param csarId an ID of a CSAR
+     * @return an AbstractDefinitions object
+     */
+    public AbstractDefinitions getMainDefinitions(final CSARID csarId) {
+        try {
+            return this.createContext(this.handler.getCSARContentForID(csarId));
+        }
+        catch (final UserException e) {
+            Importer.LOG.error("Some error within input", e);
+        }
+        catch (final SystemException e) {
+            Importer.LOG.error("Some internal error", e);
+        }
+        return null;
+    }
 
-  /**
-   * Creates an AbstractDefinitions Object of the given CSARContent
-   *
-   * @param csarContent the CSARContent to generate an AbstractDefinitions for
-   * @return an AbstractDefinitions which is the Entry-Definitions of the given CSAR
-   * @throws SystemException is thrown if accessing data inside the OpenTOSCA Core fails
-   */
-  public AbstractDefinitions createContext(final CSARContent csarContent) throws SystemException {
-    final AbstractFile rootTosca = csarContent.getRootTOSCA();
-    final Set<AbstractFile> referencedFilesInCsar = csarContent.getFilesRecursively();
-    return new DefinitionsImpl(rootTosca, referencedFilesInCsar, true);
-  }
+    /**
+     * Creates an AbstractDefinitions Object of the given CSARContent
+     *
+     * @param csarContent the CSARContent to generate an AbstractDefinitions for
+     * @return an AbstractDefinitions which is the Entry-Definitions of the given CSAR
+     * @throws SystemException is thrown if accessing data inside the OpenTOSCA Core fails
+     */
+    public AbstractDefinitions createContext(final CSARContent csarContent) throws SystemException {
+        final AbstractFile rootTosca = csarContent.getRootTOSCA();
+        final Set<AbstractFile> referencedFilesInCsar = csarContent.getFilesRecursively();
+        return new DefinitionsImpl(rootTosca, referencedFilesInCsar, true);
+    }
 
 }

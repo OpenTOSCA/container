@@ -4,6 +4,7 @@ import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.export.Exporter;
@@ -51,7 +52,7 @@ public class CsarService {
 
     try {
       planbuilderStorage.storeCSAR(zipFile.get().toFile());
-      final List<AbstractPlan> buildPlans = planBuilderImporter.importDefs(csar.id().toOldCsarId());
+      final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csar.id().toOldCsarId());
       // no plans, save ourselves some work by returning early
       if (buildPlans.isEmpty()) {
         return true;
@@ -68,6 +69,32 @@ public class CsarService {
       planbuilderStorage.deleteCSAR(csar.id().toOldCsarId());
     }
     return false;
+  }
+
+
+  public CsarId generateTransformationPlans(final CsarId sourceCsarId, final CsarId targetCsarId) {
+
+    final Importer planBuilderImporter = new Importer();
+    final Exporter planBuilderExporter = new Exporter();
+
+    //planBuilderImporter.buildTransformationPlans(sourceCsarId.getFileName(), sourceDefinitions, targetCsarId.getFileName(), targetDefinitions)
+    List<AbstractPlan> plans = planBuilderImporter.generateTransformationPlans(sourceCsarId.toOldCsarId(), targetCsarId.toOldCsarId());
+
+    if (plans.isEmpty()) {
+      return sourceCsarId;
+    }
+
+    final File file = planBuilderExporter.export(plans, sourceCsarId.toOldCsarId());
+
+    try {
+      storage.deleteCSAR(sourceCsarId);
+      return storage.storeCSAR(file.toPath());
+    }
+    catch (final Exception e) {
+      logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
+    }
+
+    return null;
   }
 
   private Optional<Path> safeExport(Csar csar) {
