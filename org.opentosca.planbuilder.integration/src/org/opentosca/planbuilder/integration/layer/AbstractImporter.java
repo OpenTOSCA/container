@@ -3,11 +3,8 @@ package org.opentosca.planbuilder.integration.layer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
-import org.opentosca.planbuilder.AbstractPlanBuilder;
 import org.opentosca.planbuilder.AbstractSimplePlanBuilder;
-import org.opentosca.planbuilder.AbstractTransformingPlanbuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBuildProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELDefrostProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELFreezeProcessBuilder;
@@ -36,7 +33,7 @@ public abstract class AbstractImporter {
                                                           final AbstractDefinitions sourceDefinitions,
                                                           final String targetCsarName,
                                                           final AbstractDefinitions targetDefinitions) {
-        final List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
+        final List<AbstractPlan> plans = new ArrayList<>();
 
 
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder();
@@ -81,6 +78,7 @@ public abstract class AbstractImporter {
 
         final AbstractSimplePlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder();
         final AbstractSimplePlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder();
+        final AbstractSimplePlanBuilder backupPlanBuilder = new BPELBackupManagementProcessBuilder();
 
 
         plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
@@ -88,6 +86,7 @@ public abstract class AbstractImporter {
         plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
         plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
+        plans.addAll(backupPlanBuilder.buildPlans(csarName, defs));
 
         return plans;
     }
