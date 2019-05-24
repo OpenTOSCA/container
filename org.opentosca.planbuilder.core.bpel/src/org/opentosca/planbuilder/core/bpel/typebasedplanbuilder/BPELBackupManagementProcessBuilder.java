@@ -230,7 +230,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                         found: for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
                             for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                                 if (param.getName().equals(propName)) {
-                                    inputs.put(param, context.getPropertyVariable(nodeTemplate, propName));
+                                    inputs.put(param, context.getPropertyVariable(nodeForMatching, propName));
                                     break found;
                                 }
                             }
