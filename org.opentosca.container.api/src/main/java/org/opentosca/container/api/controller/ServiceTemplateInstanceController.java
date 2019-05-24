@@ -144,13 +144,10 @@ public class ServiceTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get a service template instance", response = ServiceTemplateInstanceDTO.class)
   public Response getServiceTemplateInstance(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
-
     final ServiceTemplateInstance instance = resolveInstance(id, serviceTemplate.getId());
-
     final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
 
-    // Build plan: Determine plan instance that created this service
-    // template instance
+    // Build plan: Determine plan instance that created this service template instance
     final PlanInstance pi = findPlanInstance(instance);
     // Add a link
     String path = "";
@@ -230,7 +227,7 @@ public class ServiceTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response getServiceTemplateInstanceProperties(@PathParam("id") final Long id) {
-    final Document properties = this.instanceService.getServiceTemplateInstanceProperties(id);
+    final Document properties = this.instanceService.evaluateServiceTemplateInstanceProperties(id);
     if (properties == null) {
       return Response.noContent().build();
     } else {

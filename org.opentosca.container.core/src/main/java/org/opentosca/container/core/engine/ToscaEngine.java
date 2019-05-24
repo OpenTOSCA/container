@@ -21,6 +21,29 @@ import org.w3c.dom.Element;
 @NonNullByDefault
 public final class ToscaEngine {
 
+  /**
+   * Gets a serviceTemplate from a csar by it's QName. This delegates to {@link #resolveServiceTemplate(Csar, QName)},
+   * but will return null instead of throwing an exception
+   *
+   * @return null, if the service template could not be found, the {@link TServiceTemplate} otherwise.
+   */
+  @Nullable
+  public static TServiceTemplate getServiceTemplate(Csar csar, QName serviceTemplate) {
+    try {
+      return resolveServiceTemplate(csar, serviceTemplate);
+    } catch (NotFoundException e) {
+      return null;
+    }
+  }
+
+  /**
+   * Resolves a serviceTemplate from a csar by it's QName.
+   * If no matching serviceTemplate can be found, an Exception is thrown.
+   *
+   * @return A {@link TServiceTemplate} instance matching the passed QName's localPart with its id.
+   * Guaranteed to not be <tt>null</tt>.
+   * @throws NotFoundException
+   */
   public static TServiceTemplate resolveServiceTemplate(Csar csar, QName serviceTemplate) throws NotFoundException {
     return csar.serviceTemplates().stream()
       .filter(st -> st.getId().equals(serviceTemplate.getLocalPart()))

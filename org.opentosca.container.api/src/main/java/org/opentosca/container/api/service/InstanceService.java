@@ -24,6 +24,7 @@ import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepos
 import org.opentosca.container.core.next.repository.SituationRepository;
 import org.opentosca.container.core.next.repository.SituationTriggerInstanceRepository;
 import org.opentosca.container.core.next.repository.SituationTriggerRepository;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -57,9 +58,12 @@ public class InstanceService {
   private NodeTemplateService nodeTemplateService;
   @Inject
   private ServiceTemplateService serviceTemplateService;
+  @Inject
+  private CsarStorageService storage;
+
   private final DocumentConverter converter = new DocumentConverter();
 
-  private Document convertPropertyToDocument(final Property property) {
+  public Document convertPropertyToDocument(final Property property) {
     return (Document) this.converter.convertDataValueToObjectValue(property.getValue(), null);
   }
 
@@ -74,7 +78,7 @@ public class InstanceService {
    * @throws IllegalAccessException
    * @throws IllegalArgumentException
    */
-  private <T extends Property> T convertDocumentToProperty(final Document propertyDoc,
+  public <T extends Property> T convertDocumentToProperty(final Document propertyDoc,
                                                            final Class<T> type) throws InstantiationException,
     IllegalAccessException,
     IllegalArgumentException {
@@ -107,7 +111,10 @@ public class InstanceService {
   }
 
   public ServiceTemplateInstance getServiceTemplateInstanceByCorrelationId(String correlationId) {
-    return this.serviceTemplateInstanceRepository.findAll().stream().filter(s -> s.getPlanInstances().stream().anyMatch(p -> p.getCorrelationId().equals(correlationId))).findFirst().get();
+    return this.serviceTemplateInstanceRepository.findAll().stream()
+      .filter(s -> s.getPlanInstances().stream()
+        .anyMatch(p -> p.getCorrelationId().equals(correlationId)))
+      .findFirst().get();
   }
 
   public ServiceTemplateInstance getServiceTemplateInstance(final Long id) {
@@ -146,7 +153,22 @@ public class InstanceService {
     this.serviceTemplateInstanceRepository.update(service);
   }
 
-  public Document getServiceTemplateInstanceProperties(final Long id) throws NotFoundException {
+  /**
+   * Evaluates the property mappings of a boundary definition's properties against the xml fragment
+   * representing these properties and uses node template instances for this purpose.
+   *
+   * @param serviceTemplateInstanceId the id of the service template instance whose property mappings
+   *        we want to evaluate
+   * @return the xml fragment representing the properties after property mappings are evaluated
+   * @throws NotFoundException thrown when the id does not correspond to a service template instance
+   */
+  public Document evaluateServiceTemplateInstanceProperties(final Long id) throws NotFoundException {
+    final PropertyMappingsHelper helper = new PropertyMappingsHelper(this, storage);
+
+    return helper.evaluatePropertyMappings(id);
+  }
+
+  public Document getServiceTemplateInstanceRawProperties(final Long id) throws NotFoundException {
     final ServiceTemplateInstance service = getServiceTemplateInstance(id);
     final Optional<ServiceTemplateInstanceProperty> firstProp = service.getProperties().stream().findFirst();
 
@@ -203,7 +225,8 @@ public class InstanceService {
       throw new NotFoundException(msg);
     }
 
-    // If the found plan is a build plan there shouldn't be a service template instance available, if it is a transformation plan the service instance mustn't be of the service template the new service instance should belong to
+    // If the found plan is a build plan there shouldn't be a service template instance available,
+    // if it is a transformation plan the service instance mustn't be of the service template the new service instance should belong to
     if ((pi.getType().equals(PlanType.BUILD) && pi.getServiceTemplateInstance() == null)
       || (pi.getType().equals(PlanType.TRANSFORMATION) && !pi.getServiceTemplateInstance().getTemplateId().toString().equals(serviceTemplateQName))) {
       final QName stqn = QName.valueOf(serviceTemplateQName);
@@ -416,11 +439,8 @@ public class InstanceService {
 
   public void deleteNodeTemplateInstance(final String serviceTemplateQName, final String nodeTemplateId,
                                          final Long id) {
-    final NodeTemplateInstance instance = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id); // throws
-    // exception
-    // if
-    // not
-    // found
+    // throws exception if not found
+    final NodeTemplateInstance instance = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
     this.nodeTemplateInstanceRepository.remove(instance);
   }
 
