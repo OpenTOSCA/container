@@ -51,25 +51,13 @@ public class PropertyMappingsHelper {
    * @return the xml fragment representing the properties after property mappings are evaluated
    * @throws NotFoundException thrown when the id does not correspond to a service template instance
    */
-  public Document evaluatePropertyMappings(final Long serviceTemplateInstanceId) throws NotFoundException {
-    final ServiceTemplateInstance serviceInstance = instanceService.getServiceTemplateInstance(serviceTemplateInstanceId);
-
-    if (serviceInstance == null) {
-      final String msg = String.format("Failed to retrieve ServiceInstance: '%s'", serviceInstance);
-      throw new NotFoundException(msg);
-    }
-
-    final Document propertiesAsXML =
-      this.instanceService.getServiceTemplateInstanceRawProperties(serviceTemplateInstanceId);
-
+  public void evaluatePropertyMappings(final ServiceTemplateInstance serviceInstance) throws NotFoundException {
+    final Document propertiesAsXML = serviceInstance.getPropertiesAsDocument();
     // check if the serviceInstance has properties
     if (propertiesAsXML == null) {
-      return null;
+      return;
     }
-
     updateServiceInstanceProperties(serviceInstance, propertiesAsXML);
-
-    return propertiesAsXML;
   }
 
   private void updateServiceInstanceProperties(final ServiceTemplateInstance serviceInstance,

@@ -12,12 +12,14 @@ import javax.persistence.*;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.common.jpa.CsarIdConverter;
+import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.common.jpa.QNameConverter;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.xml.PropertyParser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.w3c.dom.Document;
 
 @Entity
 @Table(name = ServiceTemplateInstance.TABLE_NAME)
@@ -147,18 +149,30 @@ public class ServiceTemplateInstance extends PersistenceObject {
   }
 
   /*
-   * Currently, the plan writes all properties as one XML document into the database. Therefore,
-   * we parse this XML and return a Map<String, String>.
+   * Currently, the plan writes all properties as one XML document into the database. Therefore, we
+   * parse this XML and return a Map<String, String>.
    */
   @JsonProperty("properties")
   public Map<String, String> getPropertiesAsMap() {
     final PropertyParser parser = new PropertyParser();
-    final ServiceTemplateInstanceProperty prop = getProperties().stream()
-      .filter(p -> p.getType().equalsIgnoreCase("xml"))
-      .collect(Collectors.reducing((a, b) -> null)).orElse(null);
+    final ServiceTemplateInstanceProperty prop =
+      getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
+        .collect(Collectors.reducing((a, b) -> null)).orElse(null);
     if (prop != null) {
       return parser.parse(prop.getValue());
     }
+    return null;
+  }
+
+  public Document getPropertiesAsDocument() {
+    final DocumentConverter converter = new DocumentConverter();
+    final ServiceTemplateInstanceProperty prop =
+      getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
+        .collect(Collectors.reducing((a, b) -> null)).orElse(null);
+    if (prop != null) {
+      return (Document) converter.convertDataValueToObjectValue(prop.getValue(), null);
+    }
+
     return null;
   }
 

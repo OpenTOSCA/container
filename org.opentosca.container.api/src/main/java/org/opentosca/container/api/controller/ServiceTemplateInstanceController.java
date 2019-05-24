@@ -227,7 +227,9 @@ public class ServiceTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response getServiceTemplateInstanceProperties(@PathParam("id") final Long id) {
-    final Document properties = this.instanceService.evaluateServiceTemplateInstanceProperties(id);
+    final ServiceTemplateInstance instance = this.instanceService.getServiceTemplateInstance(id, true);
+    final Document properties = instance.getPropertiesAsDocument();
+
     if (properties == null) {
       return Response.noContent().build();
     } else {
@@ -240,7 +242,7 @@ public class ServiceTemplateInstanceController {
   @Produces({MediaType.APPLICATION_JSON})
   @ApiOperation(value = "Gets the properties of a service template instance", response = Map.class)
   public Map<String, String> getServiceTemplateInstancePropertiesAsJSON(@PathParam("id") final Long id) {
-    final ServiceTemplateInstance serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(id);
+    final ServiceTemplateInstance serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(id, true);
     return serviceTemplateInstance.getPropertiesAsMap();
   }
 
@@ -275,7 +277,7 @@ public class ServiceTemplateInstanceController {
                                                   final String templateId) throws NotFoundException {
     // We only need to check that the instance belongs to the template, the rest is
     // guaranteed while this is a sub-resource
-    final ServiceTemplateInstance instance = this.instanceService.getServiceTemplateInstance(instanceId);
+    final ServiceTemplateInstance instance = this.instanceService.getServiceTemplateInstance(instanceId, false);
 
     if (!instance.getTemplateId().equals(QName.valueOf(templateId))) {
       logger.info("Service template instance <{}> could not be found", instanceId);
