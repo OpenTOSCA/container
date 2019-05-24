@@ -21,12 +21,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.*;
 import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceSupport;
-import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
-import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
-import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
-import org.opentosca.container.api.dto.boundarydefinitions.PropertiesDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.*;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.engine.ToscaEngine;
@@ -34,12 +32,6 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
-import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
-import org.eclipse.winery.model.tosca.TExportedInterface;
-import org.eclipse.winery.model.tosca.TExportedOperation;
-import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPropertyMapping;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,10 +109,28 @@ public class BoundaryDefinitionController {
         .map(TBoundaryDefinitions.Properties.PropertyMappings::getPropertyMapping)
         .orElse(Collections.emptyList());
     final PropertiesDTO dto = new PropertiesDTO();
-    dto.setXmlFragment(""); // we're not really exposing these in the winery-model
+    final Object xmlFragment = new Object();
+    // FIXME referenceMapper.getServiceTemplateBoundsPropertiesXMLFragment(csarId, QName.valueOf(servicetemplate));
+    dto.setXmlFragment(xmlFragment); // we're not really exposing these in the winery-model
     if (propertyMappings != null) {
       logger.debug("Found <{}> property mappings", propertyMappings.size());
-      dto.setPropertyMappings(propertyMappings);
+      final List<PropertyMappingDTO> propertyMappingDTOs = propertyMappings.stream().map(mapping -> {
+
+        final PropertyMappingDTO result = new PropertyMappingDTO();
+        result.setServiceTemplatePropertyRef(mapping.getServiceTemplatePropertyRef());
+        result.setTargetPropertyRef(mapping.getTargetPropertyRef());
+
+        if (!(mapping.getTargetObjectRef() instanceof TEntityTemplate)) {
+          logger.error("Unexpected mapping target detected for the property ("
+            + mapping.getServiceTemplatePropertyRef() + ")");
+        } else {
+          result.setTargetObjectRef(((TEntityTemplate) mapping.getTargetObjectRef()).getId());
+        }
+
+        return result;
+      }).collect(Collectors.toList());
+
+      dto.setPropertyMappings(propertyMappingDTOs);
     }
     dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
     return Response.ok(dto).build();

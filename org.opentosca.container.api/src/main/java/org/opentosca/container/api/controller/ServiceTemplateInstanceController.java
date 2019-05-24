@@ -238,6 +238,16 @@ public class ServiceTemplateInstanceController {
     }
   }
 
+  @GET
+  @Path("/{id}/properties")
+  @Produces({MediaType.APPLICATION_JSON})
+  @ApiOperation(value = "Gets the properties of a service template instance", response = Map.class)
+  public Map<String, String> getServiceTemplateInstancePropertiesAsJSON(@PathParam("id") final Long id) {
+    final ServiceTemplateInstance serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(id);
+    return serviceTemplateInstance.getPropertiesAsMap();
+  }
+
+
   @PUT
   @Path("/{id}/properties")
   @Consumes( {MediaType.APPLICATION_XML})
