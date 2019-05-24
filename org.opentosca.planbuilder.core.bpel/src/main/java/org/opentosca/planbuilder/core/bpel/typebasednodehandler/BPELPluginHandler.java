@@ -6,10 +6,11 @@ import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +19,9 @@ public class BPELPluginHandler {
     final static Logger LOG = LoggerFactory.getLogger(BPELPluginHandler.class);
     protected final PluginRegistry pluginRegistry = PluginRegistry.INSTANCE;
 
-    public boolean handleActivity(BPELPlanContext context, BPELScope bpelScope, AbstractNodeTemplate nodeTemplate,
-                                  AbstractActivity activity) {
+    public boolean handleActivity(BPELPlanContext context, BPELScope bpelScope, AbstractNodeTemplate nodeTemplate) {
         boolean result = false;
-        switch (activity.getType()) {
+        switch (bpelScope.getActivity().getType()) {
             case PROVISIONING:
                 result = this.handleProvisioningActivity(context, bpelScope, nodeTemplate);
                 break;
@@ -37,15 +37,15 @@ public class BPELPluginHandler {
     }
 
     public boolean handleActivity(BPELPlanContext context, BPELScope bpelScope,
-                                  AbstractRelationshipTemplate relationshipTemplate, AbstractActivity activity) {
+                                  AbstractRelationshipTemplate relationshipTemplate) {
         boolean result = false;
-        switch (activity.getType()) {
+        switch (bpelScope.getActivity().getType()) {
             case PROVISIONING:
                 result = this.handleProvisioningActivity(context, bpelScope, relationshipTemplate);
                 break;
             case TERMINATION:
                 result = this.handleTerminationActivity(context, bpelScope, relationshipTemplate);
-                break;
+                break;            
             default:
                 result = false;
                 break;

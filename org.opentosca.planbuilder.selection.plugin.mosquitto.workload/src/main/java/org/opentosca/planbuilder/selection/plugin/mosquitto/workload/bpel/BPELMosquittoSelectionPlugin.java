@@ -42,8 +42,7 @@ public class BPELMosquittoSelectionPlugin extends MosquittoSelectionPlugin<BPELP
   public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
                         final List<String> selectionStrategies) {
 
-    // TODO
-    // fetch instance variables
+    // TODO fetch instance variables
     final String nodeTemplateInstanceVar = this.findInstanceVar(context, nodeTemplate.getId(), true);
 
     final List<AbstractRelationshipTemplate> relations = ModelUtils.getOutgoingInfrastructureEdges(nodeTemplate);
@@ -81,6 +80,11 @@ public class BPELMosquittoSelectionPlugin extends MosquittoSelectionPlugin<BPELP
     }
 
     return true;
+  }
+
+  @Override
+  public int getPriority() {
+    return 1;
   }
 
 }

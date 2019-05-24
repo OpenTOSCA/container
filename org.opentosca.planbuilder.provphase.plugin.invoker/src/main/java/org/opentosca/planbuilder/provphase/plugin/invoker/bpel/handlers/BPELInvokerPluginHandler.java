@@ -21,7 +21,6 @@ import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -30,8 +29,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
-import org.opentosca.planbuilder.provphase.plugin.invoker.core.handler.InvokerPluginHandler;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanContext> {
+public class BPELInvokerPluginHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPluginHandler.class);
     private static final String PlanInstanceURLVarKeyword = "OpenTOSCAContainerAPIPlanInstanceURL";
@@ -197,58 +196,9 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         return propWrapper;
     }
 
-    @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia) throws IOException {
-        final File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
-        final File wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
-        // register wsdls and xsd
-        final QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), wsdlFile);
-        final QName invokerCallbackPortType =
-            context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), wsdlFile);
-
-        // atleast the xsd should be imported now in the plan
-        context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(), xsdFile);
-        context.registerType(this.resHandler.getServiceInvokerAsyncResponseXSDType(), xsdFile);
-
-        final QName InputMessageId = context.importQName(this.resHandler.getServiceInvokerAsyncRequestMessageType());
-        final String InputMessagePartName = this.resHandler.getServiceInvokerAsyncRequestMessagePart();
-        final QName OutputMessageId = context.importQName(this.resHandler.getServiceInvokerAsyncResponseMessageType());
-        final String OutputMessagePartName = this.resHandler.getServiceInvokerAsyncResponseMessagePart();
-
-        // generate partnerlink from the two porttypes
-        final String partnerLinkTypeName = invokerPortType.getLocalPart() + "PLT" + context.getIdForNames();
-        context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee",
-                                   invokerPortType);
-        final String partnerLinkName = invokerPortType.getLocalPart() + "PL" + context.getIdForNames();
-
-        context.addPartnerLinkToTemplateScope(partnerLinkName, partnerLinkTypeName, "Requester", "Requestee", true);
-
-        // register request and response message
-        final String requestVariableName =
-            invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
-        context.addVariable(requestVariableName, BPELPlan.VariableType.MESSAGE, InputMessageId);
-        final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart()
-            + "Response" + context.getIdForNames();
-        context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageId);
-
-        // setup a correlation set for the messages
-        String correlationSetName = null;
-
-        // setup correlation property and aliases for request and response
-        final String query = "//*[local-name()=\"MessageID\" and namespace-uri()=\"http://siserver.org/schema\"]";
-        final String correlationPropertyName = invokerPortType.getLocalPart() + "Property" + context.getIdForNames();
-        context.addProperty(correlationPropertyName, new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-        context.addPropertyAlias(correlationPropertyName, InputMessageId, InputMessagePartName, query);
-        context.addPropertyAlias(correlationPropertyName, OutputMessageId, OutputMessagePartName, query);
-        // register correlationsets
-        correlationSetName = invokerPortType.getLocalPart() + "CorrelationSet" + context.getIdForNames();
-        context.addCorrelationSet(correlationSetName, correlationPropertyName);
-
-        // fetch "meta"-data for invoker message (e.g. csarid, nodetemplate
-        // id..)
-        final String csarId = context.getCSARFileName();
-        final QName serviceTemplateId = context.getServiceTemplateId();
+        
         boolean isNodeTemplate = true;
         String templateId = "";
         if (context.getNodeTemplate() != null) {
@@ -257,10 +207,10 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             templateId = context.getRelationshipTemplate().getId();
             isNodeTemplate = false;
         }
-
+        
         final String interfaceName = findInterfaceForOperation(context, operation);
         final String operationName = operation.getName();
-
+        
         // fetch the input parameters of the operation and check whether their
         // internal or external
 
@@ -290,200 +240,13 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             final Variable propWrapper = findVar(context, para.getName());
             internalExternalPropsOutput.put(para.getName(), propWrapper);
         }
-
-        // add external props to plan input message
-        for (final String paraName : internalExternalPropsInput.keySet()) {
-            if (internalExternalPropsInput.get(paraName) == null) {
-                context.addStringValueToPlanRequest(paraName);
-            }
-        }
-
-        // add external props to plan output message
-        for (final String paraName : internalExternalPropsOutput.keySet()) {
-            if (internalExternalPropsOutput.get(paraName) == null) {
-                context.addStringValueToPlanResponse(paraName);
-            }
-        }
-
-        // fetch serviceInstanceId
-
-        final String serviceInstanceIdVarName = context.getServiceInstanceURLVarName();
-
-        if (serviceInstanceIdVarName == null) {
-            return false;
-        }
-
-        final String nodeInstanceUrlVarName = context.findInstanceURLVar(templateId, isNodeTemplate);
-
-        if (nodeInstanceUrlVarName == null) {
-            return false;
-        }
-
-        // add request message assign to prov phase scope
-        try {
-            Node assignNode = null;
-            // TODO FIXME See line 570
-            // if (context.getPlanType().equals(PlanType.TERMINATE)) {
-            assignNode =
-                this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId, serviceTemplateId,
-                                                                                      serviceInstanceIdVarName, null,
-                                                                                      operationName,
-                                                                                      String.valueOf(System.currentTimeMillis()),
-                                                                                      requestVariableName,
-                                                                                      InputMessagePartName,
-                                                                                      interfaceName, isNodeTemplate,
-                                                                                      templateId,
-                                                                                      internalExternalPropsInput);
-
-            // } else {
-            // assignNode =
-            // this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId, serviceTemplateId,
-            // serviceInstanceIdVarName,
-            // nodeInstanceUrlVarName,
-            // operationName,
-            // String.valueOf(System.currentTimeMillis()),
-            // requestVariableName,
-            // InputMessagePartName,
-            // interfaceName, isNodeTemplate,
-            // templateId,
-            // internalExternalPropsInput);
-            // }
-
-            assignNode = context.importNode(assignNode);
-
-            Node addressingCopyInit = this.resHandler.generateAddressingInitAsNode(requestVariableName);
-            addressingCopyInit = context.importNode(addressingCopyInit);
-            assignNode.appendChild(addressingCopyInit);
-
-            Node addressingCopyNode =
-                this.resHandler.generateAddressingCopyAsNode(partnerLinkName, requestVariableName);
-            addressingCopyNode = context.importNode(addressingCopyNode);
-            assignNode.appendChild(addressingCopyNode);
-
-            // adds field into plan input message to give the plan it's own
-            // address
-            // for the invoker PortType (callback etc.). This is needed as WSO2
-            // BPS
-            // 2.x can't give that at runtime (bug)
-            LOG.debug("Adding plan callback address field to plan input");
-            context.addStringValueToPlanRequest("planCallbackAddress_invoker");
-
-            /*
-             * Will be needed when we start to switch to a new bpel engine String callbackAddressVarName =
-             * this.inputHasCallbackAddressDefined(context);
-             *
-             * if (callbackAddressVarName == null) { // if the plan doesn't have an input message for the
-             * address of // the plan itself (for callback/bps2.1.2) we get the address at // runtime Node
-             * replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName,
-             * InputMessagePartName, "ReplyTo"); replyToCopy = context.importNode(replyToCopy);
-             * assignNode.appendChild(replyToCopy); } else { // else the address is provided in the input
-             * message
-             */
-
-            Node messageIdInit =
-                this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, templateId + ":"
-                    + interfaceName + ":" + operationName + ":");
-            messageIdInit = context.importNode(messageIdInit);
-            assignNode.appendChild(messageIdInit);
-
-            Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName,
-                                                                         InputMessagePartName, "ReplyTo");
-            replyToCopy = context.importNode(replyToCopy);
-            assignNode.appendChild(replyToCopy);
-
-            context.getProvisioningPhaseElement().appendChild(assignNode);
-        }
-        catch (final SAXException e) {
-            LOG.error("Couldn't generate DOM node for the request message assign element", e);
-            return false;
-        }
-
-
-        if (context.getNodeTemplate() != null) {
-
-            appendLOGMessageActivity(context, "Executing operation " + operationName + " of NodeTemplate "
-                + context.getNodeTemplate().getId(), BPELPlanContext.Phase.PROV);
-        } else {
-            appendLOGMessageActivity(context,
-                                     "Executing " + (operation != null ? "operation " + operation + " of " : "")
-                                         + "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "",
-                                     BPELPlanContext.Phase.PROV);
-        }
-
-        // invoke service invoker
-        // add invoke
-        try {
-            Node invokeNode =
-                this.resHandler.generateInvokeAsNode("invoke_" + requestVariableName, partnerLinkName,
-                                                     "invokeOperationAsync", invokerPortType, requestVariableName);
-            LOG.debug("Trying to ImportNode: " + invokeNode.toString());
-            invokeNode = context.importNode(invokeNode);
-
-            Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, true);
-            correlationSetsNode = context.importNode(correlationSetsNode);
-            invokeNode.appendChild(correlationSetsNode);
-
-            context.getProvisioningPhaseElement().appendChild(invokeNode);
-        }
-        catch (final SAXException e) {
-            LOG.error("Error reading/writing XML File", e);
-            return false;
-        }
-        catch (final IOException e) {
-            LOG.error("Error reading/writing File", e);
-            return false;
-        }
-
-        // add receive for service invoker callback
-        try {
-            Node receiveNode =
-                this.resHandler.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName, "callback",
-                                                      invokerCallbackPortType, responseVariableName);
-            receiveNode = context.importNode(receiveNode);
-
-            Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
-            correlationSetsNode = context.importNode(correlationSetsNode);
-            receiveNode.appendChild(correlationSetsNode);
-
-            context.getProvisioningPhaseElement().appendChild(receiveNode);
-        }
-        catch (final SAXException e1) {
-            LOG.error("Error reading/writing XML File", e1);
-            return false;
-        }
-        catch (final IOException e1) {
-            LOG.error("Error reading/writing File", e1);
-            return false;
-        }
-
-        // process response message
-        // add assign for response
-        try {
-
-            Node responseAssignNode =
-                this.resHandler.generateResponseAssignAsNode(responseVariableName, OutputMessagePartName,
-                                                             internalExternalPropsOutput,
-                                                             "assign_" + responseVariableName, OutputMessageId,
-                                                             context.getPlanResponseMessageName(), "payload");
-            LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
-            responseAssignNode = context.importNode(responseAssignNode);
-            context.getProvisioningPhaseElement().appendChild(responseAssignNode);
-        }
-        catch (final SAXException e) {
-            LOG.error("Error reading/writing XML File", e);
-            return false;
-        }
-        catch (final IOException e) {
-            LOG.error("Error reading/writing File", e);
-            return false;
-        }
-
-        return true;
+        
+        
+        return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName, internalExternalPropsInput, internalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
     }
 
-    @Override
     public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
-                          final String operationName, final String interfaceName, final String callbackAddressVarName,
+                          final String operationName, final String interfaceName, 
                           final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput,
                           final BPELScopePhaseType appendToPrePhase) throws IOException {
@@ -587,21 +350,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                                                                                       templateId,
                                                                                       internalExternalPropsInput);
 
-            // } else {
-            //
-            // assignNode =
-            // this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
-            // context.getServiceTemplateId(),
-            // serviceInstanceIdVarName,
-            // nodeInstanceUrlVarName,
-            // operationName,
-            // String.valueOf(System.currentTimeMillis()),
-            // requestVariableName,
-            // InputMessagePartName,
-            // interfaceName, isNodeTemplate,
-            // templateId,
-            // internalExternalPropsInput);
-            // }
+            
             assignNode = context.importNode(assignNode);
 
             Node addressingCopyInit = this.resHandler.generateAddressingInitAsNode(requestVariableName);
@@ -613,22 +362,12 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             addressingCopyNode = context.importNode(addressingCopyNode);
             assignNode.appendChild(addressingCopyNode);
 
-            // if (callbackAddressVarName == null) {
-            // if the plan doesn't have an input message for the address of
-            // the plan itself (for callback/bps2.1.2) we get the address at
-            // runtime
+            
             Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName,
                                                                          InputMessagePartName, "ReplyTo");
             replyToCopy = context.importNode(replyToCopy);
             assignNode.appendChild(replyToCopy);
-            // } else {
-            // // else the address is provided in the input message
-            // Node replyToCopy =
-            // this.resHandler.generateCopyFromExternalParamToInvokerNode(requestVariableName,
-            // InputMessagePartName, callbackAddressVarName, "ReplyTo");
-            // replyToCopy = context.importNode(replyToCopy);
-            // assignNode.appendChild(replyToCopy);
-            // }
+            
 
             Node messageIdInit =
                 this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, templateId + ":"
@@ -658,12 +397,12 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         if (context.getNodeTemplate() != null) {
 
             appendLOGMessageActivity(context, "Executing operation " + operationName + " of NodeTemplate "
-                + context.getNodeTemplate().getId(), BPELPlanContext.Phase.PROV);
+                + context.getNodeTemplate().getId(), PlanContext.Phase.PROV);
         } else {
             appendLOGMessageActivity(context,
                                      "Executing " + (operationName != null ? "operation " + operationName + " of " : "")
                                          + "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "",
-                                     BPELPlanContext.Phase.PROV);
+                                     PlanContext.Phase.PROV);
         }
         // invoke service invoker
         // add invoke
@@ -784,7 +523,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             templateId = context.getRelationshipTemplate().getId();
             isNodeTemplate = false;
         }
-        return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName, callbackAddressVarName,
+        return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName, 
                            internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
     }
 
@@ -900,8 +639,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                     runScriptRequestInputParams.put("ContainerIP", serverIp);
                 }
                 runScriptRequestInputParams.put("Script", mkdirScriptVar);
-                this.handle(templateContext, infraTemplate.getId(), true, "runScript", "ContainerManagementInterface",
-                            "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(),
+                this.handle(templateContext, infraTemplate.getId(), true, "runScript", "ContainerManagementInterface", runScriptRequestInputParams, new HashMap<String, Variable>(),
                             appendToPrePhase);
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
@@ -916,8 +654,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                     runScriptRequestInputParams.put("sshUser", sshUser);
                 }
                 runScriptRequestInputParams.put("script", mkdirScriptVar);
-                this.handle(templateContext, infraTemplate.getId(), true, "runScript", "InterfaceUbuntu",
-                            "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(),
+                this.handle(templateContext, infraTemplate.getId(), true, "runScript", "InterfaceUbuntu", runScriptRequestInputParams, new HashMap<String, Variable>(),
                             appendToPrePhase);
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
@@ -934,7 +671,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                 }
                 runScriptRequestInputParams.put("Script", mkdirScriptVar);
                 this.handle(templateContext, infraTemplate.getId(), true, "runScript",
-                            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
+                            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                             runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 
                 break;
@@ -961,7 +698,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                 transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
                 transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
                 this.handle(templateContext, infraTemplate.getId(), true, "transferFile",
-                            "ContainerManagementInterface", "planCallbackAddress_invoker",
+                            "ContainerManagementInterface",
                             transferFileRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
@@ -976,8 +713,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                 }
                 transferFileRequestInputParams.put("targetAbsolutePath", ubuntuFilePathVar);
                 transferFileRequestInputParams.put("sourceURLorLocalAbsolutePath", containerAPIAbsoluteURIVar);
-                this.handle(templateContext, infraTemplate.getId(), true, "transferFile", "InterfaceUbuntu",
-                            "planCallbackAddress_invoker", transferFileRequestInputParams,
+                this.handle(templateContext, infraTemplate.getId(), true, "transferFile", "InterfaceUbuntu",transferFileRequestInputParams,
                             new HashMap<String, Variable>(), appendToPrePhase);
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
@@ -994,7 +730,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                 transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
                 transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
                 this.handle(templateContext, infraTemplate.getId(), true, "transferFile",
-                            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
+                            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                             transferFileRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 
                 break;

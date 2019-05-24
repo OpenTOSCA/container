@@ -70,4 +70,9 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     return false;
   }
 
+  @Override
+  public int getPriority() {
+    // specific first than generic handling
+    return 0;
+  }
 }

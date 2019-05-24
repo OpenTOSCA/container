@@ -22,12 +22,11 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
-import org.opentosca.planbuilder.core.tosca.handlers.EmptyPropertyToInputHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler.Property2VariableMapping;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.EmptyPropertyToInputHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
@@ -36,12 +35,13 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePostPhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwarePostPhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwareTypePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -255,7 +255,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                 // handling nodetemplate
                 final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
                 BPELPolicyAwareBuildProcessBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
-                final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate(),
+                final BPELPlanContext context = new BPELPlanContext(buildPlan,templatePlan, map, buildPlan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
                 // check if we have a generic plugin to handle the template
                 // Note: if a generic plugin fails during execution the
@@ -369,7 +369,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
             } else {
                 // handling relationshiptemplate
                 final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
-                final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate(),
+                final BPELPlanContext context = new BPELPlanContext(buildPlan,templatePlan, map, buildPlan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
 
                 // check if we have a generic plugin to handle the template

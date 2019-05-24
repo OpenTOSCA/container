@@ -20,7 +20,7 @@ import org.w3c.dom.NodeList;
  *
  */
 public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> implements
-                                                      org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin<T> {
+                                                      org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin<T> {
     private static final String ID = "OpenTOSCA PlanBuilder Type Plugin OpenMTC DockerContainer";
 
     public static AbstractNodeTemplate findConnectedBackend(final AbstractNodeTemplate gatewayNodeTemplate) {

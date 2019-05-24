@@ -1,55 +1,41 @@
 package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.planbuilder.AbstractDefrostPlanBuilder;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
-import org.opentosca.planbuilder.core.tosca.handlers.EmptyPropertyToInputHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler.Property2VariableMapping;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.EmptyPropertyToInputHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
-import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
@@ -245,7 +231,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
     String statefulServiceTemplateUrlVarName = this.findStatefulServiceTemplateUrlVar(plan);
 
     for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
-      final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate(),
+      final BPELPlanContext context = new BPELPlanContext(plan, templatePlan, propMap, plan.getServiceTemplate(),
         serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarFileName);
 
       if (templatePlan.getNodeTemplate() != null) {
@@ -260,7 +246,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
           operationNames = this.defrostOpNames;
         }
 
-        if (isRunning(context, templatePlan.getNodeTemplate())) {
+        if (this.isRunning(templatePlan.getNodeTemplate())) {
           BPELBuildProcessBuilder.LOG.debug("Skipping the provisioning of NodeTemplate "
             + templatePlan.getNodeTemplate().getId() + "  beacuse state=running is set.");
           for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
@@ -326,16 +312,6 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
     }
     return changedActivities;
-  }
-
-  private boolean isRunning(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-    final PropertyVariable state = context.getPropertyVariable(nodeTemplate, "State");
-    if (state != null) {
-      if (BPELPlanContext.getVariableContent(state, context).equals("Running")) {
-        return true;
-      }
-    }
-    return false;
   }
 
   @Override

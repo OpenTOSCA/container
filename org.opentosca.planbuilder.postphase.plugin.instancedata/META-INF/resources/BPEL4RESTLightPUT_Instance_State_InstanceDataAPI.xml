@@ -3,5 +3,5 @@
     <!-- $RequestVarName,$instanceURLVar  -->
 	<bpel4RestLight:PUT
 		uri="$bpelvar[$instanceURLVar]/state"
-		accept="application/xml" contenttype="text/plain" request="$RequestVarName"></bpel4RestLight:PUT>
+		accept="text/plain" contenttype="text/plain" request="$RequestVarName"></bpel4RestLight:PUT>
 </bpel:extensionActivity>

@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -227,45 +229,26 @@ public class BPELScopeHandler {
     return check;
   }
 
-  /**
-   * Creates a TemplateBuildPlan for the given NodeTemplate connected to the given BuildPlan
-   *
-   * @param nodeTemplate the NodeTemplate the new TemplateBuildPlan should belong to
-   * @param buildPlan    the BuildPlan the new TemplateBuildPlan should belong to
-   * @return a new TemplateBuildPlann skeleton for the given NodeTemplate
-   */
-  public BPELScope createTemplateBuildPlan(final AbstractNodeTemplate nodeTemplate, final BPELPlan buildPlan) {
-    final BPELScope templatePlan = this.createTemplateBuildPlan(buildPlan);
-    this.setName(this.getNCNameFromString(nodeTemplate.getId()), templatePlan);
-    templatePlan.setNodeTemplate(nodeTemplate);
-    return templatePlan;
-  }
 
-  /**
-   * Creates a new TemplateBuildPlan for the given RelationshipTemplate and BuildPlan
-   *
-   * @param relationshipTemplate the RelationshipTemplate the new TemplateBuildPlan should belong to
-   * @param buildPlan            the BuildPlan the new TemplateBuildPlan should belong to
-   * @return a new TemplateBuildPlan skeleton
-   */
-  public BPELScope createTemplateBuildPlan(final AbstractRelationshipTemplate relationshipTemplate, final BPELPlan buildPlan) {
-    final BPELScope templatePlan = this.createTemplateBuildPlan(buildPlan);
-    this.setName(relationshipTemplate.getId(), templatePlan);
-    templatePlan.setRelationshipTemplate(relationshipTemplate);
-    return templatePlan;
-  }
-
-  /**
-   * Creates a TemplateBuildPlan skeleton and connects it to the given BuildPlan
-   *
-   * @param buildPlan the BuildPlan the TemplateBuildPlan should belong to
-   * @return a new TemplateBuildPlan skeleton
-   */
-  public BPELScope createTemplateBuildPlan(final BPELPlan buildPlan) {
-    final BPELScope newTemplateBuildPlan = new BPELScope();
+  public BPELScope createTemplateBuildPlan(final ANodeTemplateActivity nodeTemplateActivity, final BPELPlan buildPlan) {
+    final BPELScope newTemplateBuildPlan = new BPELScope(nodeTemplateActivity);
     this.initializeXMLElements(newTemplateBuildPlan, buildPlan);
+    this.setName(this.getNCNameFromString(nodeTemplateActivity.getNodeTemplate().getId()) + "_" + nodeTemplateActivity.getType(), newTemplateBuildPlan);
+    newTemplateBuildPlan.setNodeTemplate(nodeTemplateActivity.getNodeTemplate());
     return newTemplateBuildPlan;
   }
+
+
+  public BPELScope createTemplateBuildPlan(final ARelationshipTemplateActivity relationshipTemplateActivity,
+                                           final BPELPlan buildPlan) {
+
+    final BPELScope newTemplateBuildPlan = new BPELScope(relationshipTemplateActivity);
+    this.initializeXMLElements(newTemplateBuildPlan, buildPlan);
+    this.setName(this.getNCNameFromString(relationshipTemplateActivity.getRelationshipTemplate().getId()) + "_" + relationshipTemplateActivity.getType(), newTemplateBuildPlan);
+    newTemplateBuildPlan.setRelationshipTemplate(relationshipTemplateActivity.getRelationshipTemplate());
+    return newTemplateBuildPlan;
+  }
+
 
   /**
    * Returns the names of the links declared in the sources element of the given TemplateBuildPlan

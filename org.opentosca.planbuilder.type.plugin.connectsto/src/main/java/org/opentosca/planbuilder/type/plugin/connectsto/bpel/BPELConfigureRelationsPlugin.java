@@ -33,4 +33,9 @@ public class BPELConfigureRelationsPlugin extends ConfigureRelationsPlugin<BPELP
     // will never be used for nodeTemplates
     return false;
   }
+
+  @Override
+  public int getPriority() {
+    return 1;
+  }
 }

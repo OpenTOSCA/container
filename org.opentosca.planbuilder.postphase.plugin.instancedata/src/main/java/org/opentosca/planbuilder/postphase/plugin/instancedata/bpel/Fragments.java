@@ -114,6 +114,34 @@ public class Fragments {
     return bpel4restString;
   }
 
+  public String generateBPEL4RESTLightGETInstanceState(final String instanceURLVar,
+                                                       final String ResponseVarName) throws IOException {
+    // BPEL4RESTLightPUT_NodeInstance_State_InstanceDataAPI.xml
+    // <!-- $RequestVarName,$nodeInstanceURLVar -->
+    final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+      .getResource("BPEL4RESTLightGET_Instance_State_InstanceDataAPI.xml");
+    final File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
+    String bpel4restString = FileUtils.readFileToString(bpel4RestFile);
+
+    bpel4restString = bpel4restString.replace("$instanceURLVar", instanceURLVar);
+    bpel4restString = bpel4restString.replace("$ResponseVarName", ResponseVarName);
+
+    return bpel4restString;
+  }
+
+  public Node generateBPEL4RESTLightGETInstanceStateAsNode(final String instanceURLVar,
+                                                           final String ResponseVarName) throws SAXException, IOException {
+    return this.toDom(this.generateBPEL4RESTLightGETInstanceState(instanceURLVar, ResponseVarName));
+  }
+
+  private Node toDom(String templateString) throws SAXException, IOException {
+    final InputSource is = new InputSource();
+    is.setCharacterStream(new StringReader(templateString));
+    final Document doc = this.docBuilder.parse(is);
+    return doc.getFirstChild();
+  }
+
+
   /**
    * Generates a String containing a BPEL assign that reads the value of a NodeInstance create
    * response and writes it into the referenced string variable

@@ -81,7 +81,11 @@ public class NodeTemplateInstanceController {
 
     for (final NodeTemplateInstance i : nodeInstances) {
       if (states != null && !states.isEmpty() && !states.contains(i.getState())) {
-        // skip this node instance, as it not has the proper state
+        // skip this node instance, as it does not have the proper state
+        continue;
+      }
+
+      if (!i.getServiceTemplateInstance().getTemplateId().toString().equals(this.servicetemplate)){
         continue;
       }
 

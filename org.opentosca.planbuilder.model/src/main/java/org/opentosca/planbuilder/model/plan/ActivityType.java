@@ -6,12 +6,12 @@ package org.opentosca.planbuilder.model.plan;
  * @author Kálmán Képes - kepes@iaas.uni-stuttgart.de
  */
 public enum ActivityType {
-
   PROVISIONING
   , TERMINATION
   , RECURSIVESELECTION
   , STRATEGICSELECTION
   , FREEZE
   , DEFROST
+  , MIGRATION
   , NONE
 }

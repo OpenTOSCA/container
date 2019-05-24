@@ -13,6 +13,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.patternbased.bpel.PatternBasedHandler.ConcreteOperationMatching;
@@ -61,8 +62,7 @@ public abstract class PatternBasedHandler {
                                       final AbstractNodeTemplate hostingContainer) {
 
         return invoker.handle(context, hostingContainer.getId(), true, matching.operationName.getName(),
-                              matching.interfaceName.getName(), "planCallbackAddress_invoker",
-                              transformForInvoker(matching.inputMatching), transformForInvoker(matching.outputMatching),
+                              matching.interfaceName.getName(), transformForInvoker(matching.inputMatching), transformForInvoker(matching.outputMatching),
                               BPELScopePhaseType.PROVISIONING);
     }
 
@@ -80,7 +80,7 @@ public abstract class PatternBasedHandler {
         return invokeOperation(context, matching, nodeTemplate);
     }
 
-    protected ConcreteOperationMatching createConcreteOperationMatching(final BPELPlanContext context,
+    protected ConcreteOperationMatching createConcreteOperationMatching(final PlanContext context,
                                                                         final OperationMatching abstractMatching) {
 
         final ConcreteOperationMatching matching =

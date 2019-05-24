@@ -71,4 +71,9 @@ public class BPELConnectsToTypePlugin extends ConnectsToTypePlugin<BPELPlanConte
     return false;
   }
 
+  @Override
+  public int getPriority() {
+    // connection should be handled by the generic plugin, but this can be used for specific mosquitto connections
+    return 0;
+  }
 }

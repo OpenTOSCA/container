@@ -177,12 +177,7 @@ public class ServiceTemplateInstanceController {
   }
 
   private PlanInstance findPlanInstance(ServiceTemplateInstance instance) {
-    if(instance.getPlanInstances() != null && !instance.getPlanInstances().isEmpty()) {
-      return instance.getPlanInstances().stream().filter(p -> p.getType().equals(PlanType.BUILD)).findFirst().get();
-    } else {
-      // there is no build plan instance for this service instances which implies there is a transformation plan responsible for creating this service instance
-      return planService.getPlanInstanceByCorrelationId(instance.getCreationCorrelationId());
-    }
+    return planService.getPlanInstanceByCorrelationId(instance.getCreationCorrelationId());
   }
 
   @DELETE

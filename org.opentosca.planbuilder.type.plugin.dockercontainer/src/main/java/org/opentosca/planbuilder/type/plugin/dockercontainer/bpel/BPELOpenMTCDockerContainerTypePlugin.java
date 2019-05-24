@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.type.plugin.dockercontainer.bpel;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.handler.BPELOpenMTCDockerContainerTypePluginHandler;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.OpenMTCDockerContainerTypePlugin;
 
@@ -39,6 +40,12 @@ public class BPELOpenMTCDockerContainerTypePlugin extends OpenMTCDockerContainer
     public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public int getPriority() {
+        // specific first than generic
+        return 0;
     }
 
 }

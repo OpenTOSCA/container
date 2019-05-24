@@ -7,8 +7,9 @@ import java.util.HashSet;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +127,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
         if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
             LOG.debug("Handling by container pattern");
-            return containerPatternHandler.handleCreate(templateContext, nodeTemplate);
+            return containerPatternHandler.handleTerminate(templateContext, nodeTemplate);
         } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
             LOG.debug("Handling by lifecycle pattern");
             return lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate);
@@ -160,6 +161,11 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
+    }
+
+    @Override
+    public int getPriority() {        
+        return 1;
     }
 
 }

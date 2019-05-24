@@ -89,6 +89,8 @@ public class BPELPlan extends AbstractPlan {
     private List<Element> bpelImportElements;
     private Element bpelPartnerLinksElement;
     private Element bpelProcessVariablesElement;
+   
+    private Element bpelFaultHandlersElement;
 
     // variables associated with the bpel orchestration
     // the main sequence element of this process
@@ -120,9 +122,7 @@ public class BPELPlan extends AbstractPlan {
     private String csarName = null;
 
     // wsdl related stuff
-    private GenericWsdlWrapper processWsdl = null;
-
-    int internalCounterId = 0;
+    private GenericWsdlWrapper processWsdl = null;   
 
     private Map<AbstractActivity, BPELScope> abstract2bpelMap;
 
@@ -149,6 +149,10 @@ public class BPELPlan extends AbstractPlan {
         } else {
             return this.bpelProcessElement.getAttribute("name");
         }
+    }
+    
+    public String getProcessNamespace() {
+        return this.bpelProcessElement.getAttribute("targetNamespace");
     }
 
     public String getTOSCAOperationName() {
@@ -532,23 +536,7 @@ public class BPELPlan extends AbstractPlan {
         this.bpelMainSequenceOutputAssignElement = bpelMainSequenceOutputAssignElement;
     }
 
-    /**
-     * Returns a id for the plugins to make their declarations unique
-     *
-     * @return an Integer
-     */
-    public int getInternalCounterId() {
-        return this.internalCounterId;
-    }
-
-    /**
-     * Sets the id
-     *
-     * @param id an Integer
-     */
-    public void setInternalCounterId(final int id) {
-        this.internalCounterId = id;
-    }
+    
 
     public void setAbstract2BPELMapping(final Map<AbstractActivity, BPELScope> abstract2bpelMap) {
         this.abstract2bpelMap = abstract2bpelMap;

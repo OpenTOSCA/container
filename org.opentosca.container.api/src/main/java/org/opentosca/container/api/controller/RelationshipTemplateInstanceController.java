@@ -2,6 +2,7 @@ package org.opentosca.container.api.controller;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -67,7 +68,7 @@ public class RelationshipTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get all relationship template instances",
     response = RelationshipTemplateInstanceListDTO.class)
-  public Response getRelationshipTemplateInstances(@QueryParam(value = "target") final Long targetNodeInstanceId) {
+  public Response getRelationshipTemplateInstances(@QueryParam(value = "state") final List<RelationshipTemplateInstanceState> states, @QueryParam(value = "target") final Long targetNodeInstanceId) {
     final QName relationshipTemplateQName =
       new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.relationshiptemplate);
     final Collection<RelationshipTemplateInstance> relationshipInstances =
@@ -78,6 +79,14 @@ public class RelationshipTemplateInstanceController {
     final RelationshipTemplateInstanceListDTO list = new RelationshipTemplateInstanceListDTO();
 
     for (final RelationshipTemplateInstance i : relationshipInstances) {
+      if(!i.getTarget().getServiceTemplateInstance().getTemplateId().toString().equals(this.servicetemplate)) {
+        continue;
+      }
+      if (states != null && !states.isEmpty() && !states.contains(i.getState())) {
+        // skip this node instance, as it not has the proper state
+        continue;
+      }
+
       if (targetNodeInstanceId != null && !i.getTarget().getId().equals(targetNodeInstanceId)) {
         // skip this instance if the target id doesn't match
         continue;

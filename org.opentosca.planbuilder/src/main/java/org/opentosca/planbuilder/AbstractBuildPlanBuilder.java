@@ -97,13 +97,24 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
         for (final AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
             final AbstractActivity activity = relationActivityMapping.get(relationshipTemplate);
             final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
+            
+            AbstractActivity sourceActivity = nodeActivityMapping.get(relationshipTemplate.getSource());
+            AbstractActivity targetActivity = nodeActivityMapping.get(relationshipTemplate.getTarget());
             if (baseType.equals(Types.connectsToRelationType)) {
-                links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getSource()), activity));
-                links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
+                if(sourceActivity != null) {                    
+                    links.add(new Link(sourceActivity, activity));
+                }
+                if(targetActivity != null) {                    
+                    links.add(new Link(targetActivity, activity));
+                }
             } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
                 | baseType.equals(Types.deployedOnRelationType)) {
-                links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
-                links.add(new Link(activity, nodeActivityMapping.get(relationshipTemplate.getSource())));
+                if(targetActivity != null) {                    
+                    links.add(new Link(targetActivity, activity));
+                }
+                if(sourceActivity != null) {                    
+                    links.add(new Link(activity, sourceActivity));
+                }
             }
 
         }

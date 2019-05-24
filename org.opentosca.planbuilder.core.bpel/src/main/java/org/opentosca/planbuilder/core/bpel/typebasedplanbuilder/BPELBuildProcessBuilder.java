@@ -13,14 +13,13 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.EmptyPropertyToInputHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.SituationTriggerRegistration;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.EmptyPropertyToInputHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.core.tosca.handlers.SituationTriggerRegistration;
-import org.opentosca.planbuilder.core.tosca.handlers.PropertyVariableHandler.Property2VariableMapping;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
@@ -31,11 +30,12 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -227,15 +227,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
         return plans;
     }
 
-    private boolean isRunning(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-        final PropertyVariable state = context.getPropertyVariable(nodeTemplate, "State");
-        if (state != null) {
-            if (BPELPlanContext.getVariableContent(state, context).equals("Running")) {
-                return true;
-            }
-        }
-        return false;
-    }
+    
 
     /**
      * <p>
@@ -253,7 +245,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
 
         for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
-            final BPELPlanContext context = new BPELPlanContext(bpelScope, map, buildPlan.getServiceTemplate(),
+            final BPELPlanContext context = new BPELPlanContext(buildPlan, bpelScope, map, buildPlan.getServiceTemplate(),
                 serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarFileName);
             if (bpelScope.getNodeTemplate() != null) {
 
@@ -261,7 +253,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
                 // if this nodeTemplate has the label running (Property: State=Running), skip
                 // provisioning and just generate instance data handling
-                if (isRunning(context, nodeTemplate)) {
+                if (this.isRunning(nodeTemplate)) {
                     BPELBuildProcessBuilder.LOG.debug("Skipping the provisioning of NodeTemplate "
                         + bpelScope.getNodeTemplate().getId() + "  beacuse state=running is set.");
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
@@ -273,16 +265,12 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 }
 
                 // generate code for the activity
-                this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate,
-                                                      buildPlan.findNodeTemplateActivity(nodeTemplate,
-                                                                                         ActivityType.PROVISIONING));
+                this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
             } else if (bpelScope.getRelationshipTemplate() != null) {
                 // handling relationshiptemplate
                 final AbstractRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
 
-                this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate,
-                                                      buildPlan.findRelationshipTemplateActivity(relationshipTemplate,
-                                                                                                 ActivityType.PROVISIONING));
+                this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate);
             }
 
         }

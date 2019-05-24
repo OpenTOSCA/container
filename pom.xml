@@ -63,8 +63,10 @@
     <module>org.opentosca.planbuilder.selection.plugin.mosquitto.workload</module>
     <module>org.opentosca.planbuilder.type.plugin.connectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.dockercontainer</module>
+    <module>org.opentosca.planbuilder.type.plugin.hardware</module>
     <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.patternbased</module>
+    <module>org.opentosca.planbuilder.type.plugin.platforms</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
     <module>org.opentosca.container.legacy</module>
   </modules>

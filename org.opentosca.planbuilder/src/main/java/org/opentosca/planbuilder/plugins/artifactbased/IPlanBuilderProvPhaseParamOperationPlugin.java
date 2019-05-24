@@ -26,7 +26,7 @@ public interface IPlanBuilderProvPhaseParamOperationPlugin<T extends PlanContext
                                                           extends IPlanBuilderProvPhaseOperationPlugin<T> {
 
     /**
-     * This method is used to generate and add a fragment which calls an TOSCA Operations
+     * This method is used to generate and add a fragment which calls a TOSCA Operation
      *
      * @param context the TemplateContext of the Template to call the Operation on
      * @param operation the Operation to call on the Template
