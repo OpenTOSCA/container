@@ -167,6 +167,7 @@
     <module>org.opentosca.planbuilder.type.plugin.patternbased</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
     <module>org.opentosca.deployment.checks</module>
+    <module>org.opentosca.placement</module>
     <module>org.opentosca.broker.mqtt</module>
   </modules>
 

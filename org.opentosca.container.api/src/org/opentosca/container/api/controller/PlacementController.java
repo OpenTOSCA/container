@@ -22,10 +22,13 @@ import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateListDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
 import org.opentosca.container.api.dto.request.StartPlacementRequest;
+import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
+import org.opentosca.container.api.service.ServiceTemplateService;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.DeploymentTest;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
@@ -57,10 +60,18 @@ public class PlacementController {
     ResourceContext resourceContext;
 
     private PlacementService placementService;
+    private InstanceService instanceService;
+    private CsarService csarService;
+    private ServiceTemplateService serviceTemplateService;
 
     public PlacementController(final PlacementService placementService,
+    						   final CsarService csarService,
+    						   final ServiceTemplateService serviceTemplateService,
                                final InstanceService instanceService) {
         this.placementService = placementService;
+        this.instanceService = instanceService;
+    	this.serviceTemplateService = serviceTemplateService;
+    	this.csarService = csarService;
     }
     
     @POST
@@ -70,6 +81,17 @@ public class PlacementController {
 
         if (request == null || request.getCorrelationId() == null || request.getCorrelationId().trim().length() == 0) {
             return Response.status(Status.BAD_REQUEST).build();
+        }
+        
+		// final CSARID csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateId);
+		
+		final CSARContent csarContent = this.csarService.findById(csarId);
+		
+        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
+            logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
+            throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
+        } else {
+        	logger.info("Service template \"" + serviceTemplateId + "\" was found!");
         }
 
         try {

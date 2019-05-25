@@ -9,10 +9,6 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.ServiceTemplateService;
-import org.opentosca.container.api.util.UriUtil;
 // import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
@@ -41,25 +37,10 @@ public class PlacementService {
     private static Logger logger = LoggerFactory.getLogger(PlacementService.class);
     
     private final ExecutorService pool = Executors.newFixedThreadPool(5);
-
-    private CsarService csarService;
-    private ServiceTemplateService serviceTemplateService;
-    private InstanceService instanceService;
-    private IToscaEngineService toscaEngineService;
-    
-    public PlacementService(final ServiceTemplateService serviceTemplateService,
-    						final InstanceService instanceService,
-    						final CsarService csarService) {
-    	this.instanceService = instanceService;
-    	this.serviceTemplateService = serviceTemplateService;
-    	this.csarService = csarService;
-    	
-    }
     
     // public PlacementCandidates findPlacementCandidates(final String csarId, final String serviceTemplateId)
 	public void findPlacementCandidates(final String csarId, final String serviceTemplateId)
 			throws NotFoundException, IllegalAccessException, IllegalArgumentException {
-		final CSARID csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateId);
 		
 		logger.info("Inside PlacementService::findPlacementCandidates(csarId, serviceTempladeId)");
 		logger.info("csarId: " + csarId);
@@ -67,14 +48,6 @@ public class PlacementService {
 		
 		
 		////
-		
-		final CSARContent csarContent = this.csarService.findById(csarId);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
-            logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
-            throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
-        } else {
-        	logger.info("Service template \"" + serviceTemplateId + "\" was found!");
-        }
 
         // TODO: Check if instance belongs to CSAR and Service Template
 		/*
@@ -112,41 +85,4 @@ public class PlacementService {
 	 * getRelationshipTemplateIdsOfServiceTemplate(csarId,
 	 * serviceTemplateQName.toString()).contains(relationshipTemplateId); }
 	 */
-
-    /**
-     * Gets the properties (as an XML document) of a given relationship template.
-     *
-     * @param csarId
-     * @param serviceTemplateQName
-     * @param relationshipTemplateId
-     * @return
-     */
-    public Document getPropertiesOfRelationshipTemplate(final String csarId, final QName serviceTemplateQName,
-                                                        final String relationshipTemplateId) {
-        final CSARContent csarContent = this.csarService.findById(csarId);
-        final CSARID idOfCsar = csarContent.getCSARID();
-
-        if (!this.toscaEngineService.getRelationshipTemplatesOfServiceTemplate(idOfCsar, serviceTemplateQName)
-                                    .contains(relationshipTemplateId)) {
-            logger.info("Relationship template \"" + relationshipTemplateId + "\" could not be found");
-            throw new NotFoundException("Relationship template \"" + relationshipTemplateId + "\" could not be found");
-        }
-
-        final Document properties =
-            this.toscaEngineService.getPropertiesOfTemplate(idOfCsar, serviceTemplateQName, relationshipTemplateId);
-
-        return properties;
-    }
-
-    public void setCsarService(final CsarService csarService) {
-        this.csarService = csarService;
-    }
-
-    public void setToscaEngineService(final IToscaEngineService toscaEngineService) {
-        this.toscaEngineService = toscaEngineService;
-    }
-    
-    public void setInstanceService(final InstanceService instanceService) {
-        this.instanceService = instanceService;
-    }
 }
