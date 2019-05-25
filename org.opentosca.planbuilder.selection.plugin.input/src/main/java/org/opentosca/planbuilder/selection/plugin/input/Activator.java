@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.selection.plugin.input;
 
-import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.plugins.typebased.IScalingPlanBuilderSelectionPlugin;
 import org.opentosca.planbuilder.selection.plugin.input.bpel.BPELSelectionInputPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

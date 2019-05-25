@@ -1,7 +1,7 @@
 package org.opentosca.planbuilder.postphase.plugin.instancedata;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
-import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.postphase.plugin.instancedata.bpel.BPELInstanceDataPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

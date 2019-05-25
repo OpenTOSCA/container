@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilder {
 
-    protected final PluginRegistry pluginRegistry = new PluginRegistry();
+    protected final PluginRegistry pluginRegistry = PluginRegistry.INSTANCE;
 
     private final static Logger LOG = LoggerFactory.getLogger(AbstractTransformingPlanbuilder.class);
 

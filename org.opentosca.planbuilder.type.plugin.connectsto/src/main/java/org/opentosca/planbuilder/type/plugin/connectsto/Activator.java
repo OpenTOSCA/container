@@ -3,7 +3,7 @@ package org.opentosca.planbuilder.type.plugin.connectsto;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.type.plugin.connectsto.bpel.BPELConfigureRelationsPlugin;
 import org.opentosca.planbuilder.type.plugin.connectsto.bpel.BPELConnectsToPlugin;
 import org.osgi.framework.BundleActivator;

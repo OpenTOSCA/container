@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="PlanCorrelationID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="CsarID" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="ServiceInstanceID" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="NodeInstanceID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
@@ -47,14 +48,18 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "invokeOperationSync",
-  propOrder = {"csarID", "serviceInstanceID", "nodeInstanceID", "serviceTemplateIDNamespaceURI",
-    "serviceTemplateIDLocalPart", "nodeTemplateID", "relationshipTemplateID", "interfaceName",
-    "operationName", "params", "doc"})
+  propOrder = {"planCorrelation", "csarID", "serviceInstanceID", "nodeInstanceID",
+    "serviceTemplateIDNamespaceURI", "serviceTemplateIDLocalPart", "nodeTemplateID",
+    "relationshipTemplateID", "interfaceName", "operationName", "params", "doc"})
 public class InvokeOperationSync {
 
+  @XmlElement(name = "PlanCorrelationID")
+  protected String planCorrelation;
   @XmlElement(name = "CsarID", required = true)
   protected String csarID;
   @XmlElement(name = "ServiceInstanceID", required = true)
@@ -79,9 +84,30 @@ public class InvokeOperationSync {
   protected Doc doc;
 
   /**
+   * Gets the value of the PlanCorrelationID property.
+   *
+   * @return possible object is {@link String }
+   *
+   */
+  public String getPlanCorrelationID() {
+    return this.planCorrelation;
+  }
+
+  /**
+   * Sets the value of the PlanCorrelationID property.
+   *
+   * @param value allowed object is {@link String }
+   *
+   */
+  public void setPlanCorrelationID(final String value) {
+    this.planCorrelation = value;
+  }
+
+  /**
    * Gets the value of the csarID property.
    *
    * @return possible object is {@link String }
+   *
    */
   public String getCsarID() {
     return this.csarID;
@@ -91,6 +117,7 @@ public class InvokeOperationSync {
    * Sets the value of the csarID property.
    *
    * @param value allowed object is {@link String }
+   *
    */
   public void setCsarID(final String value) {
     this.csarID = value;
@@ -100,6 +127,7 @@ public class InvokeOperationSync {
    * Gets the value of the serviceInstanceID property.
    *
    * @return possible object is {@link String }
+   *
    */
   public String getServiceInstanceID() {
     return this.serviceInstanceID;
@@ -109,6 +137,7 @@ public class InvokeOperationSync {
    * Sets the value of the serviceInstanceID property.
    *
    * @param value allowed object is {@link String }
+   *
    */
   public void setServiceInstanceID(final String value) {
     this.serviceInstanceID = value;
@@ -118,6 +147,7 @@ public class InvokeOperationSync {
    * Gets the value of the nodeInstanceID property.
    *
    * @return possible object is {@link String }
+   *
    */
   public String getNodeInstanceID() {
     return this.nodeInstanceID;
@@ -127,6 +157,7 @@ public class InvokeOperationSync {
    * Sets the value of the nodeInstanceID property.
    *
    * @param value allowed object is {@link String }
+   *
    */
   public void setNodeInstanceID(final String value) {
     this.nodeInstanceID = value;
@@ -136,6 +167,7 @@ public class InvokeOperationSync {
    * Gets the value of the serviceTemplateIDNamespaceURI property.
    *
    * @return possible object is {@link String }
+   *
    */
   public String getServiceTemplateIDNamespaceURI() {
     return this.serviceTemplateIDNamespaceURI;
@@ -145,6 +177,7 @@ public class InvokeOperationSync {
    * Sets the value of the serviceTemplateIDNamespaceURI property.
    *
    * @param value allowed object is {@link String }
+   *
    */
   public void setServiceTemplateIDNamespaceURI(final String value) {
     this.serviceTemplateIDNamespaceURI = value;
@@ -154,6 +187,7 @@ public class InvokeOperationSync {
    * Gets the value of the serviceTemplateIDLocalPart property.
    *
    * @return possible object is {@link String }
+   *
    */
   public String getServiceTemplateIDLocalPart() {
     return this.serviceTemplateIDLocalPart;
@@ -163,6 +197,7 @@ public class InvokeOperationSync {
    * Sets the value of the serviceTemplateIDLocalPart property.
    *
    * @param value allowed object is {@link String }
+   *
    */
   public void setServiceTemplateIDLocalPart(final String value) {
     this.serviceTemplateIDLocalPart = value;
@@ -172,6 +207,7 @@ public class InvokeOperationSync {
    * Gets the value of the nodeTemplateID property.
    *
    * @return possible object is {@link String }
+   *
    */
   public String getNodeTemplateID() {
     return this.nodeTemplateID;
@@ -181,6 +217,7 @@ public class InvokeOperationSync {
    * Sets the value of the nodeTemplateID property.
    *
    * @param value allowed object is {@link String }
+   *
    */
   public void setNodeTemplateID(final String value) {
     this.nodeTemplateID = value;
@@ -190,6 +227,7 @@ public class InvokeOperationSync {
    * Gets the value of the relationshipTemplateID property.
    *
    * @return possible object is {@link String }
+   *
    */
   public String getRelationshipTemplateID() {
     return this.relationshipTemplateID;
@@ -199,6 +237,7 @@ public class InvokeOperationSync {
    * Sets the value of the relationshipTemplateID property.
    *
    * @param value allowed object is {@link String }
+   *
    */
   public void setRelationshipTemplateID(final String value) {
     this.relationshipTemplateID = value;
@@ -208,6 +247,7 @@ public class InvokeOperationSync {
    * Gets the value of the interfaceName property.
    *
    * @return possible object is {@link String }
+   *
    */
   public String getInterfaceName() {
     return this.interfaceName;
@@ -217,6 +257,7 @@ public class InvokeOperationSync {
    * Sets the value of the interfaceName property.
    *
    * @param value allowed object is {@link String }
+   *
    */
   public void setInterfaceName(final String value) {
     this.interfaceName = value;
@@ -226,6 +267,7 @@ public class InvokeOperationSync {
    * Gets the value of the operationName property.
    *
    * @return possible object is {@link String }
+   *
    */
   public String getOperationName() {
     return this.operationName;
@@ -235,6 +277,7 @@ public class InvokeOperationSync {
    * Sets the value of the operationName property.
    *
    * @param value allowed object is {@link String }
+   *
    */
   public void setOperationName(final String value) {
     this.operationName = value;
@@ -244,6 +287,7 @@ public class InvokeOperationSync {
    * Gets the value of the params property.
    *
    * @return possible object is {@link ParamsMap }
+   *
    */
   public ParamsMap getParams() {
     return this.params;
@@ -253,6 +297,7 @@ public class InvokeOperationSync {
    * Sets the value of the params property.
    *
    * @param value allowed object is {@link ParamsMap }
+   *
    */
   public void setParams(final ParamsMap value) {
     this.params = value;
@@ -262,6 +307,7 @@ public class InvokeOperationSync {
    * Gets the value of the doc property.
    *
    * @return possible object is {@link Doc }
+   *
    */
   public Doc getDoc() {
     return this.doc;
@@ -271,6 +317,7 @@ public class InvokeOperationSync {
    * Sets the value of the doc property.
    *
    * @param value allowed object is {@link Doc }
+   *
    */
   public void setDoc(final Doc value) {
     this.doc = value;

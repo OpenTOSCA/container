@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.selection.plugin.firstavailable;
 
-import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.plugins.typebased.IScalingPlanBuilderSelectionPlugin;
 import org.opentosca.planbuilder.selection.plugin.firstavailable.bpel.BPELFirstAvailablePlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

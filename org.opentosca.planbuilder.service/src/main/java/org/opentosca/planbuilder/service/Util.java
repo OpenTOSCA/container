@@ -21,6 +21,7 @@ import org.eclipse.winery.model.selfservice.ApplicationOption;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.export.VinothekKnownParameters;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;

@@ -1,6 +1,7 @@
 package org.opentosca.container.api.dto.plan;
 
 import java.util.Date;
+import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -17,7 +18,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class PlanInstanceEventDTO {
 
   @XmlElement(name = "Timestamp")
-  private Date timestamp;
+  private Date startTimestamp;
+
+  @XmlElement(name = "EndTimestamp")
+  private Date endTimestamp;
 
   @XmlElement(name = "Status")
   private String status;
@@ -28,12 +32,20 @@ public class PlanInstanceEventDTO {
   @XmlElement(name = "Message")
   private String message;
 
-  public Date getTimestamp() {
-    return this.timestamp;
+  public Date getStartTimestamp() {
+    return this.startTimestamp;
   }
 
-  public void setTimestamp(final Date timestamp) {
-    this.timestamp = timestamp;
+  public void setStartTimestamp(final Date startTimestamp) {
+    this.startTimestamp = startTimestamp;
+  }
+
+  public Date getEndTimestamp() {
+    return endTimestamp;
+  }
+
+  public void setEndTimestamp(Date endTimestamp) {
+    this.endTimestamp = endTimestamp;
   }
 
   public String getStatus() {
@@ -67,8 +79,15 @@ public class PlanInstanceEventDTO {
 
       dto.setMessage(object.getMessage());
       dto.setStatus(object.getStatus());
-      dto.setTimestamp(object.getTimestamp());
+      dto.setStartTimestamp(object.getStartTimestamp());
       dto.setType(object.getType());
+
+      if (Objects.isNull(object.getEndTimestamp())) {
+        // event has no duration
+        dto.setEndTimestamp(object.getStartTimestamp());
+      } else {
+        dto.setEndTimestamp(object.getEndTimestamp());
+      }
 
       return dto;
     }
