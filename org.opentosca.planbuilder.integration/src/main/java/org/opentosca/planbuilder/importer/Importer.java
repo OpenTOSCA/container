@@ -16,6 +16,7 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
+@Service
 public class Importer extends AbstractImporter {
 
     final private static Logger LOG = LoggerFactory.getLogger(Importer.class);

@@ -212,20 +212,31 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
   public synchronized void deleteDeploymentState(CsarId csar) {
     LOGGER.info("Deleting all deployment state associated with Csar {}", csar.csarName());
     em.getTransaction().begin();
-    final Collection<IADeploymentInfo> iaDeployments = getIADeployments(csar);
-    LOGGER.trace("Marking {} IA deployments for removal", iaDeployments.size());
-    for (IADeploymentInfo iaInfo : iaDeployments) {
-      em.remove(iaInfo);
+    try {
+      final Collection<IADeploymentInfo> iaDeployments = getIADeployments(csar);
+      LOGGER.trace("Marking {} IA deployments for removal", iaDeployments.size());
+      for (IADeploymentInfo iaInfo : iaDeployments) {
+        em.remove(iaInfo);
+      }
+      final Collection<PlanDeploymentInfo> planDeployments = getPlanDeployments(csar);
+      LOGGER.trace("Marking {} Plan deployments for removal", planDeployments.size());
+      for (PlanDeploymentInfo planInfo : planDeployments) {
+        em.remove(planInfo);
+      }
+      final DeploymentProcessInfo csarInfo = getDeploymentInfo(csar);
+      LOGGER.trace("Marking Csar for removal");
+      if (csarInfo != null) {
+        em.remove(csarInfo);
+      }
+      em.getTransaction().commit();
+    } catch (Exception e) {
+      em.getTransaction().setRollbackOnly();
+      throw e;
+    } finally {
+      if (em.getTransaction().getRollbackOnly()) {
+        em.getTransaction().rollback();
+      }
     }
-    final Collection<PlanDeploymentInfo> planDeployments = getPlanDeployments(csar);
-    LOGGER.trace("Marking {} Plan deployments for removal", planDeployments.size());
-    for (PlanDeploymentInfo planInfo : planDeployments) {
-      em.remove(planInfo);
-    }
-    final DeploymentProcessInfo csarInfo = getDeploymentInfo(csar);
-    LOGGER.trace("Marking Csar for removal");
-    em.remove(csarInfo);
-    em.getTransaction().commit();
     LOGGER.trace("Marked changes have been persisted");
   }
 

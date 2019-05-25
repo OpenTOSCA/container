@@ -9,10 +9,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -134,7 +136,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
       importOptions.setOverwrite(false);
       importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
       if (!importInfo.errors.isEmpty()) {
-        FileUtils.forceDelete(permanentLocation);
+        throw new UserException("Importing the csar failed with errors: " + importInfo.errors.stream().collect(Collectors.joining(System.lineSeparator())));
       }
     } catch (IOException e) {
       // roll back the import
@@ -156,10 +158,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
       }
       throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
     }
-
-    if (importInfo == null || !importInfo.errors.isEmpty()) {
-      throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
-    }
+    assert(importInfo != null);
+    // if (importInfo == null || !importInfo.errors.isEmpty()) {
+    //   LOGGER.info("Import failed with information ", importInfo);
+    //   throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported: ");
+    // }
     // apparently there will always be an EntryServiceTemplate??
     ServiceTemplateId entryServiceTemplate = importInfo.entryServiceTemplate;
     // we may be able to "guarantee" it's not null, since we validate CSARs on import

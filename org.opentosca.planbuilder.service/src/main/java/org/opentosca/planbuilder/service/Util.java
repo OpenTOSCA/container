@@ -20,6 +20,7 @@ import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.eclipse.winery.model.selfservice.ApplicationOption;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.impl.service.FileAccessServiceImpl;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.export.VinothekKnownParameters;
@@ -189,7 +190,7 @@ public class Util {
    * @return a File denoting the export location
    */
   public static File writePlan2TmpFolder(final BPELPlan buildPlan) {
-    final Exporter planBuilderExporter = new Exporter();
+    final Exporter planBuilderExporter = new Exporter(new FileAccessServiceImpl());
     final File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")
       + Long.toString(System.currentTimeMillis()));
     tmpDir.mkdir();

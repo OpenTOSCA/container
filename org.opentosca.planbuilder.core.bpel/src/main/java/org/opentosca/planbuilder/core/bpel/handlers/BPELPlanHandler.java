@@ -105,7 +105,7 @@ public class BPELPlanHandler {
     String xsdPrefix = null;
     do {
       xsdPrefix = "xsd" + System.currentTimeMillis();
-    } while (addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan));
+    } while (!addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan));
 
     String varName = varNamePrefix + System.currentTimeMillis();
     final QName stringXsdDeclQName = new QName(xsdNamespace, "string", xsdPrefix);

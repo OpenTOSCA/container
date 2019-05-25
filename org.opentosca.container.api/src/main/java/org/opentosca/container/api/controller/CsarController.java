@@ -245,7 +245,7 @@ public class CsarController {
       csarId = storage.storeCSAR(tempFile);
     } catch (UserException e) {
       FileUtils.forceDelete(tempFile);
-      return Response.notAcceptable(null).entity(e).build();
+      return Response.status(Status.CONFLICT).entity(e).build();
     } catch (SystemException e) {
       FileUtils.forceDelete(tempFile);
       return Response.serverError().entity(e).build();

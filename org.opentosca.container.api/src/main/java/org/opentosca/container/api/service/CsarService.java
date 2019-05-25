@@ -3,6 +3,7 @@ package org.opentosca.container.api.service;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.impl.service.FileAccessServiceImpl;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -75,7 +76,7 @@ public class CsarService {
   public CsarId generateTransformationPlans(final CsarId sourceCsarId, final CsarId targetCsarId) {
 
     final Importer planBuilderImporter = new Importer();
-    final Exporter planBuilderExporter = new Exporter();
+    final Exporter planBuilderExporter = new Exporter(new FileAccessServiceImpl());
 
     //planBuilderImporter.buildTransformationPlans(sourceCsarId.getFileName(), sourceDefinitions, targetCsarId.getFileName(), targetDefinitions)
     List<AbstractPlan> plans = planBuilderImporter.generateTransformationPlans(sourceCsarId.toOldCsarId(), targetCsarId.toOldCsarId());

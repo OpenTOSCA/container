@@ -1,6 +1,9 @@
 package org.opentosca.container.core.common;
 
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -57,6 +60,11 @@ public class Settings {
 
   static {
     // Initialize settings with defaults we know
+    try {
+      settings.load(Settings.class.getClassLoader().getResourceAsStream("application.properties"));
+    } catch (IOException e) {
+      LoggerFactory.getLogger(Settings.class).error("Could not load defaults shipped with the application", e);
+    }
   }
 
   /**

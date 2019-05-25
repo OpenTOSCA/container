@@ -258,6 +258,11 @@ public class OdeConnector {
 
       final String pid = calcHighestPidForStrings(filteredPackages, packageName);
 
+      if (pid == null || pid.isEmpty()) {
+        OdeConnector.LOG.error("PID was not correctly defined, aborting undeploy");
+        return false;
+      }
+
       client.undeploy(QName.valueOf(pid));
     } catch (final RemoteException e) {
       OdeConnector.LOG.error("Trying to undeploy package '" + packageName + "' caused an exception.", e);
