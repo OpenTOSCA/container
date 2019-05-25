@@ -2,8 +2,6 @@ package org.opentosca.placement;
 
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
@@ -17,7 +15,6 @@ import org.opentosca.container.core.next.model.DeploymentTest;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
-import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +32,6 @@ import com.google.common.collect.Lists;
 public class PlacementService {
 	
     private static Logger logger = LoggerFactory.getLogger(PlacementService.class);
-    
-    private final ExecutorService pool = Executors.newFixedThreadPool(5);
     
     // public PlacementCandidates findPlacementCandidates(final String csarId, final String serviceTemplateId)
 	public void findPlacementCandidates(final String csarId, final String serviceTemplateId)

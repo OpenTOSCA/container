@@ -98,6 +98,7 @@ public class ServiceTemplateController {
                                                             "boundarydefinitions"));
         serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "buildplans", false, "buildplans"));
         serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
+        serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "placement", false, "placement"));
         serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "nodetemplates", false, "nodetemplates"));
         serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "relationshiptemplates", false,
                                                             "relationshiptemplates"));
