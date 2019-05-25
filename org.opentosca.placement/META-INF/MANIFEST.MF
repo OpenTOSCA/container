@@ -28,3 +28,4 @@ Require-Bundle: org.opentosca.container.core;bundle-version="2.0.0",
  org.opentosca.container.core.tosca;bundle-version="2.0.0",
  org.opentosca.bus.management;bundle-version="2.0.0"
 Export-Package: org.opentosca.placement
+Bundle-ActivationPolicy: lazy

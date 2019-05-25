@@ -150,10 +150,9 @@ public class ServiceTemplateController {
     	final PlacementController child = new PlacementController(this.placementService, this.csarService, this.serviceTemplateService, this.instanceService);
     	this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 		return child;
-    	
     }
 
-    public void setPlacementService(final org.opentosca.placement.PlacementService placementService) {
+    public void setPlacementService(final PlacementService placementService) {
     	this.placementService = placementService;
     }
     
