@@ -30,6 +30,7 @@ Import-Package: com.eclipsesource.jaxrs.publisher;version="5.3.1",
  org.glassfish.jersey.server;version="2.22.2",
  org.glassfish.jersey.server.model;version="2.22.2",
  org.glassfish.jersey.uri;version="2.22.2",
+ org.opentosca.placement,
  org.osgi.framework;version="1.3.0",
  org.osgi.service.cm;version="1.5.0",
  org.slf4j;version="1.7.10"
@@ -44,7 +45,8 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.planbuilder.integration;bundle-version="1.0.0",
  org.opentosca.planbuilder.service;bundle-version="1.0.0",
  org.opentosca.container.portability;bundle-version="1.0.0",
- org.opentosca.deployment.checks;bundle-version="2.0.0"
+ org.opentosca.deployment.checks;bundle-version="2.0.0",
+ org.opentosca.placement;bundle-version="1.0.0"
 Service-Component: OSGI-INF/*
 Export-Package: org.opentosca.container.api.controller,
  org.opentosca.container.api.dto,

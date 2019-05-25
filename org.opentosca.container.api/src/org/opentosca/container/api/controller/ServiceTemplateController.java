@@ -25,6 +25,7 @@ import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.deployment.tests.DeploymentTestService;
+import org.opentosca.placement.PlacementService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,6 +43,8 @@ public class ServiceTemplateController {
 
     @Context
     private ResourceContext resourceContext;
+    
+    private PlacementService placementService;
 
     private PlanService planService;
 
@@ -138,7 +141,22 @@ public class ServiceTemplateController {
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
+    
+    
+    @Path("/{servicetemplate}/placement")
+    public PlacementController  startPlacement(@ApiParam(hidden = true) @PathParam("csar") final String csar,
+            								   @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
+    	this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId);
+    	final PlacementController child = new PlacementController(placementService, instanceService);
+    	this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
+		return child;
+    	
+    }
 
+    public void setPlacementService(final org.opentosca.placement.PlacementService placementService) {
+    	this.placementService = placementService;
+    }
+    
     public void setPlanService(final PlanService planService) {
         this.planService = planService;
     }
@@ -146,6 +164,7 @@ public class ServiceTemplateController {
     public void setInstanceService(final InstanceService instanceService) {
         this.instanceService = instanceService;
     }
+ 
 
     public void setNodeTemplateService(final NodeTemplateService nodeTemplateService) {
         this.nodeTemplateService = nodeTemplateService;
