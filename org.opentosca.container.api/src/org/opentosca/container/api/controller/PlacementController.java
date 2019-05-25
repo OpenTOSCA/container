@@ -43,7 +43,7 @@ import io.swagger.annotations.ApiParam;
 @Api
 public class PlacementController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
+    private static final Logger logger = LoggerFactory.getLogger(PlacementController.class);
     
     @ApiParam("ID of CSAR")
     @PathParam("csar")
@@ -114,7 +114,15 @@ public class PlacementController {
         }
     }
 
-    public void setplacementService(final PlacementService placementService) {
+    public void setPlacementService(PlacementService placementService) {
         this.placementService = placementService;
     }
+
+	public void setInstanceService(InstanceService instanceService) {
+		this.instanceService = instanceService;
+	}
+
+	public void setServiceTemplateService(ServiceTemplateService serviceTemplateService) {
+		this.serviceTemplateService = serviceTemplateService;
+	}
 }
