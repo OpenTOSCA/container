@@ -17,6 +17,7 @@ import org.opentosca.container.api.dto.ServiceTemplateListDTO;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
+import org.opentosca.container.api.service.PlacementService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.service.ServiceTemplateService;
@@ -25,7 +26,6 @@ import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.deployment.tests.DeploymentTestService;
-import org.opentosca.placement.PlacementService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -145,7 +145,7 @@ public class ServiceTemplateController {
     
     
     @Path("/{servicetemplate}/placement")
-    public PlacementController  startPlacement(@ApiParam(hidden = true) @PathParam("csar") final String csar,
+    public PlacementController startPlacement(@ApiParam(hidden = true) @PathParam("csar") final String csar,
             								   @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
     	this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId);
     	final PlacementController child = new PlacementController(this.placementService, this.csarService, this.serviceTemplateService, this.instanceService);

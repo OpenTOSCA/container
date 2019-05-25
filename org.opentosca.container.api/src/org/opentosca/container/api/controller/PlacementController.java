@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.Status;
@@ -21,9 +22,9 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateListDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
-import org.opentosca.container.api.dto.request.StartPlacementRequest;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
+import org.opentosca.container.api.service.PlacementService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.service.ServiceTemplateService;
 import org.opentosca.container.api.util.UriUtil;
@@ -32,7 +33,6 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.DeploymentTest;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
-import org.opentosca.placement.PlacementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,10 +76,12 @@ public class PlacementController {
     
     @POST
     @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
     @ApiOperation(hidden = true, value = "")
-    public Response startPlacement(final StartPlacementRequest request) {
+    public Response startPlacement(final Request request) {
 
-        if (request == null || request.getCorrelationId() == null || request.getCorrelationId().trim().length() == 0) {
+        if (request == null) {
+        	logger.info("PLACEMENT::Request was null");
             return Response.status(Status.BAD_REQUEST).build();
         }
         
@@ -93,24 +95,26 @@ public class PlacementController {
         } else {
         	logger.info("Service template \"" + serviceTemplateId + "\" was found!");
         }
+        
+        logger.info("Inside PlacementService::findPlacementCandidates(csarId, serviceTempladeId)");
+		logger.info("csarId: " + csarId);
+		logger.info("serviceTemplateId: " + serviceTemplateId);
 
         try {
+        	this.setPlacementService(new PlacementService());
         	
         	// final PlacementCandidates foundCandidates = this.placementService.findPlacementCandidates(this.csarId, this.serviceTemplateId);
-        	
-        	this.placementService.findPlacementCandidates(this.csarId, this.serviceTemplateId);
+        	String str = this.placementService.findPlacementCandidates(this.csarId, this.serviceTemplateId);
+        	logger.info("Trying to find Placement Candidates...");
 
             final URI uri = UriUtil.generateSubResourceURI(this.uriInfo, csarId, false);
 
             return Response.ok(uri).build();
+            		//Response.ok(uri).build();
         }
-        catch (final IllegalArgumentException e) {
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-        catch (IllegalAccessException e) {
-            logger.debug("Internal error occurred: {}", e.getMessage());
-
-            return Response.serverError().build();
+        catch (final NullPointerException e) {
+        	logger.error(e.toString());
+            return Response.ok("Blub").build();
         }
     }
 

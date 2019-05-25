@@ -3,9 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Placement of Component Applications
 Bundle-SymbolicName: org.opentosca.placement
 Bundle-Version: 2.0.0.qualifier
-Automatic-Module-Name: org.opentosca.placement
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Service-Component: OSGI-INF/PlacementService_component.xml
 Import-Package: com.google.common.base;version="15.0.0",
  com.google.common.collect;version="15.0.0",
  com.google.common.primitives;version="15.0.0",
@@ -26,5 +24,7 @@ Import-Package: com.google.common.base;version="15.0.0",
  org.slf4j;version="1.7.2"
 Require-Bundle: org.opentosca.container.core;bundle-version="2.0.0",
  org.opentosca.container.core.tosca;bundle-version="2.0.0"
+Service-Component: OSGI-INF/*
 Export-Package: org.opentosca.placement
 Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.opentosca.placement.Activator

@@ -1,4 +1,4 @@
-package org.opentosca.placement;
+package org.opentosca.container.api.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
