@@ -622,16 +622,12 @@ public class ModelUtils {
             | relationshipType.equals(Types.deployedOnRelationType);
     }
 
-    public static List<String> getPropertyNames(final AbstractNodeTemplate nodeTemplate) {
-        final List<String> propertyNames = new ArrayList<>();
-        final NodeList propertyNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
-        for (int index = 0; index < propertyNodes.getLength(); index++) {
-            final Node propertyNode = propertyNodes.item(index);
-            if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
-                propertyNames.add(propertyNode.getLocalName());
-            }
+    public static Collection<String> getPropertyNames(final AbstractNodeTemplate nodeTemplate) {
+        if(nodeTemplate.getProperties() != null) {            
+            return nodeTemplate.getProperties().asMap().keySet();        
+        } else {
+            return new HashSet<String>();
         }
-        return propertyNames;
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.plugins.registry;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -219,21 +220,21 @@ public class PluginRegistry {
   }
 
   public IPlanBuilderTypePlugin<?> findTypePluginForTermination(final AbstractNodeTemplate nodeTemplate) {
-    for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
-      if (plugin.canHandleTerminate(nodeTemplate)) {
-        return plugin;
-      }
-    }
-    return null;
+    return getTypePlugins().stream()
+      .filter(p -> p.canHandleTerminate(nodeTemplate))
+      // sort highest priority first
+      .sorted(Comparator.comparingInt(IPlanBuilderPlugin::getPriority).reversed())
+      .findFirst()
+      .orElse(null);
   }
 
   public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractNodeTemplate nodeTemplate) {
-    for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
-      if (plugin.canHandleCreate(nodeTemplate)) {
-        return plugin;
-      }
-    }
-    return null;
+    return getTypePlugins().stream()
+      .filter(p -> p.canHandleCreate(nodeTemplate))
+      // sort highest priority first
+      .sorted(Comparator.comparingInt(IPlanBuilderPlugin::getPriority).reversed())
+      .findFirst()
+      .orElse(null);
   }
 
   public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractRelationshipTemplate relationshipTemplate) {

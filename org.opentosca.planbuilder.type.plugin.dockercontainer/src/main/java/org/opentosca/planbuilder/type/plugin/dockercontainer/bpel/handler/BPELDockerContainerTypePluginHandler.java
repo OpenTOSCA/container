@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.handler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,8 +165,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
             hostVolumeDataVariable = templateContext.getPropertyVariable(nodeTemplate, "HostMountFiles");
 
-            if (hostVolumeDataVariable != null
-                && !PluginUtils.isVariableValueEmpty(hostVolumeDataVariable)) {
+            if (hostVolumeDataVariable != null && !PluginUtils.isVariableValueEmpty(hostVolumeDataVariable)) {
                 final AbstractNodeTemplate infraNode = findInfrastructureTemplate(templateContext, dockerEngineNode);
                 vmIpVariable = findVMIP(templateContext, infraNode);
                 vmPrivateKeyVariable = findPrivateKey(templateContext, infraNode);
@@ -272,15 +272,16 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return remoteVolumeDataVariable;
     }
 
+    /**
+     * Checks whether there are properties which start with "ENV_" in the name and generates a variable
+     * for all of these properties to pass them as environment variables to a docker container
+     * 
+     * @param context
+     * @param nodeTemplate
+     * @return
+     */
     private Variable fetchEnvironmentVariables(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-
-        final List<String> propertyNames = ModelUtils.getPropertyNames(nodeTemplate);
-
-        // String envVarXpathQuery = "concat('ONEM2M_CSE_ID=',$" + tenantIdVar.getName()
-        // + ",'~',$" + instanceIdVar.getName() +
-        // ",';LOGGING_LEVEL=INFO;ONEM2M_REGISTRATION_DISABLED=false;ONEM2M_NOTIFICATION_DISABLED=false;ONEM2M_SP_ID=',$"
-        // + onem2mspIdVar.getName() + ",';EXTERNAL_IP=',$" + ownIp.getName() + ")";
-
+        final Collection<String> propertyNames = ModelUtils.getPropertyNames(nodeTemplate);
         String envVarXpathQuery = "concat(";
 
         boolean foundEnvVar = false;
@@ -482,8 +483,9 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
         this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, createDEInternalExternalPropsInput,
-                                  createDEInternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
+                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
+                                  createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
+                                  BPELScopePhaseType.PROVISIONING);
 
         return true;
     }
@@ -536,8 +538,9 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
         this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, createDEInternalExternalPropsInput,
-                                  createDEInternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
+                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
+                                  createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
+                                  BPELScopePhaseType.PROVISIONING);
 
         return true;
     }
