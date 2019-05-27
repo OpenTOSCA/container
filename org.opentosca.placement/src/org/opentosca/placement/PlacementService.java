@@ -43,6 +43,8 @@ public class PlacementService {
 		 * before comparing names, but this is just a prototype for now.
 		 */
 		cpbNodes.forEach(cpbNode -> {
+			
+			logger.info("* * * cpbNodeServiceTemplateInstanceID: " + cpbNode.getInstanceIDOfServiceTemplateOfOsNode());
 
 			cpbNode.getCapsOfOSNode().forEach(cap -> {
 				List<String> capStrings = splitPrefixFromReqOrCap(cap.getLocalPart());

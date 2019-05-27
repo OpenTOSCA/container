@@ -16,6 +16,19 @@ public class CapablePlacementNode {
 	private Long instanceIDOfServiceTemplateOfOsNode;
 	private Map<String, String> propertyMap;
 
+	public CapablePlacementNode(String osNode, String nodeTypeOfOsNode, String serviceTemplateOfOsNode,
+			String csarIdOfOsNode, List<QName> capsOfOSNode, Long instanceIDOfOSNode,
+			Long instanceIDOfServiceTemplateOfOsNode, Map<String, String> propertyMap) {
+		this.osNode = osNode;
+		this.nodeTypeOfOsNode = nodeTypeOfOsNode;
+		this.serviceTemplateOfOsNode = serviceTemplateOfOsNode;
+		this.csarIdOfOsNode = csarIdOfOsNode;
+		this.capsOfOSNode = capsOfOSNode;
+		this.instanceIDOfOSNode = instanceIDOfOSNode;
+		this.instanceIDOfServiceTemplateOfOsNode = instanceIDOfServiceTemplateOfOsNode;
+		this.propertyMap = propertyMap;
+	}
+
 	public String getOsNode() {
 		return osNode;
 	}
