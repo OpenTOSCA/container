@@ -56,4 +56,6 @@ public class Interfaces {
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE =
         "http://opentosca.org/interfaces/connections/nonInterruptive";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO = "connectTo";
+
+    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_TEST = "http://opentosca.org/interfaces/test";
 }

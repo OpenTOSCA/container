@@ -23,6 +23,7 @@ import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandle
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
+import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -112,7 +113,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
 
         final AbstractPlan abstractBackupPlan =
             generateMOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE);
+                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, ActivityType.BACKUP, true);
 
         LOG.debug("Generated the following abstract backup plan: ");
         LOG.debug(abstractBackupPlan.toString());

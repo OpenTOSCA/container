@@ -668,7 +668,7 @@ public class ModelUtils {
      *
      * @param nodeTemplate the name of the NodeTemplate
      * @param interfaceName the name of the interface
-     * @return the AbstractInterface if found, <code>null>/code> otherwise
+     * @return the AbstractInterface if found, <code>null</code> otherwise
      */
     public static AbstractInterface getInterfaceOfNode(final AbstractNodeTemplate nodeTemplate,
                                                        final String interfaceName) {

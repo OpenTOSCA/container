@@ -10,6 +10,7 @@ import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELDefrostProce
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELScaleOutProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTerminationProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTestManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTransformationProcessBuilder;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -79,7 +80,7 @@ public abstract class AbstractImporter {
         final AbstractSimplePlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder();
         final AbstractSimplePlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder();
         final AbstractSimplePlanBuilder backupPlanBuilder = new BPELBackupManagementProcessBuilder();
-
+        final AbstractSimplePlanBuilder testPlanBuilder = new BPELTestManagementProcessBuilder();
 
         plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
@@ -87,6 +88,7 @@ public abstract class AbstractImporter {
         plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
         plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
         plans.addAll(backupPlanBuilder.buildPlans(csarName, defs));
+        plans.addAll(testPlanBuilder.buildPlans(csarName, defs));
 
         return plans;
     }

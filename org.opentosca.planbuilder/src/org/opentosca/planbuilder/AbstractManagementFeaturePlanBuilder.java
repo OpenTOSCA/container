@@ -38,11 +38,16 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
      * @param definitions the Definitions document containing the ServiceTemplate
      * @param serviceTemplate the ServiceTemplate for which the plan is generated
      * @param managementInterfaceName the Management Interface on which the plan operates
+     * @param activityType the ActivityType for the Management Plan
+     * @param topDown <code>true</code> if the activities need to be executed downwards in the direction
+     *        of the hostedOn relationship templates, <code>false</code> if they need to be executed
+     *        bottom-up
      * @return the AbstractPlan containing the activities
      */
     protected AbstractPlan generateMOG(final String id, final AbstractDefinitions definitions,
                                        final AbstractServiceTemplate serviceTemplate,
-                                       final String managementInterfaceName) {
+                                       final String managementInterfaceName, final ActivityType activityType,
+                                       final boolean topDown) {
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
@@ -55,7 +60,7 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
 
             ANodeTemplateActivity activity = null;
             if (containsManagementInterface(nodeTemplate, managementInterfaceName)) {
-                activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_management_activity", ActivityType.MANAGE,
+                activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_management_activity", activityType,
                     nodeTemplate);
             } else {
                 activity =
@@ -71,9 +76,15 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
                 relationshipTemplate.getId() + "_none_activity", ActivityType.NONE, relationshipTemplate);
             activities.add(activity);
 
-            // create top-down order
-            links.add(new Link(nodeMapping.get(relationshipTemplate.getSource()), activity));
-            links.add(new Link(activity, nodeMapping.get(relationshipTemplate.getTarget())));
+            if (topDown) {
+                // create top-down order
+                links.add(new Link(nodeMapping.get(relationshipTemplate.getSource()), activity));
+                links.add(new Link(activity, nodeMapping.get(relationshipTemplate.getTarget())));
+            } else {
+                // create bottom-up order
+                links.add(new Link(activity, nodeMapping.get(relationshipTemplate.getSource())));
+                links.add(new Link(nodeMapping.get(relationshipTemplate.getTarget()), activity));
+            }
         }
 
         final AbstractPlan abstractTerminationPlan =
