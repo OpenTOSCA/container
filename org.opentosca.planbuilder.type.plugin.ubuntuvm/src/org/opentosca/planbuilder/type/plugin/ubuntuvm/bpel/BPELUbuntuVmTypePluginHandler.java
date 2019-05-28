@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,7 +46,7 @@ import org.xml.sax.SAXException;
 public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<BPELPlanContext> {
 
     private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePluginHandler.class);
-    
+
     public static final QName noPublicAccessPolicyType =
         new QName("http://opentosca.org/policytypes", "NoPublicAccessPolicy");
     public static final QName publicAccessPolicyType =
@@ -88,9 +87,10 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             return "ubuntu-14.04-trusty-server-cloudimg";
         } else if (nodeType.equals(Types.ubuntu1604ServerVmNodeType)) {
             return "ubuntu-16.04-server-cloudimg-amd64";
-        } else if (nodeType.equals(Types.ubuntu1804ServerVmNodeType)) {
-            return "ubuntu-18.04-server-cloudimg-amd64";
-        }
+        } else if (nodeType.equals(Types.ubuntu1804ServerVmNodeType)
+            || nodeType.equals(Types.ubuntu1804ServerVmNodeTypeV2)) {
+                return "ubuntu-18.04-server-cloudimg-amd64";
+            }
 
         final String localName = nodeType.getLocalPart();
 
@@ -249,7 +249,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             return false;
         }
 
-        Variable ubuntuAMIIdVar = getUbtuntuAMIId(context, ubuntuNodeTemplate);
+        final Variable ubuntuAMIIdVar = getUbtuntuAMIId(context, ubuntuNodeTemplate);
 
         LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId() + " of Type "
             + ubuntuNodeTemplate.getType().getId().toString());
@@ -408,8 +408,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         startRequestInputParams.put("sshUser", sshUserVariable);
         startRequestInputParams.put("sshKey", sshKeyVariable);
 
-        this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu", startRequestInputParams,
-                                    new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
+        this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu",
+                                    startRequestInputParams, new HashMap<String, Variable>(),
+                                    BPELScopePhaseType.PROVISIONING);
 
         return true;
     }
@@ -451,7 +452,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             return false;
         }
 
-        Variable ubuntuAMIIdVar = getUbtuntuAMIId(context, ubuntuNodeTemplate);
+        final Variable ubuntuAMIIdVar = getUbtuntuAMIId(context, ubuntuNodeTemplate);
 
         LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId() + " of Type "
             + ubuntuNodeTemplate.getType().getId().toString());
@@ -650,8 +651,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, cloudProviderNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, createEC2InternalExternalPropsInput,
-                                    createEC2InternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+                                    createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
+                                    BPELScopePhaseType.PROVISIONING);
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -669,8 +671,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams, startRequestOutputParams,
-                                    BPELScopePhaseType.PROVISIONING);
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
+                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
             if (policy.getType().getId().equals(this.onlyModeledPortsPolicyType)) {
@@ -740,8 +742,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams, startRequestOutputParams,
-                                    BPELScopePhaseType.PROVISIONING);
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
+                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
     }
 
     private List<Variable> fetchModeledPortsOfInfrastructure(final PlanContext context,
@@ -938,8 +940,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         LOG.debug(dockerEngineNodeTemplate.getId() + " " + dockerEngineNodeTemplate.getType());
         this.invokerOpPlugin.handle(context, dockerEngineNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, createDEInternalExternalPropsInput,
-                                    createDEInternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
+                                    createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
+                                    BPELScopePhaseType.PROVISIONING);
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -956,8 +959,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams, startRequestOutputParams,
-                                    BPELScopePhaseType.PROVISIONING);
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
+                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
 
         return true;
     }
@@ -978,7 +981,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             return false;
         }
 
-        Variable ubuntuAMIIdVar = getUbtuntuAMIId(context, ubuntuNodeTemplate);
+        final Variable ubuntuAMIIdVar = getUbtuntuAMIId(context, ubuntuNodeTemplate);
 
         BPELUbuntuVmTypePluginHandler.LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId()
             + " of Type " + ubuntuNodeTemplate.getType().getId().toString());
@@ -1164,8 +1167,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, cloudProviderNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, createEC2InternalExternalPropsInput,
-                                    createEC2InternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+                                    createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
+                                    BPELScopePhaseType.PROVISIONING);
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -1182,16 +1186,16 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams, startRequestOutputParams,
-                                    BPELScopePhaseType.PROVISIONING);
+                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
+                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
 
         return true;
     }
 
     private Variable getUbtuntuAMIId(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-        PropertyVariable vmImageId = context.getPropertyVariable("VMImageID", true);
+        final PropertyVariable vmImageId = context.getPropertyVariable("VMImageID", true);
 
-        
+
         // here either the ubuntu connected to the provider this handler is
         // working on hasn't a version in the ID (ubuntu version must be written
         // in AMIId property then) or something went really wrong

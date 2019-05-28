@@ -199,17 +199,17 @@ public class Utils {
     public static boolean isSupportedVMNodeType(final QName nodeType) {
         return nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
             || nodeType.equals(Types.ubuntu1404ServerVmNodeType3) || nodeType.equals(Types.ubuntu1604ServerVmNodeType)
-            || nodeType.equals(Types.ubuntu1804ServerVmNodeType);                    
+            || nodeType.equals(Types.ubuntu1804ServerVmNodeType) || nodeType.equals(Types.ubuntu1804ServerVmNodeTypeV2);
     }
-    
+
     public static boolean isSupportedOSNodeType(final QName nodeType) {
-        return nodeType.equals(Types.raspbianJessieOSNodeType);            
+        return nodeType.equals(Types.raspbianJessieOSNodeType);
     }
-    
+
     public static boolean isSupportedDeviceNodeType(final QName nodeType) {
-        return nodeType.equals(Types.raspberryPi3);            
+        return nodeType.equals(Types.raspberryPi3);
     }
-    
+
     public static boolean isSupportedHardwareNodeType(final QName nodeType) {
         return nodeType.equals(Types.fs20Adapater);
     }

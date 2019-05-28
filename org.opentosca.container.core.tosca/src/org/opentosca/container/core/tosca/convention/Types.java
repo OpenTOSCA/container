@@ -3,7 +3,7 @@ package org.opentosca.container.core.tosca.convention;
 import javax.xml.namespace.QName;
 
 public class Types {
-    
+
     // TODO refactor this class into some kind of configuration file to make it much more flexible ?
 
     // TODO Remove the old stuff
@@ -50,6 +50,9 @@ public class Types {
     public final static QName ubuntu1804ServerVmNodeType =
         new QName("http://opentosca.org/nodetypes", "Ubuntu-VM_18.04-w1");
 
+    public final static QName ubuntu1804ServerVmNodeTypeV2 =
+        new QName("http://opentosca.org/nodetypes", "Ubuntu-VM_18.04-w2");
+
     // OS
     // raspbian OS nodeType
     public final static QName raspbianJessieOSNodeType = new QName("http://opentosca.org/nodetypes", "RaspbianJessie");
@@ -72,21 +75,21 @@ public class Types {
     public final static QName KVM_QEMU_VM_TYPE = new QName("http://opentosca.org/nodetypes", "KVM_QEMU_VM");
     public final static QName KVM_QEMU_HYPERVISOR_TYPE =
         new QName("http://opentosca.org/nodetypes", "KVM_QEMU_Hypervisor");
-    
+
     public static final QName TOSCABASETYPE_SERVER =
-            new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "Server");
-    
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "Server");
+
     public static final QName TOSCABASETYPE_OS =
-            new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "OperatingSystem");
-    
-    
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "OperatingSystem");
+
+
     // ArtifactTypes
-    public static final QName scriptArtifactType = new QName(
-			"http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
-    
+    public static final QName scriptArtifactType =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
+
     // hardware, such as sensors, actuators and devices
-    public static final QName raspberryPi3 = new QName("http://opentosca.org/nodetypes","RaspberryPI3");
-    public static final QName fs20Adapater = new QName("http://opentosca.org/nodetypes","FS20_USBDongle");
-    
-    
+    public static final QName raspberryPi3 = new QName("http://opentosca.org/nodetypes", "RaspberryPI3");
+    public static final QName fs20Adapater = new QName("http://opentosca.org/nodetypes", "FS20_USBDongle");
+
+
 }
