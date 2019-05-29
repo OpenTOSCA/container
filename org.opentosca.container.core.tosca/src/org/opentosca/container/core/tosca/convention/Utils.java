@@ -89,9 +89,11 @@ public class Utils {
      * @return a boolean. True if the given nodeType is a cloud provider nodeType
      */
     public static boolean isSupportedCloudProviderNodeType(final QName nodeType) {
-        return nodeType.equals(Types.amazonEc2NodeType) | nodeType.equals(Types.openStackNodeType)
-            | nodeType.equals(Types.openStackLiberty12NodeType) | nodeType.equals(Types.vmWareVsphere55NodeType)
-            | nodeType.equals(Types.localHypervisor) | nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE);
+        return nodeType.equals(Types.amazonEc2NodeType) || nodeType.equals(Types.openStackNodeType)
+            || nodeType.equals(Types.openStackLiberty12NodeType) || nodeType.equals(Types.vmWareVsphere55NodeType)
+            || nodeType.equals(Types.localHypervisor) || nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE)
+            || nodeType.getNamespaceURI().equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
+                && nodeType.getLocalPart().startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart());
     }
 
     /**

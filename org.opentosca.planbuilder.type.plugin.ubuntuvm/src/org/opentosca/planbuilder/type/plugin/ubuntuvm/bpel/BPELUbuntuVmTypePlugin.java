@@ -8,7 +8,6 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
@@ -25,12 +24,13 @@ import org.slf4j.LoggerFactory;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>, IPlanBuilderPolicyAwareTypePlugin<BPELPlanContext> {
+public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
+                                    IPlanBuilderPolicyAwareTypePlugin<BPELPlanContext> {
     private static final Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePlugin.class);
     private final BPELUbuntuVmTypePluginHandler handler = new BPELUbuntuVmTypePluginHandler();
 
     private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder VM and Cloud Provider Declarative Type Plugin";
-    
+
 
     public static final QName noPublicAccessPolicyType =
         new QName("http://opentosca.org/policytypes", "NoPublicAccessPolicy");
@@ -44,15 +44,15 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
      */
     @Override
     public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
-        return this.allDependenciesAreMet(nodeTemplate);
+        return allDependenciesAreMet(nodeTemplate);
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
-        return this.allDependenciesAreMet(nodeTemplate);
+    public boolean canHandleTerminate(final AbstractNodeTemplate nodeTemplate) {
+        return allDependenciesAreMet(nodeTemplate);
     }
 
-    private boolean allDependenciesAreMet(AbstractNodeTemplate nodeTemplate) {
+    private boolean allDependenciesAreMet(final AbstractNodeTemplate nodeTemplate) {
         if (nodeTemplate == null) {
             BPELUbuntuVmTypePlugin.LOG.debug("NodeTemplate is null");
         }
@@ -87,13 +87,13 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
             if (nodeTemplate.getType().getId().equals(Types.ubuntuNodeType)) {
                 // here we check for a 3 node stack ubuntu -> vm -> cloud
                 // provider(ec2,openstack)
-                return this.checkIfConnectedToVMandCloudProvider(nodeTemplate);
+                return checkIfConnectedToVMandCloudProvider(nodeTemplate);
             } else {
 
                 // here we assume that a specific ubuntu image is selected as
                 // the nodeType e.g. ubuntu13.10server NodeType
                 // so we check only for a cloud provider
-                return this.checkIfConnectedToCloudProvider(nodeTemplate);
+                return checkIfConnectedToCloudProvider(nodeTemplate);
             }
 
         } else {
@@ -140,7 +140,7 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(final AbstractRelationshipTemplate relationshipTemplate) {
         // never handles a relationship
         return false;
     }
@@ -179,7 +179,7 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
     private boolean checkIfConnectedToVMandCloudProvider(final AbstractNodeTemplate nodeTemplate) {
         for (final AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
             if (relationshipTemplate.getTarget().getType().getId().equals(Types.vmNodeType)) {
-                if (this.checkIfConnectedToCloudProvider(relationshipTemplate.getTarget())) {
+                if (checkIfConnectedToCloudProvider(relationshipTemplate.getTarget())) {
                     return true;
                 }
             }
@@ -191,12 +191,12 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
     public String getID() {
         return BPELUbuntuVmTypePlugin.PLUGIN_ID;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext templateContext, final AbstractNodeTemplate nodeTemplate) {
         BPELUbuntuVmTypePlugin.LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
 
         // cloudprovider node is handled by doing nothing
@@ -215,9 +215,13 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
             // true -> append code
             for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
                 if (Utils.isSupportedCloudProviderNodeType(relation.getTarget().getType().getId())) {
-                    if (relation.getTarget().getType().getId().equals(Types.openStackLiberty12NodeType)
-                        | relation.getTarget().getType().getId().equals(Types.vmWareVsphere55NodeType)
-                        | relation.getTarget().getType().getId().equals(Types.amazonEc2NodeType)) {
+                    final QName nodeType = relation.getTarget().getType().getId();
+                    if (nodeType.equals(Types.openStackLiberty12NodeType)
+                        || nodeType.equals(Types.vmWareVsphere55NodeType) || nodeType.equals(Types.amazonEc2NodeType)
+                        || nodeType.getNamespaceURI()
+                                   .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
+                            && nodeType.getLocalPart()
+                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
                         return this.handler.handleCreateWithCloudProviderInterface(templateContext, nodeTemplate);
@@ -258,9 +262,13 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
             // true -> append code
             for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
                 if (Utils.isSupportedCloudProviderNodeType(relation.getTarget().getType().getId())) {
-                    if (relation.getTarget().getType().getId().equals(Types.openStackLiberty12NodeType)
-                        | relation.getTarget().getType().getId().equals(Types.vmWareVsphere55NodeType)
-                        | relation.getTarget().getType().getId().equals(Types.amazonEc2NodeType)) {
+                    final QName nodeType = relation.getTarget().getType().getId();
+                    if (nodeType.equals(Types.openStackLiberty12NodeType)
+                        || nodeType.equals(Types.vmWareVsphere55NodeType) || nodeType.equals(Types.amazonEc2NodeType)
+                        || nodeType.getNamespaceURI()
+                                   .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
+                            && nodeType.getLocalPart()
+                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
                         return this.handler.handleCreateWithCloudProviderInterface(templateContext, nodeTemplate);
@@ -279,7 +287,7 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
 
 
     @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPELPlanContext templateContext, final AbstractNodeTemplate nodeTemplate) {
         BPELUbuntuVmTypePlugin.LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
 
         // cloudprovider node is handled by doing nothing
@@ -298,9 +306,13 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
             // true -> append code
             for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
                 if (Utils.isSupportedCloudProviderNodeType(relation.getTarget().getType().getId())) {
-                    if (relation.getTarget().getType().getId().equals(Types.openStackLiberty12NodeType)
-                        | relation.getTarget().getType().getId().equals(Types.vmWareVsphere55NodeType)
-                        | relation.getTarget().getType().getId().equals(Types.amazonEc2NodeType)) {
+                    final QName nodeType = relation.getTarget().getType().getId();
+                    if (nodeType.equals(Types.openStackLiberty12NodeType)
+                        || nodeType.equals(Types.vmWareVsphere55NodeType) || nodeType.equals(Types.amazonEc2NodeType)
+                        || nodeType.getNamespaceURI()
+                                   .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
+                            && nodeType.getLocalPart()
+                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
                         return this.handler.handleTerminateWithCloudProviderInterface(templateContext, nodeTemplate);
@@ -318,20 +330,22 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
     }
 
     @Override
-    public boolean handleCreate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(final BPELPlanContext templateContext,
+                                final AbstractRelationshipTemplate relationshipTemplate) {
         // never handles a relationship
         return false;
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(final BPELPlanContext templateContext,
+                                   final AbstractRelationshipTemplate relationshipTemplate) {
         // never handles a relationship
         return false;
     }
 
     @Override
     public int getPriority() {
-        // 
+        //
         return 0;
     }
 
