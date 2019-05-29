@@ -1,8 +1,11 @@
 package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,13 +24,18 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
+import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
+import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,19 +184,82 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
         return plans;
     }
 
-    private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map,
+    private void runPlugins(final BPELPlan testPlan, final Property2VariableMapping map,
                             final String serviceInstanceUrl, final String serviceInstanceID,
                             final String serviceTemplateUrl, final String csarFileName) {
 
-        for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
-            final BPELPlanContext context =
-                new BPELPlanContext(buildPlan, bpelScope, map, buildPlan.getServiceTemplate(), serviceInstanceUrl,
-                    serviceInstanceID, serviceTemplateUrl, csarFileName);
+        for (final BPELScope bpelScope : testPlan.getTemplateBuildPlans()) {
+            final BPELPlanContext context = new BPELPlanContext(testPlan, bpelScope, map, testPlan.getServiceTemplate(),
+                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarFileName);
             if (Objects.nonNull(bpelScope.getNodeTemplate())) {
 
-                // generate code for the activity
+                // retrieve NodeTemplate and corresponding test interface
                 final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
-                this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
+                final AbstractInterface testInterface =
+                    ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST);
+
+                if (Objects.nonNull(testInterface)) {
+
+                    // retrieve input parameters from all nodes which are downwards in the same topology stack
+                    final List<AbstractNodeTemplate> nodesForMatching = new ArrayList<>();
+                    ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching);
+
+                    LOG.debug("NodeTemplate {} has {} test operations defined.", nodeTemplate.getName(),
+                              testInterface.getOperations().size());
+                    for (final AbstractOperation testOperation : testInterface.getOperations()) {
+
+                        final Map<AbstractParameter, Variable> inputMapping = new HashMap<>();
+                        final Map<AbstractParameter, Variable> outputMapping = new HashMap<>();
+
+                        // search for input parameters in the topology stack
+                        LOG.debug("Test {} on NodeTemplate {} needs the following input parameters:",
+                                  testOperation.getName(), nodeTemplate.getName());
+                        for (final AbstractParameter param : testOperation.getInputParameters()) {
+                            LOG.debug("Input param: {}", param.getName());
+                            found: for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+                                for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
+                                    if (param.getName().equals(propName)) {
+                                        inputMapping.put(param, context.getPropertyVariable(nodeForMatching, propName));
+                                        break found;
+                                    }
+                                }
+                            }
+                        }
+
+                        // create output variable if 'Result' is defined as output parameter
+                        final Optional<AbstractParameter> optional =
+                            testOperation.getOutputParameters().stream()
+                                         .filter(param -> param.getName().equals("Result")).findFirst();
+                        if (optional.isPresent()) {
+                            final AbstractParameter resultParam = optional.get();
+
+                            final String xsdPrefix = "xsd" + System.currentTimeMillis();
+                            final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+                            final String resultVarName = nodeTemplate.getName() + "-" + testOperation.getName()
+                                + "-result" + System.currentTimeMillis();
+                            context.addGlobalVariable(resultVarName, VariableType.TYPE,
+                                                      new QName(xsdNamespace, "anyType", xsdPrefix));
+
+                            LOG.debug("Name of result variable: " + resultVarName);
+
+                            outputMapping.put(resultParam, BPELPlanContext.getVariable(resultVarName));
+
+                            // add result to the plan output message
+                            final String outputName =
+                                "Tests-" + nodeTemplate.getName() + "-" + testOperation.getName() + "-result";
+                            this.planHandler.addStringElementToPlanResponse(outputName, testPlan);
+                            this.planHandler.assginOutputWithVariableValue(resultVarName, outputName, testPlan);
+                        } else {
+                            LOG.error("Result property is not defined for test operation.");
+                        }
+
+                        // execute the test
+                        context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST,
+                                                 testOperation.getName(), inputMapping, outputMapping);
+                    }
+                } else {
+                    LOG.error("Unable to find test interface for NodeTemplate {}", nodeTemplate.getName());
+                }
             } else if (bpelScope.getRelationshipTemplate() != null) {
                 // handling relationshiptemplate
                 final AbstractRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();

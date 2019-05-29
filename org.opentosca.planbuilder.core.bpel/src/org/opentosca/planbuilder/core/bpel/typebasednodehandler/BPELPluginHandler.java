@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
@@ -40,9 +38,6 @@ public class BPELPluginHandler {
                 break;
             case DEFROST:
                 result = handleDefrostActivity(context, bpelScope, nodeTemplate);
-                break;
-            case TEST:
-                result = handleTestActivity(context, bpelScope, nodeTemplate);
                 break;
             default:
                 result = false;
@@ -215,52 +210,6 @@ public class BPELPluginHandler {
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
             }
         }
-        return result;
-    }
-
-    private boolean handleTestActivity(final BPELPlanContext context, final BPELScope bpelScope,
-                                       final AbstractNodeTemplate nodeTemplate) {
-
-        final AbstractInterface testInterface =
-            ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST);
-
-        if (Objects.isNull(testInterface)) {
-            LOG.error("Unable to find test interface for NodeTemplate {}", nodeTemplate.getName());
-            return false;
-        }
-
-        boolean result = true;
-
-        // retrieve input parameters from all nodes which are downwards in the same topology stack
-        final List<AbstractNodeTemplate> nodesForMatching = new ArrayList<>();
-        ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching);
-
-        LOG.debug("NodeTemplate {} has {} test operations defined.", nodeTemplate.getName(),
-                  testInterface.getOperations().size());
-        for (final AbstractOperation testOperation : testInterface.getOperations()) {
-
-            final Map<AbstractParameter, Variable> param2propertyMapping = new HashMap<>();
-
-            // search for input parameters in the topology stack
-            LOG.debug("Test {} on NodeTemplate {} needs the following input parameters:", testOperation.getName(),
-                      nodeTemplate.getName());
-            for (final AbstractParameter param : testOperation.getInputParameters()) {
-                LOG.debug("Input param: {}", param.getName());
-                found: for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
-                    for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
-                        if (param.getName().equals(propName)) {
-                            param2propertyMapping.put(param, context.getPropertyVariable(nodeForMatching, propName));
-                            break found;
-                        }
-                    }
-                }
-            }
-
-            // execute the test
-            result &= context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST,
-                                               testOperation.getName(), param2propertyMapping, null);
-        }
-
         return result;
     }
 }
