@@ -50,8 +50,9 @@ public class Types {
     public final static QName ubuntu1804ServerVmNodeType =
         new QName("http://opentosca.org/nodetypes", "Ubuntu-VM_18.04-w1");
 
-    public final static QName ubuntu1804ServerVmNodeTypeV2 =
-        new QName("http://opentosca.org/nodetypes", "Ubuntu-VM_18.04-w2");
+    // FIXME: find a better way to support generated Ubuntu-VM NodeTypes
+    public final static QName ubuntu1804ServerVmNodeTypeGenerated =
+        new QName("http://opentosca.org/nodetypes/generated", "Ubuntu-VM_18.04");
 
     // OS
     // raspbian OS nodeType
