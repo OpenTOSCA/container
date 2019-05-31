@@ -36,15 +36,12 @@ public abstract class AbstractImporter {
                                                           final AbstractDefinitions targetDefinitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
 
-
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder();
 
         plans.add(transformPlanBuilder.buildPlan(sourceCsarName, sourceDefinitions,
                                                  sourceDefinitions.getServiceTemplates().get(0).getQName(),
                                                  targetCsarName, targetDefinitions,
                                                  targetDefinitions.getServiceTemplates().get(0).getQName()));
-
-
 
         return plans;
     }

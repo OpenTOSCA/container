@@ -34,14 +34,12 @@ import org.opentosca.container.api.dto.CsarListDTO;
 import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.common.EntityExistsException;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -198,6 +196,14 @@ public class CsarController {
 
         final File file = this.csarService.storeTemporaryFile(filename, is);
 
+        final WineryConnector wc = new WineryConnector();
+
+        // perform management feature enrichment for the given CSAR
+        if (Boolean.parseBoolean(Settings.OPENTOSCA_MANAGEMENT_FEATURE_ENRICHMENT)) {
+            logger.debug("Management feature enrichment enabled. Trying to enrich given CSAR with available features...");
+            wc.performManagementFeatureEnrichment(file);
+        }
+
         CSARID csarId;
 
         try {
@@ -235,27 +241,22 @@ public class CsarController {
         }
 
         // TODO this is such a brutal hack, won't go through reviews....
-        final WineryConnector wc = new WineryConnector();
-        boolean repoAvailable = wc.isWineryRepositoryAvailable();
-
+        final boolean repoAvailable = wc.isWineryRepositoryAvailable();
         final StringBuilder strB = new StringBuilder();
 
         // quick and dirty parallel thread to upload the csar to the container
         // repository
         // This is needed for the state save feature
-        Thread parallelUploadThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (wc.isWineryRepositoryAvailable()) {
-                    try {
-                        strB.append(wc.uploadCSAR(file, false));
-                    }
-                    catch (URISyntaxException e) {
-                        e.printStackTrace();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        final Thread parallelUploadThread = new Thread(() -> {
+            if (wc.isWineryRepositoryAvailable()) {
+                try {
+                    strB.append(wc.uploadCSAR(file, false));
+                }
+                catch (final URISyntaxException e1) {
+                    e1.printStackTrace();
+                }
+                catch (final IOException e2) {
+                    e2.printStackTrace();
                 }
             }
         });
@@ -294,7 +295,6 @@ public class CsarController {
             return Response.serverError().build();
         }
 
-
         if (!success) {
             return Response.serverError().build();
         }
@@ -322,23 +322,24 @@ public class CsarController {
 
         return Response.noContent().build();
     }
-    
+
     @POST
     @Path("/transform")
     @ApiOperation(value = "Transform this CSAR to a new CSAR")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
-    	
-    	String sourceCsarName = request.getSourceCsarName();
-    	String targetCsarName = request.getTargetCsarName();
-    		
-    	CSARID csarId = this.csarService.generateTransformationPlans(new CSARID(sourceCsarName), new CSARID(targetCsarName));
-    	
-    	this.controlService.setDeploymentProcessStateStored(csarId);
+
+        final String sourceCsarName = request.getSourceCsarName();
+        final String targetCsarName = request.getTargetCsarName();
+
+        final CSARID csarId =
+            this.csarService.generateTransformationPlans(new CSARID(sourceCsarName), new CSARID(targetCsarName));
+
+        this.controlService.setDeploymentProcessStateStored(csarId);
         boolean success = this.controlService.invokeTOSCAProcessing(csarId);
 
-        
+
         if (success) {
             final List<QName> serviceTemplates =
                 this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId);
@@ -351,15 +352,15 @@ public class CsarController {
                     success = false;
                 }
             }
-        }    	                 
-        
-        if(success) {            
+        }
+
+        if (success) {
             return Response.ok().build();
         } else {
             return Response.serverError().build();
         }
     }
-    
+
 
 
     public void setCsarService(final CsarService csarService) {
