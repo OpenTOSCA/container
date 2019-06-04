@@ -1,4 +1,4 @@
-package org.opentosca.container.core.impl.service.internal.file.csar;
+package org.opentosca.container.legacy.core.service.csar;
 
 import java.nio.file.Path;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package org.opentosca.container.core.impl.service.internal.file.csar;
+package org.opentosca.container.legacy.core.service.csar;
 
 import java.io.File;
 import java.io.IOException;
