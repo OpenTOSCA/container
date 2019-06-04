@@ -44,6 +44,7 @@
     <module>org.opentosca.container.engine.plan.plugin.bpel</module>
     <module>org.opentosca.container.engine.plan.plugin.camunda</module>
     <module>org.opentosca.container.portability</module>
+    <module>org.opentosca.container.war</module>
     <module>org.opentosca.deployment.checks</module>
     <module>org.opentosca.container.api</module>
     <module>org.opentosca.planbuilder</module>

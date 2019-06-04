@@ -13,7 +13,7 @@
   <context-param>
     <description>ApplicationContext of Spring DI logic</description>
     <param-name>contextConfigLocation</param-name>
-    <param-value>classpath:META-INF/spring/context.xml</param-value>
+    <param-value>classpath:/spring/context.xml</param-value>
   </context-param>
 
   <filter>
@@ -50,7 +50,7 @@
     <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
     <init-param>
       <param-name>javax.ws.rs.Application</param-name>
-      <param-value>org.opentosca.container.api.Application</param-value>
+      <param-value>org.opentosca.container.war.Application</param-value>
     </init-param>
   </servlet>
 

@@ -1,4 +1,4 @@
-package org.opentosca.container.api;
+package org.opentosca.container.war;
 
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 import org.opentosca.container.api.config.*;

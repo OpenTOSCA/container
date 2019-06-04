@@ -1,4 +1,4 @@
-package org.opentosca.container.api;
+package org.opentosca.container.war;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
