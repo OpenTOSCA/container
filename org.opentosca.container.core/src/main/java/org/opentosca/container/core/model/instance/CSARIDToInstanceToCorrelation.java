@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 
 /**
@@ -17,7 +18,7 @@ public class CSARIDToInstanceToCorrelation {
 
   // map of CSARID to CSARInstanceID to list of CorrelationIDs
   // TODO make persistent
-  private final Map<CSARID, Map<ServiceTemplateInstanceID, List<String>>> storageMap = new HashMap<>();
+  private final Map<CsarId, Map<ServiceTemplateInstanceID, List<String>>> storageMap = new HashMap<>();
 
 
   /**
@@ -26,7 +27,7 @@ public class CSARIDToInstanceToCorrelation {
    * @param csarID     the CSARID
    * @param instanceID the InstanceID
    */
-  public ServiceTemplateInstanceID storeNewCSARInstance(final CSARID csarID, final QName serviceTemplateId) {
+  public ServiceTemplateInstanceID storeNewCSARInstance(final CsarId csarID, final QName serviceTemplateId) {
 
     int highest = 0;
 
@@ -51,7 +52,7 @@ public class CSARIDToInstanceToCorrelation {
    * @param instanceID    the InstanceID
    * @param correlationID the CorrelationID
    */
-  public void storeNewCorrelationForInstance(final CSARID csarID, final ServiceTemplateInstanceID instanceID,
+  public void storeNewCorrelationForInstance(final CsarId csarID, final ServiceTemplateInstanceID instanceID,
                                              final String correlationID) {
 
     final List<String> list = getCorrelationList(csarID, instanceID);
@@ -60,7 +61,7 @@ public class CSARIDToInstanceToCorrelation {
     }
   }
 
-  public List<ServiceTemplateInstanceID> getInstancesOfCSAR(final CSARID csarID) {
+  public List<ServiceTemplateInstanceID> getInstancesOfCSAR(final CsarId csarID) {
 
     final List<ServiceTemplateInstanceID> returnList = new ArrayList<>();
 
@@ -78,7 +79,7 @@ public class CSARIDToInstanceToCorrelation {
    * @param csarID
    * @return the map
    */
-  private Map<ServiceTemplateInstanceID, List<String>> getInstanceMap(final CSARID csarID) {
+  private Map<ServiceTemplateInstanceID, List<String>> getInstanceMap(final CsarId csarID) {
     if (!this.storageMap.containsKey(csarID)) {
       this.storageMap.put(csarID, new HashMap<ServiceTemplateInstanceID, List<String>>());
     }
@@ -91,7 +92,7 @@ public class CSARIDToInstanceToCorrelation {
    * @param csarID
    * @return the map
    */
-  public List<String> getCorrelationList(final CSARID csarID, final ServiceTemplateInstanceID instanceID) {
+  public List<String> getCorrelationList(final CsarId csarID, final ServiceTemplateInstanceID instanceID) {
     if (null == getInstanceMap(csarID)) {
       this.storageMap.put(csarID, new HashMap<ServiceTemplateInstanceID, List<String>>());
       this.storageMap.get(csarID).put(instanceID, new ArrayList<String>());
@@ -106,7 +107,7 @@ public class CSARIDToInstanceToCorrelation {
     final String ls = System.getProperty("line.separator");
 
     builder.append("Currently stored informations for instances and correlations:" + ls);
-    for (final CSARID csarID : this.storageMap.keySet()) {
+    for (final CsarId csarID : this.storageMap.keySet()) {
       builder.append("CSAR \"" + csarID + "\":" + ls + "   ");
       for (final ServiceTemplateInstanceID instanceID : this.storageMap.get(csarID).keySet()) {
         builder.append("InstanceID \"" + instanceID + "\" with correlations: ");
@@ -121,22 +122,15 @@ public class CSARIDToInstanceToCorrelation {
     return builder.toString();
   }
 
-  public List<CSARID> getCSARList() {
-
-    final List<CSARID> returnList = new ArrayList<>();
-
-    for (final CSARID csarID : this.storageMap.keySet()) {
-      returnList.add(csarID);
-    }
-
-    return returnList;
+  public List<CsarId> getCSARList() {
+    return new ArrayList<>(storageMap.keySet());
   }
 
-  public boolean deleteCSAR(final CSARID csarID) {
+  public boolean deleteCSAR(final CsarId csarID) {
     return null != this.storageMap.remove(csarID);
   }
 
-  public boolean deleteInstanceOfCSAR(final CSARID csarID, final ServiceTemplateInstanceID instanceID) {
+  public boolean deleteInstanceOfCSAR(final CsarId csarID, final ServiceTemplateInstanceID instanceID) {
     if (this.storageMap.containsKey(csarID)) {
       return null != this.storageMap.get(csarID).remove(instanceID);
     }

@@ -1,64 +1,69 @@
 package org.opentosca.container.legacy.core.plan;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.Definitions;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TEntityTemplate.Properties;
-import org.eclipse.winery.model.tosca.TExtensibleElements;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.model.AbstractDirectory;
-import org.opentosca.container.core.model.AbstractFile;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.engine.xml.IXMLSerializer;
+import org.opentosca.container.core.engine.xml.IXMLSerializerService;
+import org.opentosca.container.core.engine.xml.impl.XMLSerializer;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO.InputParameters;
-import org.opentosca.container.legacy.core.model.CSARContent;
-import org.opentosca.container.legacy.core.service.ICoreFileService;
 import org.opentosca.container.legacy.core.service.ServiceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+@Service
 public class RulesChecker {
-
-  public static ICoreFileService handler;
 
   private final static Logger LOG = LoggerFactory.getLogger(RulesChecker.class);
 
-  static boolean check(final CSARID csarID, final QName serviceTemplateID, final InputParameters inputParameters) {
+  private final IXMLSerializer serializer;
 
+  @Inject
+  public RulesChecker(IXMLSerializerService service) {
+    this.serializer = service.getXmlSerializer();
+  }
+
+  boolean check(final Csar csar, final TServiceTemplate serviceTemplate, final InputParameters inputParameters) {
     LOG.debug("Checking Rules");
-
     List<TServiceTemplate> stWhiteRuleList;
     List<TServiceTemplate> stBlackRuleList;
     try {
-      stWhiteRuleList = getRules(csarID, true);
-      stBlackRuleList = getRules(csarID, false);
+      stWhiteRuleList = getRules(csar, true);
+      stBlackRuleList = getRules(csar, false);
     } catch (UserException | SystemException e) {
       e.printStackTrace();
       return false;
     }
 
-    final boolean whiteRulesFulfilled =
-      checkRules(stWhiteRuleList, "white", csarID, serviceTemplateID, inputParameters);
-    final boolean blackRulesFulfilled =
-      checkRules(stBlackRuleList, "black", csarID, serviceTemplateID, inputParameters);
-
-    return whiteRulesFulfilled && blackRulesFulfilled;
+    return checkRules(stWhiteRuleList, "white", csar, serviceTemplate, inputParameters)
+      && checkRules(stBlackRuleList, "black", csar, serviceTemplate, inputParameters);
   }
 
-  private static boolean checkRules(final List<TServiceTemplate> stRuleList, final String ruleType,
-                                    final CSARID csarID, final QName serviceTemplateID,
+  private boolean checkRules(final List<TServiceTemplate> stRuleList, final String ruleType,
+                                    final Csar csar, final TServiceTemplate serviceTemplate,
                                     final InputParameters inputParameters) {
 
     for (final TServiceTemplate stRule : stRuleList) {
@@ -80,28 +85,27 @@ public class RulesChecker {
         boolean ruleCanBeApplied = false;
         // check for types
         if (sourceRuleNTemplate.getId().equals("*")) {
-          final List<String> nodeTemplates = ServiceProxy.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarID, serviceTemplateID);
+          final List<TNodeTemplate> nodeTemplates = serviceTemplate.getTopologyTemplate().getNodeTemplates();
 
-          for (final String nodeTemplate : nodeTemplates) {
-            final QName nodeType = ServiceProxy.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplate);
-
+          for (final TNodeTemplate nodeTemplate : nodeTemplates) {
+            final QName nodeType = nodeTemplate.getType();
             // found matching nodetemplate
             if (nodeType.equals(sourceRuleNTemplate.getType())) {
-              LOG.debug("Rule " + stRule.getName() + " can be applied to Service Template: " + serviceTemplateID + ". Reason: Matching Source NodeTypes.");
+              LOG.debug("Rule " + stRule.getName() + " can be applied to Service Template: " + serviceTemplate + ". Reason: Matching Source NodeTypes.");
               ruleCanBeApplied = true;
             }
           }
           // check for identical IDs
         } else {
           // check source
-          if (ServiceProxy.toscaEngineService.doesNodeTemplateExist(csarID, serviceTemplateID, sourceRuleNTemplate.getId())) {
-            LOG.debug("Rule " + stRule.getName() + " can be applied to Service Template: " + serviceTemplateID + ". Reason: Matching Source NodeTemplateIDs.");
+          if (ToscaEngine.tryResolveNodeTemplate(serviceTemplate, sourceRuleNTemplate.getId()).isPresent()) {
+            LOG.debug("Rule " + stRule.getName() + " can be applied to Service Template: " + serviceTemplate + ". Reason: Matching Source NodeTemplateIDs.");
             ruleCanBeApplied = true;
           }
         }
 
         if (!ruleCanBeApplied) {
-          LOG.debug("Rule " + stRule.getName() + " can not be applied to Service Template: " + serviceTemplateID + ".Thus, rule is ignored.");
+          LOG.debug("Rule " + stRule.getName() + " can not be applied to Service Template: " + serviceTemplate + ".Thus, rule is ignored.");
           continue;
         }
         if (targetRuleNTemplate.getId().equals("*")) {
@@ -109,9 +113,9 @@ public class RulesChecker {
 
           boolean found = false;
           while (!found) {
-            final String relatedNodeTemplate = ServiceProxy.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, sourceRuleNTemplate.getId(), relationshipRule.getType());
+            TNodeTemplate targetNT = ToscaEngine.getRelatedNodeTemplateWithin(serviceTemplate, sourceRuleNTemplate, relationshipRule.getType());
 
-            if (relatedNodeTemplate == null) {
+            if (targetNT == null) {
               switch (ruleType) {
                 case "white":
                   LOG.warn("Target Node Template not found. Rule not fulfilled.");
@@ -121,14 +125,13 @@ public class RulesChecker {
                   break;
               }
             } else {
-              final QName relatedNodeType = ServiceProxy.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, relatedNodeTemplate);
-
+              final QName relatedNodeType = targetNT.getType();
               if (relatedNodeType.equals(targetRuleNTemplate.getType())) {
                 found = true;
-                LOG.debug("Matching Target Node Type found. Node Template: " + relatedNodeTemplate);
+                LOG.debug("Matching Target Node Type found. Node Template: " + targetNT);
 
                 // comparing properties
-                if (arePropertiesMatching(csarID, serviceTemplateID, relatedNodeTemplate, inputParameters, targetRuleNTemplate)) {
+                if (arePropertiesMatching(sourceRuleNTemplate, inputParameters, targetRuleNTemplate)) {
                   switch (ruleType) {
                     case "white":
                       LOG.debug("Properties are matching. Rule is fulfilled.");
@@ -153,9 +156,10 @@ public class RulesChecker {
 
           // check target nodetemplateID
         } else {
-          if (ServiceProxy.toscaEngineService.doesNodeTemplateExist(csarID, serviceTemplateID, targetRuleNTemplate.getId())) {
+          Optional<TNodeTemplate> nodeTemplate = ToscaEngine.tryResolveNodeTemplate(serviceTemplate, targetRuleNTemplate.getId());
+          if (nodeTemplate.isPresent()) {
             // comparing properties
-            if (arePropertiesMatching(csarID, serviceTemplateID, targetRuleNTemplate.getId(), inputParameters, targetRuleNTemplate)) {
+            if (arePropertiesMatching(sourceRuleNTemplate, inputParameters, targetRuleNTemplate)) {
               switch (ruleType) {
                 case "white":
                   LOG.debug("Properties are matching. Rule is fulfilled.");
@@ -192,58 +196,40 @@ public class RulesChecker {
     return true;
   }
 
-  static boolean areRulesContained(final CSARID csarID) {
-    CSARContent content;
-    try {
-      content = RulesChecker.handler.getCSAR(csarID);
-
-      final AbstractDirectory dirWhite = content.getDirectory("Rules/Whitelisting");
-      final AbstractDirectory dirBlack = content.getDirectory("Rules/Blacklisting");
-      if (dirWhite != null || dirBlack != null) {
-        LOG.debug("Deployment Rules found.");
-        return true;
-      }
-      LOG.debug("No Deployment Rules are defined.");
-      return false;
-    } catch (final UserException e) {
-      e.printStackTrace();
-      return false;
+  boolean areRulesContained(final Csar csar) {
+    final Path rulesDirectory = csar.getSaveLocation().resolve("Rules");
+    final Path dirWhite = rulesDirectory.resolve("Whitelisting");
+    final Path dirBlack = rulesDirectory.resolve("Blacklisting");
+    if (Files.exists(dirWhite) || Files.exists(dirBlack)) {
+      LOG.debug("Deployment Rules found.");
+      return true;
     }
+    LOG.debug("No Deployment Rules are defined.");
+    return false;
   }
 
-  private static List<TServiceTemplate> getRules(final CSARID csarID, final boolean whiteRules) throws UserException, SystemException {
+  private  List<TServiceTemplate> getRules(final Csar csar, final boolean whiteRules) throws UserException, SystemException {
 
-    final CSARContent content = RulesChecker.handler.getCSAR(csarID);
-    AbstractDirectory dir = content.getDirectory(whiteRules ? "Rules/Whitelisting" : "Rules/Blacklisting");
-
-    if (dir == null) {
-      return Collections.emptyList();
-    }
-
-    final Set<AbstractFile> files = dir.getFiles();
-    if (files == null) {
-      return Collections.emptyList();
-    }
+    Path dir = csar.getSaveLocation().resolve(whiteRules ? "Rules/Whitelisting" : "Rules/Blacklisting");
     final List<TServiceTemplate> rulesList = new ArrayList<>();
-    for (final AbstractFile file : files) {
-      LOG.trace("Filepath: {}", file.getPath());
-      LOG.trace("File: {}", file.getName());
 
-      if (file.getName().endsWith("tosca")) {
-        LOG.debug("Rule found");
-        final Definitions def = ServiceProxy.xmlSerializerService.getXmlSerializer().unmarshal(file.getFileAsInputStream());
-
-        final List<TExtensibleElements> elementsList = def.getServiceTemplateOrNodeTypeOrNodeTypeImplementation();
-        for (final TExtensibleElements elements : elementsList) {
-          final TServiceTemplate st = (TServiceTemplate) elements;
-          rulesList.add(st);
-        }
+    try (DirectoryStream<Path> rulesFiles = Files.newDirectoryStream(dir, "*.tosca")) {
+      for (Iterator<Path> rulesFilesIt = rulesFiles.iterator(); rulesFilesIt.hasNext();) {
+        Path rulesFile = rulesFilesIt.next();
+        LOG.trace("Rules File: {}", rulesFile.toAbsolutePath().toString());
+        final Definitions definitions = serializer.unmarshal(Files.newInputStream(rulesFile));
+        definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()
+          .stream().map(TServiceTemplate.class::cast)
+          .forEach(rulesList::add);
       }
+    } catch (IOException e) {
+      return Collections.emptyList();
     }
+
     return rulesList;
   }
 
-  private static HashMap<String, String> getPropertiesOfNodeTemplate(final TNodeTemplate nodeTemplate) {
+  private Map<String, String> getPropertiesOfNodeTemplate(final TNodeTemplate nodeTemplate) {
 
     LOG.debug("Getting Properties.");
     if (nodeTemplate == null) {
@@ -266,9 +252,9 @@ public class RulesChecker {
     return getPropertiesFromDoc(doc);
   }
 
-  private static HashMap<String, String> getPropertiesFromDoc(final Document doc) {
+  private static Map<String, String> getPropertiesFromDoc(final Document doc) {
 
-    final HashMap<String, String> propertiesMap = new HashMap<>();
+    final Map<String, String> propertiesMap = new HashMap<>();
 
     final NodeList nodeList = doc.getChildNodes();
     for (int i = 0; i < nodeList.getLength(); i++) {
@@ -291,36 +277,32 @@ public class RulesChecker {
     return propertiesMap;
   }
 
-  private static boolean arePropertiesMatching(final CSARID csarID, final QName serviceTemplateID,
-                                               final String relatedNodeTemplate,
-                                               final InputParameters inputParameters,
-                                               final TNodeTemplate targetRuleNTemplate) {
+  private boolean arePropertiesMatching(final TNodeTemplate relatedNodeTemplate,
+                                        final InputParameters inputParameters,
+                                        final TNodeTemplate targetRuleNTemplate) {
+    final Document propsDoc = ToscaEngine.getNodeTemplateProperties(relatedNodeTemplate);
 
-    final Document propsDoc = ServiceProxy.toscaEngineService.getPropertiesOfTemplate(csarID, serviceTemplateID, relatedNodeTemplate);
-
-    final HashMap<String, String> propertiesMap = getPropertiesFromDoc(propsDoc);
-    final HashMap<String, String> rulesPropertiesMap = getPropertiesOfNodeTemplate(targetRuleNTemplate);
+    final Map<String, String> propertiesMap = getPropertiesFromDoc(propsDoc);
+    final Map<String, String> rulesPropertiesMap = getPropertiesOfNodeTemplate(targetRuleNTemplate);
 
     for (final String name : rulesPropertiesMap.keySet()) {
       final String value = rulesPropertiesMap.get(name);
-      if (propertiesMap.containsKey(name)) {
-        if (propertiesMap.get(name) == null || propertiesMap.get(name).contains("get_input:")) {
-          for (final TParameterDTO para : inputParameters.getInputParameter()) {
-            if (para.getName().equals(name)) {
-              if (!para.getValue().equals(value)) {
-                LOG.debug("Property " + name + " not matching. " + para.getValue() + " != "
-                  + value);
-                return false;
-              }
-            }
+      if (!propertiesMap.containsKey(name)) {
+        continue;
+      }
+      if (propertiesMap.get(name) == null || propertiesMap.get(name).contains("get_input:")) {
+        for (final TParameterDTO para : inputParameters.getInputParameter()) {
+          if (para.getName().equals(name) && !para.getValue().equals(value)) {
+            LOG.debug("Property " + name + " not matching. " + para.getValue() + " != " + value);
+            return false;
           }
-        } else if (!propertiesMap.get(name).equals(value)) {
-          LOG.debug("Property " + name + " not matching! " + propertiesMap.get(name) + " != "
-            + value);
-          return false;
         }
+      } else if (!propertiesMap.get(name).equals(value)) {
+        LOG.debug("Property " + name + " not matching! " + propertiesMap.get(name) + " != " + value);
+        return false;
       }
     }
+
     return true;
   }
 

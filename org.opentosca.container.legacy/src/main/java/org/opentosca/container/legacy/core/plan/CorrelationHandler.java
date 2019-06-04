@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.inject.Singleton;
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
@@ -19,7 +20,8 @@ import org.springframework.stereotype.Service;
 /**
  * This class manages active PublicPlans which are still running or response is not processed yet.
  */
-@Deprecated
+//@Deprecated
+// FIXME make this class useful in a way that doesn't make us want to throw it into the bin
 @Service
 @Singleton
 public class CorrelationHandler {
@@ -29,7 +31,7 @@ public class CorrelationHandler {
 
   // TODO make persistent, fix JPA
   // CSARID to CorrelationID to Invocation Event
-  private final Map<CSARID, Map<QName, Map<Integer, Map<String, PlanInvocationEvent>>>> mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan =
+  private final Map<CsarId, Map<QName, Map<Integer, Map<String, PlanInvocationEvent>>>> mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan =
     new HashMap<>();
   private final Map<String, Integer> mapCorrIdToFakedServiceTemplateInstanceId = new HashMap<>();
 
@@ -41,7 +43,7 @@ public class CorrelationHandler {
    *
    * @return CorrelationID
    */
-  public synchronized String getNewCorrelationID(final CSARID csarID, final QName serviceTemplateId,
+  public synchronized String getNewCorrelationID(final CsarId csarID, final QName serviceTemplateId,
                                                  final int serviceTemplateInstanceId, final PlanInvocationEvent event,
                                                  final boolean isBuildPlan) {
 
@@ -88,7 +90,7 @@ public class CorrelationHandler {
     return corrID;
   }
 
-  public synchronized void correlateBuildPlanCorrToServiceTemplateInstanceId(final CSARID csarID,
+  public synchronized void correlateBuildPlanCorrToServiceTemplateInstanceId(final CsarId csarID,
                                                                              final QName serviceTemplateId,
                                                                              final String corrId,
                                                                              final int correctSTInstanceId) {
@@ -113,7 +115,7 @@ public class CorrelationHandler {
    * @return PublicPlan
    */
   public TPlanDTO getPublicPlanForCorrelation(final String correlationID) {
-    for (final CSARID csarID : this.mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.keySet()) {
+    for (final CsarId csarID : this.mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.keySet()) {
       for (final QName serviceTemplateId : this.mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID)
         .keySet()) {
         for (final Integer serviceTemplateInstanceId : this.mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID)
@@ -203,7 +205,7 @@ public class CorrelationHandler {
    * @param csarid
    * @param correlationID
    */
-  public void removeCorrelation(final CSARID csarid, final String correlationID) {
+  public void removeCorrelation(final CsarId csarid, final String correlationID) {
     this.mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarid).remove(correlationID);
   }
 
@@ -214,7 +216,7 @@ public class CorrelationHandler {
    * @param correlationID
    */
   public void removeCorrelation(final String correlationID) {
-    for (final CSARID csarID : this.mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.keySet()) {
+    for (final CsarId csarID : this.mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.keySet()) {
       if (this.mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID)
         .containsKey(correlationID)) {
         this.mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID)
@@ -232,7 +234,7 @@ public class CorrelationHandler {
   public List<String> getActiveCorrelationsOfInstance(final ServiceTemplateInstanceID instanceID) {
     final List<String> list = new ArrayList<>();
 
-    final CSARID csarID = instanceID.getCsarId();
+    final CsarId csarID = instanceID.getCsarId();
     final QName stQName = instanceID.getServiceTemplateId();
     final int stInstanceId = instanceID.getInstanceID();
     // int internalID = instanceID.getInternalID();

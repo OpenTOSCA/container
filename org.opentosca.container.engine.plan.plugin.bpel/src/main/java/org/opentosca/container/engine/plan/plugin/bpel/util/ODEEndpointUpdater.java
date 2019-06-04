@@ -73,7 +73,7 @@ public class ODEEndpointUpdater {
 
   private final WSDLFactory factory;
 
-  private CSARID csarId;
+  private CsarId csarId;
   private final String servicesRoot;
   // @hahnml: The type of plan engine used (BPS or ODE)
   private String engineType;
@@ -110,7 +110,7 @@ public class ODEEndpointUpdater {
    * @return true if every WSDL file used by the process was updated (if needed) with endpoints
    * from the openTOSCA Core, else false
    */
-  public boolean changeEndpoints(final List<File> processFiles, final CSARID csarId) {
+  public boolean changeEndpoints(final List<File> processFiles, final CsarId csarId) {
     this.csarId = csarId;
 
     final Map<QName, List<File>> unchangedFiles = new HashMap<>();
@@ -594,7 +594,7 @@ public class ODEEndpointUpdater {
         port.getBinding().getPortType().getQName().toString());
       final List<WSDLEndpoint> temp =
         ODEEndpointUpdater.endpointService.getWSDLEndpoints(port.getBinding().getPortType().getQName(),
-          Settings.OPENTOSCA_CONTAINER_HOSTNAME, new CsarId(this.csarId));
+          Settings.OPENTOSCA_CONTAINER_HOSTNAME, this.csarId);
       for (final WSDLEndpoint endpoint : temp) {
         ODEEndpointUpdater.LOG.debug("Found endpoint: {}", endpoint.getURI().toString());
         endpoints.add(endpoint);

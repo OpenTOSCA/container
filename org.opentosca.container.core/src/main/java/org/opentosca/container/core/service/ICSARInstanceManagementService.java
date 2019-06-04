@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 
@@ -72,7 +72,7 @@ public interface ICSARInstanceManagementService {
    * @param instanceID
    * @return list of CorrelationIDs
    */
-  public List<String> getCorrelationsOfInstance(CSARID csarID, ServiceTemplateInstanceID instanceID);
+  public List<String> getCorrelationsOfInstance(CsarId csarID, ServiceTemplateInstanceID instanceID);
 
   public ServiceTemplateInstanceID getInstanceForCorrelation(String correlationID);
 
@@ -80,13 +80,13 @@ public interface ICSARInstanceManagementService {
 
   public Map<String, String> getOutputForCorrelation(String correlationID);
 
-  void setCorrelationAsActive(CSARID csarID, String correlation);
+  void setCorrelationAsActive(CsarId csarID, String correlation);
 
-  void setCorrelationAsFinished(CSARID csarID, String correlation);
+  void setCorrelationAsFinished(CsarId csarID, String correlation);
 
-  List<String> getActiveCorrelations(CSARID csarID);
+  List<String> getActiveCorrelations(CsarId csarID);
 
-  List<String> getFinishedCorrelations(CSARID csarID);
+  List<String> getFinishedCorrelations(CsarId csarID);
 
   public void correlateCorrelationIdToPlan(String correlationID, PlanInvocationEvent planEvent);
 

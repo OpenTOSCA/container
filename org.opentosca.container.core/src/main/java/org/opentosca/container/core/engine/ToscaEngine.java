@@ -63,6 +63,15 @@ public final class ToscaEngine {
     return nullable;
   }
 
+  public static Optional<TNodeTemplate> tryResolveNodeTemplate(TServiceTemplate serviceTemplate, String nodeTemplate) {
+    try {
+      return Optional.of(resolveNodeTemplate(serviceTemplate, nodeTemplate));
+    } catch (NotFoundException e) {
+      return Optional.empty();
+    }
+  }
+
+  @Nullable
   public static TNodeTemplate getRelatedNodeTemplateWithin(TServiceTemplate serviceTemplate, TNodeTemplate template, QName relationshipType) {
     return serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
       .filter(candidate -> candidate instanceof TRelationshipTemplate)

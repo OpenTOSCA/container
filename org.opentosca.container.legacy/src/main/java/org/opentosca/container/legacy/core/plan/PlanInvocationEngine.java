@@ -131,23 +131,23 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     if (serviceTemplateInstanceID == -1) {
       serviceTemplateInstanceID = 1000 + (int) (Math.random() * (Integer.MAX_VALUE - 1000));
       // get new correlationID
-      correlationID = correlationHandler.getNewCorrelationID(csarID.toOldCsarId(), serviceTemplateId, (int) serviceTemplateInstanceID, planEvent, true);
+      correlationID = correlationHandler.getNewCorrelationID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID, planEvent, true);
     } else {
       // get new correlationID
-      correlationID = correlationHandler.getNewCorrelationID(csarID.toOldCsarId(), serviceTemplateId, (int) serviceTemplateInstanceID, planEvent, false);
+      correlationID = correlationHandler.getNewCorrelationID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID, planEvent, false);
     }
 
     // plan is of type build, thus create an instance and put the
     // CSARInstanceID into the plan
     ServiceTemplateInstanceID instanceID;
     if (PlanTypes.isPlanTypeURI(planEvent.getPlanType()).equals(PlanTypes.BUILD)) {
-      instanceID = csarInstanceManagement.createNewInstance(csarID.toOldCsarId(), serviceTemplateId);
+      instanceID = csarInstanceManagement.createNewInstance(csarID, serviceTemplateId);
       planEvent.setCSARInstanceID(instanceID.getInstanceID());
     } else {
-      instanceID = new ServiceTemplateInstanceID(csarID.toOldCsarId(), serviceTemplateId, (int) serviceTemplateInstanceID);
+      instanceID = new ServiceTemplateInstanceID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID);
     }
     csarInstanceManagement.correlateCSARInstanceWithPlanInstance(instanceID, correlationID);
-    csarInstanceManagement.setCorrelationAsActive(csarID.toOldCsarId(), correlationID);
+    csarInstanceManagement.setCorrelationAsActive(csarID, correlationID);
     csarInstanceManagement.correlateCorrelationIdToPlan(correlationID, planEvent);
 
 
@@ -291,13 +291,13 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
       serviceTemplateInstanceID = 1000 + (int) (Math.random() * (Integer.MAX_VALUE - 1000));
       // get new correlationID
       correlationID =
-        correlationHandler.getNewCorrelationID(csarID.toOldCsarId(), serviceTemplateId,
+        correlationHandler.getNewCorrelationID(csarID, serviceTemplateId,
           (int) serviceTemplateInstanceID, planEvent, true);
     } else {
       // get new correlationID
 
       correlationID =
-        correlationHandler.getNewCorrelationID(csarID.toOldCsarId(), serviceTemplateId,
+        correlationHandler.getNewCorrelationID(csarID, serviceTemplateId,
           (int) serviceTemplateInstanceID, planEvent, false);
     }
 
@@ -305,13 +305,13 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     // CSARInstanceID into the plan
     ServiceTemplateInstanceID instanceID;
     if (PlanTypes.isPlanTypeURI(planEvent.getPlanType()).equals(PlanTypes.BUILD)) {
-      instanceID = csarInstanceManagement.createNewInstance(csarID.toOldCsarId(), serviceTemplateId);
+      instanceID = csarInstanceManagement.createNewInstance(csarID, serviceTemplateId);
       planEvent.setCSARInstanceID(instanceID.getInstanceID());
     } else {
-      instanceID = new ServiceTemplateInstanceID(csarID.toOldCsarId(), serviceTemplateId, (int) serviceTemplateInstanceID);
+      instanceID = new ServiceTemplateInstanceID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID);
     }
     csarInstanceManagement.correlateCSARInstanceWithPlanInstance(instanceID, correlationID);
-    csarInstanceManagement.setCorrelationAsActive(csarID.toOldCsarId(), correlationID);
+    csarInstanceManagement.setCorrelationAsActive(csarID, correlationID);
     csarInstanceManagement.correlateCorrelationIdToPlan(correlationID, planEvent);
 
     return correlationID;
@@ -326,13 +326,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
   @Override
   public void invokePlan(final CsarId csarID, final QName serviceTemplateId, final long serviceTemplateInstanceID,
                          final TPlanDTO givenPlan, final String correlationID) throws UnsupportedEncodingException {
-    if (RulesChecker.areRulesContained(csarID.toOldCsarId())) {
-      if (!RulesChecker.check(csarID.toOldCsarId(), serviceTemplateId, givenPlan.getInputParameters())) {
-        LOG.debug("Deployment Rules are not fulfilled. Aborting the provisioning.");
-        return;
-      }
-      LOG.debug("Deployment Rules are fulfilled. Continuing the provisioning.");
-    }
 
     final Csar csar = csarStorage.findById(csarID);
     final TPlan storedPlan;
@@ -343,6 +336,13 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     } catch (NotFoundException e) {
       LOG.error("Could not resolve Plan or ServiceTemplate for plan invocation", e);
       return;
+    }
+    if (rulesChecker.areRulesContained(csar)) {
+      if (!rulesChecker.check(csar, serviceTemplate, givenPlan.getInputParameters())) {
+        LOG.debug("Deployment Rules are not fulfilled. Aborting the provisioning.");
+        return;
+      }
+      LOG.debug("Deployment Rules are fulfilled. Continuing the provisioning.");
     }
 
     LOG.info("Invoke the Plan \"" + givenPlan.getId() + "\" of type \"" + givenPlan.getPlanType() + "\" of CSAR \"" + csarID + "\".");
@@ -430,7 +430,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
   public void correctCorrelationToServiceTemplateInstanceIdMapping(final CsarId csarID, final QName serviceTemplateId,
                                                                    final String corrId,
                                                                    final int correctSTInstanceId) {
-    correlationHandler.correlateBuildPlanCorrToServiceTemplateInstanceId(csarID.toOldCsarId(), serviceTemplateId, corrId, correctSTInstanceId);
+    correlationHandler.correlateBuildPlanCorrToServiceTemplateInstanceId(csarID, serviceTemplateId, corrId, correctSTInstanceId);
   }
 
   private Map<String, String> createRequest(final Csar csar, final QName serviceTemplateID,final List<TParameterDTO> inputParameters,
@@ -522,7 +522,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
       }
 
       csarInstanceManagement.getOutputForCorrelation(correlationID).putAll(map);
-      csarInstanceManagement.setCorrelationAsFinished(csarID.toOldCsarId(), correlationID);
+      csarInstanceManagement.setCorrelationAsFinished(csarID, correlationID);
 
       // Update state
       final PlanInstanceRepository repository = new PlanInstanceRepository();
@@ -644,7 +644,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
       }
 
       csarInstanceManagement.getOutputForCorrelation(correlationID).putAll(map);
-      csarInstanceManagement.setCorrelationAsFinished(csarID.toOldCsarId(), correlationID);
+      csarInstanceManagement.setCorrelationAsFinished(csarID, correlationID);
 
       // Update state
       final PlanInstanceRepository repository = new PlanInstanceRepository();

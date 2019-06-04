@@ -153,13 +153,13 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
   // FIXME investigate why old ControlService sometimes took long instanceIds
   public List<String> correlationsForServiceTemplateInstance(CsarId csar, TServiceTemplate serviceTemplate,
                                                              long instanceId) {
-    return planInvocationEngine.getActiveCorrelationsOfInstance(new ServiceTemplateInstanceID(csar.toOldCsarId(), new QName(serviceTemplate.getId()), (int) instanceId));
+    return planInvocationEngine.getActiveCorrelationsOfInstance(new ServiceTemplateInstanceID(csar, new QName(serviceTemplate.getId()), (int) instanceId));
   }
 
   @Override
   public TPlanDTO getActivePlanOfInstance(CsarId csar, ServiceTemplateId serviceTemplate, long instanceId,
                                           String correlationId) {
-    final ServiceTemplateInstanceID stInstanceId = new ServiceTemplateInstanceID(csar.toOldCsarId(), serviceTemplate.getQName(), (int) instanceId);
+    final ServiceTemplateInstanceID stInstanceId = new ServiceTemplateInstanceID(csar, serviceTemplate.getQName(), (int) instanceId);
     return planInvocationEngine.getActivePublicPlanOfInstance(stInstanceId, correlationId);
   }
 

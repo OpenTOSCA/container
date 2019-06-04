@@ -2,6 +2,7 @@ package org.opentosca.container.core.model.instance;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 
 /**
@@ -11,7 +12,7 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 @Deprecated
 public class ServiceTemplateInstanceID {
 
-  private CSARID csarID;
+  private CsarId csarID;
   private QName serviceTemplateId;
   private int serviceTemplateInstanceID = 0;
 
@@ -20,7 +21,7 @@ public class ServiceTemplateInstanceID {
   private ServiceTemplateInstanceID() {
   }
 
-  public ServiceTemplateInstanceID(final CSARID csarID, final QName serviceTemplateId,
+  public ServiceTemplateInstanceID(final CsarId csarID, final QName serviceTemplateId,
                                    final int serviceTemplateInstanceID) {
     super();
     this.setServiceTemplateId(serviceTemplateId);
@@ -32,7 +33,7 @@ public class ServiceTemplateInstanceID {
     return this.serviceTemplateInstanceID;
   }
 
-  public CSARID getCsarId() {
+  public CsarId getCsarId() {
     return this.csarID;
   }
 
