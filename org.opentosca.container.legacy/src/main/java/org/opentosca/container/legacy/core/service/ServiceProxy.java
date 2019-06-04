@@ -26,8 +26,6 @@ public class ServiceProxy {
   public static IXMLSerializerService xmlSerializerService;
   @Inject
   public static ICSARInstanceManagementService csarInstanceManagement;
-  @Inject
-  public static EventAdmin eventAdmin;
 
   public static CorrelationHandler correlationHandler = new CorrelationHandler();
 }

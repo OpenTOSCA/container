@@ -2,25 +2,26 @@ package org.opentosca.bus.management.api.osgievent;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.apache.camel.ConsumerTemplate;
-import org.apache.camel.Exchange;
-import org.apache.camel.ProducerTemplate;
+import org.apache.camel.*;
 import org.apache.camel.impl.DefaultExchange;
 import org.opentosca.bus.management.header.MBHeader;
+import org.opentosca.container.core.engine.management.IManagementBus;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * EventHandler of the Management Bus-OSGi-Event-API.<br>
@@ -34,7 +35,8 @@ import org.slf4j.LoggerFactory;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
  */
-public class MBEventHandler implements EventHandler {
+@Component
+public class MBEventHandler implements IManagementBus, CamelContextAware {
 
   private static final String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
   private static final String BPELNS = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
@@ -45,114 +47,115 @@ public class MBEventHandler implements EventHandler {
 
   private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
-  private EventAdmin eventAdmin;
+  private CamelContext camelContext;
 
   @Override
-  public void handleEvent(final Event event) {
+  public void invokePlan(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback) {
+    final String planLanguage = (String) eventValues.get("PLANLANGUAGE");
+    if (!planLanguage.startsWith(BPMNNS) && !planLanguage.startsWith(BPELNS)) {
+      LOG.warn("Unsupported plan language: {}", planLanguage);
+      return;
+    }
+    LOG.debug("Plan invocation with plan language: {}", planLanguage);
 
-    // Handle plan invoke requests
-    if (PLAN_REQUEST_TOPIC.equals(event.getTopic())) {
-      LOG.debug("Process event of topic \"org_opentosca_plans/requests\".");
+    final CSARID csarID = (CSARID) eventValues.get("CSARID");
+    final QName planID = (QName) eventValues.get("PLANID");
+    final String operationName = (String) eventValues.get("OPERATIONNAME");
+    final String messageID = (String) eventValues.get("MESSAGEID");
+    final boolean async = (boolean) eventValues.get("ASYNC");
 
-      final CSARID csarID = (CSARID) event.getProperty("CSARID");
-      final QName planID = (QName) event.getProperty("PLANID");
-      final String planLanguage = (String) event.getProperty("PLANLANGUAGE");
+    LOG.debug("Plan invocation is asynchronous: {}", async);
 
-      if (planLanguage.startsWith(BPMNNS) || planLanguage.startsWith(BPELNS)) {
-        LOG.debug("Plan invocation with plan language: {}", planLanguage);
+    // Should be of type Document or HashMap<String, String>. Maybe better handle them
+    // with different topics.
+    final Object message = eventValues.get("BODY");
 
-        final String operationName = (String) event.getProperty("OPERATIONNAME");
-        final String messageID = (String) event.getProperty("MESSAGEID");
-        final boolean async = (boolean) event.getProperty("ASYNC");
+    // create the headers for the Exchange which is send to the Management Bus
+    final Map<String, Object> headers = new HashMap<>();
+    headers.put(MBHeader.CSARID.toString(), csarID);
+    headers.put(MBHeader.PLANID_QNAME.toString(), planID);
+    headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
+    headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), messageID);
+    headers.put("OPERATION", OsgiEventOperations.INVOKE_PLAN.getHeaderValue());
+    headers.put("PlanLanguage", planLanguage);
 
-        LOG.debug("Plan invocation is asynchronous: {}", async);
+    // Optional parameter if message is of type HashMap. Not needed for Document.
+    final String serviceInstanceID = (String) eventValues.get("SERVICEINSTANCEID");
 
-        // Should be of type Document or HashMap<String, String>. Maybe better handle them
-        // with different topics.
-        final Object message = event.getProperty("BODY");
+    if (message instanceof HashMap) {
+      LOG.debug("Invocation body is of type HashMap.");
 
-        // create the headers for the Exchange which is send to the Management Bus
-        final Map<String, Object> headers = new HashMap<>();
-        headers.put(MBHeader.CSARID.toString(), csarID);
-        headers.put(MBHeader.PLANID_QNAME.toString(), planID);
-        headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
-        headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), messageID);
-        headers.put("OPERATION", OsgiEventOperations.INVOKE_PLAN.getHeaderValue());
-        headers.put("PlanLanguage", planLanguage);
-
-        // Optional parameter if message is of type HashMap. Not needed for Document.
-        final String serviceInstanceID = (String) event.getProperty("SERVICEINSTANCEID");
-
-        if (message instanceof HashMap) {
-          LOG.debug("Invocation body is of type HashMap.");
-
-          if (serviceInstanceID != null) {
-            URI serviceInstanceURI;
-            try {
-              serviceInstanceURI = new URI(serviceInstanceID);
-              headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
-            } catch (final URISyntaxException e) {
-              LOG.warn("Could not generate service instance URL: {}", e.getMessage(), e);
-            }
-          } else {
-            LOG.warn("Service instance ID is null.");
-          }
-        } else {
-          LOG.warn("Invocation body is of type: {}", message.getClass());
+      if (serviceInstanceID != null) {
+        URI serviceInstanceURI;
+        try {
+          serviceInstanceURI = new URI(serviceInstanceID);
+          headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
+        } catch (final URISyntaxException e) {
+          LOG.warn("Could not generate service instance URL: {}", e.getMessage(), e);
         }
-
-        // templates to communicate with the Management Bus
-        final ProducerTemplate template = Activator.camelContext.createProducerTemplate();
-        final ConsumerTemplate consumer = Activator.camelContext.createConsumerTemplate();
-
-        LOG.debug("Correlation id: {}", messageID);
-        LOG.debug("Sending message {}", message);
-
-        // forward request to the Management Bus
-        final Exchange requestExchange = new DefaultExchange(Activator.camelContext);
-        requestExchange.getIn().setBody(message);
-        requestExchange.getIn().setHeaders(headers);
-        template.asyncSend("direct:invoke", requestExchange);
-
-        // Threaded reception of response
-        this.executor.submit(() -> {
-
-          Object response = null;
-
-          try {
-            consumer.start();
-            final Exchange exchange = consumer.receive("direct:response" + messageID);
-            response = exchange.getIn().getBody();
-            consumer.stop();
-          } catch (final Exception e) {
-            LOG.error("Error occured: {}", e.getMessage(), e);
-            return;
-          }
-
-          LOG.debug("Received response for request with id {}.", messageID);
-
-          final Map<String, Object> responseMap = new HashMap<>();
-          responseMap.put("RESPONSE", response);
-          responseMap.put("MESSAGEID", messageID);
-          responseMap.put("PLANLANGUAGE", planLanguage);
-          final Event responseEvent = new Event("org_opentosca_plans/responses", responseMap);
-
-          LOG.debug("Posting response as OSGi event.");
-          this.eventAdmin.postEvent(responseEvent);
-        });
-
       } else {
-        LOG.warn("Unsupported plan language: {}", planLanguage);
+        LOG.warn("Service instance ID is null.");
       }
+    } else {
+      LOG.warn("Invocation body is of type: {}", message.getClass());
     }
 
-    // Handle IA invoke requests
-    if (IA_INVOKE_TOPIC.equals(event.getTopic())) {
-      LOG.debug("Process event of topic \"org_opentosca_ia/requests\".");
+    // templates to communicate with the Management Bus
+    final ProducerTemplate template = camelContext.createProducerTemplate();
+    final ConsumerTemplate consumer = camelContext.createConsumerTemplate();
 
-      // TODO when needed.
-      // Adapt 'MBEventHandler - component.xml' to receive messages from this topic too...
+    LOG.debug("Correlation id: {}", messageID);
+    LOG.debug("Sending message {}", message);
 
-    }
+    // forward request to the Management Bus
+    final Exchange requestExchange = new DefaultExchange(camelContext);
+    requestExchange.getIn().setBody(message);
+    requestExchange.getIn().setHeaders(headers);
+    template.asyncSend("direct:invoke", requestExchange);
+
+    // Threaded reception of response
+    this.executor.submit(() -> {
+
+      Object response = null;
+
+      try {
+        consumer.start();
+        final Exchange exchange = consumer.receive("direct:response" + messageID);
+        response = exchange.getIn().getBody();
+        consumer.stop();
+      } catch (final Exception e) {
+        LOG.error("Error occured: {}", e.getMessage(), e);
+        return;
+      }
+
+      LOG.debug("Received response for request with id {}.", messageID);
+
+      final Map<String, Object> responseMap = new HashMap<>();
+      responseMap.put("RESPONSE", response);
+      responseMap.put("MESSAGEID", messageID);
+      responseMap.put("PLANLANGUAGE", planLanguage);
+//      final Event responseEvent = new Event("org_opentosca_plans/responses", responseMap);
+
+      LOG.debug("Posting response as OSGi event.");
+      responseCallback.accept(responseMap);
+//      this.eventAdmin.postEvent(responseEvent);
+    });
+
+  }
+
+  @Override
+  public void invokeIA(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback) {
+    // TODO when needed.
+    // Adapt 'MBEventHandler - component.xml' to receive messages from this topic too...
+  }
+
+  @Override
+  public void setCamelContext(CamelContext camelContext) {
+    this.camelContext = camelContext;
+  }
+
+  @Override
+  public CamelContext getCamelContext() {
+    return camelContext;
   }
 }

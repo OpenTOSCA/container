@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Singleton
 public class ArtifactTypesHandler {
-  private static final String ARTIFACT_TYPES_DEFINTION_FOLDER = "/artifacttypes";
+  private static final String ARTIFACT_TYPES_DEFINTION_FOLDER = "artifacttypes";
   private static final Logger LOG = LoggerFactory.getLogger(ArtifactTypesHandler.class);
 
   private final Map<QName, Artifacttype> artifactTypes = new HashMap<>();

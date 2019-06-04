@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.CamelContextAware;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.utils.Types;
-import org.opentosca.deployment.checks.Activator;
 import org.opentosca.deployment.checks.TestContext;
 import org.opentosca.deployment.checks.TestUtil;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -34,20 +34,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-public class ManagementOperationTest implements org.opentosca.deployment.checks.test.TestExecutionPlugin {
+public class ManagementOperationTest implements org.opentosca.deployment.checks.test.TestExecutionPlugin, CamelContextAware {
 
   public static final QName ANNOTATION =
     new QName("http://opentosca.org/policytypes/annotations/tests", "ManagementOperationTest");
 
   private static Logger logger = LoggerFactory.getLogger(ManagementOperationTest.class);
 
-  private final ProducerTemplate producer;
-
-
-  public ManagementOperationTest() {
-    final DefaultCamelContext camelContext = Activator.getCamelContext();
-    this.producer = camelContext.createProducerTemplate();
-  }
+  private ProducerTemplate producer;
 
   @Override
   public DeploymentTestResult execute(final TestContext context, final AbstractNodeTemplate nodeTemplate,
@@ -162,11 +156,9 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
     final Map<String, Object> headers = new HashMap<>();
     headers.put(MBHeader.CSARID.toString(), context.getServiceTemplateInstance().getCsarId());
     headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), context.getServiceTemplate().getQName());
-    headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(),
-      new URI(String.valueOf(context.getServiceTemplateInstance().getId())));
+    headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), new URI(String.valueOf(context.getServiceTemplateInstance().getId())));
     headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), nodeTemplate.getId());
-    headers.put(MBHeader.NODEINSTANCEID_STRING.toString(),
-      String.valueOf(context.getNodeTemplateInstance(nodeTemplate).getId()));
+    headers.put(MBHeader.NODEINSTANCEID_STRING.toString(), String.valueOf(context.getNodeTemplateInstance(nodeTemplate).getId()));
     headers.put(MBHeader.INTERFACENAME_STRING.toString(), interfaceName);
     headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
     headers.put(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
@@ -253,5 +245,15 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
     }
 
     return false;
+  }
+
+  @Override
+  public void setCamelContext(CamelContext camelContext) {
+    this.producer = camelContext.createProducerTemplate();
+  }
+
+  @Override
+  public CamelContext getCamelContext() {
+    return producer.getCamelContext();
   }
 }

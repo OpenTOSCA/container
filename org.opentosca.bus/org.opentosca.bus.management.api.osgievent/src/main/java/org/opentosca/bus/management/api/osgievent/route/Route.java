@@ -1,11 +1,12 @@
 package org.opentosca.bus.management.api.osgievent.route;
 
 import org.apache.camel.builder.RouteBuilder;
-import org.opentosca.bus.management.api.osgievent.Activator;
 import org.opentosca.bus.management.api.osgievent.OsgiEventOperations;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
 
 /**
  * Route of the Management Bus-OSGiEvent-API.<br>
@@ -22,6 +23,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class Route extends RouteBuilder {
 
+  private final IManagementBusService managementBusService;
+
+  @Inject
+  public Route(IManagementBusService managementBusService) {
+    this.managementBusService = managementBusService;
+  }
+
   @Override
   public void configure() throws Exception {
 
@@ -33,7 +41,7 @@ public class Route extends RouteBuilder {
 
     this.from("direct:invoke").to("stream:out").process(exchange -> {
 
-      exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), Activator.apiID);
+      exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), "org.opentosca.bus.management.api.osgieevent");
 
       final String messageID =
         exchange.getIn().getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
@@ -52,10 +60,10 @@ public class Route extends RouteBuilder {
         .to("direct:invokePlan")
       .end();
 
-    this.from("direct:invokeIA").to("stream:out").bean(IManagementBusService.class, "invokeIA").end();
-    this.from("direct:invokePlan").to("stream:out").bean(IManagementBusService.class, "invokePlan").end();
+    this.from("direct:invokeIA").to("stream:out").bean(managementBusService, "invokeIA").end();
+    this.from("direct:invokePlan").to("stream:out").bean(managementBusService, "invokePlan").end();
 
-    this.from("direct-vm:" + Activator.apiID).recipientList(this.simple("direct:response${id}")).end();
+    this.from("direct-vm:" + "org.opentosca.bus.management.api.osgieevent").recipientList(this.simple("direct:response${id}")).end();
 
   }
 

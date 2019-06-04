@@ -13,12 +13,11 @@ import javax.ws.rs.client.Client;
 import javax.xml.namespace.QName;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.*;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.engine.management.IManagementBus;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.impl.plan.PlanLogHandler;
 import org.opentosca.container.core.model.csar.Csar;
@@ -40,11 +39,7 @@ import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
-import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -66,7 +61,7 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
  */
 @Service
 @NonNullByDefault
-public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler {
+public class PlanInvocationEngine implements IPlanInvocationEngine {
 
   private static final ServiceTemplateInstanceRepository stiRepo = new ServiceTemplateInstanceRepository();
   private static final Logger LOG = LoggerFactory.getLogger(PlanInvocationEngine.class);
@@ -74,30 +69,31 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
   private static final String nsBPEL = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
   private static final String nsBPMN = "http://www.omg.org/spec/BPMN";
 
-  private final ResponseParser responseParser = new ResponseParser();
-
+  // this is one of the dependecies keeping PlanInvocationEngine in legacy.
+  @Deprecated
   private final IToscaReferenceMapper toscaReferenceMapper;
   private final CorrelationHandler correlationHandler;
   private final ICSARInstanceManagementService csarInstanceManagement;
-  // FIXME don't use osgi?!
-  @Nullable
-  private final EventAdmin eventAdmin;
+  private final IManagementBus managementBus;
   private final IXMLSerializerService xmlSerializerService;
   private final CsarStorageService csarStorage;
+  private final RulesChecker rulesChecker;
 
   @Inject
   public PlanInvocationEngine(IToscaReferenceMapper toscaReferenceMapper,
                               CorrelationHandler correlationHandler,
                               ICSARInstanceManagementService csarInstanceManagement,
-//                              EventAdmin eventAdmin,
+                              IManagementBus managementBus,
                               IXMLSerializerService xmlSerializerService,
-                              CsarStorageService csarStorage) {
+                              CsarStorageService csarStorage,
+                              RulesChecker rulesChecker) {
     this.toscaReferenceMapper = toscaReferenceMapper;
     this.correlationHandler = correlationHandler;
     this.csarInstanceManagement = csarInstanceManagement;
-    this.eventAdmin = null;
+    this.managementBus = managementBus;
     this.xmlSerializerService = xmlSerializerService;
     this.csarStorage = csarStorage;
+    this.rulesChecker = rulesChecker;
   }
 
   @Override
@@ -208,10 +204,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
       eventValues.put("ASYNC", false);
     }
 
-    final Event event = new Event("org_opentosca_plans/requests", eventValues);
     LOG.debug("Send event with parameters for invocation with the CorrelationID \"{}\".", correlationID);
-    // FIXME reinstate sending messages to service bus
-    // eventAdmin.sendEvent(event);
+    managementBus.invokePlan(eventValues, this::handleResponse);
 
     return correlationID;
   }
@@ -409,10 +403,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     } else {
       eventValues.put("ASYNC", false);
     }
-    final Event event = new Event("org_opentosca_plans/requests", eventValues);
     LOG.debug("Send event with parameters for invocation with the CorrelationID \"{}\".", correlationID);
-    // FIXME reinstate sending messages
-    // eventAdmin.sendEvent(event);
+    managementBus.invokePlan(eventValues, this::handleResponse);
   }
 
   private void processOutputParameters(TPlan storedPlan, PlanInvocationEvent planEvent) {
@@ -496,14 +488,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     return map;
   }
 
-  /**
-   * Receives events of the topic list org_opentosca_plans/response. This method handles responses
-   * of BPEL-plans.
-   */
-  @Override
-  public void handleEvent(final Event eve) {
-
-    final String correlationID = (String) eve.getProperty("MESSAGEID");
+  private void handleResponse(Map<String, Object> eventValues) {
+    final String correlationID = (String) eventValues.get("MESSAGEID");
     PlanInvocationEvent event = csarInstanceManagement.getPlanFromHistory(correlationID);
     final String planLanguage = event.getPlanLanguage();
     LOG.trace("The correlation ID is {} and plan language is {}", correlationID, planLanguage);
@@ -511,7 +497,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     // TODO the concrete handling and parsing shall be in the plugin?!
     if (planLanguage.startsWith(nsBPEL)) {
 
-      @SuppressWarnings("unchecked") final Map<String, String> map = (Map<String, String>) eve.getProperty("RESPONSE");
+      @SuppressWarnings("unchecked") final Map<String, String> map = (Map<String, String>) eventValues.get("RESPONSE");
       LOG.debug("Received an event with a SOAP response");
 
       final CsarId csarID = new CsarId(event.getCSARID());
@@ -566,14 +552,15 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         }
       }
     } else if (planLanguage.startsWith(nsBPMN)) {
-      final Object response = eve.getProperty("RESPONSE");
+      final Object response = eventValues.get("RESPONSE");
       LOG.debug("Received an event with a REST response: {}", response);
       event = csarInstanceManagement.getPlanFromHistory(correlationID);
       LOG.trace("Found invocation in plan history for instance: {}", event.getCSARInstanceID());
       final CsarId csarID = new CsarId(event.getCSARID());
 
       // parse the body
-      final String planInstanceID = this.responseParser.parseRESTResponse(csarID.toOldCsarId(), event.getPlanID(), correlationID, response);
+      final String planInstanceID = this.parseRESTResponse(response);
+      LOG.debug("Parsing REST response, found instance ID {} for Correlation {}", planInstanceID, correlationID);
 
       // if plan is not null
       if (null == planInstanceID || planInstanceID.equals("")) {
@@ -688,6 +675,13 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     }
 
     correlationHandler.removeCorrelation(correlationID);
+  }
+
+  private String parseRESTResponse(final Object responseBody) {
+    final String resp = (String) responseBody;
+    String instanceID = resp.substring(resp.indexOf("href\":\"") + 7, resp.length());
+    instanceID = instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
+    return instanceID;
   }
 
   /**

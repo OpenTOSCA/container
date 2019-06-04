@@ -11,6 +11,10 @@ import org.apache.camel.ProducerTemplate;
 import org.opentosca.container.core.common.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 /**
  * CollaborationContext of the Management Bus.<br>
@@ -23,13 +27,20 @@ import org.slf4j.LoggerFactory;
  * different OpenTOSCA instances. Additionally, a producer template is created which can be used by
  * all classes of this bundle to send camel messages.
  */
-public class CollaborationContext implements CamelContextAware {
+@Service
+public class CollaborationContext {
 
-  private CamelContext camelContext;
+  private final CamelContext camelContext;
   private ProducerTemplate producer;
 
   final private static Logger LOG = LoggerFactory.getLogger(CollaborationContext.class);
 
+  @Inject
+  public CollaborationContext(CamelContext camelContext) {
+    this.camelContext = camelContext;
+  }
+
+  @PostConstruct
   public void start() throws Exception {
     LOG.info("Starting management bus");
 
@@ -78,12 +89,6 @@ public class CollaborationContext implements CamelContextAware {
     }
   }
 
-  @Override
-  public void setCamelContext(CamelContext camelContext) {
-    this.camelContext = camelContext;
-  }
-
-  @Override
   public CamelContext getCamelContext() {
     return camelContext;
   }

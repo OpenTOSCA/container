@@ -31,6 +31,7 @@ import org.opentosca.container.core.next.repository.NodeTemplateInstanceReposito
 import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * This class determines on which OpenTOSCA Container instance an Implementation Artifact for a
@@ -55,6 +56,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Copyright 2018 IAAS University of Stuttgart
  */
+@Service
 public class DeploymentDistributionDecisionMaker {
 
   private final static Logger LOG = LoggerFactory.getLogger(DeploymentDistributionDecisionMaker.class);

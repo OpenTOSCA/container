@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.namespace.QName;
 
 import org.opentosca.bus.management.service.impl.collaboration.CollaborationContext;
@@ -79,6 +80,7 @@ import org.w3c.dom.NodeList;
  */
 
 @Service
+@Named("managementBusService")
 public class ManagementBusServiceImpl implements IManagementBusService {
 
   private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
