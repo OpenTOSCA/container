@@ -2,20 +2,9 @@ package org.opentosca.container.core.model.endpoint.wsdl;
 
 import java.net.URI;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.xml.namespace.QName;
 
-import org.eclipse.persistence.annotations.Convert;
-import org.eclipse.persistence.annotations.Converter;
-import org.eclipse.persistence.annotations.Converters;
 import org.opentosca.container.core.common.jpa.QNameConverter;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
@@ -26,9 +15,6 @@ import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Converters( {
-  @Converter(name = QNameConverter.name, converterClass = QNameConverter.class)
-})
 @Table(name = WSDLEndpoint.tableName,
   uniqueConstraints = @UniqueConstraint(columnNames = {"portType", "csarId", "managingContainer",
     "serviceTemplateInstanceID"}))
@@ -47,14 +33,14 @@ public class WSDLEndpoint extends AbstractEndpoint {
   // Converter to Convert QNames to String, and back from String to QName.
   // Used when persisting, so we can Query for QName-Objects.
   @Basic
-  @Convert(QNameConverter.name)
+  @Convert(converter = QNameConverter.class)
   @Column(name = "PortType")
   private QName PortType;
 
   // NodeTypeImplementation/RelationshipTypeImplementation and IA name are there to identify
   // specific IAs
   @Basic
-  @Convert(QNameConverter.name)
+  @Convert(converter = QNameConverter.class)
   @Column(name = "TypeImplementation")
   private QName TypeImplementation;
 
@@ -65,7 +51,7 @@ public class WSDLEndpoint extends AbstractEndpoint {
   // only the planid is used for plan endpoints, cause in tosca the id for a
   // plan must be unique in the targetnamespace
   @Basic
-  @Convert(QNameConverter.name)
+  @Convert(converter = QNameConverter.class)
   @Column(name = "PlanId")
   private QName PlanId;
 

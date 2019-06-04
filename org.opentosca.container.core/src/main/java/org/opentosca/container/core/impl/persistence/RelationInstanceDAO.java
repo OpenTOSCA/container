@@ -71,7 +71,7 @@ public class RelationInstanceDAO {
       if (o.isPresent()) {
         final RelationshipTemplateInstance nti = o.get();
         if (properties != null) {
-          final String value = (String) converter.convertObjectValueToDataValue(properties, null);
+          final String value = (String) converter.convertToDatabaseColumn(properties);
           logger.info("XML: {}", value);
           final RelationshipTemplateInstanceProperty prop = new RelationshipTemplateInstanceProperty();
           prop.setName("xml");

@@ -4,19 +4,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.xml.namespace.QName;
 
-import org.eclipse.persistence.annotations.Convert;
+import org.opentosca.container.core.common.jpa.QNameConverter;
 
 @Entity
 @Table(name = RelationshipTemplateInstance.TABLE_NAME)
@@ -42,11 +33,11 @@ public class RelationshipTemplateInstance extends PersistenceObject {
   @JoinColumn(name = "TARGET_ID")
   private NodeTemplateInstance target;
 
-  @Convert("QNameConverter")
+  @Convert(converter = QNameConverter.class)
   @Column(name = "TEMPLATE_ID", nullable = false)
   private QName templateId;
 
-  @Convert("QNameConverter")
+  @Convert(converter = QNameConverter.class)
   @Column(name = "TEMPLATE_TYPE", nullable = false)
   private QName templateType;
 

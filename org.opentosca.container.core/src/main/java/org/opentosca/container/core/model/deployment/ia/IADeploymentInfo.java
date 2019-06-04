@@ -1,16 +1,7 @@
 package org.opentosca.container.core.model.deployment.ia;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import javax.persistence.*;
 
-import org.eclipse.persistence.annotations.PrimaryKey;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo;
 
@@ -25,7 +16,7 @@ import org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo;
   @NamedQuery(name = IADeploymentInfo.getIADeploymentInfoByCSARID,
     query = IADeploymentInfo.getIADeploymentInfoByCSARIDQuery)})
 @Table(name = IADeploymentInfo.tableName)
-@PrimaryKey(columns = {@Column(name = "csarID"), @Column(name = "RelPath")})
+@IdClass(IADeploymentInfo.PrimaryKey.class)
 public class IADeploymentInfo extends AbstractFileDeploymentInfo {
 
   public static final String getIADeploymentInfoByCSARIDAndRelPath = "IADeploymentInfo.ByCSARIDAndRelPath";
@@ -64,5 +55,10 @@ public class IADeploymentInfo extends AbstractFileDeploymentInfo {
 
   public void setDeploymentState(final IADeploymentState deploymentState) {
     this.deploymentState = deploymentState;
+  }
+
+  class PrimaryKey {
+    CsarId csarID;
+    String relPath;
   }
 }

@@ -8,20 +8,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.xml.namespace.QName;
 
-import org.eclipse.persistence.annotations.Convert;
+import org.opentosca.container.core.common.jpa.QNameConverter;
 import org.opentosca.container.core.next.xml.PropertyParser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -54,11 +44,11 @@ public class NodeTemplateInstance extends PersistenceObject {
   @OneToMany(mappedBy = "source")
   private Collection<RelationshipTemplateInstance> outgoingRelations = new ArrayList<>();
 
-  @Convert("QNameConverter")
+  @Convert(converter = QNameConverter.class)
   @Column(name = "TEMPLATE_ID", nullable = false)
   private QName templateId;
 
-  @Convert("QNameConverter")
+  @Convert(converter = QNameConverter.class)
   @Column(name = "TEMPLATE_TYPE", nullable = false)
   private QName templateType;
 

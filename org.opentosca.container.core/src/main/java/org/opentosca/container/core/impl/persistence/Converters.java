@@ -46,7 +46,7 @@ public abstract class Converters {
       object.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase("xml"))
         .collect(Collectors.reducing((a, b) -> null)).get();
     if (prop != null) {
-      si.setProperties((Document) xmlConverter.convertDataValueToObjectValue(prop.getValue(), null));
+      si.setProperties((Document) xmlConverter.convertToEntityAttribute(prop.getValue()));
     }
     return si;
   }
@@ -65,7 +65,7 @@ public abstract class Converters {
       }
       final Document properties = object.getProperties();
       if (properties != null) {
-        final String value = (String) xmlConverter.convertObjectValueToDataValue(properties, null);
+        final String value = (String) xmlConverter.convertToDatabaseColumn(properties);
         final ServiceTemplateInstanceProperty prop = new ServiceTemplateInstanceProperty();
         prop.setName("xml");
         prop.setType("xml");
@@ -91,7 +91,7 @@ public abstract class Converters {
       object.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase("xml"))
         .collect(Collectors.toList());
     if (props != null && !props.isEmpty() && props.get(0) != null) {
-      ni.setProperties((Document) xmlConverter.convertDataValueToObjectValue(props.get(0).getValue(), null));
+      ni.setProperties((Document) xmlConverter.convertToEntityAttribute(props.get(0).getValue()));
     }
     return ni;
   }
@@ -111,7 +111,7 @@ public abstract class Converters {
           final NodeTemplateInstanceProperty prop = new NodeTemplateInstanceProperty();
           prop.setName("xml");
           prop.setType("xml");
-          prop.setValue((String) xmlConverter.convertObjectValueToDataValue(object.getProperties(), null));
+          prop.setValue((String) xmlConverter.convertToDatabaseColumn(object.getProperties()));
           nti.addProperty(prop);
         }
         if (object.getServiceInstance() != null) {
@@ -164,7 +164,7 @@ public abstract class Converters {
       object.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase("xml"))
         .collect(Collectors.toList());
     if (props != null && !props.isEmpty() && props.get(0) != null) {
-      ri.setProperties((Document) xmlConverter.convertDataValueToObjectValue(props.get(0).getValue(), null));
+      ri.setProperties((Document) xmlConverter.convertToEntityAttribute(props.get(0).getValue()));
     }
     return ri;
   }
@@ -184,7 +184,7 @@ public abstract class Converters {
           final RelationshipTemplateInstanceProperty prop = new RelationshipTemplateInstanceProperty();
           prop.setName("xml");
           prop.setType("xml");
-          prop.setValue((String) xmlConverter.convertObjectValueToDataValue(object.getProperties(), null));
+          prop.setValue((String) xmlConverter.convertToDatabaseColumn(object.getProperties()));
           rti.addProperty(prop);
         }
         if (object.getSourceInstance() != null) {

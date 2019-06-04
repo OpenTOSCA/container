@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,44 +18,15 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.persistence.mappings.DatabaseMapping;
-import org.eclipse.persistence.mappings.converters.Converter;
-import org.eclipse.persistence.sessions.Session;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-@javax.persistence.Converter
-public class DocumentConverter implements Converter, AttributeConverter<Document, String> {
+@Converter
+public class DocumentConverter implements AttributeConverter<Document, String> {
 
   private static final long serialVersionUID = -1227963218864722385L;
-
-  @Override
-  public Object convertDataValueToObjectValue(final Object documentString, final Session arg1) {
-    if (documentString != null) {
-      return getDocument((String) documentString);
-    }
-    return null;
-  }
-
-  @Override
-  public Object convertObjectValueToDataValue(final Object doc, final Session arg1) {
-    if (doc != null && doc instanceof Document) {
-      return getString((Document) doc);
-    }
-    return null;
-  }
-
-  @Override
-  public void initialize(final DatabaseMapping arg0, final Session arg1) {
-    // intentionally left blank
-  }
-
-  @Override
-  public boolean isMutable() {
-    return false;
-  }
 
   /**
    * Converts a given String to a XML document

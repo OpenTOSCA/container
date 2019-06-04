@@ -8,7 +8,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.opentosca.container.core.common.Settings;
 
 public final class EntityManagerProvider {
@@ -25,7 +24,7 @@ public final class EntityManagerProvider {
     final Map<String, Object> cfg = new HashMap<>();
     // We cannot reference Java's temp directory through the persistence.xml
     // Therefore, we set the "javax.persistence.jdbc.url" property via code.
-    cfg.put(PersistenceUnitProperties.JDBC_URL, JDBC_URL);
+    cfg.put("javax.persistence.jdbc.url", JDBC_URL);
     emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT, cfg);
   }
 

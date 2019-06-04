@@ -78,7 +78,7 @@ public class NodeInstanceDAO {
       if (o.isPresent()) {
         final NodeTemplateInstance nti = o.get();
         if (properties != null) {
-          final String value = (String) converter.convertObjectValueToDataValue(properties, null);
+          final String value = (String) converter.convertToDatabaseColumn(properties);
           logger.info("XML: {}", value);
           final NodeTemplateInstanceProperty prop = new NodeTemplateInstanceProperty();
           prop.setName("xml");
@@ -121,44 +121,7 @@ public class NodeInstanceDAO {
 
   public List<NodeInstance> getNodeInstances(final URI serviceInstanceID, final QName nodeTemplateID,
                                              final String nodeTemplateName, final URI nodeInstanceID) {
-
     logger.info("Not Implemented: Node instances cannot be queried");
     return new ArrayList<>();
-
-    // final Query getNodeInstancesQuery = this.em.createNamedQuery(NodeInstance.getNodeInstances);
-    //
-    // Integer internalID = null;
-    // if (nodeInstanceID != null) {
-    // internalID = IdConverter.nodeInstanceUriToID(nodeInstanceID);
-    // }
-    //
-    // Integer internalServiceInstanceID = null;
-    // if (serviceInstanceID != null) {
-    // // The serviceInstanceID in this case has the following format:
-    // //
-    // http://{hostname}:1337/containerapi/CSARs/{csar}/ServiceTemplates/{template}/Instances/{id}
-    // // We gonna split the string on character "/" in order to extract
-    // // the instance ID out of it, which is stored at the end of the
-    // // resulting string array.
-    // final String[] parts = serviceInstanceID.getPath().split("/");
-    // internalServiceInstanceID = Integer.valueOf(parts[parts.length - 1]);
-    //
-    // // This won't work since IdConverter expects a different URL
-    // // pattern (/instancedata/serviceInstances), which isn't given in
-    // // this case.
-    // // internalServiceInstanceID =
-    // // IdConverter.serviceInstanceUriToID(serviceInstanceID);
-    // }
-    //
-    // // Set Parameters for the Query
-    // getNodeInstancesQuery.setParameter("internalID", internalID);
-    // getNodeInstancesQuery.setParameter("nodeTemplateID",
-    // ((nodeTemplateID != null) ? nodeTemplateID.toString() : null));
-    // getNodeInstancesQuery.setParameter("nodeTemplateName", nodeTemplateName);
-    // getNodeInstancesQuery.setParameter("internalServiceInstanceID", internalServiceInstanceID);
-    // @SuppressWarnings("unchecked")
-    // final List<NodeInstance> queryResults = getNodeInstancesQuery.getResultList();
-    //
-    // return queryResults;
   }
 }

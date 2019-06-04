@@ -7,28 +7,10 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import javax.xml.namespace.QName;
 
-import org.eclipse.persistence.annotations.CascadeOnDelete;
-import org.eclipse.persistence.annotations.Convert;
-import org.eclipse.persistence.annotations.Converter;
+import org.eclipse.winery.common.interfaces.QNameAlreadyExistsException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.common.jpa.QNameConverter;
@@ -61,8 +43,7 @@ public class ServiceInstance {
   @Transient
   private URI serviceInstanceID;
 
-  @Convert("QNameConverter")
-  @Converter(name = "QNameConverter", converterClass = QNameConverter.class)
+  @Convert(converter = QNameConverter.class)
   private QName serviceTemplateID;
 
   // the name of the corresponding ServiceTemplate
@@ -79,8 +60,7 @@ public class ServiceInstance {
   private String csarID_DB;
 
   @Column(name = "properties", columnDefinition = "VARCHAR(4096)")
-  @Convert("DocumentConverter")
-  @Converter(name = "DocumentConverter", converterClass = DocumentConverter.class)
+  @Convert(converter = DocumentConverter.class)
   private Document properties;
 
   @Enumerated(EnumType.STRING)
@@ -90,14 +70,14 @@ public class ServiceInstance {
   // cascade on delete tells the JPA Framework to let the DB handle the
   // deletion (if serviceInstance is deleted => delete also all nodeInstances
   // who reference it!)
-  @CascadeOnDelete
+//  @CascadeOnDelete
   private List<NodeInstance> nodeInstances;
 
   @OneToMany(mappedBy = "serviceInstance", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   // cascade on delete tells the JPA Framework to let the DB handle the
   // deletion (if serviceInstance is deleted => delete also all nodeInstances
   // who reference it!)
-  @CascadeOnDelete
+//  @CascadeOnDelete
   private List<RelationInstance> relationInstances;
 
   // This empty constructor is required by JPA

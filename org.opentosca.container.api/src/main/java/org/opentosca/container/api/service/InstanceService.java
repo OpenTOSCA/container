@@ -64,7 +64,7 @@ public class InstanceService {
   private final DocumentConverter converter = new DocumentConverter();
 
   public Document convertPropertyToDocument(final Property property) {
-    return (Document) this.converter.convertDataValueToObjectValue(property.getValue(), null);
+    return (Document) this.converter.convertToEntityAttribute(property.getValue());
   }
 
   /**
@@ -89,7 +89,7 @@ public class InstanceService {
       logger.debug(msg);
       throw new IllegalArgumentException(msg);
     }
-    final String propertyAsString = (String) this.converter.convertObjectValueToDataValue(propertyDoc, null);
+    final String propertyAsString = (String) this.converter.convertToDatabaseColumn(propertyDoc);
     final T property = type.newInstance();
     property.setName("xml");
     property.setType("xml");

@@ -6,21 +6,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.xml.namespace.QName;
 
-import org.eclipse.persistence.annotations.Convert;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.opentosca.container.core.common.jpa.QNameConverter;
 
 @Entity
 @Table(name = PlanInstance.TABLE_NAME)
@@ -62,7 +52,7 @@ public class PlanInstance extends PersistenceObject {
   @JsonIgnore
   private ServiceTemplateInstance serviceTemplateInstance;
 
-  @Convert("QNameConverter")
+  @Convert(converter = QNameConverter.class)
   @Column(name = "TEMPLATE_ID", nullable = false)
   private QName templateId;
 

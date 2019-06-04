@@ -170,7 +170,7 @@ public class ServiceTemplateInstance extends PersistenceObject {
       getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
         .collect(Collectors.reducing((a, b) -> null)).orElse(null);
     if (prop != null) {
-      return (Document) converter.convertDataValueToObjectValue(prop.getValue(), null);
+      return (Document) converter.convertToEntityAttribute(prop.getValue());
     }
 
     return null;

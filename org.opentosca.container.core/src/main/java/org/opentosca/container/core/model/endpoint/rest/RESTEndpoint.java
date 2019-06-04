@@ -8,8 +8,6 @@ import java.util.List;
 import javax.persistence.*;
 import javax.xml.namespace.QName;
 
-import org.eclipse.persistence.annotations.Convert;
-import org.eclipse.persistence.annotations.Converter;
 import org.opentosca.container.core.common.jpa.QNameConverter;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
@@ -51,17 +49,17 @@ public class RESTEndpoint extends AbstractEndpoint {
   // Converter to Convert QNames to String, and back from String to QName.
   // Used when persisting, so we can Query for QName-Objects.
   @Basic
-  @Converter(name = QNameConverter.name, converterClass = org.opentosca.container.core.common.jpa.QNameConverter.class)
+  @Convert(converter = QNameConverter.class)
   @Column(name = "method")
   private restMethod method;
 
   @Column(name = "path")
   private String path;
 
-  @Convert(QNameConverter.name)
+  @Convert(converter = QNameConverter.class)
   private QName requestPayload;
 
-  @Convert(QNameConverter.name)
+  @Convert(converter = QNameConverter.class)
   private QName responsePayload;
 
   @Column(name = "RequestHeaders")

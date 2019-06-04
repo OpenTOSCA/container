@@ -20,7 +20,7 @@ public interface ICSARInstanceManagementService {
    * @param csarID the CSAR ID
    * @return List of ICSARInstanceID or empty list
    */
-  public List<ServiceTemplateInstanceID> getInstancesOfCSAR(CSARID csarID);
+  public List<ServiceTemplateInstanceID> getInstancesOfCSAR(CsarId csarID);
 
   /**
    * Creates a new instance for a certain CSAR.
@@ -28,7 +28,7 @@ public interface ICSARInstanceManagementService {
    * @param csarID the certain CSAR
    * @return the ID of the new instance
    */
-  public ServiceTemplateInstanceID createNewInstance(CSARID csarID, QName serviceTemplateId);
+  public ServiceTemplateInstanceID createNewInstance(CsarId csarID, QName serviceTemplateId);
 
   /**
    * Deletes a CSARInstance
@@ -37,7 +37,7 @@ public interface ICSARInstanceManagementService {
    * @param instanceID ID of the CSARInstance
    * @return boolean for success
    */
-  public boolean deleteInstance(CSARID csarID, ServiceTemplateInstanceID instanceID);
+  public boolean deleteInstance(CsarId csarID, ServiceTemplateInstanceID instanceID);
 
   /**
    * Stores a PublicPlan to History.
@@ -62,7 +62,7 @@ public interface ICSARInstanceManagementService {
    * @param instanceID
    * @param correlationID
    */
-  public void storeCorrelationForAnInstance(CSARID csarID, ServiceTemplateInstanceID instanceID,
+  public void storeCorrelationForAnInstance(CsarId csarID, ServiceTemplateInstanceID instanceID,
                                             String correlationID);
 
   /**

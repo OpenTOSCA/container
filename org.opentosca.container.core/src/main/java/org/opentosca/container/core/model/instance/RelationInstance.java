@@ -6,29 +6,9 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import javax.xml.namespace.QName;
 
-import org.eclipse.persistence.annotations.Convert;
-import org.eclipse.persistence.annotations.Converter;
-import org.eclipse.persistence.annotations.Converters;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.common.jpa.QNameConverter;
@@ -41,8 +21,6 @@ import org.w3c.dom.Document;
  */
 @Deprecated
 @Entity
-@Converters( {@Converter(name = "QNameConverter", converterClass = QNameConverter.class),
-  @Converter(name = "DOMDocumentConverter", converterClass = DocumentConverter.class)})
 @NamedQueries( {@NamedQuery(name = RelationInstance.getRelationInstances,
   query = RelationInstance.getRelationInstancesQuery)})
 public class RelationInstance {
@@ -65,7 +43,7 @@ public class RelationInstance {
   @Transient
   private URI relationInstanceID;
 
-  @Convert("QNameConverter")
+  @Convert(converter = QNameConverter.class)
   private QName relationshipTemplateID;
 
   // the name of the corresponding NodeTemplate
@@ -89,14 +67,14 @@ public class RelationInstance {
   private NodeInstance targetInstance;
 
   @Column(name = "properties", columnDefinition = "VARCHAR(8192)")
-  @Convert("DOMDocumentConverter")
+  @Convert(converter = DocumentConverter.class)
   private Document properties;
 
   @Enumerated(EnumType.STRING)
   private State.Relationship state = State.Relationship.INITIAL;
 
   // nodeType of the nodeTemplate which this nodeInstance depends on
-  @Convert("QNameConverter")
+  @Convert(converter = QNameConverter.class)
   private QName relationshipType;
 
 

@@ -14,13 +14,14 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.eclipse.persistence.annotations.Customizer;
-import org.opentosca.container.core.next.jpa.SoftDeleteCustomizer;
+//import org.eclipse.persistence.annotations.Customizer;
+//import org.opentosca.container.core.next.jpa.SoftDeleteCustomizer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @MappedSuperclass
-@Customizer(SoftDeleteCustomizer.class)
+// FIXME reinstate soft-deletion behaviour
+//@Customizer(SoftDeleteCustomizer.class)
 public class PersistenceObject implements Serializable {
 
   private static final long serialVersionUID = 7082895776724756832L;
