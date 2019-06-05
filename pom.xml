@@ -15,6 +15,7 @@
 
     <winery.version>2.0.0-SNAPSHOT</winery.version>
     <camel.version>2.18.3</camel.version>
+    <jaxb.version>2.2.11</jaxb.version>
   </properties>
 
   <repositories>
@@ -163,6 +164,21 @@
         <groupId>org.osgi</groupId>
         <artifactId>org.osgi.core</artifactId>
         <version>4.3.1</version>
+      </dependency>
+
+      <!--
+        pin jaxb-core and jaxb-impl version to avoid NoSuchFieldError: REFLECTION
+        as suggested in https://stackoverflow.com/a/30220824/
+      -->
+      <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-core</artifactId>
+        <version>${jaxb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>${jaxb.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

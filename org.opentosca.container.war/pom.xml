@@ -15,7 +15,7 @@
 
   <properties>
     <tomcat.version>7.0.93</tomcat.version>
-    <resteasy.version>3.6.3.Final</resteasy.version>
+    <resteasy.version>3.1.4.Final</resteasy.version>
     <spring.version>4.3.18.RELEASE</spring.version>
   </properties>
 
@@ -194,12 +194,14 @@
       <version>1.4.199</version>
     </dependency>
 
+    <!-- provided by tomcat -->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <version>3.1.0</version>
       <scope>provided</scope>
     </dependency>
+    <!-- provided by org.jboss.resteasy:resteasy-jaxrs -->
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
