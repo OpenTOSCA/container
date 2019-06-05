@@ -127,4 +127,11 @@ public class Artifacttype {
     this.namespace = value;
   }
 
+  @Override
+  public String toString() {
+    return "Artifacttype{" +
+      "name='" + name + '\'' +
+      ", namespace='" + namespace + '\'' +
+      '}';
+  }
 }

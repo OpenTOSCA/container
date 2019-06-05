@@ -13,7 +13,14 @@
   <bean class="org.opentosca.bus.management.service.impl.ManagementBusServiceImpl" />
   <bean class="org.opentosca.bus.management.service.impl.PluginRegistry" />
 
-  <context:component-scan base-package="org.opentosca.bus.management.service.impl.collaboration" />
+  <bean class="org.opentosca.bus.management.service.impl.collaboration.CollaborationContext">
+    <constructor-arg type="org.apache.camel.CamelContext" ref="collaboration-camel-context" />
+  </bean>
+  <bean class="org.opentosca.bus.management.service.impl.collaboration.DeploymentDistributionDecisionMaker" />
+  <bean class="org.opentosca.bus.management.service.impl.collaboration.RequestReceiver" />
+  <bean class="org.opentosca.bus.management.service.impl.collaboration.RequestSender" />
+
+<!--  <context:component-scan base-package="org.opentosca.bus.management.service.impl.collaboration" />-->
   <context:component-scan base-package="org.opentosca.bus.management.service.impl.util" />
 
   <!-- import the context definitions for invocation plugins -->
@@ -21,7 +28,7 @@
   <!-- import the context definitions for deployment plugins -->
   <import resource="classpath*:/spring/context-bus-deployment-plugin.xml" />
 
-  <camel:camelContext>
+  <camel:camelContext id="collaboration-camel-context">
     <camel:packageScan>
       <!-- do not add the RouteBuilders to the camel context here, they are added through the CollaborationContext bean -->
       <!-- <camel:package>org.opentosca.bus.management.service.impl.collaboration.route</camel:package> -->

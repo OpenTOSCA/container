@@ -8,8 +8,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.xml.namespace.QName;
 
-import com.sun.istack.Nullable;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.core.model.capability.provider.ProviderType;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.ICoreCapabilityService;

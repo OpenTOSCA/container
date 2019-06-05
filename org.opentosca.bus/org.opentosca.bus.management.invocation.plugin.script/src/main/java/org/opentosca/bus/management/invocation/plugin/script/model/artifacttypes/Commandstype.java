@@ -11,6 +11,8 @@ package org.opentosca.bus.management.invocation.plugin.script.model.artifacttype
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -68,4 +70,10 @@ public class Commandstype {
     return this.command;
   }
 
+  @Override
+  public String toString() {
+    return "Commandstype{" +
+      "command=" + command.stream().collect(Collectors.joining(", "))+
+      '}';
+  }
 }
