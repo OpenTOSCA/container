@@ -5,17 +5,23 @@ import javax.persistence.*;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 /**
  * Deployment information of a Plan inside a CSAR file. It is used for tracking its deploy progress.
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@NamedQueries( {@NamedQuery(name = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDAndRelPath,
-  query = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDAndRelPathQuery),
+@NamedQueries( {
+  @NamedQuery(name = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDAndRelPath,
+    query = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDAndRelPathQuery),
   @NamedQuery(name = PlanDeploymentInfo.getPlanDeploymentInfoByCSARID,
-    query = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDQuery)})
-@Table(name = PlanDeploymentInfo.tableName)
-@IdClass(PlanDeploymentInfo.PrimaryKey.class)
+    query = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDQuery)
+})
+@Table(name = PlanDeploymentInfo.tableName,
+  uniqueConstraints = @UniqueConstraint(columnNames = {"csarID", "RelPath"})
+)
 public class PlanDeploymentInfo extends AbstractFileDeploymentInfo {
 
   public static final String getPlanDeploymentInfoByCSARID = "PlanDeploymentInfo.ByCSARID";
@@ -56,8 +62,4 @@ public class PlanDeploymentInfo extends AbstractFileDeploymentInfo {
     this.deploymentState = deploymentState;
   }
 
-  class PrimaryKey {
-    CsarId csarID;
-    String relPath;
-  }
 }

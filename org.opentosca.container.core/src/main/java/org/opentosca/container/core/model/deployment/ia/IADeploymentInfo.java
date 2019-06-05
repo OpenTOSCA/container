@@ -5,18 +5,23 @@ import javax.persistence.*;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 /**
  * Deployment information of a Implementation Artifact inside a CSAR file. It is used for tracking
  * its deploy progress.
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@NamedQueries( {@NamedQuery(name = IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPath,
-  query = IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPathQuery),
+@NamedQueries( {
+  @NamedQuery(name = IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPath,
+    query = IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPathQuery),
   @NamedQuery(name = IADeploymentInfo.getIADeploymentInfoByCSARID,
-    query = IADeploymentInfo.getIADeploymentInfoByCSARIDQuery)})
-@Table(name = IADeploymentInfo.tableName)
-@IdClass(IADeploymentInfo.PrimaryKey.class)
+    query = IADeploymentInfo.getIADeploymentInfoByCSARIDQuery)
+})
+@Table(name = IADeploymentInfo.tableName,
+uniqueConstraints = @UniqueConstraint(columnNames = {"csarID", "RelPath"}))
 public class IADeploymentInfo extends AbstractFileDeploymentInfo {
 
   public static final String getIADeploymentInfoByCSARIDAndRelPath = "IADeploymentInfo.ByCSARIDAndRelPath";
@@ -57,8 +62,4 @@ public class IADeploymentInfo extends AbstractFileDeploymentInfo {
     this.deploymentState = deploymentState;
   }
 
-  class PrimaryKey {
-    CsarId csarID;
-    String relPath;
-  }
 }

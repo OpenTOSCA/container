@@ -4,7 +4,8 @@
 
   <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
 
-    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <!-- provider is unspecified to make resolution more failure-tolerant -->
+    <!-- <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider> -->
 
     <!-- converter classes -->
     <class>org.opentosca.container.core.common.jpa.CsarIdConverter</class>
@@ -50,10 +51,11 @@
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
+
     <properties>
       <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
       <property name="hibernate.hbm2ddl.auto" value="update" />
-      <!--<property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />-->
+      <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
       <!--<property name="show_sql" value="true" />-->
     </properties>
 
