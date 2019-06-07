@@ -2,10 +2,9 @@ package org.opentosca.bus.management.api.resthttp.processor;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
@@ -15,7 +14,7 @@ import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.opentosca.bus.management.header.MBHeader;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -35,103 +34,89 @@ public class InvocationRequestProcessor implements Processor {
 
   @Override
   public void process(final Exchange exchange) throws Exception {
-
-    String nodeTemplateID = null;
-    String relationshipTemplateID = null;
-
-    InvocationRequestProcessor.LOG.debug("Processing Invocation request...");
+    LOG.debug("Processing Invocation request...");
 
     final String bodyString = exchange.getIn().getBody(String.class);
-
     final LinkedHashMap<String, LinkedHashMap<String, String>> requestMap = this.requestToMap(bodyString);
-
     final LinkedHashMap<String, String> infosMap = requestMap.get("invocation-information");
 
-    if (infosMap != null) {
-
-      if (infosMap.containsKey("csarID")) {
-        final String csarID = infosMap.get("csarID");
-        InvocationRequestProcessor.LOG.debug("csarID: {}", csarID);
-        exchange.getIn().setHeader(MBHeader.CSARID.toString(), new CSARID(csarID));
-
-      } else {
-        InvocationRequestProcessor.LOG.debug("Can't process request: csarID is missing!");
-        throw new Exception("Can't process request: csarID is missing!");
-      }
-      if (infosMap.containsKey("serviceTemplateID")) {
-        final QName serviceTemplateID = QName.valueOf(infosMap.get("serviceTemplateID"));
-        InvocationRequestProcessor.LOG.debug("serviceTemplateID: {}", serviceTemplateID);
-        exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
-
-      } else {
-        InvocationRequestProcessor.LOG.debug("Can't process request: serviceTemplateID is missing!");
-        throw new Exception("Can't process request: serviceTemplateID is missing!");
-      }
-      if (infosMap.containsKey("serviceInstanceID")) {
-        final String serviceInstanceID = infosMap.get("serviceInstanceID");
-        InvocationRequestProcessor.LOG.debug("serviceInstanceID: {}", serviceInstanceID);
-
-        if (serviceInstanceID != null) {
-          final URI serviceInstanceURI = new URI(serviceInstanceID);
-          exchange.getIn().setHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
-        }
-      }
-      if (infosMap.containsKey("nodeInstanceID")) {
-        final String nodeInstanceID = infosMap.get("nodeInstanceID");
-        InvocationRequestProcessor.LOG.debug("nodeInstanceID: {}", nodeInstanceID);
-        exchange.getIn().setHeader(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
-
-      }
-      if (infosMap.containsKey("nodeTemplateID")) {
-        nodeTemplateID = infosMap.get("nodeTemplateID");
-        InvocationRequestProcessor.LOG.debug("nodeTemplateID: {}", nodeTemplateID);
-        exchange.getIn().setHeader(MBHeader.NODETEMPLATEID_STRING.toString(), nodeTemplateID);
-      } else if (infosMap.containsKey("relationshipTemplateID")) {
-        relationshipTemplateID = infosMap.get("relationshipTemplateID");
-        InvocationRequestProcessor.LOG.debug("relationshipTemplateID: {}", relationshipTemplateID);
-        exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
-      }
-      if (infosMap.containsKey("interface")) {
-        final String interfaceName = infosMap.get("interface");
-        InvocationRequestProcessor.LOG.debug("interface: {}", interfaceName);
-        exchange.getIn().setHeader(MBHeader.INTERFACENAME_STRING.toString(), interfaceName);
-      } else {
-        InvocationRequestProcessor.LOG.debug("Can't process request: interface is missing!");
-        throw new Exception("Can't process request: interface is missing!");
-      }
-      if (infosMap.containsKey("operation")) {
-        final String operationName = infosMap.get("operation");
-        InvocationRequestProcessor.LOG.debug("operationName: {}", operationName);
-        exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
-      } else {
-        InvocationRequestProcessor.LOG.debug("Can't process request: operation is missing!");
-        throw new Exception("Can't process request: operation is missing!");
-      }
-
-      if (nodeTemplateID == null && relationshipTemplateID == null) {
-        InvocationRequestProcessor.LOG.debug("Can't process request: Eighter nodeTemplateID or relationshipTemplateID is required!");
-        throw new Exception(
-          "Can't process request: Eighter nodeTemplateID or relationshipTemplateID is required!");
-      }
-
-      final HashMap<String, String> paramsMap = requestMap.get("params");
-
-      if (paramsMap != null) {
-
-        exchange.getIn().setBody(paramsMap);
-        InvocationRequestProcessor.LOG.debug("Params: {}", paramsMap);
-
-      } else {
-        InvocationRequestProcessor.LOG.debug("No parameter specified.");
-      }
-
-    } else {
-      InvocationRequestProcessor.LOG.warn("Needed information not specified.");
+    if (infosMap == null) {
+      LOG.warn("Needed information not specified.");
       throw new Exception("Needed information not specified.");
+    }
+    checkRequiredKeys(infosMap, "csarID", "serviceTemplateID", "interface", "operation");
+    String nodeTemplateID = null;
+    String relationshipTemplateID = null;
+    if (infosMap.containsKey("nodeTemplateID")) {
+      nodeTemplateID = infosMap.get("nodeTemplateID");
+      LOG.debug("nodeTemplateID: {}", nodeTemplateID);
+      exchange.getIn().setHeader(MBHeader.NODETEMPLATEID_STRING.toString(), nodeTemplateID);
+    }
+    if (infosMap.containsKey("relationshipTemplateID")) {
+      relationshipTemplateID = infosMap.get("relationshipTemplateID");
+      LOG.debug("relationshipTemplateID: {}", relationshipTemplateID);
+      exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
+    }
+
+    if (nodeTemplateID == null && relationshipTemplateID == null) {
+      LOG.debug("Can't process request: Eighter nodeTemplateID or relationshipTemplateID is required!");
+      throw new Exception(
+        "Can't process request: Eighter nodeTemplateID or relationshipTemplateID is required!");
+    }
+
+    final String csarID = infosMap.get("csarID");
+    LOG.debug("csarID: {}", csarID);
+    exchange.getIn().setHeader(MBHeader.CSARID.toString(), new CsarId(csarID));
+
+    final QName serviceTemplateID = QName.valueOf(infosMap.get("serviceTemplateID"));
+    LOG.debug("serviceTemplateID: {}", serviceTemplateID);
+    exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+
+    final String interfaceName = infosMap.get("interface");
+    LOG.debug("interface: {}", interfaceName);
+    exchange.getIn().setHeader(MBHeader.INTERFACENAME_STRING.toString(), interfaceName);
+
+    if (infosMap.containsKey("serviceInstanceID")) {
+      final String serviceInstanceID = infosMap.get("serviceInstanceID");
+      LOG.debug("serviceInstanceID: {}", serviceInstanceID);
+      if (serviceInstanceID != null) {
+        final URI serviceInstanceURI = new URI(serviceInstanceID);
+        exchange.getIn().setHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
+      }
+    }
+
+    if (infosMap.containsKey("nodeInstanceID")) {
+      final String nodeInstanceID = infosMap.get("nodeInstanceID");
+      LOG.debug("nodeInstanceID: {}", nodeInstanceID);
+      exchange.getIn().setHeader(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
+    }
+
+    final String operationName = infosMap.get("operation");
+    LOG.debug("operationName: {}", operationName);
+    exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
+
+    final HashMap<String, String> paramsMap = requestMap.get("params");
+    if (paramsMap != null) {
+      exchange.getIn().setBody(paramsMap);
+      LOG.debug("Params: {}", paramsMap);
+    } else {
+      LOG.debug("No parameter specified.");
     }
 
     exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), "org.opentosca.bus.management.api.resthttp");
   }
+
+  private void checkRequiredKeys(Map<String, ?> parameters, String... keys) {
+    Set<String> missing = Arrays.stream(keys)
+      .filter(((Predicate<String>) parameters::containsKey).negate())
+      .collect(Collectors.toSet());
+    if (!missing.isEmpty()) {
+      final String pretty = missing.stream().collect(Collectors.joining(", "));
+      LOG.warn("Can not process request due to missing information. Missing key(s): {}", pretty);
+      throw new RuntimeException(String.format("\"Can not process request due to missing information. Missing key(s): %s", pretty));
+    }
+  }
+
 
   /**
    * Parses and maps a json String to a
