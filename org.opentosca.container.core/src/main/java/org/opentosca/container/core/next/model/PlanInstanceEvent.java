@@ -45,6 +45,7 @@ public class PlanInstanceEvent extends PersistenceObject {
 
   public PlanInstanceEvent() {
     this.startTimestamp = new Date();
+    this.endTimestamp = startTimestamp;
   }
 
   public PlanInstanceEvent(final String status, final String type, final String message) {
@@ -109,5 +110,10 @@ public class PlanInstanceEvent extends PersistenceObject {
     if (!planInstance.getEvents().contains(this)) {
       planInstance.getEvents().add(this);
     }
+  }
+
+  @JsonIgnore
+  public long getDuration() {
+    return getEndTimestamp().getTime() - getStartTimestamp().getTime();
   }
 }
