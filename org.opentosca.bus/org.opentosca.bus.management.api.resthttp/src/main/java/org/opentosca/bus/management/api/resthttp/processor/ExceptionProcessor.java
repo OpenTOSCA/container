@@ -9,6 +9,7 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * ExceptionProcessor of the Management Bus REST-API.<br>
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+@Component
 public class ExceptionProcessor implements Processor {
 
   final private static Logger LOG = LoggerFactory.getLogger(ExceptionProcessor.class);

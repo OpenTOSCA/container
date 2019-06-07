@@ -9,10 +9,10 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.CamelContextAware;
 import org.apache.camel.ProducerTemplate;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
@@ -34,14 +34,19 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-public class ManagementOperationTest implements org.opentosca.deployment.checks.test.TestExecutionPlugin, CamelContextAware {
+public class ManagementOperationTest implements org.opentosca.deployment.checks.test.TestExecutionPlugin {
 
   public static final QName ANNOTATION =
     new QName("http://opentosca.org/policytypes/annotations/tests", "ManagementOperationTest");
 
   private static Logger logger = LoggerFactory.getLogger(ManagementOperationTest.class);
 
-  private ProducerTemplate producer;
+  private final ProducerTemplate producer;
+
+  @Inject
+  public ManagementOperationTest(CamelContext camelContext) {
+    producer = camelContext.createProducerTemplate();
+  }
 
   @Override
   public DeploymentTestResult execute(final TestContext context, final AbstractNodeTemplate nodeTemplate,
@@ -239,21 +244,6 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
 
   @Override
   public boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate) {
-
-    if (policyTemplate.getType().getId().equals(ANNOTATION)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  @Override
-  public void setCamelContext(CamelContext camelContext) {
-    this.producer = camelContext.createProducerTemplate();
-  }
-
-  @Override
-  public CamelContext getCamelContext() {
-    return producer.getCamelContext();
+    return policyTemplate.getType().getId().equals(ANNOTATION);
   }
 }

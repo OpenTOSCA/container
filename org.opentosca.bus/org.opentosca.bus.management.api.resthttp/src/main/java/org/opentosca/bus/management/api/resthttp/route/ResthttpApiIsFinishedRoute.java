@@ -6,6 +6,7 @@ import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.IsFinishedProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.IsFinishedRequestProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.IsFinishedResponseProcessor;
+import org.springframework.stereotype.Component;
 
 /**
  * InvocationRoute of the Management Bus REST-API.<br>
@@ -15,7 +16,8 @@ import org.opentosca.bus.management.api.resthttp.processor.IsFinishedResponsePro
  *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
-public class IsFinishedRoute extends RouteBuilder {
+@Component
+public class ResthttpApiIsFinishedRoute extends RouteBuilder {
 
   @Override
   public void configure() throws Exception {

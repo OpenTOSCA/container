@@ -15,10 +15,6 @@
 
   <bean class="org.opentosca.bus.management.invocation.plugin.soaphttp.ManagementBusInvocationPluginSoapHttp" />
 
-  <camel:camelContext>
-    <camel:packageScan>
-      <camel:package>org.opentosca.bus.management.invocation.plugin.soaphttp.route</camel:package>
-      <camel:package>org.opentosca.bus.management.invocation.plugin.soaphttp.processor</camel:package>
-    </camel:packageScan>
-  </camel:camelContext>
+  <context:component-scan base-package="org.opentosca.bus.management.invocation.plugin.soaphttp.route" />
+  <context:component-scan base-package="org.opentosca.bus.management.invocation.plugin.soaphttp.processor" />
 </beans>

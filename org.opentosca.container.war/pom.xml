@@ -139,11 +139,6 @@
     </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.bus.application.service</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.bus.management.service</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -151,6 +146,16 @@
     <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.bus.management.api.osgievent</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.management.api.resthttp</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.management.api.soaphttp</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

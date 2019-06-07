@@ -16,10 +16,6 @@
   <bean class="org.opentosca.bus.management.invocation.plugin.script.typeshandler.ArtifactTypesHandler" />
   <bean class="org.opentosca.bus.management.invocation.plugin.script.ManagementBusInvocationPluginScript" />
 
-  <camel:camelContext>
-    <camel:packageScan>
-      <camel:package>org.opentosca.bus.management.invocation.plugin.soaphttp.route</camel:package>
-      <camel:package>org.opentosca.bus.management.invocation.plugin.soaphttp.processor</camel:package>
-    </camel:packageScan>
-  </camel:camelContext>
+  <context:component-scan base-package="org.opentosca.bus.management.invocation.plugin.soaphttp.route"/>
+  <context:component-scan base-package="org.opentosca.bus.management.invocation.plugin.soaphttp.processor"/>
 </beans>

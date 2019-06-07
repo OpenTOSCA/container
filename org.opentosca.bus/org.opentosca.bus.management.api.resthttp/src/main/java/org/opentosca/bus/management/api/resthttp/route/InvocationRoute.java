@@ -4,7 +4,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.opentosca.bus.management.api.resthttp.Activator;
 import org.opentosca.bus.management.api.resthttp.model.QueueMap;
 import org.opentosca.bus.management.api.resthttp.model.RequestID;
 import org.opentosca.bus.management.api.resthttp.model.ResultMap;
@@ -12,6 +11,7 @@ import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationRequestProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationResponseProcessor;
 import org.opentosca.bus.management.header.MBHeader;
+import org.springframework.stereotype.Component;
 
 /**
  * InvocationRoute of the Management Bus REST-API.<br>
@@ -21,6 +21,7 @@ import org.opentosca.bus.management.header.MBHeader;
  *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
+@Component
 public class InvocationRoute extends RouteBuilder {
 
   public static final String INVOKE_ENDPOINT = "/ManagementBus/v1/invoker";
@@ -83,7 +84,7 @@ public class InvocationRoute extends RouteBuilder {
       .to(MANAGEMENT_BUS_PLAN).end();
 
     // invoke response route
-    this.from("direct-vm:" + Activator.apiID)
+    this.from("direct-vm:" + "org.opentosca.bus.management.api.resthttp")
       .bean(QueueMap.class, "finished(${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "})")
       .bean(ResultMap.class, "put(${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "}, ${body})").stop();
 

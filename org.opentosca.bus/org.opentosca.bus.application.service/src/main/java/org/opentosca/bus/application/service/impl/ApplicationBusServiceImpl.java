@@ -16,7 +16,7 @@ import org.opentosca.bus.application.service.IApplicationBusService;
 public class ApplicationBusServiceImpl implements IApplicationBusService {
 
   // Routing endpoint of the Application Bus bundle
-  public static final String ENDPOINT = "direct-vm:" + "org.opentosca.bus.application.service";
+  public static final String ENDPOINT = "direct-vm:org.opentosca.bus.application.service";
 
   @Override
   public String getRoutingEndpoint() {

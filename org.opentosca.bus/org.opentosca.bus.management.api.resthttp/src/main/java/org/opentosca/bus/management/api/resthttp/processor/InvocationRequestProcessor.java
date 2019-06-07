@@ -14,11 +14,11 @@ import org.apache.camel.Processor;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.opentosca.bus.management.api.resthttp.Activator;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * InvocationRequestProcessor of the Management Bus REST-API.<br>
@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
+@Component
 public class InvocationRequestProcessor implements Processor {
 
   final private static Logger LOG = LoggerFactory.getLogger(InvocationRequestProcessor.class);
@@ -129,7 +130,7 @@ public class InvocationRequestProcessor implements Processor {
       throw new Exception("Needed information not specified.");
     }
 
-    exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), Activator.apiID);
+    exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), "org.opentosca.bus.management.api.resthttp");
   }
 
   /**

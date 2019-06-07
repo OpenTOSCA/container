@@ -41,7 +41,7 @@ import org.w3c.dom.NodeList;
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  */
 @Service
-public class ManagementBusInvocationPluginScript implements IManagementBusInvocationPluginService, CamelContextAware {
+public class ManagementBusInvocationPluginScript implements IManagementBusInvocationPluginService {
 
   final private static String PLACEHOLDER_TARGET_FILE_PATH = "{TARGET_FILE_PATH}";
   final private static String PLACEHOLDER_TARGET_FILE_FOLDER_PATH = "{TARGET_FILE_FOLDER_PATH}";
@@ -57,12 +57,13 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
   private final IToscaEngineService toscaEngineService;
   private final ArtifactTypesHandler typesHandler;
 
-  private CamelContext camelContext;
+  private final CamelContext camelContext;
 
   @Inject
-  public ManagementBusInvocationPluginScript(IToscaEngineService toscaEngineService, ArtifactTypesHandler typesHandler) {
+  public ManagementBusInvocationPluginScript(IToscaEngineService toscaEngineService, ArtifactTypesHandler typesHandler, CamelContext camelContext) {
     this.toscaEngineService = toscaEngineService;
     this.typesHandler = typesHandler;
+    this.camelContext = camelContext;
   }
 
   @Override
@@ -501,15 +502,5 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
   @Override
   public List<String> getSupportedTypes() {
     return typesHandler.getSupportedTypes().stream().map(QName::toString).collect(Collectors.toList());
-  }
-
-  @Override
-  public void setCamelContext(CamelContext camelContext) {
-    this.camelContext = camelContext;
-  }
-
-  @Override
-  public CamelContext getCamelContext() {
-    return camelContext;
   }
 }

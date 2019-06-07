@@ -12,6 +12,7 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * GetResultResponseProcessor of the Management Bus REST-API.<br>
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
+@Component
 public class GetResultResponseProcessor implements Processor {
 
   final private static Logger LOG = LoggerFactory.getLogger(GetResultResponseProcessor.class);

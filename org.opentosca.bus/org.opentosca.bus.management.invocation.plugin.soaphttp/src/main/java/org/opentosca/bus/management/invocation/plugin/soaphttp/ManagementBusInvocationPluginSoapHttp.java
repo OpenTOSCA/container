@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,7 +44,7 @@ import com.predic8.wsdl.WSDLParser;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
 @Component
-public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvocationPluginService, CamelContextAware {
+public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvocationPluginService {
 
   private static final Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginSoapHttp.class);
 
@@ -55,7 +56,12 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
   private static Map<String, Exchange> exchangeMap = Collections.synchronizedMap(new HashMap<String, Exchange>());
 
-  private CamelContext camelContext;
+  private final CamelContext camelContext;
+
+  @Inject
+  public ManagementBusInvocationPluginSoapHttp(CamelContext camelContext) {
+    this.camelContext = camelContext;
+  }
 
   @Override
   public Exchange invoke(Exchange exchange) {
@@ -457,15 +463,5 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       types.add(type.trim());
     }
     return types;
-  }
-
-  @Override
-  public void setCamelContext(CamelContext camelContext) {
-    this.camelContext = camelContext;
-  }
-
-  @Override
-  public CamelContext getCamelContext() {
-    return this.camelContext;
   }
 }

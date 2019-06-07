@@ -6,16 +6,11 @@
                            http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-
   <description>
     Register the beans within the osgieevent management api
   </description>
-
   <context:annotation-config />
 
   <bean class="org.opentosca.bus.management.api.osgievent.MBEventHandler" />
-
-  <camel:camelContext>
-    <camel:package>org.opentosca.bus.management.api.osgievent.route</camel:package>
-  </camel:camelContext>
+  <context:component-scan base-package="org.opentosca.bus.management.api.osgievent.route"/>
 </beans>

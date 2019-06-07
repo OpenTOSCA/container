@@ -9,6 +9,7 @@ import org.opentosca.bus.management.api.resthttp.model.ResultMap;
 import org.opentosca.bus.management.api.resthttp.route.DeleteRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * GetResultProcessor of the Management Bus.<br>
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
+@Component
 public class GetResultProcessor implements Processor {
 
   final private static Logger LOG = LoggerFactory.getLogger(GetResultProcessor.class);

@@ -10,13 +10,9 @@
 
   <context:annotation-config />
   <context:component-scan base-package="org.opentosca.bus.application.service.impl.processor" />
+  <context:component-scan base-package="org.opentosca.bus.application.service.impl.route" />
 
   <bean class="org.opentosca.bus.application.service.impl.ContainerProxy" />
   <bean class="org.opentosca.bus.application.service.impl.servicehandler.ApplicationBusPluginRegistry" />
 
-  <camel:camelContext>
-    <camel:packageScan>
-      <camel:package>org.opentosca.bus.application.service.impl.route</camel:package>
-    </camel:packageScan>
-  </camel:camelContext>
 </beans>

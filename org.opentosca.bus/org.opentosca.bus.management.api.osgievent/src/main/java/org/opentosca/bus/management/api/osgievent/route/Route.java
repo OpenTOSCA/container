@@ -32,17 +32,8 @@ public class Route extends RouteBuilder {
 
   @Override
   public void configure() throws Exception {
-
-    // Management Bus Endpoints
-    final String MANAGEMENT_BUS_IA =
-      "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
-    final String MANAGEMENT_BUS_PLAN =
-      "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
-
     this.from("direct:invoke").to("stream:out").process(exchange -> {
-
       exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), "org.opentosca.bus.management.api.osgieevent");
-
       final String messageID =
         exchange.getIn().getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
       if (messageID != null) {
@@ -51,7 +42,6 @@ public class Route extends RouteBuilder {
       } else {
         exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), true);
       }
-
     }).to("stream:out")
       .choice()
       .when(header("OPERATION").isEqualTo(OsgiEventOperations.INVOKE_IA.getHeaderValue()))
@@ -63,7 +53,7 @@ public class Route extends RouteBuilder {
     this.from("direct:invokeIA").to("stream:out").bean(managementBusService, "invokeIA").end();
     this.from("direct:invokePlan").to("stream:out").bean(managementBusService, "invokePlan").end();
 
-    this.from("direct-vm:" + "org.opentosca.bus.management.api.osgieevent").recipientList(this.simple("direct:response${id}")).end();
+    this.from("direct-vm:org.opentosca.bus.management.api.osgieevent").recipientList(this.simple("direct:response${id}")).end();
 
   }
 

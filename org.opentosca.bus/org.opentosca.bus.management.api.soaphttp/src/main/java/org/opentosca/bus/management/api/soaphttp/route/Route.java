@@ -3,6 +3,7 @@ package org.opentosca.bus.management.api.soaphttp.route;
 import java.net.URL;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Component;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
 @Component
+@Named("management-bus-soaphttp-route")
 public class Route extends RouteBuilder {
 
   public final static String PUBLIC_ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";

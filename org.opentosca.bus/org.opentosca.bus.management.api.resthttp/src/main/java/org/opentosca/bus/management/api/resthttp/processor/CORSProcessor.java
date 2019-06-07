@@ -7,6 +7,7 @@ import org.restlet.Response;
 import org.restlet.data.Form;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * CORSProcessor of the Management Bus to add required cors headers.<br>
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
 @Deprecated
+@Component
 public class CORSProcessor implements Processor {
 
   final private static Logger LOG = LoggerFactory.getLogger(CORSProcessor.class);

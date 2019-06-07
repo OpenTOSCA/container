@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -49,7 +50,7 @@ import com.google.gson.JsonObject;
  * @author Christian Endres - christian.endres@iaas.informatik.uni-stuttgart.de
  */
 @Component
-public class ManagementBusInvocationPluginRest implements IManagementBusInvocationPluginService, CamelContextAware {
+public class ManagementBusInvocationPluginRest implements IManagementBusInvocationPluginService {
   final private static Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginRest.class);
 
   // Supported types defined in messages.properties.
@@ -60,7 +61,12 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
   private static final String CONTENTTYPE = "urlencoded";
   private static final String METHOD = "POST";
 
-  private CamelContext camelContext;
+  private final CamelContext camelContext;
+
+  @Inject
+  public ManagementBusInvocationPluginRest(CamelContext camelContext) {
+    this.camelContext = camelContext;
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -456,15 +462,5 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
       types.add(type.trim());
     }
     return types;
-  }
-
-  @Override
-  public void setCamelContext(CamelContext camelContext) {
-    this.camelContext = camelContext;
-  }
-
-  @Override
-  public CamelContext getCamelContext() {
-    return camelContext;
   }
 }

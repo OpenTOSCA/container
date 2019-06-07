@@ -23,10 +23,10 @@
   <!-- importing external module's own configuration -->
   <import resource="classpath:/spring/context-api.xml" />
   <import resource="classpath:/spring/context-container-core.xml" />
-  <import resource="classpath:/spring/context-bus-application.xml" />
   <import resource="classpath:/spring/context-planbuilder.xml" />
   <import resource="classpath:/spring/context-legacy.xml" />
   <import resource="classpath:/spring/context-control.xml" />
+  <import resource="classpath:/spring/context-bus-management-service.xml" />
   <import resource="classpath*:/spring/context-bus-management-api.xml" />
-  <import resource="classpath:/spring/context-management-service.xml" />
+  <import resource="classpath:/spring/context-bus-application.xml" />
 </beans>

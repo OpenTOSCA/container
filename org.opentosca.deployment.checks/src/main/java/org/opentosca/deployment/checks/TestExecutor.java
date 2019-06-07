@@ -9,6 +9,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.camel.CamelContext;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.deployment.checks.test.HttpTest;
@@ -23,21 +24,32 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+
+@Component
 public class TestExecutor {
 
   private static Logger logger = LoggerFactory.getLogger(TestExecutor.class);
 
-  private final List<TestExecutionPlugin> plugins =
-    Lists.newArrayList(new HttpTest(), new ManagementOperationTest(), new TcpPingTest()
-      // new PortBindingTest(),
-      // new SqlConnectionTest()
-    );
+  private final List<TestExecutionPlugin> plugins;
 
   private final ExecutorService jobExecutor;
   private final ExecutorService testExecutor;
 
-  public TestExecutor() {
+  @Inject
+  @Deprecated
+  public TestExecutor(CamelContext camelContext) {
+    this(Lists.newArrayList(new HttpTest(), new ManagementOperationTest(camelContext), new TcpPingTest()
+      // new PortBindingTest(),
+      // new SqlConnectionTest()
+    ));
+  }
+
+//  @Inject
+  public TestExecutor(List<TestExecutionPlugin> plugins) {
+    this.plugins = plugins;
     ThreadFactory threadFactory;
     threadFactory = new ThreadFactoryBuilder().setNameFormat("job-pool-%d").setDaemon(true).build();
     this.jobExecutor = Executors.newFixedThreadPool(20, threadFactory);

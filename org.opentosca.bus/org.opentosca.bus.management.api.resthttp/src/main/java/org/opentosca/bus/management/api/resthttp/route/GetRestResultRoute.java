@@ -6,6 +6,7 @@ import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.GetResultProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.GetResultRequestProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.GetResultResponseProcessor;
+import org.springframework.stereotype.Component;
 
 /**
  * InvocationRoute of the Management Bus REST-API.<br>
@@ -15,7 +16,8 @@ import org.opentosca.bus.management.api.resthttp.processor.GetResultResponseProc
  *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
-public class GetResultRoute extends RouteBuilder {
+@Component
+public class GetRestResultRoute extends RouteBuilder {
 
   @Override
   public void configure() throws Exception {

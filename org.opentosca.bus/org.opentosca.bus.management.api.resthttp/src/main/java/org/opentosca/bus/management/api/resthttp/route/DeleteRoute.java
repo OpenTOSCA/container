@@ -3,6 +3,7 @@ package org.opentosca.bus.management.api.resthttp.route;
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.api.resthttp.model.QueueMap;
 import org.opentosca.bus.management.api.resthttp.model.ResultMap;
+import org.springframework.stereotype.Component;
 
 /**
  * InvocationRoute of the Management Bus REST-API.<br>
@@ -12,6 +13,7 @@ import org.opentosca.bus.management.api.resthttp.model.ResultMap;
  *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
+@Component
 public class DeleteRoute extends RouteBuilder {
 
   // true => invocation results will be deleted automatically after fetching
