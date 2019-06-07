@@ -116,10 +116,9 @@ public class PlacementService {
 											if (myResidue < residue) {
 												logger.info("myResidue: " + myResidue + "is smaller than residue: " + residue);
 												residue = myResidue;
+												// add as alternative host since it got beaten by the latest cpbNode
+												alternativeHost = chosenHost;
 												chosenHost = cpbNode;
-											} else {
-												// more residue but can be presented as an alternative to the user
-												alternativeHost = cpbNode;
 											}
 										}
 										cpbNode.getPropertyMap().put(propertyKey, residue.toString());
