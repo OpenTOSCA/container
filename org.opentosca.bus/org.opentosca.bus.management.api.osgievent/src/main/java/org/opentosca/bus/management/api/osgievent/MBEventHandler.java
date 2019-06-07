@@ -2,23 +2,22 @@ package org.opentosca.bus.management.api.osgievent;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.apache.camel.*;
 import org.apache.camel.impl.DefaultExchange;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.engine.management.IManagementBus;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,7 +35,7 @@ import org.springframework.stereotype.Component;
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
  */
 @Component
-public class MBEventHandler implements IManagementBus, CamelContextAware {
+public class MBEventHandler implements IManagementBus {
 
   private static final String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
   private static final String BPELNS = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
@@ -47,7 +46,12 @@ public class MBEventHandler implements IManagementBus, CamelContextAware {
 
   private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
-  private CamelContext camelContext;
+  private final CamelContext camelContext;
+
+  @Inject
+  public MBEventHandler(CamelContext camelContext) {
+    this.camelContext = camelContext;
+  }
 
   @Override
   public void invokePlan(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback) {
@@ -58,7 +62,7 @@ public class MBEventHandler implements IManagementBus, CamelContextAware {
     }
     LOG.debug("Plan invocation with plan language: {}", planLanguage);
 
-    final CSARID csarID = (CSARID) eventValues.get("CSARID");
+    final CsarId csarID = (CsarId) eventValues.get("CSARID");
     final QName planID = (QName) eventValues.get("PLANID");
     final String operationName = (String) eventValues.get("OPERATIONNAME");
     final String messageID = (String) eventValues.get("MESSAGEID");
@@ -147,15 +151,5 @@ public class MBEventHandler implements IManagementBus, CamelContextAware {
   public void invokeIA(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback) {
     // TODO when needed.
     // Adapt 'MBEventHandler - component.xml' to receive messages from this topic too...
-  }
-
-  @Override
-  public void setCamelContext(CamelContext camelContext) {
-    this.camelContext = camelContext;
-  }
-
-  @Override
-  public CamelContext getCamelContext() {
-    return camelContext;
   }
 }
