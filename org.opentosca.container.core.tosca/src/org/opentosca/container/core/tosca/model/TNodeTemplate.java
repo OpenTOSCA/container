@@ -112,7 +112,6 @@ public class TNodeTemplate extends TEntityTemplate {
     @XmlAttribute(name = "maxInstances")
     protected String maxInstances;
 
-
     /**
      * Gets the value of the requirements property.
      *

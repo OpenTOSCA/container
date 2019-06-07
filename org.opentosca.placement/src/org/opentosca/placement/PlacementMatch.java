@@ -9,7 +9,7 @@ public class PlacementMatch {
 	public PlacementMatch(final CapablePlacementNode cpbNode, final ToBePlacedNode tbpNode) {
 		this.setCpbNode(cpbNode);
 		this.setTbpNode(tbpNode);
-		this.setMatchID(tbpNode.getToBePlacedNode() + "~placeOn~" + cpbNode.getOsNode() + "~"
+		this.setMatchID(tbpNode.getToBePlacedNode() + " --> " + cpbNode.getOsNode() + " --> instance ID: "
 				+ cpbNode.getInstanceIDOfServiceTemplateOfOsNode());
 	}
 

@@ -2,9 +2,11 @@ package org.opentosca.container.api.controller;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.NotFoundException;
@@ -26,13 +28,26 @@ import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.ServiceTemplateService;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
+import org.opentosca.container.core.next.model.Property;
+import org.opentosca.container.core.next.xml.PropertyParser;
+import org.opentosca.container.core.tosca.model.TEntityTemplate;
+import org.opentosca.container.core.tosca.model.TNodeTemplate;
+import org.opentosca.container.core.tosca.model.TRequirement;
+import org.opentosca.container.core.tosca.model.TServiceTemplate;
 import org.opentosca.placement.CapablePlacementNode;
+import org.opentosca.placement.PlacementCandidate;
 import org.opentosca.placement.PlacementMatch;
 import org.opentosca.placement.PlacementService;
 import org.opentosca.placement.ToBePlacedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,6 +57,7 @@ import io.swagger.annotations.ApiParam;
 public class PlacementController {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlacementController.class);
+	public static ToscaReferenceMapper toscaReferenceMapper = null;
 
 	@ApiParam("ID of CSAR")
 	@PathParam("csar")
@@ -73,7 +89,7 @@ public class PlacementController {
 		this.serviceTemplateService = serviceTemplateService;
 		this.nodeTemplateService = nodeTemplateService;
 		this.csarService = csarService;
-
+		toscaReferenceMapper = new ToscaReferenceMapper();
 	}
 
 	@POST
@@ -85,7 +101,6 @@ public class PlacementController {
 
 		List<CapablePlacementNode> listOfCapablePlacementNodes = new ArrayList<CapablePlacementNode>();
 		List<ToBePlacedNode> listOfToBePlacedNodes = new ArrayList<ToBePlacedNode>();
-		ToBePlacedNode toBePlacedNode = new ToBePlacedNode();
 
 		if (request == null) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -133,6 +148,8 @@ public class PlacementController {
 
 						List<QName> nodeCaps = this.toscaEngineService.getNodeTemplateCapabilities(csar.getCSARID(),
 								QName.valueOf(serviceTemplate), nodeTemplate);
+						
+						
 
 						/**
 						 * Find instances of OS Nodes and add their idiosyncrasies to the
@@ -181,24 +198,51 @@ public class PlacementController {
 		 */
 		this.nodeTemplateService.getNodeTemplatesOfServiceTemplate(csarId, serviceTemplateId).forEach(nodeTemplate -> {
 			List<QName> nodeReqs = this.toscaEngineService.getNodeTemplateRequirements(csarContent.getCSARID(),
-					QName.valueOf(serviceTemplateId), nodeTemplate.getName());
+					QName.valueOf(serviceTemplateId), nodeTemplate.getId());
+			
 
 			String nodeTypeOfToBePlacedNode = this.nodeTemplateService
-					.getNodeTemplateById(csarId, QName.valueOf(serviceTemplateId), nodeTemplate.getName())
+					.getNodeTemplateById(csarId, QName.valueOf(serviceTemplateId), nodeTemplate.getId())
 					.getNodeType();
+			
+			
+			// Properties
+	        // We set the properties of the template as initial properties
+	        final Document propertiesAsDocument =
+	            this.nodeTemplateService.getPropertiesOfNodeTemplate(csarId, QName.valueOf(serviceTemplateId), nodeTemplate.getId());
+
+	        Map<String, String> templatePropertyMap = new HashMap<String, String>();
+	        
+	        if (propertiesAsDocument != null) {
+	        	Property properties;
+				try {
+					properties = this.instanceService.convertDocumentToProperty(propertiesAsDocument, Property.class);
+					final PropertyParser parser = new PropertyParser();
+					templatePropertyMap = parser.parse(properties.getValue());
+					
+					logger.info("properties " + properties.getValue());
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	            
+	        }
 
 			if (!nodeReqs.isEmpty()) {
+				
 				nodeReqs.forEach(req -> {
 					logger.info("Requirement of to-be-placed nodeTemplate: " + req.toString());
 				});
-				toBePlacedNode.setCsarIdOfToBePlacedNode(csarId);
-				toBePlacedNode.setServiceTemplateOfToBePlacedNode(serviceTemplateId);
-				toBePlacedNode.setToBePlacedNode(nodeTemplate.getName());
-				toBePlacedNode.setReqsOfToBePlacedNode(nodeReqs);
-				toBePlacedNode.setNodeTypeOfToBePlacedNode(nodeTypeOfToBePlacedNode);
 
 				// Add it to the list
-				listOfToBePlacedNodes.add(toBePlacedNode);
+				listOfToBePlacedNodes.add(new ToBePlacedNode(nodeTemplate.getName(), nodeTypeOfToBePlacedNode,
+						serviceTemplateId, csarId, nodeReqs, templatePropertyMap));
 
 			} else {
 				logger.info("NodeTemplate: " + nodeTemplate.getName() + " has no requirements!");
@@ -219,16 +263,11 @@ public class PlacementController {
 
 		logger.info("Trying to find Placement Candidates...");
 
-		List<PlacementMatch> foundMatches = this.placementService.findPlacementCandidate(listOfCapablePlacementNodes,
+		PlacementCandidate placementCandidate = this.placementService.findPlacementCandidate(listOfCapablePlacementNodes,
 				listOfToBePlacedNodes);
 
 		final URI uri = UriUtil.generateSubResourceURI(this.uriInfo, csarId, false);
 
-		return Response.ok(uri).build();
-		// Response.ok(uri).build();
-		/*
-		 * } catch (final NullPointerException e) { logger.error(e.toString()); return
-		 * Response.ok("Blub").build(); }
-		 */
+		return Response.ok(placementCandidate).build();
 	}
 }

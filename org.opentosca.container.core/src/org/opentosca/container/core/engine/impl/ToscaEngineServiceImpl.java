@@ -1702,6 +1702,22 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         return reqs;
     }
+    
+    @Override
+    public TNodeTemplate getNodeTemplate(final CSARID csarId, final QName serviceTemplateId,
+            final String nodeTemplateId) {
+    	TNodeTemplate node = new TNodeTemplate();
+    	final TServiceTemplate serviceTemplate =
+                (TServiceTemplate) toscaReferenceMapper.getJAXBReference(csarId, serviceTemplateId);
+    	
+    	for (final TEntityTemplate entity : serviceTemplate.getTopologyTemplate()
+                .getNodeTemplateOrRelationshipTemplate()) {
+    		if (entity instanceof TNodeTemplate && entity.getId().equals(nodeTemplateId)) {
+    			node = (TNodeTemplate) entity;
+    		}
+    	}
+    	return node;
+    }
 
     @Override
     public QName getRelationshipTemplateTarget(final CSARID csarId, final QName serviceTemplateId,

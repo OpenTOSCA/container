@@ -8,6 +8,7 @@ import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.model.TBoundaryDefinitions;
+import org.opentosca.container.core.tosca.model.TNodeTemplate;
 import org.opentosca.container.core.tosca.model.TPropertyConstraint;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -678,4 +679,7 @@ public interface IToscaEngineService {
      * @return a List of String representing the interface names of the referenced Node Type
      */
     public List<String> getInterfaceNamesOfNodeType(CSARID csarId, QName nodeTypeId);
+
+    
+	public TNodeTemplate getNodeTemplate(CSARID csarId, QName serviceTemplateId, String nodeTemplateId);
 }

@@ -83,7 +83,7 @@ public class InstanceService {
      * @throws IllegalAccessException
      * @throws IllegalArgumentException
      */
-    private <T extends Property> T convertDocumentToProperty(final Document propertyDoc,
+    public <T extends Property> T convertDocumentToProperty(final Document propertyDoc,
                                                              final Class<T> type) throws InstantiationException,
                                                                                   IllegalAccessException,
                                                                                   IllegalArgumentException {

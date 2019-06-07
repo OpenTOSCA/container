@@ -1,6 +1,7 @@
 package org.opentosca.placement;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -11,6 +12,17 @@ public class ToBePlacedNode {
 	private String serviceTemplateOfToBePlacedNode;
 	private String csarIdOfToBePlacedNode;
 	private List<QName> reqsOfToBePlacedNode;
+	private Map<String, String> propertyMap;
+	
+	public ToBePlacedNode(String toBePlacedNode, String nodeTypeOfToBePlacedNode, String serviceTemplateOfToBePlacedNode,
+			String csarIdOfToBePlacedNode, List<QName> reqsOfToBePlacedNode, Map<String, String> propertyMap) {
+		this.toBePlacedNode = toBePlacedNode;
+		this.nodeTypeOfToBePlacedNode = nodeTypeOfToBePlacedNode;
+		this.serviceTemplateOfToBePlacedNode = serviceTemplateOfToBePlacedNode;
+		this.csarIdOfToBePlacedNode = csarIdOfToBePlacedNode;
+		this.reqsOfToBePlacedNode = reqsOfToBePlacedNode;
+		this.propertyMap = propertyMap;
+	}
 
 	public String getToBePlacedNode() {
 		return toBePlacedNode;
@@ -50,6 +62,20 @@ public class ToBePlacedNode {
 
 	public void setReqsOfToBePlacedNode(List<QName> reqsOfToBePlacedNode) {
 		this.reqsOfToBePlacedNode = reqsOfToBePlacedNode;
+	}
+
+	/**
+	 * @return the propertyMap
+	 */
+	public Map<String, String> getPropertyMap() {
+		return propertyMap;
+	}
+
+	/**
+	 * @param propertyMap the propertyMap to set
+	 */
+	public void setPropertyMap(Map<String, String> propertyMap) {
+		this.propertyMap = propertyMap;
 	}
 
 }
