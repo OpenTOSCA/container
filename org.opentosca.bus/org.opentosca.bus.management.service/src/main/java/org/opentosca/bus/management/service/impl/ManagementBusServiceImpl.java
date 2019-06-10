@@ -138,8 +138,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     Long serviceTemplateInstanceID = null;
     if (Objects.nonNull(serviceInstanceID)) {
       try {
-        serviceTemplateInstanceID =
-          Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
+        serviceTemplateInstanceID = Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
         LOG.debug("ServiceTemplateInstance ID: {}", serviceTemplateInstanceID);
       } catch (final NumberFormatException e) {
         LOG.error("Unable to parse ServiceTemplateInstance ID out of serviceInstanceID: {}", serviceInstanceID);
@@ -148,11 +147,31 @@ public class ManagementBusServiceImpl implements IManagementBusService {
       LOG.error("Unable to parse ServiceTemplateInstance ID out of serviceInstanceID because it is null!");
     }
 
+    final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
+    LOG.debug("CSARID: {}", csarID.toString());
+    final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
+    LOG.debug("serviceTemplateID: {}", serviceTemplateID);
+
+    final String nodeTemplateID = message.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
+    LOG.debug("NodeTemplateID: {}", nodeTemplateID);
+
+    final String relationship = message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), String.class);
+    LOG.debug("RelationshipTemplateID: {}", relationship);
+
+    final String neededInterface = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
+    LOG.debug("Interface: {}", neededInterface);
+
+    final String neededOperation = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
+    LOG.debug("Operation: {}", neededOperation);
+
+
     // log event to monitor the IA execution time
     final PlanInstanceEvent event;
     // operation invocation is only possible with retrieved ServiceTemplateInstance ID
     if (Objects.nonNull(serviceTemplateInstanceID)) {
-      event = invokeIA(exchange, serviceTemplateInstanceID);
+      final IAInvocationArguments arguments = new IAInvocationArguments(csarID, serviceInstanceID, serviceTemplateID, serviceTemplateInstanceID,
+        nodeTemplateID, relationship, neededInterface, neededOperation);
+      event = internalInvokeIA(arguments, exchange);
       LOG.info("IA execution duration: {}", event.getDuration());
     } else {
       LOG.error("Unable to invoke operation without ServiceTemplateInstance ID!");
@@ -181,55 +200,41 @@ public class ManagementBusServiceImpl implements IManagementBusService {
    * @param serviceTemplateInstanceID service instance which contains the instance data to update
    *                                  the input parameters
    */
-  private PlanInstanceEvent invokeIA(final Exchange exchange, final Long serviceTemplateInstanceID) {
+  private PlanInstanceEvent internalInvokeIA(IAInvocationArguments arguments, Exchange exchange) {
+    LOG.debug("Starting Management Bus: InvokeIA");
+
     final Message message = exchange.getIn();
-    final String nodeTemplateID = message.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
-    LOG.debug("NodeTemplateID: {}", nodeTemplateID);
 
-    final String relationship = message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), String.class);
-    LOG.debug("RelationshipTemplateID: {}", relationship);
-
-    final String neededInterface = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
-    LOG.debug("Interface: {}", neededInterface);
-
-    final String neededOperation = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
-    LOG.debug("Operation: {}", neededOperation);
     // log event to monitor the IA execution time
     final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "IA_DURATION_LOG",
-      "Finished execution of IA for NodeTemplate '" + nodeTemplateID + "' interface '" + neededInterface + "' and operation '" + neededOperation + "'");
+      "Finished execution of IA for NodeTemplate '" + arguments.nodeTemplateId + "' interface '" + arguments.interfaceName + "' and operation '" + arguments.operationName + "'");
 
-
-    final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
-    LOG.debug("CSARID: {}", csarID.toString());
-    final Csar csar = storage.findById(csarID);
-
-    final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
-    LOG.debug("serviceTemplateID: {}", serviceTemplateID);
+    final Csar csar = storage.findById(arguments.csarId);
     final TServiceTemplate serviceTemplate;
     try {
-      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateID);
+      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, arguments.serviceTemplateId);
     } catch (NotFoundException e) {
-      LOG.error("ServiceTemplate {} does not exist within Csar {}. Aborting IA Invocation", serviceTemplateID, csarID.csarName());
+      LOG.error("ServiceTemplate {} does not exist within Csar {}. Aborting IA Invocation", arguments.serviceTemplateId, arguments.csarId.csarName());
       event.setEndTimestamp(new Date());
       return event;
     }
 
     QName typeID = null;
-    if (Objects.nonNull(nodeTemplateID)) {
-      Optional<TNodeTemplate> nodeTemplate = ToscaEngine.tryResolveNodeTemplate(serviceTemplate, nodeTemplateID);
+    if (Objects.nonNull(arguments.nodeTemplateId)) {
+      Optional<TNodeTemplate> nodeTemplate = ToscaEngine.tryResolveNodeTemplate(serviceTemplate, arguments.nodeTemplateId);
       if (nodeTemplate.isPresent()) {
         typeID = nodeTemplate.get().getType();
       }
-    } else if (Objects.nonNull(relationship)) {
+    } else if (Objects.nonNull(arguments.relationshipTemplateId)) {
       typeID =
-        toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarID.toOldCsarId(), serviceTemplateID,
-          relationship);
+        toscaEngineService.getRelationshipTypeOfRelationshipTemplate(arguments.csarId.toOldCsarId(), arguments.serviceTemplateId,
+          arguments.relationshipTemplateId);
     }
 
     // invocation is only possible with retrieved type which contains the operation
     if (!Objects.nonNull(typeID)) {
       LOG.error("Unable to retrieve the NodeType/RelationshipType for NodeTemplate: {} and RelationshipTemplate: {}",
-        nodeTemplateID, relationship);
+        arguments.nodeTemplateId, arguments.relationshipTemplateId);
       handleResponse(exchange);
       event.setEndTimestamp(new Date());
       return event;
@@ -238,15 +243,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     // get NodeTemplateInstance object for the deployment distribution decision
     NodeTemplateInstance nodeInstance = null;
     RelationshipTemplateInstance relationshipInstance = null;
-    if (Objects.nonNull(nodeTemplateID)) {
-      nodeInstance = MBUtils.getNodeTemplateInstance(serviceTemplateInstanceID, nodeTemplateID);
-    } else if (Objects.nonNull(relationship)) {
-      relationshipInstance = MBUtils.getRelationshipTemplateInstance(serviceTemplateInstanceID, relationship);
+    if (Objects.nonNull(arguments.nodeTemplateId)) {
+      nodeInstance = MBUtils.getNodeTemplateInstance(arguments.serviceTemplateInstanceId, arguments.nodeTemplateId);
+    } else if (Objects.nonNull(arguments.relationshipTemplateId)) {
+      relationshipInstance = MBUtils.getRelationshipTemplateInstance(arguments.serviceTemplateInstanceId, arguments.relationshipTemplateId);
       if (Objects.nonNull(relationshipInstance)) {
         // get the NodeTemplateInstance to which the operation is bound to
-        if (toscaEngineService.isOperationOfRelationshipBoundToSourceNode(csarID.toOldCsarId(), typeID,
-          neededInterface,
-          neededOperation)) {
+        if (toscaEngineService.isOperationOfRelationshipBoundToSourceNode(arguments.csarId.toOldCsarId(), typeID,
+          arguments.interfaceName, arguments.operationName)) {
           nodeInstance = relationshipInstance.getSource();
         } else {
           nodeInstance = relationshipInstance.getTarget();
@@ -258,13 +262,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     if (message.getBody() instanceof HashMap) {
       Map<String, String> inputParams = (Map<String, String>) message.getBody();
 
-      inputParams = parameterHandler.updateInputParams(inputParams, csarID.toOldCsarId(), nodeInstance, relationshipInstance, neededInterface, neededOperation);
+      inputParams = parameterHandler.updateInputParams(inputParams, arguments.csarId.toOldCsarId(), nodeInstance, relationshipInstance, arguments.interfaceName, arguments.operationName);
       message.setBody(inputParams);
     } else {
       LOG.warn("There are no input parameters specified.");
     }
 
-    invokeIA(exchange, csar, serviceTemplateInstanceID, typeID, nodeInstance, neededInterface, neededOperation);
+    internalInvokeIA(exchange, csar, arguments.serviceTemplateInstanceId, typeID, nodeInstance, arguments.interfaceName, arguments.operationName);
     event.setEndTimestamp(new Date());
     return event;
   }
@@ -280,9 +284,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
    * @param neededInterface           the interface of the searched operation
    * @param neededOperation           the searched operation
    */
-  private void invokeIA(final Exchange exchange, final Csar csar, final Long serviceTemplateInstanceID,
-                        final QName typeID, final NodeTemplateInstance nodeTemplateInstance,
-                        final String neededInterface, final String neededOperation) {
+  private void internalInvokeIA(final Exchange exchange, final Csar csar, final Long serviceTemplateInstanceID,
+                                final QName typeID, final NodeTemplateInstance nodeTemplateInstance,
+                                final String neededInterface, final String neededOperation) {
 
     LOG.debug("NodeType/RelationshipType: {}", typeID);
     final Message message = exchange.getIn();
@@ -507,9 +511,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
   @Override
   public void invokePlan(Exchange exchange) {
-    LOG.debug("Running Management Bus: InvokePlan");
-    // log event to monitor the plan execution time
-    final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_DURATION_LOG", "");
+    LOG.debug("Parsing Camel Exchange message to PlanInvocationArguments");
 
     final Message message = exchange.getIn();
     final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
@@ -520,8 +522,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
     LOG.trace("csarInstanceID: {}", serviceInstanceID);
+    internalInvokePlan(new PlanInvocationArguments(correlationID, csarID, serviceInstanceID), exchange);
+  }
 
-    if (correlationID == null) {
+  private void internalInvokePlan(PlanInvocationArguments arguments, Exchange exchange) {
+    LOG.debug("Running Management Bus: InvokePlan");
+    // log event to monitor the plan execution time
+    final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_DURATION_LOG", "Plan execution with correlation id " + arguments.correlationId + ".");
+
+    if (arguments.correlationId == null) {
       LOG.warn("No correlation ID specified to identify the plan. Invocation aborted!");
       handleResponse(exchange);
       return;
@@ -529,9 +538,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     // get the PlanInstance object which contains all needed information
     final PlanInstanceRepository repo = new PlanInstanceRepository();
-    PlanInstance plan = repo.findByCorrelationId(correlationID);
+    PlanInstance plan = repo.findByCorrelationId(arguments.correlationId);
     if (plan == null) {
-      LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
+      LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", arguments.correlationId);
       handleResponse(exchange);
       return;
     }
@@ -540,10 +549,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     LOG.debug("Getting endpoint for the plan...");
     endpointService.printPlanEndpoints();
-    final WSDLEndpoint WSDLendpoint = endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID, plan.getTemplateId());
+    final WSDLEndpoint WSDLendpoint = endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, arguments.csarId, plan.getTemplateId());
 
     if (WSDLendpoint == null) {
-      LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!", plan.getTemplateId(), csarID.csarName());
+      LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!", plan.getTemplateId(), arguments.csarId.csarName());
       handleResponse(exchange);
       return;
     }
@@ -552,8 +561,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
 
     // Assumption. Should be checked with ToscaEngine
-    message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
-    message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+    exchange.getIn().setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
+    exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
 
     if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
       exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "REST", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
@@ -567,20 +576,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
       LOG.debug("Executed plan was a termination plan. Removing endpoints...");
       final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
       if (serviceInstance != null) {
-        deleteEndpointsForServiceInstance(csarID, serviceInstance);
+        deleteEndpointsForServiceInstance(arguments.csarId, serviceInstance);
       } else {
         LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
       }
     }
     // add end timestamp and log message with duration
     event.setEndTimestamp(new Date());
-    final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
-    event.setMessage("Finished plan execution with correlation id " + correlationID + " after " + duration
-      + "ms");
-    LOG.info("Plan execution duration: {}ms", duration);
+    LOG.info("Plan execution duration: {}ms", event.getDuration());
 
     // update plan in repository with new log event
-    plan = repo.findByCorrelationId(correlationID);
+    plan = repo.findByCorrelationId(arguments.correlationId);
     plan.addEvent(event);
     repo.update(plan);
 
@@ -919,6 +925,40 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     exchange = template.send("direct-vm:" + caller, exchange);
     if (exchange.isFailed()) {
       LOG.error("Sending exchange message failed! {}", exchange.getException().getMessage());
+    }
+  }
+
+  private static class PlanInvocationArguments {
+    public final String correlationId;
+    public final CsarId csarId;
+    public final URI serviceInstanceId;
+
+    public PlanInvocationArguments(String correlationId, CsarId csarId, URI serviceInstanceId) {
+      this.correlationId = correlationId;
+      this.csarId = csarId;
+      this.serviceInstanceId = serviceInstanceId;
+    }
+  }
+
+  private static class IAInvocationArguments {
+    public final CsarId csarId;
+    public final URI serviceInstanceId;
+    public final QName serviceTemplateId;
+    public final long serviceTemplateInstanceId;
+    public final String nodeTemplateId;
+    public final String relationshipTemplateId;
+    public final String interfaceName;
+    public final String operationName;
+
+    public IAInvocationArguments(CsarId csarId, URI serviceInstanceId, QName serviceTemplateId, long serviceTemplateInstanceId, String nodeTemplateId, String relationshipTemplateId, String interfaceName, String operationName) {
+      this.csarId = csarId;
+      this.serviceInstanceId = serviceInstanceId;
+      this.serviceTemplateId = serviceTemplateId;
+      this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+      this.nodeTemplateId = nodeTemplateId;
+      this.relationshipTemplateId = relationshipTemplateId;
+      this.interfaceName = interfaceName;
+      this.operationName = operationName;
     }
   }
 }
