@@ -255,8 +255,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
   private PlanInvocationEvent buildPlanInvocationEvent(CsarId csarID, TServiceTemplate serviceTemplate, Csar csar, TPlan storedPlan) {
     final PlanInvocationEvent planEvent = new PlanInvocationEvent();
 
-    TExportedOperation operation = ToscaEngine.findReferencingOperationWithin(serviceTemplate, storedPlan);
-    TExportedInterface exportedInterface = ToscaEngine.findReferencingInterfaceWithin(serviceTemplate, operation);
+    TExportedOperation operation = ToscaEngine.getReferencingOperationWithin(serviceTemplate, storedPlan);
+    TExportedInterface exportedInterface = ToscaEngine.getReferencingInterfaceWithin(serviceTemplate, operation);
 
     planEvent.setCSARID(csarID.csarName());
     planEvent.setInterfaceName(exportedInterface.getName());

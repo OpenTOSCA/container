@@ -18,6 +18,21 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * <p>
+ *     This class exposes a multitude of operations that one might want to perform with elements of a Csar.
+ *     All arguments passed to it are assumed to be set to a valid reference.
+ * </p><p>
+ *     As a convention, methods beginning with <code>get</code> are not guaranteed to return a result.
+ *     They default to returning <code>null</code> or an empty {@link Optional}, if the request is not fulfillable.
+ *     If a Collection type is expected as result, an empty Collection is returned.
+ * </p><p>
+ *     Likewise, methods beginning with <code>resolve</code> are guaranteed to return a result and throw a {@link NotFoundException} in case the request is not fulfillable.
+ * </p><p>
+ *     Methods that return some kind of {@link Collection} will return an empty collection as the default.
+ *     They may throw {@link NotFoundException} if a component prerequisite is not met.
+ * </p>
+ */
 @NonNullByDefault
 public final class ToscaEngine {
 
@@ -63,7 +78,7 @@ public final class ToscaEngine {
     return nullable;
   }
 
-  public static Optional<TNodeTemplate> tryResolveNodeTemplate(TServiceTemplate serviceTemplate, String nodeTemplate) {
+  public static Optional<TNodeTemplate> getNodeTemplate(TServiceTemplate serviceTemplate, String nodeTemplate) {
     try {
       return Optional.of(resolveNodeTemplate(serviceTemplate, nodeTemplate));
     } catch (NotFoundException e) {
@@ -114,7 +129,7 @@ public final class ToscaEngine {
     return nodeTypes.get(index);
   }
 
-  public static List<TNodeType> getNodeTypeHierarchy(Csar csar, String nodeTypeId) throws NotFoundException {
+  public static List<TNodeType> resolveNodeTypeHierarchy(Csar csar, String nodeTypeId) throws NotFoundException {
     final Comparator<TNodeType> compareById = Comparator.comparing(TNodeType::getName);
     List<TNodeType> nodeTypes = csar.nodeTypes();
     nodeTypes.sort(compareById);
@@ -170,7 +185,7 @@ public final class ToscaEngine {
       .collect(Collectors.toList());
   }
 
-  public static TInterface interfaceByName(TNodeType nodeType, String interfaceName) throws NotFoundException {
+  public static TInterface resolveInterface(TNodeType nodeType, String interfaceName) throws NotFoundException {
     @SuppressWarnings("null")
     TInterface result = Stream.of(Optional.ofNullable(nodeType.getInterfaces()))
       .flatMap(opt -> opt.map(TInterfaces::getInterface).orElse(Collections.emptyList()).stream())
@@ -180,7 +195,7 @@ public final class ToscaEngine {
     return result;
   }
 
-  public static TInterface interfaceByName(TRelationshipType relationshipType, String interfaceName) throws NotFoundException {
+  public static TInterface resolveInterface(TRelationshipType relationshipType, String interfaceName) throws NotFoundException {
     @SuppressWarnings("null")
     TInterface result = Stream.of(Optional.ofNullable(relationshipType.getInterfaces()))
       .flatMap(opt -> opt.map(TInterfaces::getInterface).orElse(Collections.emptyList()).stream())
@@ -190,7 +205,7 @@ public final class ToscaEngine {
     return result;
   }
 
-  public static TOperation operationByName(TInterface iface, String operationName) throws NotFoundException {
+  public static TOperation resolveOperation(TInterface iface, String operationName) throws NotFoundException {
     return iface.getOperation().stream()
       .filter(op -> op.getName().equals(operationName))
       .findFirst()
@@ -198,32 +213,32 @@ public final class ToscaEngine {
   }
 
   public static boolean operationHasInputParams(TNodeType nodeType, String interfaceName, String operationName) throws NotFoundException {
-    TInterface iface = interfaceByName(nodeType, interfaceName);
-    TOperation operation = operationByName(iface, operationName);
+    TInterface iface = resolveInterface(nodeType, interfaceName);
+    TOperation operation = resolveOperation(iface, operationName);
     TOperation.InputParameters inputParams = operation.getInputParameters();
 
     return inputParams != null && !inputParams.getInputParameter().isEmpty();
   }
 
   public static boolean operationHasOutputParams(TNodeType nodeType, String interfaceName, String operationName) throws NotFoundException {
-    TInterface iface = interfaceByName(nodeType, interfaceName);
-    TOperation operation = operationByName(iface, operationName);
+    TInterface iface = resolveInterface(nodeType, interfaceName);
+    TOperation operation = resolveOperation(iface, operationName);
     TOperation.OutputParameters outputParams = operation.getOutputParameters();
 
     return outputParams != null && !outputParams.getOutputParameter().isEmpty();
   }
 
   public static boolean operationHasInputParams(TRelationshipType relationshipType, String interfaceName, String operationName) throws NotFoundException {
-    TInterface iface = interfaceByName(relationshipType, interfaceName);
-    TOperation operation = operationByName(iface, operationName);
+    TInterface iface = resolveInterface(relationshipType, interfaceName);
+    TOperation operation = resolveOperation(iface, operationName);
     TOperation.InputParameters inputParams = operation.getInputParameters();
 
     return inputParams != null && !inputParams.getInputParameter().isEmpty();
   }
 
   public static boolean operationHasOutputParams(TRelationshipType relationshipType, String interfaceName, String operationName) throws NotFoundException {
-    TInterface iface = interfaceByName(relationshipType, interfaceName);
-    TOperation operation = operationByName(iface, operationName);
+    TInterface iface = resolveInterface(relationshipType, interfaceName);
+    TOperation operation = resolveOperation(iface, operationName);
     TOperation.OutputParameters outputParams = operation.getOutputParameters();
 
     return outputParams != null && !outputParams.getOutputParameter().isEmpty();
@@ -252,7 +267,7 @@ public final class ToscaEngine {
     return nullable == null ? Collections.emptyList() : nullable.getImplementationArtifact();
   }
 
-  public static TImplementationArtifacts.ImplementationArtifact implementationArtifact(TEntityTypeImplementation impl, String iaName) throws NotFoundException {
+  public static TImplementationArtifacts.ImplementationArtifact resolveImplementationArtifact(TEntityTypeImplementation impl, String iaName) throws NotFoundException {
     return implementationArtifacts(impl).stream()
       .filter(ia -> ia.getName().equals(iaName))
       .findFirst()
@@ -266,7 +281,7 @@ public final class ToscaEngine {
       .collect(Collectors.toList());
   }
 
-  public static List<TEntityTypeImplementation> implementationTypeHierarchy(TEntityTypeImplementation impl, Csar csar) throws NotFoundException {
+  public static List<TEntityTypeImplementation> resolveImplementationTypeHierarchy(TEntityTypeImplementation impl, Csar csar) throws NotFoundException {
     List<TEntityTypeImplementation> allImplementations = new ArrayList<>();
     allImplementations.addAll(csar.nodeTypeImplementations());
     allImplementations.addAll(csar.relationshipTypeImplementations());
@@ -337,7 +352,7 @@ public final class ToscaEngine {
   }
 
   @Nullable
-  public static TServiceTemplate containingServiceTemplate(Csar csar, TPlan toscaPlan) {
+  public static TServiceTemplate getContainingServiceTemplate(Csar csar, TPlan toscaPlan) {
     return csar.serviceTemplates().stream()
       .filter(st -> {
         TPlans plans = st.getPlans();
@@ -347,7 +362,7 @@ public final class ToscaEngine {
       .orElse(null);
   }
 
-  public static TNodeTypeImplementation findNodeTypeImplementation(Csar csar, QName nodeTypeImplQname) throws NotFoundException {
+  public static TNodeTypeImplementation resolveNodeTypeImplementation(Csar csar, QName nodeTypeImplQname) throws NotFoundException {
     return csar.nodeTypeImplementations().stream()
       .filter(nti -> QName.valueOf(nti.getIdFromIdOrNameField()).equals(nodeTypeImplQname))
       .findFirst()
@@ -398,7 +413,7 @@ public final class ToscaEngine {
   }
 
   @Nullable
-  public static TExportedOperation findReferencingOperationWithin(TServiceTemplate serviceTemplate, TPlan plan) {
+  public static TExportedOperation getReferencingOperationWithin(TServiceTemplate serviceTemplate, TPlan plan) {
     return Optional.of(serviceTemplate)
       .map(TServiceTemplate::getBoundaryDefinitions)
       .map(TBoundaryDefinitions::getInterfaces)
@@ -413,7 +428,7 @@ public final class ToscaEngine {
   }
 
   @Nullable
-  public static TExportedInterface findReferencingInterfaceWithin(TServiceTemplate serviceTemplate, TExportedOperation operation) {
+  public static TExportedInterface getReferencingInterfaceWithin(TServiceTemplate serviceTemplate, TExportedOperation operation) {
     return Optional.of(serviceTemplate)
       .map(TServiceTemplate::getBoundaryDefinitions)
       .map(TBoundaryDefinitions::getInterfaces)

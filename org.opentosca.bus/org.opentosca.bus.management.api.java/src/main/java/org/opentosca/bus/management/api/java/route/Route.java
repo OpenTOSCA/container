@@ -1,12 +1,12 @@
 package org.opentosca.bus.management.api.java.route;
 
 import org.apache.camel.builder.RouteBuilder;
-import org.opentosca.bus.management.api.java.OsgiEventOperations;
+import org.opentosca.bus.management.api.java.ExposedManagementBusOperations;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
 
 /**
- * Route of the Management Bus-OSGiEvent-API.<br>
+ * Route of the Management Bus Java API.<br>
  * <br>
  * <p>
  * Copyright 2013 IAAS University of Stuttgart <br>
@@ -40,9 +40,9 @@ public class Route extends RouteBuilder {
       }
     }).to("stream:out")
       .choice()
-      .when(header("OPERATION").isEqualTo(OsgiEventOperations.INVOKE_IA.getHeaderValue()))
+      .when(header("OPERATION").isEqualTo(ExposedManagementBusOperations.INVOKE_IA.getHeaderValue()))
         .to("direct:invokeIA")
-      .when(header("OPERATION").isEqualTo(OsgiEventOperations.INVOKE_PLAN.getHeaderValue()))
+      .when(header("OPERATION").isEqualTo(ExposedManagementBusOperations.INVOKE_PLAN.getHeaderValue()))
         .to("direct:invokePlan")
       .end();
 

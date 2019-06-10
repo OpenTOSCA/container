@@ -1,7 +1,5 @@
 /**
- * This package contains the activator for starting the camel context and with it the routes of the
- * Management Bus-OSGI/EVENT-API as well as the event handler that handles the incoming and outgoing
- * osgi events.<br />
+ * This package contains the Management Bus Java API implementation exposed to external consumers.<br />
  * <br />
  * Copyright 2012 IAAS University of Stuttgart <br />
  * <br />

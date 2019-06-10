@@ -54,11 +54,11 @@ public class MBJavaApi implements IManagementBus {
   public MBJavaApi(CamelContext camelContext, IManagementBusService busService) {
     this.camelContext = camelContext;
     this.busService = busService;
-    LOG.info("Starting direct java invocation api for Management Bus");
+    LOG.info("Starting direct Java invocation API for Management Bus");
     try {
       camelContext.addRoutes(new org.opentosca.bus.management.api.java.route.Route(busService));
     } catch (Exception e) {
-      LOG.warn("Could not add osgievent management routes to camel context.", e);
+      LOG.warn("Could not add Java invocation API management routes to camel context.", e);
     }
   }
 
@@ -91,7 +91,7 @@ public class MBJavaApi implements IManagementBus {
     headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), messageID);
     // FIXME considering that this is constant, we bind to the bean directly.
     // Is this used downstream?
-    headers.put("OPERATION", OsgiEventOperations.INVOKE_PLAN.getHeaderValue());
+    headers.put("OPERATION", ExposedManagementBusOperations.INVOKE_PLAN.getHeaderValue());
     headers.put("PlanLanguage", planLanguage);
 
     // Optional parameter if message is of type HashMap. Not needed for Document.
@@ -153,26 +153,7 @@ public class MBJavaApi implements IManagementBus {
       responseCallback.accept(responseMap);
     });
     // push request to executor
-    // executor.submit(() -> busService.invokePlan(requestExchange));
     template.asyncSend("direct:invoke", requestExchange);
-//      // process response appropriately by handing it over to the responseCallback
-//      .whenCompleteAsync((exchange, exception) -> {
-//        final Map<String, Object> responseMap = new HashMap<>();
-//        responseMap.put("MESSAGEID", messageID);
-//        responseMap.put("PLANLANGUAGE", planLanguage);
-//
-//        if (exception != null) {
-//          LOG.warn("Sending message bus internal plan invocation failed with exception", exception);
-//          responseMap.put("RESPONSE", exception);
-//          responseCallback.accept(responseMap);
-//          return;
-//        }
-//        LOG.debug("Received direct response for request with id {}.", messageID);
-//        responseMap.put("RESPONSE", exchange.getIn().getBody());
-//        LOG.debug("Posting response as OSGi event.");
-//        responseCallback.accept(responseMap);
-//      }, executor);
-
   }
 
   @Override

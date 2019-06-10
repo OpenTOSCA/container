@@ -1,7 +1,5 @@
 package org.opentosca.bus.management.header;
 
-import org.opentosca.container.core.model.csar.id.CSARID;
-
 /**
  * Enum needed for the MB-components.<br>
  * <br>
@@ -34,7 +32,7 @@ public enum MBHeader {
 
   /**
    * <b>CSARID</b> This header field contains an identifier for a CSAR file in OpenTOSCA (see
-   * {@link CSARID}).
+   * {@link org.opentosca.container.core.model.csar.CsarId}).
    */
   CSARID,
 

@@ -221,7 +221,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     QName typeID = null;
     if (Objects.nonNull(arguments.nodeTemplateId)) {
-      Optional<TNodeTemplate> nodeTemplate = ToscaEngine.tryResolveNodeTemplate(serviceTemplate, arguments.nodeTemplateId);
+      Optional<TNodeTemplate> nodeTemplate = ToscaEngine.getNodeTemplate(serviceTemplate, arguments.nodeTemplateId);
       if (nodeTemplate.isPresent()) {
         typeID = nodeTemplate.get().getType();
       }

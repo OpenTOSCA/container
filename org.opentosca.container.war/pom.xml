@@ -141,10 +141,9 @@
       <artifactId>org.opentosca.bus.management.service</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- enables access to the formerly osgi-event based management bus interaction -->
     <dependency>
       <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.bus.management.api.osgievent</artifactId>
+      <artifactId>org.opentosca.bus.management.api.java</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

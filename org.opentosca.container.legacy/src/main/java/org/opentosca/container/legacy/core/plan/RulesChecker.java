@@ -21,11 +21,9 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
-import org.opentosca.container.core.engine.xml.impl.XMLSerializer;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO.InputParameters;
-import org.opentosca.container.legacy.core.service.ServiceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -98,7 +96,7 @@ public class RulesChecker {
           // check for identical IDs
         } else {
           // check source
-          if (ToscaEngine.tryResolveNodeTemplate(serviceTemplate, sourceRuleNTemplate.getId()).isPresent()) {
+          if (ToscaEngine.getNodeTemplate(serviceTemplate, sourceRuleNTemplate.getId()).isPresent()) {
             LOG.debug("Rule " + stRule.getName() + " can be applied to Service Template: " + serviceTemplate + ". Reason: Matching Source NodeTemplateIDs.");
             ruleCanBeApplied = true;
           }
@@ -156,7 +154,7 @@ public class RulesChecker {
 
           // check target nodetemplateID
         } else {
-          Optional<TNodeTemplate> nodeTemplate = ToscaEngine.tryResolveNodeTemplate(serviceTemplate, targetRuleNTemplate.getId());
+          Optional<TNodeTemplate> nodeTemplate = ToscaEngine.getNodeTemplate(serviceTemplate, targetRuleNTemplate.getId());
           if (nodeTemplate.isPresent()) {
             // comparing properties
             if (arePropertiesMatching(sourceRuleNTemplate, inputParameters, targetRuleNTemplate)) {

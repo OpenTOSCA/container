@@ -319,7 +319,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
       LOG.error("Plan [{}] could not be found in csar {}", planId, csarId.csarName());
       return null;
     }
-    TServiceTemplate containingServiceTemplate = ToscaEngine.containingServiceTemplate(csar, toscaPlan);
+    TServiceTemplate containingServiceTemplate = ToscaEngine.getContainingServiceTemplate(csar, toscaPlan);
     assert (containingServiceTemplate != null); // shouldn't be null, since we have a plan from it
 
     // planRef.getReference() is overencoded. It's also not relative to the Csar root (but to one level below it)
