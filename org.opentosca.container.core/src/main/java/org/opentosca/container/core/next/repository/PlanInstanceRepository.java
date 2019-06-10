@@ -6,6 +6,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 
+import org.hibernate.Hibernate;
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -29,7 +30,12 @@ public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
       final TypedQuery<PlanInstance> q = em.createQuery(cq);
       q.setParameter(correlationIdParameter, correlationId);
       // Execute
-      return q.getSingleResult();
+      PlanInstance result = q.getSingleResult();
+      // fetch dependent entity bags
+       Hibernate.initialize(result.getEvents());
+       Hibernate.initialize(result.getInputs());
+       Hibernate.initialize(result.getOutputs());
+      return result;
     }
   }
 }

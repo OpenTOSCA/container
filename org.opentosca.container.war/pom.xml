@@ -16,7 +16,6 @@
   <properties>
     <tomcat.version>7.0.93</tomcat.version>
     <resteasy.version>3.1.4.Final</resteasy.version>
-    <spring.version>4.3.18.RELEASE</spring.version>
   </properties>
 
   <build>

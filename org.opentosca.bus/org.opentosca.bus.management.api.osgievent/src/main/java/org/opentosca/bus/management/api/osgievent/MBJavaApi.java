@@ -2,20 +2,20 @@ package org.opentosca.bus.management.api.osgievent;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.xml.namespace.QName;
 
 import org.apache.camel.*;
 import org.apache.camel.impl.DefaultExchange;
 import org.opentosca.bus.management.header.MBHeader;
+import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.container.core.engine.management.IManagementBus;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.slf4j.Logger;
@@ -35,22 +35,31 @@ import org.springframework.stereotype.Component;
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
  */
 @Component
-public class MBEventHandler implements IManagementBus {
+@Singleton
+public class MBJavaApi implements IManagementBus {
 
   private static final String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
   private static final String BPELNS = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
   public static final String PLAN_REQUEST_TOPIC = "org_opentosca_plans/requests";
   public static final String IA_INVOKE_TOPIC = "org_opentosca_ia/requests";
 
-  private static Logger LOG = LoggerFactory.getLogger(MBEventHandler.class);
+  private static Logger LOG = LoggerFactory.getLogger(MBJavaApi.class);
 
   private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
   private final CamelContext camelContext;
+  private final IManagementBusService busService;
 
   @Inject
-  public MBEventHandler(CamelContext camelContext) {
+  public MBJavaApi(CamelContext camelContext, IManagementBusService busService) {
     this.camelContext = camelContext;
+    this.busService = busService;
+    LOG.info("Starting direct java invocation api for Management Bus");
+    try {
+      camelContext.addRoutes(new org.opentosca.bus.management.api.osgievent.route.Route(busService));
+    } catch (Exception e) {
+      LOG.warn("Could not add osgievent management routes to camel context.", e);
+    }
   }
 
   @Override
@@ -80,6 +89,8 @@ public class MBEventHandler implements IManagementBus {
     headers.put(MBHeader.PLANID_QNAME.toString(), planID);
     headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
     headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), messageID);
+    // FIXME considering that this is constant, we bind to the bean directly.
+    // Is this used downstream?
     headers.put("OPERATION", OsgiEventOperations.INVOKE_PLAN.getHeaderValue());
     headers.put("PlanLanguage", planLanguage);
 
@@ -115,41 +126,58 @@ public class MBEventHandler implements IManagementBus {
     final Exchange requestExchange = new DefaultExchange(camelContext);
     requestExchange.getIn().setBody(message);
     requestExchange.getIn().setHeaders(headers);
-    template.asyncSend("direct:invoke", requestExchange);
-
-    // Threaded reception of response
-    this.executor.submit(() -> {
-
-      Object response = null;
-
-      try {
-        consumer.start();
-        final Exchange exchange = consumer.receive("direct:response" + messageID);
-        response = exchange.getIn().getBody();
-        consumer.stop();
-      } catch (final Exception e) {
-        LOG.error("Error occured: {}", e.getMessage(), e);
-        return;
-      }
-
-      LOG.debug("Received response for request with id {}.", messageID);
-
+    // set up response handling
+    executor.submit(() -> {
       final Map<String, Object> responseMap = new HashMap<>();
-      responseMap.put("RESPONSE", response);
       responseMap.put("MESSAGEID", messageID);
       responseMap.put("PLANLANGUAGE", planLanguage);
-//      final Event responseEvent = new Event("org_opentosca_plans/responses", responseMap);
-
-      LOG.debug("Posting response as OSGi event.");
+      final Object responseBody;
+      try {
+        consumer.start();
+        responseBody = consumer.receive("direct:response" + messageID).getIn().getBody();
+      } catch (Exception e) {
+        LOG.warn("Receiving management bus internal plan invocation response failed with exception", e);
+        responseMap.put("EXCEPTION", e);
+        responseMap.put("RESPONSE", null);
+        responseCallback.accept(responseMap);
+        return;
+      } finally {
+        try {
+          consumer.stop();
+        } catch (Exception e) {
+          // swallow
+        }
+      }
+      LOG.debug("Passing direct response for request with id {} to callback.", messageID);
+      responseMap.put("RESPONSE", responseBody);
       responseCallback.accept(responseMap);
-//      this.eventAdmin.postEvent(responseEvent);
     });
+    // push request to executor
+    // executor.submit(() -> busService.invokePlan(requestExchange));
+    template.asyncSend("direct:invoke", requestExchange);
+//      // process response appropriately by handing it over to the responseCallback
+//      .whenCompleteAsync((exchange, exception) -> {
+//        final Map<String, Object> responseMap = new HashMap<>();
+//        responseMap.put("MESSAGEID", messageID);
+//        responseMap.put("PLANLANGUAGE", planLanguage);
+//
+//        if (exception != null) {
+//          LOG.warn("Sending message bus internal plan invocation failed with exception", exception);
+//          responseMap.put("RESPONSE", exception);
+//          responseCallback.accept(responseMap);
+//          return;
+//        }
+//        LOG.debug("Received direct response for request with id {}.", messageID);
+//        responseMap.put("RESPONSE", exchange.getIn().getBody());
+//        LOG.debug("Posting response as OSGi event.");
+//        responseCallback.accept(responseMap);
+//      }, executor);
 
   }
 
   @Override
   public void invokeIA(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback) {
     // TODO when needed.
-    // Adapt 'MBEventHandler - component.xml' to receive messages from this topic too...
+    // Adapt 'MBJavaApi - component.xml' to receive messages from this topic too...
   }
 }

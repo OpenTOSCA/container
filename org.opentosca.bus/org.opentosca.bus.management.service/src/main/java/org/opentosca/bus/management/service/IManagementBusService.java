@@ -24,7 +24,8 @@ public interface IManagementBusService {
    *                 determine the implementation artifact and the data to be transferred to it.
    * @return the response of the invoked implementation artifact as body of the exchange message.
    */
-  public void invokeIA(Exchange exchange);
+  void invokeIA(Exchange exchange);
+
 
   /**
    * Handles the invoke-request of a plan.
@@ -33,5 +34,5 @@ public interface IManagementBusService {
    *                 of the specified plan and the data to be transferred to it.
    * @return the response of the invoked plan as body of the exchange message.
    */
-  public void invokePlan(Exchange exchange);
+  void invokePlan(Exchange exchange);
 }

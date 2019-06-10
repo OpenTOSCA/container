@@ -39,7 +39,7 @@ public class ServiceTemplateInstanceID {
 
   @Override
   public String toString() {
-    return "InstanceID for CSAR \"" + this.csarID + "\" and internal ID " + this.serviceTemplateInstanceID + ".";
+    return "InstanceID for CSAR \"" + this.csarID.csarName() + "\" and internal ID " + this.serviceTemplateInstanceID + ".";
   }
 
   @Override

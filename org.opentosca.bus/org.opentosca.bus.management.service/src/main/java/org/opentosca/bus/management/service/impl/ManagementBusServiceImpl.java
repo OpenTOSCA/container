@@ -130,7 +130,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
   @Override
   public void invokeIA(final Exchange exchange) {
-    LOG.debug("Starting Management Bus: InvokeIA");
     final Message message = exchange.getIn();
 
     final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
