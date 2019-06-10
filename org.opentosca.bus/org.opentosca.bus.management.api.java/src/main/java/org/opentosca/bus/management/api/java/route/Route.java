@@ -1,7 +1,7 @@
-package org.opentosca.bus.management.api.osgievent.route;
+package org.opentosca.bus.management.api.java.route;
 
 import org.apache.camel.builder.RouteBuilder;
-import org.opentosca.bus.management.api.osgievent.OsgiEventOperations;
+import org.opentosca.bus.management.api.java.OsgiEventOperations;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
 
@@ -19,7 +19,7 @@ import org.opentosca.bus.management.service.IManagementBusService;
  */
 public class Route extends RouteBuilder {
 
-  public static final String MB_API_ID = "org.opentosca.bus.management.api.osgieevent";
+  public static final String MB_API_ID = "org.opentosca.bus.management.api.java";
   private final IManagementBusService managementBusService;
 
   public Route(IManagementBusService managementBusService) {

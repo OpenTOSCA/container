@@ -1,4 +1,4 @@
-package org.opentosca.bus.management.api.osgievent;
+package org.opentosca.bus.management.api.java;
 
 /**
  * This enum defines the operations which can be invoked through the OSGi-Event API of the

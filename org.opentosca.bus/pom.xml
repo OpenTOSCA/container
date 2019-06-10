@@ -14,7 +14,7 @@
 
   <modules>
     <module>org.opentosca.bus.management</module>
-    <module>org.opentosca.bus.management.api.osgievent</module>
+    <module>org.opentosca.bus.management.api.java</module>
     <module>org.opentosca.bus.management.api.resthttp</module>
     <module>org.opentosca.bus.management.api.soaphttp</module>
     <module>org.opentosca.bus.management.deployment.plugin</module>
@@ -27,12 +27,12 @@
     <module>org.opentosca.bus.management.invocation.plugin.soaphttp</module>
     <module>org.opentosca.bus.management.invocation.plugin.remote</module>
     <module>org.opentosca.bus.management.service</module>
-    <module>org.opentosca.bus.application.api.jsonhttp</module>
-    <module>org.opentosca.bus.application.api.resthttp</module>
-    <module>org.opentosca.bus.application.api.soaphttp</module>
-    <module>org.opentosca.bus.application.model</module>
-    <module>org.opentosca.bus.application.plugin.jsonhttp.service.impl</module>
-    <module>org.opentosca.bus.application.plugin.service</module>
-    <module>org.opentosca.bus.application.service</module>
+<!--    <module>org.opentosca.bus.application.api.jsonhttp</module>-->
+<!--    <module>org.opentosca.bus.application.api.resthttp</module>-->
+<!--    <module>org.opentosca.bus.application.api.soaphttp</module>-->
+<!--    <module>org.opentosca.bus.application.model</module>-->
+<!--    <module>org.opentosca.bus.application.plugin.jsonhttp.service.impl</module>-->
+<!--    <module>org.opentosca.bus.application.plugin.service</module>-->
+<!--    <module>org.opentosca.bus.application.service</module>-->
   </modules>
 </project>

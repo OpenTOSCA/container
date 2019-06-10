@@ -8,7 +8,7 @@
     <version>2.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>org.opentosca.bus.management.api.osgievent</artifactId>
+  <artifactId>org.opentosca.bus.management.api.java</artifactId>
 
   <dependencies>
     <dependency>

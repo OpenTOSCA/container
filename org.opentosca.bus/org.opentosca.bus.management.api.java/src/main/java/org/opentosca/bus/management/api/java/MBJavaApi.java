@@ -1,4 +1,4 @@
-package org.opentosca.bus.management.api.osgievent;
+package org.opentosca.bus.management.api.java;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -56,7 +56,7 @@ public class MBJavaApi implements IManagementBus {
     this.busService = busService;
     LOG.info("Starting direct java invocation api for Management Bus");
     try {
-      camelContext.addRoutes(new org.opentosca.bus.management.api.osgievent.route.Route(busService));
+      camelContext.addRoutes(new org.opentosca.bus.management.api.java.route.Route(busService));
     } catch (Exception e) {
       LOG.warn("Could not add osgievent management routes to camel context.", e);
     }

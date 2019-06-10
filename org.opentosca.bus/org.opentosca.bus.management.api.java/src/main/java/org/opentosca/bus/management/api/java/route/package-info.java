@@ -6,4 +6,4 @@
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
-package org.opentosca.bus.management.api.osgievent.route;
+package org.opentosca.bus.management.api.java.route;
