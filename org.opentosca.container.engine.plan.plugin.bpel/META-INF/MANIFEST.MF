@@ -23,3 +23,4 @@ Require-Bundle: org.opentosca.container.core,
  org.opentosca.container.connector.ode
 Service-Component: OSGI-INF/*
 Bundle-Activator: org.opentosca.container.engine.plan.plugin.bpel.Activator
+Export-Package: org.opentosca.container.engine.plan.plugin.bpel

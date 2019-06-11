@@ -10,8 +10,8 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.tosca.convention.Types;
-import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -52,14 +52,14 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanB
         final Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<>();
 
         for (final AbstractNodeTemplate nodeTemplate : nodes) {
-            final ANodeTemplateActivity activity = new ANodeTemplateActivity(
+            final NodeTemplateActivity activity = new NodeTemplateActivity(
                 nodeTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, nodeTemplate);
             activities.add(activity);
             mapping.put(nodeTemplate, activity);
         }
 
         for (final AbstractRelationshipTemplate relationshipTemplate : relations) {
-            final ARelationshipTemplateActivity activity = new ARelationshipTemplateActivity(
+            final RelationshipTemplateActivity activity = new RelationshipTemplateActivity(
                 relationshipTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, relationshipTemplate);
             activities.add(activity);
 

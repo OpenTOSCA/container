@@ -142,21 +142,22 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
                     }
                 }
             }
-            // backwards compatibility
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER)) {
-                for (final AbstractOperation op : iface.getOperations()) {
-                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM)) {
-                        return op;
-                    }
-                }
-            }
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE)) {
-                for (final AbstractOperation op : iface.getOperations()) {
-                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER)) {
-                        return op;
-                    }
-                }
-            }
+            // possible backwards compatibility
+            // if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER)) {
+            // for (final AbstractOperation op : iface.getOperations()) {
+            // if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM)) {
+            // return op;
+            // }
+            // }
+            // }
+            // if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE)) {
+            // for (final AbstractOperation op : iface.getOperations()) {
+            // if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER))
+            // {
+            // return op;
+            // }
+            // }
+            // }
         }
         return null;
     }

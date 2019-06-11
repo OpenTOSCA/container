@@ -10,8 +10,8 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.tosca.convention.Types;
-import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -80,7 +80,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
                                                      final Map<AbstractRelationshipTemplate, AbstractActivity> relationActivityMapping,
                                                      final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
         for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
-            final AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity",
+            final AbstractActivity activity = new NodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity",
                 ActivityType.PROVISIONING, nodeTemplate);
             activities.add(activity);
             nodeActivityMapping.put(nodeTemplate, activity);
@@ -88,7 +88,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
 
         for (final AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
             final AbstractActivity activity =
-                new ARelationshipTemplateActivity(relationshipTemplate.getId() + "_provisioning_activity",
+                new RelationshipTemplateActivity(relationshipTemplate.getId() + "_provisioning_activity",
                     ActivityType.PROVISIONING, relationshipTemplate);
             activities.add(activity);
             relationActivityMapping.put(relationshipTemplate, activity);

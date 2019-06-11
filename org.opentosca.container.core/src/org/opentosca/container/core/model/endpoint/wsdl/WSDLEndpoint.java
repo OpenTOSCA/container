@@ -1,6 +1,7 @@
 package org.opentosca.container.core.model.endpoint.wsdl;
 
 import java.net.URI;
+import java.util.Map;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -63,8 +64,8 @@ public class WSDLEndpoint extends GenericEndpoint {
     // if planid is set serviceInstanceID, nodeTypeimpl and iaName must be "null"
     public WSDLEndpoint(final URI uri, final QName portType, final String triggeringContainer,
                         final String managingContainer, final CSARID csarId, final Long serviceInstanceID,
-                        final QName planid, final QName nodeTypeImplementation, final String iaName) {
-        super(uri, triggeringContainer, managingContainer, csarId, serviceInstanceID);
+                        final QName planid, final QName nodeTypeImplementation, final String iaName, final Map<String,String> metadata) {
+        super(uri, triggeringContainer, managingContainer, csarId, serviceInstanceID, metadata);
         setPortType(portType);
         setIaName(iaName);
         setPlanId(planid);

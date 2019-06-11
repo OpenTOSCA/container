@@ -1,6 +1,7 @@
 package org.opentosca.container.core.model.endpoint;
 
 import java.net.URI;
+import java.util.Map;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -77,6 +78,9 @@ public abstract class GenericEndpoint {
     @Basic
     @Column(name = "serviceTemplateInstanceID")
     private Long serviceTemplateInstanceID;
+    
+    @Column(name = "metadata")
+    private Map<String,String> metadata;
 
     /**
      * Constructor
@@ -88,12 +92,13 @@ public abstract class GenericEndpoint {
      * @param serviceTemplateInstanceID
      */
     public GenericEndpoint(final URI uri, final String triggeringContainer, final String managingContainer,
-                           final CSARID csarId, final Long serviceTemplateInstanceID) {
+                           final CSARID csarId, final Long serviceTemplateInstanceID, final Map<String,String> metadata) {
         setURI(uri);
         setTriggeringContainer(triggeringContainer);
         setManagingContainer(managingContainer);
         setCSARId(csarId);
         setServiceTemplateInstanceID(serviceTemplateInstanceID);
+        setMetadata(metadata);
     }
 
     public Long getId() {
@@ -146,5 +151,13 @@ public abstract class GenericEndpoint {
 
     public void setTriggeringContainer(final String triggeringContainer) {
         this.triggeringContainer = triggeringContainer;
+    }
+    
+    public Map<String,String> getMetadata(){
+        return this.metadata;
+    }
+    
+    public void setMetadata(Map<String,String> metadata) {
+        this.metadata = metadata;
     }
 }

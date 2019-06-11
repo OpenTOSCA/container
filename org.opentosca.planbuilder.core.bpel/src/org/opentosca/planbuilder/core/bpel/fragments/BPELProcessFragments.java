@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -16,6 +19,8 @@ import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +76,24 @@ public class BPELProcessFragments {
         return template;
     }
 
+    public Node createAssignTransformXmltoString(final BPELPlan plan, final String xmlVar, final String stringVar,
+                                                 final Element elementToAppendBefore, String rootElementName) throws IOException,
+                                                                                      SAXException {
+       final String xpathQuery1 = "ode:dom-to-string(\\$" + xmlVar + "/*[local-name()='"+rootElementName+ "'])";
+       final String xpathQuery2 = "\\$" + stringVar;
+
+       Node assign =
+           this.createAssignVarToVarWithXpathQueriesAsNode("transformXMLtoStringVar", xmlVar, null,
+                                                                     stringVar, null, xpathQuery1, xpathQuery2,
+                                                                     "Transforms one xml var to a string var as ODE sets a an xml element as wrapper around complex type when using the rest extension.",
+                                                                     new QName(
+                                                                         "http://www.apache.org/ode/type/extension",
+                                                                         "ode", "ode"));
+       
+       return assign;
+       
+   }
+    
     public Node createAssignVarWithLiteralAsNode(final String literal, final String varName,
                                                  final String intent) throws IOException, SAXException {
         final String templateString = createAssignVarWithLiteral(literal, varName, intent);
@@ -106,6 +129,66 @@ public class BPELProcessFragments {
         return this.transformStringToNode(templateString);
     }
 
+    
+    
+    
+    public String createAssignAndPostSituationMonitor(Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies,
+                                                      Map<AbstractPolicy, String> policy2IdMap , String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws IOException {
+        String template = this.loadFragmentResourceAsString("BPELMonitoringSituation.xml");
+        
+        String situationIdRequestBody = "";
+        String copyFromInputToRequestBody = "";
+        
+        /*
+         * <bpel:copy>
+                <bpel:from part="payload" variable="input"><bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[//*[local-name()='$inputElementLocalName']/text()]]></bpel:query></bpel:from>
+                <bpel:to variable="$requestVar">
+                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[//*[local-name()='SituationsMonitor']/*[local-name()='Situations']/*[local-name()='SituationId']/[$index]]]>
+                    </bpel:query>
+                </bpel:to>
+            </bpel:copy>
+         */
+        
+        for(AbstractNodeTemplate node : situationPolicies.keySet()) {
+            String nodeTemplateId = node.getId();
+            List<AbstractPolicy> policies = new ArrayList<AbstractPolicy>(situationPolicies.get(node));
+            
+            situationIdRequestBody += "<entry><key>"+nodeTemplateId+"</key><value><SituationIdsList>";
+            for(int i = 0; i< policies.size();i++) {
+                AbstractPolicy policy = policies.get(i);
+                String inputLocalName = policy2IdMap.get(policy);
+
+                situationIdRequestBody += "<situationId/>";
+                copyFromInputToRequestBody += "<bpel:copy><bpel:from part=\"payload\" variable=\"input\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()='"+inputLocalName+"']/text()]]></bpel:query></bpel:from><bpel:to variable=\"$anyVar\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0\"><![CDATA[//*[local-name()='SituationsMonitor']/*[local-name()='NodeIds2SituationIds']/*[local-name()='entry' and ./*[local-name()='key' and text()='"+nodeTemplateId+"']]/*[local-name()='value']/*[local-name()='SituationIdsList']/*[local-name()='situationId']["+String.valueOf(i+1)+"]]]></bpel:query></bpel:to></bpel:copy>";
+            }                
+            situationIdRequestBody += "</SituationIdsList></value></entry>";
+        }
+        
+        
+//        for(int i = 0; i < situationIdInputLocalNames.size() ; i++) {
+//            String inputLocalName = situationIdInputLocalNames.get(i);
+//            situationIdRequestBody += "<SituationId/>";
+//            
+//            
+//            copyFromInputToRequestBody += "<bpel:copy><bpel:from part=\"payload\" variable=\"input\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()='"+inputLocalName+"']/text()]]></bpel:query></bpel:from><bpel:to variable=\"$anyVar\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0\"><![CDATA[//*[local-name()='SituationsMonitor']/*[local-name()='Situations']/*[local-name()='SituationId']["+String.valueOf(i+1)+"]]]></bpel:query></bpel:to></bpel:copy>";
+//        }
+
+        template = template.replace("$SituationIds", situationIdRequestBody);
+        template = template.replace("$situationIdFromInputCopies", copyFromInputToRequestBody);
+        template = template.replace("$anyVar", anyVarName);
+        template = template.replace("$requestVar", requestVarName);
+        template = template.replace("$urlVarName", serviceTemplateInstanceUrlVarName);
+        
+        
+        return template;
+    }
+    
+    public Node createAssignAndPostSituationMonitorAsNode(Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies,
+                                                          Map<AbstractPolicy, String> policy2IdMap , String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws SAXException, IOException {
+        final String templateString = this.createAssignAndPostSituationMonitor(situationPolicies, policy2IdMap, serviceTemplateInstanceUrlVarName, anyVarName, requestVarName);
+        return this.transformStringToNode(templateString);
+    }
+    
     public String createAssignVarToVarWithXPathQuery(final String assignName, final String fromVarName,
                                                      final String toVarName,
                                                      final String xpathQuery) throws IOException {

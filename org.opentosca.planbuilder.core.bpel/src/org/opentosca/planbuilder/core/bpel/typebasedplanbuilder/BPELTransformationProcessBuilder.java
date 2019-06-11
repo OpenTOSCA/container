@@ -76,6 +76,184 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
     }
 
 
+    /**
+     * Creates an Adaptation PLan that can change the configuration of a running Service Instance by
+     * transforming the current state of nodes and relations (sourceNodeTemplates and
+     * -RelationshipTemplates) to a target configuration (targetNodeTemplates and
+     * -RelationshipTemplates).
+     * 
+     * @param csarName the csar of the service template
+     * @param definitions the definitions document of th service template
+     * @param serviceTemplateId the id of the serviceTemplate to adapt its service instance
+     * @param sourceNodeTemplates the nodeTemplates to adapt from
+     * @param sourceRelationshipTemplates the relationships to adapt from
+     * @param targetNodeTemplates the target configuration of nodes to adapt to
+     * @param targetRelationshipTemplates the target configuration of relations to adapt to
+     * @return a BPEL Plan that is able to adapt an instance from the given current and target
+     *         configurations
+     */
+    public BPELPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId,
+                              Collection<AbstractNodeTemplate> sourceNodeTemplates,
+                              Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
+                              Collection<AbstractNodeTemplate> targetNodeTemplates,
+                              Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
+        AbstractServiceTemplate serviceTemplate = this.getServiceTemplate(definitions, serviceTemplateId);
+
+        // generate abstract plan
+        AbstractTransformationPlan adaptationPlan =
+            this.generateTFOG(csarName, definitions, serviceTemplate, sourceNodeTemplates, sourceRelationshipTemplates,
+                              csarName, definitions, serviceTemplate, targetNodeTemplates, targetRelationshipTemplates);
+
+
+
+        // transform to bpel skeleton
+        final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_adaptationPlan_" + System.currentTimeMillis());
+        final String processNamespace = serviceTemplate.getTargetNamespace() + "_adaptiationPlan";
+
+        BPELPlan transformationBPELPlan =
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, adaptationPlan, "adapt");
+
+
+
+        transformationBPELPlan.setTOSCAInterfaceName("OpenTOSCA-Transformation-Interface");
+        transformationBPELPlan.setTOSCAOperationname("adapt");
+
+        this.planHandler.initializeBPELSkeleton(transformationBPELPlan, csarName);
+        // instanceDataAPI handling is done solely trough this extension
+        this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
+                                           transformationBPELPlan);
+
+        // set instance ids for relationships and nodes
+        this.addNodeRelationInstanceVariables(transformationBPELPlan, serviceTemplate, serviceTemplate);
+
+        // generate variables for properties
+        final Property2VariableMapping sourcesProp2VarMap =
+            this.propertyInitializer.initializePropertiesAsVariables(transformationBPELPlan, serviceTemplate,
+                                                                     adaptationPlan.getHandledSourceServiceTemplateNodes(),
+                                                                     adaptationPlan.getHandledSourceServiceTemplateRelations());
+        
+        final Property2VariableMapping targetsProp2VarMap =
+            this.propertyInitializer.initializePropertiesAsVariables(transformationBPELPlan, serviceTemplate,
+                                                                     adaptationPlan.getHandledTargetServiceTemplateNodes(),
+                                                                     adaptationPlan.getHandledTargetServiceTemplateRelations());
+
+
+        // add correlation id and handling for input and output
+        this.correlationHandler.addCorrellationID(transformationBPELPlan);
+
+        // service instance handling
+        String sourceServiceInstancesURL =
+            this.serviceInstanceHandler.addInstanceDataAPIURLVariable(transformationBPELPlan);
+
+
+        String serviceTemplateURL = this.serviceInstanceHandler.addServiceTemplateURLVariable(transformationBPELPlan);
+
+
+        String serviceInstanceID = this.serviceInstanceHandler.addServiceInstanceIDVariable(transformationBPELPlan);
+
+
+        String serviceInstanceURL = this.serviceInstanceHandler.addServiceInstanceURLVariable(transformationBPELPlan);
+
+
+        String planInstanceURL = this.serviceInstanceHandler.addPlanInstanceURLVariable(transformationBPELPlan);
+
+        // handle sourceinstance information, e.g., load instance url/, template url and
+        // properties
+        // append reading source service instance from input and setting created
+        // variables
+        this.serviceInstanceHandler.addServiceInstanceHandlingFromInput(transformationBPELPlan,
+                                                                        sourceServiceInstancesURL, serviceInstanceURL,
+                                                                        serviceTemplateURL, serviceInstanceID,
+                                                                        planInstanceURL);
+
+        // load nodeTemplate properties from source service instance
+        Collection<BPELScope> terminationScopes = this.getTerminationScopes(transformationBPELPlan);
+        this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(transformationBPELPlan,
+                                                                                       sourcesProp2VarMap, serviceTemplateURL,
+                                                                                       terminationScopes,
+                                                                                       serviceTemplate, "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
+
+
+
+        // return created service instance
+        this.serviceInstanceHandler.appendAssignServiceInstanceIdToOutput(transformationBPELPlan, serviceInstanceID);
+
+        // we need only input for instances that will be created in the target, deleted or migrated node
+        // instances should never get data from the input
+        this.emptyPropInit.initializeEmptyPropertiesAsInputParam(this.getProvisioningScopes(transformationBPELPlan),
+                                                                 transformationBPELPlan, sourcesProp2VarMap,
+                                                                 serviceInstanceURL, serviceInstanceID,
+                                                                 serviceTemplateURL, serviceTemplate, csarName);
+
+        for (BPELScope scope : terminationScopes) {
+            if (scope.getNodeTemplate() != null) {
+                this.nodeRelationInstanceHandler.addNodeInstanceFindLogic(scope, serviceTemplateURL,
+                                                                          "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
+                                                                          serviceTemplate);
+                this.nodeRelationInstanceHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(scope, sourcesProp2VarMap,
+                                                                                                serviceTemplate);
+            } else {
+                this.nodeRelationInstanceHandler.addRelationInstanceFindLogic(scope, serviceTemplateURL,
+                                                                              "?state=CREATED&amp;state=INITIAL",
+                                                                              serviceTemplate);
+
+
+                this.nodeRelationInstanceHandler.addPropertyVariableUpdateBasedOnRelationInstanceID(scope, sourcesProp2VarMap,
+                                                                                                    serviceTemplate);
+            }
+        }
+
+        for (BPELScope scope : getMigrationScopes(transformationBPELPlan)) {
+            if (scope.getNodeTemplate() != null) {
+                this.nodeRelationInstanceHandler.addNodeInstanceFindLogic(scope, serviceTemplateURL,
+                                                                          "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
+                                                                          serviceTemplate);
+                this.nodeRelationInstanceHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(scope, sourcesProp2VarMap,
+                                                                                                serviceTemplate);
+            } else {
+                this.nodeRelationInstanceHandler.addRelationInstanceFindLogic(scope, serviceTemplateURL,
+                                                                              "?state=CREATED&amp;state=INITIAL",
+                                                                              serviceTemplate);
+
+                this.nodeRelationInstanceHandler.addPropertyVariableUpdateBasedOnRelationInstanceID(scope, sourcesProp2VarMap,
+                                                                                                    serviceTemplate);
+            }
+        }
+
+        this.runPlugins(transformationBPELPlan, sourcesProp2VarMap, targetsProp2VarMap, csarName, serviceTemplate, serviceInstanceURL,
+                        serviceInstanceID, serviceTemplateURL, csarName, serviceTemplate, serviceInstanceURL,
+                        serviceInstanceID, serviceTemplateURL);
+
+
+        this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
+                                                                  transformationBPELPlan.getBpelMainFlowElement(),
+                                                                  "ADAPTING", serviceInstanceURL);
+
+        this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
+                                                                  transformationBPELPlan.getBpelMainSequenceOutputAssignElement(),
+                                                                  "CREATED", serviceInstanceURL);
+
+        this.finalizer.finalize(transformationBPELPlan);
+
+        // iterate over terminated nodes and create for each loop per instance
+        for (BPELScope scope : terminationScopes) {
+            if (scope.getNodeTemplate() != null) {
+                final BPELPlanContext context = new BPELPlanContext(transformationBPELPlan, scope, sourcesProp2VarMap,
+                    transformationBPELPlan.getServiceTemplate(), serviceInstanceURL, serviceInstanceID,
+                    serviceTemplateURL, csarName);
+                this.nodeRelationInstanceHandler.appendCountInstancesLogic(context, scope.getNodeTemplate(),
+                                                                           "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
+            } else {
+                final BPELPlanContext context = new BPELPlanContext(transformationBPELPlan, scope, sourcesProp2VarMap,
+                    transformationBPELPlan.getServiceTemplate(), serviceInstanceURL, serviceInstanceID,
+                    serviceTemplateURL, csarName);
+                this.nodeRelationInstanceHandler.appendCountInstancesLogic(context, scope.getRelationshipTemplate(),
+                                                                           "?state=CREATED&amp;state=INITIAL");
+            }
+        }
+
+        return transformationBPELPlan;
+    }
 
     @Override
     public BPELPlan buildPlan(String sourceCsarName, AbstractDefinitions sourceDefinitions,
@@ -163,7 +341,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                                                                                        sourcePropMap,
                                                                                        sourceServiceTemplateURL,
                                                                                        terminationScopes,
-                                                                                       sourceServiceTemplate);
+                                                                                       sourceServiceTemplate, "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 
         // handle target service instance information
         this.serviceInstanceHandler.initServiceInstancesURLVariableFromAvailableServiceInstanceUrlVar(transformationBPELPlan,

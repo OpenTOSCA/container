@@ -46,7 +46,8 @@ public class ResponseParser {
             csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
             ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
             ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
-            ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
+            null,null,
+            //ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
             // !!!
             false, // not active anymore
             false));
@@ -132,7 +133,8 @@ public class ResponseParser {
             csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
             ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
             ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
-            ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
+            null,null,
+            //ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
             // !!!
             false, // not active anymore
             false));

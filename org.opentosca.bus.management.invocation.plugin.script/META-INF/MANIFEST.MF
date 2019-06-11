@@ -22,5 +22,6 @@ Bundle-Activator: org.opentosca.bus.management.invocation.plugin.script.Activato
 Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.container.core.tosca;bundle-version="1.0.0",
  org.opentosca.bus.management;bundle-version="1.0.0",
- org.opentosca.bus.management.invocation.plugin;bundle-version="1.0.0"
+ org.opentosca.bus.management.invocation.plugin;bundle-version="1.0.0",
+ org.apache.commons.lang3
 Export-Package: org.opentosca.bus.management.invocation.plugin.script

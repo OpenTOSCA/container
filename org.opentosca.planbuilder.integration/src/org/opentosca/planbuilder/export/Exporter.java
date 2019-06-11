@@ -88,11 +88,11 @@ public class Exporter extends AbstractExporter {
      * @throws IOException is thrown when reading/writing to the given URI fails
      * @throws JAXBException is thrown when writing with JAXB fails
      */
-    public void export(final URI destination, final AbstractPlan buildPlan) throws IOException, JAXBException {
+    public void exportToPlanFile(final URI destination, final AbstractPlan buildPlan) throws IOException, JAXBException {
         this.simpleExporter.export(destination, (BPELPlan) buildPlan);
     }
 
-    public File export(final List<AbstractPlan> plans, final CSARID csarId) {
+    public File exportToCSAR(final List<AbstractPlan> plans, final CSARID csarId) {
         final List<BPELPlan> bpelPlans = new ArrayList<>();
 
         for (final AbstractPlan plan : plans) {
@@ -101,10 +101,10 @@ public class Exporter extends AbstractExporter {
             }
         }
 
-        return exportBPEL(bpelPlans, csarId);
+        return exportBPELToCSAR(bpelPlans, csarId);
     }
 
-    public File exportBPEL(final List<BPELPlan> plans, final CSARID csarId) {
+    public File exportBPELToCSAR(final List<BPELPlan> plans, final CSARID csarId) {
 
         CSARContent csarContent = null;
         try {

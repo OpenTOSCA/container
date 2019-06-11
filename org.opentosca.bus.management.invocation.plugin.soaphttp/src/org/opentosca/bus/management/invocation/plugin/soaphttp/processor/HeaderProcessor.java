@@ -71,7 +71,6 @@ public class HeaderProcessor implements Processor {
 
             }
         }
-
         exchange.getIn().setBody(payload);
 
     }

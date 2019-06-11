@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -88,24 +89,24 @@ public class RESTEndpoint extends GenericEndpoint {
     }
 
     public RESTEndpoint(final URI uri, final restMethod method, final String triggeringContainer,
-                        final String managingContainer, final CSARID csarId, final Long serviceInstanceID) {
-        super(uri, triggeringContainer, managingContainer, csarId, serviceInstanceID);
+                        final String managingContainer, final CSARID csarId, final Long serviceInstanceID, Map<String,String> metadata) {
+        super(uri, triggeringContainer, managingContainer, csarId, serviceInstanceID, metadata);
         this.method = method;
         this.path = uri.getPath();
     }
 
     public RESTEndpoint(final String host, final String path, final restMethod method, final String managingContainer,
                         final String triggeringContainer, final CSARID csarId,
-                        final Long serviceInstanceID) throws URISyntaxException {
+                        final Long serviceInstanceID, Map<String,String> metadata) throws URISyntaxException {
         // Check if the path starts with a "/", if not we prepend a "/".
         this(new URI(host + (path.charAt(0) == '/' ? path : '/' + path)), method, triggeringContainer,
-             managingContainer, csarId, serviceInstanceID);
+             managingContainer, csarId, serviceInstanceID, metadata);
     }
 
     public RESTEndpoint(final URI uri, final restMethod method, final QName requestPayload, final QName responsePayload,
                         final String triggeringContainer, final String managingContainer, final CSARID csarId,
-                        final Long serviceInstanceID) {
-        this(uri, method, triggeringContainer, managingContainer, csarId, serviceInstanceID);
+                        final Long serviceInstanceID, Map<String,String> metadata) {
+        this(uri, method, triggeringContainer, managingContainer, csarId, serviceInstanceID, metadata);
         this.requestPayload = requestPayload;
         this.responsePayload = responsePayload;
     }

@@ -1,6 +1,7 @@
 package org.opentosca.container.core.impl.plan;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.glassfish.jersey.uri.UriComponent;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.impl.plan.messages.ResponseParser;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -207,7 +209,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         this.LOG.debug("complete the list of parameters {}", givenPlan.getId());
 
         final Map<String, String> message =
-            createRequest(csarID, serviceTemplateId,
+            createRequest(csarID, serviceTemplateId,serviceTemplateInstanceID,
             		null,
                          // ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
                           planEvent.getInputParameter(), correlationID);
@@ -437,31 +439,34 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
             final Map<String, Object> eventValues = new Hashtable<>();
             eventValues.put("CSARID", csarID);
+            eventValues.put("SERVICETEMPLATEID", serviceTemplateId);
             eventValues.put("PLANID", planEvent.getPlanID());
             eventValues.put("PLANLANGUAGE", planEvent.getPlanLanguage());
-            eventValues.put("OPERATIONNAME", planEvent.getOperationName());
-
+            eventValues.put("OPERATIONNAME", planEvent.getOperationName());            
+            eventValues.put("INPUTS", this.transform(planEvent.getInputParameter()));
+            eventValues.put("SERVICEINSTANCEID", serviceTemplateInstanceID);
+            
             this.LOG.debug("complete the list of parameters {}", givenPlan.getId());
 
-            final Map<String, String> message =
-                createRequest(csarID, serviceTemplateId,
-                              null,
-                              //ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
-                              planEvent.getInputParameter(), correlationID);
-
-            if (null == message) {
-                this.LOG.error("Failed to construct parameter list for plan {} of type {}", givenPlan.getId(),
-                               givenPlan.getPlanLanguage());
-                return;
-            }
-
-            final StringBuilder builder = new StringBuilder("Invoking the plan with the following parameters:\n");
-            for (final String key : message.keySet()) {
-                builder.append("     " + key + " : " + message.get(key) + "\n");
-            }
-            this.LOG.trace(builder.toString());
-
-            eventValues.put("BODY", message);
+//            final Map<String, String> message =
+//                createRequest(csarID, serviceTemplateId,serviceTemplateInstanceID,
+//                              null,
+//                              //ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
+//                              planEvent.getInputParameter(), correlationID);
+//
+//            if (null == message) {
+//                this.LOG.error("Failed to construct parameter list for plan {} of type {}", givenPlan.getId(),
+//                               givenPlan.getPlanLanguage());
+//                return;
+//            }
+//
+//            final StringBuilder builder = new StringBuilder("Invoking the plan with the following parameters:\n");
+//            for (final String key : message.keySet()) {
+//                builder.append("     " + key + " : " + message.get(key) + "\n");
+//            }
+//            this.LOG.trace(builder.toString());
+//
+//            eventValues.put("BODY", message);
 
             if (null == ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
                 this.LOG.warn(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
@@ -502,7 +507,15 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         }
     }
 
-
+    private Map<String,String> transform(List<TParameterDTO> params){
+        Map<String,String> result = new HashMap<String,String>();
+        
+        for(TParameterDTO param: params) {
+            result.put(param.getName(), param.getValue());
+        }
+        
+        return result;
+    }
 
     @Override
     public void correctCorrelationToServiceTemplateInstanceIdMapping(final CSARID csarID, final QName serviceTemplateId,
@@ -511,8 +524,9 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         ServiceProxy.correlationHandler.correlateBuildPlanCorrToServiceTemplateInstanceId(csarID, serviceTemplateId,
                                                                                           corrId, correctSTInstanceId);
     }
-
-    public Map<String, String> createRequest(final CSARID csarID, final QName serviceTemplateID,
+    
+    
+    public Map<String, String> createRequest(final CSARID csarID, final QName serviceTemplateID, Long serviceTemplateInstanceId,
                                              final QName planInputMessageID, final List<TParameterDTO> inputParameter,
                                              final String correlationID) throws UnsupportedEncodingException {
 
@@ -600,7 +614,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
      */
     @Override
     public void handleEvent(final Event eve) {
-
+if(eve.getTopic().equals("org_opentosca_plans/responses")) {
+    
         final String correlationID = (String) eve.getProperty("MESSAGEID");
         PlanInvocationEvent event = ServiceProxy.csarInstanceManagement.getPlanFromHistory(correlationID);
         final String planLanguage = event.getPlanLanguage();
@@ -811,6 +826,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         }
 
         ServiceProxy.correlationHandler.removeCorrelation(correlationID);
+}
     }
 
     /**
