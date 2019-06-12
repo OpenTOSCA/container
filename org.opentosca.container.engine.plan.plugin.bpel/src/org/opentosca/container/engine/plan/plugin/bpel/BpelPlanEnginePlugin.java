@@ -291,14 +291,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
      */
     @Override
     public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CSARID csarId) {
-        List<File> planContents;
-        File tempDir;
-        File tempPlan;
-
-        // variable for the (inbound) portType of the process, if this is null
-        // till end the process can't be instantiated by the container
-        QName portType = null;
-
         // retrieve process
         if (this.fileService != null) {
 
@@ -314,18 +306,8 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
             AbstractArtifact planReference = null;
 
-            // try {
-            // TODO
-            // planReference =
-            // csar.resolveArtifactReference(planRef.getReference());
             planReference = this.toscaEngine.getPlanModelReferenceAbstractArtifact(csar, planId);
-            // } catch (UserException exc) {
-            // BpsPlanEnginePlugin.LOG.error("An User Exception occured.", exc);
-            // } catch (SystemException exc) {
-            // BpsPlanEnginePlugin.LOG.error("A System Exception occured.",
-            // exc);
-            // }
-
+       
             if (planReference == null) {
                 BpelPlanEnginePlugin.LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
                                                planRef.getReference());
@@ -359,153 +341,15 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 return false;
             }
 
-            if (this.fileAccessService != null) {
-                // creating temporary dir for update
-                tempDir = this.fileAccessService.getTemp();
-                tempPlan = new File(tempDir, fetchedPlan.getFileName().toString());
-                BpelPlanEnginePlugin.LOG.debug("Unzipping Plan '{}' to '{}'.", fetchedPlan.getFileName().toString(),
-                                               tempDir.getAbsolutePath());
-                planContents = this.fileAccessService.unzip(fetchedPlan.toFile(), tempDir);
-            } else {
-                BpelPlanEnginePlugin.LOG.error("FileAccessService is not available, can't create needed temporary space on disk");
-                return false;
-            }
+            return this.deployPlanFile(fetchedPlan, csarId, new HashMap<String,String>());
+            
+          
 
         } else {
             BpelPlanEnginePlugin.LOG.error("Can't fetch relevant files from FileService: FileService not available");
             return false;
         }
-
-        // changing endpoints in WSDLs
-        ODEEndpointUpdater odeUpdater;
-        try {
-            odeUpdater = new ODEEndpointUpdater(SERVICESURL, ENGINE);
-            portType = odeUpdater.getPortType(planContents);
-            if (!odeUpdater.changeEndpoints(planContents, csarId)) {
-                BpelPlanEnginePlugin.LOG.error("Not all endpoints used by the plan {} have been changed",
-                                               planRef.getReference());
-            }
-        }
-        catch (final WSDLException e) {
-            BpelPlanEnginePlugin.LOG.error("Couldn't load ODEEndpointUpdater", e);
-        }
-
-        // update the bpel and bpel4restlight elements (ex.: GET, PUT,..)
-        BPELRESTLightUpdater bpelRestUpdater;
-        try {
-            bpelRestUpdater = new BPELRESTLightUpdater();
-            if (!bpelRestUpdater.changeEndpoints(planContents, csarId)) {
-                // we don't abort deployment here
-                BpelPlanEnginePlugin.LOG.warn("Could'nt change all endpoints inside BPEL4RESTLight Elements in the given process {}",
-                                              planRef.getReference());
-            }
-        }
-        catch (final TransformerConfigurationException e) {
-            BpelPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdater", e);
-        }
-        catch (final ParserConfigurationException e) {
-            BpelPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdater", e);
-        }
-        catch (final SAXException e) {
-            BpelPlanEnginePlugin.LOG.error("ParseError: Couldn't parse .bpel file", e);
-        }
-        catch (final IOException e) {
-            BpelPlanEnginePlugin.LOG.error("IOError: Couldn't access .bpel file", e);
-        }
-
-        // package process
-        BpelPlanEnginePlugin.LOG.info("Prepare deployment of PlanModelReference");
-
-        if (this.fileAccessService != null) {
-            try {
-                if (tempPlan.createNewFile()) {
-                    // package the updated files
-                    BpelPlanEnginePlugin.LOG.debug("Packaging plan to {} ", tempPlan.getAbsolutePath());
-                    tempPlan = this.fileAccessService.zip(tempDir, tempPlan);
-                } else {
-                    BpelPlanEnginePlugin.LOG.error("Can't package temporary plan for deployment");
-                    return false;
-                }
-            }
-            catch (final IOException e) {
-                BpelPlanEnginePlugin.LOG.error("Can't package temporary plan for deployment", e);
-                return false;
-            }
-        }
-
-        // deploy process
-        BpelPlanEnginePlugin.LOG.info("Deploying Plan: {}", tempPlan.getName());
-        String processId = "";
-        Map<String, URI> endpoints = Collections.emptyMap();
-        try {
-            if (ENGINE.equalsIgnoreCase(BPS_ENGINE)) {
-                final BpsConnector connector = new BpsConnector();
-
-                processId = connector.deploy(tempPlan, URL, USERNAME, PASSWORD);
-
-                endpoints = connector.getEndpointsForPID(processId, URL, USERNAME, PASSWORD);
-            } else {
-                final OdeConnector connector = new OdeConnector();
-
-                processId = connector.deploy(tempPlan, URL);
-
-                endpoints = connector.getEndpointsForPID(processId, URL);
-            }
-        }
-        catch (final Exception e) {
-            e.printStackTrace();
-        }
-
-        // this will be the endpoint the container can use to instantiate the
-        // BPEL Process
-        URI endpoint = null;
-        if (endpoints.keySet().size() == 1) {
-            endpoint = (URI) endpoints.values().toArray()[0];
-        } else {
-            for (final String partnerLink : endpoints.keySet()) {
-                if (partnerLink.equals("client")) {
-                    endpoint = endpoints.get(partnerLink);
-                }
-            }
-        }
-
-        if (endpoint == null) {
-            BpelPlanEnginePlugin.LOG.warn("No endpoint for Plan {} could be determined, container won't be able to instantiate it",
-                                          planRef.getReference());
-            return false;
-        }
-
-        if (processId != null && endpoint != null && portType != null) {
-            BpelPlanEnginePlugin.LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
-            BpelPlanEnginePlugin.LOG.info("Deployment of Plan was successfull: {}", tempPlan.getName());
-
-            // save endpoint
-            final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-            final WSDLEndpoint wsdlEndpoint =
-                new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null, new HashMap<String,String>());
-
-            if (this.endpointService != null) {
-                BpelPlanEnginePlugin.LOG.debug("Store new endpoint!");
-                this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-            } else {
-                BpelPlanEnginePlugin.LOG.warn("Couldn't store endpoint {} for plan {}, cause endpoint service is not available",
-                                              endpoint.toString(), planRef.getReference());
-                return false;
-            }
-        } else {
-            BpelPlanEnginePlugin.LOG.error("Error while processing plan");
-            if (processId == null) {
-                BpelPlanEnginePlugin.LOG.error("ProcessId is null");
-            }
-            if (endpoint == null) {
-                BpelPlanEnginePlugin.LOG.error("Endpoint for process is null");
-            }
-            if (portType == null) {
-                BpelPlanEnginePlugin.LOG.error("PortType of process is null");
-            }
-            return false;
-        }
-        return true;
+        
     }
 
     /**
