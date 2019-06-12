@@ -142,11 +142,11 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     }
 
     
-    public boolean deployPlanFile(final Path filePath, final CSARID csarId, Map<String,String> endpointMetadata) {
+    public boolean deployPlanFile(final Path filePath, final CSARID csarId, final QName planId, Map<String,String> endpointMetadata) {
         List<File> planContents;
         File tempDir;
         File tempPlan;
-        QName portType = null;
+        QName portType = null;               
 
         if (this.fileAccessService != null) {
             // creating temporary dir for update
@@ -263,7 +263,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             // save endpoint
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
             final WSDLEndpoint wsdlEndpoint =
-                new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, new QName(filePath.getFileName().toString()), null, null, endpointMetadata);   
+                new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata);   
             this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
            
         } else {
@@ -341,7 +341,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 return false;
             }
 
-            return this.deployPlanFile(fetchedPlan, csarId, new HashMap<String,String>());
+            return this.deployPlanFile(fetchedPlan, csarId, planId, new HashMap<String,String>());
             
           
 

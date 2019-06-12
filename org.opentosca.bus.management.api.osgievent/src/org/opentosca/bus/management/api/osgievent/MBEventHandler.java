@@ -253,9 +253,6 @@ public class MBEventHandler implements EventHandler {
 
             WSDLEndpoint endpoint = this.getAdaptationPlanEndpoint(currentConfigNodeIds, currentConfigRelationIds,
                                                                    targetConfigNodeIds, targetConfigRelationIds);
-
-
-
             String correlationID = String.valueOf(System.currentTimeMillis());
             QName planId = null;
             PlanType planType = null;
@@ -290,12 +287,9 @@ public class MBEventHandler implements EventHandler {
 
                     endpointMetadata.put("PLANTYPE", planType.toString());
                     endpointMetadata.put("INPUTS", this.toCSV(inputs.keySet()));
-
-                    deployPlugin.deployPlanFile(tempFile, instance.getCsarId(), endpointMetadata);
-
+                    
                     planId = new QName(tempFile.getFileName().toString());
-
-
+                    deployPlugin.deployPlanFile(tempFile, instance.getCsarId(), planId, endpointMetadata);
                 }
                 catch (SystemException e) {
                     LOG.error("Internal error", e);
