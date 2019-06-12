@@ -80,10 +80,10 @@ public abstract class AbstractImporter {
         final List<AbstractPlan> plans = new ArrayList<>();
 
         AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
+        BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(); 
 
-        if (!new BPELSituationAwareBuildProcessBuilder().buildPlans(csarName, defs).isEmpty()) {
-
-            buildPlanBuilder = new BPELSituationAwareBuildProcessBuilder();
+        if (!sitAwareBuilder.buildPlans(csarName, defs).isEmpty()) {
+            buildPlanBuilder = sitAwareBuilder;
         }
 
 

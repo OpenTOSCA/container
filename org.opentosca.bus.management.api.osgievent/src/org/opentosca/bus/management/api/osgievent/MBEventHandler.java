@@ -164,22 +164,12 @@ public class MBEventHandler implements EventHandler {
                 // final Object message = event.getProperty("BODY");
                 final Map<String, String> inputParameter = (Map<String, String>) event.getProperty("INPUTS");
 
-                Map<String, String> message = new HashMap<String, String>();
+                Map<String, String> message =
+                    this.createRequestBody(csarID, serviceTemplateID, serviceInstanceID, inputParameter, messageID);
 
-                
-
-                try {
-                    message = this.createRequestBody(csarID, serviceTemplateID, serviceInstanceID, inputParameter, messageID);
-                }
-                catch (UnsupportedEncodingException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-
-
-
-                ConsumerTemplate consumer = this.invokePlan(operationName, messageID, async, serviceInstanceID.toString(), message,
-                                                            csarID, planID, planLanguage);
+                ConsumerTemplate consumer =
+                    this.invokePlan(operationName, messageID, async, serviceInstanceID.toString(), message, csarID,
+                                    planID, planLanguage);
 
                 // Threaded reception of response
                 this.executor.submit(() -> {
@@ -308,28 +298,21 @@ public class MBEventHandler implements EventHandler {
 
                 }
                 catch (SystemException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    LOG.error("Internal error", e);
+                    return;
                 }
                 catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    LOG.error("Couldn't read files", e);
+                    return;
                 }
                 catch (JAXBException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    LOG.error("Couldn't parse files", e);
+                    return;
                 }
             }
 
-            Map<String, String> requestBody = null;
-            try {
-                requestBody = this.createRequestBody(instance.getCsarId(), instance.getTemplateId(), instance.getId(),
-                                                     inputs, correlationID);
-            }
-            catch (UnsupportedEncodingException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
+            Map<String, String> requestBody = this.createRequestBody(instance.getCsarId(), instance.getTemplateId(),
+                                                                     instance.getId(), inputs, correlationID);
 
 
             // Create a new instance
@@ -425,10 +408,10 @@ public class MBEventHandler implements EventHandler {
     private Collection<String> toStringCollection(String data, String separator) {
         Collection<String> result = new ArrayList<String>();
 
-        if(data == null || data.isEmpty()) {
+        if (data == null || data.isEmpty()) {
             return result;
         }
-        
+
         String[] split = data.split(separator);
 
         for (String part : split) {
@@ -441,21 +424,12 @@ public class MBEventHandler implements EventHandler {
     }
 
     private String toCSV(Collection<String> strings) {
-        StringBuilder strB = new StringBuilder();
-
-        strings.forEach(s -> strB.append(s).append(","));
-
-        return strB.toString();
+        return strings.stream().collect(Collectors.joining(","));
     }
 
     private Set<PlanInstanceInput> toPlanInstanceInputs(Map<String, String> inputs) {
         Set<PlanInstanceInput> result = new HashSet<PlanInstanceInput>();
-
-        for (String key : inputs.keySet()) {
-            String val = inputs.get(key);
-            result.add(new PlanInstanceInput(key, val, "string"));
-        }
-
+        inputs.forEach((key, value) -> result.add(new PlanInstanceInput(key, value, "string")));
         return result;
     }
 
@@ -505,10 +479,9 @@ public class MBEventHandler implements EventHandler {
             }
         }
         catch (InvalidSyntaxException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
+            LOG.error("Couldn't fetch ICoreEndpointService instance", e);
         }
+
         return null;
     }
 
@@ -551,20 +524,17 @@ public class MBEventHandler implements EventHandler {
 
     private ServiceTemplateInstanceConfiguration getValidServiceTemplateInstanceConfiguration(AbstractTopologyTemplate topology,
                                                                                               Map<String, Collection<Long>> nodeIds2situationIds) {
-        QName situationPolicyType =
-            new QName("http://opentosca.org/servicetemplates/policytypes", "SituationPolicy_w1-wip1");
+
 
         Collection<AbstractNodeTemplate> validNodes = new ArrayList<AbstractNodeTemplate>();
         Collection<AbstractRelationshipTemplate> validRelations = new ArrayList<AbstractRelationshipTemplate>();
 
         for (AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-            Collection<AbstractPolicy> policies = this.getPolicies(situationPolicyType, nodeTemplate);
+            Collection<AbstractPolicy> policies = this.getPolicies(Types.situationPolicyType, nodeTemplate);
             if (policies.isEmpty()) {
                 validNodes.add(nodeTemplate);
-            } else {
-                if (this.isValidUnderSituations(nodeTemplate, nodeIds2situationIds)) {
-                    validNodes.add(nodeTemplate);
-                }
+            } else if (this.isValidUnderSituations(nodeTemplate, nodeIds2situationIds)) {
+                validNodes.add(nodeTemplate);
             }
         }
 
@@ -593,10 +563,9 @@ public class MBEventHandler implements EventHandler {
                 boolean foundValidHost = false;
                 for (AbstractRelationshipTemplate relationshipTemplate : hostingRelations) {
                     AbstractNodeTemplate hostingNode = relationshipTemplate.getTarget();
-                    if (this.isValidUnderSituations(hostingNode, nodeIds2situationIds)) {
-                        if (nodeTemplates.contains(hostingNode)) {
-                            foundValidHost = true;
-                        }
+                    if (this.isValidUnderSituations(hostingNode, nodeIds2situationIds)
+                        && nodeTemplates.contains(hostingNode)) {
+                        foundValidHost = true;
                     }
                     if (foundValidHost) {
                         // if atleast one hosting relationship is fulfilled we are happy
@@ -619,21 +588,18 @@ public class MBEventHandler implements EventHandler {
 
     private boolean isValidUnderSituations(AbstractNodeTemplate nodeTemplate,
                                            Map<String, Collection<Long>> nodeIds2situationIds) {
-
-
-
         // check if the situation of the policy is active
         Collection<Long> situationIds = null;
 
         if ((situationIds = nodeIds2situationIds.get(nodeTemplate.getId())) == null) {
             return true;
         }
+                
+        
         boolean isValid = true;
-
         for (Long sitId : situationIds) {
             isValid &= this.isSituationActive(sitId);
         }
-
         return isValid;
     }
 
@@ -644,17 +610,11 @@ public class MBEventHandler implements EventHandler {
 
 
 
-    private Collection<AbstractPolicy> getPolicies(QName policyType, AbstractNodeTemplate nodeTemplate) {
-        Collection<AbstractPolicy> policies = new ArrayList<AbstractPolicy>();
-        for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().equals(policyType)) {
-                policies.add(policy);
-            }
-        }
-        return policies;
+    private Collection<AbstractPolicy> getPolicies(QName policyType, AbstractNodeTemplate nodeTemplate) {        
+        return nodeTemplate.getPolicies().stream().filter(x -> x.getType().getId().equals(policyType)).collect(Collectors.toList());        
     }
 
-    private class ServiceTemplateInstanceConfiguration {
+    private static class ServiceTemplateInstanceConfiguration {
         Collection<AbstractNodeTemplate> nodeTemplates;
         Collection<AbstractRelationshipTemplate> relationshipTemplates;
 
@@ -675,8 +635,7 @@ public class MBEventHandler implements EventHandler {
 
     public Map<String, String> createRequestBody(final CSARID csarID, final QName serviceTemplateID,
                                                  Long serviceTemplateInstanceId,
-                                                 final Map<String, String> inputParameter,
-                                                 final String correlationID) throws UnsupportedEncodingException {
+                                                 final Map<String, String> inputParameter, final String correlationID) {
 
         final Map<String, String> map = new HashMap<>();
 
@@ -708,8 +667,14 @@ public class MBEventHandler implements EventHandler {
                     + Settings.CONTAINER_INSTANCEDATA_API + "\".");
                 String str = Settings.CONTAINER_INSTANCEDATA_API;
                 str = str.replace("{csarid}", csarID.getFileName());
-                str = str.replace("{servicetemplateid}",
-                                  URLEncoder.encode(URLEncoder.encode(serviceTemplateID.toString(), "UTF-8"), "UTF-8"));
+                try {
+                    str = str.replace("{servicetemplateid}",
+                                      URLEncoder.encode(URLEncoder.encode(serviceTemplateID.toString(), "UTF-8"),
+                                                        "UTF-8"));
+                }
+                catch (UnsupportedEncodingException e) {
+                    LOG.error("Couldn't encode Service Template URL", e);
+                }
                 LOG.debug("instance api: {}", str);
                 map.put(para, str);
             } else if (para.equalsIgnoreCase("csarEntrypoint")) {
@@ -728,7 +693,9 @@ public class MBEventHandler implements EventHandler {
         String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + serviceTemplateInstanceId;
         url = url.replace("{csarid}", csarId.getFileName());
         url = url.replace("{servicetemplateid}",
-                          UriComponent.encode(UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT), UriComponent.Type.PATH_SEGMENT));
+                          UriComponent.encode(UriComponent.encode(serviceTemplate.toString(),
+                                                                  UriComponent.Type.PATH_SEGMENT),
+                                              UriComponent.Type.PATH_SEGMENT));
 
         return url;
     }

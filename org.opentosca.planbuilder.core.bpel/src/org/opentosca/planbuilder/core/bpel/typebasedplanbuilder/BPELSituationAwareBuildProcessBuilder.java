@@ -68,7 +68,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
     final static Logger LOG = LoggerFactory.getLogger(BPELSituationAwareBuildProcessBuilder.class);
 
     // class for initializing properties inside the plan
-    private final PropertyVariableHandler propertyInitializer;
+    private PropertyVariableHandler propertyInitializer;
     // class for initializing output with boundarydefinitions of a
     // serviceTemplate
     private final ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
@@ -107,13 +107,12 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             this.sitRegistrationPlugin = new SituationTriggerRegistration();
             this.correlationHandler = new CorrelationIDInitializer();
             this.fragments = new BPELProcessFragments();
-
+            this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
         }
         catch (final ParserConfigurationException e) {
-            BPELSituationAwareBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
+            BPELSituationAwareBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler, couldn't initialize internal parser", e);        
         }
         // TODO seems ugly
-        this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
         this.propertyOutputInitializer = new ServiceTemplateBoundaryPropertyMappingsToOutputHandler();
         this.finalizer = new BPELFinalizer();
     }
@@ -151,7 +150,6 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
                 return null;
             }
 
-
             // generate id for each situation policy
             Map<AbstractPolicy, String> policy2IdMap = this.nodePolicyToId(situationPolicies);
 
@@ -169,10 +167,6 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
 
             this.planHandler.initializeBPELSkeleton(newBuildPlan, csarName);
 
-            // this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(newBuildPlan, serviceTemplate);
-            // this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(newBuildPlan, serviceTemplate);
-
-            // newBuildPlan.setCsarName(csarName);
 
             this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                                                newBuildPlan);
@@ -183,42 +177,19 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, newBuildPlan, propMap,
                                                                      serviceTemplate);
 
-            // instanceDataAPI handling is done solely trough this extension
-
             // initialize instanceData handling
             this.serviceInstanceInitializer.appendCreateServiceInstanceVarsAndAnitializeWithInstanceDataAPI(newBuildPlan);
 
 
             String serviceInstanceUrl =
                 this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(newBuildPlan);
-            // String serviceInstanceID =
-            // this.serviceInstanceInitializer.findServiceInstanceIdVarName(newBuildPlan);
-            // String serviceTemplateUrl =
-            // this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newBuildPlan);
-
-            // this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap,
-            // serviceInstanceUrl,
-            // serviceInstanceID, serviceTemplateUrl,
-            // serviceTemplate, csarName);
-
-            // runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl,
-            // csarName);
-
 
             // add situations to input to get Ids of situations and create situationsmonitor request
-
-
-
             this.correlationHandler.addCorrellationID(newBuildPlan);
 
-
-            // this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
-            // newBuildPlan.getBpelMainFlowElement(),
-            // "CREATING", serviceInstanceUrl);
             this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
                                                                           newBuildPlan.getBpelMainSequenceOutputAssignElement(),
                                                                           "CREATED", serviceInstanceUrl);
-
             for (String inputLocalName : policy2IdMap.values()) {
                 this.planHandler.addStringElementToPlanRequest(inputLocalName, newBuildPlan);
             }
@@ -235,15 +206,13 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
 
             }
             catch (SAXException e) {
-                e.printStackTrace();
+                LOG.error("Couldn't parse XML file", e);
                 return null;
             }
             catch (IOException e) {
-                e.printStackTrace();
+                LOG.error("Couldn't read file", e);
                 return null;
             }
-
-            // this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
 
             this.finalizer.finalize(newBuildPlan);
             return newBuildPlan;

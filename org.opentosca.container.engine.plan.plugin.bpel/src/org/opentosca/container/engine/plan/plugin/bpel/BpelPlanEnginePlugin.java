@@ -184,10 +184,10 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             }
         }
         catch (final TransformerConfigurationException e) {
-            BpelPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdater", e);
+            BpelPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdater transformer", e);
         }
         catch (final ParserConfigurationException e) {
-            BpelPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdater", e);
+            BpelPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdaters parser", e);
         }
         catch (final SAXException e) {
             BpelPlanEnginePlugin.LOG.error("ParseError: Couldn't parse .bpel file", e);
@@ -252,28 +252,20 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             }
         }
 
-        if (endpoint == null) {
-           
+        if (endpoint == null) {         
             return false;
         }
 
-        if (processId != null && endpoint != null && portType != null) {
+        if (processId != null && endpoint != null && portType != null && this.endpointService != null) {
             BpelPlanEnginePlugin.LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
             BpelPlanEnginePlugin.LOG.info("Deployment of Plan was successfull: {}", tempPlan.getName());
 
             // save endpoint
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
             final WSDLEndpoint wsdlEndpoint =
-                new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, new QName(filePath.getFileName().toString()), null, null, endpointMetadata);
-
-            if (this.endpointService != null) {
-                BpelPlanEnginePlugin.LOG.debug("Store new endpoint!");
-                this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-            } else {
-                BpelPlanEnginePlugin.LOG.warn("Couldn't store endpoint {} for plan {}, cause endpoint service is not available",
-                                              endpoint.toString(), filePath);
-                return false;
-            }
+                new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, new QName(filePath.getFileName().toString()), null, null, endpointMetadata);   
+            this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
+           
         } else {
             BpelPlanEnginePlugin.LOG.error("Error while processing plan");
             if (processId == null) {
@@ -284,6 +276,10 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             }
             if (portType == null) {
                 BpelPlanEnginePlugin.LOG.error("PortType of process is null");
+            }
+            
+            if(this.endpointService == null) {
+                BpelPlanEnginePlugin.LOG.error("Endpoint Service is null");
             }
             return false;
         }

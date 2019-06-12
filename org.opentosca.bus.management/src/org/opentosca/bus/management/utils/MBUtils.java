@@ -70,7 +70,7 @@ public class MBUtils {
                     return hostingNodeTemplateId;
                 }
             }
-            // if this node is not an operating system node, than maybe one of its own hosting nodes
+            // if this node is not an operating system node, then maybe one of its own hosting nodes
             String node = getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, hostingNodeTemplateId, mustHaveInstance, serviceTemplateInstanceID);
             if(node != null) {
                 return node;
@@ -78,54 +78,6 @@ public class MBUtils {
         }
         
         return null;
-        
-        
-        
-        
-        
-//       
-//        
-//
-//        while (!isOperatingSystemNodeType(csarID, nodeType) && nodeTemplateID != null && (mustHaveInstance && getNodeTemplateInstance(serviceTemplateInstanceID, nodeTemplateID) != null)) {
-//
-//            MBUtils.LOG.debug("{} isn't the OperatingSystemNode.", nodeTemplateID);
-//            MBUtils.LOG.debug("Getting the underneath Node for checking if it is the OperatingSystemNode...");
-//
-//            // try different relationshiptypes with priority on hostedOn
-//            nodeTemplateID =
-//                ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID,
-//                                                                           Types.hostedOnRelationType);
-//
-//            if (nodeTemplateID == null) {
-//                nodeTemplateID =
-//                    ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-//                                                                               nodeTemplateID,
-//                                                                               Types.deployedOnRelationType);
-//
-//                if (nodeTemplateID == null) {
-//                    nodeTemplateID =
-//                        ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-//                                                                                   nodeTemplateID,
-//                                                                                   Types.dependsOnRelationType);
-//                }
-//
-//            }
-//
-//            if (nodeTemplateID != null) {
-//                MBUtils.LOG.debug("Checking if the underneath Node: {} is the OperatingSystemNode.", nodeTemplateID);
-//                nodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-//                                                                                       nodeTemplateID);
-//
-//            } else {
-//                MBUtils.LOG.debug("No underneath Node found.");
-//            }
-//        }
-//
-//        if (nodeTemplateID != null) {
-//            MBUtils.LOG.debug("OperatingSystemNode found: {}", nodeTemplateID);
-//        }
-//
-//        return nodeTemplateID;
     }
 
     /**

@@ -155,7 +155,6 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
             // target machine
             final String osNodeTemplateID =
                 MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID, true, Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/")));
-System.out.println("blah2");
             if (osNodeTemplateID != null) {
                 final QName osNodeTypeID =
                     ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,

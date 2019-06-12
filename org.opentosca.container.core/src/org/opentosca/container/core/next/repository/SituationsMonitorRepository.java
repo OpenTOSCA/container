@@ -1,6 +1,6 @@
 package org.opentosca.container.core.next.repository;
 
-import java.util.Collection;
+import java.util.Collection;import java.util.stream.Collectors;
 
 import org.opentosca.container.core.next.model.SituationsMonitor;
 
@@ -13,7 +13,7 @@ public class SituationsMonitorRepository extends JpaRepository<SituationsMonitor
     }
     
     public Collection<SituationsMonitor> findSituationMonitorsBySituationId(Long situationId) {
-        Collection<SituationsMonitor> result = Lists.newArrayList();
+        Collection<SituationsMonitor> result = Lists.newArrayList();                
         
         for(SituationsMonitor moni : this.findAll()) {
            for(Collection<Long> sits:moni.getNode2Situations().values()) {
