@@ -8,7 +8,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 

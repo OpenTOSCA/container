@@ -5,9 +5,6 @@ import javax.persistence.*;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo;
 
-import java.io.Serializable;
-import java.util.Objects;
-
 /**
  * Deployment information of a Plan inside a CSAR file. It is used for tracking its deploy progress.
  */

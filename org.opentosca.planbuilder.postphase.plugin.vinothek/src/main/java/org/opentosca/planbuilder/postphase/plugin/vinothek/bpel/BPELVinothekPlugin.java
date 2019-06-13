@@ -18,7 +18,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.bpel.handler.BPELVinothekPluginHandler;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.core.VinothekPlugin;
 
@@ -31,9 +30,10 @@ import org.opentosca.planbuilder.postphase.plugin.vinothek.core.VinothekPlugin;
  */
 public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
 
-    private static final String pluginId = "OpenTOSCA PlanBuilder PostPhase Plugin Vinothek";
     public static final QName phpApp = new QName("http://opentosca.org/types/declarative", "PhpApplication");
     public static final QName bpelProcess = new QName("http://opentosca.org/declarative/", "BPEL");
+
+    private static final String pluginId = "OpenTOSCA PlanBuilder PostPhase Plugin Vinothek";
     private final QName zipArtifactType =
         new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 

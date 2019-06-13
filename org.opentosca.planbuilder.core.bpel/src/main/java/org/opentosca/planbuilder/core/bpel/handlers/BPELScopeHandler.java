@@ -9,8 +9,6 @@ import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,7 +227,6 @@ public class BPELScopeHandler {
     return check;
   }
 
-
   public BPELScope createTemplateBuildPlan(final ANodeTemplateActivity nodeTemplateActivity, final BPELPlan buildPlan) {
     final BPELScope newTemplateBuildPlan = new BPELScope(nodeTemplateActivity);
     this.initializeXMLElements(newTemplateBuildPlan, buildPlan);
@@ -237,7 +234,6 @@ public class BPELScopeHandler {
     newTemplateBuildPlan.setNodeTemplate(nodeTemplateActivity.getNodeTemplate());
     return newTemplateBuildPlan;
   }
-
 
   public BPELScope createTemplateBuildPlan(final ARelationshipTemplateActivity relationshipTemplateActivity,
                                            final BPELPlan buildPlan) {

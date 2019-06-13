@@ -30,7 +30,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
-import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
@@ -90,8 +89,6 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
   public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
                             final AbstractServiceTemplate serviceTemplate) {
     BPELDefrostProcessBuilder.LOG.info("Making Concrete Plans");
-
-
 
     if (!this.isDefrostable(serviceTemplate)) {
       BPELDefrostProcessBuilder.LOG.warn("Couldn't create DeFreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
@@ -323,7 +320,6 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
       if (!this.isDefrostable(serviceTemplate)) {
         continue;
       }
-
 
       BPELDefrostProcessBuilder.LOG.debug("ServiceTemplate {} has no DefreezePlan, generating a new plan",
         serviceTemplate.getQName().toString());

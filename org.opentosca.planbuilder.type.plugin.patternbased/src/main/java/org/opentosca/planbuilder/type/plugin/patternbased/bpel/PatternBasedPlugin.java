@@ -7,8 +7,6 @@ import java.util.HashSet;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
-import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

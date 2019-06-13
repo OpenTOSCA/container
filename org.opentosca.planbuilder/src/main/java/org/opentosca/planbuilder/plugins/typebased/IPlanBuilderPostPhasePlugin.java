@@ -90,7 +90,6 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      */
     public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate);
 
-
     public boolean handleUpdate(T sourceContext, T targetContext, AbstractNodeTemplate sourceNodeTemplate,
                                 AbstractNodeTemplate targetNodeTemplate);
 

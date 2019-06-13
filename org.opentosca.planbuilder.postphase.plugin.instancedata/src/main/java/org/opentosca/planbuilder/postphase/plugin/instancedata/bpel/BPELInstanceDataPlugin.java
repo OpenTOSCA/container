@@ -3,11 +3,9 @@ package org.opentosca.planbuilder.postphase.plugin.instancedata.bpel;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.w3c.dom.Node;
@@ -28,6 +26,11 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
                                     IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext> {
 
     private static final String PLAN_ID = "OpenTOSCA InstanceData Post Phase Plugin";
+
+    private final Handler handler = new Handler();
+
+    private final QName securePasswordPolicyType =
+      new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
 
     @Override
     public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
@@ -55,11 +58,6 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
     public String getID() {
         return PLAN_ID;
     }
-
-    private final Handler handler = new Handler();
-
-    private final QName securePasswordPolicyType =
-        new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
 
     @Override
     public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
@@ -116,7 +114,7 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
     @Override
     public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
                                 AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
-        if(this.canHandleUpdate(sourceNodeTemplate, targetNodeTemplate)) {
+        if (this.canHandleUpdate(sourceNodeTemplate, targetNodeTemplate)) {
             return this.handler.handleUpdate(sourceContext, targetContext, sourceNodeTemplate, targetNodeTemplate);
         }
         return false;
@@ -125,10 +123,7 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
     @Override
     public boolean canHandleUpdate(AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
         // this plugin can create instance data for only equal nodeTemplates as of now
-        if(sourceNodeTemplate.getType().getId().equals(targetNodeTemplate.getType().getId())) {
-            return true;
-        }
-        return false;
+        return sourceNodeTemplate.getType().getId().equals(targetNodeTemplate.getType().getId());
     }
 
     @Override
@@ -136,7 +131,7 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
                                 AbstractRelationshipTemplate sourceRelationshipTemplate,
                                 AbstractRelationshipTemplate targetRelationshipTemplate) {
 
-        if(this.canHandleUpdate(sourceRelationshipTemplate, targetRelationshipTemplate)) {
+        if (this.canHandleUpdate(sourceRelationshipTemplate, targetRelationshipTemplate)) {
             return this.handler.handleUpdate(sourceContext, targetContext, sourceRelationshipTemplate, targetRelationshipTemplate);
         }
         return false;
@@ -145,10 +140,7 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
     @Override
     public boolean canHandleUpdate(AbstractRelationshipTemplate sourceRelationshipTemplate,
                                    AbstractRelationshipTemplate targetRelationshipTemplate) {
-        if(sourceRelationshipTemplate.getType().equals(targetRelationshipTemplate.getType())) {
-            return true;
-        }
-        return false;
+        return sourceRelationshipTemplate.getType().equals(targetRelationshipTemplate.getType());
     }
 
 }

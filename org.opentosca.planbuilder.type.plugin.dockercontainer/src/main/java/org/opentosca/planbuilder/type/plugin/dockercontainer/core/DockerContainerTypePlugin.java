@@ -116,7 +116,6 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
         return DockerContainerTypePlugin.isConnectedToDockerEnginerNode(nodeTemplate);
     }
 
-
     @Override
     public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         // for this plugin to handle the given NodeTemplate following statements

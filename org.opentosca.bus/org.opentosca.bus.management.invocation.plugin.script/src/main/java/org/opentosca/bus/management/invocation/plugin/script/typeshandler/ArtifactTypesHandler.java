@@ -2,7 +2,6 @@ package org.opentosca.bus.management.invocation.plugin.script.typeshandler;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;

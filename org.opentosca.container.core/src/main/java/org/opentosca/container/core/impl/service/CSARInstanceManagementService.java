@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.CSARIDToInstanceToCorrelation;
 import org.opentosca.container.core.model.instance.PlanCorrelationToPlanInvocationEvent;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;

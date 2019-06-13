@@ -179,7 +179,6 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
         // initialize instanceData handling
         this.serviceInstanceHandler.appendCreateServiceInstanceVarsAndAnitializeWithInstanceDataAPI(newBuildPlan);
 
-
         String serviceInstanceUrl = this.serviceInstanceHandler.findServiceInstanceUrlVariableName(newBuildPlan);
         String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(newBuildPlan);
         String serviceTemplateUrl = this.serviceInstanceHandler.findServiceTemplateUrlVariableName(newBuildPlan);
@@ -247,7 +246,6 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
      */
     private boolean runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map, String serviceInstanceUrl,
                                String serviceInstanceId, String serviceTemplateUrl, String csarName) {
-
 
         for (final BPELScope templatePlan : buildPlan.getTemplateBuildPlans()) {
             boolean handled = false;

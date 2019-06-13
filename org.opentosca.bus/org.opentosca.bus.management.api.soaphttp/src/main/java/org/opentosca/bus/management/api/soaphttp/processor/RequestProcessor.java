@@ -53,14 +53,14 @@ import com.google.gson.Gson;
  */
 @Component
 public class RequestProcessor implements Processor {
+  public static final String MB_MANAGEMENT_SOAPHTTP_API_ID = "org.opentosca.bus.management.api.soaphttp";
 
   private static final Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
-  public static final String API_ID = "org.opentosca.bus.management.api.soaphttp";
 
   private final IToscaEngineService toscaEngineService;
 
   @Inject
-  public RequestProcessor(IToscaEngineService toscaEngineService){
+  public RequestProcessor(IToscaEngineService toscaEngineService) {
     this.toscaEngineService = toscaEngineService;
   }
 
@@ -257,7 +257,7 @@ public class RequestProcessor implements Processor {
 
     exchange.getIn().setHeader(MBHeader.CSARID.toString(), csarID);
     exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
-    exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), API_ID);
+    exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), MB_MANAGEMENT_SOAPHTTP_API_ID);
 
     if (paramsMap != null) {
       // put key-value params into camel exchange body as hashmap

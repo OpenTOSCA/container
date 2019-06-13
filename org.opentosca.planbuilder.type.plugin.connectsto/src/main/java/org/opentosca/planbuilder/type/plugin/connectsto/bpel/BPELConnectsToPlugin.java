@@ -1,12 +1,9 @@
 
 package org.opentosca.planbuilder.type.plugin.connectsto.bpel;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.type.plugin.connectsto.bpel.handler.BPELConnectsToPluginHandler;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.ConnectsToPlugin;
 

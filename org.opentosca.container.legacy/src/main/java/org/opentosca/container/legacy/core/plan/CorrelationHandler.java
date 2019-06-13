@@ -9,7 +9,6 @@ import javax.inject.Singleton;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;

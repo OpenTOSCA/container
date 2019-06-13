@@ -5,9 +5,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.Node;
 
-import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.AbstractTerminationPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
@@ -18,7 +16,6 @@ import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandle
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -27,11 +24,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
-import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /**
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
@@ -131,8 +125,6 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         String serviceInstanceURLVarName =
             this.serviceInstanceHandler.findServiceInstanceUrlVariableName(newTerminationPlan);
         String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(newTerminationPlan);
-
-
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(newTerminationPlan,
                                                                   newTerminationPlan.getBpelMainSequenceOutputAssignElement(),

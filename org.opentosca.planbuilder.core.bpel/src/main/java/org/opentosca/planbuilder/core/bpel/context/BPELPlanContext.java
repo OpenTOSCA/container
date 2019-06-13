@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * <p>
@@ -246,8 +245,8 @@ public class BPELPlanContext extends PlanContext {
 
   public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType activityType) {
     LOG.debug("Trying to create {} plan context for nodeTemplate {}", activityType, nodeTemplate);
-    for(BPELScope scope : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
-      if(scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && scope.getActivity().getType().equals(activityType)) {
+    for (BPELScope scope : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+      if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && scope.getActivity().getType().equals(activityType)) {
         LOG.debug("Found scope of nodeTemplate");
         return new BPELPlanContext((BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName,
           this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.csarFileName);

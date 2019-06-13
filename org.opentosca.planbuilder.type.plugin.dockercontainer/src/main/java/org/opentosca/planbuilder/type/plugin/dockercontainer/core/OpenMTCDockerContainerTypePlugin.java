@@ -37,8 +37,6 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
         return null;
     }
 
-
-
     public static AbstractNodeTemplate findConnectedGateway(final AbstractNodeTemplate protocolAdapterNodeTemplate) {
         for (final AbstractRelationshipTemplate relationshipTemplate : protocolAdapterNodeTemplate.getOutgoingRelations()) {
             if (ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType())

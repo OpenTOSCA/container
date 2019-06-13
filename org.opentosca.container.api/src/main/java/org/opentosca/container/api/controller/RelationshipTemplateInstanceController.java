@@ -79,7 +79,7 @@ public class RelationshipTemplateInstanceController {
     final RelationshipTemplateInstanceListDTO list = new RelationshipTemplateInstanceListDTO();
 
     for (final RelationshipTemplateInstance i : relationshipInstances) {
-      if(!i.getTarget().getServiceTemplateInstance().getTemplateId().toString().equals(this.servicetemplate)) {
+      if (!i.getTarget().getServiceTemplateInstance().getTemplateId().toString().equals(this.servicetemplate)) {
         continue;
       }
       if (states != null && !states.isEmpty() && !states.contains(i.getState())) {

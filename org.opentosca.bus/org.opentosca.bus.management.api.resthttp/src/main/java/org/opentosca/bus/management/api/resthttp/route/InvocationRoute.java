@@ -12,7 +12,6 @@ import org.opentosca.bus.management.api.resthttp.processor.InvocationRequestProc
 import org.opentosca.bus.management.api.resthttp.processor.InvocationResponseProcessor;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;

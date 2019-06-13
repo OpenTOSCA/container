@@ -29,13 +29,11 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuilder {
 
     static QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
-
-
+    
     @Override
     public PlanType createdPlanType() {
         return PlanType.BUILD;
     }
-
 
     public static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
                                            final AbstractServiceTemplate serviceTemplate,
@@ -156,7 +154,4 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
         }
         return false;
     }
-
-
-
 }

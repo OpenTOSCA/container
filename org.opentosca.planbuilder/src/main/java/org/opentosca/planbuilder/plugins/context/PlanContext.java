@@ -45,21 +45,17 @@ public abstract class PlanContext {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate);
     }
 
-
     public AbstractServiceTemplate getServiceTemplate() {
         return this.serviceTemplate;
     }
-
 
     public String getServiceTemplateURLVar() {
         return this.serviceTemplateURLVarName;
     }
 
-
     public String getServiceInstanceIDVarName() {
         return this.serviceInstanceIDVarName;
     }
-
 
     public String getServiceInstanceURLVarName() {
         return this.serviceInstanceURLVarName;

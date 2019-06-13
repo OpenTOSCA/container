@@ -79,8 +79,6 @@ public class BPELInvokerPluginHandler {
         final String planInstanceURLVar = findPlanInstanceURLVar(context);
 
         try {
-
-
             Node logPOSTNode =
                 new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(planInstanceURLVar,
                                                                                           logMessageTempStringVarName,
@@ -99,8 +97,6 @@ public class BPELInvokerPluginHandler {
                     break;
 
             }
-
-
         }
         catch (final IOException e) {
             // TODO Auto-generated catch block
@@ -241,7 +237,6 @@ public class BPELInvokerPluginHandler {
             internalExternalPropsOutput.put(para.getName(), propWrapper);
         }
         
-        
         return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName, internalExternalPropsInput, internalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
     }
 
@@ -325,7 +320,6 @@ public class BPELInvokerPluginHandler {
             return false;
         }
 
-
         // add request message assign to prov phase scope
         try {
             Node assignNode = null;
@@ -350,7 +344,6 @@ public class BPELInvokerPluginHandler {
                                                                                       templateId,
                                                                                       internalExternalPropsInput);
 
-            
             assignNode = context.importNode(assignNode);
 
             Node addressingCopyInit = this.resHandler.generateAddressingInitAsNode(requestVariableName);
@@ -362,19 +355,16 @@ public class BPELInvokerPluginHandler {
             addressingCopyNode = context.importNode(addressingCopyNode);
             assignNode.appendChild(addressingCopyNode);
 
-            
             Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName,
                                                                          InputMessagePartName, "ReplyTo");
             replyToCopy = context.importNode(replyToCopy);
             assignNode.appendChild(replyToCopy);
             
-
             Node messageIdInit =
                 this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, templateId + ":"
                     + interfaceName + ":" + operationName + ":");
             messageIdInit = context.importNode(messageIdInit);
             assignNode.appendChild(messageIdInit);
-
 
             switch (appendToPrePhase) {
                 case PRE:
@@ -416,7 +406,6 @@ public class BPELInvokerPluginHandler {
             Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, true);
             correlationSetsNode = context.importNode(correlationSetsNode);
             invokeNode.appendChild(correlationSetsNode);
-
 
             switch (appendToPrePhase) {
                 case PRE:
@@ -566,7 +555,6 @@ public class BPELInvokerPluginHandler {
                                                  final BPELScopePhaseType appendToPrePhase) throws Exception {
         BPELInvokerPluginHandler.LOG.debug("Handling DA " + ref.getReference());
 
-
         /*
          * Contruct all needed data (paths, url, scripts)
          */
@@ -630,7 +618,6 @@ public class BPELInvokerPluginHandler {
         final String cleanName = serverIp.getVariableName().substring(serverIp.getVariableName().lastIndexOf("_") + 1);
 
         final List<String> runScriptInputParams = getRunScriptParams(infraTemplate);
-
 
         switch (cleanName) {
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_CONTAINERIP:

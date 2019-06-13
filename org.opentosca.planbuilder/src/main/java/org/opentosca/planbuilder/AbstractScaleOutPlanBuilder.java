@@ -30,12 +30,10 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
  */
 public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuilder {
 
-
     @Override
     public PlanType createdPlanType() {
         return PlanType.MANAGE;
     }
-
 
     public AbstractPlan generateSOG(final String id, final AbstractDefinitions defintions,
                                     final AbstractServiceTemplate serviceTemplate,
@@ -52,7 +50,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
         for (final AbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
             final AbstractActivity activity =
                 new ANodeTemplateActivity(stratNodeTemplate.getId() + "_strategicselection_activity",
-                    ActivityType.STRATEGICSELECTION, stratNodeTemplate) {};
+                    ActivityType.STRATEGICSELECTION, stratNodeTemplate) { };
             abstractScaleOutPlan.getActivites().add(activity);
             mapping.put(stratNodeTemplate, activity);
 
@@ -72,7 +70,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
                 for (final AbstractRelationshipTemplate relationshipTemplate : path) {
                     final AbstractActivity recursiveRelationActivity =
                         new ARelationshipTemplateActivity(relationshipTemplate.getId() + "recursiveselection_activity",
-                            ActivityType.RECURSIVESELECTION, relationshipTemplate) {};
+                            ActivityType.RECURSIVESELECTION, relationshipTemplate) { };
                     final AbstractActivity recursiveTargetNodeActivity = new ANodeTemplateActivity(
                         relationshipTemplate.getTarget().getId() + "_recursiveselection_activity",
                         ActivityType.RECURSIVESELECTION, relationshipTemplate.getTarget());

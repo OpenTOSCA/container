@@ -2,7 +2,6 @@ package org.opentosca.planbuilder.model.plan;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -63,8 +62,6 @@ public abstract class AbstractPlan {
 
   private final AbstractServiceTemplate serviceTemplate;
 
-  private PlanType type;
-
   private final AbstractDefinitions definitions;
 
   private final Collection<AbstractActivity> activites;
@@ -73,7 +70,9 @@ public abstract class AbstractPlan {
 
   private final String id;
 
-  int internalCounterId = 0;
+  private PlanType type;
+
+  private int internalCounterId = 0;
 
   public AbstractPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
                       final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,

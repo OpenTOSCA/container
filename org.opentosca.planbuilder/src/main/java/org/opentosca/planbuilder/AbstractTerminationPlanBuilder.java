@@ -21,18 +21,14 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanBuilder {
-
-
 
     @Override
     public PlanType createdPlanType() {
         return PlanType.TERMINATE;
     }
-
 
     protected AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
                                        final AbstractServiceTemplate serviceTemplate) {
@@ -87,7 +83,7 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanB
         }
 
         final AbstractPlan abstractTerminationPlan =
-            new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions, serviceTemplate, activities, links) {};
+            new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions, serviceTemplate, activities, links) { };
 
         return abstractTerminationPlan;
     }

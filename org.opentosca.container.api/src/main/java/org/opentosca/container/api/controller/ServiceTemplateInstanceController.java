@@ -51,7 +51,6 @@ import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.RestController;
 import org.w3c.dom.Document;
 
 import io.swagger.annotations.Api;
@@ -59,7 +58,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @Api
-//@RestController
+// not marked as @RestController becuase it is created by a parent controller
 public class ServiceTemplateInstanceController {
 
   private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateInstanceController.class);
@@ -152,7 +151,7 @@ public class ServiceTemplateInstanceController {
     // Add a link
     String path = "";
     URI uri = null;
-    if(pi.getType().equals(PlanType.BUILD)){
+    if (pi.getType().equals(PlanType.BUILD)) {
       //url to the build plan instance
       path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";
       uri = this.uriInfo.getBaseUriBuilder().path(path).build(csar.id().csarName(), serviceTemplate.getId(),
@@ -240,7 +239,6 @@ public class ServiceTemplateInstanceController {
     final ServiceTemplateInstance serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(id, true);
     return serviceTemplateInstance.getPropertiesAsMap();
   }
-
 
   @PUT
   @Path("/{id}/properties")

@@ -14,8 +14,6 @@ import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.AbstractScaleOutPlanBuilder;
 import org.opentosca.planbuilder.ScalingPlanDefinition;
 import org.opentosca.planbuilder.ScalingPlanDefinition.AnnotatedAbstractNodeTemplate;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
@@ -140,7 +138,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         final String responseVarName =
             "recursiveSelection_NodeInstance_" + nodeTemplate.getId() + System.currentTimeMillis() + "_Response";
         nodeContext.addVariable(responseVarName, BPELPlan.VariableType.TYPE, anyTypeDeclId);
-
 
         final String serviceTemplateUrlVarName = serviceInstanceHandler.getServiceTemplateURLVariableName(plan);
 
@@ -295,8 +292,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                                             final QName serviceTemplateId) {
         final List<BPELPlan> scalingPlans = new ArrayList<>();
 
-
-
         final AbstractServiceTemplate serviceTemplate = getServiceTemplate(definitions, serviceTemplateId);
 
         if (serviceTemplate == null) {
@@ -342,8 +337,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                                                bpelScaleOutProcess);
 
             this.serviceInstanceHandler.addServiceInstanceHandlingFromInput(bpelScaleOutProcess);
-
-
 
             this.instanceInitializer.addInstanceURLVarToTemplatePlans(bpelScaleOutProcess, serviceTemplate);
             this.instanceInitializer.addInstanceIDVarToTemplatePlans(bpelScaleOutProcess, serviceTemplate);
@@ -405,10 +398,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             }
 
             this.finalizer.finalize(bpelScaleOutProcess);
-
-
             scalingPlans.add(bpelScaleOutProcess);
-
         }
 
         return scalingPlans;
@@ -682,7 +672,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
         if (plugin != null) {
-
 
             BPELScaleOutProcessBuilder.LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(),
                                                 plugin.getID());

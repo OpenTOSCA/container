@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 
 /**
  * Maps CSARIDs to CSARInstanceIDs to PublicPlan CorrelationIDs.

@@ -347,7 +347,6 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
   private String deployWAROnTomcat(final File warFile, final String triggeringContainer,
                                    final QName typeImplementation, final String fileName) {
 
-
     if (triggeringContainer == null) {
       LOG.warn("Triggering Container host name is null. Deployment aborted because it is part of the deployment path on Tomcat");
       return null;

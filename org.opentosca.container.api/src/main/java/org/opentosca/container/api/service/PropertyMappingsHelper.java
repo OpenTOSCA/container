@@ -30,8 +30,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.opentosca.container.core.engine.ToscaEngine.resolveServiceTemplate;
-
 public class PropertyMappingsHelper {
   private static Logger logger = LoggerFactory.getLogger(PropertyMappingsHelper.class);
   private final InstanceService instanceService;
@@ -249,7 +247,6 @@ public class PropertyMappingsHelper {
 
     return nodeInstance.getPropertiesAsMap().getOrDefault(propertyLocalName, null);
   }
-
 
   private NodeTemplateInstance getNodeInstanceFromMappingObject(final ServiceTemplateInstance serviceInstance,
                                                                 final Object obj) {

@@ -1,12 +1,9 @@
 package org.opentosca.planbuilder.core.bpel.typebasednodehandler;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBuildProcessBuilder;
-import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;

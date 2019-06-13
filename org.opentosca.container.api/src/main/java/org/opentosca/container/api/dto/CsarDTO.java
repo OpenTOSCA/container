@@ -65,7 +65,6 @@ public class CsarDTO extends ResourceSupport {
     this.id = id;
   }
 
-
   public String getName() {
     return this.name;
   }

@@ -2,15 +2,9 @@ package org.opentosca.planbuilder;
 
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
-import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

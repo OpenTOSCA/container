@@ -6,7 +6,6 @@ import java.util.List;
 import javax.xml.bind.annotation.*;
 
 import org.opentosca.container.api.dto.ResourceSupport;
-import org.eclipse.winery.model.tosca.TPropertyMapping;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

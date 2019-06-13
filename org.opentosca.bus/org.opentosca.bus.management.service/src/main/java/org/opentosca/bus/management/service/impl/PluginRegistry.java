@@ -15,10 +15,11 @@ import javax.inject.Singleton;
 @Component
 @Singleton
 public class PluginRegistry {
-  private final Map<String, IManagementBusInvocationPluginService> invocationPluginServices = Collections.synchronizedMap(new HashMap<>());
-  private final Map<String, IManagementBusDeploymentPluginService> deploymentPluginServices = Collections.synchronizedMap(new HashMap<>());
 
   private final static Logger LOG = LoggerFactory.getLogger(PluginRegistry.class);
+
+  private final Map<String, IManagementBusInvocationPluginService> invocationPluginServices = Collections.synchronizedMap(new HashMap<>());
+  private final Map<String, IManagementBusDeploymentPluginService> deploymentPluginServices = Collections.synchronizedMap(new HashMap<>());
 
   @Inject
   public PluginRegistry(@Autowired(required = false)Collection<IManagementBusDeploymentPluginService> deploymentPlugins,

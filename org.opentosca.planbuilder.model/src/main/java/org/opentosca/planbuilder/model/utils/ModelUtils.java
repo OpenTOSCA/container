@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -233,8 +232,6 @@ public class ModelUtils {
                 infrastructureEdges.add(outgoingEdge);
             }
         }
-
-
         ModelUtils.cleanDuplicates(infrastructureEdges);
     }
 
@@ -623,7 +620,7 @@ public class ModelUtils {
     }
 
     public static Collection<String> getPropertyNames(final AbstractNodeTemplate nodeTemplate) {
-        if(nodeTemplate.getProperties() != null) {            
+        if (nodeTemplate.getProperties() != null) {
             return nodeTemplate.getProperties().asMap().keySet();        
         } else {
             return new HashSet<String>();

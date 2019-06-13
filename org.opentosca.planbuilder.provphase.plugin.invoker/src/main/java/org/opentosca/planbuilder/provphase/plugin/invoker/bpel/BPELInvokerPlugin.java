@@ -19,7 +19,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderCompensationOperationPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokerPluginHandler;
 import org.slf4j.Logger;
@@ -35,19 +34,9 @@ import org.slf4j.LoggerFactory;
 public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<BPELPlanContext>,
                                IPlanBuilderProvPhaseParamOperationPlugin<BPELPlanContext>, IPlanBuilderCompensationOperationPlugin<BPELPlanContext> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
     private static final String PLUGIN_ID = "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
 
-    @Override
-    public boolean canHandle(final QName operationArtifactType) {
-        return true;
-    }
-
-    @Override
-    public String getID() {
-        return PLUGIN_ID;
-    }
-
-    private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
     private final BPELInvokerPluginHandler handler = new BPELInvokerPluginHandler();
 
     public void addLogActivity(final BPELPlanContext context, final String message, final BPELPlanContext.Phase phase) {
@@ -324,4 +313,13 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         return false;
     }
 
+    @Override
+    public boolean canHandle(final QName operationArtifactType) {
+      return true;
+    }
+
+    @Override
+    public String getID() {
+      return PLUGIN_ID;
+    }
 }

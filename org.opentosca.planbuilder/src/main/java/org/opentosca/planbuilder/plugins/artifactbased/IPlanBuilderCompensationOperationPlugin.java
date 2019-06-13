@@ -33,6 +33,4 @@ public interface IPlanBuilderCompensationOperationPlugin<T extends PlanContext>
                           Map<AbstractParameter, Variable> param2PropertyOutputMapping,
                           AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
                           Map<AbstractParameter, Variable> compensationParam2VariableMapping, BPELScopePhaseType phase);
-
-
 }

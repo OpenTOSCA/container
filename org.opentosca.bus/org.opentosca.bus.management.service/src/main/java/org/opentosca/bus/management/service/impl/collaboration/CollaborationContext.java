@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -30,10 +29,10 @@ import javax.inject.Named;
 @Service
 public class CollaborationContext {
 
-  private final CamelContext camelContext;
-  private ProducerTemplate producer;
-
   final private static Logger LOG = LoggerFactory.getLogger(CollaborationContext.class);
+
+  private final CamelContext camelContext;
+  private final ProducerTemplate producer;
 
   @Inject
   public CollaborationContext(@Named("collaboration-camel-context") CamelContext camelContext) {

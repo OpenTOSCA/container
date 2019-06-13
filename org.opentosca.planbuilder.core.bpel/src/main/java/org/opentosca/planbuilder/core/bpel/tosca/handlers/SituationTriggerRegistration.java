@@ -216,8 +216,6 @@ public class SituationTriggerRegistration {
                     } else {
                         // TODO Add Selection of SituationId
                     }
-
-
                 }
 
                 // TODO set serviceInstanceId
@@ -227,7 +225,6 @@ public class SituationTriggerRegistration {
                     appendAssignServiceInstanceIdFromServiceInstanceIdVar(plan, serviceInstanceIdVar, varName,
                                                                           plan.getBpelMainFlowElement());
                 }
-
 
                 // optional TODO set nodeInstance selection
 
@@ -310,8 +307,6 @@ public class SituationTriggerRegistration {
                                                                       null);
         assign = this.handler.importNode(plan, assign);
         elementToAppendBefore.getParentNode().insertBefore(assign, elementToAppendBefore);
-
-
     }
 
     private void appendAssignServiceInstanceIdFromServiceInstanceIdVar(final BPELPlan plan,
@@ -347,7 +342,6 @@ public class SituationTriggerRegistration {
                                                                       "Assigning the SituationId of a SituationTrigger based on the input variable to situationId Variable",
                                                                       null);
 
-
         assignNode = this.handler.importNode(plan, assignNode);
 
         elementToAppendBefore.getParentNode().insertBefore(assignNode, elementToAppendBefore);
@@ -369,7 +363,6 @@ public class SituationTriggerRegistration {
                                                                       "Assigning the SituationId of a SituationTrigger based on the input variable",
                                                                       null);
 
-
         assignNode = this.handler.importNode(plan, assignNode);
 
         elementToAppendBefore.getParentNode().insertBefore(assignNode, elementToAppendBefore);
@@ -381,8 +374,6 @@ public class SituationTriggerRegistration {
 
         final QName anyDecl = new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd");
         this.handler.importNamespace(anyDecl, plan);
-
-
         this.handler.addVariable(varName, VariableType.TYPE, anyDecl, plan);
 
         Node node =
@@ -543,7 +534,6 @@ public class SituationTriggerRegistration {
         final List<Triplet<String, String, String>> inputParameters =
             parseParameters(situationTriggerElement, SituationTrigger.xpath_query_situationtrigger_inputParameters);
 
-
         trigger.setSituations(situations);
         trigger.setOnActivation(Boolean.valueOf(onActivation));
         trigger.setSingelInstance(Boolean.valueOf(isSingleInstance));
@@ -570,8 +560,6 @@ public class SituationTriggerRegistration {
                 getNodeContent(queryNodeSet(parameterNodes.item(i), "//*[local-name()='Type']").item(0));
             parameters.add(new Triplet<>(name, val, type));
         }
-
-
         return parameters;
     }
 
@@ -597,6 +585,4 @@ public class SituationTriggerRegistration {
     private String getNodeContent(final Node node) {
         return node.getTextContent();
     }
-
-
 }

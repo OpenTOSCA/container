@@ -1,11 +1,8 @@
 package org.opentosca.container.legacy.core.engine.consolidation;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.xpath.*;
 
@@ -18,8 +15,6 @@ import org.eclipse.winery.model.tosca.TPlan;
 import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 /**
  * This class consolidates the BoundaryDefinitions and Plans to PublicPlans.

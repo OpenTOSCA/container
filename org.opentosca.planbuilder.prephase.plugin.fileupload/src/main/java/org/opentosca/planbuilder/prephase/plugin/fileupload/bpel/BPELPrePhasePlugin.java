@@ -15,7 +15,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.handler.BPELPrePhasePluginHandler;
 import org.slf4j.Logger;
@@ -38,8 +37,6 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
                                 IPlanBuilderPrePhaseDAPlugin<BPELPlanContext> {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELPrePhasePlugin.class);
-
-    private final BPELPrePhasePluginHandler handler = new BPELPrePhasePluginHandler();
 
     private static final String PLUGIN_ID = "openTOSCA DA/IA On Linux Plugin v0.1";
 
@@ -64,6 +61,8 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     private static final QName dockerContainerArtefactType =
         new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
     private static final QName stateArtifactType = new QName("http://opentosca.org/artifacttypes", "State");
+
+    private final BPELPrePhasePluginHandler handler = new BPELPrePhasePluginHandler();
 
     /**
      * {@inheritDoc}

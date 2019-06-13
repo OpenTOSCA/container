@@ -8,7 +8,6 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
@@ -26,18 +25,14 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>, IPlanBuilderPolicyAwareTypePlugin<BPELPlanContext> {
+    public static final QName noPublicAccessPolicyType = new QName("http://opentosca.org/policytypes", "NoPublicAccessPolicy");
+    public static final QName publicAccessPolicyType = new QName("http://opentosca.org/policytypes", "PublicAccessPolicy");
+    public static final QName onlyModeledPortsPolicyType = new QName("http://opentosca.org/policytypes", "OnlyModeledPortsPolicyType");
+
     private static final Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePlugin.class);
-    private final BPELUbuntuVmTypePluginHandler handler = new BPELUbuntuVmTypePluginHandler();
-
     private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder VM and Cloud Provider Declarative Type Plugin";
-    
 
-    public static final QName noPublicAccessPolicyType =
-        new QName("http://opentosca.org/policytypes", "NoPublicAccessPolicy");
-    public static final QName publicAccessPolicyType =
-        new QName("http://opentosca.org/policytypes", "PublicAccessPolicy");
-    public static final QName onlyModeledPortsPolicyType =
-        new QName("http://opentosca.org/policytypes", "OnlyModeledPortsPolicyType");
+    private final BPELUbuntuVmTypePluginHandler handler = new BPELUbuntuVmTypePluginHandler();
 
     /**
      * {@inheritDoc}
@@ -276,8 +271,6 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
         return false;
     }
 
-
-
     @Override
     public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         BPELUbuntuVmTypePlugin.LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
@@ -334,6 +327,4 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
         // 
         return 0;
     }
-
-
 }

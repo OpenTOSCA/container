@@ -105,8 +105,6 @@ public abstract class PatternBasedHandler {
             }
         }
 
-
-
         for (final AbstractParameter param : abstractMatching.outputMatching.keySet()) {
             boolean added = false;
             for (AbstractNodeTemplate nodeForMatch : matching.matchedNodes) {

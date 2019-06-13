@@ -132,6 +132,7 @@ public class PluginRegistry {
   public List<IPlanBuilderTypePlugin<?>> getTypePlugins() {
     return genericPlugins;
   }
+
   public List<IPlanBuilderPrePhasePlugin<?>> getPrePlugins() {
     return prePhasePlugins;
   }

@@ -1,7 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.core;
 
 import org.opentosca.container.core.tosca.convention.Types;
-import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
@@ -86,11 +85,9 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
         return false;
     }
 
-
     @Override
     public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
         // will never be used for nodeTemplates
         return false;
     }
-
 }

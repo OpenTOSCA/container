@@ -49,7 +49,7 @@ public class Route extends RouteBuilder {
     this.from("direct:invokeIA").to("stream:out").bean(managementBusService, "invokeIA").end();
     this.from("direct:invokePlan").to("stream:out").bean(managementBusService, "invokePlan").end();
 
-    this.from("direct-vm:"+ MB_API_ID).recipientList(this.simple("direct:response${id}")).end();
+    this.from("direct-vm:" + MB_API_ID).recipientList(this.simple("direct:response${id}")).end();
 
   }
 

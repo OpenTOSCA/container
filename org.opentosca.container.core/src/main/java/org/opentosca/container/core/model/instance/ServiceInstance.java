@@ -10,7 +10,6 @@ import java.util.List;
 import javax.persistence.*;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.common.interfaces.QNameAlreadyExistsException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.common.jpa.QNameConverter;

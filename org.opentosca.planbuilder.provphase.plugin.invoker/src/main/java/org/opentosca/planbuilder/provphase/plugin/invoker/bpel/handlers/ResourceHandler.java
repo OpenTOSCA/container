@@ -700,7 +700,6 @@ public class ResourceHandler {
         return doc.getFirstChild();
     }
 
-
     private String generateServiceInvokerExternalParamCopyString(final String requestVarName,
                                                                  final String requestVarPartName,
                                                                  final String paramName) throws IOException {

@@ -54,7 +54,6 @@ public abstract class AbstractServiceInstanceHandler {
         return lowestId;
     }
 
-
     public Collection<String> findServiceInstanceVarNames(final BPELPlanHandler bpelplanHandler, final BPELPlan plan,
                                                           String keyword) {
         Collection<String> serviceInstanceVariableNames = new HashSet<String>();

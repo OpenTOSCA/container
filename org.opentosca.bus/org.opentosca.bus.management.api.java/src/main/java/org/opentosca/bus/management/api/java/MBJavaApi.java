@@ -38,10 +38,11 @@ import org.springframework.stereotype.Component;
 @Singleton
 public class MBJavaApi implements IManagementBus {
 
-  private static final String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
-  private static final String BPELNS = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
   public static final String PLAN_REQUEST_TOPIC = "org_opentosca_plans/requests";
   public static final String IA_INVOKE_TOPIC = "org_opentosca_ia/requests";
+
+  private static final String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
+  private static final String BPELNS = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 
   private static Logger LOG = LoggerFactory.getLogger(MBJavaApi.class);
 

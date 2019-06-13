@@ -1,7 +1,6 @@
 package org.opentosca.planbuilder.model.plan.bpel;
 
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
-import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.w3c.dom.Document;
@@ -20,20 +19,14 @@ import org.w3c.dom.Element;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public class BPELScope{
+public class BPELScope {
 
     private AbstractActivity act;
-    
-    
-    public BPELScope(AbstractActivity activity) {
-        this.act = activity;
-    }
 
-    
     // the buildplan this templatebuildplan belongs to
     private BPELPlan buildPlan;
 
-    
+
     // bpel elements this templatebuildplan controls
     private Element bpelScopeElement;
 
@@ -50,6 +43,10 @@ public class BPELScope{
 
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
+
+    public BPELScope(AbstractActivity activity) {
+        this.act = activity;
+    }
 
     public static enum BPELScopePhaseType {
         PRE, PROVISIONING, POST

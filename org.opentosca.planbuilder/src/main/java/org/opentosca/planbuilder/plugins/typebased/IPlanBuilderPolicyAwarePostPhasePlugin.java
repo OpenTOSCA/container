@@ -3,7 +3,6 @@ package org.opentosca.planbuilder.plugins.typebased;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
-import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPlugin;
 
 /**
  * <p>

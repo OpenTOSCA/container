@@ -33,6 +33,4 @@ public class CsarTransformRequest {
   public void setTargetCsarName(final String targetCsarName) {
     this.targetCsarName = targetCsarName;
   }
-
-
 }

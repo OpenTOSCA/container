@@ -127,7 +127,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     this.storage = storage;
   }
 
-
   @Override
   public void invokeIA(final Exchange exchange) {
     final Message message = exchange.getIn();
@@ -163,7 +162,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     final String neededOperation = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
     LOG.debug("Operation: {}", neededOperation);
-
 
     // log event to monitor the IA execution time
     final PlanInstanceEvent event;

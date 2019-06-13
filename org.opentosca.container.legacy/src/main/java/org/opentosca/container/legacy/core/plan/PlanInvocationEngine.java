@@ -150,7 +150,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     csarInstanceManagement.setCorrelationAsActive(csarID, correlationID);
     csarInstanceManagement.correlateCorrelationIdToPlan(correlationID, planEvent);
 
-
     LOG.debug("complete the list of parameters {}", givenPlan.getId());
 
     final Map<String, String> message = createRequest(csar, serviceTemplateId, planEvent.getInputParameter(), correlationID);

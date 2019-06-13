@@ -63,7 +63,6 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     return false;
   }
 
-
   @Override
   public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
     // never handles relationshipTemplates

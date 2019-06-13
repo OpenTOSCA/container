@@ -2,31 +2,23 @@ package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -666,8 +658,6 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             + "),'csars'),'csars/','" + csarName + "','/servicetemplates/','"
             + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.toString())) + "','/instances')";
         try {
-
-
             Node assignServiceInstancesUrl =
                 this.fragments.createAssignVarToVarWithXpathQueryAsNode("createTargetServiceInstancesUrl",
                                                                         availableServiceInstanceUrlVar,

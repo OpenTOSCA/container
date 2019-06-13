@@ -19,7 +19,6 @@ import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
@@ -54,14 +53,13 @@ import org.xml.sax.SAXException;
  */
 public class Handler {
 
+    private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
+
     private Fragments fragments;
     private BPELProcessFragments bpelFrags;
     private BPELInvokerPlugin invoker;
 
     private final XPathFactory xPathfactory = XPathFactory.newInstance();
-    
-    private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
-
 
     public Handler() {
 
@@ -120,8 +118,6 @@ public class Handler {
 
         return instanceURLVarName;
     }
-
-
 
     public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         final boolean hasProps = checkProperties(nodeTemplate.getProperties());
@@ -957,7 +953,6 @@ public class Handler {
         }
     }
 
-    
     private void appendStateUpdateToPostPhase(BPELPlanContext context, String nodeRelationInstanceURLVarName,
                                              String stateVarName, String stateToSet) {
         this.appendStateUpdateAsChild(context, nodeRelationInstanceURLVarName, stateVarName, stateToSet, context.getPostPhaseElement());
@@ -1314,15 +1309,12 @@ public class Handler {
             }
         }
 
-        
-        
-        this.appendGetStateToElement(targetContext, oldRelationInstanceUrl, stateVarName, injectionPostElement);               
+        this.appendGetStateToElement(targetContext, oldRelationInstanceUrl, stateVarName, injectionPostElement);
         this.appendStateUpdateFromVarToElement(targetContext, createRelationInstanceUrl, stateVarName, injectionPostElement);
         
         /* set state of old instance to migrated */
         this.appendStateUpdateAsChild(targetContext, oldRelationInstanceUrl, stateVarName, "MIGRATED", injectionPostElement);
         
-       
         return true;
     }
 

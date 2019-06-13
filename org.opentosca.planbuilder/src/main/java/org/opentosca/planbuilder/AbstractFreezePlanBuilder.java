@@ -30,12 +30,10 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
     QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes", "StatefulComponent");
     QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
 
-
     @Override
     public PlanType createdPlanType() {
         return PlanType.TERMINATE;
     }
-
 
     protected AbstractPlan generateFOG(final String id, final AbstractDefinitions definitions,
                                        final AbstractServiceTemplate serviceTemplate) {
@@ -44,9 +42,7 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
         final Set<Link> links = new HashSet<>();
         final Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<>();
 
-
         final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
-
 
         // Get all node templates which are sources only --> that don't
         for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
@@ -87,7 +83,7 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
         }
 
         final AbstractPlan abstractTerminationPlan =
-            new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions, serviceTemplate, activities, links) {};
+            new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions, serviceTemplate, activities, links) { };
 
         return abstractTerminationPlan;
     }

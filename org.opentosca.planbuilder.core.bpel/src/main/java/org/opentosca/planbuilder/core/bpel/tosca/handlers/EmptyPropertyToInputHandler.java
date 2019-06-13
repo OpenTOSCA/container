@@ -1,9 +1,7 @@
 package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -126,7 +124,6 @@ public class EmptyPropertyToInputHandler {
 
                 final BPELPlanContext context = new BPELPlanContext(plan,templatePlan, propMap, plan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
-
 
                 if (propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate).isEmpty()) {
                     // nodeTemplate doesn't have props defined

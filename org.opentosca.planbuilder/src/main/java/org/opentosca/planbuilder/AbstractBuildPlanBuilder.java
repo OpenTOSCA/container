@@ -22,16 +22,14 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder {
-
 
     @Override
     public PlanType createdPlanType() {
         return PlanType.BUILD;
     }
-
 
     protected static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
                                               final AbstractServiceTemplate serviceTemplate,
@@ -101,18 +99,18 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
             AbstractActivity sourceActivity = nodeActivityMapping.get(relationshipTemplate.getSource());
             AbstractActivity targetActivity = nodeActivityMapping.get(relationshipTemplate.getTarget());
             if (baseType.equals(Types.connectsToRelationType)) {
-                if(sourceActivity != null) {                    
+                if (sourceActivity != null) {
                     links.add(new Link(sourceActivity, activity));
                 }
-                if(targetActivity != null) {                    
+                if (targetActivity != null) {
                     links.add(new Link(targetActivity, activity));
                 }
             } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
                 | baseType.equals(Types.deployedOnRelationType)) {
-                if(targetActivity != null) {                    
+                if (targetActivity != null) {
                     links.add(new Link(targetActivity, activity));
                 }
-                if(sourceActivity != null) {                    
+                if (sourceActivity != null) {
                     links.add(new Link(activity, sourceActivity));
                 }
             }

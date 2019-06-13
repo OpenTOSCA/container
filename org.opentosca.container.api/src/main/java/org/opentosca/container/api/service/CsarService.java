@@ -72,7 +72,6 @@ public class CsarService {
     return false;
   }
 
-
   public CsarId generateTransformationPlans(final CsarId sourceCsarId, final CsarId targetCsarId) {
 
     final Importer planBuilderImporter = new Importer();

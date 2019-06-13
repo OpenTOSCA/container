@@ -7,7 +7,6 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.core.runtime.CoreException;
 import org.opentosca.planbuilder.AbstractTransformingPlanbuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
@@ -18,7 +17,6 @@ import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVa
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.SituationTriggerRegistration;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -75,8 +73,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         this.finalizer = new BPELFinalizer();
     }
 
-
-
     @Override
     public BPELPlan buildPlan(String sourceCsarName, AbstractDefinitions sourceDefinitions,
                               QName sourceServiceTemplateId, String targetCsarName,
@@ -92,7 +88,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             this.generateTFOG(sourceCsarName, sourceDefinitions, sourceServiceTemplate, targetCsarName,
                               targetDefinitions, targetServiceTemplate);
 
-
         // transform to bpel skeleton
         final String processName = ModelUtils.makeValidNCName(sourceServiceTemplate.getId() + "_transformTo_"
             + targetServiceTemplate.getId() + "_plan");
@@ -100,8 +95,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
         BPELPlan transformationBPELPlan =
             this.planHandler.createEmptyBPELPlan(processNamespace, processName, transformationPlan, "transform");
-
-
 
         transformationBPELPlan.setTOSCAInterfaceName("OpenTOSCA-Transformation-Interface");
         transformationBPELPlan.setTOSCAOperationname("transform");
@@ -200,7 +193,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                                                                               "?state=CREATED&amp;state=INITIAL",
                                                                               sourceServiceTemplate);
 
-
                 this.nodeRelationInstanceHandler.addPropertyVariableUpdateBasedOnRelationInstanceID(scope,
                                                                                                     sourcePropMap,
                                                                                                     sourceServiceTemplate);
@@ -229,7 +221,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                         sourceServiceInstanceURL, sourceServiceInstanceID, sourceServiceTemplateURL, targetCsarName,
                         targetServiceTemplate, targetServiceInstanceURL, targetServiceInstanceID,
                         targetServiceTemplateURL);
-
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
                                                                   transformationBPELPlan.getBpelMainFlowElement(),
@@ -283,7 +274,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
     private Collection<BPELScope> getTerminationScopes(BPELPlan plan) {
         return this.getScopesByType(plan, ActivityType.TERMINATION);
     }
-
 
     private Collection<BPELScope> getProvisioningScopes(BPELPlan plan) {
         return this.getScopesByType(plan, ActivityType.PROVISIONING);

@@ -16,7 +16,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
@@ -38,7 +37,6 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     private final String monitoringOperationName = "deployAgent";
     private final QName configArtifactType = new QName("http://opentosca.org/artifacttypes", "ConfigurationArtifact");
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
-
 
     @Override
     public String getID() {
@@ -63,7 +61,6 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
         if (configDeplArti != null) {
             uploadConfigurationArtifact(context, configDeplArti, nodeTemplate);
         }
-
 
         return context.executeOperation(nodeTemplate, this.monitoringInterfaceName, this.monitoringOperationName, null,
                                         null, BPELScopePhaseType.POST);
@@ -132,7 +129,6 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
                 sshUserVar = null;
             }
         }
-
 
         this.invokerPlugin.handleArtifactReferenceUpload(deplArti.getArtifactRef().getArtifactReferences().get(0),
                                                          context, sshIpVar, sshUserVar, sshKeyVar, infraNode,

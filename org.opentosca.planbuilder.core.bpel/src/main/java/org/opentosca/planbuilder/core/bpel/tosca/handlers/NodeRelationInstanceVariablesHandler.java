@@ -72,7 +72,6 @@ public class NodeRelationInstanceVariablesHandler {
     public boolean addIfNullAbortCheck(final BPELScope templatePlan, final Property2VariableMapping propMap,
                                        AbstractServiceTemplate serviceTemplate) {
 
-
         for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, templatePlan.getNodeTemplate())) {
             final String bpelVarName = var.getVariableName();
             // as the variables are there and only possibly empty we just check
@@ -830,7 +829,6 @@ public class NodeRelationInstanceVariablesHandler {
         return this.findInstanceUrlVarName(templatePlan.getBuildPlan(), serviceTemplate, templateId, isNode);
     }
 
-
     private String findInstanceUrlVarName(AbstractServiceTemplate serviceTemplate, final List<String> varNames,
                                           final String templateId, final boolean isNode) {
         final String instanceURLVarName = (isNode ? nodeInstanceURLVarKeyword : relationInstanceURLVarKeyword) + "_"
@@ -856,6 +854,4 @@ public class NodeRelationInstanceVariablesHandler {
         }
         return null;
     }
-
-
 }

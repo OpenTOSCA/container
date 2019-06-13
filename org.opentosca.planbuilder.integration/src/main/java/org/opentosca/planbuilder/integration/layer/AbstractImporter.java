@@ -3,11 +3,7 @@ package org.opentosca.planbuilder.integration.layer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
-import org.opentosca.planbuilder.AbstractPlanBuilder;
 import org.opentosca.planbuilder.AbstractSimplePlanBuilder;
-import org.opentosca.planbuilder.AbstractTransformingPlanbuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.*;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -33,15 +29,12 @@ public abstract class AbstractImporter {
                                                           final AbstractDefinitions targetDefinitions) {
         final List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
 
-
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder();
 
         plans.add(transformPlanBuilder.buildPlan(sourceCsarName, sourceDefinitions,
                                                  sourceDefinitions.getServiceTemplates().get(0).getQName(),
                                                  targetCsarName, targetDefinitions,
                                                  targetDefinitions.getServiceTemplates().get(0).getQName()));
-
-
 
         return plans;
     }
@@ -76,7 +69,6 @@ public abstract class AbstractImporter {
 
         final AbstractSimplePlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder();
         final AbstractSimplePlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder();
-
 
         plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));

@@ -74,6 +74,4 @@ public class BPELAnsibleOperationPlugin extends AnsibleOperationPlugin<BPELPlanC
     public int getPriority() {
         return 0;
     }
-
-
 }

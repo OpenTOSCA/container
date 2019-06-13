@@ -47,7 +47,7 @@ public class ServiceTemplateInstance extends PersistenceObject {
   @Column(name = "TEMPLATE_ID", nullable = false)
   private QName templateId;
 
-  @Column(name ="CREATION_CORRELATION_ID", nullable = true)
+  @Column(name = "CREATION_CORRELATION_ID", nullable = true)
   private String creationCorrelationId;
 
   @OrderBy("createdAt DESC")

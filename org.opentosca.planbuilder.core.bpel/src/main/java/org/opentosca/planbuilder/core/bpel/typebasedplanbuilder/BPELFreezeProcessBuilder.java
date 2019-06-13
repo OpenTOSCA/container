@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -26,10 +25,8 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
@@ -102,8 +99,6 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
                               final AbstractServiceTemplate serviceTemplate) {
         BPELFreezeProcessBuilder.LOG.info("Making Plans");
-
-
 
         if (!this.isStateful(serviceTemplate)) {
             BPELFreezeProcessBuilder.LOG.warn("Couldn't create FreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
@@ -199,9 +194,6 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         BPELFreezeProcessBuilder.LOG.debug(ModelUtils.getStringFromDoc(newFreezePlan.getBpelDocument()));
 
         return newFreezePlan;
-
-
-
     }
 
     @Override
@@ -212,8 +204,6 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             if (!this.isStateful(serviceTemplate)) {
                 continue;
             }
-
-
 
             BPELFreezeProcessBuilder.LOG.debug("ServiceTemplate {} has no BackupPlan, generating BackuopPlan",
                                                serviceTemplate.getQName().toString());
@@ -375,7 +365,6 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         String serviceInstanceUrl = this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(plan);
         String serviceInstanceId = this.serviceInstanceVarsHandler.findServiceInstanceIdVarName(plan);
         String serviceTemplateUrl = this.serviceInstanceVarsHandler.findServiceTemplateUrlVariableName(plan);
-
 
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(plan, templatePlan, propMap, plan.getServiceTemplate(),

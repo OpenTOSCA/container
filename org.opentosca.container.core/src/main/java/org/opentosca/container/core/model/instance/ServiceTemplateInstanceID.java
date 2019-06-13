@@ -3,7 +3,6 @@ package org.opentosca.container.core.model.instance;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 
 /**
  * This is an identification class for CSARInstances. The CSARInstance is identified by the CSAR it

@@ -8,12 +8,11 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractPlanBuilder {
 
-    protected final PluginRegistry pluginRegistry = PluginRegistry.INSTANCE;
-
     private final static Logger LOG = LoggerFactory.getLogger(AbstractPlanBuilder.class);
 
-    abstract public PlanType createdPlanType();
+    protected final PluginRegistry pluginRegistry = PluginRegistry.INSTANCE;
 
+    abstract public PlanType createdPlanType();
 
     public boolean isRunning(final AbstractNodeTemplate nodeTemplate) {
         if (nodeTemplate.getProperties() != null) {

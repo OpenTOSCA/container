@@ -160,7 +160,6 @@ public class InstanceService {
     this.serviceTemplateInstanceRepository.update(service);
   }
 
-
   public Document getServiceTemplateInstanceRawProperties(final Long id) throws NotFoundException {
     final ServiceTemplateInstance service = getServiceTemplateInstance(id, false);
     final Optional<ServiceTemplateInstanceProperty> firstProp = service.getProperties().stream().findFirst();

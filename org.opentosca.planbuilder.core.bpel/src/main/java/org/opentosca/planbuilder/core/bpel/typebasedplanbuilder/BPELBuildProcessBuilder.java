@@ -7,8 +7,6 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
@@ -21,8 +19,6 @@ import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServi
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SituationTriggerRegistration;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.ActivityType;
-import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -31,11 +27,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
-import org.opentosca.planbuilder.plugins.context.PropertyVariable;
-import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,8 +108,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
                               final AbstractServiceTemplate serviceTemplate) {
         // create empty plan from servicetemplate and add definitions
-
-
         String namespace;
         if (serviceTemplate.getTargetNamespace() != null) {
             namespace = serviceTemplate.getTargetNamespace();
@@ -164,7 +154,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             // initialize instanceData handling
             this.serviceInstanceInitializer.appendCreateServiceInstanceVarsAndAnitializeWithInstanceDataAPI(newBuildPlan);
 
-
             String serviceInstanceUrl =
                 this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(newBuildPlan);
             String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newBuildPlan);
@@ -178,7 +167,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarName);
 
             this.correlationHandler.addCorrellationID(newBuildPlan);
-
 
             this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
                                                                           newBuildPlan.getBpelMainFlowElement(),
@@ -241,9 +229,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      */
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map, String serviceInstanceUrl,
                             String serviceInstanceID, String serviceTemplateUrl, String csarFileName) {
-
-
-
         for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(buildPlan, bpelScope, map, buildPlan.getServiceTemplate(),
                 serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarFileName);

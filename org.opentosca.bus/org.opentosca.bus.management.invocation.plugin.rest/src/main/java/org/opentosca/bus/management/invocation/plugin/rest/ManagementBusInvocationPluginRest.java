@@ -107,7 +107,6 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
     headers.put(Exchange.HTTP_METHOD, this.METHOD);
     headers.put(Exchange.CONTENT_TYPE, "application/json");
 
-
     final ContentType contentTypeParam = ContentType.JSON;
 
     LOG.debug("ParamsParam set: params into payload.");

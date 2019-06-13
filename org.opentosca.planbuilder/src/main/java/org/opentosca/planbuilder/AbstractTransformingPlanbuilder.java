@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,9 +41,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilder {
 
-    protected final PluginRegistry pluginRegistry = PluginRegistry.INSTANCE;
-
     private final static Logger LOG = LoggerFactory.getLogger(AbstractTransformingPlanbuilder.class);
+
+    protected final PluginRegistry pluginRegistry = PluginRegistry.INSTANCE;
 
     @Override
     public PlanType createdPlanType() {
@@ -130,7 +129,6 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId(), sourceDefinitions, sourceServiceTemplate,
                                                                            nodesToTerminate, relationsToTerminate);
         
-        
         // migrate node instances from old service instance to new service instance
         AbstractPlan migrateInstancePlan = this.generateInstanceMigrationPlan(deployableMaxCommonSubgraph, this.getConnectingEdges(sourceTopology.getRelationshipTemplates(), deployableMaxCommonSubgraph), sourceDefinitions, targetDefinitions, sourceServiceTemplate, targetServiceTemplate);
 
@@ -143,7 +141,6 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             AbstractBuildPlanBuilder.generatePOG("transformStart" + sourceDefinitions.getId() + "_to_"
                 + targetDefinitions.getId(), targetDefinitions, targetServiceTemplate, nodesToStart, relationsToStart);
 
-        
         AbstractTransformationPlan transPlan =
             this.mergePlans("transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
                 + startPlan.getServiceTemplate().getId(), PlanType.TRANSFORM, termPlan, migrateInstancePlan);
@@ -151,7 +148,6 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         transPlan =
             this.mergePlans("transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
                 + startPlan.getServiceTemplate().getId(), PlanType.TRANSFORM, transPlan, startPlan);
-
 
         return transPlan;
     }
@@ -210,8 +206,8 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     private Collection<AbstractRelationshipTemplate> getConnectingEdges(Collection<AbstractRelationshipTemplate> allEdges, Collection<AbstractNodeTemplate> subgraphNodes) {
         Collection<AbstractRelationshipTemplate> connectingEdges = new HashSet<AbstractRelationshipTemplate>();
         
-        for(AbstractRelationshipTemplate rel : allEdges) {
-            if(subgraphNodes.contains(rel.getSource()) && subgraphNodes.contains(rel.getTarget())) {
+        for (AbstractRelationshipTemplate rel : allEdges) {
+            if (subgraphNodes.contains(rel.getSource()) && subgraphNodes.contains(rel.getTarget())) {
                 connectingEdges.add(rel);
             }
         }
@@ -219,11 +215,11 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return connectingEdges;
     }
     
-    public Collection<AbstractNodeTemplate> getCorrespondingNodes(Collection<AbstractNodeTemplate> subgraph, Collection<AbstractNodeTemplate> graph){
+    public Collection<AbstractNodeTemplate> getCorrespondingNodes(Collection<AbstractNodeTemplate> subgraph, Collection<AbstractNodeTemplate> graph) {
         Collection<AbstractNodeTemplate> correspondingNodes = new HashSet<AbstractNodeTemplate>();        
-        for(AbstractNodeTemplate subgraphNode : subgraph) {
+        for (AbstractNodeTemplate subgraphNode : subgraph) {
             AbstractNodeTemplate correspondingNode = null;           
-            if((correspondingNode = this.getCorrespondingNode(subgraphNode, graph)) != null) {
+            if ((correspondingNode = this.getCorrespondingNode(subgraphNode, graph)) != null) {
                 correspondingNodes.add(correspondingNode);
             }           
         }
@@ -232,8 +228,8 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
     
     public AbstractNodeTemplate getCorrespondingNode(AbstractNodeTemplate subNode, Collection<AbstractNodeTemplate> graph) {
-        for(AbstractNodeTemplate graphNode : graph) {
-            if(this.mappingEquals(subNode, graphNode)) {
+        for (AbstractNodeTemplate graphNode : graph) {
+            if (this.mappingEquals(subNode, graphNode)) {
                 return graphNode;
             }
         }
@@ -241,8 +237,8 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
     
     public AbstractRelationshipTemplate getCorrespondingEdge(AbstractRelationshipTemplate subEdge, Collection<AbstractRelationshipTemplate> graphEdges) {
-        for(AbstractRelationshipTemplate graphEdge : graphEdges) {
-            if(this.mappingEquals(subEdge, graphEdge)) {
+        for (AbstractRelationshipTemplate graphEdge : graphEdges) {
+            if (this.mappingEquals(subEdge, graphEdge)) {
                 return graphEdge;
             }
         }
@@ -272,10 +268,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
         return new AbstractTransformationPlan(id, type, plan1.getDefinitions(), plan1.getServiceTemplate(),
             plan2.getDefinitions(), plan2.getServiceTemplate(), activities, links);
-
     }
-
-
 
     private Set<AbstractRelationshipTemplate> getOutgoingRelations(Set<AbstractNodeTemplate> nodes) {
         Set<AbstractRelationshipTemplate> relations = new HashSet<AbstractRelationshipTemplate>();
@@ -301,8 +294,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         Set<AbstractNodeTemplate> toRemove = new HashSet<AbstractNodeTemplate>();
 
         for (AbstractNodeTemplate node : graph) {
-            
-            if(this.isRunning(node)) {
+            if (this.isRunning(node)) {
                 continue;
             }
             
@@ -319,7 +311,6 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
                 toRemove.add(node);
                 continue;
             }
-
         }
 
         if (toRemove.isEmpty()) {
@@ -369,15 +360,12 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             }
         }
 
-        
-        
         AbstractNodeTemplate v = this.pop(vertices);
         
         LOG.debug("Removed vertex {}" , v.getId());        
         Set<AbstractNodeTemplate> cand1 = this.getMaxCommonSubgraph(vertices, graph1, graph2, currentSubset);
         currentSubset.add(v);        
         LOG.debug("Current subset {}" , this.printCandidate(currentSubset));
-        
         
         Set<AbstractNodeTemplate> cand2 = new HashSet<AbstractNodeTemplate>();
 
@@ -387,14 +375,12 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             LOG.debug("Removing vertex {} from current subset {}", v.getId(), this.printCandidate(currentSubset));            
             currentSubset.remove(v);
         }
-        
-
 
         LOG.debug("Current candidates:");
         LOG.debug("Candidate1: {}" , this.printCandidate(cand1));
         LOG.debug("Candidate2: {}" , this.printCandidate(cand2));
         
-        if(cand1.size() > cand2.size()) {            
+        if (cand1.size() > cand2.size()) {
             LOG.debug("Returning cand1");
         } else {            
             LOG.debug("Returning cand2");
@@ -405,16 +391,11 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
     private String printCandidate(Collection<AbstractNodeTemplate> nodeTemplates) {
         String print = "{";
-        
-        
+
         AbstractNodeTemplate[] nodes = nodeTemplates.toArray(new AbstractNodeTemplate[nodeTemplates.size()]);
-        
-        
-        for(int i = 0 ; i < nodes.length; i++) {
-            
+        for (int i = 0 ; i < nodes.length; i++) {
             print += nodes[i].getId();
-            
-            if(i+1 < nodes.length) {
+            if (i + 1 < nodes.length) {
                 print += ",";
             }
         }
@@ -468,12 +449,12 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     private boolean mappingEquals(AbstractRelationshipTemplate rel1, AbstractRelationshipTemplate rel2) {        
-        if(!rel1.getType().equals(rel2.getType())) {
+        if (!rel1.getType().equals(rel2.getType())) {
             return false;
         }
         
         // really weak and messy check incoming!
-        if(!(this.mappingEquals(rel1.getSource(), rel2.getSource()) && this.mappingEquals(rel1.getTarget(), rel2.getTarget()))) {
+        if (!(this.mappingEquals(rel1.getSource(), rel2.getSource()) && this.mappingEquals(rel1.getTarget(), rel2.getTarget()))) {
             return false;
         }
         
@@ -485,7 +466,6 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         if (!node1.getType().getId().equals(node2.getType().getId())) {
             return false;
         }
-
 
         if (node1.getDeploymentArtifacts().size() != node2.getDeploymentArtifacts().size()) {
             return false;
@@ -502,12 +482,11 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
                         }
                     }
                 }
-                if(!matched) {
+                if (!matched) {
                     return false;
                 }
             }
         }
-
 
         // Maybe add it later
 

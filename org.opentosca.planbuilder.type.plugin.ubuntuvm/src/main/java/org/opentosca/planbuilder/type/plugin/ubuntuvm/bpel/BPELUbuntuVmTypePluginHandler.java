@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,14 +45,14 @@ import org.xml.sax.SAXException;
  */
 public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<BPELPlanContext> {
 
-    private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePluginHandler.class);
-    
     public static final QName noPublicAccessPolicyType =
         new QName("http://opentosca.org/policytypes", "NoPublicAccessPolicy");
     public static final QName publicAccessPolicyType =
         new QName("http://opentosca.org/policytypes", "PublicAccessPolicy");
     public static final QName onlyModeledPortsPolicyType =
         new QName("http://opentosca.org/policytypes", "OnlyModeledPortsPolicyType");
+
+    private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePluginHandler.class);
 
     // create method external input parameters without CorrelationId (old)
     private final static String[] createEC2InstanceExternalInputParams =
@@ -1191,7 +1190,6 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
     private Variable getUbtuntuAMIId(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         PropertyVariable vmImageId = context.getPropertyVariable("VMImageID", true);
 
-        
         // here either the ubuntu connected to the provider this handler is
         // working on hasn't a version in the ID (ubuntu version must be written
         // in AMIId property then) or something went really wrong

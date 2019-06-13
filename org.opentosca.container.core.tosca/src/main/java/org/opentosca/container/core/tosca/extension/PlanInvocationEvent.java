@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.namespace.QName;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.omg.Dynamic.Parameter;
 
 @XmlRootElement(name = "PlanInvocationEvent")

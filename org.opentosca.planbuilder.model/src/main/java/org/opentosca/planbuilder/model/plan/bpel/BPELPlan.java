@@ -34,12 +34,6 @@ import org.w3c.dom.Element;
  */
 public class BPELPlan extends AbstractPlan {
 
-    public BPELPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
-                    final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
-                    final Collection<Link> links) {
-        super(id, type, definitions, serviceTemplate, activities, links);
-    }
-
     /**
      * <p>
      * Defines which variables the model allows to define
@@ -51,7 +45,7 @@ public class BPELPlan extends AbstractPlan {
      *
      */
     public enum VariableType {
-        MESSAGE, TYPE, ELEMENT
+        MESSAGE, TYPE, ELEMENT;
     }
 
     /**
@@ -80,20 +74,25 @@ public class BPELPlan extends AbstractPlan {
         }
     }
 
+    public static final String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
+    public static final String xpath2Namespace = "urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0";
+
+    public Map<String, String> namespaceMap = new HashMap<>();
+
     // xml document
     private Document bpelProcessDocument;
-
     // variables associated with the bpel xml document itself
+
     private Element bpelProcessElement;
     private Element bpelExtensionsElement;
     private List<Element> bpelImportElements;
     private Element bpelPartnerLinksElement;
     private Element bpelProcessVariablesElement;
-   
     private Element bpelFaultHandlersElement;
 
     // variables associated with the bpel orchestration
     // the main sequence element of this process
+
     private Element bpelMainSequenceElement;
     // assign element for property assigns
     private Element bpelMainSequencePropertyAssignElement;
@@ -107,33 +106,33 @@ public class BPELPlan extends AbstractPlan {
     // will work on
     private Element bpelMainFlowElement;
     private Element bpelMainFlowLinksElement;
-
     // variable for TemplateBuildPlans, makes it easier or handlers and
     // planbuilder to hold it here extra
+
     private List<BPELScope> templateBuildPlans = new ArrayList<>();
     // imported files of the whole buildplan, to keep track for export
     private Set<File> importedFiles;
-
     // var for apache ode deployment deskriptor
-    private Deploy deploymentDeskriptor;
 
+    private Deploy deploymentDeskriptor;
     // the file name of the csar the serviceTemplate and this buildPlan belongs
     // to
+
     private String csarName = null;
-
     // wsdl related stuff
-    private GenericWsdlWrapper processWsdl = null;   
 
+    private GenericWsdlWrapper processWsdl = null;
     private Map<AbstractActivity, BPELScope> abstract2bpelMap;
 
-    public static final String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
-
-    public static final String xpath2Namespace = "urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0";
-
     private String toscaInterfaceName = null;
+
     private String toscaOperationName = null;
 
-    public Map<String, String> namespaceMap = new HashMap<>();
+    public BPELPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
+                    final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
+                    final Collection<Link> links) {
+      super(id, type, definitions, serviceTemplate, activities, links);
+    }
 
     public void setTOSCAInterfaceName(final String name) {
         this.toscaInterfaceName = name;
@@ -150,7 +149,7 @@ public class BPELPlan extends AbstractPlan {
             return this.bpelProcessElement.getAttribute("name");
         }
     }
-    
+
     public String getProcessNamespace() {
         return this.bpelProcessElement.getAttribute("targetNamespace");
     }
@@ -535,8 +534,6 @@ public class BPELPlan extends AbstractPlan {
     public void setBpelMainSequenceOutputAssignElement(final Element bpelMainSequenceOutputAssignElement) {
         this.bpelMainSequenceOutputAssignElement = bpelMainSequenceOutputAssignElement;
     }
-
-    
 
     public void setAbstract2BPELMapping(final Map<AbstractActivity, BPELScope> abstract2bpelMap) {
         this.abstract2bpelMap = abstract2bpelMap;

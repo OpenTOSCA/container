@@ -32,6 +32,4 @@ public class Variable {
     public String getVariableName() {
         return this.variableName;
     }
-
-
 }

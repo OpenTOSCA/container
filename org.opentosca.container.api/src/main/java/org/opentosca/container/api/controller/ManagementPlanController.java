@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @Api
+// not marked as @RestController because instantiation is controlled by parent resource
 //@RestController
 public class ManagementPlanController {
 

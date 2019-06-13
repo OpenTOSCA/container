@@ -1,8 +1,6 @@
 package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
@@ -31,9 +29,9 @@ public class PropertyVariableHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(PropertyVariableHandler.class);
 
-    private final BPELPlanHandler planHandler;
-
     private final static String TOSCAPROPERTYSUFFIX = "toscaProperty";
+
+    private final BPELPlanHandler planHandler;
 
     /**
      * Constructor
@@ -178,7 +176,6 @@ public class PropertyVariableHandler {
 
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
                 String propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);
-
 
                 while (!this.planHandler.addStringVariable(propVarName, templatePlan.getBuildPlan())) {
                     propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);

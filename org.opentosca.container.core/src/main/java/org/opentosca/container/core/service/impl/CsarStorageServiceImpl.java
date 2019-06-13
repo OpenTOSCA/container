@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -158,7 +157,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
       }
       throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
     }
-    assert(importInfo != null);
+    assert (importInfo != null);
     // if (importInfo == null || !importInfo.errors.isEmpty()) {
     //   LOGGER.info("Import failed with information ", importInfo);
     //   throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported: ");

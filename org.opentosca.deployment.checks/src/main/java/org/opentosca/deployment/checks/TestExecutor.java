@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 

@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -170,7 +169,6 @@ public class Exporter extends AbstractExporter {
             final TPlan generatedPlanElement = generateTPlanElement(plan);
             planList.add(generatedPlanElement);
             plansToExport.add(plan);
-
 
             TExportedInterface exportedIface = null;
 

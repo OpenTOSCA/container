@@ -25,7 +25,7 @@ public class ScalingPlanDefinition {
 
     // topology
     public String name;
-    AbstractTopologyTemplate topology;
+    public AbstractTopologyTemplate topology;
 
     // region
     public List<AbstractNodeTemplate> nodeTemplates;

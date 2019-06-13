@@ -34,7 +34,6 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;

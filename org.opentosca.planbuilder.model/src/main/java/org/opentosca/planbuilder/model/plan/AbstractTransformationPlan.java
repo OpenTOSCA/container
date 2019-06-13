@@ -2,7 +2,6 @@ package org.opentosca.planbuilder.model.plan;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -33,36 +32,36 @@ public class AbstractTransformationPlan extends AbstractPlan {
         return this.targetServiceTemplate;
     }
     
-    public Collection<AbstractNodeTemplate> getHandledSourceServiceTemplateNodes(){
+    public Collection<AbstractNodeTemplate> getHandledSourceServiceTemplateNodes() {
         return this.getHandledServiceTemplateNodes(this.getServiceTemplate());        
     }
     
-    public Collection<AbstractRelationshipTemplate> getHandledSourceServiceTemplateRelations(){
+    public Collection<AbstractRelationshipTemplate> getHandledSourceServiceTemplateRelations() {
         return this.getHandledServiceTemplateRelations(this.getServiceTemplate());
     }
     
-    public Collection<AbstractNodeTemplate> getHandledTargetServiceTemplateNodes(){
+    public Collection<AbstractNodeTemplate> getHandledTargetServiceTemplateNodes() {
         return this.getHandledServiceTemplateNodes(this.targetServiceTemplate);
     }
     
-    public Collection<AbstractRelationshipTemplate> getHandledTargetServiceTemplateRelations(){
+    public Collection<AbstractRelationshipTemplate> getHandledTargetServiceTemplateRelations() {
         return this.getHandledServiceTemplateRelations(this.targetServiceTemplate);
     }
     
-    private Collection<AbstractRelationshipTemplate> getHandledServiceTemplateRelations(AbstractServiceTemplate serviceTemplate){
+    private Collection<AbstractRelationshipTemplate> getHandledServiceTemplateRelations(AbstractServiceTemplate serviceTemplate) {
         Collection<AbstractRelationshipTemplate> handledServiceTemplateRelations = new HashSet<AbstractRelationshipTemplate>();
-        for(AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
-            if(!this.findRelationshipTemplateActivities(relation).isEmpty()) {
+        for (AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
+            if (!this.findRelationshipTemplateActivities(relation).isEmpty()) {
                 handledServiceTemplateRelations.add(relation);
             }
         }
         return handledServiceTemplateRelations;
     }
     
-    private Collection<AbstractNodeTemplate> getHandledServiceTemplateNodes(AbstractServiceTemplate serviceTemplate){
+    private Collection<AbstractNodeTemplate> getHandledServiceTemplateNodes(AbstractServiceTemplate serviceTemplate) {
         Collection<AbstractNodeTemplate> handledServiceTemplateNodes = new HashSet<AbstractNodeTemplate>();
-        for(AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-            if(!this.findNodeTemplateActivities(node).isEmpty()) {
+        for (AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+            if (!this.findNodeTemplateActivities(node).isEmpty()) {
                 handledServiceTemplateNodes.add(node);
             }
         }

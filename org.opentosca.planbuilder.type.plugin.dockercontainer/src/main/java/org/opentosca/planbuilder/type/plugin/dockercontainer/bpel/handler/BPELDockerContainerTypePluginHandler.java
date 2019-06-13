@@ -140,10 +140,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         // determine whether we work with an ImageId or a zipped DockerContainer
         final PropertyVariable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
 
-
-
         /* volume data handling */
-
         // <ContainerMountPath>/etc/openmtc/certs</ContainerMountPath>
         // <HostMountFiles>/home/ubuntu/ca-smartorchestra.crt</HostMountFiles>
 
@@ -171,8 +168,6 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                 vmPrivateKeyVariable = findPrivateKey(templateContext, infraNode);
             }
         }
-
-
 
         if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
             // handle with DA -> construct URL to the DockerImage .zip
@@ -233,7 +228,6 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
     private Variable createRemoteVolumeDataInputVariable(final List<AbstractDeploymentArtifact> das,
                                                          final BPELPlanContext context) {
-
 
         final Variable remoteVolumeDataVariable =
             context.createGlobalStringVariable("remoteVolumeData" + System.currentTimeMillis(), "");
@@ -318,8 +312,6 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
                                 envVarXpathQuery += ",$" + refProp.getVariableName();
                                 varContent = varContent.replace(dynamicContent + "]", "");
-
-
                             } else {
                                 String staticContent;
                                 if (startIndex == -1) {
@@ -407,9 +399,6 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
          * Variable remoteVolumeDataVariable = null; Variable hostVolumeDataVariable = null; Variable
          * vmIpVariable = null; Variable vmPrivateKeyVariable = null;
          */
-
-
-
         context.addStringValueToPlanRequest("csarEntrypoint");
         final String artifactPathQuery =
             this.planBuilderFragments.createXPathQueryForURLRemoteFilePath(da.getArtifactRef().getArtifactReferences()
@@ -497,7 +486,6 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                         final Variable envMappingVar, final Variable containerMountPath,
                                         final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
                                         final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
-
 
         // map properties to input and output parameters
         final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();

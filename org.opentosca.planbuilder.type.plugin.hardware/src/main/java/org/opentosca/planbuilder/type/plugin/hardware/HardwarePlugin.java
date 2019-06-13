@@ -11,8 +11,6 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
-import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,16 +124,14 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
         return Utils.isSupportedHardwareNodeType(type);        
     }
     
-    private Collection<AbstractNodeTemplate> getDependecies(AbstractNodeTemplate nodeTemplate){
+    private Collection<AbstractNodeTemplate> getDependecies(AbstractNodeTemplate nodeTemplate) {
         Collection<AbstractNodeTemplate> deps = new HashSet<AbstractNodeTemplate>();
      // if it is supported hardware is should be connected to some kind of device
-        for(AbstractRelationshipTemplate rel : nodeTemplate.getIngoingRelations()) {
-            if(ModelUtils.isCommunicationRelationshipType(rel.getType()) && Utils.isSupportedDeviceNodeType(rel.getSource().getType().getId())) {
+        for (AbstractRelationshipTemplate rel : nodeTemplate.getIngoingRelations()) {
+            if (ModelUtils.isCommunicationRelationshipType(rel.getType()) && Utils.isSupportedDeviceNodeType(rel.getSource().getType().getId())) {
                 deps.add(rel.getSource());
             }
         }
         return deps;
     }
-
-
 }

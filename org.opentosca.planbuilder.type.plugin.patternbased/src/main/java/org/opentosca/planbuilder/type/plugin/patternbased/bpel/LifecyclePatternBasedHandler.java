@@ -65,7 +65,6 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         return result;
     }
 
-
     private boolean isImplementedAsScript(AbstractInterface iface, AbstractOperation op,
                                           AbstractNodeTemplate nodeTemplate) {
         for (AbstractNodeTypeImplementation impl : nodeTemplate.getImplementations()) {
