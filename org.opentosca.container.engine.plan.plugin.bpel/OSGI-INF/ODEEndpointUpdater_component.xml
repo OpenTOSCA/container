@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="ODEEndpointUpdater">
-   <implementation class="org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater"/>
-   <reference bind="bindEndpointService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreEndpointService" name="ICoreEndpointService" policy="dynamic" unbind="unbindEndpointService"/>
-</scr:component>
