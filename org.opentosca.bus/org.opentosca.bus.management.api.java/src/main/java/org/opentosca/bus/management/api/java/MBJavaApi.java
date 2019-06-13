@@ -48,18 +48,11 @@ public class MBJavaApi implements IManagementBus {
   private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
   private final CamelContext camelContext;
-  private final IManagementBusService busService;
 
   @Inject
   public MBJavaApi(CamelContext camelContext, IManagementBusService busService) {
     this.camelContext = camelContext;
-    this.busService = busService;
     LOG.info("Starting direct Java invocation API for Management Bus");
-    try {
-      camelContext.addRoutes(new org.opentosca.bus.management.api.java.route.Route(busService));
-    } catch (Exception e) {
-      LOG.warn("Could not add Java invocation API management routes to camel context.", e);
-    }
   }
 
   @Override

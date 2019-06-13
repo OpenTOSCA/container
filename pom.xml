@@ -17,6 +17,7 @@
     <camel.version>2.18.3</camel.version>
     <jaxb.version>2.2.11</jaxb.version>
     <spring.version>4.3.18.RELEASE</spring.version>
+    <apache.cxf.version>3.1.10</apache.cxf.version>
   </properties>
 
   <repositories>

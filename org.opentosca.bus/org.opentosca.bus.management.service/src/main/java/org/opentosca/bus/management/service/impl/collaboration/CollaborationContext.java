@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * CollaborationContext of the Management Bus.<br>
@@ -35,7 +36,7 @@ public class CollaborationContext {
   final private static Logger LOG = LoggerFactory.getLogger(CollaborationContext.class);
 
   @Inject
-  public CollaborationContext(CamelContext camelContext) {
+  public CollaborationContext(@Named("collaboration-camel-context") CamelContext camelContext) {
     this.camelContext = camelContext;
     // Create a producer template for all components of the Management Bus implementation.
     // This is recommended by camel to avoid the usage of too many threads.

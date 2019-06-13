@@ -26,6 +26,14 @@
       <artifactId>camel-jaxb</artifactId>
       <version>${camel.version}</version>
     </dependency>
+
+    <!-- required dependency for INVOKE_ENDPOINT construction -->
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-transports-http-jetty</artifactId>
+      <version>${apache.cxf.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.bus.management.service</artifactId>

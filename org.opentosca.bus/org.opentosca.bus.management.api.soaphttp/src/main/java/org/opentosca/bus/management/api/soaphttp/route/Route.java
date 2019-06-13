@@ -1,6 +1,7 @@
 package org.opentosca.bus.management.api.soaphttp.route;
 
 import java.net.URL;
+import java.util.logging.LogManager;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -16,8 +17,10 @@ import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.opentosca.bus.management.api.soaphttp.processor.RequestProcessor;
 import org.opentosca.bus.management.api.soaphttp.processor.ResponseProcessor;
+import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.legacy.core.engine.IToscaEngineService;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -47,17 +50,24 @@ public class Route extends RouteBuilder {
 
   private final static String ENDPOINT = "http://0.0.0.0:8081/invoker";
 
+  // Checks if invoking a IA
+  final Predicate IS_INVOKE_IA = header(CxfConstants.OPERATION_NAME).isEqualTo("invokeIA");
+
+  // Checks if invoking a Plan
+  final Predicate IS_INVOKE_PLAN = header(CxfConstants.OPERATION_NAME).isEqualTo("invokePlan");
+
   private final IToscaEngineService toscaEngineService;
+  private final IManagementBusService managementBusService;
 
   @Inject
-  public Route(IToscaEngineService toscaEngineService){
+  public Route(IToscaEngineService toscaEngineService, IManagementBusService managementBusService){
     this.toscaEngineService = toscaEngineService;
+    this.managementBusService = managementBusService;
   }
 
   @Override
   public void configure() throws Exception {
-
-    final URL wsdlURL = this.getClass().getClassLoader().getResource("META-INF/wsdl/invoker.wsdl");
+    final URL wsdlURL = this.getClass().getClassLoader().getResource("wsdl/invoker.wsdl");
 
     // CXF Endpoints
     final String INVOKE_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString()
@@ -66,18 +76,6 @@ public class Route extends RouteBuilder {
     final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL.toString()
       + "&serviceName={http://siserver.org/wsdl}InvokerService&portName={http://siserver.org/wsdl}CallbackPort&dataFormat=PAYLOAD&loggingFeatureEnabled=true&headerFilterStrategy=#"
       + CxfHeaderFilterStrategy.class.getName();
-
-    // Management Bus Endpoints
-    final String MANAGEMENT_BUS_IA =
-      "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
-    final String MANAGEMENT_BUS_PLAN =
-      "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
-
-    // Checks if invoking a IA
-    final Predicate INVOKE_IA = header(CxfConstants.OPERATION_NAME).isEqualTo("invokeIA");
-
-    // Checks if invoking a Plan
-    final Predicate INVOKE_PLAN = header(CxfConstants.OPERATION_NAME).isEqualTo("invokePlan");
 
     // Checks if invoke is sync or async
     final Predicate MESSAGEID = header("MessageID").isNotNull();
@@ -94,8 +92,14 @@ public class Route extends RouteBuilder {
     final Processor requestProcessor = new RequestProcessor(toscaEngineService);
     final Processor responseProcessor = new ResponseProcessor();
 
-    this.from(INVOKE_ENDPOINT).unmarshal(requestJaxb).process(requestProcessor).choice().when(INVOKE_IA)
-      .to(MANAGEMENT_BUS_IA).when(INVOKE_PLAN).to(MANAGEMENT_BUS_PLAN).end();
+    this.from(INVOKE_ENDPOINT)
+      .unmarshal(requestJaxb)
+      .process(requestProcessor)
+      .choice().when(IS_INVOKE_IA)
+        .bean(managementBusService, "invokeIA")
+      .when(IS_INVOKE_PLAN)
+        .bean(managementBusService, "invokePlan")
+      .end();
 
     this.from("direct-vm:" + RequestProcessor.API_ID).process(responseProcessor).marshal(responseJaxb).choice().when(ASYNC)
       .recipientList(this.simple(CALLBACK_ENDPOINT)).end();

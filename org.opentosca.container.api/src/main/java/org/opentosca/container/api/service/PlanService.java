@@ -42,13 +42,15 @@ public class PlanService {
 
   private static final PlanTypes[] ALL_PLAN_TYPES = PlanTypes.values();
 
-  @Inject
-  private OpenToscaControlService controlService;
-
-  @Inject
-  private DeploymentTestService deploymentTestService;
-
+  private final OpenToscaControlService controlService;
+  private final DeploymentTestService deploymentTestService;
   private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
+
+  @Inject
+  public PlanService(OpenToscaControlService controlService, DeploymentTestService deploymentTestService) {
+    this.controlService = controlService;
+    this.deploymentTestService = deploymentTestService;
+  }
 
   public List<PlanInstance> getPlanInstances(final Csar csar, final TServiceTemplate serviceTemplate, String planName, final PlanTypes... planTypes) {
     TPlan plan = csar.plans().stream()
@@ -171,13 +173,5 @@ public class PlanService {
         param.setValue(containerRepoUrl);
       }
     }
-  }
-
-  public void setControlService(final OpenToscaControlService controlService) {
-    this.controlService = controlService;
-  }
-
-  public void setDeploymentTestService(final DeploymentTestService deploymentTestService) {
-    this.deploymentTestService = deploymentTestService;
   }
 }

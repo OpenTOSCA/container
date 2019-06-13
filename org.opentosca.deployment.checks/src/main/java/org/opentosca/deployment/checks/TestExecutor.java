@@ -28,7 +28,6 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 
-@Component
 public class TestExecutor {
 
   private static Logger logger = LoggerFactory.getLogger(TestExecutor.class);

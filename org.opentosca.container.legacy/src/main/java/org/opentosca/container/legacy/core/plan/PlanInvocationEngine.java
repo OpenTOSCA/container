@@ -345,7 +345,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
       LOG.debug("Deployment Rules are fulfilled. Continuing the provisioning.");
     }
 
-    LOG.info("Invoke the Plan \"" + givenPlan.getId() + "\" of type \"" + givenPlan.getPlanType() + "\" of CSAR \"" + csarID + "\".");
+    LOG.info("Invoke the Plan \"{}\" of type \"{}\" of CSAR \"{}\".", givenPlan.getId(), givenPlan.getPlanType(), csarID.csarName());
     final PlanInvocationEvent planEvent = buildPlanInvocationEvent(csarID, serviceTemplate, csar, storedPlan);
 
     processInputParameters(givenPlan, storedPlan, planEvent);

@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.namespace.QName;
 
 import org.apache.camel.*;
@@ -60,7 +61,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
   private final CamelContext camelContext;
 
   @Inject
-  public ManagementBusInvocationPluginScript(IToscaEngineService toscaEngineService, ArtifactTypesHandler typesHandler, CamelContext camelContext) {
+  public ManagementBusInvocationPluginScript(IToscaEngineService toscaEngineService, ArtifactTypesHandler typesHandler, @Named("fallback") CamelContext camelContext) {
     this.toscaEngineService = toscaEngineService;
     this.typesHandler = typesHandler;
     this.camelContext = camelContext;

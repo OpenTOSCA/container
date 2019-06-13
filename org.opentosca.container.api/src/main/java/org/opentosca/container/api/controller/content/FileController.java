@@ -33,7 +33,7 @@ public class FileController {
   public FileController(final AbstractFile file) {
     Objects.nonNull(file);
     this.file = file;
-    logger.info("File path: {}", file.getPath());
+    logger.debug("File path: {}", file.getPath());
   }
 
   @GET

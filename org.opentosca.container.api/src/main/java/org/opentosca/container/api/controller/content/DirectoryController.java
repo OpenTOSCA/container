@@ -26,7 +26,7 @@ public class DirectoryController {
   public DirectoryController(final AbstractDirectory directory) {
     Objects.nonNull(directory);
     this.directory = directory;
-    logger.info("Directory path: {}", directory.getPath());
+    logger.debug("Directory path: {}", directory.getPath());
   }
 
   @GET

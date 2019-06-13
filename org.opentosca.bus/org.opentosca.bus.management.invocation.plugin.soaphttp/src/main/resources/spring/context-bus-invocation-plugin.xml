@@ -13,8 +13,16 @@
 
   <context:annotation-config />
 
-  <bean class="org.opentosca.bus.management.invocation.plugin.soaphttp.ManagementBusInvocationPluginSoapHttp" />
+  <camel:camelContext id="mb-invoke-plugin-soaphttp-camel-context" >
+    <camel:packageScan>
+      <camel:package>org.opentosca.bus.management.invocation.plugin.soaphttp.route</camel:package>
+      <camel:package>org.opentosca.bus.management.invocation.plugin.soaphttp.processor</camel:package>
+    </camel:packageScan>
+  </camel:camelContext>
 
-  <context:component-scan base-package="org.opentosca.bus.management.invocation.plugin.soaphttp.route" />
-  <context:component-scan base-package="org.opentosca.bus.management.invocation.plugin.soaphttp.processor" />
+  <bean class="org.opentosca.bus.management.invocation.plugin.soaphttp.ManagementBusInvocationPluginSoapHttp">
+    <constructor-arg type="org.apache.camel.CamelContext" ref="mb-invoke-plugin-soaphttp-camel-context" />
+  </bean>
+
+
 </beans>

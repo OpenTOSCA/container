@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -64,7 +65,7 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
   private final CamelContext camelContext;
 
   @Inject
-  public ManagementBusInvocationPluginRest(CamelContext camelContext) {
+  public ManagementBusInvocationPluginRest(@Named("fallback") CamelContext camelContext) {
     this.camelContext = camelContext;
   }
 

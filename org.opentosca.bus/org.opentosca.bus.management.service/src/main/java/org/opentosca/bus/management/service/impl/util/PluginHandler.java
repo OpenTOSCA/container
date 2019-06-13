@@ -67,7 +67,7 @@ public class PluginHandler {
     if (invocationPlugin != null) {
       exchange = invocationPlugin.invoke(exchange);
     } else {
-      LOG.warn("No matching plug-in found!");
+      LOG.warn("No matching invocation plug-in found for invocation type {}!", invocationType);
     }
     return exchange;
   }
@@ -98,7 +98,7 @@ public class PluginHandler {
     if (deploymentPlugin != null) {
       exchange = deploymentPlugin.invokeImplementationArtifactDeployment(exchange);
     } else {
-      LOG.warn("No matching plug-in found!");
+      LOG.warn("No matching deployment plug-in found for deployment type {}!", deploymentType);
     }
     return exchange;
   }

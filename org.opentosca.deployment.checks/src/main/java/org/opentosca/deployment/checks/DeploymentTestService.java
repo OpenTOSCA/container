@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -20,9 +21,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
-@Service
 public class DeploymentTestService {
 
   private static final Logger logger = LoggerFactory.getLogger(DeploymentTestService.class);
@@ -32,10 +31,12 @@ public class DeploymentTestService {
 
   private final ExecutorService pool = Executors.newFixedThreadPool(5);
 
-  private org.opentosca.deployment.checks.TestExecutor executor;
+  private final TestExecutor executor;
 
-  public DeploymentTestService() {
+  @Inject
+  public DeploymentTestService(TestExecutor executor) {
     logger.debug("Instantiating DeploymentTestService");
+    this.executor = executor;
   }
 
   /**
@@ -121,10 +122,5 @@ public class DeploymentTestService {
     logger.info("Deployment test is running in background...");
 
     return result;
-  }
-
-  public void setTestExecutor(final TestExecutor executor) {
-    logger.debug("Binding TestExecutor");
-    this.executor = executor;
   }
 }
