@@ -11,11 +11,10 @@
   </description>
   <context:annotation-config />
 
+  <!-- processors are not ready for DI -->
   <camel:camelContext id="mb-api-rest-camel-context" >
     <camel:packageScan>
       <camel:package>org.opentosca.bus.management.api.resthttp.route</camel:package>
-      <!-- The routes manually depend on the processors by way of hard coupling -->
-      <!-- <camel:package>org.opentosca.bus.management.api.resthttp.processor</camel:package>-->
     </camel:packageScan>
   </camel:camelContext>
 </beans>
