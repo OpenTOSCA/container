@@ -2,9 +2,14 @@ package org.opentosca.bus.management.invocation.plugin.script.typeshandler;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.*;
 import java.util.*;
+import java.util.jar.JarFile;
 
 import javax.inject.Singleton;
 import javax.xml.bind.JAXBContext;
@@ -33,23 +38,41 @@ public class ArtifactTypesHandler {
 
   public ArtifactTypesHandler() {
     LOG.debug("Registering the supported ArtifactTypes...");
-    final File typesFolder;
     try {
       URL artifactTypeFolder = getClass().getClassLoader().getResource(ARTIFACT_TYPES_DEFINTION_FOLDER);
-      typesFolder = new File(artifactTypeFolder.toURI());
+      LOG.info("Artifact Type Folder is: {}", artifactTypeFolder.toString());
+      if (artifactTypeFolder.getProtocol().startsWith("jar")) {
+        // split resolved jar-URL into jarfile and entry path
+        String[] parts = artifactTypeFolder.toString().split("!");
+        assert (parts.length == 2);
+        try (FileSystem jarRelativeFileSystem = FileSystems.newFileSystem(URI.create(parts[0]),Collections.emptyMap())) {
+          Path typesFolder = jarRelativeFileSystem.getPath(parts[1]);
+          readArtifactTypes(typesFolder);
+        } catch (IOException e) {
+          LOG.error("Failed to create filesystem for jar file {} to read Artifact Type definitions", artifactTypeFolder, e);
+          return;
+        }
+      } else {
+        readArtifactTypes(Paths.get(artifactTypeFolder.toURI()));
+      }
     } catch (final URISyntaxException e) {
       LOG.error("Failed to transform resource URL to File reference", e);
       // Do not under any circumstances blow up the containing JVM by throwing something here
       return;
     }
+    LOG.info("Registered {} Artifact Types", artifactTypes.size());
+  }
 
-    final File[] typeDefinitions;
-    if (typesFolder != null && typesFolder.isDirectory()) {
-      typeDefinitions = typesFolder.listFiles((FileFilter) pathname -> {
-        final String name = pathname.getName().toLowerCase();
-        return name.endsWith(".xml") && pathname.isFile();
-      });
-    } else {
+  private void readArtifactTypes(Path baseDirectory) {
+    Path[] xmlFiles;
+    try {
+      xmlFiles = Files.find(baseDirectory, 1, (path, attrs) -> path.getFileName().toString().endsWith(".xml")).toArray(Path[]::new);
+    } catch (IOException e) {
+      LOG.warn("Failed to iterate artifact type containers", e);
+      return;
+    }
+
+    if (xmlFiles.length == 0) {
       LOG.debug("No supported ArtifactTypes found.");
       return;
     }
@@ -63,12 +86,15 @@ public class ArtifactTypesHandler {
       LOG.error("Coule not create JAXBContext for Artifacttype deserialization", e);
       return;
     }
-    for (final File typeDefinition : typeDefinitions) {
+    for (final Path typeDefinition : xmlFiles) {
       final Artifacttype artifactType;
-      try {
-        artifactType = (Artifacttype) jaxbUnmarshaller.unmarshal(typeDefinition);
+      try (InputStream is = Files.newInputStream(typeDefinition)){
+        artifactType = (Artifacttype) jaxbUnmarshaller.unmarshal(is);
       } catch (JAXBException e) {
         LOG.warn("Failed to deserialize type definition {} with JAXBException", typeDefinition, e);
+        continue;
+      } catch (IOException e) {
+        LOG.warn("Failed to read typeDefinition {} with IOException", typeDefinition, e);
         continue;
       }
       final String artifactTypeName = artifactType.getName();

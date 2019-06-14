@@ -33,6 +33,7 @@
         <configuration>
           <port>1337</port>
           <path>/</path>
+
         </configuration>
         <dependencies>
           <dependency>

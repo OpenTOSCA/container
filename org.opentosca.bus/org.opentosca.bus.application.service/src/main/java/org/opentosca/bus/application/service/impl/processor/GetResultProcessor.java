@@ -22,8 +22,9 @@ import org.springframework.stereotype.Component;
 @NonNullByDefault
 public class GetResultProcessor implements Processor {
 
-  final private static Logger LOG = LoggerFactory.getLogger(GetResultProcessor.class);
   public static final String BEAN_NAME = "getResultProcessor";
+
+  private static final Logger LOG = LoggerFactory.getLogger(GetResultProcessor.class);
 
   @Override
   public void process(final Exchange exchange) {
