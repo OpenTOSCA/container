@@ -43,8 +43,7 @@ public class Route extends RouteBuilder {
   @Override
   public void configure() throws Exception {
 
-    final ValueBuilder APP_BUS_ENDPOINT =
-      new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
+    final ValueBuilder APP_BUS_ENDPOINT = new ValueBuilder(method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
     final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
 
     final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
@@ -57,32 +56,32 @@ public class Route extends RouteBuilder {
 
     // handle exceptions
 
-    this.onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
+    onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
       .process(exceptionProcessor);
 
     // invoke route
-    this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT + "?restletMethod=post")
+    from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT + "?restletMethod=post")
       .process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
       .when(property(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor).removeHeaders("*")
       .otherwise().process(exceptionProcessor);
 
     // isFinished route
-    this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT + "?restletMethod=get")
+    from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT + "?restletMethod=get")
       .process(isFinishedRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).process(isFinishedResponseProcessor)
       .removeHeaders("*");
 
     // getResult route
-    this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT + "?restletMethod=get")
+    from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT + "?restletMethod=get")
       .process(getResultRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).process(getResultResponseProcessor)
       .removeHeaders("*");
 
     // applicationBus route, throws exception if Application Bus is not
     // running or wasn't binded
-    this.from(Route.TO_APP_BUS_ENDPOINT).choice().when(APP_BUS_ENDPOINT_EXISTS).recipientList(APP_BUS_ENDPOINT)
+    from(Route.TO_APP_BUS_ENDPOINT).choice().when(APP_BUS_ENDPOINT_EXISTS).recipientList(APP_BUS_ENDPOINT)
       .endChoice().otherwise().to("direct:handleException");
 
     // handle exception if Application Bus is not running or wasn't binded
-    this.from("direct:handleException")
+    from("direct:handleException")
       .throwException(new ApplicationBusInternalException("The Application Bus is not running."));
 
   }
