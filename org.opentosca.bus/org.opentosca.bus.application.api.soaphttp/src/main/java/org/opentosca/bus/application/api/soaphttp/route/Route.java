@@ -34,15 +34,15 @@ public class Route extends RouteBuilder {
   @Override
   public void configure() throws Exception {
 
-    final URL wsdlURL = this.getClass().getClassLoader().getResource("META-INF/wsdl/SoapAPI.wsdl");
+    final URL wsdlURL = this.getClass().getClassLoader().getResource("wsdl/SoapAPI.wsdl");
 
     // CXF Endpoint
     final String SOAP_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString()
       + "&serviceName={http://opentosca.org/appinvoker/}AppInvokerSoapWebServiceService&portName="
-      + Route.PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+      + PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
     final ValueBuilder APP_BUS_ENDPOINT =
-      new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
+      new ValueBuilder(method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
     final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
 
     final ClassLoader cl = org.opentosca.bus.application.api.soaphttp.model.ObjectFactory.class.getClassLoader();
@@ -52,18 +52,17 @@ public class Route extends RouteBuilder {
     final Processor requestProcessor = new RequestProcessor();
     final Processor responseProcessor = new ResponseProcessor();
 
-    this.from(SOAP_ENDPOINT).unmarshal(jaxb).process(requestProcessor).choice().when(APP_BUS_ENDPOINT_EXISTS)
+    from(SOAP_ENDPOINT).unmarshal(jaxb).process(requestProcessor).choice().when(APP_BUS_ENDPOINT_EXISTS)
+      //FIXME this recipientList should be replaced with a directly injected service reference
       .recipientList(APP_BUS_ENDPOINT).to("direct:handleResponse").endChoice().otherwise()
       .to("direct:handleException");
 
-    // handle exception if Application Bus is not running or wasn't binded
-    this.from("direct:handleException")
+    // handle exception if Application Bus is not running or wasn't bound
+    from("direct:handleException")
       .throwException(new ApplicationBusInternalException("It seems like the Application Bus is not running."))
       .to("direct:handleResponse");
 
     // handle response
-    this.from("direct:handleResponse").process(responseProcessor).marshal(jaxb);
-
+    from("direct:handleResponse").process(responseProcessor).marshal(jaxb);
   }
-
 }
