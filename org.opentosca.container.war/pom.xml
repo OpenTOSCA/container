@@ -137,6 +137,35 @@
       <artifactId>org.opentosca.container.api</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.application.service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.application.api.jsonhttp</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.application.api.resthttp</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.application.api.soaphttp</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.application.plugin.jsonhttp.service.impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.bus.management.service</artifactId>
@@ -206,6 +235,92 @@
       <artifactId>org.opentosca.container.engine.plan.plugin.bpel</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.postphase.plugin.instancedata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.postphase.plugin.monitoring</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.postphase.plugin.vinothek</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.prephase.plugin.fileupload</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.provphase.plugin.ansibleoperation</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.provphase.plugin.invoker</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.selection.plugin.firstavailable</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.selection.plugin.input</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.selection.plugin.mosquitto.workload</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.type.plugin.connectsto</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.type.plugin.dockercontainer</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.type.plugin.hardware</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.type.plugin.patternbased</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.type.plugin.platforms</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.planbuilder.type.plugin.ubuntuvm</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
 
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
