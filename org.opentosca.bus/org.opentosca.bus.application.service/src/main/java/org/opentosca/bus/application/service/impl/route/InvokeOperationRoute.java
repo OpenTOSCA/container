@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 public class InvokeOperationRoute extends RouteBuilder {
 
   public final static String APPLICATION_BUS_PLUGIN_ENDPOINT_HEADER = "ApplicationBusPluginEndpoint";
+
   private final static String APPLICATION_BUS_REQUEST_ID_HEADER = "ApplicationBusRequestID";
 
   @Override

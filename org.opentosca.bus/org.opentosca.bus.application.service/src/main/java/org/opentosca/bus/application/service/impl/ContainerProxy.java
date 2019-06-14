@@ -49,7 +49,7 @@ public class ContainerProxy {
   static final private String HOSTED_ON_NAMESPACE = "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes";
   static final private String HOSTED_ON_LOCALPART = "HostedOn";
 
-  final private static Logger LOG = LoggerFactory.getLogger(ContainerProxy.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ContainerProxy.class);
 
   private final IInstanceDataService instanceDataService;
   private final CsarStorageService storageService;
