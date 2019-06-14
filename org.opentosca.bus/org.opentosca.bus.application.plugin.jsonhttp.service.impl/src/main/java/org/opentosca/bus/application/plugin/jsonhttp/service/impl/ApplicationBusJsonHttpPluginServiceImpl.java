@@ -18,7 +18,7 @@ import org.opentosca.bus.application.plugin.service.IApplicationBusPluginService
 public class ApplicationBusJsonHttpPluginServiceImpl implements IApplicationBusPluginService {
 
   // Routing endpoint of the Application Bus bundle
-  public static final String ENDPOINT = "direct-vm:" + Activator.getBundleID();
+  public static final String ENDPOINT = "direct-vm:" + "org.opentosca.bus.application.plugin.jsonhttp.service.impl";
 
   private static final List<String> invocationTypes = Arrays.asList("JSON/HTTP");
 
