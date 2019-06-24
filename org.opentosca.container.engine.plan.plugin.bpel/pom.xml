@@ -32,6 +32,7 @@
       <artifactId>wsdl4j</artifactId>
       <version>1.6.2</version>
     </dependency>
+
     <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.container.connector.ode</artifactId>
@@ -46,14 +47,7 @@
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.container.legacy</artifactId>
       <version>${project.version}</version>
-      <scope>compile</scope>
     </dependency>
 
-    <!-- FIXME this module accessed axis from the bps connector module -->
-    <dependency>
-      <groupId>org.apache.axis2</groupId>
-      <artifactId>axis2</artifactId>
-      <version>1.7.9</version>
-    </dependency>
   </dependencies>
 </project>

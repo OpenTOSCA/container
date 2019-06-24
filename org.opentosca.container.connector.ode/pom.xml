@@ -12,48 +12,30 @@
   <artifactId>org.opentosca.container.connector.ode</artifactId>
 
   <dependencies>
-
     <dependency>
-      <groupId>org.apache</groupId>
+      <groupId>org.apache.axis</groupId>
       <artifactId>axis</artifactId>
-      <version>0.0.1-local</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/axis.jar</systemPath>
+      <version>1.4</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
+      <groupId>commons-discovery</groupId>
       <artifactId>commons-discovery</artifactId>
       <version>0.2</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/commons-discovery-0.2.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>javax.wsdl</groupId>
-      <artifactId>javax.wsdl</artifactId>
-      <version>1.6.2.v201012040545</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/javax.wsdl_1.6.2.v201012040545.jar</systemPath>
+      <groupId>wsdl4j</groupId>
+      <artifactId>wsdl4j</artifactId>
+      <version>1.6.2</version>
     </dependency>
     <dependency>
-      <groupId>javax.jax-rs.jaxrpc</groupId>
-      <artifactId>jaxrpc</artifactId>
-      <version>0.0.1-local</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/jaxrpc.jar</systemPath>
+      <groupId>org.apache.axis</groupId>
+      <artifactId>axis-jaxrpc</artifactId>
+      <version>1.4</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.1.1</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/org.apache.commons.logging_1.1.1.v201101211721.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>org.apache</groupId>
-      <artifactId>saaj</artifactId>
-      <version>0.0.1-local</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/saaj.jar</systemPath>
+      <groupId>org.apache.axis</groupId>
+      <artifactId>axis-saaj</artifactId>
+      <version>1.4</version>
     </dependency>
 
     <dependency>

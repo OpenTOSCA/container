@@ -10,7 +10,7 @@
   </parent>
 
   <properties>
-    <axis2.version>1.7.9</axis2.version>
+    <axis2.version>1.6.2</axis2.version>
   </properties>
 
   <artifactId>org.opentosca.container.connector.bps</artifactId>
@@ -37,11 +37,9 @@
       <systemPath>${project.basedir}/lib/axiom-1.2.14-osgi.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>org.apache</groupId>
-      <artifactId>axis2.osgi</artifactId>
+      <groupId>org.apache.axis2</groupId>
+      <artifactId>axis2</artifactId>
       <version>1.6.2</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/org.apache.axis2.osgi-1.6.2.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.apache.servicemix.bundles</groupId>

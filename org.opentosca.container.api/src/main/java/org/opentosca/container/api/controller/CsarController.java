@@ -290,6 +290,7 @@ public class CsarController {
     Thread parallelUploadThread = new Thread(() -> {
       if (wc.isWineryRepositoryAvailable()) {
         try {
+          // FIXME tempFile will always be deleted at this point see ln. 251
           strB.append(wc.uploadCSAR(tempFile.toFile(), false));
         }  catch (IOException | URISyntaxException e) {
           e.printStackTrace();

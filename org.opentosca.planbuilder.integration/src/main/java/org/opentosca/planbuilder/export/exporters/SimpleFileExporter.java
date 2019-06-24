@@ -104,7 +104,6 @@ public class SimpleFileExporter {
     final GenericWsdlWrapper wsdl = buildPlan.getWsdl();
 
     // generate temp folder
-    // FIXME something something common useage
     final Path tempFolder = Files.createTempDirectory(Long.toString(System.currentTimeMillis()));
     LOG.debug("Trying to write files to temp folder: " + tempFolder.toAbsolutePath());
 
