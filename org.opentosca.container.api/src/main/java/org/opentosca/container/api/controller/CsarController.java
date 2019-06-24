@@ -243,12 +243,11 @@ public class CsarController {
     try {
       csarId = storage.storeCSAR(tempFile);
     } catch (UserException e) {
+      FileUtils.forceDelete(tempFile);
       return Response.status(Status.CONFLICT).entity(e).build();
     } catch (SystemException e) {
-      return Response.serverError().entity(e).build();
-    } finally {
-      // delete temporarily stored file after import, regardless of outcome
       FileUtils.forceDelete(tempFile);
+      return Response.serverError().entity(e).build();
     }
 
     Csar storedCsar = storage.findById(csarId);
@@ -288,44 +287,47 @@ public class CsarController {
     // quick and dirty parallel thread to upload the csar to the container repository
     // This is needed for the state save feature
     Thread parallelUploadThread = new Thread(() -> {
-      if (wc.isWineryRepositoryAvailable()) {
-        try {
-          // FIXME tempFile will always be deleted at this point see ln. 251
+      try {
+        if (wc.isWineryRepositoryAvailable()) {
           strB.append(wc.uploadCSAR(tempFile.toFile(), false));
-        }  catch (IOException | URISyntaxException e) {
-          e.printStackTrace();
+          logger.info("Successfully uploaded csar to connected winery repository");
         }
+      } catch (IOException | URISyntaxException e) {
+        logger.warn("Failed to upload csar to winery with exception", e);
+      } finally {
+        FileUtils.forceDelete(tempFile);
       }
-    });
+    }, "winery-repository-upload-" + csarId.csarName());
 
     if (repoAvailable) {
       parallelUploadThread.start();
+    } else {
+      // deleting temp file because winery connector does not use it
+      FileUtils.forceDelete(tempFile);
     }
 
-    try {
-      if (ModelUtil.hasOpenRequirements(storedCsar)) {
-        if (repoAvailable) {
-          while (parallelUploadThread.isAlive()) {
-            // wait till the upload is finished
-          }
+    if (ModelUtil.hasOpenRequirements(storedCsar)) {
+      if (repoAvailable) {
+        try {
+          // wait till the upload is finished
+          parallelUploadThread.join();
           this.controlService.deleteCsar(csarId);
           return Response.status(Response.Status.NOT_ACCEPTABLE)
             .entity("{ \"Location\": \"" + wc.getServiceTemplateURI(QName.valueOf(strB.toString())).toString() + "\" }")
             .build();
-        } else {
-          logger.error("CSAR has open requirements but Winery repository is not available");
-          try {
-            this.storage.deleteCSAR(csarId);
-          } catch (Exception log) {
-            logger.warn("Failed to delete CSAR [{}] with open requirements on import", csarId.csarName());
-          }
+        } catch (final Exception e) {
+          logger.error("Error resolving open requirements: {}", e.getMessage(), e);
           return Response.serverError().build();
         }
+      } else {
+        logger.error("CSAR has open requirements but Winery repository is not available");
+        try {
+          this.storage.deleteCSAR(csarId);
+        } catch (Exception log) {
+          logger.warn("Failed to delete CSAR [{}] with open requirements on import", csarId.csarName());
+        }
+        return Response.serverError().build();
       }
-    }
-    catch (final Exception e) {
-      logger.error("Error resolving open requirements: {}", e.getMessage(), e);
-      return Response.serverError().build();
     }
 
     logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());
