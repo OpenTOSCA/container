@@ -119,6 +119,8 @@ public class PlacementService {
 												// add as alternative host since it got beaten by the latest cpbNode
 												alternativeHost = chosenHost;
 												chosenHost = cpbNode;
+											} else {
+												alternativeHost = cpbNode;
 											}
 										}
 										cpbNode.getPropertyMap().put(propertyKey, residue.toString());
