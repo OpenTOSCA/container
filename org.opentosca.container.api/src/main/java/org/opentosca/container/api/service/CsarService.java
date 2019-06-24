@@ -74,8 +74,8 @@ public class CsarService {
 
   public CsarId generateTransformationPlans(final CsarId sourceCsarId, final CsarId targetCsarId) {
 
-    final Importer planBuilderImporter = new Importer();
-    final Exporter planBuilderExporter = new Exporter(new FileAccessServiceImpl());
+//    final Importer planBuilderImporter = new Importer();
+//    final Exporter planBuilderExporter = new Exporter(new FileAccessServiceImpl());
 
     //planBuilderImporter.buildTransformationPlans(sourceCsarId.getFileName(), sourceDefinitions, targetCsarId.getFileName(), targetDefinitions)
     List<AbstractPlan> plans = planBuilderImporter.generateTransformationPlans(sourceCsarId.toOldCsarId(), targetCsarId.toOldCsarId());
@@ -85,7 +85,6 @@ public class CsarService {
     }
 
     final File file = planBuilderExporter.export(plans, sourceCsarId.toOldCsarId());
-
     try {
       storage.deleteCSAR(sourceCsarId);
       return storage.storeCSAR(file.toPath());
@@ -93,7 +92,6 @@ public class CsarService {
     catch (final Exception e) {
       logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
     }
-
     return null;
   }
 

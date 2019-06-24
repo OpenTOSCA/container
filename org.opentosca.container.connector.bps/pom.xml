@@ -15,10 +15,6 @@
 
   <artifactId>org.opentosca.container.connector.bps</artifactId>
 
-  <build>
-
-  </build>
-
   <dependencies>
     <dependency>
       <groupId>org.osgi</groupId>

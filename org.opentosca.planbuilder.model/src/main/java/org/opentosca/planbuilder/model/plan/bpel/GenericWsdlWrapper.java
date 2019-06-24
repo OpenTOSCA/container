@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.model.plan.bpel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,8 +11,8 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.io.FileUtils;
-import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.container.core.common.file.ResourceAccess;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -166,10 +167,14 @@ public class GenericWsdlWrapper {
    * @throws IOException is thrown when reading the internal file fails
    */
   public GenericWsdlWrapper(final BPELPlan.PlanType planType, final String inputOperationName) throws IOException {
-    //FrameworkUtil.getBundle(this.getClass()).getResource("genericProcessWsdl.wsdl");
     final URL url = getClass().getClassLoader().getResource("genericProcessWsdl.wsdl");
-    final File genericWsdlFile = new File(FileLocator.toFileURL(url).getPath());
-    this.genericWsdlFileAsString = FileUtils.readFileToString(genericWsdlFile);
+    try {
+      ResourceAccess wsdlResource = new ResourceAccess(url);
+      this.genericWsdlFileAsString = new String(Files.readAllBytes(wsdlResource.resolvedPath()));
+    } catch (IOException e) {
+      LoggerFactory.getLogger(GenericWsdlWrapper.class).warn("Could not read generic process wsdl from {} with exception", url, e);
+      this.genericWsdlFileAsString = "";
+    }
     this.partnerLinkTypeNames = new ArrayList<>();
     this.absoluteLocations = new ArrayList<>();
     this.inputMessageLocalNames = new ArrayList<>();

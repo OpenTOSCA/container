@@ -1,15 +1,10 @@
 package org.opentosca.bus.management.invocation.plugin.script.typeshandler;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
-import java.util.jar.JarFile;
 
 import javax.inject.Singleton;
 import javax.xml.bind.JAXBContext;
@@ -18,6 +13,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
 import org.opentosca.bus.management.invocation.plugin.script.model.artifacttypes.Artifacttype;
+import org.opentosca.container.core.common.file.ResourceAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -38,27 +34,18 @@ public class ArtifactTypesHandler {
 
   public ArtifactTypesHandler() {
     LOG.debug("Registering the supported ArtifactTypes...");
+    URL artifactTypeFolder = getClass().getClassLoader().getResource(ARTIFACT_TYPES_DEFINTION_FOLDER);
     try {
-      URL artifactTypeFolder = getClass().getClassLoader().getResource(ARTIFACT_TYPES_DEFINTION_FOLDER);
-      LOG.info("Artifact Type Folder is: {}", artifactTypeFolder.toString());
-      if (artifactTypeFolder.getProtocol().startsWith("jar")) {
-        // split resolved jar-URL into jarfile and entry path
-        String[] parts = artifactTypeFolder.toString().split("!");
-        assert (parts.length == 2);
-        try (FileSystem jarRelativeFileSystem = FileSystems.newFileSystem(URI.create(parts[0]),Collections.emptyMap())) {
-          Path typesFolder = jarRelativeFileSystem.getPath(parts[1]);
-          readArtifactTypes(typesFolder);
-        } catch (IOException e) {
-          LOG.error("Failed to create filesystem for jar file {} to read Artifact Type definitions", artifactTypeFolder, e);
-          return;
-        }
-      } else {
-        readArtifactTypes(Paths.get(artifactTypeFolder.toURI()));
-      }
-    } catch (final URISyntaxException e) {
+      ResourceAccess artifactTypes = new ResourceAccess(artifactTypeFolder);
+      readArtifactTypes(artifactTypes.resolvedPath());
+    } catch (final IOException e) {
+      LOG.error("Failed to read artifacttype definitions from {} with exception", artifactTypeFolder, e);
+    } catch (final IllegalArgumentException e) {
       LOG.error("Failed to transform resource URL to File reference", e);
-      // Do not under any circumstances blow up the containing JVM by throwing something here
-      return;
+    }
+    // Do not under any circumstances blow up the containing JVM by throwing something here
+    catch (final Throwable e) {
+      LOG.error("Failed to instantiate ArtifactTypesHandler with unexpected Throwable", e);
     }
     LOG.info("Registered {} Artifact Types", artifactTypes.size());
   }
@@ -83,7 +70,7 @@ public class ArtifactTypesHandler {
       jaxbContext = JAXBContext.newInstance(Artifacttype.class);
       jaxbUnmarshaller = jaxbContext.createUnmarshaller();
     } catch (final JAXBException e) {
-      LOG.error("Coule not create JAXBContext for Artifacttype deserialization", e);
+      LOG.error("Could not create JAXBContext for Artifacttype deserialization", e);
       return;
     }
     for (final Path typeDefinition : xmlFiles) {

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -126,7 +127,7 @@ public class BPELInvokerPluginHandler {
         final String logMsgReqVarName = "logMessage" + context.getIdForNames();
 
         try {
-            final File opentoscaApiSchemaFile = this.bpelFrags.getOpenTOSCAAPISchemaFile();
+            final Path opentoscaApiSchemaFile = this.bpelFrags.getOpenTOSCAAPISchemaFile();
             QName logMsgRequestQName = this.bpelFrags.getOpenToscaApiLogMsgReqElementQName();
             context.registerType(logMsgRequestQName, opentoscaApiSchemaFile);
             logMsgRequestQName = context.importQName(logMsgRequestQName);
@@ -245,8 +246,8 @@ public class BPELInvokerPluginHandler {
                           final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput,
                           final BPELScopePhaseType appendToPrePhase) throws IOException {
-        final File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
-        final File wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
+        final Path xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
+        final Path wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
         // register wsdls and xsd
         final QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), wsdlFile);
         final QName invokerCallbackPortType =

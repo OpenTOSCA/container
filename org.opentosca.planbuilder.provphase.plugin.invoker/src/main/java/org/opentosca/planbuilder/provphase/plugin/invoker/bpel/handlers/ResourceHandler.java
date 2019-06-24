@@ -7,7 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -17,6 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
@@ -52,12 +56,15 @@ public class ResourceHandler {
 
     }
 
-    public File createNewTempFile(final File file, final int id) throws IOException {
-        final File tempFile =
-            Files.createTempFile(file.getName().split("\\.")[0] + id, "." + file.getName().split("\\.")[1]).toFile();
+    public Path createNewTempFile(final Path file, final int id) throws IOException {
+      final String filename = file.getFileName().toString();
+      final String[] segments = filename.split("\\.", 2);
+      // we assume the given filename had a . in it!
+      assert (segments.length == 2);
+      final Path tempFile = Files.createTempFile(segments[0] + id, "." + segments[1]);
 
-        FileUtils.copyFile(file, tempFile);
-        return tempFile;
+      Files.copy(file, tempFile);
+      return tempFile;
     }
 
     /**
@@ -774,25 +781,27 @@ public class ResourceHandler {
         return new QName("http://siserver.org/wsdl", "InvokePortType");
     }
 
-    public File getServiceInvokerWSDLFile(final File invokerXsdFile, final int id) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("invoker.wsdl");
-        final File wsdlFile = new File(FileLocator.toFileURL(url).getPath());
+    public Path getServiceInvokerWSDLFile(final Path invokerXsdFile, final int id) throws IOException {
 
-        final File tempFile = createNewTempFile(wsdlFile, id);
+      final URL url = this.getClass().getResource("invoker.wsdl");
+      ResourceAccess access = new ResourceAccess(url);
 
-        final String fileName = invokerXsdFile.getName();
+      final Path wsdlFile = access.resolvedPath();
 
-        FileUtils.write(tempFile, FileUtils.readFileToString(tempFile).replaceAll("invoker.xsd", fileName));
+      final Path tempFile = createNewTempFile(wsdlFile, id);
 
-        return tempFile;
+      final String fileName = invokerXsdFile.getFileName().toString();
+
+      Files.write(tempFile, new String(Files.readAllBytes(tempFile)).replaceAll("invoker.xsd", fileName).getBytes());
+
+      return tempFile;
     }
 
-    public File getServiceInvokerXSDFile(final int id) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("invoker.xsd");
-        final File xsdFile = new File(FileLocator.toFileURL(url).getPath());
-        final File tempFile = createNewTempFile(xsdFile, id);
-        return tempFile;
-
+    public Path getServiceInvokerXSDFile(final int id) throws IOException {
+      final URL url = getClass().getResource("invoker.xsd");
+      ResourceAccess access = new ResourceAccess(url);
+      // FIXME formerly copied the file to a temporary file. Do we need that?
+      return access.resolvedPath();
     }
 
 }

@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.model.plan.bpel;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -111,7 +112,7 @@ public class BPELPlan extends AbstractPlan {
 
     private List<BPELScope> templateBuildPlans = new ArrayList<>();
     // imported files of the whole buildplan, to keep track for export
-    private Set<File> importedFiles;
+    private Set<Path> importedFiles;
     // var for apache ode deployment deskriptor
 
     private Deploy deploymentDeskriptor;
@@ -185,7 +186,7 @@ public class BPELPlan extends AbstractPlan {
      *
      * @return a List of File
      */
-    public Set<File> getImportedFiles() {
+    public Set<Path> getImportedFiles() {
         return this.importedFiles;
     }
 
@@ -194,7 +195,7 @@ public class BPELPlan extends AbstractPlan {
      *
      * @param files a List of File
      */
-    public void setImportedFiles(final Set<File> files) {
+    public void setImportedFiles(final Set<Path> files) {
         this.importedFiles = files;
     }
 
@@ -204,7 +205,7 @@ public class BPELPlan extends AbstractPlan {
      * @param file the File to add as imported file
      * @return true iff adding was successful
      */
-    public boolean addImportedFile(final File file) {
+    public boolean addImportedFile(final Path file) {
         return this.importedFiles.add(file);
     }
 

@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.core.bpel.handlers;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -184,7 +185,7 @@ public class BPELPlanHandler {
    * @param buildPlan the BuildPlan to add the file to
    * @return true if adding the file was successful, else false
    */
-  public boolean addImportedFile(final File file, final BPELPlan buildPlan) {
+  public boolean addImportedFile(final Path file, final BPELPlan buildPlan) {
     return buildPlan.addImportedFile(file);
   }
 
@@ -1043,7 +1044,7 @@ public class BPELPlanHandler {
       "http://www.w3.org/2001/XMLSchema");
 
     // init import files list
-    newBuildPlan.setImportedFiles(new HashSet<File>());
+    newBuildPlan.setImportedFiles(new HashSet<Path>());
 
     // initialize and append extensions element to process
     newBuildPlan.setBpelExtensionsElement(newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,

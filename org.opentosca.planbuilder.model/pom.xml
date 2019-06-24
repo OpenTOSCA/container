@@ -29,7 +29,11 @@
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.container.core.tosca</artifactId>
       <version>${project.version}</version>
-      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.container.core</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

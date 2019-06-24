@@ -172,7 +172,7 @@ public class CoreFileServiceImpl implements ICoreFileService {
 
   @Override
   public void deleteCSAR(final CSARID csarID) throws SystemException, UserException {
-    LOG.debug("Deleting CSAR \"{}\"...", csarID);
+    LOG.info("Deleting CSAR \"{}\" in planbuilder", csarID);
     if (!JPA_STORE.isCSARMetaDataStored(csarID)) {
       LOG.trace("Nothing to delete");
       return;

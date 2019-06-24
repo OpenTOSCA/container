@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.postphase.plugin.instancedata.bpel;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -1175,7 +1176,7 @@ public class Handler {
         final String createRelTInstanceReqVarName = "createRelationshipTemplateRequest" + targetContext.getIdForNames();
 
         try {
-            final File opentoscaApiSchemaFile = this.bpelFrags.getOpenTOSCAAPISchemaFile();
+            final Path opentoscaApiSchemaFile = this.bpelFrags.getOpenTOSCAAPISchemaFile();
             QName createRelationshipTemplateInstanceRequestQName =
                 this.bpelFrags.getOpenToscaApiCreateRelationshipTemplateInstanceRequestElementQname();
             targetContext.registerType(createRelationshipTemplateInstanceRequestQName, opentoscaApiSchemaFile);
@@ -1386,7 +1387,7 @@ public class Handler {
         final String createRelTInstanceReqVarName = "createRelationshipTemplateRequest" + context.getIdForNames();
 
         try {
-            final File opentoscaApiSchemaFile = this.bpelFrags.getOpenTOSCAAPISchemaFile();
+            final Path opentoscaApiSchemaFile = this.bpelFrags.getOpenTOSCAAPISchemaFile();
             QName createRelationshipTemplateInstanceRequestQName =
                 this.bpelFrags.getOpenToscaApiCreateRelationshipTemplateInstanceRequestElementQname();
             context.registerType(createRelationshipTemplateInstanceRequestQName, opentoscaApiSchemaFile);

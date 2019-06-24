@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -514,11 +515,11 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd" + System.currentTimeMillis());
 
         try {
-            final File schemaFile = this.fragments.getOpenTOSCAAPISchemaFile();
+            final Path schemaFile = this.fragments.getOpenTOSCAAPISchemaFile();
             final QName correlationIdElementSchemaQname = this.fragments.getOpenToscaApiCorrelationElementQname();
             this.bpelProcessHandler.addImportedFile(schemaFile, plan);
             this.bpelProcessHandler.addImportToBpel(correlationIdElementSchemaQname.getNamespaceURI(),
-                                                    schemaFile.getAbsolutePath(), "http://www.w3.org/2001/XMLSchema",
+                                                    schemaFile.toAbsolutePath().toString(), "http://www.w3.org/2001/XMLSchema",
                                                     plan);
 
         }

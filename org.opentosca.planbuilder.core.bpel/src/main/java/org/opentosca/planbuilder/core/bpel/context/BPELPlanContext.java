@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.core.bpel.context;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.*;
 
 import javax.wsdl.Definition;
@@ -716,8 +717,8 @@ public class BPELPlanContext extends PlanContext {
     // get porttypes inside partnerlinktype
     final QName portType1 = wsdl.getPortType1FromPartnerLinkType(partnerLinkType);
     final QName portType2 = wsdl.getPortType2FromPartnerLinkType(partnerLinkType);
-    final List<File> wsdlFiles = getWSDLFiles();
-    for (final File wsdlFile : wsdlFiles) {
+    final List<Path> wsdlFiles = getWSDLFiles();
+    for (final Path wsdlFile : wsdlFiles) {
       try {
         // TODO: in both if blocks we make huge assumptions with the
         // get(0)'s, as a wsdl file can have multiple services with
@@ -797,11 +798,11 @@ public class BPELPlanContext extends PlanContext {
    * @throws WSDLException is thrown when either the given File is not a WSDL File or initializing the
    *         WSDL Factory failed
    */
-  public boolean containsPortType(final QName portType, final File wsdlFile) throws WSDLException {
+  public boolean containsPortType(final QName portType, final Path wsdlFile) throws WSDLException {
     final WSDLFactory factory = WSDLFactory.newInstance();
     final WSDLReader reader = factory.newWSDLReader();
     reader.setFeature("javax.wsdl.verbose", false);
-    final Definition wsdlInstance = reader.readWSDL(wsdlFile.getAbsolutePath());
+    final Definition wsdlInstance = reader.readWSDL(wsdlFile.toAbsolutePath().toString());
     final Map portTypes = wsdlInstance.getAllPortTypes();
     for (final Object key : portTypes.keySet()) {
       final PortType portTypeInWsdl = (PortType) portTypes.get(key);
@@ -921,13 +922,13 @@ public class BPELPlanContext extends PlanContext {
    * @return a List of Service which implement the given portType
    * @throws WSDLException is thrown when the WSDLFactory to read the WSDL can't be initialized
    */
-  private List<Service> getServicesInWSDLFile(final File wsdlFile, final QName portType) throws WSDLException {
+  private List<Service> getServicesInWSDLFile(final Path wsdlFile, final QName portType) throws WSDLException {
     final List<Service> servicesInWsdl = new ArrayList<>();
 
     final WSDLFactory factory = WSDLFactory.newInstance();
     final WSDLReader reader = factory.newWSDLReader();
     reader.setFeature("javax.wsdl.verbose", false);
-    final Definition wsdlInstance = reader.readWSDL(wsdlFile.getAbsolutePath());
+    final Definition wsdlInstance = reader.readWSDL(wsdlFile.toAbsolutePath().toString());
     final Map services = wsdlInstance.getAllServices();
     for (final Object key : services.keySet()) {
       final Service service = (Service) services.get(key);
@@ -960,11 +961,11 @@ public class BPELPlanContext extends PlanContext {
    *
    * @return a List of File which have the ending ".wsdl"
    */
-  private List<File> getWSDLFiles() {
-    final List<File> wsdlFiles = new ArrayList<>();
+  private List<Path> getWSDLFiles() {
+    final List<Path> wsdlFiles = new ArrayList<>();
     final BPELPlan buildPlan = this.templateBuildPlan.getBuildPlan();
-    for (final File file : buildPlan.getImportedFiles()) {
-      if (file.getName().endsWith(".wsdl")) {
+    for (final Path file : buildPlan.getImportedFiles()) {
+      if (file.getFileName().toString().endsWith(".wsdl")) {
         wsdlFiles.add(file);
       }
     }
@@ -1028,7 +1029,7 @@ public class BPELPlanContext extends PlanContext {
    */
   public QName registerPortType(final QName portType, final AbstractArtifactReference ref) {
     return this.registerPortType(portType, this.templateBuildPlan.getBuildPlan().getDefinitions()
-      .getAbsolutePathOfArtifactReference(ref));
+      .getAbsolutePathOfArtifactReference(ref).toPath());
   }
 
   /**
@@ -1038,7 +1039,7 @@ public class BPELPlanContext extends PlanContext {
    * @param wsdlDefinitionsFile the WSDL file where the portType is declared
    * @return a QName for portType with set prefix etc. after registration within the BuildPlan
    */
-  public QName registerPortType(QName portType, final File wsdlDefinitionsFile) {
+  public QName registerPortType(QName portType, final Path wsdlDefinitionsFile) {
     portType = importNamespace(portType);
     boolean check = true;
     // import wsdl into plan wsdl
@@ -1046,19 +1047,19 @@ public class BPELPlanContext extends PlanContext {
       .addImportElement("http://schemas.xmlsoap.org/wsdl/", portType.getNamespaceURI(),
         portType.getPrefix(),
 
-        wsdlDefinitionsFile.getAbsolutePath());
+        wsdlDefinitionsFile.toAbsolutePath().toString());
     if (!check && this.templateBuildPlan.getBuildPlan().getWsdl()
-      .isImported(portType, wsdlDefinitionsFile.getAbsolutePath())) {
+      .isImported(portType, wsdlDefinitionsFile.toAbsolutePath().toString())) {
       // check if already imported
       check = true;
     }
     // import wsdl into bpel plan
     check &=
-      this.buildPlanHandler.addImportToBpel(portType.getNamespaceURI(), wsdlDefinitionsFile.getAbsolutePath(),
+      this.buildPlanHandler.addImportToBpel(portType.getNamespaceURI(), wsdlDefinitionsFile.toAbsolutePath().toString(),
         "http://schemas.xmlsoap.org/wsdl/",
         this.templateBuildPlan.getBuildPlan());
 
-    if (!check && this.buildPlanHandler.hasImport(portType.getNamespaceURI(), wsdlDefinitionsFile.getAbsolutePath(),
+    if (!check && this.buildPlanHandler.hasImport(portType.getNamespaceURI(), wsdlDefinitionsFile.toAbsolutePath().toString(),
       "http://schemas.xmlsoap.org/wsdl/",
       this.templateBuildPlan.getBuildPlan())) {
       check = true;
@@ -1076,12 +1077,12 @@ public class BPELPlanContext extends PlanContext {
    * @param xmlSchemaFile file where the type is declared in
    * @return true if registered type successful, else false
    */
-  public boolean registerType(final QName type, final File xmlSchemaFile) {
+  public boolean registerType(final QName type, final Path xmlSchemaFile) {
     boolean check = true;
     // add as imported file to plan
     check &= this.buildPlanHandler.addImportedFile(xmlSchemaFile, this.templateBuildPlan.getBuildPlan());
     // import type inside bpel file
-    check &= this.buildPlanHandler.addImportToBpel(type.getNamespaceURI(), xmlSchemaFile.getAbsolutePath(),
+    check &= this.buildPlanHandler.addImportToBpel(type.getNamespaceURI(), xmlSchemaFile.toAbsolutePath().toString(),
       "http://www.w3.org/2001/XMLSchema",
       this.templateBuildPlan.getBuildPlan());
     return check;

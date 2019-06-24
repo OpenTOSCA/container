@@ -4,15 +4,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +49,8 @@ public class BPELProcessFragments {
 
   private String loadFragmentResourceAsString(final String fileName) throws IOException {
     final URL url = this.getClass().getClassLoader().getResource(fileName);
-    final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
-    String template = FileUtils.readFileToString(bpelfragmentfile);
-    return template;
+    ResourceAccess resource = new ResourceAccess(url);
+    return new String(Files.readAllBytes(resource.resolvedPath()));
   }
 
   private Node transformStringToNode(String xmlString) throws SAXException, IOException {
@@ -743,10 +745,10 @@ public class BPELProcessFragments {
     return bpel4RestString;
   }
 
-  public File getOpenTOSCAAPISchemaFile() throws IOException {
+  public Path getOpenTOSCAAPISchemaFile() throws IOException {
     final URL url = getClass().getClassLoader().getResource("schemas/opentoscaapischema.xsd");
-    final File schemaFile = new File(FileLocator.toFileURL(url).getPath());
-    return schemaFile;
+    ResourceAccess resource = new ResourceAccess(url);
+    return resource.resolvedPath();
   }
 
   public QName getOpenToscaApiCorrelationElementQname() {

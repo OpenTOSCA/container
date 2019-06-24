@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -82,11 +84,11 @@ public class SimpleFileExporter {
       return false;
     }
     // fetch imported files
-    final Set<File> importedFiles = buildPlan.getImportedFiles();
+    final Set<Path> importedFiles = buildPlan.getImportedFiles();
 
     LOG.debug("BuildPlan has following files attached");
-    for (final File file : importedFiles) {
-      LOG.debug(file.getAbsolutePath());
+    for (final Path file : importedFiles) {
+      LOG.debug(file.toAbsolutePath().toString());
     }
 
     // fetch import elements
@@ -103,34 +105,32 @@ public class SimpleFileExporter {
 
     // generate temp folder
     // FIXME something something common useage
-    final File tempDir = new File(System.getProperty("java.io.tmpdir"));
-    LOG.debug("Trying to write files in system temp folder: " + tempDir.getAbsolutePath());
-    final File tempFolder = new File(tempDir, Long.toString(System.currentTimeMillis()));
-    tempFolder.mkdir();
-    LOG.debug("Trying to write files to temp folder: " + tempFolder.getAbsolutePath());
+    final Path tempFolder = Files.createTempDirectory(Long.toString(System.currentTimeMillis()));
+    LOG.debug("Trying to write files to temp folder: " + tempFolder.toAbsolutePath());
 
-    final List<File> exportedFiles = new ArrayList<>();
+    final List<Path> exportedFiles = new ArrayList<>();
 
     // match importedFiles with importElements, to change temporary paths
     // inside import elements to relative paths inside the generated zip
-    for (final File importedFile : importedFiles) {
+    for (final Path importedFile : importedFiles) {
       for (final Element importElement : importElements) {
-        final String filePath = importedFile.getAbsolutePath();
+        final String filePath = importedFile.toAbsolutePath().toString();
         final String locationPath = importElement.getAttribute("location");
         LOG.debug("checking filepath:");
         LOG.debug(filePath);
         LOG.debug("with: ");
         LOG.debug(locationPath);
-        if (importedFile.getAbsolutePath().trim().equals(importElement.getAttribute("location").trim())) {
+        if (filePath.trim().equals(importElement.getAttribute("location").trim())) {
           // found the import element for the corresponding file
           // get file name
-          final String fileName = importedFile.getName();
+          final String fileName = importedFile.getFileName().toString();
           LOG.debug("Trying to reset path to: " + fileName);
           // change location attribute in import element
           importElement.setAttribute("location", fileName);
           // copy file to tempdir
-          final File fileLocationInDir = new File(tempFolder, fileName);
-          FileUtils.copyFile(importedFile, fileLocationInDir);
+          final Path fileLocationInDir = tempFolder.resolve(fileName);
+
+          Files.copy(importedFile, fileLocationInDir);
 
           LOG.debug("Adding " + fileLocationInDir + " to files to export");
           exportedFiles.add(fileLocationInDir);
@@ -154,7 +154,7 @@ public class SimpleFileExporter {
       LOG.warn("Something went wrong with locating wsdl files that needed to be changed", e);
     }
 
-    final File deployXmlFile = new File(tempFolder, "deploy.xml");
+    final File deployXmlFile = tempFolder.resolve("deploy.xml").toFile();
     deployXmlFile.createNewFile();
     final JAXBContext jaxbContext = JAXBContext.newInstance(Deploy.class);
     final Marshaller m = jaxbContext.createMarshaller();
@@ -163,11 +163,11 @@ public class SimpleFileExporter {
     m.marshal(deployment, deployXmlFile);
 
     // save wsdl in tempfolder
-    final File wsdlFile = new File(tempFolder, wsdl.getFileName());
+    final File wsdlFile = tempFolder.resolve(wsdl.getFileName()).toFile();
     FileUtils.writeStringToFile(wsdlFile, wsdl.getFinalizedWsdlAsString());
 
     // save bpel file in tempfolder
-    final File bpelFile = new File(tempFolder, wsdl.getFileName().replace(".wsdl", ".bpel"));
+    final File bpelFile = tempFolder.resolve(wsdl.getFileName().replace(".wsdl", ".bpel")).toFile();
     try {
       this.writeBPELDocToFile(bpelFile, buildPlan.getBpelDocument());
     } catch (final TransformerException e) {
@@ -176,7 +176,7 @@ public class SimpleFileExporter {
     }
 
     // package temp dir and move to destination URI
-    ZipManager.getInstance().zip(tempFolder, new File(destination));
+    ZipManager.getInstance().zip(tempFolder.toFile(), new File(destination));
     return true;
   }
 
@@ -207,8 +207,8 @@ public class SimpleFileExporter {
     }
   }
 
-  private void rewriteServiceNames(final Deploy deploy, final List<File> referencedFiles,
-                                   final String csarName) throws WSDLException, FileNotFoundException {
+  private void rewriteServiceNames(final Deploy deploy, final List<Path> referencedFiles,
+                                   final String csarName) throws WSDLException, IOException {
     final WSDLFactory factory = WSDLFactory.newInstance();
     final WSDLReader reader = factory.newWSDLReader();
     final WSDLWriter writer = factory.newWSDLWriter();
@@ -267,11 +267,10 @@ public class SimpleFileExporter {
 
     this.rewriteServices(invokedServicesToRewrite, writer, reader, referencedFiles);
     this.rewriteServices(providedServicesToRewrite, writer, reader, referencedFiles);
-
   }
 
   private void rewriteServices(final Set<Mapping> servicesToRewrite, final WSDLWriter writer, final WSDLReader reader,
-                               final List<File> referencedFiles) throws WSDLException, FileNotFoundException {
+                               final List<Path> referencedFiles) throws WSDLException, IOException {
 
     LOG.debug("Rewriting service names:");
     LOG.debug("Files referenced:" + referencedFiles);
@@ -279,12 +278,12 @@ public class SimpleFileExporter {
 
     for (final Mapping service : servicesToRewrite) {
       final QName serviceName = service.key;
-      for (final File file : referencedFiles) {
-        if (!file.getAbsolutePath().endsWith(".wsdl")) {
+      for (final Path file : referencedFiles) {
+        if (!file.getFileName().toString().endsWith(".wsdl")) {
           continue;
         }
 
-        final Definition def = reader.readWSDL(file.getAbsolutePath());
+        final Definition def = reader.readWSDL(file.toAbsolutePath().toString());
 
         final List<QName> servicesToRemove = new ArrayList<>();
 
@@ -317,7 +316,7 @@ public class SimpleFileExporter {
 
           }
 
-          writer.writeWSDL(def, new FileOutputStream(file));
+          writer.writeWSDL(def, Files.newOutputStream(file));
           break;
         }
       }

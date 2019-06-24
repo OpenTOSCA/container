@@ -243,14 +243,14 @@ public class CsarController {
     try {
       csarId = storage.storeCSAR(tempFile);
     } catch (UserException e) {
-      FileUtils.forceDelete(tempFile);
       return Response.status(Status.CONFLICT).entity(e).build();
     } catch (SystemException e) {
-      FileUtils.forceDelete(tempFile);
       return Response.serverError().entity(e).build();
+    } finally {
+      // delete temporarily stored file after import, regardless of outcome
+      FileUtils.forceDelete(tempFile);
     }
 
-    // FIXME I'm pretty sure that invoking ToscaProcessing is unnecessary with the new model
     Csar storedCsar = storage.findById(csarId);
     try {
       if (!this.csarService.generatePlans(storedCsar)) {
