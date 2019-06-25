@@ -39,7 +39,6 @@ import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.common.EntityExistsException;
-import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -152,7 +151,8 @@ public class CsarController {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
-    public Response uploadCsar(@FormDataParam(value = "file") final InputStream is,
+    public Response uploadCsar(@FormDataParam(value = "enrichment") final String applyEnrichment,
+                               @FormDataParam(value = "file") final InputStream is,
                                @FormDataParam("file") final FormDataContentDisposition file) {
 
         if (is == null || file == null) {
@@ -160,7 +160,7 @@ public class CsarController {
         }
 
         logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
-        return handleCsarUpload(file.getFileName(), is);
+        return handleCsarUpload(file.getFileName(), is, applyEnrichment);
     }
 
     @POST
@@ -173,8 +173,8 @@ public class CsarController {
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-        logger.info("Uploading new CSAR based on request payload: name={}; url={}", request.getName(),
-                    request.getUrl());
+        logger.info("Uploading new CSAR based on request payload: name={}; url={}; applyEnrichment= {}",
+                    request.getName(), request.getUrl(), request.getEnrich());
 
         String filename = request.getName();
         if (!filename.endsWith(".csar")) {
@@ -184,7 +184,7 @@ public class CsarController {
         try {
             final URL url = new URL(request.getUrl());
 
-            return handleCsarUpload(filename, url.openStream());
+            return handleCsarUpload(filename, url.openStream(), request.getEnrich());
         }
         catch (final Exception e) {
             logger.error("Error uploading CSAR: {}", e.getMessage(), e);
@@ -192,16 +192,29 @@ public class CsarController {
         }
     }
 
-    private Response handleCsarUpload(final String filename, final InputStream is) {
+    private Response handleCsarUpload(final String filename, final InputStream is, final String applyEnrichment) {
 
         final File file = this.csarService.storeTemporaryFile(filename, is);
 
         final WineryConnector wc = new WineryConnector();
 
-        // perform management feature enrichment for the given CSAR
-        if (Boolean.parseBoolean(Settings.OPENTOSCA_MANAGEMENT_FEATURE_ENRICHMENT)) {
-            logger.debug("Management feature enrichment enabled. Trying to enrich given CSAR with available features...");
-            wc.performManagementFeatureEnrichment(file);
+        try {
+            if (applyEnrichment == null) {
+                return Response.serverError().build();
+            }
+            final Boolean applyEnrichmentParsed = Boolean.parseBoolean(applyEnrichment);
+            // perform management feature enrichment for the given CSAR
+            if (applyEnrichmentParsed) {
+                wc.performManagementFeatureEnrichment(file);
+            }
+        }
+        catch (final IllegalArgumentException e) {
+            logger.error("Failed to parse enrichment status from UI: {}", e.getMessage(), e);
+            return Response.serverError().build();
+        }
+        catch (final Exception e) {
+            logger.error("Failed to parse enrichment status from UI: {}", e.getMessage(), e);
+            return Response.serverError().build();
         }
 
         CSARID csarId;
