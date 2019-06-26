@@ -6,6 +6,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -140,104 +141,33 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         return capabilities;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CSARID csarId) {
+    
+    public boolean deployPlanFile(final Path filePath, final CSARID csarId, final QName planId, Map<String,String> endpointMetadata) {
         List<File> planContents;
         File tempDir;
         File tempPlan;
+        QName portType = null;               
 
-        // variable for the (inbound) portType of the process, if this is null
-        // till end the process can't be instantiated by the container
-        QName portType = null;
-
-        // retrieve process
-        if (this.fileService != null) {
-
-            CSARContent csar = null;
-
-            try {
-                csar = this.fileService.getCSAR(csarId);
-            }
-            catch (final UserException exc) {
-                BpelPlanEnginePlugin.LOG.error("An User Exception occured.", exc);
-                return false;
-            }
-
-            AbstractArtifact planReference = null;
-
-            // try {
-            // TODO
-            // planReference =
-            // csar.resolveArtifactReference(planRef.getReference());
-            planReference = this.toscaEngine.getPlanModelReferenceAbstractArtifact(csar, planId);
-            // } catch (UserException exc) {
-            // BpsPlanEnginePlugin.LOG.error("An User Exception occured.", exc);
-            // } catch (SystemException exc) {
-            // BpsPlanEnginePlugin.LOG.error("A System Exception occured.",
-            // exc);
-            // }
-
-            if (planReference == null) {
-                BpelPlanEnginePlugin.LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
-                                               planRef.getReference());
-                return false;
-            }
-
-            if (!planReference.isFileArtifact()) {
-                BpelPlanEnginePlugin.LOG.warn("Only plan references pointing to a file are supported!");
-                return false;
-            }
-
-            final AbstractFile plan = planReference.getFile("");
-
-            if (plan == null) {
-                BpelPlanEnginePlugin.LOG.error("ArtifactReference resulted in null AbstractFile.");
-                return false;
-            }
-
-            if (!plan.getName().substring(plan.getName().lastIndexOf('.') + 1).equals("zip")) {
-                BpelPlanEnginePlugin.LOG.debug("Plan reference is not a ZIP file. It was '{}'.", plan.getName());
-                return false;
-            }
-
-            Path fetchedPlan;
-
-            try {
-                fetchedPlan = plan.getFile();
-            }
-            catch (final SystemException exc) {
-                BpelPlanEnginePlugin.LOG.error("An System Exception occured. File could not be fetched.", exc);
-                return false;
-            }
-
-            if (this.fileAccessService != null) {
-                // creating temporary dir for update
-                tempDir = this.fileAccessService.getTemp();
-                tempPlan = new File(tempDir, fetchedPlan.getFileName().toString());
-                BpelPlanEnginePlugin.LOG.debug("Unzipping Plan '{}' to '{}'.", fetchedPlan.getFileName().toString(),
-                                               tempDir.getAbsolutePath());
-                planContents = this.fileAccessService.unzip(fetchedPlan.toFile(), tempDir);
-            } else {
-                BpelPlanEnginePlugin.LOG.error("FileAccessService is not available, can't create needed temporary space on disk");
-                return false;
-            }
-
+        if (this.fileAccessService != null) {
+            // creating temporary dir for update
+            tempDir = this.fileAccessService.getTemp();
+            tempPlan = new File(tempDir, filePath.getFileName().toString());
+            BpelPlanEnginePlugin.LOG.debug("Unzipping Plan '{}' to '{}'.", filePath.getFileName().toString(),
+                                           tempDir.getAbsolutePath());
+            planContents = this.fileAccessService.unzip(filePath.toFile(), tempDir);
         } else {
-            BpelPlanEnginePlugin.LOG.error("Can't fetch relevant files from FileService: FileService not available");
+            BpelPlanEnginePlugin.LOG.error("FileAccessService is not available, can't create needed temporary space on disk");
             return false;
         }
-
-        // changing endpoints in WSDLs
+        
+     // changing endpoints in WSDLs
         ODEEndpointUpdater odeUpdater;
         try {
             odeUpdater = new ODEEndpointUpdater(SERVICESURL, ENGINE);
             portType = odeUpdater.getPortType(planContents);
             if (!odeUpdater.changeEndpoints(planContents, csarId)) {
                 BpelPlanEnginePlugin.LOG.error("Not all endpoints used by the plan {} have been changed",
-                                               planRef.getReference());
+                                               filePath);
             }
         }
         catch (final WSDLException e) {
@@ -250,15 +180,14 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             bpelRestUpdater = new BPELRESTLightUpdater();
             if (!bpelRestUpdater.changeEndpoints(planContents, csarId)) {
                 // we don't abort deployment here
-                BpelPlanEnginePlugin.LOG.warn("Could'nt change all endpoints inside BPEL4RESTLight Elements in the given process {}",
-                                              planRef.getReference());
+                BpelPlanEnginePlugin.LOG.warn("Could'nt change all endpoints inside BPEL4RESTLight Elements in the given process {}", filePath);
             }
         }
         catch (final TransformerConfigurationException e) {
-            BpelPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdater", e);
+            BpelPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdater transformer", e);
         }
         catch (final ParserConfigurationException e) {
-            BpelPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdater", e);
+            BpelPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdaters parser", e);
         }
         catch (final SAXException e) {
             BpelPlanEnginePlugin.LOG.error("ParseError: Couldn't parse .bpel file", e);
@@ -323,29 +252,20 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             }
         }
 
-        if (endpoint == null) {
-            BpelPlanEnginePlugin.LOG.warn("No endpoint for Plan {} could be determined, container won't be able to instantiate it",
-                                          planRef.getReference());
+        if (endpoint == null) {         
             return false;
         }
 
-        if (processId != null && endpoint != null && portType != null) {
+        if (processId != null && endpoint != null && portType != null && this.endpointService != null) {
             BpelPlanEnginePlugin.LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
             BpelPlanEnginePlugin.LOG.info("Deployment of Plan was successfull: {}", tempPlan.getName());
 
             // save endpoint
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
             final WSDLEndpoint wsdlEndpoint =
-                new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null);
-
-            if (this.endpointService != null) {
-                BpelPlanEnginePlugin.LOG.debug("Store new endpoint!");
-                this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-            } else {
-                BpelPlanEnginePlugin.LOG.warn("Couldn't store endpoint {} for plan {}, cause endpoint service is not available",
-                                              endpoint.toString(), planRef.getReference());
-                return false;
-            }
+                new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata);   
+            this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
+           
         } else {
             BpelPlanEnginePlugin.LOG.error("Error while processing plan");
             if (processId == null) {
@@ -357,9 +277,79 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             if (portType == null) {
                 BpelPlanEnginePlugin.LOG.error("PortType of process is null");
             }
+            
+            if(this.endpointService == null) {
+                BpelPlanEnginePlugin.LOG.error("Endpoint Service is null");
+            }
             return false;
         }
         return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CSARID csarId) {
+        // retrieve process
+        if (this.fileService != null) {
+
+            CSARContent csar = null;
+
+            try {
+                csar = this.fileService.getCSAR(csarId);
+            }
+            catch (final UserException exc) {
+                BpelPlanEnginePlugin.LOG.error("An User Exception occured.", exc);
+                return false;
+            }
+
+            AbstractArtifact planReference = null;
+
+            planReference = this.toscaEngine.getPlanModelReferenceAbstractArtifact(csar, planId);
+       
+            if (planReference == null) {
+                BpelPlanEnginePlugin.LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
+                                               planRef.getReference());
+                return false;
+            }
+
+            if (!planReference.isFileArtifact()) {
+                BpelPlanEnginePlugin.LOG.warn("Only plan references pointing to a file are supported!");
+                return false;
+            }
+
+            final AbstractFile plan = planReference.getFile("");
+
+            if (plan == null) {
+                BpelPlanEnginePlugin.LOG.error("ArtifactReference resulted in null AbstractFile.");
+                return false;
+            }
+
+            if (!plan.getName().substring(plan.getName().lastIndexOf('.') + 1).equals("zip")) {
+                BpelPlanEnginePlugin.LOG.debug("Plan reference is not a ZIP file. It was '{}'.", plan.getName());
+                return false;
+            }
+
+            Path fetchedPlan;
+
+            try {
+                fetchedPlan = plan.getFile();
+            }
+            catch (final SystemException exc) {
+                BpelPlanEnginePlugin.LOG.error("An System Exception occured. File could not be fetched.", exc);
+                return false;
+            }
+
+            return this.deployPlanFile(fetchedPlan, csarId, planId, new HashMap<String,String>());
+            
+          
+
+        } else {
+            BpelPlanEnginePlugin.LOG.error("Can't fetch relevant files from FileService: FileService not available");
+            return false;
+        }
+        
     }
 
     /**

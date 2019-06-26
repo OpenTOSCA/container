@@ -37,7 +37,7 @@ public class SituationTriggerInstanceListener {
     public void startSituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
         final SituationTriggerInstanceObserver obs = new SituationTriggerInstanceObserver(instance);
         SituationTriggerInstanceListener.obs.add(obs);
-        new Thread(obs).start();;
+        new Thread(obs).start();
     }
 
     private class SituationTriggerInstanceObserver implements Runnable {

@@ -5,5 +5,8 @@
    <service>
       <provide interface="org.osgi.service.event.EventHandler"/>
    </service>
-   <property name="event.topics" type="String" value="org_opentosca_plans/requests"/>
+   <property name="event.topics">
+   org_opentosca_plans/requests
+   org_opentosca_situationadaptation/requests
+   </property>
 </scr:component>

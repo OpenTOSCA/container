@@ -31,6 +31,10 @@ public class RelationshipTemplateInstance extends PersistenceObject {
     @Enumerated(EnumType.STRING)
     private RelationshipTemplateInstanceState state;
 
+    @ManyToOne
+    @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
+    private ServiceTemplateInstance serviceTemplateInstance;
+    
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "relationshipTemplateInstance", cascade = {CascadeType.ALL})
     private Set<RelationshipTemplateInstanceProperty> properties = Sets.newHashSet();
@@ -76,6 +80,17 @@ public class RelationshipTemplateInstance extends PersistenceObject {
         }
         if (property.getRelationshipTemplateInstance() != this) {
             property.setRelationshipTemplateInstance(this);
+        }
+    }
+    
+    public ServiceTemplateInstance getServiceTemplateInstance() {
+        return this.serviceTemplateInstance;
+    }
+
+    public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
+        this.serviceTemplateInstance = serviceTemplateInstance;
+        if (!serviceTemplateInstance.getRelationshipTemplateInstances().contains(this)) {
+            serviceTemplateInstance.getRelationshipTemplateInstances().add(this);
         }
     }
 

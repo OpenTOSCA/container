@@ -21,6 +21,8 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
 
         Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
+        nodesForMatching = this.filterForNodesInCreation(context, nodesForMatching);
+        
 
         AbstractOperation op = null;
         boolean result = true;
@@ -111,6 +113,19 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, nodesForMatching);
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.hostedOnRelationType, nodesForMatching);
         return nodesForMatching;
+    }
+    
+    private Set<AbstractNodeTemplate> filterForNodesInCreation(BPELPlanContext context, Set<AbstractNodeTemplate> nodes) {
+        Set<AbstractNodeTemplate> result = new HashSet<AbstractNodeTemplate>();
+        Collection<AbstractNodeTemplate> nodesInCreation = context.getNodesInCreation();
+        
+        for(AbstractNodeTemplate node : nodes) {
+            if(nodesInCreation.contains(node)) {
+                result.add(node);
+            }
+        }
+        
+        return result;
     }
 
     public boolean isProvisionableByLifecyclePattern(final AbstractNodeTemplate nodeTemplate) {

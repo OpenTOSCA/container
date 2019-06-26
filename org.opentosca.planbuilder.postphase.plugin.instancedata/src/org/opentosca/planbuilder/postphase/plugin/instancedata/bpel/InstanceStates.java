@@ -30,7 +30,7 @@ public class InstanceStates {
         operationPreStates.put("stop", "STOPPING");
 
         operationPostStates.put("install", "CREATED");
-        operationPostStates.put("uninstall", "INITIAL");
+        operationPostStates.put("uninstall", "DELETED");
         operationPostStates.put("configure", "CONFIGURED");
         operationPostStates.put("start", "STARTED");
         operationPostStates.put("stop", "STOPPED");

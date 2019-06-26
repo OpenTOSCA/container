@@ -3,6 +3,7 @@ package org.opentosca.container.core.impl.service.internal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -110,7 +111,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
             + endpoint.getURI().toString() + "\"");
 
         // TODO this check is a hack because of the problem with deploying of
-        // multiple deployment artifacts
+        // multiple deployment artifacts    
         if (!existsWSDLEndpoint(endpoint)) {
             if (!this.em.getTransaction().isActive()) {
                 this.em.getTransaction().begin();
@@ -149,6 +150,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
                         .filter(wsdlEndpoint -> Objects.equals(endpoint.getTypeImplementation(),
                                                                wsdlEndpoint.getTypeImplementation()))
                         .filter(wsdlEndpoint -> Objects.equals(endpoint.getIaName(), wsdlEndpoint.getIaName()))
+                        .filter(wsdlEndpoint -> Objects.equals(endpoint.getPlanId(), wsdlEndpoint.getPlanId()))
                         .findFirst().isPresent();
     }
 
@@ -242,7 +244,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     public void _endpoint_add_dummy_rest(final CommandInterpreter commandInterpreter) {
         try {
             final RESTEndpoint endpoint = new RESTEndpoint(new URI("http://www.balbla.com/xyz"), restMethod.GET, "test",
-                "test", new CSARID("mockup.example.test"), 5L);
+                "test", new CSARID("mockup.example.test"), 5L, new HashMap<String,String>());
             storeRESTEndpoint(endpoint);
         }
         catch (final URISyntaxException e) {
@@ -258,7 +260,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
             // nodeTypeImplementation, String iaName
             final WSDLEndpoint endpoint = new WSDLEndpoint(new URI("http://blabla/"), new QName("somePort"), "test",
                 "test", new CSARID("mockup.example.test"), 5L, new QName("{someNamespace}someplanid"),
-                new QName("{someNamespace}someNodeTypeImplId"), "some ia name");
+                new QName("{someNamespace}someNodeTypeImplId"), "some ia name", new HashMap<String,String>());
             storeWSDLEndpoint(endpoint);
         }
         catch (final URISyntaxException e) {
@@ -294,6 +296,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
                 + (e.getTypeImplementation() == null ? "" : e.getTypeImplementation().toString()));
             commandInterpreter.println("IaName: " + (e.getIaName() == null ? "" : e.getIaName()));
             commandInterpreter.println("URI: " + e.getURI().toString());
+            commandInterpreter.println("Metadata: " + e.getMetadata());
             commandInterpreter.println("");
         }
 

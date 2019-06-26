@@ -1,19 +1,30 @@
 package org.opentosca.container.core.next.trigger;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import javax.persistence.PostLoad;
+import javax.persistence.PostUpdate;
 import javax.persistence.PreUpdate;
 
 import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
 import org.opentosca.container.core.next.model.SituationTriggerInstance;
+import org.opentosca.container.core.next.model.SituationsMonitor;
 import org.opentosca.container.core.next.repository.SituationRepository;
 import org.opentosca.container.core.next.repository.SituationTriggerInstanceRepository;
 import org.opentosca.container.core.next.repository.SituationTriggerRepository;
+import org.opentosca.container.core.next.repository.SituationsMonitorRepository;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * @author kalmankepes
@@ -28,7 +39,18 @@ public class SituationListener {
     final SituationTriggerRepository sitTrigRepo = new SituationTriggerRepository();
 
     final SituationTriggerInstanceRepository sitTrigInstRepo = new SituationTriggerInstanceRepository();
+    
+    final SituationsMonitorRepository sitMonRepo = new SituationsMonitorRepository();
 
+    @PostUpdate
+    void situationAfterUpdate(final Situation situation) {
+        Collection<SituationsMonitor> monis = this.sitMonRepo.findSituationMonitorsBySituationId(situation.getId());
+        
+        for(SituationsMonitor moni : monis) {
+            this.sendServiceInstanceAdaptationEvent(moni);
+        }
+    }
+    
     @PreUpdate
     void situationBeforeUpdate(final Situation situation) {
         LOG.info("Updating situation with template " + situation.getSituationTemplateId() + " and thing "
@@ -39,7 +61,9 @@ public class SituationListener {
         if (situation.isActive() == sitInRepo.isActive()) {
             // nothing changed => do nothing
             return;
-        } else {
+        } else {            
+            
+            // handling triggers on situation changes
             final List<SituationTrigger> triggers =
                 this.sitTrigRepo.findSituationTriggersBySituationId(situation.getId());
             final List<SituationTriggerInstance> newInstances = Lists.newArrayList();
@@ -124,6 +148,26 @@ public class SituationListener {
             }
             this.sitTrigInstRepo.add(newInstances);
         }
+    }
+    
+    private void sendServiceInstanceAdaptationEvent(SituationsMonitor monitor) {
+        final Map<String,Object> eventProperties = Maps.newHashMap();
+        eventProperties.put("SERVICEINSTANCE", monitor.getServiceInstance());
+        //eventProperties.put("SITUATIONS", monitor.getSituations());
+        eventProperties.put("NODE2SITUATIONS", monitor.getNode2Situations());
+        
+        
+        Event situationAdaptationEvent = new Event("org_opentosca_situationadaptation/requests", eventProperties);         
+        this.getEventAdminService().postEvent(situationAdaptationEvent);
+    }
+    
+    
+    
+    private EventAdmin getEventAdminService() {        
+        BundleContext ctx = org.opentosca.container.core.Activator.getContext();
+        ServiceReference<?> ref = ctx.getServiceReference(EventAdmin.class.getName());
+        EventAdmin eventAdmin = (EventAdmin)ctx.getService(ref);
+        return eventAdmin;
     }
 
 }

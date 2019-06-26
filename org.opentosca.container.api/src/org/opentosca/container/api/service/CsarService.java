@@ -171,7 +171,7 @@ public class CsarService {
             return csarId;
         }
 
-        final File file = planBuilderExporter.export(buildPlans, csarId);
+        final File file = planBuilderExporter.exportToCSAR(buildPlans, csarId);
 
         try {
             this.fileService.deleteCSAR(csarId);
@@ -196,7 +196,7 @@ public class CsarService {
             return sourceCsarId;
         }
 
-        final File file = planBuilderExporter.export(plans, sourceCsarId);
+        final File file = planBuilderExporter.exportToCSAR(plans, sourceCsarId);
 
         try {
         	this.engineService.clearCSARContent(sourceCsarId);
