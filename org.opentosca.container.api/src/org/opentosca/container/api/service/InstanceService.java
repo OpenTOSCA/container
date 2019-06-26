@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
@@ -747,13 +748,7 @@ public class InstanceService {
     }
 
     public Collection<SituationsMonitor> getSituationsMonitors(final Long serviceInstanceId) {
-        Collection<SituationsMonitor> results = Lists.newArrayList();
-        for (final SituationsMonitor monitor : this.getSituationsMonitors()) {
-            if (monitor.getServiceInstance() != null && monitor.getServiceInstance().getId().equals(serviceInstanceId)) {
-                results.add(monitor);
-            }
-        }
-        return results;
+        return this.getSituationsMonitors().stream().filter(monitor -> monitor.getServiceInstance() != null && monitor.getServiceInstance().getId().equals(serviceInstanceId)).collect(Collectors.toList());
     }
 
     /* Service Injection */

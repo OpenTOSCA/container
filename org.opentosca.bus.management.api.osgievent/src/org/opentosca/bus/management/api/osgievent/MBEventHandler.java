@@ -560,11 +560,8 @@ public class MBEventHandler implements EventHandler {
                     if (this.isValidUnderSituations(hostingNode, nodeIds2situationIds)
                         && nodeTemplates.contains(hostingNode)) {
                         foundValidHost = true;
-                    }
-                    if (foundValidHost) {
-                        // if atleast one hosting relationship is fulfilled we are happy
                         break;
-                    }
+                    }                  
                 }
                 if (!foundValidHost) {
                     toRemove.add(nodeTemplate);
