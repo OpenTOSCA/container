@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
-@Component
 public class AsyncRoute extends RouteBuilder {
 
   public final static String PUBLIC_CALLBACKADDRESS =
@@ -31,11 +30,9 @@ public class AsyncRoute extends RouteBuilder {
     final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
     final Processor headerProcessor = new HeaderProcessor();
-
     this.from("direct:Async-WS-Invoke").process(headerProcessor).recipientList(this.simple(ENDPOINT)).end();
 
     final Processor callbackProcessor = new CallbackProcessor();
-
     this.from("jetty:" + AsyncRoute.CALLBACKADDRESS).to("stream:out").process(callbackProcessor).choice()
       .when(header("AvailableMessageID").isEqualTo("true"))
       .recipientList(this.simple("direct:Async-WS-Callback${header.MessageID}")).end();

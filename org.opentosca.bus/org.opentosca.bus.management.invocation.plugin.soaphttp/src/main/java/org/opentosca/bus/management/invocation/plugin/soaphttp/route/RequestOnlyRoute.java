@@ -16,16 +16,13 @@ import org.springframework.stereotype.Component;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
-@Component
 public class RequestOnlyRoute extends RouteBuilder {
 
   @Override
   public void configure() throws Exception {
-
     final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
     final Processor headerProcessor = new HeaderProcessor();
-
     this.from("direct:RequestOnly-WS-Invoke").process(headerProcessor).recipientList(this.simple(ENDPOINT));
   }
 

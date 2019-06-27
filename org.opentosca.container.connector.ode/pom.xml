@@ -23,11 +23,6 @@
       <version>0.2</version>
     </dependency>
     <dependency>
-      <groupId>wsdl4j</groupId>
-      <artifactId>wsdl4j</artifactId>
-      <version>1.6.2</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.axis</groupId>
       <artifactId>axis-jaxrpc</artifactId>
       <version>1.4</version>
@@ -41,6 +36,10 @@
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>wsdl4j</groupId>
+      <artifactId>wsdl4j</artifactId>
     </dependency>
   </dependencies>
 </project>

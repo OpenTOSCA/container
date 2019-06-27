@@ -58,7 +58,6 @@ public class CsarController {
   @Context
   private UriInfo uriInfo;
 
-  // used to generate plans, but not for storage anymore
   @Inject
   private CsarService csarService;
 

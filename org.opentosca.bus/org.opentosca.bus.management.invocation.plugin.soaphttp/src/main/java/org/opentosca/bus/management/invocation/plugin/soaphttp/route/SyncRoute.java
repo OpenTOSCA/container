@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
-@Component
 public class SyncRoute extends RouteBuilder {
 
   @Override
@@ -25,7 +24,6 @@ public class SyncRoute extends RouteBuilder {
     final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
     final Processor headerProcessor = new HeaderProcessor();
-
     this.from("direct:Sync-WS-Invoke").process(headerProcessor).recipientList(this.simple(ENDPOINT));
   }
 }
