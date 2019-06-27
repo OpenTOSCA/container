@@ -37,7 +37,6 @@
   <modules>
     <module>org.opentosca.broker.mqtt</module>
     <module>org.opentosca.bus</module>
-    <module>org.opentosca.container.connector.bps</module>
     <module>org.opentosca.container.connector.ode</module>
     <module>org.opentosca.container.connector.winery</module>
     <module>org.opentosca.container.control</module>
