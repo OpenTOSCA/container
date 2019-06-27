@@ -173,7 +173,7 @@ public class CsarController {
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-        logger.info("Uploading new CSAR based on request payload: name={}; url={}; applyEnrichment= {}",
+        logger.info("Uploading new CSAR based on request payload: name={}; url={}; applyEnrichment={}",
                     request.getName(), request.getUrl(), request.getEnrich());
 
         String filename = request.getName();
