@@ -130,7 +130,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         addAssignServiceTemplateURLVariable(plan, instanceDataAPIUrlVarName, serviceTemplateUrlVarName);
 
         String serviceInstanceIdVarName = this.addServiceInstanceIDVariable(plan);
-        addAssignServiceInstanceIdVarFromServiceInstanceURLVar(plan, serviceTemplateUrlVarName,
+        addAssignServiceInstanceIdVarFromServiceInstanceURLVar(plan, serviceInstanceURLVarName,
                                                                serviceInstanceIdVarName);
 
         String planInstanceURLVarName = this.addPlanInstanceURLVariable(plan);
