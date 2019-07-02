@@ -103,7 +103,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
 
                 // retrieve ServiceEndpoint property from exchange headers
                 String endpointSuffix =
-                    message.getHeader(MBHeader.ARTIFACTSERVICEENDPOINT_STRING.toString(), String.class);
+                    message.getHeader(MBHeader.ARTIFACTSERVICEENDPOINT_STRING.toString(), String.class);                
 
                 if (endpointSuffix != null) {
                     ManagementBusDeploymentPluginTomcat.LOG.info("Endpoint suffix from header: {}", endpointSuffix);

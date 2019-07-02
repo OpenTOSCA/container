@@ -49,4 +49,5 @@ Service-Component: OSGI-INF/*
 Export-Package: org.opentosca.container.api.controller,
  org.opentosca.container.api.dto,
  org.opentosca.container.api.dto.request,
- org.opentosca.container.api.service
+ org.opentosca.container.api.service,
+ org.opentosca.container.api.util

@@ -15,6 +15,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.script.servicehandler.ServiceHandler;
@@ -153,8 +154,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
             // search operating system IA to upload files and run scripts on
             // target machine
             final String osNodeTemplateID =
-                MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID);
-
+                MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID, true, Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/")));
             if (osNodeTemplateID != null) {
                 final QName osNodeTypeID =
                     ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,

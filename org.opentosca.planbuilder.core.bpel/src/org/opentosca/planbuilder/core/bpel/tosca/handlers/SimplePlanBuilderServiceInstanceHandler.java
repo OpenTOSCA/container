@@ -266,7 +266,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                                                                       Property2VariableMapping propMap,
                                                                       String serviceTemplateUrlVarName,
                                                                       Collection<BPELScope> scopes,
-                                                                      AbstractServiceTemplate serviceTemplate) {
+                                                                      AbstractServiceTemplate serviceTemplate, String query) {
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
@@ -319,7 +319,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                                                                                    restCallResponseVarName,
                                                                                    templatePlan.getNodeTemplate()
                                                                                                .getId(),
-                                                                                   null);
+                                                                                   query);
                 nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(nodeInstanceGETNode,
                                                                            plan.getBpelMainFlowElement());
@@ -404,20 +404,12 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         return true;
     }
 
-    /**
-     * Initializes variables that hold property values from the given instancedata api
-     * 
-     * @param plan
-     * @param propMap
-     * @param serviceTemplateUrlVarName
-     * @return
-     */
     public boolean appendInitPropertyVariablesFromServiceInstanceData(final BPELPlan plan,
                                                                       final Property2VariableMapping propMap,
                                                                       String serviceTemplateUrlVarName,
-                                                                      AbstractServiceTemplate serviceTemplate) {
+                                                                      AbstractServiceTemplate serviceTemplate, String query) {
         return this.appendInitPropertyVariablesFromServiceInstanceData(plan, propMap, serviceTemplateUrlVarName,
-                                                                       plan.getTemplateBuildPlans(), serviceTemplate);
+                                                                       plan.getTemplateBuildPlans(), serviceTemplate, query);
     }
 
     private void addAssignServiceTemplateURLVariable(final BPELPlan plan, String serviceInstancesUrlVarName,

@@ -2,6 +2,7 @@ package org.opentosca.bus.management.api.soaphttp;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 import org.opentosca.bus.management.api.soaphttp.route.Route;
 import org.opentosca.container.core.common.Settings;
@@ -49,7 +50,7 @@ public class EndpointServiceHandler {
             // cause the MB-endpoint is csar independent.
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
             final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, localContainer, localContainer,
-                new CSARID("***"), null, null, null, null);
+                new CSARID("***"), null, null, null, null, new HashMap<String,String>());
             EndpointServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
 
         } else {

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class Activator implements BundleActivator {
 
     static DefaultCamelContext camelContext;
+    static BundleContext ctx;
 
     public static String apiID;
 
@@ -37,7 +38,7 @@ public class Activator implements BundleActivator {
 
         Activator.apiID = bundleContext.getBundle().getSymbolicName();
 
-        
+        Activator.ctx = bundleContext;
         Activator.camelContext = new OsgiDefaultCamelContext(bundleContext);
         Activator.camelContext.addRoutes(new Route());
         Activator.camelContext.start();

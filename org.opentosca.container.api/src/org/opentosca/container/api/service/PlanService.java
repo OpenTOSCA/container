@@ -261,26 +261,6 @@ public class PlanService {
         if (logger.isDebugEnabled()) {
             logger.debug("Request payload:\n{}", JsonUtil.writeValueAsString(parameters));
         }
-
-        /*
-         * Add parameter "OpenTOSCAContainerAPIServiceInstanceID" as a callback for the plan engine
-         */
-        if (serviceTemplateInstanceId != null) {
-
-            String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + serviceTemplateInstanceId;
-            url = url.replace("{csarid}", csarId.getFileName());
-            url = url.replace("{servicetemplateid}",
-                              UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
-            final URI uri = UriUtil.encode(URI.create(url));
-            final TParameter param = new TParameter();
-
-            param.setName("OpenTOSCAContainerAPIServiceInstanceURL");
-            param.setRequired(TBoolean.fromValue("yes"));
-            param.setType("String");
-            param.setValue(uri.toString());
-            parameters.add(param);
-        }
-
         // set "meta" params
         for (TParameter param : parameters) {
             if (param.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT)
@@ -309,6 +289,7 @@ public class PlanService {
         }
 
         final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
+
 
         final Collection<ServiceTemplateInstance> serviceInstances;
         if (serviceTemplateInstanceId != null) {
