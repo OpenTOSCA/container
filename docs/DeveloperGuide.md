@@ -286,3 +286,11 @@ In this folder open the file named **org.opentosca.container.product**.
 After opening this file you can click the green launch button (Fig. 7) on the top right of the editor window to start the container.
 ![ProductFile](graphics/ContainerProductFile.png)
 **Fig. 7**
+
+### Configure container to run with the OpenTOSCA Docker environment
+
+To run the container together with the OpenTOSCA Docker setup, remove the container configuration from the `docker-compose.yml` and `docker-compose.override.yml` files.
+
+Afterwards, you need to configure the eclipse target platform to use the provided `config.ini` file instead of generating it.
+Thererfore, go to the `Configuration` tab in the `org.opentosca.container.product/org.opentosca.container.product` file and select paste `/org.opentosca.container.product/config.ini` into the *File* textbox.
+Then, replace the IP address in `org.opentosca.container.hostname=129.69.214.56` with your IP address
