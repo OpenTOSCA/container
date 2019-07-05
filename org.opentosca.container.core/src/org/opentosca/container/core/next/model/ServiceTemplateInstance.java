@@ -44,6 +44,9 @@ public class ServiceTemplateInstance extends PersistenceObject {
 
     @OneToMany(mappedBy = "serviceTemplateInstance")
     private Collection<NodeTemplateInstance> nodeTemplateInstances = Lists.newArrayList();
+    
+    @OneToMany(mappedBy = "serviceTemplateInstance")
+    private Collection<RelationshipTemplateInstance> relationshipTemplateInstances = Lists.newArrayList();
 
     @Convert("CSARIDConverter")
     @Column(name = "CSAR_ID", nullable = false)
@@ -105,6 +108,21 @@ public class ServiceTemplateInstance extends PersistenceObject {
         this.nodeTemplateInstances.add(nodeTemplateInstance);
         if (nodeTemplateInstance.getServiceTemplateInstance() != this) {
             nodeTemplateInstance.setServiceTemplateInstance(this);
+        }
+    }
+    
+    public Collection<RelationshipTemplateInstance> getRelationshipTemplateInstances() {
+        return this.relationshipTemplateInstances;
+    }
+
+    public void setRelationshipTemplateInstances(final Collection<RelationshipTemplateInstance> relationshipTemplateInstances) {
+        this.relationshipTemplateInstances = relationshipTemplateInstances;
+    }
+
+    public void addRelationshipTemplateInstance(final RelationshipTemplateInstance relationshipTemplateInstance) {
+        this.relationshipTemplateInstances.add(relationshipTemplateInstance);
+        if (relationshipTemplateInstance.getServiceTemplateInstance() != this) {
+            relationshipTemplateInstance.setServiceTemplateInstance(this);
         }
     }
 

@@ -32,6 +32,8 @@ import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
+import org.opentosca.container.api.dto.situations.SituationsMonitorDTO;
+import org.opentosca.container.api.dto.situations.SituationsMonitorListDTO;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
@@ -44,6 +46,8 @@ import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.model.Situation;
+import org.opentosca.container.core.next.model.SituationsMonitor;
 import org.opentosca.container.core.next.repository.DeploymentTestRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
@@ -54,6 +58,9 @@ import org.opentosca.deployment.tests.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -285,6 +292,38 @@ public class ServiceTemplateInstanceController {
         }
 
         return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
+    }
+    
+    @GET
+    @Path("/{id}/situationsmonitors")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response getSituationMonitors(@PathParam("id") final Long id) {
+        Collection<SituationsMonitor> monitors = this.instanceService.getSituationsMonitors(id);
+        final SituationsMonitorListDTO dto = new SituationsMonitorListDTO();
+        
+        monitors.forEach(x -> dto.add(SituationsMonitorDTO.Converter.convert(x)));
+        
+        dto.add(UriUtil.generateSelfLink(this.uriInfo));
+        
+        return Response.ok(dto).build();
+    }
+    
+    @POST
+    @Path("/{id}/situationsmonitors")
+    @Consumes({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response createSituationMonitor(@PathParam("id") final Long id, SituationsMonitorDTO monitor) {      
+        ServiceTemplateInstance servInstance = this.instanceService.getServiceTemplateInstance(id, false);   
+        
+        Map<String,Collection<Long>> mapping = Maps.newHashMap();
+        
+        for(String nodeId :  monitor.getNodeId2SituationIds().keySet()) {
+            mapping.put(nodeId, monitor.getNodeId2SituationIds().get(nodeId).getSituationId());
+        }
+        
+        SituationsMonitor createdInstance = this.instanceService.createNewSituationsMonitor(servInstance, mapping);        
+        final URI uri = UriUtil.generateSubResourceURI(this.uriInfo, createdInstance.getId().toString(), false);
+        return Response.ok(uri).build();
     }
 
     /**

@@ -22,6 +22,7 @@ import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -339,7 +340,7 @@ public class BPELInvokerPluginHandler {
             // of removal
             // TIP this issue theoretically happens only with the "container deployment pattern" were a hosting
             // node has the operations needed to manage a component => different termination handling for such
-            // components is needed
+            // components is needed          
             assignNode =
                 this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
                                                                                       context.getServiceTemplateId(),

@@ -132,10 +132,8 @@ public class BPELPluginHandler {
         if (plugin != null) {
             LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
             result &= plugin.handleCreate(context, nodeTemplate);
-
-        } else {
+        } else {         
             LOG.info("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
-
         }
 
         // generate code the post handling, e.g., update instance data, logs etc.

@@ -291,7 +291,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
     
     @Override
     public String toString() {
-        return "Def: " + this.definitions.getId() + " Id: " + this.getId() + " Name: " + this.getName();
+        return " Id: " + this.getId() + " Name: " + this.getName() + "Def: " + this.definitions.getId();
     }
 
 }

@@ -246,7 +246,7 @@ public class SituationTriggerRegistration {
                     this.handler.addGlobalStringVariable("situationRegistrationStringVar" + System.currentTimeMillis(),
                                                          plan);
 
-                appendAssignTransformXmltoString(plan, varName, stringReqVar, plan.getBpelMainFlowElement());
+                appendAssignTransformXmltoString(plan, varName, stringReqVar, plan.getBpelMainFlowElement(), "SituationTrigger");
 
                 appendAssignRESTPOST(plan, situationsAPIVar, stringReqVar,
                                      this.handler.addGlobalStringVariable("SituationRegistrationResponse", plan),
@@ -270,10 +270,10 @@ public class SituationTriggerRegistration {
         return true;
     }
 
-    private void appendAssignTransformXmltoString(final BPELPlan plan, final String xmlVar, final String stringVar,
-                                                  final Element elementToAppendBefore) throws IOException,
+    public void appendAssignTransformXmltoString(final BPELPlan plan, final String xmlVar, final String stringVar,
+                                                  final Element elementToAppendBefore, String rootElementName) throws IOException,
                                                                                        SAXException {
-        final String xpathQuery1 = "ode:dom-to-string(\\$" + xmlVar + "/*[local-name()='SituationTrigger'])";
+        final String xpathQuery1 = "ode:dom-to-string(\\$" + xmlVar + "/*[local-name()='"+rootElementName+ "'])";
         final String xpathQuery2 = "\\$" + stringVar;
 
         Node assign =

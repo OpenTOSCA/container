@@ -184,7 +184,7 @@ public class SituationsController {
         return Response.ok(SituationTriggerInstanceDTO.Converter.convert(this.instanceService.getSituationTriggerInstance(situationTriggerInstanceId)))
                        .build();
     }
-
+    
     public void setInstanceService(final InstanceService instanceService) {
         this.instanceService = instanceService;
     }

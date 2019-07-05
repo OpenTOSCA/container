@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.xml.namespace.QName;
 
 import org.opentosca.bus.management.servicehandler.ServiceHandler;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
@@ -45,54 +47,37 @@ public class MBUtils {
      * @return name of the OperatingSystem NodeTemplate.
      */
     public static String getOperatingSystemNodeTemplateID(final CSARID csarID, final QName serviceTemplateID,
-                                                          String nodeTemplateID) {
+                                                          String nodeTemplateID, boolean mustHaveInstance, Long serviceTemplateInstanceID) {
 
         MBUtils.LOG.debug("Searching the OperatingSystemNode of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
                           nodeTemplateID, serviceTemplateID, csarID);
 
-        QName nodeType =
-            ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
-
-        while (!isOperatingSystemNodeType(csarID, nodeType) && nodeTemplateID != null) {
-
-            MBUtils.LOG.debug("{} isn't the OperatingSystemNode.", nodeTemplateID);
-            MBUtils.LOG.debug("Getting the underneath Node for checking if it is the OperatingSystemNode...");
-
-            // try different relationshiptypes with priority on hostedOn
-            nodeTemplateID =
-                ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID,
-                                                                           Types.hostedOnRelationType);
-
-            if (nodeTemplateID == null) {
-                nodeTemplateID =
-                    ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                                                                               nodeTemplateID,
-                                                                               Types.deployedOnRelationType);
-
-                if (nodeTemplateID == null) {
-                    nodeTemplateID =
-                        ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                                                                                   nodeTemplateID,
-                                                                                   Types.dependsOnRelationType);
+        // fetch all possible hosting nodes
+        List<String> hostingNodeTemplateIDs = ServiceHandler.toscaEngineService.getRelatedNodeTemplateIDs(csarID, serviceTemplateID, nodeTemplateID, Types.hostedOnRelationType);
+        hostingNodeTemplateIDs.addAll(ServiceHandler.toscaEngineService.getRelatedNodeTemplateIDs(csarID, serviceTemplateID, nodeTemplateID, Types.deployedOnRelationType));
+        hostingNodeTemplateIDs.addAll(ServiceHandler.toscaEngineService.getRelatedNodeTemplateIDs(csarID, serviceTemplateID, nodeTemplateID, Types.dependsOnRelationType));
+          
+        for(String hostingNodeTemplateId : hostingNodeTemplateIDs) {
+            QName nodeType =
+                ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, hostingNodeTemplateId);
+            // check if Operating System Node and if instance is needed
+            if(isOperatingSystemNodeType(csarID, nodeType)) {
+                if(mustHaveInstance) {
+                    if(getNodeTemplateInstance(serviceTemplateInstanceID, hostingNodeTemplateId) != null) {
+                        return hostingNodeTemplateId;
+                    }
+                } else {
+                    return hostingNodeTemplateId;
                 }
-
             }
-
-            if (nodeTemplateID != null) {
-                MBUtils.LOG.debug("Checking if the underneath Node: {} is the OperatingSystemNode.", nodeTemplateID);
-                nodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-                                                                                       nodeTemplateID);
-
-            } else {
-                MBUtils.LOG.debug("No underneath Node found.");
+            // if this node is not an operating system node, then maybe one of its own hosting nodes
+            String node = getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, hostingNodeTemplateId, mustHaveInstance, serviceTemplateInstanceID);
+            if(node != null) {
+                return node;
             }
         }
-
-        if (nodeTemplateID != null) {
-            MBUtils.LOG.debug("OperatingSystemNode found: {}", nodeTemplateID);
-        }
-
-        return nodeTemplateID;
+        
+        return null;
     }
 
     /**
@@ -300,7 +285,7 @@ public class MBUtils {
         if (serviceTemplateInstance.isPresent()) {
             return serviceTemplateInstance.get().getNodeTemplateInstances().stream()
                                           .filter((nodeInstance) -> nodeInstance.getTemplateId().getLocalPart()
-                                                                                .equals(nodeTemplateID))
+                                                                                .equals(nodeTemplateID)).filter((nodeInstance) -> nodeInstance.getState().equals(NodeTemplateInstanceState.CREATED) || nodeInstance.getState().equals(NodeTemplateInstanceState.STARTED))
                                           .findFirst().orElse(null);
         } else {
             MBUtils.LOG.warn("Unable to find ServiceTemplateInstance!");

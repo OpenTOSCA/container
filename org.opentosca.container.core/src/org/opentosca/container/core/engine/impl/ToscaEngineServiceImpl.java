@@ -371,7 +371,11 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     @Override
     public String getRelatedNodeTemplateID(final CSARID csarID, final QName serviceTemplateID,
                                            final String nodeTemplateID, final QName relationshipType) {
-
+        return this.getRelatedNodeTemplateIDs(csarID, serviceTemplateID, nodeTemplateID, relationshipType).stream().findFirst().orElse(null);        
+    }
+    
+    @Override
+    public List<String> getRelatedNodeTemplateIDs(final CSARID csarID, final QName serviceTemplateID, final String nodeTemplateID, final QName relationshipType){
         final TServiceTemplate serviceTemplate =
             (TServiceTemplate) toscaReferenceMapper.getJAXBReference(csarID, serviceTemplateID);
 
@@ -384,7 +388,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                       && ((TNodeTemplate) source).getId().equals(nodeTemplateID);
                               }).map(relation -> relation.getTargetElement().getRef())
                               .filter((target) -> target instanceof TNodeTemplate)
-                              .map(target -> ((TNodeTemplate) target).getId()).findFirst().orElse(null);
+                              .map(target -> ((TNodeTemplate) target).getId()).collect(Collectors.toList());        
     }
 
     /**

@@ -181,8 +181,8 @@ public abstract class AbstractPlan {
         final Collection<AbstractActivity> foundActivities = new HashSet<>();
         for (final AbstractActivity activity : this.activites) {
 
-            if (activity instanceof ANodeTemplateActivity) {
-                if (((ANodeTemplateActivity) activity).getNodeTemplate().equals(nodeTemplate)) {
+            if (activity instanceof NodeTemplateActivity) {
+                if (((NodeTemplateActivity) activity).getNodeTemplate().equals(nodeTemplate)) {
                     foundActivities.add(activity);
                 }
             }
@@ -195,8 +195,8 @@ public abstract class AbstractPlan {
         final Collection<AbstractActivity> foundActivities = new HashSet<>();
         for (final AbstractActivity activity : this.activites) {
 
-            if (activity instanceof ARelationshipTemplateActivity) {
-                if (((ARelationshipTemplateActivity) activity).getRelationshipTemplate().equals(relationshipTemplate)) {
+            if (activity instanceof RelationshipTemplateActivity) {
+                if (((RelationshipTemplateActivity) activity).getRelationshipTemplate().equals(relationshipTemplate)) {
                     foundActivities.add(activity);
                 }
             }

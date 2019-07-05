@@ -160,7 +160,12 @@ public class CsarController {
         }
 
         logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
-        return handleCsarUpload(file.getFileName(), is, applyEnrichment);
+
+        if (applyEnrichment != null) {
+            return handleCsarUpload(file.getFileName(), is, applyEnrichment);
+        } else {
+            return handleCsarUpload(file.getFileName(), is);
+        }
     }
 
     @POST
@@ -201,20 +206,6 @@ public class CsarController {
         }
     }
 
-    @POST
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
-    public Response uploadCsar(@FormDataParam(value = "file") final InputStream is,
-                               @FormDataParam("file") final FormDataContentDisposition file) {
-
-        if (is == null || file == null) {
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-
-        logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
-        return handleCsarUpload(file.getFileName(), is);
-    }
 
     private Response handleCsarUpload(final String filename, final InputStream is, final String applyEnrichment) {
 
