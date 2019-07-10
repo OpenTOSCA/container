@@ -31,7 +31,7 @@
   <logger name="org.opentosca.container.core.impl.service.internal.file.csar.CSARMetaDataJPAStore" level="WARN" />
   <logger name="org.opentosca.container.api.service.CsarService" level="WARN"/>
   <logger name="org.opentosca.container.core" level="WARN"/>  
-  <logger name="org.opentosca.container.engine.plan" level="WARN"/>
+  <logger name="org.opentosca.container.engine.plan" level="DEBUG"/>
   <logger name="org.opentosca.container.connector.ode.OdeConnector" level="WARN"/>
   <logger name="httpclient.wire" level="WARN" />
   <logger name="com.predic8" level="WARN" />

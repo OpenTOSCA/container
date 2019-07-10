@@ -1,33 +1,18 @@
 package org.opentosca.container.engine.plan.plugin.camunda;
 
-import org.opentosca.container.core.engine.IToscaEngineService;
-import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.service.ICoreFileService;
-import org.opentosca.container.core.service.IFileAccessService;
-import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator {
 
+    private static Logger LOG = LoggerFactory.getLogger(Activator.class);
+
     private static BundleContext context;
-    private final CamundaPlanEnginePlugin plugin = new CamundaPlanEnginePlugin();
-    private ServiceRegistration<?> registration;
 
-    private final ICoreFileService coreFileService = null;
-    private final IFileAccessService fileAccessService = null;
-    private final ICoreEndpointService coreEndpointService = null;
-    private final IToscaEngineService toscaEngineService = null;
-
-
-    /**
-     * Returns the BundleContext of this Plugin
-     *
-     * @return a BundleContext
-     */
-    public static BundleContext getContext() {
-        return Activator.context;
+    static BundleContext getContext() {
+        return context;
     }
 
     /**
@@ -35,25 +20,8 @@ public class Activator implements BundleActivator {
      */
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
+        LOG.debug("Starting Camunda Engine Bundle...");
         Activator.context = bundleContext;
-        this.registration =
-            Activator.context.registerService(IPlanEnginePlanRefPluginService.class.getName(), this.plugin, null);
-    }
-
-    public ICoreFileService getCoreFileService() {
-        return this.coreFileService;
-    }
-
-    public IFileAccessService getFileAccessService() {
-        return this.fileAccessService;
-    }
-
-    public ICoreEndpointService getCoreEndpointService() {
-        return this.coreEndpointService;
-    }
-
-    public IToscaEngineService getToscaEngineService() {
-        return this.toscaEngineService;
     }
 
     /**
@@ -61,8 +29,7 @@ public class Activator implements BundleActivator {
      */
     @Override
     public void stop(final BundleContext bundleContext) throws Exception {
-        this.registration.unregister();
+        LOG.debug("Terminating Camunda Engine Bundle...");
         Activator.context = null;
     }
-
 }

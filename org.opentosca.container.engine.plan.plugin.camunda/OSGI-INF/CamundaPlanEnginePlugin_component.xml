@@ -4,8 +4,4 @@
    <service>
       <provide interface="org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService"/>
    </service>
-   <reference cardinality="1..1" interface="org.opentosca.container.core.service.ICoreFileService" name="ICoreFileService" policy="static"/>
-   <reference cardinality="1..1" interface="org.opentosca.container.core.service.IFileAccessService" name="IFileAccessService" policy="static"/>
-   <reference cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static"/>
-   <reference cardinality="1..1" interface="org.opentosca.container.core.service.IHTTPService" name="IHTTPService" policy="static"/>
 </scr:component>
