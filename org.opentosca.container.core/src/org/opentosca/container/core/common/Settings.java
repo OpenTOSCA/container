@@ -26,7 +26,7 @@ public class Settings {
     public final static String ENGINE_PLAN_BPMN_ENGINE =
         System.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.engine", "Camunda");
     public final static String ENGINE_PLAN_BPMN_URL =
-        System.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.url", "http://localhost:8080/camunda");
+        System.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.url", "http://localhost:8080/engine-rest");
     public final static String ENGINE_PLAN_BPMN_USERNAME =
         System.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.username", "admin");
     public final static String ENGINE_PLAN_BPMN_PASSWORD =

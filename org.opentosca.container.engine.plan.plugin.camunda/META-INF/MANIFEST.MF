@@ -8,10 +8,15 @@ Import-Package:
  org.apache.commons.io;version="2.2.0",
  org.apache.http;version="4.3.3",
  org.apache.http.client;version="4.5.2",
+ org.apache.http.client.methods;version="4.5.2",
+ org.apache.http.entity;version="4.3.3",
  org.apache.http.entity.mime;version="4.5.2",
  org.apache.http.entity.mime.content;version="4.5.2",
+ org.apache.http.impl.client;version="4.5.2",
  org.apache.http.util;version="4.4.6",
  org.eclipse.osgi.util;version="1.1.0",
+ org.json.simple,
+ org.json.simple.parser,
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.6.4"
 Bundle-Activator: org.opentosca.container.engine.plan.plugin.camunda.Activator
@@ -19,4 +24,5 @@ Service-Component: OSGI-INF/*
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.opentosca.container.core,
  org.opentosca.container.core.tosca,
- org.opentosca.container.engine.plan
+ org.opentosca.container.engine.plan,
+ org.apache.httpcomponents.httpclient
