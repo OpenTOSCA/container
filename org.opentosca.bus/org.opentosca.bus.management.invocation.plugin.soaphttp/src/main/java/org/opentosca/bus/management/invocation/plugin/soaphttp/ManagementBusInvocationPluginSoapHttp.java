@@ -23,6 +23,7 @@ import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.soaphttp.route.AsyncRoute;
 import org.opentosca.bus.management.utils.MBUtils;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -74,7 +75,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
     String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
 
     final Boolean hasOutputParams = message.getHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), Boolean.class);
-    final String csarID = message.getHeader(MBHeader.CSARID.toString(), String.class);
+    final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
 
     if (!endpoint.endsWith("?wsdl")) {
       endpoint = endpoint.concat("?wsdl");
@@ -120,9 +121,9 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
           headers.put("ReplyTo", callbackAddress);
         }
         if (paramsMap.containsKey("planCallbackAddress_invoker")) {
-          paramsMap.put("planCallbackAddress_invoker", "http://localhost:9763/services/" + csarID + "InvokerService/");
+          paramsMap.put("planCallbackAddress_invoker", "http://localhost:9763/services/" + csarID.csarName() + "InvokerService/");
         } else {
-          headers.put("planCallbackAddress_invoker", "http://localhost:9763/services/" + csarID + "InvokerService/");
+          headers.put("planCallbackAddress_invoker", "http://localhost:9763/services/" + csarID.csarName() + "InvokerService/");
         }
       }
 

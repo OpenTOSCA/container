@@ -102,7 +102,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
 
     final Csar csar = csarStorage.findById(csarID);
     // refill information that might not be sent
-    LOG.info("Invoke the Plan \"" + givenPlan.getId() + "\" of type \"" + givenPlan.getPlanType() + "\" of CSAR \"" + csarID + "\".");
+    LOG.info("Invoke the Plan \"" + givenPlan.getId() + "\" of type \"" + givenPlan.getPlanType() + "\" of CSAR \"" + csarID.csarName() + "\".");
     final TPlan storedPlan;
     final TServiceTemplate serviceTemplate;
     try {
@@ -597,8 +597,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         }
 
         if (resp.equals("[]")) {
-          LOG.debug("The plan instance {} is not active any more, thus, the output can be retrieved.",
-            planInstanceID);
+          LOG.debug("The plan instance {} is not active any more, thus, the output can be retrieved.", planInstanceID);
           ended = true;
         }
 

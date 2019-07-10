@@ -120,29 +120,11 @@ public class ODEEndpointUpdater {
       return false;
     }
 
-    // update addresses inside the process archive that are invoked by the
-    // plan
+    // update addresses inside the process archive that are invoked by the plan
     try {
       final List<QName> portsInDeployXml = getInvokedDeployXMLPorts(deployXml);
       // check with modelrepo if any of the qnames have to be thrown out
       // cause they aren't referenced in the CSAR/TOSCA
-
-      // quick fix,until we know how to "add" porttypes to tosca again
-      // if (ODEEndpointUpdater.modelRepoService != null) {
-      // List<QName> csarPortTypeReferences =
-      // ODEEndpointUpdater.toscaEngineService.getToscaReferenceMapper().getAllWSDLPortTypeReferencesInsideTHOR(csarId);
-      // List<QName> toRemove = new LinkedList<QName>();
-      // for (QName portType : portsInDeployXml) {
-      // if (!csarPortTypeReferences.contains(portType)) {
-      // toRemove.add(portType);
-      // }
-      // }
-      // portsInDeployXml.removeAll(toRemove);
-      // } else {
-      // ODEEndpointUpdater.LOG.warn("No ModelRepositoryService is bound,
-      // may corrupt private wsdl files");
-      // }
-
       if (!portsInDeployXml.isEmpty()) {
         for (final QName portType : portsInDeployXml) {
           ODEEndpointUpdater.LOG.debug("Proceeding to update address for portType: {}", portType);

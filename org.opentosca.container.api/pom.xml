@@ -139,6 +139,11 @@
       <artifactId>resteasy-multipart-provider</artifactId>
       <version>${resteasy.version}</version>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.jboss.resteasy</groupId>-->
+<!--      <artifactId>resteasy-spring</artifactId>-->
+<!--      <version>${resteasy.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
