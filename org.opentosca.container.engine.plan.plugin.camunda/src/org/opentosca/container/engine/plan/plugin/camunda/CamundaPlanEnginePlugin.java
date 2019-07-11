@@ -2,9 +2,11 @@ package org.opentosca.container.engine.plan.plugin.camunda;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +25,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.opentosca.container.core.common.Settings;
@@ -33,7 +36,9 @@ import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.next.model.PlanLanguage;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.container.core.tosca.model.TPlan.PlanModelReference;
@@ -41,6 +46,9 @@ import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginServic
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO
+ */
 public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
     final private static Logger LOG = LoggerFactory.getLogger(CamundaPlanEnginePlugin.class);
@@ -48,10 +56,12 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
     private final String CAMUNDA_DESCRIPTION = "OpenTOSCA PlanEngine Camunda BPMN 2.0 Plugin v1.0";
     private final String DEPLOYMENT_SUFFIX = "/deployment/create";
     private final String PROCESS_DEFINITION_SUFFIX = "process-definition";
+    private final String INSTANCE_CREATION_SUFFIX = "/submit-form";
 
     private ICoreFileService fileService = null;
     private IToscaEngineService toscaEngine = null;
     private IFileAccessService fileAccessService = null;
+    private ICoreEndpointService endpointService = null;
 
     @Override
     public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CSARID csarId) {
@@ -96,11 +106,24 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         return deployPlanFile(fetchedPlan, csarId, planId);
     }
 
+    /**
+     * Deploys the given plan into the Camunda BPMN engine
+     *
+     * @param planPath the path to the zip file containing the plan and its artifacts
+     * @param csarId the ID of the CSAR to which the plan belongs
+     * @param planId the QName to identify the plan
+     * @return <code>true</code> if deployment is successful, <code>false</code> otherwise
+     */
     private boolean deployPlanFile(final Path planPath, final CSARID csarId, final QName planId) {
         LOG.debug("Starting to deploy plan from retrieved file...");
 
         if (Objects.isNull(this.fileAccessService)) {
-            LOG.error("FileAccessService is not available, can't create needed temporary space on disk");
+            LOG.error("FileAccessService is not available, can't create needed temporary space on disk!");
+            return false;
+        }
+
+        if (Objects.isNull(this.endpointService)) {
+            LOG.error("EndpointService is not available, unablt to create plan endpoint!");
             return false;
         }
 
@@ -151,14 +174,28 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             final String id = json.get("id").toString();
             LOG.debug("Deployment has the following ID: {}", id);
 
-            // get process definition ID to create a corresponding endpoint
+            // get all process definition IDs of the created deployment
             final URIBuilder uriBuilder =
                 new URIBuilder(Settings.ENGINE_PLAN_BPMN_URL + this.PROCESS_DEFINITION_SUFFIX);
             uriBuilder.setParameter("deploymentId", id);
             final HttpGet getProcessDefinition = new HttpGet(uriBuilder.build());
             response = httpClient.execute(getProcessDefinition);
 
-            // TODO: parse process definition ID from response and store endpoint in endpoint DB
+            final JSONArray processDefinitions = (JSONArray) parser.parse(EntityUtils.toString(response.getEntity()));
+            if (processDefinitions.isEmpty()) {
+                LOG.error("No process definitions contained in created deployment!");
+                return false;
+            }
+
+            // get the first process definition and create corresponding endpoint
+            final JSONObject planProcessDefinition = (JSONObject) processDefinitions.get(0);
+            final String planDefinitionID = planProcessDefinition.get("id").toString();
+            final URI endpoint = new URI(Settings.ENGINE_PLAN_BPMN_URL + this.PROCESS_DEFINITION_SUFFIX + "/"
+                + planDefinitionID + this.INSTANCE_CREATION_SUFFIX);
+            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, null, Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, null, planId, null, null, new HashMap<String, String>());
+            this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
+            return true;
         }
         catch (final ClientProtocolException e) {
             LOG.error("An ClientProtocolException occured while sending post to the engine: {}", e);
@@ -176,8 +213,6 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             LOG.error("An URISyntaxException occured while creating URI to retrieve the process ID: {}", e);
             return false;
         }
-
-        return true;
     }
 
     @Override
@@ -266,5 +301,27 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
     protected void unregisterFileAccessService(final IFileAccessService fileAccessService) {
         LOG.debug("Unregistering IFileAccessService {}", fileAccessService.toString());
         this.fileAccessService = null;
+    }
+
+    /**
+     * Bind method for ICoreEndpointServices
+     *
+     * @param endpointService the endpointService to bind
+     */
+    public void registerEndpointService(final ICoreEndpointService endpointService) {
+        LOG.debug("Registering EndpointService {}", endpointService.toString());
+        if (Objects.nonNull(endpointService)) {
+            this.endpointService = endpointService;
+        }
+    }
+
+    /**
+     * Unbind method for ICoreEndpointServices
+     *
+     * @param endpointService the endpointService to unbind
+     */
+    protected void unregisterEndpointService(final ICoreEndpointService endpointService) {
+        LOG.debug("Unregistering EndpointService {}", endpointService.toString());
+        this.endpointService = null;
     }
 }
