@@ -1,9 +1,15 @@
-package org.opentosca.planbuilder.service.resources;
+package org.opentosca.container.api.controller;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -15,11 +21,19 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.opentosca.planbuilder.service.RunningTasks;
-import org.opentosca.planbuilder.service.TaskWorkerRunnable;
-import org.opentosca.planbuilder.service.Util;
-import org.opentosca.planbuilder.service.model.GeneratePlanForTopology;
-import org.opentosca.planbuilder.service.model.PlanGenerationState;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.opentosca.container.api.planbuilder.RunningTasks;
+import org.opentosca.container.api.planbuilder.PlanbuilderWorker;
+import org.opentosca.container.api.planbuilder.model.GeneratePlanForTopology;
+import org.opentosca.container.api.planbuilder.model.PlanGenerationState;
+import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.IHTTPService;
+import org.opentosca.container.core.service.impl.CsarStorageServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
@@ -31,10 +45,25 @@ import org.opentosca.planbuilder.service.model.PlanGenerationState;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
 @Path("planbuilder")
-public class RootResource {
+@RestController
+public class PlanbuilderController {
+
+  private static final ExecutorService backgroundWorker = Executors.newCachedThreadPool(r -> new Thread(r, "planbuilder-api-worker"));
+  private static final Logger LOG = LoggerFactory.getLogger(PlanbuilderController.class);
 
   @Context
   UriInfo uriInfo;
+
+  // FIXME make sure that this is actually injected
+  @Inject
+  IHTTPService httpService;
+
+  @Nullable
+  final CsarStorageService csarStorage;
+
+  public PlanbuilderController() {
+    csarStorage = new CsarStorageServiceImpl(Settings.CONTAINER_STORAGE_BASEPATH.resolveSibling("planbuilder-application"));
+  }
 
   @GET
   @Produces("text/html")
@@ -44,13 +73,14 @@ public class RootResource {
   }
 
   @Path("async/{taskId}")
-  public TaskResource getTask(@PathParam("taskId") final String taskId) {
-    if (RunningTasks.tasks.containsKey(taskId)) {
-      return new TaskResource(RunningTasks.tasks.get(taskId));
+  @GET
+  @Produces("application/xml")
+  public Response getTask(@PathParam("taskId") final String taskId) {
+    if (RunningTasks.exists(taskId)) {
+      return Response.ok(RunningTasks.get(taskId)).build();
     } else {
       return null;
     }
-
   }
 
   @POST
@@ -58,24 +88,19 @@ public class RootResource {
   @Produces("application/xml")
   @Path("async")
   public Response generateBuildPlanAsync(final GeneratePlanForTopology generatePlanForTopology) {
-
     URL csarURL = null;
     URL planPostURL = null;
-
     try {
       csarURL = new URL(generatePlanForTopology.CSARURL);
       planPostURL = new URL(generatePlanForTopology.PLANPOSTURL);
     } catch (final MalformedURLException e) {
-      return Response.status(Status.BAD_REQUEST).entity(Util.getStacktrace(e)).build();
+      LOG.info("Failed to create csarURl or planPostURL for async build plan", e);
+      return Response.status(Status.BAD_REQUEST).entity(e).build();
     }
-
     final PlanGenerationState newTaskState = new PlanGenerationState(csarURL, planPostURL);
-
-    final String newId = RunningTasks.generateId();
-    RunningTasks.tasks.put(newId, newTaskState);
-
-    new Thread(new TaskWorkerRunnable(newTaskState)).start();
-
+    final String newId = RunningTasks.putSafe(newTaskState);
+    LOG.info("Enqueueing PlanbuilderWorker for CsarUrl {} and planUrl {} with id [{}]", csarURL, planPostURL, newId);
+    backgroundWorker.execute(new PlanbuilderWorker(newTaskState, httpService, csarStorage)::doWork);
     return Response.created(URI.create(this.uriInfo.getAbsolutePath() + "/" + newId)).build();
   }
 
@@ -97,28 +122,24 @@ public class RootResource {
   @Produces("application/xml")
   @Path("sync")
   public Response generateBuildPlanSync(final GeneratePlanForTopology generatePlanForTopology) {
-
     URL csarURL = null;
     URL planPostURL = null;
-
     try {
       csarURL = new URL(generatePlanForTopology.CSARURL);
       planPostURL = new URL(generatePlanForTopology.PLANPOSTURL);
     } catch (final MalformedURLException e) {
-      return Response.status(Status.BAD_REQUEST).entity(Util.getStacktrace(e)).build();
+      LOG.info("Failed to create csarURl or planPostURL for sync build plan", e);
+      return Response.status(Status.BAD_REQUEST).entity(e).build();
     }
 
     final PlanGenerationState newTaskState = new PlanGenerationState(csarURL, planPostURL);
+    final String newId = RunningTasks.putSafe(newTaskState);
 
-    final String newId = RunningTasks.generateId();
-    RunningTasks.tasks.put(newId, newTaskState);
+    final PlanbuilderWorker worker = new PlanbuilderWorker(newTaskState, httpService, csarStorage);
+    LOG.info("Synchronously Running PlanbuilderWorker for CsarUrl {} and planUrl {} with id [{}]", csarURL, planPostURL, newId);
+    worker.doWork();
 
-    final TaskWorkerRunnable worker = new TaskWorkerRunnable(newTaskState);
-
-    worker.run();
-
-    // if the worker run is finished, we're either in a failed state or
-    // everything worked
+    // if the worker doWork is finished, we're either in a failed state or everything worked
     switch (worker.getState().currentState) {
       case CSARDOWNLOADFAILED:
         return Response.status(Status.INTERNAL_SERVER_ERROR).entity(worker.getState()).build();

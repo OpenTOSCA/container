@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.service.model;
+package org.opentosca.container.api.planbuilder.model;
 
 import java.io.File;
 import java.net.URL;
@@ -18,7 +18,21 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 public class PlanGenerationState {
 
   public enum PlanGenerationStates {
-    INITIALIZED, CSARDOWNLOADING, CSARDOWNLOADFAILED, CSARDOWNLOADED, PLANGENERATING, PLANGENERATIONFAILED, PLANSGENERATED, PLANSENDING, PLANSENDINGFAILED, PLANSSENT, OPTIONSENDING, OPTIONSENDINGFAILED, OPTIONSENT, FINISHED
+    INITIALIZED
+    , CSARDOWNLOADING
+    , CSARDOWNLOADFAILED
+    , CSARDOWNLOADED
+    , PLANGENERATING
+    , PLANGENERATIONFAILED
+    , PLANSGENERATED
+    , PLANSENDING
+    , PLANSENDINGFAILED
+    , PLANSSENT
+    , OPTIONSENDING
+    , OPTIONSENDINGFAILED
+    , OPTIONSENT
+    , FINISHED
+    , FAILED
   }
 
   @XmlElement

@@ -3,6 +3,7 @@ package org.opentosca.container.war;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 import org.opentosca.container.api.config.*;
 import org.opentosca.container.api.controller.*;
+import org.opentosca.container.api.controller.PlanbuilderController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,7 @@ public class Application extends javax.ws.rs.core.Application {
       , ManagementPlanController.class
       , NodeTemplateController.class
       , NodeTemplateInstanceController.class
+      , PlanbuilderController.class
       , RelationshipTemplateController.class
       , RelationshipTemplateInstanceController.class
       , RootController.class
