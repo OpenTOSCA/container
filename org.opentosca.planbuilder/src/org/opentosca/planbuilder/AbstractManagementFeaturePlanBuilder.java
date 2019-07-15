@@ -9,13 +9,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.ActivityType;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -58,13 +58,13 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
         // check all NodeTypes if they contain the given Management Interface
         for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
 
-            ANodeTemplateActivity activity = null;
+            NodeTemplateActivity activity = null;
             if (containsManagementInterface(nodeTemplate, managementInterfaceName)) {
-                activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_management_activity", activityType,
-                    nodeTemplate);
+                activity =
+                    new NodeTemplateActivity(nodeTemplate.getId() + "_management_activity", activityType, nodeTemplate);
             } else {
                 activity =
-                    new ANodeTemplateActivity(nodeTemplate.getId() + "_none_activity", ActivityType.NONE, nodeTemplate);
+                    new NodeTemplateActivity(nodeTemplate.getId() + "_none_activity", ActivityType.NONE, nodeTemplate);
             }
             activities.add(activity);
             nodeMapping.put(nodeTemplate, activity);
@@ -72,7 +72,7 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
 
         // add empty activites for RelationshipTemplates
         for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
-            final ARelationshipTemplateActivity activity = new ARelationshipTemplateActivity(
+            final RelationshipTemplateActivity activity = new RelationshipTemplateActivity(
                 relationshipTemplate.getId() + "_none_activity", ActivityType.NONE, relationshipTemplate);
             activities.add(activity);
 
