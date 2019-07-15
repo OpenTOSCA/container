@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 import org.opentosca.planbuilder.AbstractSimplePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBuildProcessBuilder;
@@ -34,12 +36,12 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 public abstract class AbstractImporter {
 
 
-    protected AbstractPlan buildAdaptationPlan(String csarName, AbstractDefinitions definitions,
-                                               QName serviceTemplateId,
-                                               Collection<AbstractNodeTemplate> sourceNodeTemplates,
-                                               Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
-                                               Collection<AbstractNodeTemplate> targetNodeTemplates,
-                                               Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
+    protected AbstractPlan buildAdaptationPlan(final String csarName, final AbstractDefinitions definitions,
+                                               final QName serviceTemplateId,
+                                               final Collection<AbstractNodeTemplate> sourceNodeTemplates,
+                                               final Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
+                                               final Collection<AbstractNodeTemplate> targetNodeTemplates,
+                                               final Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder();
 
         return transformPlanBuilder.buildPlan(csarName, definitions, serviceTemplateId, sourceNodeTemplates,
@@ -71,11 +73,11 @@ public abstract class AbstractImporter {
      * @return a List of Plans
      */
     public List<AbstractPlan> buildPlans(final AbstractDefinitions defs, final String csarName) {
-                
+
         final List<AbstractPlan> plans = new ArrayList<>();
 
         AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
-        BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(); 
+        final BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder();
 
         if (!sitAwareBuilder.buildPlans(csarName, defs).isEmpty()) {
             buildPlanBuilder = sitAwareBuilder;
