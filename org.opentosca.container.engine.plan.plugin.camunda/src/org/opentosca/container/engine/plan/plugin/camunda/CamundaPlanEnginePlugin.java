@@ -62,7 +62,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
     private final String CAMUNDA_DESCRIPTION = "OpenTOSCA PlanEngine Camunda BPMN 2.0 Plugin v1.0";
     private final String DEPLOYMENT_SUFFIX = "/deployment";
     private final String CREATE_SUFFIX = "/create";
-    private final String PROCESS_DEFINITION_SUFFIX = "process-definition";
+    private final String PROCESS_DEFINITION_SUFFIX = "/process-definition";
     private final String INSTANCE_CREATION_SUFFIX = "/submit-form";
 
     private ICoreFileService fileService = null;
@@ -131,7 +131,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         }
 
         if (Objects.isNull(this.endpointService)) {
-            LOG.error("EndpointService is not available, unablt to create plan endpoint!");
+            LOG.error("EndpointService is not available, unable to create plan endpoint!");
             return false;
         }
 
@@ -207,19 +207,19 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             return true;
         }
         catch (final ClientProtocolException e) {
-            LOG.error("An ClientProtocolException occured while sending post to the engine: {}", e);
+            LOG.error("An ClientProtocolException occured while sending post to the engine:", e);
             return false;
         }
         catch (final IOException e) {
-            LOG.error("An IOException occured while sending post to the engine: {}", e);
+            LOG.error("An IOException occured while sending post to the engine:", e);
             return false;
         }
         catch (final org.json.simple.parser.ParseException e) {
-            LOG.error("An ParseException occured while parsing response to Json: {}", e);
+            LOG.error("An ParseException occured while parsing response to Json:", e);
             return false;
         }
         catch (final URISyntaxException e) {
-            LOG.error("An URISyntaxException occured while creating URI to retrieve the process ID: {}", e);
+            LOG.error("An URISyntaxException occured while creating URI to retrieve the process ID:", e);
             return false;
         }
         finally {
