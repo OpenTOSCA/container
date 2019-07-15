@@ -1378,8 +1378,14 @@ public class Handler {
             final AbstractNodeTemplate sourceNodeTemplate = context.getRelationshipTemplate().getSource();
             LOG.debug("Trying to create provisioning plan context for sourceNodeTemplate {} of relationshipTemplate {}", sourceNodeTemplate.toString(), context.getRelationshipTemplate().toString());
             
-            injectionPreElement = context.createContext(sourceNodeTemplate,ActivityType.PROVISIONING).getPostPhaseElement();
-            injectionPostElement = context.createContext(sourceNodeTemplate,ActivityType.PROVISIONING).getPostPhaseElement();
+            // Right now the knowledge of DEFROST and PROVISIONING activities is to hard of an assumption, if you ask me
+            BPELPlanContext sourceContext = context.createContext(sourceNodeTemplate,ActivityType.PROVISIONING, ActivityType.DEFROST);
+            if(sourceContext == null) {
+                LOG.error("Couldn't create context for sourceNodeTemplate {}" , sourceNodeTemplate.toString());
+                return false;
+            }
+            injectionPreElement = sourceContext.getPostPhaseElement();
+            injectionPostElement = sourceContext.getPostPhaseElement();
         }
 
         if (injectionPostElement == null | injectionPreElement == null | sourceInstanceVarName == null

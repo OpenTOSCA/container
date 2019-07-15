@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.bpel.context;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.swing.event.ListSelectionEvent;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
@@ -259,18 +261,22 @@ public class BPELPlanContext extends PlanContext {
         return true;
     }
 
-    public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType activityType) {       
+    public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType... activityType) {                       
         LOG.debug("Trying to create {} plan context for nodeTemplate {}", activityType, nodeTemplate);
         for(BPELScope scope : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
-            if(scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && scope.getActivity().getType().equals(activityType)) {
+            if(scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && Arrays.asList(activityType).contains(scope.getActivity().getType())) {
                 LOG.debug("Found scope of nodeTemplate");
                 return new BPELPlanContext((BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName,
                                     this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.csarFileName);
             }
         }
         
+        
+        
         return null;
     }
+    
+    
     
     
     /**
