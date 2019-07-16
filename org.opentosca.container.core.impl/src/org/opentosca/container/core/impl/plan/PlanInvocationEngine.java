@@ -1,7 +1,6 @@
 package org.opentosca.container.core.impl.plan;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,9 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.glassfish.jersey.uri.UriComponent;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.impl.plan.messages.ResponseParser;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -25,9 +22,7 @@ import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
-import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
-import org.opentosca.container.core.service.IPlanLogHandler;
 import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
@@ -46,7 +41,6 @@ import com.google.gson.JsonParser;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 /**
  * The Implementation of the Engine. Also deals with OSGI events for communication with the mock-up
@@ -59,12 +53,14 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
  */
 public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler {
 
-    private final ResponseParser responseParser = new ResponseParser();
-
     private final Logger LOG = LoggerFactory.getLogger(PlanInvocationEngine.class);
 
     private static String nsBPEL = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
     private static String nsBPMN = "http://www.omg.org/spec/BPMN";
+
+    private final String PROCESS_INSTANCE_PATH = "/process-instance?processInstanceIds=";
+    private final String HISTORY_PATH = "/history/variable-instance";
+    private final String EMPTY_JSON = "[]";
 
     private final static ServiceTemplateInstanceRepository stiRepo = new ServiceTemplateInstanceRepository();
 
@@ -443,7 +439,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
             eventValues.put("PLANID", planEvent.getPlanID());
             eventValues.put("PLANLANGUAGE", planEvent.getPlanLanguage());
             eventValues.put("OPERATIONNAME", planEvent.getOperationName());
-            eventValues.put("INPUTS", this.transform(planEvent.getInputParameter()));
+            eventValues.put("INPUTS", transform(planEvent.getInputParameter()));
             eventValues.put("SERVICEINSTANCEID", serviceTemplateInstanceID);
 
             this.LOG.debug("complete the list of parameters {}", givenPlan.getId());
@@ -487,7 +483,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         }
     }
 
-    private Map<String, String> transform(List<TParameterDTO> params) {
+    private Map<String, String> transform(final List<TParameterDTO> params) {
         return params.stream().collect(Collectors.toMap(TParameterDTO::getName, TParameterDTO::getValue));
     }
 
@@ -501,7 +497,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
 
     public Map<String, String> createRequest(final CSARID csarID, final QName serviceTemplateID,
-                                             Long serviceTemplateInstanceId, final QName planInputMessageID,
+                                             final Long serviceTemplateInstanceId, final QName planInputMessageID,
                                              final List<TParameterDTO> inputParameter,
                                              final String correlationID) throws UnsupportedEncodingException {
 
@@ -524,9 +520,9 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
             }
         }
 
-        this.LOG.trace("Processing a list of {} parameters", inputParameter.size());
+        this.LOG.debug("Processing a list of {} parameters", inputParameter.size());
         for (final TParameterDTO para : inputParameter) {
-            this.LOG.trace("Put in the parameter {} with value \"{}\".", para.getName(), para.getValue());
+            this.LOG.debug("Put in the parameter {} with value \"{}\".", para.getName(), para.getValue());
 
             if (para.getName().equalsIgnoreCase("CorrelationID")) {
                 this.LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
@@ -675,83 +671,61 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
                 this.LOG.trace("Found invocation in plan history for instance: {}", event.getCSARInstanceID());
                 final CSARID csarID = new CSARID(event.getCSARID());
 
-                // parse the body
-                final String planInstanceID =
-                    this.responseParser.parseRESTResponse(csarID, event.getPlanID(), correlationID, response);
-
-                // if plan is not null
+                // parse process instance ID out of REST response
+                final String planInstanceID = parseRESTResponse(response);
                 if (null == planInstanceID || planInstanceID.equals("")) {
                     this.LOG.error("The parsing of the response failed!");
                     return;
                 }
-
-                /**
-                 * TODO remove jersey and search for the history with the bus(?)!!!
-                 */
-
-                // searching for history
-                final String pathBase = "http://localhost:8080/engine-rest/";
-                final String pathProcessInstance = "process-instance?processInstanceIds=";
-                final String pathHistoryVariables = "history/variable-instance";
-
                 this.LOG.debug("Instance ID: " + planInstanceID);
 
-                // TODO: Migrate to new Jersey version
+                // create web resource to retrieve the current state of the process instance
                 final Client client = Client.create();
-                client.addFilter(new HTTPBasicAuthFilter("demo", "demo"));
+                WebResource webResource =
+                    Client.create()
+                          .resource(Settings.ENGINE_PLAN_BPMN_URL + this.PROCESS_INSTANCE_PATH + planInstanceID);
 
-                boolean ended = false;
-                String path = pathBase + pathProcessInstance + planInstanceID;
-                WebResource webResource = client.resource(path);
-
-                ClientResponse camundaResponse;
-                while (!ended) {
-                    camundaResponse = webResource.get(ClientResponse.class);
-                    final String resp = camundaResponse.getEntity(String.class);
+                // wait until the process instance terminates
+                while (true) {
+                    final String resp = webResource.get(ClientResponse.class).getEntity(String.class);
                     this.LOG.debug("Active process instance response: " + resp);
 
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(10000);
                     }
                     catch (final InterruptedException e) {
                         e.printStackTrace();
                     }
 
-                    if (resp.equals("[]")) {
-                        this.LOG.debug("The plan instance {} is not active any more, thus, the output can be retrieved.",
-                                       planInstanceID);
-                        ended = true;
+                    // check if history contains process instance with this ID
+                    if (resp.equals(this.EMPTY_JSON)) {
+                        this.LOG.debug("The plan instance {} is not active any more.", planInstanceID);
+                        break;
                     }
-
-                    if (resp.contains("Process instance with id " + planInstanceID + " does not exist")) {
-                        ended = true;
-                    }
-
                 }
 
-                final ICSARInstanceManagementService instMngr = ServiceProxy.csarInstanceManagement;
-                final Map<String, String> map = instMngr.getOutputForCorrelation(correlationID);
+                final Map<String, String> map =
+                    ServiceProxy.csarInstanceManagement.getOutputForCorrelation(correlationID);
 
+                // get output parameters of the plan from the process instance variables
                 for (final TParameterDTO param : event.getOutputParameter()) {
-                    // History of process instance TODO get here the output
-                    // parameters
-                    path = pathBase + pathHistoryVariables;
-                    // + "?processInstanceId=" + planInstanceID;
+                    final String path = Settings.ENGINE_PLAN_BPMN_URL + this.HISTORY_PATH;
 
+                    // get variable instances of the process instance with the param name
                     webResource = client.resource(path);
                     webResource = webResource.queryParam("processInstanceId", planInstanceID);
                     webResource = webResource.queryParam("activityInstanceIdIn", planInstanceID);
-                    // webResource = webResource.queryParam("variableName",
-                    // "ApplicationURL");
                     webResource = webResource.queryParam("variableName", param.getName());
-                    camundaResponse = webResource.get(ClientResponse.class);
-                    final String responseStr = camundaResponse.getEntity(String.class);
-                    this.LOG.trace("Query:\n{}", webResource.getURI());
-                    this.LOG.trace("History has for variable \"{}\" the value \"{}\"", param.getName(), responseStr);
+                    final String responseStr = webResource.get(ClientResponse.class).getEntity(String.class);
 
-                    final JsonParser parser = new JsonParser();
+                    if (responseStr.equals(this.EMPTY_JSON)) {
+                        this.LOG.warn("Unable to find variable instance for output parameter: {}", param.getName());
+                        continue;
+                    }
+
                     String value = null;
                     try {
+                        final JsonParser parser = new JsonParser();
                         final JsonObject json =
                             (JsonObject) parser.parse(responseStr.substring(1, responseStr.length() - 1));
                         value = json.get("value").getAsString();
@@ -804,6 +778,12 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         }
     }
 
+    private String parseRESTResponse(final Object responseBody) {
+        final String resp = (String) responseBody;
+        final String instanceID = resp.substring(resp.indexOf("href\":\"") + 7, resp.length());
+        return instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -820,10 +800,5 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     public TPlanDTO getActivePublicPlanOfInstance(final ServiceTemplateInstanceID csarInstanceID,
                                                   final String correlationID) {
         return ServiceProxy.correlationHandler.getPlanDTOForCorrelation(csarInstanceID, correlationID);
-    }
-
-    @Override
-    public IPlanLogHandler getPlanLogHandler() {
-        return PlanLogHandler.instance;
     }
 }
