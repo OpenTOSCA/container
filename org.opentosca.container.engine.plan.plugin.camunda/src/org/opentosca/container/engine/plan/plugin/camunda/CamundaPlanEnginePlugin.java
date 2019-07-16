@@ -145,8 +145,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             new HttpPost(Settings.ENGINE_PLAN_BPMN_URL + this.DEPLOYMENT_SUFFIX + this.CREATE_SUFFIX);
 
         // only deploy if plan was not deployed before or files have changed
-        final StringBody enableDuplicateFiltering = new StringBody("true", ContentType.TEXT_PLAIN);
-        final StringBody deployChangedOnly = new StringBody("true", ContentType.TEXT_PLAIN);
+        final StringBody enableDuplicateFiltering = new StringBody("false", ContentType.TEXT_PLAIN);
+        final StringBody deployChangedOnly = new StringBody("false", ContentType.TEXT_PLAIN);
         final StringBody deploymentName = new StringBody(planId.toString(), ContentType.TEXT_PLAIN);
 
         // add required meta data to the request
