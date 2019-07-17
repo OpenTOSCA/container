@@ -27,15 +27,6 @@ import org.xml.sax.SAXException;
  */
 public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanContext> {
 
-    private String findInstanceVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
-        final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
-        for (final String varName : context.getMainVariableNames()) {
-            if (varName.contains(instanceURLVarName)) {
-                return varName;
-            }
-        }
-        return null;
-    }
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
@@ -44,8 +35,9 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
         final String inputFieldName = nodeTemplate.getId() + "_InstanceID";
         context.addStringValueToPlanRequest(inputFieldName);
 
+        
         // fetch nodeInstanceVar
-        final String nodeInstanceVarName = findInstanceVar(context, nodeTemplate.getId(), true);
+        final String nodeInstanceVarName = context.findInstanceURLVar(nodeTemplate.getId(), true);
 
         // add assign from input to nodeInstanceVar
         try {

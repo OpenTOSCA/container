@@ -37,6 +37,8 @@ public class Interfaces {
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SOURCEURLORLOCALPATH = "SourceURLorLocalPath";
 	
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE = "http://www.example.com/interfaces/lifecycle";
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2 = "http://opentosca.org/interfaces/lifecycle";
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE3 = "http://opentosca.org/interfaces/pattern/lifecycle";
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_INSTALL = "install";
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_CONFIGURE = "configure";
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START = "start";
