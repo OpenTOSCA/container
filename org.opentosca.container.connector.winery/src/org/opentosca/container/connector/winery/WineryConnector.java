@@ -364,54 +364,55 @@ public class WineryConnector {
      * @param file
      */
     public void performManagementFeatureEnrichment(final File file) {
-        if (isWineryRepositoryAvailable()) {
-            LOG.debug("Container Repository is available. Uploading file {} to repo...", file.getName());
-            try {
-                // upload CSAR to enable enrichment in Winery
-                final String location = uploadCSARToWinery(file, false);
-
-                if (Objects.nonNull(location)) {
-                    LOG.debug("Stored CSAR at location: {}", location.toString());
-
-                    // get all available features for the given CSAR
-                    final HttpGet get = new HttpGet();
-                    get.setHeader("Accept", "application/json");
-                    get.setURI(new URI(location + FEATURE_ENRICHMENT_SUFFIX));
-                    HttpResponse resp = this.client.execute(get);
-                    final String jsonResponse = EntityUtils.toString(resp.getEntity());
-                    closeConnection(resp);
-
-                    LOG.debug("Container Repository returned the follow features: {}", jsonResponse);
-
-                    // apply the found features to the CSAR
-                    final HttpPut put = new HttpPut();
-                    put.setHeader("Content-Type", "application/json");
-                    put.setURI(new URI(location + FEATURE_ENRICHMENT_SUFFIX));
-                    final StringEntity stringEntity = new StringEntity(jsonResponse);
-                    put.setEntity(stringEntity);
-                    resp = this.client.execute(put);
-
-                    LOG.debug("Feature enrichment retuned status line: {}", resp.getStatusLine());
-
-                    // retrieve updated CSAR from Winery
-                    final URL url = new URL(location + "/?csar");
-                    FileUtils.copyInputStreamToFile(url.openStream(), file);
-                    LOG.debug("Updated CSAR file in the Container with enriched topology.");
-                } else {
-                    LOG.error("Upload returned location equal to null!");
-                }
-            }
-            catch (final URISyntaxException e) {
-                LOG.error("URISyntaxException while performing management feature enrichment: {}", e.getMessage());
-            }
-            catch (final IOException e) {
-                LOG.error("IOException while performing management feature enrichment: {}", e.getMessage());
-            }
-            catch (final Exception e) {
-                LOG.error("Exception while performing management feature enrichment: {}", e.getMessage());
-            }
-        } else {
+        if (!isWineryRepositoryAvailable()) {
             LOG.error("Management feature enrichment enabled, but Container Repository is not available!");
+            return;
+        }
+        LOG.debug("Container Repository is available. Uploading file {} to repo...", file.getName());
+        try {
+            // upload CSAR to enable enrichment in Winery
+            final String location = uploadCSARToWinery(file, false);
+
+            if (!Objects.nonNull(location)) {
+                LOG.error("Upload returned location equal to null!");
+                return;
+            }
+
+            LOG.debug("Stored CSAR at location: {}", location.toString());
+
+            // get all available features for the given CSAR
+            final HttpGet get = new HttpGet();
+            get.setHeader("Accept", "application/json");
+            get.setURI(new URI(location + FEATURE_ENRICHMENT_SUFFIX));
+            HttpResponse resp = this.client.execute(get);
+            final String jsonResponse = EntityUtils.toString(resp.getEntity());
+            closeConnection(resp);
+
+            LOG.debug("Container Repository returned the follow features: {}", jsonResponse);
+
+            // apply the found features to the CSAR
+            final HttpPut put = new HttpPut();
+            put.setHeader("Content-Type", "application/json");
+            put.setURI(new URI(location + FEATURE_ENRICHMENT_SUFFIX));
+            final StringEntity stringEntity = new StringEntity(jsonResponse);
+            put.setEntity(stringEntity);
+            resp = this.client.execute(put);
+
+            LOG.debug("Feature enrichment retuned status line: {}", resp.getStatusLine());
+
+            // retrieve updated CSAR from Winery
+            final URL url = new URL(location + "/?csar");
+            FileUtils.copyInputStreamToFile(url.openStream(), file);
+            LOG.debug("Updated CSAR file in the Container with enriched topology.");
+        }
+        catch (final URISyntaxException e) {
+            LOG.error("URISyntaxException while performing management feature enrichment: {}", e.getMessage());
+        }
+        catch (final IOException e) {
+            LOG.error("IOException while performing management feature enrichment: {}", e.getMessage());
+        }
+        catch (final Exception e) {
+            LOG.error("Exception while performing management feature enrichment: {}", e.getMessage());
         }
     }
 

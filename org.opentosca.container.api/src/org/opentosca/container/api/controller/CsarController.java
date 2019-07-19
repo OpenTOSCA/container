@@ -161,11 +161,8 @@ public class CsarController {
 
         logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
 
-        if (applyEnrichment != null) {
-            return handleCsarUpload(file.getFileName(), is, applyEnrichment);
-        } else {
-            return handleCsarUpload(file.getFileName(), is);
-        }
+        return handleCsarUpload(file.getFileName(), is, applyEnrichment);
+
     }
 
     @POST
@@ -178,13 +175,9 @@ public class CsarController {
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-        if (request.getEnrich() != null) {
-            logger.info("Uploading new CSAR based on request payload: name={}; url={}; applyEnrichment={}",
-                        request.getName(), request.getUrl(), request.getEnrich());
-        } else {
-            logger.info("Uploading new CSAR based on request payload: name={}; url={}; applyEnrichment={}",
-                        request.getName(), request.getUrl());
-        }
+
+        logger.info("Uploading new CSAR based on request payload: name={}; url={}; applyEnrichment={}",
+                    request.getName(), request.getUrl(), request.getEnrich());
 
         String filename = request.getName();
         if (!filename.endsWith(".csar")) {
@@ -194,11 +187,7 @@ public class CsarController {
         try {
             final URL url = new URL(request.getUrl());
 
-            if (request.getEnrich() != null) {
-                return handleCsarUpload(filename, url.openStream(), request.getEnrich());
-            } else {
-                return handleCsarUpload(filename, url.openStream());
-            }
+            return handleCsarUpload(filename, url.openStream(), request.getEnrich());
         }
         catch (final Exception e) {
             logger.error("Error uploading CSAR: {}", e.getMessage(), e);
@@ -213,131 +202,22 @@ public class CsarController {
 
         final WineryConnector wc = new WineryConnector();
 
-        try {
-            if (applyEnrichment == null) {
+        if (applyEnrichment == null) {
+            logger.error("Enrichment status returned null. Continue without enrichment.");
+        } else {
+            logger.error("Enrichment status found in request. Continue with enrichment.");
+            try {
+                final Boolean applyEnrichmentParsed = Boolean.parseBoolean(applyEnrichment);
+                // perform management feature enrichment for the given CSAR
+                if (applyEnrichmentParsed) {
+                    wc.performManagementFeatureEnrichment(file);
+                }
+            }
+            catch (final Exception e) {
+                logger.error("Failed to parse enrichment status from UI: {}", e.getMessage(), e);
                 return Response.serverError().build();
             }
-            final Boolean applyEnrichmentParsed = Boolean.parseBoolean(applyEnrichment);
-            // perform management feature enrichment for the given CSAR
-            if (applyEnrichmentParsed) {
-                wc.performManagementFeatureEnrichment(file);
-            }
         }
-        catch (final IllegalArgumentException e) {
-            logger.error("Failed to parse enrichment status from UI: {}", e.getMessage(), e);
-            return Response.serverError().build();
-        }
-        catch (final Exception e) {
-            logger.error("Failed to parse enrichment status from UI: {}", e.getMessage(), e);
-            return Response.serverError().build();
-        }
-
-        CSARID csarId;
-
-        try {
-            csarId = this.fileService.storeCSAR(file.toPath());
-        }
-        catch (final EntityExistsException e) {
-            logger.error("Failed to store CSAR: {}", e.getMessage(), e);
-            return Response.status(Status.CONFLICT).build();
-        }
-        catch (final Exception e) {
-            logger.error("Failed to store CSAR: {}", e.getMessage(), e);
-            return Response.serverError().build();
-        }
-
-        csarId = this.csarService.generatePlans(csarId);
-        if (csarId == null) {
-            return Response.serverError().build();
-        }
-
-        this.controlService.setDeploymentProcessStateStored(csarId);
-        boolean success = this.controlService.invokeTOSCAProcessing(csarId);
-
-        if (success) {
-            final List<QName> serviceTemplates =
-                this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId);
-            for (final QName serviceTemplate : serviceTemplates) {
-                logger.info("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                            csarId.getFileName());
-                if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
-                    logger.error("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                                 csarId.getFileName());
-                    success = false;
-                }
-            }
-        }
-
-        // TODO this is such a brutal hack, won't go through reviews....
-        final boolean repoAvailable = wc.isWineryRepositoryAvailable();
-        final StringBuilder strB = new StringBuilder();
-
-        // quick and dirty parallel thread to upload the csar to the container
-        // repository
-        // This is needed for the state save feature
-        final Thread parallelUploadThread = new Thread(() -> {
-            if (wc.isWineryRepositoryAvailable()) {
-                try {
-                    strB.append(wc.uploadCSAR(file, false));
-                }
-                catch (final URISyntaxException e1) {
-                    e1.printStackTrace();
-                }
-                catch (final IOException e2) {
-                    e2.printStackTrace();
-                }
-            }
-        });
-
-        if (repoAvailable) {
-            parallelUploadThread.start();
-        }
-
-        try {
-            if (ModelUtil.hasOpenRequirements(csarId, this.engineService)) {
-
-                if (repoAvailable) {
-                    while (parallelUploadThread.isAlive()) {
-                        // wait till the upload is finished
-                    }
-                    this.controlService.deleteCSAR(csarId);
-                    return Response.status(Response.Status.NOT_ACCEPTABLE)
-                                   .entity("{ \"Location\": \""
-                                       + wc.getServiceTemplateURI(QName.valueOf(strB.toString())).toString() + "\" }")
-                                   .build();
-                } else {
-                    logger.error("CSAR has open requirments but Winery repository is not available");
-                    try {
-                        this.fileService.deleteCSAR(csarId);
-                    }
-                    catch (final Exception e) {
-                        // Ignore
-                        logger.error("Error deleting csar after open requirements check: {}", e.getMessage(), e);
-                    }
-                    return Response.serverError().build();
-                }
-            }
-        }
-        catch (final Exception e) {
-            logger.error("Error resolving open requirements: {}", e.getMessage(), e);
-            return Response.serverError().build();
-        }
-
-        if (!success) {
-            return Response.serverError().build();
-        }
-
-        logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.getFileName());
-        final URI uri =
-            UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId));
-        return Response.created(uri).build();
-    }
-
-    private Response handleCsarUpload(final String filename, final InputStream is) {
-
-        final File file = this.csarService.storeTemporaryFile(filename, is);
-
-        final WineryConnector wc = new WineryConnector();
 
         CSARID csarId;
 
