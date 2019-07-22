@@ -53,7 +53,6 @@ public class DirectoryController {
   @Path("/{path}")
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public Object getPath(@PathParam("path") String path, @Context final UriInfo uriInfo) {
-    path = UriUtil.encodePathSegment(path);
     logger.debug("Serve path '{}' of directory '{}'", path, this.directory.getPath());
     for (final AbstractDirectory directory : this.directory.getDirectories()) {
       if (directory.getName().equals(path)) {
