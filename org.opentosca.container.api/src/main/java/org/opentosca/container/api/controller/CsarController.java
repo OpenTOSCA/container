@@ -124,8 +124,10 @@ public class CsarController {
       if (csar.getName() == null) {
         csar.setName(id);
       }
-      csar.add(Link.fromResource(ServiceTemplateController.class).rel("servicetemplates")
-        .baseUri(this.uriInfo.getBaseUri()).build(id));
+      csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(ServiceTemplateController.class).build(id))
+              .rel("servicetemplates")
+              .baseUri(this.uriInfo.getBaseUri()).build()
+      );
 
       csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
         .path(CsarController.class, "getContent").build(id))
