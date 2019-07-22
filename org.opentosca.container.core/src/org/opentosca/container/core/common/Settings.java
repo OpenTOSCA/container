@@ -36,9 +36,6 @@ public class Settings {
     public final static String OPENTOSCA_DEPLOYMENT_TESTS =
         System.getProperty("org.opentosca.deployment.tests", "false");
 
-    public final static String OPENTOSCA_MANAGEMENT_FEATURE_ENRICHMENT =
-        System.getProperty("org.opentosca.management.feature.enrichment", "false");
-
     public final static String OPENTOSCA_COLLABORATION_MODE =
         System.getProperty("org.opentosca.container.collaboration.mode", "false");
     public final static String OPENTOSCA_COLLABORATION_HOSTNAMES =

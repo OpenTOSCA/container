@@ -359,9 +359,9 @@ public class WineryConnector {
     }
 
     /**
-     * Performs management feature enrichment for the CSAR represented by the TODO
+     * Performs management feature enrichment for the CSAR represented by the given file.
      *
-     * @param file
+     * @param file the file containing the CSAR for the management feature enrichment
      */
     public void performManagementFeatureEnrichment(final File file) {
         if (!isWineryRepositoryAvailable()) {
