@@ -196,4 +196,9 @@ public class CsarImpl implements Csar {
     return this.saveLocation;
   }
 
+  @Override
+  public String toString() {
+    return id().csarName();
+  }
+
 }

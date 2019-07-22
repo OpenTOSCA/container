@@ -56,4 +56,6 @@ public interface Csar {
 
   @Deprecated
   Path getSaveLocation();
+
+  String toString();
 }

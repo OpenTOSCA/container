@@ -157,7 +157,7 @@ public class BoundaryDefinitionController {
         .map(TBoundaryDefinitions::getInterfaces).map(TBoundaryDefinitions.Interfaces::getInterface)
         .orElse(Collections.emptyList());
     this.logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", interfaces.size(),
-      servicetemplate, csar);
+      servicetemplate, csar.id().csarName());
 
     final InterfaceListDTO list = new InterfaceListDTO();
     list.add(interfaces.stream().map(iface -> {
@@ -195,7 +195,7 @@ public class BoundaryDefinitionController {
         .map(iface -> iface.getOperation()).orElse(Collections.emptyList());
 
     logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
-      operations.size(), name, servicetemplate, csar);
+      operations.size(), name, servicetemplate, csar.id().csarName());
 
     final Map<String, OperationDTO> ops = operations.stream().map(o -> {
       final OperationDTO op = new OperationDTO();
@@ -215,13 +215,13 @@ public class BoundaryDefinitionController {
           planUrl =
             this.uriInfo.getBaseUriBuilder()
               .path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
-              .build(csar, servicetemplate, plan.getId());
+              .build(csar.id().csarName(), servicetemplate, plan.getId());
         } else {
           // ... else we assume it's a management plan
           planUrl =
             this.uriInfo.getBaseUriBuilder()
               .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/:id/managementplans/{managementplan}")
-              .build(csar, servicetemplate, plan.getId());
+              .build(csar.id().csarName(), servicetemplate, plan.getId());
         }
         plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
         op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
