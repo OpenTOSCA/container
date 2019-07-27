@@ -11,9 +11,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Header;
 import org.apache.camel.Processor;
 import org.apache.camel.component.cxf.CxfPayload;
 import org.apache.cxf.binding.soap.SoapHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
@@ -35,12 +38,16 @@ import org.xml.sax.SAXException;
 @Component
 public class HeaderProcessor implements Processor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(HeaderProcessor.class);
+
   @Override
   public void process(final Exchange exchange) throws Exception {
-
     final CxfPayload<SoapHeader> payload = exchange.getIn().getBody(CxfPayload.class);
 
     final Map<String, Object> headers = exchange.getIn().getHeaders();
+    if (!headers.containsKey("SOAPEndpoint")) {
+      headers.put("SOAPEndpoint", headers.get("endpoint"));
+    }
     for (final Map.Entry<String, Object> entry : headers.entrySet()) {
 
       if (entry.getKey().equalsIgnoreCase("ReplyTo")) {
@@ -52,9 +59,7 @@ public class HeaderProcessor implements Processor {
           new SoapHeader(new QName("http://www.w3.org/2005/08/addressing", "ReplyTo"),
             readXml(new StringReader(xml1)).getDocumentElement());
         payload.getHeaders().add(replyToSoapHeader);
-
       } else if (entry.getKey().equalsIgnoreCase("MessageID")) {
-
         final String xml2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><MessageID "
           + "xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">" + entry.getValue().toString()
           + "</MessageID>";
@@ -62,16 +67,11 @@ public class HeaderProcessor implements Processor {
           new SoapHeader(new QName("http://www.w3.org/2005/08/addressing", "MessageID"),
             readXml(new StringReader(xml2)).getDocumentElement());
         payload.getHeaders().add(messageIdSoapHeader);
-
       } else {
-
         payload.getHeaders().add(this.getSoapHeader(entry.getKey(), entry.getValue().toString()));
-
       }
     }
-
     exchange.getIn().setBody(payload);
-
   }
 
   /**
@@ -85,18 +85,10 @@ public class HeaderProcessor implements Processor {
     final String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><" + key + ">" + content + "</" + key + ">";
     try {
       return new SoapHeader(new QName(key), readXml(new StringReader(xml)).getDocumentElement());
-    } catch (final SAXException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (final IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (final ParserConfigurationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (final SAXException | IOException | ParserConfigurationException e) {
+      LOG.warn("Failed to read SOAP Header {} -> {} with exception", key, content, e);
     }
     return null;
-
   }
 
   public static Document readXml(final Reader is) throws SAXException, IOException, ParserConfigurationException {
@@ -119,7 +111,6 @@ public class HeaderProcessor implements Processor {
   }
 
   public static class NullResolver implements EntityResolver {
-
     @Override
     public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException,
       IOException {

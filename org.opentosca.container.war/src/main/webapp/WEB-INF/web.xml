@@ -11,9 +11,9 @@
     <param-value>classpath:logback.xml</param-value>
   </context-param>
   <context-param>
-    <description>ApplicationContext of Spring DI logic</description>
+    <description>Application "Root Context" of Spring DI logic</description>
     <param-name>contextConfigLocation</param-name>
-    <param-value>classpath:/spring/context.xml</param-value>
+    <param-value>classpath:/spring/root-context.xml</param-value>
   </context-param>
 
   <filter>
@@ -35,27 +35,31 @@
     <description>Logging configuration listener</description>
     <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>
   </listener>
+
+  <!-- Spring context context loader listener -->
   <listener>
-    <description>RESTeasy bootstrapping listener for controller matching</description>
-    <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+    <description>Spring Controller injection listener</description>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
-  <!-- pull spring DI into our RESTeasy dispatch process -->
+  
+  <!-- LOG a ready message when servlet context is loaded and one when it's shutting down-->
   <listener>
-    <description>RESTeasy spring bridge</description>
-    <listener-class>org.jboss.resteasy.plugins.spring.SpringContextLoaderListener</listener-class>
+    <description>Context startup listener for opentosca container configuration purposes</description>
+    <listener-class>org.opentosca.container.war.Config</listener-class>
   </listener>
 
   <servlet>
-    <servlet-name>resteasy-servlet</servlet-name>
-    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+    <servlet-name>jersey-servlet</servlet-name>
+    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>javax.ws.rs.Application</param-name>
-      <param-value>org.opentosca.container.war.Application</param-value>
+      <param-value>org.opentosca.container.war.SpringJaxRSConfiguration</param-value>
     </init-param>
+    <load-on-startup>1</load-on-startup>
   </servlet>
-
   <servlet-mapping>
-    <servlet-name>resteasy-servlet</servlet-name>
+    <servlet-name>jersey-servlet</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
+
 </web-app>

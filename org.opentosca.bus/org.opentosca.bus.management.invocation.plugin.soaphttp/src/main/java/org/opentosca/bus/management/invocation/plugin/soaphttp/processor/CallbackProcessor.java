@@ -40,10 +40,8 @@ public class CallbackProcessor implements Processor {
 
   @Override
   public void process(final Exchange exchange) throws Exception {
-
     final Set<String> messageIDs = ManagementBusInvocationPluginSoapHttp.getMessageIDs();
-
-    CallbackProcessor.LOG.debug("Stored messageIDs: {}", messageIDs.toString());
+    LOG.debug("Stored messageIDs: {}", messageIDs.toString());
 
     // copy SOAP headers in camel exchange header
     @SuppressWarnings("unchecked") final List<SoapHeader> soapHeaders = (List<SoapHeader>) exchange.getIn().getHeader(Header.HEADER_LIST);
@@ -58,17 +56,13 @@ public class CallbackProcessor implements Processor {
     final String message = exchange.getIn().getBody(String.class);
     final Map<String, Object> headers = exchange.getIn().getHeaders();
 
-    CallbackProcessor.LOG.debug("Searching the callback Message for a MessageID matching the stored ones...");
-
+    LOG.debug("Searching the callback Message for a MessageID matching the stored ones...");
     for (final String messageID : messageIDs) {
-
       // checks if the callback message contains a stored messageID
       // if (message.matches("(?s).*\\s*[^a-zA-Z0-9-]" + messageID +
       // "[^a-zA-Z0-9-]\\s*(?s).*") || headers.containsValue(messageID)) {
       if (message.contains(messageID) || headers.containsValue(messageID)) {
-
-        CallbackProcessor.LOG.debug("Found MessageID: {}", messageID);
-
+        LOG.debug("Found MessageID: {}", messageID);
         final MessageFactory messageFactory = MessageFactory.newInstance();
 
         final InputStream inputStream = new ByteArrayInputStream(message.getBytes("UTF-8"));
@@ -78,23 +72,16 @@ public class CallbackProcessor implements Processor {
         exchange.getIn().setHeader("AvailableMessageID", "true");
 
         Document doc;
-
         try {
           doc = soapMessage.getSOAPBody().extractContentAsDocument();
           exchange.getIn().setBody(doc);
-
         } catch (final SOAPException e) {
-
           doc = soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
-
-          CallbackProcessor.LOG.warn("SOAP response body can't be parsed and/or isn't well formatted. Returning alternative response.");
+          LOG.warn("SOAP response body can't be parsed and/or isn't well formatted. Returning alternative response.");
           exchange.getIn().setBody(doc);
         }
-
         break;
-
       }
     }
-
   }
 }

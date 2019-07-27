@@ -39,6 +39,11 @@ public class CsarId implements Comparable<CsarId> {
   }
 
   @Override
+  public String toString() {
+    return csarName();
+  }
+
+  @Override
   public int hashCode() {
     return name.hashCode();
   }

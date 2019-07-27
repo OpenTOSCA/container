@@ -23,20 +23,20 @@ import java.util.Optional;
 
 @Service
 public class CsarService {
-
   private static Logger logger = LoggerFactory.getLogger(CsarService.class);
 
-  @Inject
-  private CsarStorageService storage;
-  @Inject
-  private Exporter planBuilderExporter;
-  @Inject
-  private Importer planBuilderImporter;
+  private final CsarStorageService storage;
+  private final Exporter planBuilderExporter;
+  private final Importer planBuilderImporter;
 
-
+  // FIXME remove this as soon as planbuilder works off new csar model
   private final CSARHandler planbuilderStorage = new CSARHandler();
 
-  public CsarService() {
+  @Inject
+  public CsarService(CsarStorageService storage, Exporter planBuilderExporter, Importer planBuilderImporter) {
+    this.storage = storage;
+    this.planBuilderExporter = planBuilderExporter;
+    this.planBuilderImporter = planBuilderImporter;
   }
 
   /**

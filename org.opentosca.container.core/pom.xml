@@ -53,11 +53,7 @@
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
       <version>2.1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-common</artifactId>
-      <version>2.15</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -72,19 +68,14 @@
     </dependency>
 
     <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-client</artifactId>
-      <version>2.15</version>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.8.0</version>
     </dependency>
     <dependency>
       <groupId>p2.osgi.bundle</groupId>
       <artifactId>org.eclipse.osgi.services</artifactId>
       <version>3.5.100.v20160504-1419</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.8.0</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
@@ -96,10 +87,17 @@
       <artifactId>org.eclipse.equinox.common</artifactId>
       <version>3.10.100</version>
     </dependency>
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
       <version>${spring.version}</version>
+    </dependency>
+    <!-- FIXME deal with UriUtil being used in weird places -->
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-common</artifactId>
+      <version>${jersey.version}</version>
     </dependency>
   </dependencies>
 </project>

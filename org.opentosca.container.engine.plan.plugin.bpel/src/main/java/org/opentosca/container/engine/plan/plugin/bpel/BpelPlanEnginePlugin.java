@@ -21,7 +21,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.opentosca.container.connector.bps.BpsConnector;
 import org.opentosca.container.connector.ode.OdeConnector;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
@@ -202,16 +201,14 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     Map<String, URI> endpoints = Collections.emptyMap();
     try {
       if (processEngine.equalsIgnoreCase(BPS_ENGINE)) {
-        final BpsConnector connector = new BpsConnector();
-        processId = connector.deploy(tempPlan, url, username, password);
-        endpoints = connector.getEndpointsForPID(processId, url, username, password);
+        LOG.error("BPS Engine is no longer supported");
       } else {
         final OdeConnector connector = new OdeConnector();
         processId = connector.deploy(tempPlan, url);
         endpoints = connector.getEndpointsForPID(processId, url);
       }
     } catch (final Exception e) {
-      e.printStackTrace();
+      LOG.error("Failed to deploy plan to URL {} with an exception", url, e);
     }
 
     // this will be the endpoint the container can use to instantiate the
@@ -274,8 +271,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
     boolean wasUndeployed = false;
     if (processEngine.equalsIgnoreCase(BPS_ENGINE)) {
-      final BpsConnector connector = new BpsConnector();
-      wasUndeployed = connector.undeploy(planLocation.toFile(), url, username, password);
+      LOG.error("BPS Engine is no longer supported");
     } else {
       final OdeConnector connector = new OdeConnector();
       wasUndeployed = connector.undeploy(planLocation.toFile(), url);

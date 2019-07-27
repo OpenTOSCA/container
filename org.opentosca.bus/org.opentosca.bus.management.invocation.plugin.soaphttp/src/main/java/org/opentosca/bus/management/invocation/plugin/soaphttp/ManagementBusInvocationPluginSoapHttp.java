@@ -12,12 +12,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.wsdl.*;
+import javax.wsdl.Service;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.camel.*;
+import org.apache.camel.Message;
 import org.apache.cxf.endpoint.ManagedEndpoint;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
@@ -72,14 +77,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
     final Object params = message.getBody();
     final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
-    String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
+    final String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
 
     final Boolean hasOutputParams = message.getHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), Boolean.class);
     final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
-
-    if (!endpoint.endsWith("?wsdl")) {
-      endpoint = endpoint.concat("?wsdl");
-    }
 
     final Map<String, Object> headers = new HashMap<>();
     // Self defined header should be part of the outgoing soap messages.
@@ -89,12 +90,24 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       }
     }
     headers.put("endpoint", endpoint.replace("?wsdl", ""));
+    headers.put("SOAPAction", operationName);
 
     Document document = null;
     MessagingPattern messagingPattern = null;
     LOG.info("Creating invocation message.");
     if (params instanceof HashMap) {
-      messagingPattern = determineMP(message, operationName, hasOutputParams, endpoint);
+      Definition wsdl = pullWsdlDefinitions(endpoint);
+      BindingOperation operation = findOperation(wsdl, operationName);
+      if (operation == null) {
+        LOG.error("Invoked operation was not exposed on the given endpoint. Aborting invocation!");
+        return null;
+      }
+      final QName messageType = operation.getOperation().getInput().getMessage().getQName();
+      // getting the port name involves this mess
+      String portName = getPortName(wsdl, operation);
+      headers.put("SOAPEndpoint", endpoint + "." + portName);
+
+      messagingPattern = determineMP(message, operationName, operation, hasOutputParams);
       if (messagingPattern == null) {
         LOG.error("No invokable operation found. Invocation aborted!");
         return null;
@@ -103,7 +116,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       @SuppressWarnings("unchecked") final HashMap<String, String> paramsMap = (HashMap<String, String>) params;
       // special handling for CALLBACK messages
       if (messagingPattern == MessagingPattern.CALLBACK) {
-        final String callbackAddress = AsyncRoute.PUBLIC_CALLBACKADDRESS;
         String messageId = message.getMessageId();
         if (paramsMap.containsKey("CorrelationID")) {
           messageId = paramsMap.get("CorrelationID");
@@ -116,9 +128,9 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
           headers.put("MessageID", messageId);
         }
         if (paramsMap.containsKey("ReplyTo")) {
-          paramsMap.put("ReplyTo", callbackAddress);
+          paramsMap.put("ReplyTo", AsyncRoute.PUBLIC_CALLBACKADDRESS);
         } else {
-          headers.put("ReplyTo", callbackAddress);
+          headers.put("ReplyTo", AsyncRoute.PUBLIC_CALLBACKADDRESS);
         }
         if (paramsMap.containsKey("planCallbackAddress_invoker")) {
           paramsMap.put("planCallbackAddress_invoker", "http://localhost:9763/services/" + csarID.csarName() + "InvokerService/");
@@ -127,14 +139,12 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         }
       }
 
-      String rootElementNamespaceURI = "https://schemas.xmlsoap.org/wsdl/";
-      String rootElementName = "operation";
-      document = mapToDoc(rootElementNamespaceURI, rootElementName, paramsMap);
+      document = mapToDoc(messageType.getNamespaceURI(), messageType.getLocalPart(), paramsMap);
     }
 
     if (params instanceof Document) {
       document = (Document) params;
-      messagingPattern = determineMP(message, operationName, hasOutputParams, endpoint);
+      messagingPattern = determineMP(message, operationName, null, hasOutputParams);
     }
 
     if (messagingPattern == null) {
@@ -208,101 +218,68 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
     return exchange;
   }
 
+  private String getPortName(Definition wsdl, BindingOperation operation) {
+    Binding binding = null;
+    final Map<QName, ?> bindings = wsdl.getBindings();
+    for (Map.Entry<QName, ?> entry : bindings.entrySet()) {
+      Binding examined = wsdl.getBinding((QName)entry.getKey());
+      if (examined.getBindingOperations().contains(operation)) {
+        binding = examined;
+        break;
+      }
+    }
+    Map<QName, Service> services = wsdl.getServices();
+    for (Service service : services.values()) {
+      Map<QName, Port> ports = service.getPorts();
+      for (Port port : ports.values()) {
+        if (port.getBinding().equals(binding)) {
+          return port.getName();
+        }
+      }
+    }
+    return "";
+  }
+
+  private Definition pullWsdlDefinitions(String endpoint) {
+    if (!endpoint.endsWith("?wsdl")) {
+      endpoint = endpoint + "?wsdl";
+    }
+    LOG.info("Parsing WSDL at: {}.", endpoint);
+    WSDLFactory wsdlFactory = null;
+    try {
+      wsdlFactory = WSDLFactory.newInstance();
+      WSDLReader wsdlDefinitionReader = wsdlFactory.newWSDLReader();
+      return wsdlDefinitionReader.readWSDL(endpoint);
+    } catch (WSDLException e) {
+      LOG.warn("Could not read WSDL definitions from endpoint {} due to WSDLException", endpoint, e);
+    }
+    return null;
+  }
+
+  private BindingOperation findOperation(final Definition wsdl, final String operationName) {
+    if (wsdl == null) { return null; }
+    Map<QName, ?> bindings = wsdl.getBindings();
+    for (Map.Entry<QName, ?> entry : bindings.entrySet()) {
+      Binding binding = wsdl.getBinding((QName)entry.getKey());
+      List<BindingOperation> definedOperations = binding.getBindingOperations();
+      for (BindingOperation operation : definedOperations) {
+        if (operation.getName().equalsIgnoreCase(operationName)) {
+          return operation;
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Determine if the specified operation of the specified wsdl defines output parameter.
    *
-   * @param endpoint      of the wsdl to check.
-   * @param operationName to check.
    * @return <code>true</code> if operation returns output params. Otherwise <code>false</code>.
    * If operation can't be found <code>null</code> is returned.
    */
-  private Boolean hasOutputDefinedInWSDL(final String endpoint, final String operationName) throws Exception {
-    LOG.info("Parsing WSDL at: {}.", endpoint);
+  private boolean hasOutputDefined(final BindingOperation operation) {
     // If wsdl is not accessible, try again (max wait 5 min)
-    Document xmlDoc;
-    int count = 0;
-    final int maxTries = 3;
-    while (true) {
-      try {
-        URLConnection connection = new URL(endpoint).openConnection();
-        connection.connect();
-        try (InputStream wsdlData = connection.getInputStream()) {
-          xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(wsdlData);
-          break;
-        }
-      } catch (final Exception e) {
-        // handle exception
-        if (++count == maxTries) {
-          LOG.error("Unable to access the wsdl at: {}.", endpoint);
-          throw e;
-        } else {
-          LOG.warn("Problem accessing the wsdl at: {}. Retry... ({}/{})", endpoint, count, maxTries);
-          try {
-            Thread.sleep(10000);
-          } catch (final InterruptedException ffs) {
-            ffs.printStackTrace();
-          }
-        }
-      }
-    }
-
-    /*
-      XPATHs:
-
-      /wsdl:binding/
-      -> wsdl:operation
-        -> *:binding transport
-        -> wsdl:input
-        -> wsdl:output
-     */
-
-    final XPathFactory xPathFactory = XPathFactory.newInstance();
-    final XPath bindings = xPathFactory.newXPath();
-    final VariableMap variables = new VariableMap();
-    bindings.setXPathVariableResolver(variables);
-    final XPathExpression bindingsQuery = bindings.compile("/child::binding");
-    final XPathExpression protocolQuery = bindings.compile("string(child::binding/@transport)");
-    final XPathExpression operationsQuery = bindings.compile("child::operation[@name=$operationName]");
-    final XPathExpression inputsQuery = bindings.compile("child::input");
-    final XPathExpression outputsQuery = bindings.compile("child::output");
-
-    NodeList bindingNodes = (NodeList) bindingsQuery.evaluate(xmlDoc, XPathConstants.NODESET);
-    for (int i = 0; i < bindingNodes.getLength(); i++) {
-      Node bindingElement = bindingNodes.item(i);
-
-      String protocol = (String) protocolQuery.evaluate(bindingElement, XPathConstants.STRING);
-      if (!protocol.toLowerCase().contains("soap")) {
-        continue;
-      }
-      variables.setVariable(QName.valueOf("operationName"), operationName);
-
-      NodeList bindingOperations = (NodeList) operationsQuery.evaluate(bindingElement, XPathConstants.NODESET);
-      for (int j = 0; j < bindingOperations.getLength(); j++) {
-        Node operationsElement = bindingOperations.item(j);
-        if (!operationsElement.hasAttributes()) {
-          continue;
-        }
-        final NamedNodeMap attributes = operationsElement.getAttributes();
-
-        final String wsdlOpName = attributes.getNamedItem("name").getTextContent();
-        if (!wsdlOpName.equals(operationName)) {
-          LOG.debug("wsdl operation name {} neq {}", wsdlOpName, operationName);
-          continue;
-        }
-        final String wsdlPortType = bindingElement.getAttributes().getNamedItem("type").getTextContent();
-        // strip namespace declaration from portType
-        variables.setVariable(QName.valueOf("portType"), wsdlPortType.substring(wsdlPortType.indexOf(":")));
-
-//        NodeList inputs = (NodeList) inputsQuery.evaluate(operationsElement, XPathConstants.NODESET);
-//        if (inputs.getLength() == 0) {
-//          continue;
-//        }
-
-        NodeList outputs = (NodeList) outputsQuery.evaluate(operationsElement, XPathConstants.NODESET);
-        return outputs.getLength() > 0;
-      }
-    }
-    return false;
+    return operation.getBindingOutput() != null;
   }
 
   /**
@@ -314,8 +291,8 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
    * @param endpoint
    * @return messagingPattern as String.
    */
-  private MessagingPattern determineMP(final Message message, final String operationName, final Boolean hasOutputParams,
-                             final String endpoint) {
+  private MessagingPattern determineMP(final Message message, final String operationName, final BindingOperation operation, final Boolean hasOutputParams) {
+
     // Plan should be invoked
     if (message.getHeader(MBHeader.PLANID_QNAME.toString()) != null) {
       LOG.debug("Invoking a plan with document as input.");
@@ -328,35 +305,20 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         }
       } else if (operationName != null) {
         // Plug-in needs to determine with wsdl.
-        final Boolean hasOutputDefinedInWSDL;
-        try {
-          hasOutputDefinedInWSDL = hasOutputDefinedInWSDL(endpoint, operationName);
-        } catch (Exception e) {
-          return null;
-        }
-
-        if (hasOutputDefinedInWSDL != null) {
-          if (hasOutputDefinedInWSDL) {
-            return MessagingPattern.REQUEST_RESPONSE;
-          } else {
-            return MessagingPattern.CALLBACK;
-          }
+        final boolean hasOutputDefinedInWSDL = hasOutputDefined(operation);
+        if (hasOutputDefinedInWSDL) {
+          return MessagingPattern.REQUEST_RESPONSE;
+        } else {
+          return MessagingPattern.CALLBACK;
         }
       }
       return null;
     } else {
       // Operation of IA should be invoked
       LOG.debug("Invoking an operation of an implementation artifact.");
-      final Boolean hasOutputDefinedInWSDL;
-      try {
-        hasOutputDefinedInWSDL = hasOutputDefinedInWSDL(endpoint, operationName);
-      } catch (Exception e) {
-        return null;
-      }
 
-      if (hasOutputDefinedInWSDL == null) {
-        return null;
-      } else if (hasOutputDefinedInWSDL) {
+      final boolean hasOutputDefinedInWSDL = hasOutputDefined(operation);
+      if (hasOutputDefinedInWSDL) {
         return MessagingPattern.REQUEST_RESPONSE;
       } else if (hasOutputParams) {
         return MessagingPattern.CALLBACK;
@@ -370,7 +332,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
    * Transfers the paramsMap into a Document.
    */
   private Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
-                            final HashMap<String, String> paramsMap) {
+                            final Map<String, String> paramsMap) {
     final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder documentBuilder = null;
     try {

@@ -39,11 +39,6 @@
     </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.container.connector.bps</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.container.legacy</artifactId>
       <version>${project.version}</version>
     </dependency>

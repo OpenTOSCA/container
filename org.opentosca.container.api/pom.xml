@@ -119,26 +119,6 @@
       <version>1.4.199</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>jaxrs-api</artifactId>
-      <version>3.0.12.Final</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jaxb-provider</artifactId>
-      <version>${resteasy.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jackson2-provider</artifactId>
-      <version>${resteasy.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-multipart-provider</artifactId>
-      <version>${resteasy.version}</version>
-    </dependency>
 <!--    <dependency>-->
 <!--      <groupId>org.jboss.resteasy</groupId>-->
 <!--      <artifactId>resteasy-spring</artifactId>-->
@@ -184,6 +164,11 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
       <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-multipart</artifactId>
+      <version>${jersey.version}</version>
     </dependency>
   </dependencies>
 </project>

@@ -116,7 +116,7 @@ public class ODEEndpointUpdater {
     final File deployXml = getDeployXML(processFiles);
 
     if (deployXml == null) {
-      ODEEndpointUpdater.LOG.error("Given BPEL Plan has no deploy.xml file! Can't change addresses!");
+      LOG.error("Given BPEL Plan has no deploy.xml file! Can't change addresses!");
       return false;
     }
 
@@ -127,18 +127,18 @@ public class ODEEndpointUpdater {
       // cause they aren't referenced in the CSAR/TOSCA
       if (!portsInDeployXml.isEmpty()) {
         for (final QName portType : portsInDeployXml) {
-          ODEEndpointUpdater.LOG.debug("Proceeding to update address for portType: {}", portType);
+          LOG.debug("Proceeding to update address for portType: {}", portType);
         }
         final Map<QName, List<File>> changeMap =
           getWSDLtoChange(portsInDeployXml, getAllWSDLFiles(processFiles));
         unchangedFiles.putAll(this.updateInvokedWSDLAddresses(changeMap));
       } else {
-        ODEEndpointUpdater.LOG.debug("No PortTypes to change were found: No portType in plan is referenced in ServiceTemplate");
+        LOG.debug("No PortTypes to change were found: No portType in plan is referenced in ServiceTemplate");
       }
     } catch (final JAXBException e) {
-      ODEEndpointUpdater.LOG.error("Deploy.xml file in process isn't valid", e);
+      LOG.error("Deploy.xml file in process isn't valid", e);
     } catch (final WSDLException e) {
-      ODEEndpointUpdater.LOG.error("Couldn't access wsdl files of process", e);
+      LOG.error("Couldn't access wsdl files of process", e);
     }
 
     // update addresses in bpel archive that are provided by the plan
@@ -155,9 +155,9 @@ public class ODEEndpointUpdater {
     }
 
     for (final QName portType : unchangedFiles.keySet()) {
-      ODEEndpointUpdater.LOG.warn("Following files weren't changed for PortType {}", portType.toString());
+      LOG.warn("Following files weren't changed for PortType {}", portType.toString());
       for (final File file : unchangedFiles.get(portType)) {
-        ODEEndpointUpdater.LOG.warn("WSDL file {} which contained portType {} and couldn't be updated",
+        LOG.warn("WSDL file {} which contained portType {} and couldn't be updated",
           file.toPath().toString(), portType.toString());
       }
     }
@@ -177,11 +177,11 @@ public class ODEEndpointUpdater {
   private File getDeployXML(final List<File> files) {
     for (final File file : files) {
       if (file.getName().equals("deploy.xml")) {
-        ODEEndpointUpdater.LOG.debug("Found deploy.xml file");
+        LOG.debug("Found deploy.xml file");
         return file;
       }
     }
-    ODEEndpointUpdater.LOG.debug("Didn't find deploy.xml file");
+    LOG.debug("Didn't find deploy.xml file");
     return null;
   }
 
@@ -262,7 +262,7 @@ public class ODEEndpointUpdater {
     for (final File file : files) {
       if (file.isDirectory()) {
         // recursive call to allow searching in directories
-        ODEEndpointUpdater.LOG.debug("Found directory inside bpel archive: {}", file.getAbsolutePath());
+        LOG.debug("Found directory inside bpel archive: {}", file.getAbsolutePath());
         final File[] subFiles = file.listFiles();
         // this is just here to transform the array to a list
         final List<File> temp = new LinkedList<>();
@@ -274,7 +274,7 @@ public class ODEEndpointUpdater {
       final int pos = file.getName().lastIndexOf('.');
       if (pos > 0 && pos < file.getName().length() - 1) {
         if (file.getName().substring(pos + 1).equals("wsdl")) {
-          ODEEndpointUpdater.LOG.debug("Adding .wsdl file {} ", file.getName());
+          LOG.debug("Adding .wsdl file {} ", file.getName());
           tempFiles.add(file);
         }
       }
@@ -296,11 +296,11 @@ public class ODEEndpointUpdater {
     final Map<QName, List<File>> portTypeToFileMap = new HashMap<>();
     // we check if we have any porttypes which isn't in the endpoint db
     for (final QName port : ports) {
-      ODEEndpointUpdater.LOG.debug("Searching through wsdls for porttype: {}", port.toString());
+      LOG.debug("Searching through wsdls for porttype: {}", port.toString());
       final List<File> filesContainingPortType = new LinkedList<>();
       QName portType = null;
       for (final File wsdlFile : wsdlFiles) {
-        ODEEndpointUpdater.LOG.debug("Checking if wsdl file {} contains portType {}",
+        LOG.debug("Checking if wsdl file {} contains portType {}",
           wsdlFile.getAbsolutePath(), port.toString());
         final Definition wsdlDef = this.factory.newWSDLReader().readWSDL(wsdlFile.getAbsolutePath());
         // check if port is in wsdl file
@@ -367,7 +367,7 @@ public class ODEEndpointUpdater {
         final Port wsdlPort = (Port) portObj;
         final String namespace = wsdlDef.getTargetNamespace();
         final String name = wsdlPort.getName();
-        ODEEndpointUpdater.LOG.debug("Checking if port {} matches port with name {} and namespace {} ",
+        LOG.debug("Checking if port {} matches port with name {} and namespace {} ",
           port.toString(), name, namespace);
         if (name.equals(port.getLocalPart()) && namespace.equals(port.getNamespaceURI())) {
           return true;
@@ -411,14 +411,14 @@ public class ODEEndpointUpdater {
       // update wsdl files associated with the given porttype
       for (final File wsdlFile : map.get(portType)) {
         if (!this.updateInvokedWSDLAddresses(portType, wsdlFile)) {
-          ODEEndpointUpdater.LOG.error("Unable to update '{}' for porttype '{}'.", wsdlFile.toString(),
+          LOG.error("Unable to update '{}' for porttype '{}'.", wsdlFile.toString(),
             portType.toString());
           notUpdatedWSDLs.add(wsdlFile);
         }
       }
       if (!notUpdatedWSDLs.isEmpty()) {
         // if empty, nothing was changed
-        ODEEndpointUpdater.LOG.debug("Couldn't update address for porttype: {}", portType.toString());
+        LOG.debug("Couldn't update address for porttype: {}", portType.toString());
         notChanged.put(portType, notUpdatedWSDLs);
       }
     }
@@ -445,7 +445,7 @@ public class ODEEndpointUpdater {
         this.factory.newWSDLWriter().writeWSDL(wsdlDef, new FileOutputStream(wsdlFile));
       }
     } catch (final FileNotFoundException e) {
-      ODEEndpointUpdater.LOG.debug("Couldn't locate wsdl file", e);
+      LOG.debug("Couldn't locate wsdl file", e);
       changed = false;
     }
     return changed;
@@ -460,7 +460,7 @@ public class ODEEndpointUpdater {
    */
   private boolean updateInvokedWSDLAddresses(final QName portType, final File wsdl) throws WSDLException {
     boolean changed = false;
-    ODEEndpointUpdater.LOG.debug("Trying to change WSDL file {} ", wsdl.getName());
+    LOG.debug("Trying to change WSDL file {} ", wsdl.getName());
     final Definition wsdlDef = this.factory.newWSDLReader().readWSDL(wsdl.getAbsolutePath());
     for (final Object o : wsdlDef.getAllServices().values()) {
       // get the services
@@ -473,7 +473,7 @@ public class ODEEndpointUpdater {
           // get the extensible elements out of wsdl and check them
           // with endpointservice
 
-          ODEEndpointUpdater.LOG.debug("Found matching porttype for WSDL file {} ", wsdl.getName());
+          LOG.debug("Found matching porttype for WSDL file {} ", wsdl.getName());
           if (changePortAddressWithEndpointDB(port)) {
             // changing -> success
             changed = true;
@@ -487,7 +487,7 @@ public class ODEEndpointUpdater {
         this.factory.newWSDLWriter().writeWSDL(wsdlDef, new FileOutputStream(wsdl));
       }
     } catch (final FileNotFoundException e) {
-      ODEEndpointUpdater.LOG.debug("Couldn't locate wsdl file", e);
+      LOG.debug("Couldn't locate wsdl file", e);
       changed = false;
     }
     return changed;
@@ -517,7 +517,7 @@ public class ODEEndpointUpdater {
   private boolean changePortAddressWithEndpointDB(final Port port) {
     boolean changed = false;
 
-    ODEEndpointUpdater.LOG.debug("Trying to match address element with available endpoints for port {} ",
+    LOG.debug("Trying to match address element with available endpoints for port {} ",
       port.getName());
     for (final Object obj : port.getExtensibilityElements()) {
       // in the wsdl spec they use the extensibility mechanism
@@ -571,17 +571,17 @@ public class ODEEndpointUpdater {
   private List<WSDLEndpoint> getWSDLEndpointsFromEndpointDB(final Port port) {
     final List<WSDLEndpoint> endpoints = new LinkedList<>();
     if (ODEEndpointUpdater.endpointService != null) {
-      ODEEndpointUpdater.LOG.debug("Fetching Endpoints for PortType {} ",
+      LOG.debug("Fetching Endpoints for PortType {} ",
         port.getBinding().getPortType().getQName().toString());
       final List<WSDLEndpoint> temp =
         ODEEndpointUpdater.endpointService.getWSDLEndpoints(port.getBinding().getPortType().getQName(),
           Settings.OPENTOSCA_CONTAINER_HOSTNAME, this.csarId);
       for (final WSDLEndpoint endpoint : temp) {
-        ODEEndpointUpdater.LOG.debug("Found endpoint: {}", endpoint.getURI().toString());
+        LOG.debug("Found endpoint: {}", endpoint.getURI().toString());
         endpoints.add(endpoint);
       }
     } else {
-      ODEEndpointUpdater.LOG.debug("Endpoint service not available");
+      LOG.debug("Endpoint service not available");
     }
     return endpoints;
   }
@@ -600,17 +600,17 @@ public class ODEEndpointUpdater {
     // TODO check if we could generalize this, we did once, but after
     // looking at it again it seems not right enough
     if (element.getElementType().equals(SOAPConstants.Q_ELEM_SOAP_ADDRESS)) {
-      ODEEndpointUpdater.LOG.debug("Changing the SOAP-Address Element inside for porttype {} ",
+      LOG.debug("Changing the SOAP-Address Element inside for porttype {} ",
         endpoint.getPortType().toString());
       final SOAPAddress address = (SOAPAddress) element;
       address.setLocationURI(endpoint.getURI().toString());
     } else if (element.getElementType().equals(HTTPConstants.Q_ELEM_HTTP_ADDRESS)) {
-      ODEEndpointUpdater.LOG.debug("Changing the HTTP-Address Element inside for porttype {} ",
+      LOG.debug("Changing the HTTP-Address Element inside for porttype {} ",
         endpoint.getPortType().toString());
       final HTTPAddress address = (HTTPAddress) element;
       address.setLocationURI(endpoint.getURI().toString());
     } else {
-      ODEEndpointUpdater.LOG.debug("Address element inside WSDL isn't supported");
+      LOG.debug("Address element inside WSDL isn't supported");
       return false;
     }
     return true;
@@ -623,14 +623,14 @@ public class ODEEndpointUpdater {
    */
   protected static void bindEndpointService(final ICoreEndpointService endpointService) {
     if (endpointService != null) {
-      ODEEndpointUpdater.LOG.debug("Registering EndpointService {}", endpointService.toString());
+      LOG.debug("Registering EndpointService {}", endpointService.toString());
       if (ODEEndpointUpdater.endpointService == null) {
         ODEEndpointUpdater.endpointService = endpointService;
       } else {
         ODEEndpointUpdater.oldEndpointService = endpointService;
         ODEEndpointUpdater.endpointService = endpointService;
       }
-      ODEEndpointUpdater.LOG.debug("Registered EndpointService {}", endpointService.toString());
+      LOG.debug("Registered EndpointService {}", endpointService.toString());
     }
   }
 
@@ -640,13 +640,13 @@ public class ODEEndpointUpdater {
    * @param endpointService the EndpointService to unbind
    */
   protected static void unbindEndpointService(final ICoreEndpointService endpointService) {
-    ODEEndpointUpdater.LOG.debug("Unregistering EndpointService {}", endpointService.toString());
+    LOG.debug("Unregistering EndpointService {}", endpointService.toString());
     if (ODEEndpointUpdater.oldEndpointService == null) {
       ODEEndpointUpdater.endpointService = null;
     } else {
       ODEEndpointUpdater.oldEndpointService = null;
     }
-    ODEEndpointUpdater.LOG.debug("Unregistered EndpointService {}", endpointService.toString());
+    LOG.debug("Unregistered EndpointService {}", endpointService.toString());
   }
 
   /**

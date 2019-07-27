@@ -516,7 +516,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     LOG.trace("Correlation ID: {}", correlationID);
 
     final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
-    LOG.trace("CSARID: " + csarID.toString());
+    LOG.trace("CSARID: " + csarID.csarName());
 
     final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
     LOG.trace("csarInstanceID: {}", serviceInstanceID);

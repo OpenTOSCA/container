@@ -21,13 +21,13 @@ import org.springframework.stereotype.Component;
  */
 public class AsyncRoute extends RouteBuilder {
 
-  public final static String PUBLIC_CALLBACKADDRESS =
-    "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8087/callback";
+  public final static String PUBLIC_CALLBACKADDRESS = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8087/callback";
   private final static String CALLBACKADDRESS = "http://0.0.0.0:8087/callback";
 
   @Override
   public void configure() throws Exception {
-    final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+    final String ENDPOINT = "cxf:${header[SOAPEndpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+
 
     final Processor headerProcessor = new HeaderProcessor();
     this.from("direct:Async-WS-Invoke").process(headerProcessor).recipientList(this.simple(ENDPOINT)).end();

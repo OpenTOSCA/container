@@ -17,12 +17,11 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.namespace.QName;
 
-import org.jboss.resteasy.plugins.providers.multipart.InputPart;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
-
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.controller.content.DirectoryController;
 import org.opentosca.container.api.dto.CsarDTO;
 import org.opentosca.container.api.dto.CsarListDTO;
@@ -45,12 +44,14 @@ import org.slf4j.LoggerFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @Api
 @javax.ws.rs.Path("/csars")
-@RestController
-//@RequestMapping("/csars")
+@Component
 public class CsarController {
 
   private static Logger logger = LoggerFactory.getLogger(CsarController.class);
@@ -161,35 +162,13 @@ public class CsarController {
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
-  public Response uploadCsar(MultipartFormDataInput input) {
-    InputPart formInput = input.getFormDataMap().get("file").get(0);
-    MultivaluedMap<String, String> headers = formInput.getHeaders();
-    String fileName = extractFileName(headers);
-    if (fileName == null) {
-      logger.info("Could not extract fileName from form input");
+  public Response uploadCsar(@FormDataParam("file") final InputStream is,
+    @FormDataParam("file") final FormDataContentDisposition file) {
+    if (is == null || file == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    InputStream is = null;
-    try {
-      is = formInput.getBody(InputStream.class, null);
-      if (is == null) {
-        logger.warn("Could not read formInput as InputStream");
-        return Response.status(Status.BAD_REQUEST).build();
-      }
-
-      logger.info("Uploading new CSAR file \"{}\"", fileName);
-      return handleCsarUpload(fileName, is);
-    } catch (IOException e) {
-      return Response.serverError().entity(e).build();
-    } finally {
-      if (is != null) {
-        try {
-          is.close();
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-      }
-    }
+    logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
+    return handleCsarUpload(file.getFileName(), is);
   }
 
   private String extractFileName(MultivaluedMap<String, String> headers) {

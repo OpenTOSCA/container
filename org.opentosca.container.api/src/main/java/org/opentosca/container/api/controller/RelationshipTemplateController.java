@@ -25,10 +25,11 @@ import org.slf4j.LoggerFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
 @Api
-@RestController
+@Component
 public class RelationshipTemplateController {
   private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateController.class);
 

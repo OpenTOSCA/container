@@ -18,7 +18,9 @@
   <logger name="io.netty" level="ERROR" />
   <logger name="messageLogger" level="ERROR" />
   <logger name="org" level="WARN" />
-  <logger name="org.apache.camel" level="INFO" />
+  <logger name="org.apache.camel" level="WARN" />
+  <!-- logging in- and outbound SOAP messages -->
+  <logger name="org.apache.cxf.services" level="INFO" />
   <logger name="org.eclipse.jetty" level="OFF" />
   <logger name="org.hibernate" level="INFO" />
   <logger name="org.jclouds" level="INFO" />

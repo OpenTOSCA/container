@@ -33,6 +33,7 @@ import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.container.core.service.impl.CsarStorageServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -45,7 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
 @Path("planbuilder")
-@RestController
+@Component
 public class PlanbuilderController {
 
   private static final ExecutorService backgroundWorker = Executors.newCachedThreadPool(r -> new Thread(r, "planbuilder-api-worker"));
