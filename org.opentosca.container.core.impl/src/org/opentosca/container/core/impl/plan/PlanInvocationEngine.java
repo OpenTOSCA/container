@@ -1,7 +1,6 @@
 package org.opentosca.container.core.impl.plan;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +11,6 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.glassfish.jersey.uri.UriComponent;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.impl.plan.messages.ResponseParser;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -227,6 +225,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         this.LOG.trace(builder.toString());
 
         eventValues.put("BODY", message);
+        eventValues.put("INPUTS", message);
 
         if (null == ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
             this.LOG.warn(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
@@ -236,7 +235,11 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         } else {
             eventValues.put("ASYNC", false);
         }
+
         eventValues.put("MESSAGEID", correlationID);
+        eventValues.put("SERVICEINSTANCEID", serviceTemplateInstanceID);
+        eventValues.put("SERVICETEMPLATEID", serviceTemplateId);
+
 
         ServiceProxy.csarInstanceManagement.storePublicPlanToHistory(correlationID, planEvent);
 
@@ -424,6 +427,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
                     newParam.setName(temp.getName());
                     newParam.setType(temp.getType());
                     newParam.setRequired(temp.getRequired());
+                    newParam.setValue("");
                     planEvent.getInputParameter().add(newParam);
                 }
             }
@@ -443,7 +447,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
             eventValues.put("PLANID", planEvent.getPlanID());
             eventValues.put("PLANLANGUAGE", planEvent.getPlanLanguage());
             eventValues.put("OPERATIONNAME", planEvent.getOperationName());
-            eventValues.put("INPUTS", this.transform(planEvent.getInputParameter()));
+            eventValues.put("INPUTS", transform(planEvent.getInputParameter()));
             eventValues.put("SERVICEINSTANCEID", serviceTemplateInstanceID);
 
             this.LOG.debug("complete the list of parameters {}", givenPlan.getId());
@@ -487,7 +491,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         }
     }
 
-    private Map<String, String> transform(List<TParameterDTO> params) {
+    private Map<String, String> transform(final List<TParameterDTO> params) {
         return params.stream().collect(Collectors.toMap(TParameterDTO::getName, TParameterDTO::getValue));
     }
 
@@ -501,7 +505,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
 
     public Map<String, String> createRequest(final CSARID csarID, final QName serviceTemplateID,
-                                             Long serviceTemplateInstanceId, final QName planInputMessageID,
+                                             final Long serviceTemplateInstanceId, final QName planInputMessageID,
                                              final List<TParameterDTO> inputParameter,
                                              final String correlationID) throws UnsupportedEncodingException {
 

@@ -162,8 +162,12 @@ public class MBEventHandler implements EventHandler {
                 // Should be of type Document or HashMap<String, String>. Maybe better handle them
                 // with different topics.
                 // final Object message = event.getProperty("BODY");
-                final Map<String, String> inputParameter = (Map<String, String>) event.getProperty("INPUTS");
-
+                Map<String, String> inputParameter = (Map<String, String>) event.getProperty("INPUTS");
+                
+                if(inputParameter == null) {
+                    inputParameter = new HashMap<String,String>();
+                }
+                
                 Map<String, String> message =
                     this.createRequestBody(csarID, serviceTemplateID, serviceInstanceID, inputParameter, messageID);
 
