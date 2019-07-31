@@ -143,7 +143,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             this.serviceInstanceVarsHandler.getServiceTemplateURLVariableName(newFreezePlan);
         this.serviceInstanceVarsHandler.appendInitPropertyVariablesFromServiceInstanceData(newFreezePlan, propMap,
                                                                                            serviceTemplateURLVarName,
-                                                                                           serviceTemplate, "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
+                                                                                           serviceTemplate,
+                                                                                           "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 
         // fetch all nodeinstances that are running
         this.instanceVarsHandler.addNodeInstanceFindLogic(newFreezePlan,
@@ -212,14 +213,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     }
 
     private boolean isStateful(final AbstractServiceTemplate serviceTemplate) {
-
-        for (final AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-            if (this.isStateful(nodeTemplate)) {
-                return true;
-            }
-        }
-
-        return false;
+        return serviceTemplate.getTopologyTemplate().getNodeTemplates().stream().filter(node -> isStateful(node))
+                              .findFirst().isPresent();
     }
 
     private boolean isStateful(final AbstractNodeTemplate nodeTemplate) {
@@ -241,11 +236,9 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         final AbstractInterface iface = getSaveStateInterface(nodeTemplate);
         if (iface != null) {
             for (final AbstractOperation op : iface.getOperations()) {
-                if (!op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE)) {
-                    continue;
+                if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE)) {
+                    return op;
                 }
-
-                return op;
             }
         }
         return null;
