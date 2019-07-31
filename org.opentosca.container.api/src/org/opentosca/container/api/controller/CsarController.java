@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -202,21 +203,11 @@ public class CsarController {
 
         final WineryConnector wc = new WineryConnector();
 
-        if (applyEnrichment == null) {
-            logger.error("Enrichment status returned null. Continue without enrichment.");
+        if (Objects.nonNull(applyEnrichment) && Boolean.parseBoolean(applyEnrichment)) {
+            logger.debug("Enrichment status is true. Continue with enrichment.");
+            wc.performManagementFeatureEnrichment(file);
         } else {
-            logger.error("Enrichment status found in request. Continue with enrichment.");
-            try {
-                final Boolean applyEnrichmentParsed = Boolean.parseBoolean(applyEnrichment);
-                // perform management feature enrichment for the given CSAR
-                if (applyEnrichmentParsed) {
-                    wc.performManagementFeatureEnrichment(file);
-                }
-            }
-            catch (final Exception e) {
-                logger.error("Failed to parse enrichment status from UI: {}", e.getMessage(), e);
-                return Response.serverError().build();
-            }
+            logger.debug("Enrichment status is null or false. Continue without enrichment.");
         }
 
         CSARID csarId;
