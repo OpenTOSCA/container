@@ -34,14 +34,11 @@ import org.opentosca.container.api.dto.CsarListDTO;
 import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.common.EntityExistsException;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -154,7 +151,8 @@ public class CsarController {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
-    public Response uploadCsar(@FormDataParam(value = "file") final InputStream is,
+    public Response uploadCsar(@FormDataParam(value = "enrichment") final String applyEnrichment,
+                               @FormDataParam(value = "file") final InputStream is,
                                @FormDataParam("file") final FormDataContentDisposition file) {
 
         if (is == null || file == null) {
@@ -162,7 +160,9 @@ public class CsarController {
         }
 
         logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
-        return handleCsarUpload(file.getFileName(), is);
+
+        return handleCsarUpload(file.getFileName(), is, applyEnrichment);
+
     }
 
     @POST
@@ -175,8 +175,9 @@ public class CsarController {
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-        logger.info("Uploading new CSAR based on request payload: name={}; url={}", request.getName(),
-                    request.getUrl());
+
+        logger.info("Uploading new CSAR based on request payload: name={}; url={}; applyEnrichment={}",
+                    request.getName(), request.getUrl(), request.getEnrich());
 
         String filename = request.getName();
         if (!filename.endsWith(".csar")) {
@@ -186,7 +187,7 @@ public class CsarController {
         try {
             final URL url = new URL(request.getUrl());
 
-            return handleCsarUpload(filename, url.openStream());
+            return handleCsarUpload(filename, url.openStream(), request.getEnrich());
         }
         catch (final Exception e) {
             logger.error("Error uploading CSAR: {}", e.getMessage(), e);
@@ -194,9 +195,29 @@ public class CsarController {
         }
     }
 
-    private Response handleCsarUpload(final String filename, final InputStream is) {
+
+    private Response handleCsarUpload(final String filename, final InputStream is, final String applyEnrichment) {
 
         final File file = this.csarService.storeTemporaryFile(filename, is);
+
+        final WineryConnector wc = new WineryConnector();
+
+        if (applyEnrichment == null) {
+            logger.error("Enrichment status returned null. Continue without enrichment.");
+        } else {
+            logger.error("Enrichment status found in request. Continue with enrichment.");
+            try {
+                final Boolean applyEnrichmentParsed = Boolean.parseBoolean(applyEnrichment);
+                // perform management feature enrichment for the given CSAR
+                if (applyEnrichmentParsed) {
+                    wc.performManagementFeatureEnrichment(file);
+                }
+            }
+            catch (final Exception e) {
+                logger.error("Failed to parse enrichment status from UI: {}", e.getMessage(), e);
+                return Response.serverError().build();
+            }
+        }
 
         CSARID csarId;
 
@@ -235,27 +256,22 @@ public class CsarController {
         }
 
         // TODO this is such a brutal hack, won't go through reviews....
-        final WineryConnector wc = new WineryConnector();
-        boolean repoAvailable = wc.isWineryRepositoryAvailable();
-
+        final boolean repoAvailable = wc.isWineryRepositoryAvailable();
         final StringBuilder strB = new StringBuilder();
 
         // quick and dirty parallel thread to upload the csar to the container
         // repository
         // This is needed for the state save feature
-        Thread parallelUploadThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (wc.isWineryRepositoryAvailable()) {
-                    try {
-                        strB.append(wc.uploadCSAR(file, false));
-                    }
-                    catch (URISyntaxException e) {
-                        e.printStackTrace();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        final Thread parallelUploadThread = new Thread(() -> {
+            if (wc.isWineryRepositoryAvailable()) {
+                try {
+                    strB.append(wc.uploadCSAR(file, false));
+                }
+                catch (final URISyntaxException e1) {
+                    e1.printStackTrace();
+                }
+                catch (final IOException e2) {
+                    e2.printStackTrace();
                 }
             }
         });
@@ -294,7 +310,6 @@ public class CsarController {
             return Response.serverError().build();
         }
 
-
         if (!success) {
             return Response.serverError().build();
         }
@@ -322,23 +337,24 @@ public class CsarController {
 
         return Response.noContent().build();
     }
-    
+
     @POST
     @Path("/transform")
     @ApiOperation(value = "Transform this CSAR to a new CSAR")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
-    	
-    	String sourceCsarName = request.getSourceCsarName();
-    	String targetCsarName = request.getTargetCsarName();
-    		
-    	CSARID csarId = this.csarService.generateTransformationPlans(new CSARID(sourceCsarName), new CSARID(targetCsarName));
-    	
-    	this.controlService.setDeploymentProcessStateStored(csarId);
+
+        final String sourceCsarName = request.getSourceCsarName();
+        final String targetCsarName = request.getTargetCsarName();
+
+        final CSARID csarId =
+            this.csarService.generateTransformationPlans(new CSARID(sourceCsarName), new CSARID(targetCsarName));
+
+        this.controlService.setDeploymentProcessStateStored(csarId);
         boolean success = this.controlService.invokeTOSCAProcessing(csarId);
 
-        
+
         if (success) {
             final List<QName> serviceTemplates =
                 this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId);
@@ -351,15 +367,15 @@ public class CsarController {
                     success = false;
                 }
             }
-        }    	                 
-        
-        if(success) {            
+        }
+
+        if (success) {
             return Response.ok().build();
         } else {
             return Response.serverError().build();
         }
     }
-    
+
 
 
     public void setCsarService(final CsarService csarService) {

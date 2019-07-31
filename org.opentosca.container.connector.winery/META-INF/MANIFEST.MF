@@ -9,10 +9,12 @@ Bundle-ClassPath: .
 Export-Package: org.opentosca.container.connector.winery
 Import-Package: com.fasterxml.jackson.core;version="2.6.2",
  com.fasterxml.jackson.databind;version="2.6.2",
+ org.apache.commons.io;version="2.2.0",
  org.apache.http;version="4.2.1",
  org.apache.http.client;version="4.2.0",
  org.apache.http.client.entity;version="4.2.0",
  org.apache.http.client.methods;version="4.2.0",
+ org.apache.http.entity;version="4.3.3",
  org.apache.http.entity.mime;version="4.2.0",
  org.apache.http.entity.mime.content;version="4.2.0",
  org.apache.http.impl.client;version="4.2.0",
