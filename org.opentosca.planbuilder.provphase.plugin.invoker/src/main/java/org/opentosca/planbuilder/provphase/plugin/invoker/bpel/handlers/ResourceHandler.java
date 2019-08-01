@@ -22,6 +22,8 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.provphase.plugin.invoker.Activator;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ import org.xml.sax.SAXException;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
+// FIXME !! IMPORTANT !! Remove Activator and retrieve resources from within the jar file!
 public class ResourceHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(ResourceHandler.class);
@@ -55,7 +58,7 @@ public class ResourceHandler {
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
     }
-
+    
     public Path createNewTempFile(final Path file, final int id) throws IOException {
       final String filename = file.getFileName().toString();
       final String[] segments = filename.split("\\.", 2);
@@ -80,7 +83,7 @@ public class ResourceHandler {
     public String generateAddressingCopy(final String partnerLinkName,
                                          final String requestVariableName) throws IOException {
         final URL url =
-            FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("addressingCopy.xml");
+            Activator.getContext().getBundle().getResource("addressingCopy.xml");
         final File addressingFile = new File(FileLocator.toFileURL(url).getPath());
         String addressingFileString = FileUtils.readFileToString(addressingFile);
         /*
@@ -123,7 +126,7 @@ public class ResourceHandler {
      */
     public String generateAddressingInit(final String requestVariableName) throws IOException {
         final URL url =
-            FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("addressingInit.xml");
+        		Activator.getContext().getBundle().getResource("addressingInit.xml");
         final File addressingFile = new File(FileLocator.toFileURL(url).getPath());
         String addressingFileString = FileUtils.readFileToString(addressingFile);
         /*
@@ -167,7 +170,7 @@ public class ResourceHandler {
     private String generateCopyFromExternalParamToInvokerString(final String requestVarName,
                                                                 final String requestVarPartName, final String paramName,
                                                                 final String invokerParamName) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+        final URL url = Activator.getContext().getBundle()
                                      .getResource("externalParamCopy2.xml");
         final File copyTemplateFile = new File(FileLocator.toFileURL(url).getPath());
         String copyTemplateString = FileUtils.readFileToString(copyTemplateFile);
@@ -242,7 +245,7 @@ public class ResourceHandler {
                                                               final String invokerRequestVarName,
                                                               final String invokerRequestVarPartName,
                                                               final String invokerParamName) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+        final URL url = Activator.getContext().getBundle()
                                      .getResource("EPRCopyToInvokerReplyTo.xml");
         final File eprCopyFile = new File(FileLocator.toFileURL(url).getPath());
         String eprCopyFileString = FileUtils.readFileToString(eprCopyFile);
@@ -303,7 +306,7 @@ public class ResourceHandler {
                                                                   final String requestVarPartName, final String iface,
                                                                   final boolean isNodeTemplate, final String templateId,
                                                                   final Map<String, Variable> internalExternalProps) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+        final URL url = Activator.getContext().getBundle()
                                      .getResource("assignInvokerAsyncMessage.xml");
         final File assignTemplateFile = new File(FileLocator.toFileURL(url).getPath());
         String assignTemplateString = FileUtils.readFileToString(assignTemplateFile);
@@ -437,7 +440,7 @@ public class ResourceHandler {
     public String generateMessageIdInit(final String requestVariableName, final String requestVariabelPartName,
                                         final String messageIdPrefix) throws IOException {
         final URL url =
-            FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("initMessageId.xml");
+        		Activator.getContext().getBundle().getResource("initMessageId.xml");
         final File initMessageIdFile = new File(FileLocator.toFileURL(url).getPath());
         String initMessageIdFileString = FileUtils.readFileToString(initMessageIdFile);
 
@@ -504,7 +507,7 @@ public class ResourceHandler {
     public String generateReplyToCopy(final String partnerLinkName, final String requestVarName,
                                       final String requestVarPartName, final String paramName) throws IOException {
         final URL url =
-            FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("copyReplyTo.xml");
+        		Activator.getContext().getBundle().getResource("copyReplyTo.xml");
         final File copyTemplateFile = new File(FileLocator.toFileURL(url).getPath());
         String copyTemplateString = FileUtils.readFileToString(copyTemplateFile);
 
@@ -649,9 +652,12 @@ public class ResourceHandler {
      */
     private String generateCorrelationIdCopy(final String requestVarName,
                                              final String requestVarPartName) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-                                     .getResource("correlationIDCopy.xml");
+    	LOG.debug("Starting to load correlationIDCopy.xml");
+        final URL url = Activator.getContext().getBundle()
+                                     .getResource("correlationIdCopy.xml");
+        LOG.debug("URL inside OSGI framework to load xml: " + url);
         final File correlationIdCopy = new File(FileLocator.toFileURL(url).getPath());
+        LOG.debug("Loaded XML file: " + correlationIdCopy);
         String correlationIdCopyString = FileUtils.readFileToString(correlationIdCopy);
         correlationIdCopyString = correlationIdCopyString.replace("{requestVarName}", requestVarName);
         correlationIdCopyString = correlationIdCopyString.replace("{requestVarPartName}", requestVarPartName);
@@ -671,7 +677,7 @@ public class ResourceHandler {
      */
     public String generateServiceInstanceIDCopy(final String bpelVarName, final String requestVarName,
                                                 final String requestVarPartName) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+        final URL url = Activator.getContext().getBundle()
                                      .getResource("serviceInstanceCopy.xml");
         final File serviceInstanceCopy = new File(FileLocator.toFileURL(url).getPath());
         String serviceInstanceCopyString = FileUtils.readFileToString(serviceInstanceCopy);
@@ -686,7 +692,7 @@ public class ResourceHandler {
     public String generateNodeInstanceIdCopy(final String bpelVarName, final String requestVarName,
                                              final String requestVarPartName) throws IOException {
         final URL url =
-            FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("nodeInstanceCopy.xml");
+        		Activator.getContext().getBundle().getResource("nodeInstanceCopy.xml");
         final File serviceInstanceCopy = new File(FileLocator.toFileURL(url).getPath());
         String serviceInstanceCopyString = FileUtils.readFileToString(serviceInstanceCopy);
 
@@ -710,7 +716,7 @@ public class ResourceHandler {
     private String generateServiceInvokerExternalParamCopyString(final String requestVarName,
                                                                  final String requestVarPartName,
                                                                  final String paramName) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+        final URL url = Activator.getContext().getBundle()
                                      .getResource("externalParamCopy.xml");
         final File copyTemplateFile = new File(FileLocator.toFileURL(url).getPath());
         String copyTemplateString = FileUtils.readFileToString(copyTemplateFile);
@@ -726,7 +732,7 @@ public class ResourceHandler {
     private String generateServiceInvokerInternalParamCopyString(final String bpelVarName, final String requestVarName,
                                                                  final String requestVarPartName,
                                                                  final String paramName) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+        final URL url = Activator.getContext().getBundle()
                                      .getResource("internalParamCopy.xml");
         final File copyTemplateFile = new File(FileLocator.toFileURL(url).getPath());
         String copyTemplateString = FileUtils.readFileToString(copyTemplateFile);
@@ -782,14 +788,11 @@ public class ResourceHandler {
     }
 
     public Path getServiceInvokerWSDLFile(final Path invokerXsdFile, final int id) throws IOException {
-
       final URL url = this.getClass().getResource("invoker.wsdl");
       ResourceAccess access = new ResourceAccess(url);
 
       final Path wsdlFile = access.resolvedPath();
-
       final Path tempFile = createNewTempFile(wsdlFile, id);
-
       final String fileName = invokerXsdFile.getFileName().toString();
 
       Files.write(tempFile, new String(Files.readAllBytes(tempFile)).replaceAll("invoker.xsd", fileName).getBytes());
@@ -800,8 +803,12 @@ public class ResourceHandler {
     public Path getServiceInvokerXSDFile(final int id) throws IOException {
       final URL url = getClass().getResource("invoker.xsd");
       ResourceAccess access = new ResourceAccess(url);
-      // FIXME formerly copied the file to a temporary file. Do we need that?
-      return access.resolvedPath();
+
+      final Path xsdFile = access.resolvedPath();
+      final Path tempFile = createNewTempFile(xsdFile, id);
+
+      Files.copy(xsdFile, tempFile);
+      return tempFile;
     }
 
 }
