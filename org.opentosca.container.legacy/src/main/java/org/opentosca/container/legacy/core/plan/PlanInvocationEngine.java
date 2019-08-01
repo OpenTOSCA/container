@@ -222,6 +222,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         newParam.setName(storedParam.getName());
         newParam.setType(storedParam.getType());
         newParam.setRequired(storedParam.getRequired());
+        newParam.setValue("");
         planEvent.getInputParameter().add(newParam);
       }
     }
@@ -415,7 +416,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
       .orElseThrow(() -> new NotFoundException("Plan with id " + givenPlan.getId() + " was not found in Csar " + csar.id()));
   }
 
-  private Map<String, String> transform(List<TParameterDTO> params) {
+  private Map<String, String> transform(final List<TParameterDTO> params) {
     return params.stream().collect(Collectors.toMap(TParameterDTO::getName, TParameterDTO::getValue));
   }
 
@@ -427,7 +428,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
   }
 
   private Map<String, String> createRequest(final Csar csar, final QName serviceTemplateID,
-                                            Long serviceTemplateInstanceID,
+                                            final Long serviceTemplateInstanceID,
                                             final List<TParameterDTO> inputParameters,
                                             final String correlationID) throws UnsupportedEncodingException {
     final Map<String, String> map = new HashMap<>();

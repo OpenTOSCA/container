@@ -272,10 +272,13 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
     }
 
     private AbstractInterface getLifecyclePatternInterface(final AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE)) {
-                return iface;
-            }
+        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {            
+            switch(iface.getName()) {
+                case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE:
+                case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2:
+                case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE3:
+                    return iface;                                 
+            }            
         }
         return null;
     }
