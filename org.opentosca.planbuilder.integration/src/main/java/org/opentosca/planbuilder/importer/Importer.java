@@ -1,8 +1,11 @@
 package org.opentosca.planbuilder.importer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
@@ -14,6 +17,9 @@ import org.opentosca.planbuilder.importer.context.impl.DefinitionsImpl;
 import org.opentosca.planbuilder.integration.layer.AbstractImporter;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -59,8 +65,61 @@ public class Importer extends AbstractImporter {
         return new ArrayList<>();
     }
 
+    public AbstractPlan generateAdaptationPlan(CSARID csarId, QName serviceTemplateId,
+                                               Collection<String> sourceNodeTemplateIds,
+                                               Collection<String> sourceRelationshipTemplateIds,
+                                               Collection<String> targetNodeTemplateId,
+                                               Collection<String> targetRelationshipTemplateId) throws SystemException {
+
+        try {
+            CSARContent content = this.handler.getCSARContentForID(csarId);
+            AbstractDefinitions defs = this.createContext(content);
+            AbstractTopologyTemplate topology = defs.getServiceTemplates().get(0).getTopologyTemplate();
+
+            return this.buildAdaptationPlan(csarId.getFileName(), defs, serviceTemplateId,
+                                     this.getNodes(topology, sourceNodeTemplateIds),
+                                     this.getRelations(topology, sourceRelationshipTemplateIds),
+                                     this.getNodes(topology, targetNodeTemplateId),
+                                     this.getRelations(topology, targetRelationshipTemplateId));
+
+        }
+        catch (UserException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+
+        return null;
+    }
+
+    private Collection<AbstractNodeTemplate> getNodes(AbstractTopologyTemplate topology, Collection<String> nodeIds) {
+        Collection<AbstractNodeTemplate> result = new ArrayList<>();
+
+        for (AbstractNodeTemplate node : topology.getNodeTemplates()) {
+            if (nodeIds.contains(node.getId())) {
+                result.add(node);
+            }
+        }
+
+        return result;
+    }
+
+    private Collection<AbstractRelationshipTemplate> getRelations(AbstractTopologyTemplate topology,
+                                                                  Collection<String> relationIds) {
+        Collection<AbstractRelationshipTemplate> result = new ArrayList<>();
+
+        for (AbstractRelationshipTemplate relation : topology.getRelationshipTemplates()) {
+            if (relationIds.contains(relation.getId())) {
+                result.add(relation);
+            }
+        }
+
+        return result;
+    }
+
     public List<AbstractPlan> generateTransformationPlans(final CSARID sourceCsarId, final CSARID targetCsarId) {
-        final List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
+        final List<AbstractPlan> plans = new ArrayList<>();
         try {
             final CSARContent sourceCsarContent = this.handler.getCSARContentForID(sourceCsarId);
             final AbstractDefinitions sourceDefs = this.createContext(sourceCsarContent);

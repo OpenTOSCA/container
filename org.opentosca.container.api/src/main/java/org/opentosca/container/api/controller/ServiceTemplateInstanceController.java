@@ -2,6 +2,7 @@ package org.opentosca.container.api.controller;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -255,6 +256,38 @@ public class ServiceTemplateInstanceController {
       return Response.serverError().build();
     }
     return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
+  }
+
+  @GET
+  @Path("/{id}/situationsmonitors")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public Response getSituationMonitors(@PathParam("id") final Long id) {
+    Collection<SituationsMonitor> monitors = this.instanceService.getSituationsMonitors(id);
+    final SituationsMonitorListDTO dto = new SituationsMonitorListDTO();
+
+    monitors.forEach(x -> dto.add(SituationsMonitorDTO.Converter.convert(x)));
+
+    dto.add(UriUtil.generateSelfLink(this.uriInfo));
+
+    return Response.ok(dto).build();
+  }
+
+  @POST
+  @Path("/{id}/situationsmonitors")
+  @Consumes({MediaType.APPLICATION_XML})
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public Response createSituationMonitor(@PathParam("id") final Long id, SituationsMonitorDTO monitor) {
+    ServiceTemplateInstance servInstance = this.instanceService.getServiceTemplateInstance(id, false);
+
+    Map<String,Collection<Long>> mapping = new HashMap<>();
+
+    for(String nodeId :  monitor.getNodeId2SituationIds().keySet()) {
+      mapping.put(nodeId, monitor.getNodeId2SituationIds().get(nodeId).getSituationId());
+    }
+
+    SituationsMonitor createdInstance = this.instanceService.createNewSituationsMonitor(servInstance, mapping);
+    final URI uri = UriUtil.generateSubResourceURI(this.uriInfo, createdInstance.getId().toString(), false);
+    return Response.ok(uri).build();
   }
 
   /**

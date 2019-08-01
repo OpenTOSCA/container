@@ -108,7 +108,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             this.serviceInstanceHandler.getServiceTemplateURLVariableName(newTerminationPlan);
         this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(newTerminationPlan, propMap,
                                                                                        serviceTemplateURLVarName,
-                                                                                       serviceTemplate);
+                                                                                       serviceTemplate, "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 
         // fetch all nodeinstances that are running
         this.instanceVarsHandler.addNodeInstanceFindLogic(newTerminationPlan,
@@ -127,7 +127,11 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(newTerminationPlan);
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(newTerminationPlan,
-                                                                  newTerminationPlan.getBpelMainSequenceOutputAssignElement(),
+                                                                  newTerminationPlan.getBpelMainFlowElement(),
+                                                                  "DELETING", serviceInstanceURLVarName);
+
+        this.serviceInstanceHandler.appendSetServiceInstanceState(newTerminationPlan,
+                                                                  newTerminationPlan.getBpelMainSequenceCallbackInvokeElement(),
                                                                   "DELETED", serviceInstanceURLVarName);
 
         this.correlationHandler.addCorrellationID(newTerminationPlan);

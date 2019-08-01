@@ -23,6 +23,7 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPAddress;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -302,7 +303,7 @@ public class ODEEndpointUpdater {
       for (final File wsdlFile : wsdlFiles) {
         LOG.debug("Checking if wsdl file {} contains portType {}",
           wsdlFile.getAbsolutePath(), port.toString());
-        final Definition wsdlDef = this.factory.newWSDLReader().readWSDL(wsdlFile.getAbsolutePath());
+        final Definition wsdlDef = getWsdlReader().readWSDL(wsdlFile.getAbsolutePath());
         // check if port is in wsdl file
         if (!checkIfPortIsInWsdlDef(port, wsdlDef)) {
           continue;
@@ -329,6 +330,12 @@ public class ODEEndpointUpdater {
       }
     }
     return portTypeToFileMap;
+  }
+
+  private WSDLReader getWsdlReader() {
+    WSDLReader reader = factory.newWSDLReader();
+    reader.setFeature("javax.wsdl.verbose", false);
+    return reader;
   }
 
   /**
@@ -427,7 +434,7 @@ public class ODEEndpointUpdater {
 
   private boolean updateProvidedWSDLAddresses(final QName portType, final File wsdlFile) throws WSDLException {
     boolean changed = false;
-    final Definition wsdlDef = this.factory.newWSDLReader().readWSDL(wsdlFile.getAbsolutePath());
+    final Definition wsdlDef = getWsdlReader().readWSDL(wsdlFile.getAbsolutePath());
     for (final Object o : wsdlDef.getAllServices().values()) {
       final Service service = (Service) o;
       for (final Object obj : service.getPorts().values()) {
@@ -461,7 +468,7 @@ public class ODEEndpointUpdater {
   private boolean updateInvokedWSDLAddresses(final QName portType, final File wsdl) throws WSDLException {
     boolean changed = false;
     LOG.debug("Trying to change WSDL file {} ", wsdl.getName());
-    final Definition wsdlDef = this.factory.newWSDLReader().readWSDL(wsdl.getAbsolutePath());
+    final Definition wsdlDef = getWsdlReader().readWSDL(wsdl.getAbsolutePath());
     for (final Object o : wsdlDef.getAllServices().values()) {
       // get the services
       final Service service = (Service) o;
@@ -554,7 +561,7 @@ public class ODEEndpointUpdater {
     try {
       final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
       endpoints.add(new WSDLEndpoint(new URI(callbackEndpoint), port.getBinding().getPortType().getQName(),
-        localContainer, localContainer, null, null, null, null, null));
+        localContainer, localContainer, null, null, null, null, null, new HashMap<>()));
     } catch (final URISyntaxException e) {
       e.printStackTrace();
     }

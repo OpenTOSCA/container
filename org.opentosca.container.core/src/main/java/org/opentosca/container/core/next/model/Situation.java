@@ -7,6 +7,8 @@ import javax.persistence.Table;
 
 import org.opentosca.container.core.next.trigger.SituationListener;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = Situation.TABLE_NAME)
 @EntityListeners( {SituationListener.class})
@@ -47,5 +49,26 @@ public class Situation extends PersistenceObject {
 
   public void setSituationTemplateId(final String situationTemplateId) {
     this.situationTemplateId = situationTemplateId;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || this.getClass() != o.getClass()) {
+      return false;
+    }
+    final Situation entity = (Situation) o;
+    if(entity.getId().equals(this.id)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.id);
   }
 }

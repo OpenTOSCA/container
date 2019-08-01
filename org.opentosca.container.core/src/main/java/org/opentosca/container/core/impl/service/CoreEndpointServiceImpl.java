@@ -3,6 +3,7 @@ package org.opentosca.container.core.impl.service;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -109,11 +110,15 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
    * @return true, if the Endpoint already exists.
    */
   private boolean existsWSDLEndpoint(final WSDLEndpoint endpoint) {
-    TypedQuery<WSDLEndpoint> findQuery = em.createQuery("SELECT e from WSDLEndpoint e where e.PortType = :portType and e.csarId = :csarId and e.managingContainer = :managingContainer and e.serviceTemplateInstanceID = :serviceTemplateInstanceID", WSDLEndpoint.class);
+    TypedQuery<WSDLEndpoint> findQuery =
+      em.createQuery("SELECT e from WSDLEndpoint e where e.PortType = :portType " +
+        "and e.csarId = :csarId and e.managingContainer = :managingContainer " +
+        "and e.serviceTemplateInstanceID = :serviceTemplateInstanceID and e.PlanId = :planId", WSDLEndpoint.class);
     findQuery.setParameter("portType", endpoint.getPortType());
     findQuery.setParameter("csarId", endpoint.getCsarId());
     findQuery.setParameter("managingContainer", endpoint.getManagingContainer());
     findQuery.setParameter("serviceTemplateInstanceID", endpoint.getServiceTemplateInstanceID());
+    findQuery.setParameter("planId", endpoint.getPlanId());
 
     try {
       @SuppressWarnings("unused")
@@ -236,7 +241,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
   public void _endpoint_add_dummy_rest(final CommandInterpreter commandInterpreter) {
     try {
       final RESTEndpoint endpoint = new RESTEndpoint(new URI("http://www.balbla.com/xyz"), restMethod.GET, "test",
-        "test", new CsarId("mockup.example.test"), 5L);
+        "test", new CsarId("mockup.example.test"), 5L, new HashMap<>());
       storeRESTEndpoint(endpoint);
     } catch (final URISyntaxException e) {
       e.printStackTrace();
@@ -251,7 +256,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
       // nodeTypeImplementation, String iaName
       final WSDLEndpoint endpoint = new WSDLEndpoint(new URI("http://blabla/"), new QName("somePort"), "test",
         "test", new CsarId("mockup.example.test"), 5L, new QName("{someNamespace}someplanid"),
-        new QName("{someNamespace}someNodeTypeImplId"), "some ia name");
+        new QName("{someNamespace}someNodeTypeImplId"), "some ia name", new HashMap<>());
       storeWSDLEndpoint(endpoint);
     } catch (final URISyntaxException e) {
       e.printStackTrace();
@@ -281,6 +286,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
       commandInterpreter.println("PlanId: " + (e.getPlanId() == null ? "" : e.getPlanId().toString()));
       commandInterpreter.println("IaName: " + (e.getIaName() == null ? "" : e.getIaName()));
       commandInterpreter.println("URI: " + e.getURI().toString());
+      commandInterpreter.println("Metadata: " + e.getMetadata());
       commandInterpreter.println("");
     }
   }
@@ -307,7 +313,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
   public WSDLEndpoint getWSDLEndpointForIa(final CsarId csarId, final QName nodeTypeImpl, final String iaName) {
     WSDLEndpoint endpoint = null;
     final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = em.createQuery(
-      "SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl", WSDLEndpoint.class);
+      "SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.IaName = :IaName and e.TypeImplementation = :nodeTypeImpl", WSDLEndpoint.class);
     queryWSDLEndpoint.setParameter("csarId", csarId);
     queryWSDLEndpoint.setParameter("IaName", iaName);
     queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
@@ -339,7 +345,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
   public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(String triggeringContainer, String managingContainer, final QName nodeTypeImpl, final String iaName) {
     final List<WSDLEndpoint> endpoints = new ArrayList<>();
     final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery(
-      "SELECT e FROM WSDLEndpoint e where e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl and e.triggeringContainer = :triggeringContainer and e.managingContainer = :managingContainer", WSDLEndpoint.class);
+      "SELECT e FROM WSDLEndpoint e where e.IaName = :IaName and e.TypeImplementation = :nodeTypeImpl and e.triggeringContainer = :triggeringContainer and e.managingContainer = :managingContainer", WSDLEndpoint.class);
     queryWSDLEndpoint.setParameter("IaName", iaName);
     queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
     queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);

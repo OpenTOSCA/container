@@ -5,8 +5,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
@@ -227,7 +227,7 @@ public class BPELScopeHandler {
     return check;
   }
 
-  public BPELScope createTemplateBuildPlan(final ANodeTemplateActivity nodeTemplateActivity, final BPELPlan buildPlan) {
+  public BPELScope createTemplateBuildPlan(final NodeTemplateActivity nodeTemplateActivity, final BPELPlan buildPlan) {
     final BPELScope newTemplateBuildPlan = new BPELScope(nodeTemplateActivity);
     this.initializeXMLElements(newTemplateBuildPlan, buildPlan);
     this.setName(this.getNCNameFromString(nodeTemplateActivity.getNodeTemplate().getId()) + "_" + nodeTemplateActivity.getType(), newTemplateBuildPlan);
@@ -235,7 +235,7 @@ public class BPELScopeHandler {
     return newTemplateBuildPlan;
   }
 
-  public BPELScope createTemplateBuildPlan(final ARelationshipTemplateActivity relationshipTemplateActivity,
+  public BPELScope createTemplateBuildPlan(final RelationshipTemplateActivity relationshipTemplateActivity,
                                            final BPELPlan buildPlan) {
 
     final BPELScope newTemplateBuildPlan = new BPELScope(relationshipTemplateActivity);

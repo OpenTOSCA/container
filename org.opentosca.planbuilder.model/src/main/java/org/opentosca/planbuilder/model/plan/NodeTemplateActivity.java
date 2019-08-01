@@ -8,12 +8,12 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
  *
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  */
-public class ANodeTemplateActivity extends AbstractActivity {
+public class NodeTemplateActivity extends AbstractActivity {
 
   private final AbstractNodeTemplate nodeTemplate;
 
 
-  public ANodeTemplateActivity(final String id, final ActivityType type, final AbstractNodeTemplate nodeTemplate) {
+  public NodeTemplateActivity(final String id, final ActivityType type, final AbstractNodeTemplate nodeTemplate) {
     super(id, type);
     this.nodeTemplate = nodeTemplate;
   }

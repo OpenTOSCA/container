@@ -149,7 +149,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             this.serviceInstanceVarsHandler.getServiceTemplateURLVariableName(newFreezePlan);
         this.serviceInstanceVarsHandler.appendInitPropertyVariablesFromServiceInstanceData(newFreezePlan, propMap,
                                                                                            serviceTemplateURLVarName,
-                                                                                           serviceTemplate);
+                                                                                           serviceTemplate, "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 
         // fetch all nodeinstances that are running
         this.instanceVarsHandler.addNodeInstanceFindLogic(newFreezePlan,

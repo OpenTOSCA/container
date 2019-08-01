@@ -146,25 +146,6 @@ public class PlanService {
   }
 
   private void enhanceInputParameters(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, List<TParameter> parameters) {
-    /*
-     * Add parameter "OpenTOSCAContainerAPIServiceInstanceID" as a callback for the plan engine
-     */
-    if (serviceTemplateInstanceId != null) {
-
-      String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + serviceTemplateInstanceId;
-      url = url.replace("{csarid}", csar.id().csarName());
-      url = url.replace("{servicetemplateid}",
-        UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
-      final URI uri = UriUtil.encode(URI.create(url));
-      final TParameter param = new TParameter();
-
-      param.setName("OpenTOSCAContainerAPIServiceInstanceURL");
-      param.setRequired(TBoolean.fromValue("yes"));
-      param.setType("String");
-      param.setValue(uri.toString());
-      parameters.add(param);
-    }
-
     // set "meta" params
     for (TParameter param : parameters) {
       if (param.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT)

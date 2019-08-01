@@ -152,19 +152,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
 
     LOG.debug("complete the list of parameters {}", givenPlan.getId());
 
-    final Map<String, String> message = createRequest(csar, serviceTemplateId, planEvent.getInputParameter(), correlationID);
-
-    if (null == message) {
-      LOG.error("Failed to construct parameter list for plan {} of type {}", givenPlan.getId(),
-        givenPlan.getPlanLanguage());
-      return null;
-    }
-
-    final StringBuilder builder = new StringBuilder("Invoking the plan with the following parameters:\n");
-    for (final String key : message.keySet()) {
-      builder.append("     " + key + " : " + message.get(key) + "\n");
-    }
-    LOG.trace(builder.toString());
     csarInstanceManagement.storePublicPlanToHistory(correlationID, planEvent);
 
     // Create a new instance
@@ -189,10 +176,13 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     // send the message to the service bus
     final Map<String, Object> eventValues = new Hashtable<>();
     eventValues.put("CSARID", csarID);
+    eventValues.put("SERVICETEMPLATEID", serviceTemplateId);
     eventValues.put("PLANID", planEvent.getPlanID());
     eventValues.put("PLANLANGUAGE", planEvent.getPlanLanguage());
     eventValues.put("OPERATIONNAME", planEvent.getOperationName());
-    eventValues.put("BODY", message);
+    eventValues.put("INPUTS", transform(planEvent.getInputParameter()));
+    eventValues.put("SERVICEINSTANCEID", serviceTemplateInstanceID);
+
     eventValues.put("MESSAGEID", correlationID);
     if (null == toscaReferenceMapper.isPlanAsynchronous(csarID.toOldCsarId(), givenPlan.getId())) {
       LOG.warn(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
@@ -352,7 +342,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
 
     LOG.debug("complete the list of parameters {}", givenPlan.getId());
 
-    final Map<String, String> message = createRequest(csar, serviceTemplateId, planEvent.getInputParameter(), correlationID);
+    final Map<String, String> message = createRequest(csar, serviceTemplateId, serviceTemplateInstanceID, planEvent.getInputParameter(), correlationID);
 
     if (null == message) {
       LOG.error("Failed to construct parameter list for plan {} of type {}", givenPlan.getId(), givenPlan.getPlanLanguage());
@@ -425,6 +415,10 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
       .orElseThrow(() -> new NotFoundException("Plan with id " + givenPlan.getId() + " was not found in Csar " + csar.id()));
   }
 
+  private Map<String, String> transform(List<TParameterDTO> params) {
+    return params.stream().collect(Collectors.toMap(TParameterDTO::getName, TParameterDTO::getValue));
+  }
+
   @Override
   public void correctCorrelationToServiceTemplateInstanceIdMapping(final CsarId csarID, final QName serviceTemplateId,
                                                                    final String corrId,
@@ -432,8 +426,10 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     correlationHandler.correlateBuildPlanCorrToServiceTemplateInstanceId(csarID, serviceTemplateId, corrId, correctSTInstanceId);
   }
 
-  private Map<String, String> createRequest(final Csar csar, final QName serviceTemplateID,final List<TParameterDTO> inputParameters,
-                                           final String correlationID) throws UnsupportedEncodingException {
+  private Map<String, String> createRequest(final Csar csar, final QName serviceTemplateID,
+                                            Long serviceTemplateInstanceID,
+                                            final List<TParameterDTO> inputParameters,
+                                            final String correlationID) throws UnsupportedEncodingException {
     final Map<String, String> map = new HashMap<>();
 
     final List<Document> docs = csar.serviceTemplates().stream()
@@ -497,7 +493,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     if (planLanguage.startsWith(nsBPEL)) {
 
       @SuppressWarnings("unchecked") final Map<String, String> map = (Map<String, String>) eventValues.get("RESPONSE");
-      LOG.debug("Received an event with a SOAP response");
+      LOG.info("Received an event with a SOAP response");
 
       final CsarId csarID = new CsarId(event.getCSARID());
       // parse the body
@@ -527,9 +523,11 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
       final PlanInstanceRepository repository = new PlanInstanceRepository();
       final PlanInstance pi = repository.findByCorrelationId(correlationID);
       if (pi != null) {
-        event.getInputParameter().stream().map(p -> new PlanInstanceInput(p.getName(), p.getValue(), p.getType()))
+        event.getInputParameter().stream()
+          .map(p -> new PlanInstanceInput(p.getName(), p.getValue(), p.getType()))
           .forEach(pii -> pii.setPlanInstance(pi));
-        event.getOutputParameter().stream().map(p -> new PlanInstanceOutput(p.getName(), p.getValue(), p.getType()))
+        event.getOutputParameter().stream()
+          .map(p -> new PlanInstanceOutput(p.getName(), p.getValue(), p.getType()))
           .forEach(pii -> pii.setPlanInstance(pi));
         pi.setState(PlanInstanceState.FINISHED);
         repository.update(pi);

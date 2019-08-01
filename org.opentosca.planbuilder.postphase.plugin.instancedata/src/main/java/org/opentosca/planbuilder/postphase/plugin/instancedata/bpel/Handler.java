@@ -850,7 +850,7 @@ public class Handler {
          * Post Phase code
          */
 
-        if (lastSetState.equals("INITIAL")) {
+        if (lastSetState.equals("INITIAL") || lastSetState.equals("CONFIGURED")) {
             try {
                 // set state
                 String nextState = InstanceStates.getNextStableOperationState(lastSetState);

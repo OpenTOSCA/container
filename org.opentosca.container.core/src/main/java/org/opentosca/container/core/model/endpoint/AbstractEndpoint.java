@@ -1,6 +1,7 @@
 package org.opentosca.container.core.model.endpoint;
 
 import java.net.URI;
+import java.util.Map;
 
 import javax.persistence.*;
 
@@ -21,7 +22,6 @@ public abstract class AbstractEndpoint {
   /**
    * The URI which can be used to access the endpoint that is represented by this class.
    */
-  @Basic
   @Convert(converter = UriConverter.class)
   @Column(name = "uri", nullable = false)
   private URI uri;
@@ -69,6 +69,10 @@ public abstract class AbstractEndpoint {
   @Column(name = "serviceTemplateInstanceID")
   private Long serviceTemplateInstanceID;
 
+  @ElementCollection
+  @Column(name = "metadata")
+  private Map<String, String> metadata;
+
   public AbstractEndpoint() {
     super();
   }
@@ -83,12 +87,13 @@ public abstract class AbstractEndpoint {
    * @param serviceTemplateInstanceID
    */
   public AbstractEndpoint(final URI uri, final String triggeringContainer, final String managingContainer,
-                          final CsarId csarId, final Long serviceTemplateInstanceID) {
+                          final CsarId csarId, final Long serviceTemplateInstanceID, final Map<String, String> metadata) {
     setURI(uri);
     setTriggeringContainer(triggeringContainer);
     setManagingContainer(managingContainer);
     setCsarId(csarId);
     setServiceTemplateInstanceID(serviceTemplateInstanceID);
+    setMetadata(metadata);
   }
 
   public void setCsarId(final CsarId csarId) {
@@ -137,5 +142,13 @@ public abstract class AbstractEndpoint {
 
   public void setTriggeringContainer(final String triggeringContainer) {
     this.triggeringContainer = triggeringContainer;
+  }
+
+  public Map<String, String> getMetadata() {
+    return metadata;
+  }
+
+  public void setMetadata(Map<String, String> metadata) {
+    this.metadata = metadata;
   }
 }

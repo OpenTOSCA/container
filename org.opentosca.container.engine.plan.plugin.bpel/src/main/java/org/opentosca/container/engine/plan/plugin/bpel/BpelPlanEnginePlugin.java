@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.inject.Inject;
 import javax.wsdl.WSDLException;
@@ -27,6 +24,7 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.AbstractArtifact;
+import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.backwards.ArtifactResolver;
@@ -123,17 +121,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     return capabilities;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
-    Path planLocation = planLocationOnDisk(csarId, planId, planRef);
-    if (planLocation == null) {
-      // diagnostics already in planLocationOnDisk
-      return false;
-    }
-
+  public boolean deployPlanFile(final Path planLocation, final CsarId csarId, final QName planId, Map<String, String> endpointMetadata) {
     IFileAccessService localCopy = this.fileAccessService;
     if (localCopy == null) {
       LOG.error("FileAccessService is not available, can't create needed temporary space on disk");
@@ -143,22 +131,23 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     // creating temporary dir for update
     File tempDir = localCopy.getTemp();
     File tempPlan = new File(tempDir, planLocation.getFileName().toString());
-    LOG.debug("Unzipping Plan '{}' to '{}'.", planLocation.getFileName().toString(),
-      tempDir.getAbsolutePath());
+    LOG.debug("Unzipping Plan '{}' to '{}'.", planLocation.getFileName().toString(), tempDir.getAbsolutePath());
     List<File> planContents = localCopy.unzip(planLocation.toFile(), tempDir);
-    // variable for the (inbound) portType of the process, if this is null
-    // till end the process can't be instantiated by the container
-    QName portType = null;
 
     // changing endpoints in WSDLs
     ODEEndpointUpdater odeUpdater;
+    // variable for the (inbound) portType of the process, if this is null
+    // till end the process can't be instantiated by the container
+    QName portType = null;
     try {
       odeUpdater = new ODEEndpointUpdater(servicesUrl, processEngine);
       portType = odeUpdater.getPortType(planContents);
       if (!odeUpdater.changeEndpoints(planContents, csarId)) {
-        LOG.error("Not all endpoints used by the plan {} have been changed", planRef.getReference());
+        LOG.error("Not all endpoints used by the plan {} have been changed",
+          planLocation);
       }
-    } catch (final WSDLException e) {
+    }
+    catch (final WSDLException e) {
       LOG.error("Couldn't load ODEEndpointUpdater", e);
     }
 
@@ -168,31 +157,40 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
       bpelRestUpdater = new BPELRESTLightUpdater();
       if (!bpelRestUpdater.changeEndpoints(planContents, csarId)) {
         // we don't abort deployment here
-        LOG.warn("Could'nt change all endpoints inside BPEL4RESTLight Elements in the given process {}",
-          planRef.getReference());
+        LOG.warn("Couldn't change all endpoints inside BPEL4RESTLight Elements in the given process {}", planLocation);
       }
-    } catch (final TransformerConfigurationException | ParserConfigurationException e) {
-      LOG.error("Couldn't load BPELRESTLightUpdater", e);
-    } catch (final SAXException e) {
+    }
+    catch (final TransformerConfigurationException e) {
+      LOG.error("Couldn't load BPELRESTLightUpdater transformer", e);
+    }
+    catch (final ParserConfigurationException e) {
+      LOG.error("Couldn't load BPELRESTLightUpdaters parser", e);
+    }
+    catch (final SAXException e) {
       LOG.error("ParseError: Couldn't parse .bpel file", e);
-    } catch (final IOException e) {
+    }
+    catch (final IOException e) {
       LOG.error("IOError: Couldn't access .bpel file", e);
     }
 
     // package process
     LOG.info("Prepare deployment of PlanModelReference");
 
-    try {
-      if (!tempPlan.createNewFile()) {
-        LOG.error("Can't package temporary plan for deployment");
+    if (this.fileAccessService != null) {
+      try {
+        if (tempPlan.createNewFile()) {
+          // package the updated files
+          LOG.debug("Packaging plan to {} ", tempPlan.getAbsolutePath());
+          tempPlan = this.fileAccessService.zip(tempDir, tempPlan);
+        } else {
+          LOG.error("Can't package temporary plan for deployment");
+          return false;
+        }
+      }
+      catch (final IOException e) {
+        LOG.error("Can't package temporary plan for deployment", e);
         return false;
       }
-      // package the updated files
-      LOG.debug("Packaging plan to {} ", tempPlan.getAbsolutePath());
-      tempPlan = localCopy.zip(tempDir, tempPlan);
-    } catch (final IOException e) {
-      LOG.error("Can't package temporary plan for deployment", e);
-      return false;
     }
 
     // deploy process
@@ -201,14 +199,15 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     Map<String, URI> endpoints = Collections.emptyMap();
     try {
       if (processEngine.equalsIgnoreCase(BPS_ENGINE)) {
-        LOG.error("BPS Engine is no longer supported");
+        LOG.error("BPS ENGINE IS NO LONGER SUPPORTED!!");
       } else {
         final OdeConnector connector = new OdeConnector();
         processId = connector.deploy(tempPlan, url);
         endpoints = connector.getEndpointsForPID(processId, url);
       }
-    } catch (final Exception e) {
-      LOG.error("Failed to deploy plan to URL {} with an exception", url, e);
+    }
+    catch (final Exception e) {
+      e.printStackTrace();
     }
 
     // this will be the endpoint the container can use to instantiate the
@@ -225,17 +224,23 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     }
 
     if (endpoint == null) {
-      LOG.warn("No endpoint for Plan {} could be determined, container won't be able to instantiate it", planRef.getReference());
       return false;
     }
 
-    if (processId == null || portType == null) {
+    if (processId == null || endpoint == null || portType == null || this.endpointService == null) {
       LOG.error("Error while processing plan");
       if (processId == null) {
         LOG.error("ProcessId is null");
       }
+      if (endpoint == null) {
+        LOG.error("Endpoint for process is null");
+      }
       if (portType == null) {
         LOG.error("PortType of process is null");
+      }
+
+      if(this.endpointService == null) {
+        LOG.error("Endpoint Service is null");
       }
       return false;
     }
@@ -245,16 +250,30 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     // save endpoint
     final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
     final WSDLEndpoint wsdlEndpoint =
-      new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null);
+      new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata);
+    this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
 
-    if (this.endpointService == null) {
-      LOG.warn("Couldn't store endpoint {} for plan {}, cause endpoint service is not available",
-        endpoint.toString(), planRef.getReference());
+    return true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean deployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
+
+    if (storage == null) {
+      LOG.error("Can't fetch relevant Csar from storage: StorageService not available");
       return false;
     }
-    LOG.debug("Store new endpoint!");
-    this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-    return true;
+
+    Path planLocation = planLocationOnDisk(csarId, planId, planRef);
+    if (planLocation == null) {
+      // diagnostics already in planLocationOnDisk
+      return false;
+    }
+
+    return this.deployPlanFile(planLocation, csarId, planId, new HashMap<String,String>());
   }
 
   /**
@@ -307,7 +326,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
       return null;
     }
     @SuppressWarnings("null") // ignore MT implications
-      Csar csar = storage.findById(csarId);
+    Csar csar = storage.findById(csarId);
     TPlan toscaPlan;
     try {
       toscaPlan = ToscaEngine.resolvePlanReference(csar, planId);

@@ -96,7 +96,7 @@ public class Util {
       + buildPlan.getBpelProcessElement().getAttribute("name") + ".zip");
 
     try {
-      planBuilderExporter.export(uploadFile.toURI(), buildPlan);
+      planBuilderExporter.exportToPlanFile(uploadFile.toURI(), buildPlan);
     } catch (final IOException e) {
       e.printStackTrace();
       return null;

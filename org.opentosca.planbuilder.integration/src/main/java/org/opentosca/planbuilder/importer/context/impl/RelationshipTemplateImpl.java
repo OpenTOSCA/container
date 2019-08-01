@@ -235,7 +235,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
 
   @Override
   public String toString() {
-    return String.format("Def: %s Id: %s Name: %s", definitions.getId(), getId(), getName());
+    return String.format(" Id: %s Name: %s Def: %s%n Source: %s%n Target: %s", getId(), getName(), definitions.getId(), getSource(), getTarget());
   }
 
 }

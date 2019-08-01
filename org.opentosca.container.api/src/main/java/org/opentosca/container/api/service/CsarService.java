@@ -59,7 +59,7 @@ public class CsarService {
         return true;
       }
 
-      final File file = planBuilderExporter.export(buildPlans, csar.id().toOldCsarId());
+      final File file = planBuilderExporter.exportToCSAR(buildPlans, csar.id().toOldCsarId());
       // reimport CSAR after generating plans
       storage.deleteCSAR(csar.id());
       storage.storeCSAR(file.toPath());
@@ -84,7 +84,7 @@ public class CsarService {
       return sourceCsarId;
     }
 
-    final File file = planBuilderExporter.export(plans, sourceCsarId.toOldCsarId());
+    final File file = planBuilderExporter.exportToCSAR(plans, sourceCsarId.toOldCsarId());
     try {
       storage.deleteCSAR(sourceCsarId);
       return storage.storeCSAR(file.toPath());

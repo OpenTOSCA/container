@@ -1,8 +1,10 @@
 package org.opentosca.container.api.service;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
@@ -17,13 +19,7 @@ import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanc
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.*;
-import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
-import org.opentosca.container.core.next.repository.PlanInstanceRepository;
-import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
-import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
-import org.opentosca.container.core.next.repository.SituationRepository;
-import org.opentosca.container.core.next.repository.SituationTriggerInstanceRepository;
-import org.opentosca.container.core.next.repository.SituationTriggerRepository;
+import org.opentosca.container.core.next.repository.*;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +47,7 @@ public class InstanceService {
   private final SituationRepository sitRepo = new SituationRepository();
   private final SituationTriggerRepository sitTrig = new SituationTriggerRepository();
   private final SituationTriggerInstanceRepository sitTrigInst = new SituationTriggerInstanceRepository();
+  private final SituationsMonitorRepository situationsMonitorRepo = new SituationsMonitorRepository();
 
   @Inject
   private RelationshipTemplateService relationshipTemplateService;
@@ -693,6 +690,28 @@ public class InstanceService {
   public SituationTriggerInstance getSituationTriggerInstance(final Long id) {
     return this.sitTrigInst.find(id)
       .orElseThrow(() -> new RuntimeException("SituationTriggerInstance <" + id + "> not found."));
+  }
+
+  public SituationsMonitor createNewSituationsMonitor(final ServiceTemplateInstance instance,
+                                                      final Map<String,Collection<Long>> situations) {
+    final SituationsMonitor monitor = new SituationsMonitor();
+
+    monitor.setServiceInstance(instance);
+
+    monitor.setNode2Situations(situations);
+
+    this.situationsMonitorRepo.add(monitor);
+    return monitor;
+  }
+
+  public Collection<SituationsMonitor> getSituationsMonitors() {
+    return this.situationsMonitorRepo.findAll();
+  }
+
+  public Collection<SituationsMonitor> getSituationsMonitors(final Long serviceInstanceID) {
+    return this.getSituationsMonitors().stream()
+      .filter(monitor -> monitor.getServiceInstance() != null && monitor.getServiceInstance().getId().equals(serviceInstanceID))
+      .collect(Collectors.toList());
   }
 
   /* Service Injection */

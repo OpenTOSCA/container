@@ -15,6 +15,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.camel.*;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.script.typeshandler.ArtifactTypesHandler;
@@ -133,7 +134,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     }
     // search operating system IA to upload files and run scripts on
     // target machine
-    final String osNodeTemplateID = MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID);
+    final String osNodeTemplateID = MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID, true,
+      Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/")));
 
     if (osNodeTemplateID == null) {
       LOG.warn("No OperatingSystem-NodeTemplate found!");

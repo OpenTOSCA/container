@@ -10,8 +10,8 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.tosca.convention.Types;
-import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -48,12 +48,12 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
         for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
 
             if (this.hasFreezableComponentPolicy(nodeTemplate)) {
-                final ANodeTemplateActivity activity = new ANodeTemplateActivity(
+                final NodeTemplateActivity activity = new NodeTemplateActivity(
                     nodeTemplate.getId() + "_freeze_activity", ActivityType.FREEZE, nodeTemplate);
                 activities.add(activity);
                 mapping.put(nodeTemplate, activity);
             } else if (!this.hasStatefulComponentPolicy(nodeTemplate)) {
-                final ANodeTemplateActivity activity = new ANodeTemplateActivity(
+                final NodeTemplateActivity activity = new NodeTemplateActivity(
                     nodeTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, nodeTemplate);
                 activities.add(activity);
                 mapping.put(nodeTemplate, activity);
@@ -65,7 +65,7 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
         }
 
         for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
-            final ARelationshipTemplateActivity activity = new ARelationshipTemplateActivity(
+            final RelationshipTemplateActivity activity = new RelationshipTemplateActivity(
                 relationshipTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, relationshipTemplate);
             activities.add(activity);
 

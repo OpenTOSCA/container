@@ -399,7 +399,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     // Prevent two threads from trying to deploy the same IA concurrently and avoid the deletion
     // of an IA after successful checking that an IA is already deployed.
-    final String identifier = getUniqueSynchronizationString(triggeringContainer, deploymentLocation, typeImplementationID, iaName);
+    final String identifier = getUniqueSynchronizationString(triggeringContainer, deploymentLocation, typeImplementationID, iaName, serviceTemplateInstanceID.toString());
     synchronized (getLockForString(identifier)) {
 
       LOG.debug("Checking if IA was already deployed...");
@@ -415,7 +415,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // store new endpoint for the IA
         final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType, triggeringContainer,
-          deploymentLocation, csar.id(), serviceTemplateInstanceID, null, typeImplementationID, iaName);
+          deploymentLocation, csar.id(), serviceTemplateInstanceID, null, typeImplementationID, iaName, new HashMap<>());
         endpointService.storeWSDLEndpoint(endpoint);
 
         // Call IA, send response to caller and terminate bus
@@ -495,7 +495,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // store new endpoint for the IA
         final WSDLEndpoint endpoint =
           new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation,
-            csar.id(), serviceTemplateInstanceID, null, typeImplementationID, iaName);
+            csar.id(), serviceTemplateInstanceID, null, typeImplementationID, iaName, new HashMap<>());
         endpointService.storeWSDLEndpoint(endpoint);
       }
       LOG.debug("Endpoint: {}", endpointURI.toString());
@@ -690,7 +690,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         deploymentLocation, typeImpl, iaName);
 
       final String identifier =
-        getUniqueSynchronizationString(triggeringContainer, deploymentLocation, typeImpl, iaName);
+        getUniqueSynchronizationString(triggeringContainer, deploymentLocation, typeImpl, iaName, instanceID.toString());
 
       // synchronize deletion to avoid concurrency issues
       synchronized (getLockForString(identifier)) {
@@ -769,15 +769,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
    */
   public static String getUniqueSynchronizationString(final String triggeringContainer,
                                                       final String deploymentLocation, final QName typeImpl,
-                                                      final String iaName) {
+                                                      final String iaName, final String serviceInstanceId) {
 
     if (Objects.isNull(triggeringContainer) || Objects.isNull(deploymentLocation) || Objects.isNull(typeImpl)
-      || Objects.isNull(iaName)) {
+      || Objects.isNull(iaName) || Objects.isNull(serviceInstanceId)) {
       return null;
     }
 
-    return Stream.of(triggeringContainer, deploymentLocation, typeImpl.toString(), iaName)
-      .collect(Collectors.joining("/"));
+    return String.join("/", triggeringContainer, deploymentLocation, typeImpl.toString(), iaName, serviceInstanceId);
   }
 
   /**

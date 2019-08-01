@@ -20,7 +20,9 @@ import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationCha
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.ActivityType;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
@@ -328,6 +330,22 @@ public class BPELPlanContext extends PlanContext {
     this.templateBuildPlan.setRelationshipTemplate(relationBackup);
 
     return true;
+  }
+
+  /**
+   * Returns a set of nodes that will be provisioned in the plan of this context
+   * @return
+   */
+  public Collection<AbstractNodeTemplate> getNodesInCreation() {
+    Collection<AbstractActivity> activities = this.templateBuildPlan.getBuildPlan().getActivites();
+    Collection<AbstractNodeTemplate> result = new HashSet<AbstractNodeTemplate>();
+    for(AbstractActivity activity : activities) {
+      if((activity instanceof NodeTemplateActivity) &&
+          (activity.getType().equals(ActivityType.PROVISIONING) || activity.getType().equals(ActivityType.MIGRATION))) {
+        result.add(((NodeTemplateActivity) activity).getNodeTemplate());
+      }
+    }
+    return result;
   }
 
   public Variable createVariableWithRandomValue() {

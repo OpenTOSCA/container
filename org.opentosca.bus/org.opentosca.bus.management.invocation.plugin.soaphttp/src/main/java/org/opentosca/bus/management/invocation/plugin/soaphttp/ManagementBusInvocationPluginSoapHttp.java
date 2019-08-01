@@ -118,7 +118,11 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       if (messagingPattern == MessagingPattern.CALLBACK) {
         String messageId = message.getMessageId();
         if (paramsMap.containsKey("CorrelationID")) {
-          messageId = paramsMap.get("CorrelationID");
+          if (paramsMap.get("CorrelationID") != null) {
+            messageId = paramsMap.get("CorrelationID");
+          } else {
+            paramsMap.put("CorrelationID", messageId);
+          }
           message.setMessageId(messageId);
         }
         LOG.debug("Message ID: {}", messageId);

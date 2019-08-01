@@ -224,7 +224,7 @@ public class RequestReceiver {
           // store new endpoint for the IA
           final WSDLEndpoint endpoint =
             new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, new CsarId(csarID),
-              serviceTemplateInstanceID, null, typeImplementationID, implementationArtifactName);
+              serviceTemplateInstanceID, null, typeImplementationID, implementationArtifactName, new HashMap<>());
           endpointService.storeWSDLEndpoint(endpoint);
         } else {
           LOG.error("No matching deployment plug-in found. Aborting deployment!");
@@ -517,10 +517,12 @@ public class RequestReceiver {
       message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
     final String implementationArtifactName =
       message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
+    final String serviceInstanceURI =
+      message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), String.class);
+    final String serviceInstanceId = serviceInstanceURI.substring(serviceInstanceURI.lastIndexOf("/"));
 
     return ManagementBusServiceImpl.getUniqueSynchronizationString(triggeringContainer, deploymentLocation,
-      typeImplementationID,
-      implementationArtifactName);
+      typeImplementationID, implementationArtifactName, serviceInstanceId);
   }
 
   /**

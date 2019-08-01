@@ -21,11 +21,10 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
-import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
@@ -980,14 +979,14 @@ public class BPELPlanHandler {
     final Map<AbstractActivity, BPELScope> abstract2bpelMap = new HashMap<>();
 
     for (final AbstractActivity activity : plan.getActivites()) {
-      if (activity instanceof ANodeTemplateActivity) {
-        final ANodeTemplateActivity ntActivity = (ANodeTemplateActivity) activity;
+      if (activity instanceof NodeTemplateActivity) {
+        final NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
         final BPELScope newEmpty3SequenceScopeBPELActivity =
           this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan);
         plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
         abstract2bpelMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);
-      } else if (activity instanceof ARelationshipTemplateActivity) {
-        final ARelationshipTemplateActivity rtActivity = (ARelationshipTemplateActivity) activity;
+      } else if (activity instanceof RelationshipTemplateActivity) {
+        final RelationshipTemplateActivity rtActivity = (RelationshipTemplateActivity) activity;
         final BPELScope newEmpty3SequenceScopeBPELActivity =
           this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan);
         plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);

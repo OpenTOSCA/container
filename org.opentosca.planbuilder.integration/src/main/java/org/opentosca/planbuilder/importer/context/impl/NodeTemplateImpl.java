@@ -290,6 +290,6 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 
   @Override
   public String toString() {
-    return String.format("Def: %s Id: %s Name: ", definitions.getId(), getId(), getName());
+    return String.format(" Id: %s Name: %s Def: %s", getId(), getName(), definitions.getId());
   }
 }
