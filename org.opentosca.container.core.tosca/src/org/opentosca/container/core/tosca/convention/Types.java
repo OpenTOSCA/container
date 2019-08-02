@@ -35,7 +35,7 @@ public class Types {
     public final static QName dockerEngineNodeTypeAlt = new QName("http://opentosca.org/NodeTypes", "DockerEngine");
 
     // abstract operating system node type
-    public final static QName abstractOperatingSysteMNodeType =
+    public final static QName abstractOperatingSystemNodeType =
         new QName("http://opentosca.org/nodetypes", "OperatingSystem");
 
     // virtual machine nodeTypes
