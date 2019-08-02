@@ -16,7 +16,6 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
-import org.opentosca.planbuilder.type.plugin.patternbased.bpel.PatternBasedHandler.ConcreteOperationMatching;
 
 public abstract class PatternBasedHandler {
 
@@ -30,7 +29,7 @@ public abstract class PatternBasedHandler {
 
         Set<AbstractNodeTemplate> matchedNodes;
 
-        public OperationMatching(AbstractInterface iface, AbstractOperation op) {
+        public OperationMatching(final AbstractInterface iface, final AbstractOperation op) {
             this.interfaceName = iface;
             this.operationName = op;
             this.inputMatching = new HashMap<>();
@@ -47,7 +46,7 @@ public abstract class PatternBasedHandler {
         Map<AbstractParameter, Variable> outputMatching = new HashMap<>();
         Set<AbstractNodeTemplate> matchedNodes;
 
-        public ConcreteOperationMatching(AbstractInterface iface, AbstractOperation op) {
+        public ConcreteOperationMatching(final AbstractInterface iface, final AbstractOperation op) {
             this.interfaceName = iface;
             this.operationName = op;
             this.inputMatching = new HashMap<>();
@@ -62,8 +61,8 @@ public abstract class PatternBasedHandler {
                                       final AbstractNodeTemplate hostingContainer) {
 
         return invoker.handle(context, hostingContainer.getId(), true, matching.operationName.getName(),
-                              matching.interfaceName.getName(), transformForInvoker(matching.inputMatching), transformForInvoker(matching.outputMatching),
-                              BPELScopePhaseType.PROVISIONING);
+                              matching.interfaceName.getName(), transformForInvoker(matching.inputMatching),
+                              transformForInvoker(matching.outputMatching), BPELScopePhaseType.PROVISIONING);
     }
 
     private Map<String, Variable> transformForInvoker(final Map<AbstractParameter, Variable> map) {
@@ -72,9 +71,9 @@ public abstract class PatternBasedHandler {
         return newMap;
     }
 
-    protected boolean invokeWithMatching(final BPELPlanContext context, AbstractNodeTemplate nodeTemplate,
-                                         AbstractInterface iface, AbstractOperation op,
-                                         Set<AbstractNodeTemplate> nodesForMatching) {
+    protected boolean invokeWithMatching(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
+                                         final AbstractInterface iface, final AbstractOperation op,
+                                         final Set<AbstractNodeTemplate> nodesForMatching) {
         final ConcreteOperationMatching matching =
             createConcreteOperationMatching(context, createPropertyToParameterMatching(nodesForMatching, iface, op));
         return invokeOperation(context, matching, nodeTemplate);
@@ -91,7 +90,7 @@ public abstract class PatternBasedHandler {
         for (final AbstractParameter param : abstractMatching.inputMatching.keySet()) {
             boolean added = false;
 
-            for (AbstractNodeTemplate nodeForMatch : matching.matchedNodes) {
+            for (final AbstractNodeTemplate nodeForMatch : matching.matchedNodes) {
                 for (final String nodePropName : ModelUtils.getPropertyNames(nodeForMatch)) {
                     if (abstractMatching.inputMatching.get(param).equals(nodePropName)) {
                         matching.inputMatching.put(param, context.getPropertyVariable(nodeForMatch, nodePropName));
@@ -109,7 +108,7 @@ public abstract class PatternBasedHandler {
 
         for (final AbstractParameter param : abstractMatching.outputMatching.keySet()) {
             boolean added = false;
-            for (AbstractNodeTemplate nodeForMatch : matching.matchedNodes) {
+            for (final AbstractNodeTemplate nodeForMatch : matching.matchedNodes) {
                 for (final String nodePropName : ModelUtils.getPropertyNames(nodeForMatch)) {
                     if (abstractMatching.outputMatching.get(param).equals(nodePropName)) {
                         matching.outputMatching.put(param, context.getPropertyVariable(nodeForMatch, nodePropName));
@@ -126,7 +125,7 @@ public abstract class PatternBasedHandler {
         return matching;
     }
 
-    protected boolean hasCompleteMatching(Collection<AbstractNodeTemplate> nodesForMatching,
+    protected boolean hasCompleteMatching(final Collection<AbstractNodeTemplate> nodesForMatching,
                                           final AbstractInterface ifaceToMatch,
                                           final AbstractOperation operationToMatch) {
 
@@ -140,16 +139,16 @@ public abstract class PatternBasedHandler {
         return false;
     }
 
-    protected OperationMatching createPropertyToParameterMatching(Collection<AbstractNodeTemplate> nodesForMatching,
+    protected OperationMatching createPropertyToParameterMatching(final Collection<AbstractNodeTemplate> nodesForMatching,
                                                                   final AbstractInterface ifaceToMatch,
                                                                   final AbstractOperation operationToMatch) {
         final OperationMatching matching = new OperationMatching(ifaceToMatch, operationToMatch);
-        Set<AbstractNodeTemplate> matchedNodes = new HashSet<AbstractNodeTemplate>();
+        final Set<AbstractNodeTemplate> matchedNodes = new HashSet<>();
 
         for (final AbstractParameter param : operationToMatch.getInputParameters()) {
             boolean matched = false;
 
-            for (AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+            for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
                 for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                     if (param.getName().equals(propName)) {
                         matching.inputMatching.put(param, propName);
@@ -167,7 +166,7 @@ public abstract class PatternBasedHandler {
         for (final AbstractParameter param : operationToMatch.getOutputParameters()) {
             boolean matched = false;
 
-            for (AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+            for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
                 for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                     if (param.getName().equals(propName)) {
                         matching.outputMatching.put(param, propName);

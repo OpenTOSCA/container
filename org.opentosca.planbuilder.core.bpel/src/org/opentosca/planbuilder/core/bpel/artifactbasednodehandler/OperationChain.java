@@ -19,7 +19,6 @@ import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOper
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
-import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
 
 /**
  * <p>
@@ -100,7 +99,7 @@ public class OperationChain {
      * Executes the first found IACandidate to provision IA's with the appropiate plugins set in the
      * candidate
      * </p>
-     * 
+     *
      * @param context a BPELPlanContext which is initialized for either a NodeTemplate or
      *        RelationshipTemplate this ProvisioningChain belongs to
      * @return returns false only when execution of a plugin inside the IACandidate failed, else true.
@@ -334,7 +333,7 @@ public class OperationChain {
                     final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin =
                         (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
                     if (!(op instanceof InterfaceDummy)) {
-                        if (paramPlugin.handle(context, op, ia, param2propertyMapping)) {
+                        if (paramPlugin.handle(context, op, ia, param2propertyMapping, param2propertyOutputMapping)) {
                             checkCount++;
                         }
                     } else {
