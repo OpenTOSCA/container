@@ -131,10 +131,10 @@ public abstract class AbstractPlan {
   }
 
   public Collection<AbstractActivity> getSinks() {
-    Collection<AbstractActivity> sinks = new HashSet<AbstractActivity>();
-    for (AbstractActivity act : this.activites) {
+    final Collection<AbstractActivity> sinks = new HashSet<>();
+    for (final AbstractActivity act : this.activites) {
       boolean isSink = true;
-      for (Link link : this.links) {
+      for (final Link link : this.links) {
         if (link.getSrcActiv().equals(act)) {
           isSink = false;
           break;
@@ -149,10 +149,10 @@ public abstract class AbstractPlan {
   }
 
   public Collection<AbstractActivity> getSources() {
-    Collection<AbstractActivity> sources = new HashSet<AbstractActivity>();
-    for (AbstractActivity act : this.activites) {
+    final Collection<AbstractActivity> sources = new HashSet<>();
+    for (final AbstractActivity act : this.activites) {
       boolean isSource = true;
-      for (Link link : this.links) {
+      for (final Link link : this.links) {
         if (link.getTrgActiv().equals(act)) {
           isSource = false;
           break;
@@ -168,7 +168,7 @@ public abstract class AbstractPlan {
 
   public AbstractActivity findRelationshipTemplateActivity(final AbstractRelationshipTemplate relationshipTemplate,
                                                            final ActivityType type) {
-    for (final AbstractActivity activity : this.findRelationshipTemplateActivities(relationshipTemplate)) {
+    for (final AbstractActivity activity : findRelationshipTemplateActivities(relationshipTemplate)) {
       if (activity.getType().equals(type)) {
         return activity;
       }
@@ -176,8 +176,8 @@ public abstract class AbstractPlan {
     return null;
   }
 
-  public Collection<AbstractActivity> findNodeTemplateActivities(AbstractNodeTemplate nodeTemplate) {
-    Collection<AbstractActivity> foundActivities = new HashSet<AbstractActivity>();
+  public Collection<AbstractActivity> findNodeTemplateActivities(final AbstractNodeTemplate nodeTemplate) {
+    final Collection<AbstractActivity> foundActivities = new HashSet<>();
     for (final AbstractActivity activity : this.activites) {
 
       if (activity instanceof NodeTemplateActivity) {
@@ -190,8 +190,8 @@ public abstract class AbstractPlan {
     return foundActivities;
   }
 
-  public Collection<AbstractActivity> findRelationshipTemplateActivities(AbstractRelationshipTemplate relationshipTemplate) {
-    Collection<AbstractActivity> foundActivities = new HashSet<AbstractActivity>();
+  public Collection<AbstractActivity> findRelationshipTemplateActivities(final AbstractRelationshipTemplate relationshipTemplate) {
+    final Collection<AbstractActivity> foundActivities = new HashSet<>();
     for (final AbstractActivity activity : this.activites) {
 
       if (activity instanceof RelationshipTemplateActivity) {
@@ -205,7 +205,7 @@ public abstract class AbstractPlan {
   }
 
   public AbstractActivity findNodeTemplateActivity(final AbstractNodeTemplate nodeTemplate, final ActivityType type) {
-    for (final AbstractActivity activity : this.findNodeTemplateActivities(nodeTemplate)) {
+    for (final AbstractActivity activity : findNodeTemplateActivities(nodeTemplate)) {
       if (activity.getType().equals(type)) {
         return activity;
       }
@@ -236,13 +236,13 @@ public abstract class AbstractPlan {
     String toString =
       "Plan: " + this.id + " Type: " + this.type + " ServiceTemplate: " + this.serviceTemplate.getId();
 
-    toString += "Activities: ";
+    toString += " Activities: ";
 
     for (final AbstractActivity actic : this.activites) {
       toString += "{Id: " + actic.getId() + " Type: " + actic.getType() + "}";
     }
 
-    toString += "Links: ";
+    toString += " Links: ";
 
     for (final Link link : this.links) {
       toString += link.toString();

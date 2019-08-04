@@ -18,6 +18,9 @@ public class CsarUploadRequest {
   @XmlElement(name = "Url")
   private String url;
 
+  @XmlElement(name = "Enrich")
+  private String enrich;
+
   public String getName() {
     return this.name;
   }
@@ -32,5 +35,13 @@ public class CsarUploadRequest {
 
   public void setUrl(final String url) {
     this.url = url;
+  }
+
+  public String getEnrich() {
+    return this.enrich;
+  }
+
+  public void setEnrich(final String enrich) {
+    this.enrich = enrich;
   }
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -54,18 +55,18 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
     // class for initializing properties inside the build plan
     private final PropertyVariableHandler propertyInitializer;
+
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
     private SimplePlanBuilderServiceInstanceHandler serviceInstanceVarsHandler;
+
     // adds nodeInstanceIDs to each templatePlan
     private NodeRelationInstanceVariablesHandler instanceVarsHandler;
+
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
 
     private BPELProcessFragments bpelFragments;
-
-    // accepted operations for provisioning
-    private final List<String> opNames = new ArrayList<>();
 
     private CorrelationIDInitializer correlationHandler;
 
@@ -83,7 +84,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             this.correlationHandler = new CorrelationIDInitializer();
         }
         catch (final ParserConfigurationException e) {
-            BPELFreezeProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
+            LOG.error("Error while initializing BuildPlanHandler", e);
         }
         this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
         this.finalizer = new BPELFinalizer();
@@ -98,27 +99,19 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     @Override
     public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
                               final AbstractServiceTemplate serviceTemplate) {
-        BPELFreezeProcessBuilder.LOG.info("Making Plans");
+        LOG.info("Creating Freeze Plan...");
 
         if (!this.isStateful(serviceTemplate)) {
-            BPELFreezeProcessBuilder.LOG.warn("Couldn't create FreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-                                              serviceTemplate.getQName().toString(), definitions.getId(), csarName);
+            LOG.warn("Couldn't create FreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
+                     serviceTemplate.getQName().toString(), definitions.getId(), csarName);
             return null;
-        }
-
-        String namespace;
-        if (serviceTemplate.getTargetNamespace() != null) {
-            namespace = serviceTemplate.getTargetNamespace();
-        } else {
-            namespace = definitions.getTargetNamespace();
         }
 
         final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_freezePlan");
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_freezePlan";
 
         // we take the overall flow of an termination plan, basically with the goal of
-        // saving state from
-        // the top to the bottom
+        // saving state from the top to the bottom
         final AbstractPlan newAbstractBackupPlan =
             generateFOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 
@@ -145,7 +138,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         // instanceDataAPI/serviceInstanceID into input, add global
         // variables to hold the value for plugins
         this.serviceInstanceVarsHandler.addServiceInstanceHandlingFromInput(newFreezePlan);
-        String serviceTemplateURLVarName =
+        final String serviceTemplateURLVarName =
             this.serviceInstanceVarsHandler.getServiceTemplateURLVariableName(newFreezePlan);
         this.serviceInstanceVarsHandler.appendInitPropertyVariablesFromServiceInstanceData(newFreezePlan, propMap,
                                                                                            serviceTemplateURLVarName,
@@ -159,18 +152,18 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                                                                                 serviceTemplate);
 
         try {
-            this.appendGenerateStatefulServiceTemplateLogic(newFreezePlan);
+            appendGenerateStatefulServiceTemplateLogic(newFreezePlan);
         }
-        catch (IOException e) {
+        catch (final IOException e) {
             e.printStackTrace();
         }
-        catch (SAXException e) {
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
-        final List<BPELScope> changedActivities = runPlugins(newFreezePlan, propMap, csarName);
+        runPlugins(newFreezePlan, propMap, csarName);
 
-        String serviceInstanceURLVarName =
+        final String serviceInstanceURLVarName =
             this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(newFreezePlan);
         this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newFreezePlan,
                                                                       newFreezePlan.getBpelMainSequenceOutputAssignElement(),
@@ -190,38 +183,36 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
          * "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED"); } }
          */
 
-        BPELFreezeProcessBuilder.LOG.debug("Created Plan:");
-        BPELFreezeProcessBuilder.LOG.debug(ModelUtils.getStringFromDoc(newFreezePlan.getBpelDocument()));
+        LOG.debug("Created Plan:");
+        LOG.debug(ModelUtils.getStringFromDoc(newFreezePlan.getBpelDocument()));
 
         return newFreezePlan;
     }
 
     @Override
     public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
-        BPELFreezeProcessBuilder.LOG.info("Builing the Plans");
+        LOG.info("Building the Freeze Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
             if (!this.isStateful(serviceTemplate)) {
                 continue;
             }
 
-            BPELFreezeProcessBuilder.LOG.debug("ServiceTemplate {} has no BackupPlan, generating BackuopPlan",
-                                               serviceTemplate.getQName().toString());
+            LOG.debug("ServiceTemplate {} has no Freeze Plan, generating Freeze Plan",
+                      serviceTemplate.getQName().toString());
             final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplate);
 
             if (newBuildPlan != null) {
-                BPELFreezeProcessBuilder.LOG.debug("Created BackupPlan "
-                    + newBuildPlan.getBpelProcessElement().getAttribute("name"));
+                LOG.debug("Created Freeze Plan " + newBuildPlan.getBpelProcessElement().getAttribute("name"));
                 plans.add(newBuildPlan);
             }
-
         }
         return plans;
     }
 
-    private boolean isStateful(AbstractServiceTemplate serviceTemplate) {
+    private boolean isStateful(final AbstractServiceTemplate serviceTemplate) {
 
-        for (AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+        for (final AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             if (this.isStateful(nodeTemplate)) {
                 return true;
             }
@@ -230,35 +221,25 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         return false;
     }
 
-    private boolean isStateful(AbstractNodeTemplate nodeTemplate) {
-        return this.hasSaveStateInterface(nodeTemplate) && this.hasStatefulComponentPolicy(nodeTemplate);
+    private boolean isStateful(final AbstractNodeTemplate nodeTemplate) {
+        return hasSaveStateInterface(nodeTemplate) && hasStatefulComponentPolicy(nodeTemplate);
     }
 
-    private boolean hasSaveStateInterface(AbstractNodeTemplate nodeTemplate) {
-        AbstractOperation op = this.getSaveStateOperation(nodeTemplate);
-        if (op != null) {
-            if (this.getSaveStateParameter(op) != null) {
-                return true;
-            }
-        }
-        return false;
+    private boolean hasSaveStateInterface(final AbstractNodeTemplate nodeTemplate) {
+        final AbstractOperation op = getSaveStateOperation(nodeTemplate);
+        return Objects.nonNull(op) && Objects.nonNull(getSaveStateParameter(op));
     }
 
-    private AbstractInterface getSaveStateInterface(AbstractNodeTemplate nodeTemplate) {
-        for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-            if (!iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE)) {
-                continue;
-            }
-
-            return iface;
-        }
-        return null;
+    private AbstractInterface getSaveStateInterface(final AbstractNodeTemplate nodeTemplate) {
+        return nodeTemplate.getType().getInterfaces().stream()
+                           .filter(iface -> iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE))
+                           .findFirst().orElse(null);
     }
 
-    private AbstractOperation getSaveStateOperation(AbstractNodeTemplate nodeTemplate) {
-        AbstractInterface iface = this.getSaveStateInterface(nodeTemplate);
+    private AbstractOperation getSaveStateOperation(final AbstractNodeTemplate nodeTemplate) {
+        final AbstractInterface iface = getSaveStateInterface(nodeTemplate);
         if (iface != null) {
-            for (AbstractOperation op : iface.getOperations()) {
+            for (final AbstractOperation op : iface.getOperations()) {
                 if (!op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE)) {
                     continue;
                 }
@@ -269,36 +250,29 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         return null;
     }
 
-    private AbstractParameter getSaveStateParameter(AbstractOperation op) {
-        for (AbstractParameter param : op.getInputParameters()) {
-            if (param.getName()
-                     .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT)) {
-                return param;
-            }
-        }
-        return null;
+    private AbstractParameter getSaveStateParameter(final AbstractOperation op) {
+        return op.getInputParameters().stream()
+                 .filter(param -> param.getName()
+                                       .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT))
+                 .findFirst().orElse(null);
     }
 
-    private String findStatefulServiceTemplateUrlVar(BPELPlan plan) {
-        for (String varName : this.planHandler.getMainVariableNames(plan)) {
-            if (varName.contains("statefulServiceTemplateUrl")) {
-                return varName;
-            }
-        }
-
-        return null;
+    private String findStatefulServiceTemplateUrlVar(final BPELPlan plan) {
+        return this.planHandler.getMainVariableNames(plan).stream()
+                               .filter(varName -> varName.contains("statefulServiceTemplateUrl")).findFirst()
+                               .orElse(null);
     }
 
-    private void appendGenerateStatefulServiceTemplateLogic(BPELPlan plan) throws IOException, SAXException {
-        QName serviceTemplateId = plan.getServiceTemplate().getQName();
+    private void appendGenerateStatefulServiceTemplateLogic(final BPELPlan plan) throws IOException, SAXException {
+        final QName serviceTemplateId = plan.getServiceTemplate().getQName();
 
         this.planHandler.addStringElementToPlanRequest(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT,
                                                        plan);
 
         // var to save serviceTemplate url on storage service
-        String statefulServiceTemplateVarName =
+        final String statefulServiceTemplateVarName =
             this.planHandler.addGlobalStringVariable("statefulServiceTemplateUrl" + System.currentTimeMillis(), plan);
-        String responseVarName = this.planHandler.createAnyTypeVar(plan);
+        final String responseVarName = this.planHandler.createAnyTypeVar(plan);
 
         // assign variable with the original service template url
         Node assignStatefuleServiceTemplateStorageVar =
@@ -328,12 +302,12 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
         // read response and assign url of created stateful service template
         // query the localname from the response
-        String xpathQuery1 =
+        final String xpathQuery1 =
             "concat(substring-before($" + statefulServiceTemplateVarName + ",'" + serviceTemplateId.getLocalPart()
                 + "'),encode-for-uri(encode-for-uri(//*[local-name()='QName']/*[local-name()='localname']/text())))";
         // query original service template url without the last path fragment(/service
         // template localname)
-        String xpathQuery2 = "string($" + statefulServiceTemplateVarName + ")";
+        final String xpathQuery2 = "string($" + statefulServiceTemplateVarName + ")";
         Node assignCreatedStatefulServiceTemplate =
             this.bpelFragments.createAssignVarToVarWithXpathQueriesAsNode("assignCreatedStatefuleServiceTemplateUrl",
                                                                           responseVarName, null,
@@ -356,15 +330,16 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
      * @param serviceTemplate the serviceTemplate the plan belongs to
      * @param propMap a PropertyMapping from NodeTemplate to Properties to BPELVariables
      */
-    private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap, String csarName) {
+    private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap,
+                                       final String csarName) {
 
         final List<BPELScope> changedActivities = new ArrayList<>();
 
-        String statefulServiceTemplateUrlVarName = this.findStatefulServiceTemplateUrlVar(plan);
+        final String statefulServiceTemplateUrlVarName = findStatefulServiceTemplateUrlVar(plan);
 
-        String serviceInstanceUrl = this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(plan);
-        String serviceInstanceId = this.serviceInstanceVarsHandler.findServiceInstanceIdVarName(plan);
-        String serviceTemplateUrl = this.serviceInstanceVarsHandler.findServiceTemplateUrlVariableName(plan);
+        final String serviceInstanceUrl = this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(plan);
+        final String serviceInstanceId = this.serviceInstanceVarsHandler.findServiceInstanceIdVarName(plan);
+        final String serviceTemplateUrl = this.serviceInstanceVarsHandler.findServiceTemplateUrlVariableName(plan);
 
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(plan, templatePlan, propMap, plan.getServiceTemplate(),
@@ -373,8 +348,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
                 // create a context for the node
 
-                boolean alreadyHandled = false;
-                AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+                final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 
                 // TODO add termination logic
 
@@ -383,10 +357,10 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                  */
                 if (this.isStateful(nodeTemplate)) {
 
-                    String saveStateUrlVarName =
+                    final String saveStateUrlVarName =
                         this.planHandler.addGlobalStringVariable("nodeTemplateStateSaveURL", plan);
 
-                    String xpathQuery = "concat($" + statefulServiceTemplateUrlVarName
+                    final String xpathQuery = "concat($" + statefulServiceTemplateUrlVarName
                         + ",'/topologytemplate/nodetemplates/" + nodeTemplate.getId() + "/state')";
                     try {
                         Node assignSaveStateURL =
@@ -398,24 +372,23 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                         assignSaveStateURL = context.importNode(assignSaveStateURL);
                         context.getPrePhaseElement().appendChild(assignSaveStateURL);
                     }
-                    catch (IOException e) {
+                    catch (final IOException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    catch (SAXException e) {
+                    catch (final SAXException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
 
-                    Variable saveStateUrlVar = BPELPlanContext.getVariable(saveStateUrlVarName);
+                    final Variable saveStateUrlVar = BPELPlanContext.getVariable(saveStateUrlVarName);
 
-                    Map<AbstractParameter, Variable> inputs = new HashMap<AbstractParameter, Variable>();
+                    final Map<AbstractParameter, Variable> inputs = new HashMap<>();
 
-                    inputs.put(this.getSaveStateParameter(this.getSaveStateOperation(nodeTemplate)), saveStateUrlVar);
+                    inputs.put(getSaveStateParameter(getSaveStateOperation(nodeTemplate)), saveStateUrlVar);
 
-                    alreadyHandled =
-                        context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
-                                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
+                    context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
+                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
                 }
 
                 if (org.opentosca.container.core.tosca.convention.Utils.isSupportedVMNodeType(templatePlan.getNodeTemplate()
@@ -427,8 +400,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                     for (final AbstractNodeTemplate infraNode : infraNodes) {
                         if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(infraNode.getType()
                                                                                                                           .getId())) {
-                            // append logic to call terminateVM method on the
-                            // node
+                            // append logic to call terminateVM method on the node
 
                             context.executeOperation(infraNode,
                                                      org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,

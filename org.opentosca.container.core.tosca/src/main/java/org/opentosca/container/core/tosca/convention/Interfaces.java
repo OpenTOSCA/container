@@ -39,6 +39,8 @@ public class Interfaces {
     "SourceURLorLocalPath";
 
   public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE = "http://www.example.com/interfaces/lifecycle";
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2 = "http://opentosca.org/interfaces/lifecycle";
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE3 = "http://opentosca.org/interfaces/pattern/lifecycle";
   public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_INSTALL = "install";
   public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_CONFIGURE = "configure";
   public static final String OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START = "start";
@@ -48,4 +50,10 @@ public class Interfaces {
   public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN = "http://opentosca.org/interfaces/pattern/container";
   public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE = "create";
   public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_TERMINATE = "terminate";
+
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE =
+    "http://opentosca.org/interfaces/connections/nonInterruptive";
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO = "connectTo";
+
+  public static final String OPENTOSCA_DECLARATIVE_INTERFACE_TEST = "http://opentosca.org/interfaces/test";
 }

@@ -332,7 +332,7 @@ public class OperationChain {
           final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin =
             (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
           if (!(op instanceof InterfaceDummy)) {
-            if (paramPlugin.handle(context, op, ia, param2propertyMapping)) {
+            if (paramPlugin.handle(context, op, ia, param2propertyMapping, param2propertyOutputMapping)) {
               checkCount++;
             }
           } else {

@@ -901,14 +901,14 @@ public class Handler {
     private void appendGetStateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName, String stateVarName) {
         this.appendGetStateToElement(context, nodeInstanceURLVarName, stateVarName, context.getPrePhaseElement());
     }
-    
+
     private void appendGetStateToPostPhase(BPELPlanContext context, String instanceUrlVar, String stateVarName) {
         this.appendGetStateToElement(context, instanceUrlVar, stateVarName, context.getPostPhaseElement());
     }
-    
+
     private void appendGetStateToElement(BPELPlanContext context, String instanceURLVar, String stateVarName, Element toAppendAsChild) {
         try {
-            
+
             Node getStateNode =
                 this.fragments.generateBPEL4RESTLightGETInstanceStateAsNode(instanceURLVar, stateVarName);
             getStateNode = context.importNode(getStateNode);
@@ -920,19 +920,19 @@ public class Handler {
         catch (final SAXException e) {
             e.printStackTrace();
         }
-        
+
     }
 
     private void appendStateUpdateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName,
                                              String stateVarName) {
         this.appendStateUpdateFromVarToElement(context, nodeInstanceURLVarName, stateVarName, context.getPrePhaseElement());
     }
-    
+
     private void appendStateUpdateToPostPhase(BPELPlanContext context, String nodeInstanceURLVarName,
                                               String stateVarName) {
         this.appendStateUpdateFromVarToElement(context, nodeInstanceURLVarName, stateVarName, context.getPostPhaseElement());
     }
-    
+
     private void appendStateUpdateFromVarToElement(BPELPlanContext context, String instanceUrlVar, String stateVarName, Element element) {
         try {
 
@@ -958,12 +958,12 @@ public class Handler {
                                              String stateVarName, String stateToSet) {
         this.appendStateUpdateAsChild(context, nodeRelationInstanceURLVarName, stateVarName, stateToSet, context.getPostPhaseElement());
     }
-    
+
     private void appendStateUpdateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName,
                                              String stateVarName, String stateToSet) {
         this.appendStateUpdateAsChild(context, nodeInstanceURLVarName, stateVarName, stateToSet, context.getPrePhaseElement());
     }
-    
+
     private void appendStateUpdateAsChild(BPELPlanContext context, String nodeRelationInstanceURLVarName,
                                           String stateVarName, String stateToSet, Element parentElement) {
         try {
@@ -1312,10 +1312,10 @@ public class Handler {
 
         this.appendGetStateToElement(targetContext, oldRelationInstanceUrl, stateVarName, injectionPostElement);
         this.appendStateUpdateFromVarToElement(targetContext, createRelationInstanceUrl, stateVarName, injectionPostElement);
-        
+
         /* set state of old instance to migrated */
         this.appendStateUpdateAsChild(targetContext, oldRelationInstanceUrl, stateVarName, "MIGRATED", injectionPostElement);
-        
+
         return true;
     }
 
@@ -1370,9 +1370,9 @@ public class Handler {
             // fetch nodeTemplate
             final AbstractNodeTemplate sourceNodeTemplate = context.getRelationshipTemplate().getSource();
             LOG.debug("Trying to create provisioning plan context for sourceNodeTemplate {} of relationshipTemplate {}", sourceNodeTemplate.toString(), context.getRelationshipTemplate().toString());
-            
+
             // Right now the knowledge of DEFROST and PROVISIONING activities is to hard of an assumption, if you ask me
-            BPELPlanContext sourceContext = context.createContext(sourceNodeTemplate,ActivityType.PROVISIONING, ActivityType.DEFROST);
+            BPELPlanContext sourceContext = context.createContext(sourceNodeTemplate, ActivityType.PROVISIONING, ActivityType.DEFROST);
             if(sourceContext == null) {
                 LOG.error("Couldn't create context for sourceNodeTemplate {}" , sourceNodeTemplate.toString());
                 return false;

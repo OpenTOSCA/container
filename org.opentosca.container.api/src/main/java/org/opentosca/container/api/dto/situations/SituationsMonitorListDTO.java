@@ -28,3 +28,4 @@ public class SituationsMonitorListDTO extends ResourceSupport {
   public void add(final SituationsMonitorDTO... situations) {
     this.situationsMonitors.addAll(Arrays.asList(situations));
   }
+}

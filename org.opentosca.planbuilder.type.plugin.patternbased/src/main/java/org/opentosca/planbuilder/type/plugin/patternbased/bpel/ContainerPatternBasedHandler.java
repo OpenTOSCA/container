@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.type.plugin.patternbased.bpel;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -22,9 +23,7 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         final AbstractInterface iface = getContainerPatternInterface(hostingContainer);
         final AbstractOperation createOperation = getContainerPatternCreateMethod(hostingContainer);
 
-        Set<AbstractNodeTemplate> nodesForMatching = new HashSet<AbstractNodeTemplate>();
-        nodesForMatching.add(nodeTemplate);
-        nodesForMatching.add(hostingContainer);
+        final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
         return invokeWithMatching(context, hostingContainer, iface, createOperation, nodesForMatching);
     }
@@ -36,17 +35,15 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         final AbstractInterface iface = getContainerPatternInterface(hostingContainer);
         final AbstractOperation terminateOperation = getContainerPatternTerminateMethod(hostingContainer);
 
-        Set<AbstractNodeTemplate> nodesForMatching = new HashSet<AbstractNodeTemplate>();
-        nodesForMatching.add(nodeTemplate);
-        nodesForMatching.add(hostingContainer);
+        final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
         return invokeWithMatching(context, hostingContainer, iface, terminateOperation, nodesForMatching);
     }
 
     public boolean isProvisionableByContainerPattern(final AbstractNodeTemplate nodeTemplate) {
         // find hosting node
-        AbstractNodeTemplate hostingNode = null;
-        if ((hostingNode = getHostingNode(nodeTemplate)) == null) {
+        final AbstractNodeTemplate hostingNode = getHostingNode(nodeTemplate);
+        if (Objects.isNull(hostingNode)) {
             return false;
         }
 
@@ -54,22 +51,16 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
             return false;
         }
 
-        Set<AbstractNodeTemplate> nodesForMatching = new HashSet<AbstractNodeTemplate>();
-        nodesForMatching.add(nodeTemplate);
-        nodesForMatching.add(hostingNode);
+        final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
-        if (!hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode),
-                                 getContainerPatternCreateMethod(hostingNode))) {
-            return false;
-        }
-
-        return true;
+        return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode),
+                                   getContainerPatternCreateMethod(hostingNode));
     }
 
     public boolean isDeprovisionableByContainerPattern(final AbstractNodeTemplate nodeTemplate) {
         // find hosting node
-        AbstractNodeTemplate hostingNode = null;
-        if ((hostingNode = getHostingNode(nodeTemplate)) == null) {
+        final AbstractNodeTemplate hostingNode = getHostingNode(nodeTemplate);
+        if (Objects.isNull(hostingNode)) {
             return false;
         }
 
@@ -77,32 +68,18 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
             return false;
         }
 
-        Set<AbstractNodeTemplate> nodesForMatching = new HashSet<AbstractNodeTemplate>();
-        nodesForMatching.add(nodeTemplate);
-        nodesForMatching.add(hostingNode);
+        final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
-        if (!hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode),
-                                 getContainerPatternTerminateMethod(hostingNode))) {
-            return false;
-        }
-
-        return true;
+        return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode),
+                                   getContainerPatternTerminateMethod(hostingNode));
     }
 
     private boolean hasContainerPatternCreateMethod(final AbstractNodeTemplate nodeTemplate) {
-        if (getContainerPatternCreateMethod(nodeTemplate) != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return Objects.nonNull(getContainerPatternCreateMethod(nodeTemplate));
     }
 
     private boolean hasContainerPatternTerminateMethod(final AbstractNodeTemplate nodeTemplate) {
-        if (getContainerPatternTerminateMethod(nodeTemplate) != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return Objects.nonNull(getContainerPatternTerminateMethod(nodeTemplate));
     }
 
     private AbstractOperation getContainerPatternTerminateMethod(final AbstractNodeTemplate nodeTemplate) {
@@ -165,6 +142,19 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
+    private Set<AbstractNodeTemplate> calculateNodesForMatching(final AbstractNodeTemplate nodeTemplate) {
+        final Set<AbstractNodeTemplate> nodesForMatching = new HashSet<>();
+        nodesForMatching.add(nodeTemplate);
+
+        AbstractNodeTemplate hostingNode = getHostingNode(nodeTemplate);
+        while (Objects.nonNull(hostingNode)) {
+            nodesForMatching.add(hostingNode);
+            hostingNode = getHostingNode(hostingNode);
+        }
+
+        return nodesForMatching;
+    }
+
     protected AbstractNodeTemplate getHostingNode(final AbstractNodeTemplate nodeTemplate) {
         for (final AbstractRelationshipTemplate rel : nodeTemplate.getOutgoingRelations()) {
             for (final QName typeInHierarchy : ModelUtils.getRelationshipTypeHierarchy(rel.getRelationshipType())) {
@@ -175,5 +165,4 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         }
         return null;
     }
-
 }

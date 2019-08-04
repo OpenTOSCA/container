@@ -8,11 +8,13 @@ package org.opentosca.planbuilder.model.plan;
 public enum ActivityType {
   PROVISIONING
   , TERMINATION
-  , RECURSIVERETRIEVE
-  , STRATEGICRETRIEVE
+  , RECURSIVESELECTION
+  , STRATEGICSELECTION
   , FREEZE
   , DEFROST
   , MIGRATION
+  , TEST
+  , BACKUP
   , MONITORING
   , NONE
 }

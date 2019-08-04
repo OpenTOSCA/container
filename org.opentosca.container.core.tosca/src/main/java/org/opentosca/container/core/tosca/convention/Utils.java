@@ -94,8 +94,8 @@ public class Utils {
       || nodeType.equals(Types.openStackLiberty12NodeType)
       || nodeType.equals(Types.vmWareVsphere55NodeType)
       || nodeType.equals(Types.localHypervisor)
-      || nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE);
-
+      || nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE)
+      || nodeType.equals(Types.openStackLiberty12NodeTypeGenerated);
   }
 
   /**
@@ -202,7 +202,8 @@ public class Utils {
       || nodeType.equals(Types.ubuntu1404ServerVmNodeType3)
       || nodeType.equals(Types.ubuntu1604ServerVmNodeType)
       || nodeType.equals(Types.ubuntu1804ServerVmNodeType)
-      || nodeType.equals(Types.raspbianJessieOSNodeType);
+      || nodeType.equals(Types.raspbianJessieOSNodeType)
+      || nodeType.equals(Types.ubuntu1804ServerVmNodeTypeGenerated);
   }
 
   public static boolean isSupportedOSNodeType(final QName nodeType) {

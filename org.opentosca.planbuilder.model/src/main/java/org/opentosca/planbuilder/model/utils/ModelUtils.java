@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -24,9 +25,11 @@ import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipType;
 import org.slf4j.Logger;
@@ -620,10 +623,10 @@ public class ModelUtils {
     }
 
     public static Collection<String> getPropertyNames(final AbstractNodeTemplate nodeTemplate) {
-        if (nodeTemplate.getProperties() != null) {
-            return nodeTemplate.getProperties().asMap().keySet();        
+        if (Objects.nonNull(nodeTemplate.getProperties())) {
+            return nodeTemplate.getProperties().asMap().keySet();
         } else {
-            return new HashSet<String>();
+            return new HashSet<>();
         }
     }
 
@@ -655,6 +658,39 @@ public class ModelUtils {
         }
         catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Get the AbstractInterface with a certain name from a NodeTemplate
+     *
+     * @param nodeTemplate the name of the NodeTemplate
+     * @param interfaceName the name of the interface
+     * @return the AbstractInterface if found, <code>null</code> otherwise
+     */
+    public static AbstractInterface getInterfaceOfNode(final AbstractNodeTemplate nodeTemplate,
+                                                       final String interfaceName) {
+        return nodeTemplate.getType().getInterfaces().stream().filter(iface -> iface.getName().equals(interfaceName))
+                           .findFirst().orElse(null);
+    }
+
+    /**
+     * Get the AbstractOperation with a certain name from a NodeTemplate
+     *
+     * @param nodeTemplate the name of the NodeTemplate
+     * @param interfaceName the name of the interface containing the operation
+     * @param operationName the name of the operation
+     * @return the AbstractOperation if found, <code>null>/code> otherwise
+     */
+    public static AbstractOperation getOperationOfNode(final AbstractNodeTemplate nodeTemplate,
+                                                       final String interfaceName, final String operationName) {
+        final AbstractInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, interfaceName);
+        if (Objects.nonNull(iface)) {
+            return iface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst()
+                        .orElse(null);
+        } else {
+            LOG.error("Unable to find interface {} for NodeTemplate {}", interfaceName, nodeTemplate.getName());
+            return null;
         }
     }
 }

@@ -70,7 +70,7 @@ public class PlanService {
       .collect(Collectors.toList());
   }
 
-  public PlanInstance getPlanInstanceByCorrelationId(String correlationId) {
+  public PlanInstance getPlanInstanceByCorrelationId(final String correlationId) {
     return planInstanceRepository.findByCorrelationId(correlationId);
   }
 
@@ -147,10 +147,10 @@ public class PlanService {
 
   private void enhanceInputParameters(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, List<TParameter> parameters) {
     // set "meta" params
-    for (TParameter param : parameters) {
+    for (final TParameter param : parameters) {
       if (param.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT)
         && param.getValue() != null && param.getValue().isEmpty()) {
-        String containerRepoUrl = Settings.getSetting("org.opentosca.container.connector.winery.url");
+        final String containerRepoUrl = Settings.getSetting("org.opentosca.container.connector.winery.url");
         param.setValue(containerRepoUrl);
       }
     }
