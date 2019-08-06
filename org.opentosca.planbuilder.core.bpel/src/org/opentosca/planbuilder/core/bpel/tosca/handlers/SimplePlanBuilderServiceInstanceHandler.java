@@ -202,7 +202,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
 
         // generate any type variable for REST call response
-        final String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
+        final String restCallResponseVarName = "bpel4restlightVarResponse_setServiceInstanceState_"+state+ "_" + System.currentTimeMillis();
         final QName rescalResponseVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
 
         if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
@@ -210,7 +210,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             return false;
         }
 
-        final String restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
+        final String restCallRequestVarName = "bpel4restlightVarRequest_setServiceInstanceState_"+ state +"_" + System.currentTimeMillis();
         final QName rescalRequestVarDeclId = new QName(xsdNamespace, "string", xsdPrefix);
 
         if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.TYPE,
@@ -540,13 +540,13 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         this.bpelProcessHandler.addNamespaceToBPELDoc(requestVariableQName.getPrefix(),
                                                       requestVariableQName.getNamespaceURI(), plan);
 
-        final String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
+        final String restCallResponseVarName = "bpel4restlightVarResponse_appendServiceInstanceInit" + System.currentTimeMillis();
         if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
                                                  responseVariableQName, plan)) {
             throw new RuntimeException("Couldn't create REST response variable");
         }
 
-        final String restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
+        final String restCallRequestVarName = "bpel4restlightVarRequest_appendServiceInstanceInit" + System.currentTimeMillis();
         if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.ELEMENT,
                                                  requestVariableQName, plan)) {
             throw new RuntimeException("Couldn't create REST request variable");

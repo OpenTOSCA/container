@@ -6,15 +6,15 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.AbstractPlanBuilder;
 import org.opentosca.planbuilder.AbstractSimplePlanBuilder;
-import org.opentosca.planbuilder.AbstractTransformingPlanbuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBuildProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELDefrostProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELScaleOutProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELSituationAwareBuildProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTerminationProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTestManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTransformationProcessBuilder;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -36,12 +36,12 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 public abstract class AbstractImporter {
 
 
-    protected AbstractPlan buildAdaptationPlan(String csarName, AbstractDefinitions definitions,
-                                               QName serviceTemplateId,
-                                               Collection<AbstractNodeTemplate> sourceNodeTemplates,
-                                               Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
-                                               Collection<AbstractNodeTemplate> targetNodeTemplates,
-                                               Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
+    protected AbstractPlan buildAdaptationPlan(final String csarName, final AbstractDefinitions definitions,
+                                               final QName serviceTemplateId,
+                                               final Collection<AbstractNodeTemplate> sourceNodeTemplates,
+                                               final Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
+                                               final Collection<AbstractNodeTemplate> targetNodeTemplates,
+                                               final Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder();
 
         return transformPlanBuilder.buildPlan(csarName, definitions, serviceTemplateId, sourceNodeTemplates,
@@ -53,7 +53,7 @@ public abstract class AbstractImporter {
                                                           final AbstractDefinitions sourceDefinitions,
                                                           final String targetCsarName,
                                                           final AbstractDefinitions targetDefinitions) {
-        final List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
+        final List<AbstractPlan> plans = new ArrayList<>();
 
 
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder();
@@ -76,11 +76,11 @@ public abstract class AbstractImporter {
      * @return a List of Plans
      */
     public List<AbstractPlan> buildPlans(final AbstractDefinitions defs, final String csarName) {
-                
+
         final List<AbstractPlan> plans = new ArrayList<>();
 
         AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
-        BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(); 
+        final BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder();
 
         if (!sitAwareBuilder.buildPlans(csarName, defs).isEmpty()) {
             buildPlanBuilder = sitAwareBuilder;
@@ -106,12 +106,17 @@ public abstract class AbstractImporter {
         final AbstractSimplePlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder();
         final AbstractSimplePlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder();
 
+        final AbstractSimplePlanBuilder backupPlanBuilder = new BPELBackupManagementProcessBuilder();
+        final AbstractSimplePlanBuilder testPlanBuilder = new BPELTestManagementProcessBuilder();
+
 
         plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
         plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
+        plans.addAll(backupPlanBuilder.buildPlans(csarName, defs));
+        plans.addAll(testPlanBuilder.buildPlans(csarName, defs));
 
         return plans;
     }

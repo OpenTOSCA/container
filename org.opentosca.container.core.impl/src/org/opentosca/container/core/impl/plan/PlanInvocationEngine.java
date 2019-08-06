@@ -223,6 +223,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         this.LOG.trace(builder.toString());
 
         eventValues.put("BODY", message);
+        eventValues.put("INPUTS", message);
 
         if (null == ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
             this.LOG.warn(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
@@ -232,7 +233,11 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         } else {
             eventValues.put("ASYNC", false);
         }
+
         eventValues.put("MESSAGEID", correlationID);
+        eventValues.put("SERVICEINSTANCEID", serviceTemplateInstanceID);
+        eventValues.put("SERVICETEMPLATEID", serviceTemplateId);
+
 
         ServiceProxy.csarInstanceManagement.storePublicPlanToHistory(correlationID, planEvent);
 
@@ -420,6 +425,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
                     newParam.setName(temp.getName());
                     newParam.setType(temp.getType());
                     newParam.setRequired(temp.getRequired());
+                    newParam.setValue("");
                     planEvent.getInputParameter().add(newParam);
                 }
             }

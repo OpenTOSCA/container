@@ -10,7 +10,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +105,7 @@ public class BPELPrePhasePluginHandler {
 
         // fetch server ip of the vm this artefact will be deployed on
 
-        Variable serverIpPropWrapper = null;
+        PropertyVariable serverIpPropWrapper = null;
         for (final String serverIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = templateContext.getPropertyVariable(infraTemplate, serverIpName);
             if (serverIpPropWrapper != null) {
@@ -119,7 +119,7 @@ public class BPELPrePhasePluginHandler {
         }
 
         // find sshUser and sshKey
-        Variable sshUserVariable = null;
+        PropertyVariable sshUserVariable = null;
         for (final String vmLoginName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginName);
             if (sshUserVariable != null) {
@@ -127,7 +127,7 @@ public class BPELPrePhasePluginHandler {
             }
         }
 
-        Variable sshKeyVariable = null;
+        PropertyVariable sshKeyVariable = null;
         for (final String vmLoginPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginPassword);
             if (sshKeyVariable != null) {
@@ -154,5 +154,4 @@ public class BPELPrePhasePluginHandler {
 
         return true;
     }
-
 }

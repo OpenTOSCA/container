@@ -16,8 +16,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
-import org.opentosca.planbuilder.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 
@@ -104,9 +103,9 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
         ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
 
         AbstractNodeTemplate infraNode = null;
-        Variable sshIpVar = null;
-        Variable sshKeyVar = null;
-        Variable sshUserVar = null;
+        PropertyVariable sshIpVar = null;
+        PropertyVariable sshKeyVar = null;
+        PropertyVariable sshUserVar = null;
 
         for (final AbstractNodeTemplate infraNodeTemplate : infraNodes) {
             int propMatchCount = 0;
@@ -149,25 +148,26 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(final BPELPlanContext context,
+                                   final AbstractRelationshipTemplate relationshipTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(final AbstractNodeTemplate nodeTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(final AbstractRelationshipTemplate relationshipTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
@@ -178,26 +178,28 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
-                                AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+    public boolean handleUpdate(final BPELPlanContext sourceContext, final BPELPlanContext targetContext,
+                                final AbstractNodeTemplate sourceNodeTemplate,
+                                final AbstractNodeTemplate targetNodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpdate(AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+    public boolean canHandleUpdate(final AbstractNodeTemplate sourceNodeTemplate,
+                                   final AbstractNodeTemplate targetNodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
-                                AbstractRelationshipTemplate sourceRelationshipTemplate,
-                                AbstractRelationshipTemplate targetRelationshipTemplate) {
+    public boolean handleUpdate(final BPELPlanContext sourceContext, final BPELPlanContext targetContext,
+                                final AbstractRelationshipTemplate sourceRelationshipTemplate,
+                                final AbstractRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpdate(AbstractRelationshipTemplate sourceRelationshipTemplate,
-                                   AbstractRelationshipTemplate targetRelationshipTemplate) {
+    public boolean canHandleUpdate(final AbstractRelationshipTemplate sourceRelationshipTemplate,
+                                   final AbstractRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 
