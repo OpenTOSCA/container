@@ -5,13 +5,13 @@ Bundle-SymbolicName: org.opentosca.bus.management.api.resthttp
 Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.opentosca.bus.management.api.resthttp.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.apache.camel;version="2.10.4",
- org.apache.camel.builder;version="2.10.4",
- org.apache.camel.component.restlet;version="2.10.4",
- org.apache.camel.core.osgi;version="2.10.4",
- org.apache.camel.impl;version="2.10.4",
- org.apache.camel.model;version="2.10.4",
- org.apache.camel.spi;version="2.10.4",
+Import-Package: org.apache.camel;version="2.18.3",
+ org.apache.camel.builder;version="2.18.3",
+ org.apache.camel.component.restlet;version="2.18.3",
+ org.apache.camel.core.osgi;version="2.18.3",
+ org.apache.camel.impl;version="2.18.3",
+ org.apache.camel.model;version="2.18.3",
+ org.apache.camel.spi;version="2.18.3",
  org.json.simple,
  org.json.simple.parser,
  org.osgi.framework;version="1.6.0",

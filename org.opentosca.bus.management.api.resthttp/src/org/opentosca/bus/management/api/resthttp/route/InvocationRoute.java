@@ -8,6 +8,7 @@ import org.opentosca.bus.management.api.resthttp.Activator;
 import org.opentosca.bus.management.api.resthttp.model.QueueMap;
 import org.opentosca.bus.management.api.resthttp.model.RequestID;
 import org.opentosca.bus.management.api.resthttp.model.ResultMap;
+import org.opentosca.bus.management.api.resthttp.processor.CORSProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationRequestProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationResponseProcessor;
@@ -46,6 +47,8 @@ public class InvocationRoute extends RouteBuilder {
         "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
 
     private static final String MANAGEMENT_BUS_REQUEST_ID_HEADER = "ManagementBusRequestID";
+    
+
 
 
     @Override
@@ -61,6 +64,7 @@ public class InvocationRoute extends RouteBuilder {
         final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
         final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
+        final CORSProcessor corsProcessor = new CORSProcessor();
 
         // handle exceptions
         this.onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
@@ -68,7 +72,7 @@ public class InvocationRoute extends RouteBuilder {
 
         // invoke main route
         this.from("restlet:" + BASE_ENDPOINT + INVOKE_ENDPOINT + "?restletMethods=post").doTry()
-            .process(invocationRequestProcessor).doCatch(Exception.class).end().choice()
+            .process(corsProcessor).process(invocationRequestProcessor).doCatch(Exception.class).end().choice()
             .when(property(Exchange.EXCEPTION_CAUGHT).isNull()).to("direct:invoke").otherwise().to("direct:exception")
             .end().removeHeaders("*");
 

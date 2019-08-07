@@ -24,9 +24,20 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.NodeOperationDTO;
+import org.opentosca.container.api.dto.NodeTemplateDTO;
+import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
+import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
+import org.opentosca.container.api.dto.NodeTemplateListDTO;
+import org.opentosca.container.api.dto.RelationshipTemplateDTO;
+import org.opentosca.container.api.dto.RelationshipTemplateInstanceDTO;
+import org.opentosca.container.api.dto.RelationshipTemplateInstanceListDTO;
+import org.opentosca.container.api.dto.RelationshipTemplateListDTO;
 import org.opentosca.container.api.dto.ResourceDecorator;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceDTO;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceListDTO;
+import org.opentosca.container.api.dto.ServiceTemplateInstanceTopologyDTO;
+import org.opentosca.container.api.dto.ServiceTemplateInstanceTopologyNodeInstancesDTO;
+import org.opentosca.container.api.dto.ServiceTemplateInstanceTopologyNodeInstancesListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
@@ -36,14 +47,18 @@ import org.opentosca.container.api.dto.situations.SituationsMonitorDTO;
 import org.opentosca.container.api.dto.situations.SituationsMonitorListDTO;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
+import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.DeploymentTest;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.model.Situation;
@@ -91,17 +106,25 @@ public class ServiceTemplateInstanceController {
     private final DeploymentTestService deploymentTestService;
 
     private final IToscaReferenceMapper referenceMapper;
+    
+    private NodeTemplateService nodeTemplateService;
+    
+    private RelationshipTemplateService relationshipTemplateService;
 
 
     public ServiceTemplateInstanceController(final InstanceService instanceService, final PlanService planService,
                                              final CsarService csarService,
                                              final DeploymentTestService deploymentTestService,
-                                             final IToscaReferenceMapper referenceMapper) {
+                                             final IToscaReferenceMapper referenceMapper,
+                                             final NodeTemplateService nodeTemplateService,
+                                             final RelationshipTemplateService relationshipTemplateService) {
         this.instanceService = instanceService;
         this.planService = planService;
         this.csarService = csarService;
         this.deploymentTestService = deploymentTestService;
         this.referenceMapper = referenceMapper;
+        this.nodeTemplateService = nodeTemplateService;
+        this.relationshipTemplateService = relationshipTemplateService;
     }
 
     @GET
@@ -536,5 +559,128 @@ public class ServiceTemplateInstanceController {
         final DeploymentTest result = this.deploymentTestService.run(csarContent.getCSARID(), sti);
         final URI location = this.uriInfo.getAbsolutePathBuilder().path(String.valueOf(result.getId())).build();
         return Response.created(UriUtil.encode(location)).build();
+    }
+    
+    @GET
+    @Path("/{id}/topology")
+    @Produces({MediaType.APPLICATION_JSON})
+    @ApiOperation(value = "Gets the properties of a node template instance and the nodes management operations, aswell as relationships between them", response = Map.class)
+    public Response getServiceTemplateInstanceTopologyAsJSON(@PathParam("id") final Long id) {
+    	// get nodeTemplates
+        final List<NodeTemplateDTO> nodeTemplateIds =
+            this.nodeTemplateService.getNodeTemplatesOfServiceTemplate(this.csarId, this.serviceTemplateId);
+        // final DTO that gets returned
+        final ServiceTemplateInstanceTopologyDTO resultDTO = new ServiceTemplateInstanceTopologyDTO();
+        
+        
+        // get relationshipTemplates
+        final List<RelationshipTemplateDTO> relationshipTemplateIds =
+            this.relationshipTemplateService.getRelationshipTemplatesOfServiceTemplate(this.csarId, this.serviceTemplateId);
+
+        // relationship instance list
+        final RelationshipTemplateInstanceListDTO relationshipTemplateInstanceList = new RelationshipTemplateInstanceListDTO();
+        
+     // nodetemplate instance list with interfaces
+        final ServiceTemplateInstanceTopologyNodeInstancesListDTO instanceList = new ServiceTemplateInstanceTopologyNodeInstancesListDTO();
+        
+        for (final RelationshipTemplateDTO relationshipTemplate : relationshipTemplateIds) {
+            relationshipTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, relationshipTemplate.getId(), true,
+                                                                     "self"));
+        
+        
+        final QName relationshipTemplateQName =
+                new QName(QName.valueOf(this.serviceTemplateId).getNamespaceURI(), relationshipTemplate.getId());
+            final Collection<RelationshipTemplateInstance> relationshipInstances =
+                this.instanceService.getRelationshipTemplateInstances(relationshipTemplateQName);
+            logger.debug("Found <{}> instances of RelationshipTemplate \"{}\" ", relationshipInstances.size(),
+            		relationshipTemplate);
+
+            // get relationship instances and convert them to a list
+            for (final RelationshipTemplateInstance i : relationshipInstances) {
+                if(!i.getTarget().getServiceTemplateInstance().getTemplateId().toString().equals(this.serviceTemplateId)) {
+                    continue;
+                }
+                //if (states != null && !states.isEmpty() && !states.contains(i.getState())) {
+                    // skip this node instance, as it not has the proper state
+                    //continue;
+                //}
+                
+                //if (targetNodeInstanceId != null && !i.getTarget().getId().equals(targetNodeInstanceId)) {
+                    // skip this instance if the target id doesn't match
+                    //continue;
+                //}
+                final RelationshipTemplateInstanceDTO dto = RelationshipTemplateInstanceDTO.Converter.convert(i);
+                dto.add(UriUtil.generateSubResourceLink(this.uriInfo, dto.getId().toString(), false, "self"));
+
+                relationshipTemplateInstanceList.add(dto);
+            }
+
+            relationshipTemplateInstanceList.add(UriUtil.generateSelfLink(this.uriInfo));
+            
+            
+        }
+        
+        
+
+        for (final NodeTemplateDTO nodeTemplate : nodeTemplateIds) {
+            nodeTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, nodeTemplate.getId(), true, "self"));
+
+            nodeTemplate.getInterfaces().add(UriUtil.generateSelfLink(this.uriInfo));
+            
+            // GET Nodetemplate Instances
+            final QName nodeTemplateQName =
+                    new QName(QName.valueOf(this.serviceTemplateId).getNamespaceURI(), nodeTemplate.getId());
+                final Collection<NodeTemplateInstance> nodeInstances =
+                    this.instanceService.getNodeTemplateInstances(nodeTemplateQName);
+                logger.debug("Found <{}> instances of NodeTemplate \"{}\" ", nodeInstances.size(), nodeTemplate.getId());
+
+
+                for (final NodeTemplateInstance i : nodeInstances) {
+//                    if (states != null && !states.isEmpty() && !states.contains(i.getState())) {
+//                        // skip this node instance, as it not has the proper state
+//                        continue;
+//                    }
+//
+//                    if (relationIds != null && !relationIds.isEmpty()) {
+//                        for (final RelationshipTemplateInstance relInstance : i.getOutgoingRelations()) {
+//                            if (!relationIds.contains(relInstance.getId())) {
+//                                // skip this node instance, as it is no source of the given relation
+//                                continue;
+//                            }
+//                        }
+//                    }
+                    
+                    if(!i.getServiceTemplateInstance().getTemplateId().toString().equals(this.serviceTemplateId)) {
+                        continue;
+                    }
+                    
+                    
+                    final ServiceTemplateInstanceTopologyNodeInstancesDTO topologyDto = ServiceTemplateInstanceTopologyNodeInstancesDTO.Converter.convert(i);
+                    topologyDto.add(UriUtil.generateSubResourceLink(this.uriInfo, topologyDto.getId().toString(), false, "self"));
+                    
+                    // init operations
+                    for (final InterfaceDTO dto : nodeTemplate.getInterfaces().getInterfaces()) {
+                        dto.add(UriUtil.generateSelfLink(this.uriInfo));
+                        for (final OperationDTO op : dto.getOperations().values()) {
+                            op.add(UriUtil.generateSelfLink(this.uriInfo));
+                            
+                        }
+                    }
+                    
+                    // set operations
+                    topologyDto.setInterfaces(nodeTemplate.getInterfaces());
+
+                    instanceList.add(topologyDto);
+                }
+
+                instanceList.add(UriUtil.generateSelfLink(this.uriInfo));
+            
+            // GET NODE INSTANCES END 
+        }
+
+        // set nodes and relationships and return
+        resultDTO.setNodeTemplateInstancesList(instanceList);
+        resultDTO.setRelationshipTemplateInstancesList(relationshipTemplateInstanceList);
+        return Response.ok(resultDTO).build();
     }
 }

@@ -134,7 +134,7 @@ public class ServiceTemplateController {
                                                           @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
         this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId);
         final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(this.instanceService,
-            this.planService, this.csarService, this.deploymentTestService, this.referenceMapper);
+            this.planService, this.csarService, this.deploymentTestService, this.referenceMapper, this.nodeTemplateService, this.relationshipTemplateService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }

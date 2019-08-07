@@ -4,6 +4,7 @@
 <product name="OpenTOSCA Container" uid="org.opentosca.container.product" id="org.opentosca.container.application.opentoscacontainer" application="org.opentosca.container.application.application" version="2.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
+      <win32>/org.opentosca.container.product/config.ini</win32>
    </configIni>
 
    <launcherArgs>
