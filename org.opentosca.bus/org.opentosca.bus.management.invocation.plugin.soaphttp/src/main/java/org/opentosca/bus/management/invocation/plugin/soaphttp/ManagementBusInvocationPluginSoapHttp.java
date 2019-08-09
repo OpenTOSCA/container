@@ -90,7 +90,8 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       }
     }
     headers.put("endpoint", endpoint.replace("?wsdl", ""));
-    headers.put("SOAPAction", operationName);
+//    headers.put("SOAPAction", operationName);
+    headers.put("operationName", operationName);
 
     Document document = null;
     MessagingPattern messagingPattern = null;
@@ -102,7 +103,9 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         LOG.error("Invoked operation was not exposed on the given endpoint. Aborting invocation!");
         return null;
       }
-      final QName messageType = operation.getOperation().getInput().getMessage().getQName();
+//      final QName messageType = operation.getOperation().getInput().getMessage().getQName();
+      final QName messagePayloadType = ((javax.wsdl.Part) operation.getOperation().getInput().getMessage().getOrderedParts(null).get(0)).getElementName();
+//      final QName messagePayloadType = operation.getOperation().getInput().getMessage().getPart(messagePayloadPart).getElementName();
       // getting the port name involves this mess
       String portName = getPortName(wsdl, operation);
       headers.put("SOAPEndpoint", endpoint + "." + portName);
@@ -143,7 +146,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         }
       }
 
-      document = mapToDoc(messageType.getNamespaceURI(), messageType.getLocalPart(), paramsMap);
+      document = mapToDoc(messagePayloadType.getNamespaceURI(), messagePayloadType.getLocalPart(), paramsMap);
     }
 
     if (params instanceof Document) {

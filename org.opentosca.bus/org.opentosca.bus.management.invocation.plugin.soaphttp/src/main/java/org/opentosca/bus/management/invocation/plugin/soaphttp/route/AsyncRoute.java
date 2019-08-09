@@ -26,7 +26,7 @@ public class AsyncRoute extends RouteBuilder {
 
   @Override
   public void configure() throws Exception {
-    final String ENDPOINT = "cxf:${header[SOAPEndpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+    final String ENDPOINT = "cxf:${header[SOAPEndpoint]}?wsdlURL=${header[endpoint]}?wsdl&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
 
     final Processor headerProcessor = new HeaderProcessor();

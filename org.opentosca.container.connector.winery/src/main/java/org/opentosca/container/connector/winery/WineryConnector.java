@@ -72,7 +72,8 @@ public class WineryConnector {
         return true;
       }
     } catch (URISyntaxException | IOException e) {
-      e.printStackTrace();
+      LOG.info("Exception when checking for winery availability. Assuming winery is not available");
+      LOG.debug("Details: ", e);
     }
     return false;
   }
@@ -89,7 +90,7 @@ public class WineryConnector {
         serviceTemplateId.getLocalPart());
       return new URI(uri);
     } catch (final URISyntaxException e) {
-      e.printStackTrace();
+      LOG.warn("URI created from serviceTemplateId {} was malformed", serviceTemplateId, e);
       return null;
     }
   }

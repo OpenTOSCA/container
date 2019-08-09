@@ -170,34 +170,4 @@ public class ServiceTemplateController {
     this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
     return child;
   }
-
-  public void setPlanService(final PlanService planService) {
-    logger.debug("Binding PlanService");
-    this.planService = planService;
-  }
-
-  public void setInstanceService(final InstanceService instanceService) {
-    logger.debug("Binding InstanceService");
-    this.instanceService = instanceService;
-  }
-
-  public void setNodeTemplateService(final NodeTemplateService nodeTemplateService) {
-    logger.debug("Binding NodeTemplateService");
-    this.nodeTemplateService = nodeTemplateService;
-  }
-
-  public void setRelationshipTemplateService(final RelationshipTemplateService relationshipTemplateService) {
-    logger.debug("Binding RelationshipTemplateService");
-    this.relationshipTemplateService = relationshipTemplateService;
-  }
-
-  public void setDeploymentTestService(final DeploymentTestService deploymentTestService) {
-    logger.debug("Binding DeploymentTestService");
-    this.deploymentTestService = deploymentTestService;
-  }
-
-  public void setCsarStorageService(final CsarStorageService storage) {
-    logger.debug("Binding CsarStorageService");
-    this.storage = storage;
-  }
 }
