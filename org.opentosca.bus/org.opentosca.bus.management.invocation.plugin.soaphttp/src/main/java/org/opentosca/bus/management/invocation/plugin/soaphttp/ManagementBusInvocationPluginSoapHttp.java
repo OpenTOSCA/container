@@ -80,7 +80,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
     final String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
 
     final Boolean hasOutputParams = message.getHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), Boolean.class);
-    final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
+    final CsarId csarID = new CsarId(message.getHeader(MBHeader.CSARID.toString(), String.class));
 
     final Map<String, Object> headers = new HashMap<>();
     // Self defined header should be part of the outgoing soap messages.

@@ -15,25 +15,26 @@ public class SituationsMonitor extends PersistenceObject {
 
 
   @Column(name = "NODESITUATIONMAPPING")
-  @ElementCollection
-  private Map<String, IdCollection> node2situations = new HashMap<>();
+  @OneToMany
+  private Set<SituationsMonitorIdCollection> node2situations = new HashSet<>();
 
   @OneToOne
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID", nullable = true)
   private ServiceTemplateInstance serviceInstance;
 
   public Map<String, Collection<Long>> getNode2Situations() {
-    return node2situations.entrySet().stream()
-      .collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<String, IdCollection> e) -> e.getValue().getIds()));
+    return node2situations.stream()
+      .collect(Collectors.toMap(SituationsMonitorIdCollection::getNodeId, SituationsMonitorIdCollection::getIds));
   }
 
   public void setNode2Situations(Map<String, Collection<Long>> node2situations) {
     this.node2situations = node2situations.entrySet().stream()
-      .collect(Collectors.toMap(Map.Entry::getKey, e -> {
-        IdCollection collection = new IdCollection();
+      .collect(Collectors.mapping(e -> {
+        SituationsMonitorIdCollection collection = new SituationsMonitorIdCollection();
+        collection.setNodeId(e.getKey());
         collection.setIds(e.getValue());
         return collection;
-      }));
+      }, Collectors.toSet()));
   }
 
   public ServiceTemplateInstance getServiceInstance() {
@@ -42,21 +43,5 @@ public class SituationsMonitor extends PersistenceObject {
 
   public void setServiceInstance(ServiceTemplateInstance serviceInstance) {
     this.serviceInstance = serviceInstance;
-  }
-
-  // FIXME this is a messy workaround for embedding a collection as the value type of an @ElementCollection
-  @Embeddable
-  class IdCollection {
-    @Column
-    @ElementCollection
-    private Collection<Long> ids = new ArrayList<>();
-
-    public Collection<Long> getIds() {
-      return ids;
-    }
-
-    public void setIds(Collection<Long> ids) {
-      this.ids = ids;
-    }
   }
 }

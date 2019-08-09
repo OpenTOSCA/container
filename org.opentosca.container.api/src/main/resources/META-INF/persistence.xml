@@ -37,6 +37,7 @@
     <class>org.opentosca.container.core.next.model.SituationTriggerInstance</class>
     <class>org.opentosca.container.core.next.model.SituationTriggerInstanceProperty</class>
     <class>org.opentosca.container.core.next.model.SituationsMonitor</class>
+    <class>org.opentosca.container.core.next.model.SituationsMonitorIdCollection</class>
 
     <class>org.opentosca.container.core.model.credentials.Credentials</class>
     <class>org.opentosca.container.legacy.core.model.CSARContent</class>
