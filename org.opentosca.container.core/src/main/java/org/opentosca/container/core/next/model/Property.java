@@ -21,6 +21,7 @@ public class Property extends PersistenceObject {
   @Column(nullable = false)
   private String name;
 
+  @Column(columnDefinition = "varchar(max)")
   private String value;
 
   private String type;

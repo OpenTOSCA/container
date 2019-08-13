@@ -3,12 +3,13 @@
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
     <encoder>
-      <pattern>[%-5level-%d{HH:mm:ss}] %logger{36} - %msg%n</pattern>
+      <pattern>[%-5level-%d{HH:mm:ss}] %logger{45} - %msg%n</pattern>
     </encoder>
   </appender>
 
   <!-- code under our direct control -->
   <logger name="org.opentosca" level="INFO" />
+  <logger name="org.opentosca.bus.management" level="TRACE" />
 
   <!-- Reducing logging noise  -->
   <logger name="com.predic8" level="WARN" />
@@ -16,7 +17,7 @@
   <logger name="io.moquette" level="ERROR" />
   <logger name="io.moquette.persistence" level="OFF" />
   <logger name="io.netty" level="ERROR" />
-  <logger name="messageLogger" level="ERROR" />
+  <logger name="messageLogger" level="INFO" />
   <logger name="org" level="WARN" />
   <logger name="org.apache.camel" level="WARN" />
   <!-- logging in- and outbound SOAP messages -->
