@@ -64,9 +64,10 @@ public class BPELPluginHandler {
         return result;
     }
 
+
     private boolean handleTerminationActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                               final AbstractRelationshipTemplate relationshipTemplate) {
-        boolean result = false;
+        boolean result = true;
 
         // generate code for the termination, e.g., call install, start or create
         // methods
@@ -90,9 +91,10 @@ public class BPELPluginHandler {
         return result;
     }
 
+
     private boolean handleTerminationActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                               final AbstractNodeTemplate nodeTemplate) {
-        boolean result = false;
+        boolean result = true;
 
         // generate code for the termination, e.g., call install, start or create
         // methods

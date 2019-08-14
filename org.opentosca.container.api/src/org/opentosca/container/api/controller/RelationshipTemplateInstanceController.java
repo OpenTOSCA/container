@@ -67,7 +67,7 @@ public class RelationshipTemplateInstanceController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all relationship template instances",
                   response = RelationshipTemplateInstanceListDTO.class)
-    public Response getRelationshipTemplateInstances(@QueryParam(value = "state") final List<RelationshipTemplateInstanceState> states,@QueryParam(value = "target") final Long targetNodeInstanceId) {
+    public Response getRelationshipTemplateInstances(@QueryParam(value = "state") final List<RelationshipTemplateInstanceState> states,@QueryParam(value = "target") final Long targetNodeInstanceId, @QueryParam(value="serviceInstanceId") final Long serviceInstanceId) {
         final QName relationshipTemplateQName =
             new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.relationshiptemplate);
         final Collection<RelationshipTemplateInstance> relationshipInstances =
@@ -90,6 +90,11 @@ public class RelationshipTemplateInstanceController {
                 // skip this instance if the target id doesn't match
                 continue;
             }
+            
+            if(serviceInstanceId != null && !i.getServiceTemplateInstance().getId().equals(serviceInstanceId)) {
+                continue;
+            }
+            
             final RelationshipTemplateInstanceDTO dto = RelationshipTemplateInstanceDTO.Converter.convert(i);
             dto.add(UriUtil.generateSubResourceLink(this.uriInfo, dto.getId().toString(), false, "self"));
 
