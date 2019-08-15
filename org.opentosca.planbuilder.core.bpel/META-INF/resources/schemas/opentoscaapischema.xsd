@@ -7,6 +7,7 @@
 	<element name="CreateRelationshipTemplateInstanceRequest" type="tns:TCreateRelationshipTemplateInstanceRequest"/>
 
 	<complexType name="TCreateRelationshipTemplateInstanceRequest">
+		<attribute name="service-instance-id" />
 		<attribute name="source-instance-id" />
 		<attribute name="target-instance-id"/>
 	</complexType>

@@ -6,7 +6,7 @@
 				<bpel:from>
 					<bpel:literal>
 						<api:CreateRelationshipTemplateInstanceRequest
-							xmlns:api="http://opentosca.org/api" source-instance-id="asd"
+							xmlns:api="http://opentosca.org/api" service-instance-id="asd" source-instance-id="asd"
 							target-instance-id="asd" />
 					</bpel:literal>
 				</bpel:from>
@@ -26,6 +26,14 @@
 				</bpel:from>
 				<bpel:to variable="$RequestVarName">
 					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$$RequestVarName/@*[local-name()='target-instance-id']]]></bpel:query>
+				</bpel:to>
+			</bpel:copy>
+			<bpel:copy>
+				<bpel:from variable="$serviceInstanceIdVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string($$serviceInstanceIdVarName)]]></bpel:query>
+				</bpel:from>
+				<bpel:to variable="$RequestVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$$RequestVarName/@*[local-name()='service-instance-id']]]></bpel:query>
 				</bpel:to>
 			</bpel:copy>
 		</bpel:assign>

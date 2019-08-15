@@ -68,7 +68,7 @@ public class NodeTemplateInstanceController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceListDTO.class)
     public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
-                                             @QueryParam(value = "source") final List<Long> relationIds) {
+                                             @QueryParam(value = "source") final List<Long> relationIds, @QueryParam(value="serviceInstanceId") final Long serviceInstanceId) {
         final QName nodeTemplateQName =
             new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.nodetemplate);
         final Collection<NodeTemplateInstance> nodeInstances =
@@ -93,6 +93,10 @@ public class NodeTemplateInstanceController {
             }
             
             if(!i.getServiceTemplateInstance().getTemplateId().toString().equals(this.servicetemplate)) {
+                continue;
+            }
+            
+            if(serviceInstanceId != null && !i.getServiceTemplateInstance().getId().equals(serviceInstanceId)) {
                 continue;
             }
 
