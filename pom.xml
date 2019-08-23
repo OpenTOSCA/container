@@ -33,6 +33,14 @@
       <id>spring-plugins</id>
       <url>http://repo.spring.io/plugins-release/</url>
     </repository>
+    <repository>
+      <id>opentosca-mvn-repo</id>
+      <url>https://raw.github.com/OpenTOSCA/mvn-repo/ustutt/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
   </repositories>
 
   <modules>

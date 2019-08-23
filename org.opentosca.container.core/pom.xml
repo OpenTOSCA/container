@@ -73,11 +73,6 @@
       <version>2.8.0</version>
     </dependency>
     <dependency>
-      <groupId>p2.osgi.bundle</groupId>
-      <artifactId>org.eclipse.osgi.services</artifactId>
-      <version>3.5.100.v20160504-1419</version>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.osgi</artifactId>
       <version>3.13.100</version>
