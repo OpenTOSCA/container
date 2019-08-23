@@ -39,7 +39,6 @@ Service-Component: OSGI-INF/*
 Export-Package: org.opentosca.container.core.impl,
  org.opentosca.container.core.impl.persistence,
  org.opentosca.container.core.impl.plan,
- org.opentosca.container.core.impl.plan.messages,
  org.opentosca.container.core.impl.service,
  org.opentosca.container.core.impl.service.internal,
  org.opentosca.container.core.impl.service.internal.credentials,
