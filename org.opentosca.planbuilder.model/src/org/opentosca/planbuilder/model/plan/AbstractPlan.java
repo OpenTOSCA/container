@@ -20,7 +20,7 @@ public abstract class AbstractPlan {
 
     // general categories
     public enum PlanType {
-        BUILD, MANAGE, TERMINATE, TRANSFORM;
+        BUILD, MANAGE, TERMINATE, TRANSFORM, BPMN4TOSCA;
 
         public String getString() {
             switch (this) {
@@ -34,6 +34,8 @@ public abstract class AbstractPlan {
                     // every other plan is a management plan
                 case MANAGE:
                     return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan";
+                case BPMN4TOSCA:
+                    return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BPMN4TOSCA";
             }
         }
     }

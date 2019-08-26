@@ -1,8 +1,10 @@
 package org.opentosca.planbuilder.model.tosca;
 
+import java.awt.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
+import org.opentosca.container.core.model.csar.id.CSARID;
 
 /**
  * <p>
@@ -78,5 +80,10 @@ public abstract class AbstractServiceTemplate {
      * @return a Map from String to Strin representing the keys and values of TOSCA tags
      */
     public abstract Map<String, String> getTags();
-
+    
+    /**
+     * 
+     * @return
+     */
+	public abstract Map<String, java.util.List<BPMN4TOSCATemplate>> getBPMN4TOSCAPlans(CSARID csarId);
 }
