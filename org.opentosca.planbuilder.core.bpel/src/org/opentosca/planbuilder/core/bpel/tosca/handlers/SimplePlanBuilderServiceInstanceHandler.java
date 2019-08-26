@@ -130,7 +130,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         addAssignServiceTemplateURLVariable(plan, instanceDataAPIUrlVarName, serviceTemplateUrlVarName);
 
         String serviceInstanceIdVarName = this.addServiceInstanceIDVariable(plan);
-        addAssignServiceInstanceIdVarFromServiceInstanceURLVar(plan, serviceTemplateUrlVarName,
+        addAssignServiceInstanceIdVarFromServiceInstanceURLVar(plan, serviceInstanceURLVarName,
                                                                serviceInstanceIdVarName);
 
         String planInstanceURLVarName = this.addPlanInstanceURLVariable(plan);
@@ -202,7 +202,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
 
         // generate any type variable for REST call response
-        final String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
+        final String restCallResponseVarName = "bpel4restlightVarResponse_setServiceInstanceState_"+state+ "_" + System.currentTimeMillis();
         final QName rescalResponseVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
 
         if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
@@ -210,7 +210,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             return false;
         }
 
-        final String restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
+        final String restCallRequestVarName = "bpel4restlightVarRequest_setServiceInstanceState_"+ state +"_" + System.currentTimeMillis();
         final QName rescalRequestVarDeclId = new QName(xsdNamespace, "string", xsdPrefix);
 
         if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.TYPE,
@@ -266,7 +266,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                                                                       Property2VariableMapping propMap,
                                                                       String serviceTemplateUrlVarName,
                                                                       Collection<BPELScope> scopes,
-                                                                      AbstractServiceTemplate serviceTemplate) {
+                                                                      AbstractServiceTemplate serviceTemplate, String query) {
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
@@ -319,7 +319,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                                                                                    restCallResponseVarName,
                                                                                    templatePlan.getNodeTemplate()
                                                                                                .getId(),
-                                                                                   null);
+                                                                                   query);
                 nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(nodeInstanceGETNode,
                                                                            plan.getBpelMainFlowElement());
@@ -404,20 +404,12 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         return true;
     }
 
-    /**
-     * Initializes variables that hold property values from the given instancedata api
-     * 
-     * @param plan
-     * @param propMap
-     * @param serviceTemplateUrlVarName
-     * @return
-     */
     public boolean appendInitPropertyVariablesFromServiceInstanceData(final BPELPlan plan,
                                                                       final Property2VariableMapping propMap,
                                                                       String serviceTemplateUrlVarName,
-                                                                      AbstractServiceTemplate serviceTemplate) {
+                                                                      AbstractServiceTemplate serviceTemplate, String query) {
         return this.appendInitPropertyVariablesFromServiceInstanceData(plan, propMap, serviceTemplateUrlVarName,
-                                                                       plan.getTemplateBuildPlans(), serviceTemplate);
+                                                                       plan.getTemplateBuildPlans(), serviceTemplate, query);
     }
 
     private void addAssignServiceTemplateURLVariable(final BPELPlan plan, String serviceInstancesUrlVarName,
@@ -548,13 +540,13 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         this.bpelProcessHandler.addNamespaceToBPELDoc(requestVariableQName.getPrefix(),
                                                       requestVariableQName.getNamespaceURI(), plan);
 
-        final String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
+        final String restCallResponseVarName = "bpel4restlightVarResponse_appendServiceInstanceInit" + System.currentTimeMillis();
         if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
                                                  responseVariableQName, plan)) {
             throw new RuntimeException("Couldn't create REST response variable");
         }
 
-        final String restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
+        final String restCallRequestVarName = "bpel4restlightVarRequest_appendServiceInstanceInit" + System.currentTimeMillis();
         if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.ELEMENT,
                                                  requestVariableQName, plan)) {
             throw new RuntimeException("Couldn't create REST request variable");

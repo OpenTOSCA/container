@@ -2,7 +2,6 @@ package org.opentosca.planbuilder.model.plan;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -75,8 +74,8 @@ public abstract class AbstractPlan {
     private final Collection<Link> links;
 
     private final String id;
-    
-    int internalCounterId = 0; 
+
+    int internalCounterId = 0;
 
     public AbstractPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
                         final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
@@ -135,10 +134,10 @@ public abstract class AbstractPlan {
     }
 
     public Collection<AbstractActivity> getSinks() {
-        Collection<AbstractActivity> sinks = new HashSet<AbstractActivity>();
-        for (AbstractActivity act : this.activites) {
+        final Collection<AbstractActivity> sinks = new HashSet<>();
+        for (final AbstractActivity act : this.activites) {
             boolean isSink = true;
-            for (Link link : this.links) {
+            for (final Link link : this.links) {
                 if (link.getSrcActiv().equals(act)) {
                     isSink = false;
                     break;
@@ -153,10 +152,10 @@ public abstract class AbstractPlan {
     }
 
     public Collection<AbstractActivity> getSources() {
-        Collection<AbstractActivity> sources = new HashSet<AbstractActivity>();
-        for (AbstractActivity act : this.activites) {
+        final Collection<AbstractActivity> sources = new HashSet<>();
+        for (final AbstractActivity act : this.activites) {
             boolean isSource = true;
-            for (Link link : this.links) {
+            for (final Link link : this.links) {
                 if (link.getTrgActiv().equals(act)) {
                     isSource = false;
                     break;
@@ -172,7 +171,7 @@ public abstract class AbstractPlan {
 
     public AbstractActivity findRelationshipTemplateActivity(final AbstractRelationshipTemplate relationshipTemplate,
                                                              final ActivityType type) {
-        for (final AbstractActivity activity : this.findRelationshipTemplateActivities(relationshipTemplate)) {
+        for (final AbstractActivity activity : findRelationshipTemplateActivities(relationshipTemplate)) {
             if (activity.getType().equals(type)) {
                 return activity;
             }
@@ -180,12 +179,12 @@ public abstract class AbstractPlan {
         return null;
     }
 
-    public Collection<AbstractActivity> findNodeTemplateActivities(AbstractNodeTemplate nodeTemplate) {
-        Collection<AbstractActivity> foundActivities = new HashSet<AbstractActivity>();
+    public Collection<AbstractActivity> findNodeTemplateActivities(final AbstractNodeTemplate nodeTemplate) {
+        final Collection<AbstractActivity> foundActivities = new HashSet<>();
         for (final AbstractActivity activity : this.activites) {
 
-            if (activity instanceof ANodeTemplateActivity) {
-                if (((ANodeTemplateActivity) activity).getNodeTemplate().equals(nodeTemplate)) {
+            if (activity instanceof NodeTemplateActivity) {
+                if (((NodeTemplateActivity) activity).getNodeTemplate().equals(nodeTemplate)) {
                     foundActivities.add(activity);
                 }
             }
@@ -194,12 +193,12 @@ public abstract class AbstractPlan {
         return foundActivities;
     }
 
-    public Collection<AbstractActivity> findRelationshipTemplateActivities(AbstractRelationshipTemplate relationshipTemplate) {
-        Collection<AbstractActivity> foundActivities = new HashSet<AbstractActivity>();
+    public Collection<AbstractActivity> findRelationshipTemplateActivities(final AbstractRelationshipTemplate relationshipTemplate) {
+        final Collection<AbstractActivity> foundActivities = new HashSet<>();
         for (final AbstractActivity activity : this.activites) {
 
-            if (activity instanceof ARelationshipTemplateActivity) {
-                if (((ARelationshipTemplateActivity) activity).getRelationshipTemplate().equals(relationshipTemplate)) {
+            if (activity instanceof RelationshipTemplateActivity) {
+                if (((RelationshipTemplateActivity) activity).getRelationshipTemplate().equals(relationshipTemplate)) {
                     foundActivities.add(activity);
                 }
             }
@@ -209,14 +208,14 @@ public abstract class AbstractPlan {
     }
 
     public AbstractActivity findNodeTemplateActivity(final AbstractNodeTemplate nodeTemplate, final ActivityType type) {
-        for (final AbstractActivity activity : this.findNodeTemplateActivities(nodeTemplate)) {
+        for (final AbstractActivity activity : findNodeTemplateActivities(nodeTemplate)) {
             if (activity.getType().equals(type)) {
                 return activity;
             }
         }
         return null;
     }
-    
+
     /**
      * Returns a id for the plugins to make their declarations unique
      *
@@ -240,13 +239,13 @@ public abstract class AbstractPlan {
         String toString =
             "Plan: " + this.id + " Type: " + this.type + " ServiceTemplate: " + this.serviceTemplate.getId();
 
-        toString += "Activities: ";
+        toString += " Activities: ";
 
         for (final AbstractActivity actic : this.activites) {
             toString += "{Id: " + actic.getId() + " Type: " + actic.getType() + "}";
         }
 
-        toString += "Links: ";
+        toString += " Links: ";
 
         for (final Link link : this.links) {
             toString += link.toString();

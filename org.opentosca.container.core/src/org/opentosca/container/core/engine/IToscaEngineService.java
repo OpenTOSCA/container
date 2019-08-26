@@ -509,6 +509,18 @@ public interface IToscaEngineService {
                                            QName relationshipType);
 
     /**
+     * Returns the ID of the related NodeTemplate if one exists.
+     *
+     * @param csarID
+     * @param serviceTemplateID
+     * @param nodeTemplateID
+     * @param relationshipTypeName
+     * @return a List of Strings
+     */
+    public List<String> getRelatedNodeTemplateIDs(CSARID csarID, QName serviceTemplateID, String nodeTemplateID,
+                                           QName relationshipType);
+    
+    /**
      * This method returns the abstract artifact of a plan reference.
      *
      * @param csar CSAR in which the plan is
@@ -678,4 +690,6 @@ public interface IToscaEngineService {
      * @return a List of String representing the interface names of the referenced Node Type
      */
     public List<String> getInterfaceNamesOfNodeType(CSARID csarId, QName nodeTypeId);
+
+    
 }

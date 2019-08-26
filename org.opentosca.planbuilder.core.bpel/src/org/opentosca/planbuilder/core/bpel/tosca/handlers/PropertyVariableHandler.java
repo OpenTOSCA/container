@@ -1,8 +1,6 @@
 package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
@@ -54,24 +52,25 @@ public class PropertyVariableHandler {
      *         variable
      */
     public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan buildPlan,
-                                                                    AbstractServiceTemplate serviceTemplate) {       
-        return this.initializePropertiesAsVariables(buildPlan, serviceTemplate, serviceTemplate.getTopologyTemplate().getNodeTemplates(), serviceTemplate.getTopologyTemplate().getRelationshipTemplates());
+                                                                    final AbstractServiceTemplate serviceTemplate) {
+        return this.initializePropertiesAsVariables(buildPlan, serviceTemplate,
+                                                    serviceTemplate.getTopologyTemplate().getNodeTemplates(),
+                                                    serviceTemplate.getTopologyTemplate().getRelationshipTemplates());
     }
 
     public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan plan,
-                                                                    AbstractServiceTemplate serviceTemplate,
-                                                                    Collection<AbstractNodeTemplate> nodes,
-                                                                    Collection<AbstractRelationshipTemplate> relations) {
+                                                                    final AbstractServiceTemplate serviceTemplate,
+                                                                    final Collection<AbstractNodeTemplate> nodes,
+                                                                    final Collection<AbstractRelationshipTemplate> relations) {
         final Property2VariableMapping map = new Property2VariableMapping();
 
-        for (AbstractNodeTemplate nodeTemplate : nodes) {
+        for (final AbstractNodeTemplate nodeTemplate : nodes) {
 
             this.initializePropertiesAsVariables(map, plan.getTemplateBuildPlan(nodeTemplate), serviceTemplate);
         }
 
-        for (AbstractRelationshipTemplate relationshipTemplate : relations) {
-            this.initializePropertiesAsVariables(map, plan.getTemplateBuildPlan(relationshipTemplate),
-                                                 serviceTemplate);
+        for (final AbstractRelationshipTemplate relationshipTemplate : relations) {
+            this.initializePropertiesAsVariables(map, plan.getTemplateBuildPlan(relationshipTemplate), serviceTemplate);
         }
         return map;
     }
@@ -83,7 +82,7 @@ public class PropertyVariableHandler {
      * @param templatePlan the TemplateBuildPlan to initialize its properties
      */
     public void initializePropertiesAsVariables(final Property2VariableMapping map, final BPELScope templatePlan,
-                                                AbstractServiceTemplate serviceTemplate) {
+                                                final AbstractServiceTemplate serviceTemplate) {
         if (templatePlan.getRelationshipTemplate() != null) {
             // template corresponds to a relationshiptemplate
             initPropsAsVarsInRelationship(map, templatePlan, serviceTemplate);
@@ -100,7 +99,7 @@ public class PropertyVariableHandler {
      * @param templatePlan a TemplateBuildPlan which handles a RelationshipTemplate
      */
     private void initPropsAsVarsInRelationship(final Property2VariableMapping map, final BPELScope templatePlan,
-                                               AbstractServiceTemplate serviceTemplate) {
+                                               final AbstractServiceTemplate serviceTemplate) {
         final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
         if (relationshipTemplate.getProperties() != null) {
             final Element propertyElement = relationshipTemplate.getProperties().getDOMElement();
@@ -145,15 +144,16 @@ public class PropertyVariableHandler {
         }
     }
 
-    private String createPropertyVariableName(AbstractServiceTemplate serviceTemplate,
-                                              AbstractRelationshipTemplate relationshipTemplate, String propertyName) {
+    private String createPropertyVariableName(final AbstractServiceTemplate serviceTemplate,
+                                              final AbstractRelationshipTemplate relationshipTemplate,
+                                              final String propertyName) {
         return ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
             + ModelUtils.makeValidNCName(relationshipTemplate.getId()) + "_" + propertyName + "_" + TOSCAPROPERTYSUFFIX
             + System.currentTimeMillis();
     }
 
-    private String createPropertyVariableName(AbstractServiceTemplate serviceTemplate,
-                                              AbstractNodeTemplate nodeTemplate, String propertyName) {
+    private String createPropertyVariableName(final AbstractServiceTemplate serviceTemplate,
+                                              final AbstractNodeTemplate nodeTemplate, final String propertyName) {
         return ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
             + ModelUtils.makeValidNCName(nodeTemplate.getId()) + "_" + propertyName + "_" + TOSCAPROPERTYSUFFIX
             + System.currentTimeMillis();
@@ -166,7 +166,7 @@ public class PropertyVariableHandler {
      * @param templatePlan a TemplateBuildPlan which handles a NodeTemplate
      */
     private void initPropsAsVarsInNode(final Property2VariableMapping map, final BPELScope templatePlan,
-                                       AbstractServiceTemplate serviceTemplate) {
+                                       final AbstractServiceTemplate serviceTemplate) {
         final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         if (nodeTemplate.getProperties() != null) {
             final Element propertyElement = nodeTemplate.getProperties().getDOMElement();

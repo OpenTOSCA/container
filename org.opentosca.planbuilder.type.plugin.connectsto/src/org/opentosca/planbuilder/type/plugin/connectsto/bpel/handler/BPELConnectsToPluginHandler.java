@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -78,7 +79,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         Map<AbstractParameter, Variable> param2propertyMapping = null;
         for (final AbstractInterface iface : connectToNode.getType().getInterfaces()) {
             for (final AbstractOperation op : iface.getOperations()) {
-                if (op.getName().equals("connectTo")) {
+                if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO)) {
                     // find properties that match the params on the target nodes' stack or prefixed
                     // properties at the source stack
                     BPELConnectsToPluginHandler.LOG.debug("Found connectTo operation. Searching for matching parameters in the properties.");
@@ -251,54 +252,70 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         final AbstractNodeTemplate targetNodeTemplate = relationTemplate.getTarget();
 
         // if the target has connectTo we execute it
-        if (hasOperation(targetNodeTemplate, "connectTo")) {
-            // if we can stop and start the node, stop it
-            if (hasOperation(targetNodeTemplate, "stop") & hasOperation(targetNodeTemplate, "start")) {
-                final String ifaceName = getInterface(targetNodeTemplate, "stop");
-                templateContext.executeOperation(targetNodeTemplate, ifaceName, "stop", null);
+        if (hasOperation(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO)) {
+            // if we can stop and start the node and it is not defined as non interruptive, stop it
+            if (!hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE)
+                && startAndStopAvailable(targetNodeTemplate)) {
+                final String ifaceName =
+                    getInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP);
+                templateContext.executeOperation(targetNodeTemplate, ifaceName,
+                                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, null);
             }
 
             // connectTo
             executeConnectsTo(templateContext, targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate);
 
             // start the node again
-            if (hasOperation(targetNodeTemplate, "stop") & hasOperation(targetNodeTemplate, "start")) {
-                templateContext.executeOperation(targetNodeTemplate, getInterface(targetNodeTemplate, "start"), "start",
-                                                 null);
+            if (!hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE)
+                && startAndStopAvailable(targetNodeTemplate)) {
+                templateContext.executeOperation(targetNodeTemplate,
+                                                 getInterface(targetNodeTemplate,
+                                                              Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START),
+                                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, null);
             }
         }
 
         // if the source has connectTo we execute it
-        if (hasOperation(sourceNodeTemplate, "connectTo")) {
+        if (hasOperation(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO)) {
 
-            // if we can stop and start the node, stop it
-            if (hasOperation(sourceNodeTemplate, "stop") & hasOperation(sourceNodeTemplate, "start")) {
-                templateContext.executeOperation(sourceNodeTemplate, getInterface(sourceNodeTemplate, "stop"), "stop",
-                                                 null);
+            // if we can stop and start the node and it is not defined as non interruptive, stop it
+            if (!hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE)
+                && startAndStopAvailable(sourceNodeTemplate)) {
+                templateContext.executeOperation(sourceNodeTemplate,
+                                                 getInterface(sourceNodeTemplate,
+                                                              Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP),
+                                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, null);
             }
 
             // connectTo
             executeConnectsTo(templateContext, sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate);
 
             // start the node again
-            if (hasOperation(sourceNodeTemplate, "stop") & hasOperation(sourceNodeTemplate, "start")) {
-                templateContext.executeOperation(sourceNodeTemplate, getInterface(sourceNodeTemplate, "start"), "start",
-                                                 null);
+            if (!hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE)
+                && startAndStopAvailable(sourceNodeTemplate)) {
+                templateContext.executeOperation(sourceNodeTemplate,
+                                                 getInterface(sourceNodeTemplate,
+                                                              Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START),
+                                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, null);
             }
         }
 
         return true;
     }
 
+    private boolean startAndStopAvailable(final AbstractNodeTemplate nodeTemplate) {
+        return hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP)
+            & hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START);
+    }
+
+    private boolean hasInterface(final AbstractNodeTemplate nodeTemplate, final String interfaceName) {
+        return nodeTemplate.getType().getInterfaces().stream().filter(inter -> inter.getName().equals(interfaceName))
+                           .findFirst().isPresent();
+    }
+
     private boolean hasOperation(final AbstractNodeTemplate nodeTemplate, final String operationName) {
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-            for (final AbstractOperation op : iface.getOperations()) {
-                if (op.getName().equals(operationName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return nodeTemplate.getType().getInterfaces().stream().flatMap(inter -> inter.getOperations().stream())
+                           .filter(op -> op.getName().equals(operationName)).findFirst().isPresent();
     }
 
     /**

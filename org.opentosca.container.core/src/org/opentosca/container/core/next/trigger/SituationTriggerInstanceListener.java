@@ -37,7 +37,7 @@ public class SituationTriggerInstanceListener {
     public void startSituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
         final SituationTriggerInstanceObserver obs = new SituationTriggerInstanceObserver(instance);
         SituationTriggerInstanceListener.obs.add(obs);
-        new Thread(obs).start();;
+        new Thread(obs).start();
     }
 
     private class SituationTriggerInstanceObserver implements Runnable {
@@ -129,7 +129,7 @@ public class SituationTriggerInstanceListener {
                         this.planInvocEngine.getActivePublicPlanOfInstance(servInstanceId, correlationId);
 
                     while (!isPlanExecutionFinished(runningPlan, correlationId)) {
-                        this.wait(10000);
+                        Thread.sleep(10000);
                         runningPlan = this.planInvocEngine.getActivePublicPlanOfInstance(servInstanceId, correlationId);
                     }
 
@@ -161,7 +161,7 @@ public class SituationTriggerInstanceListener {
         private boolean isPlanExecutionFinished(final TPlanDTO plan, final String correlationId) {
 
             for (final TParameterDTO param : plan.getOutputParameters().getOutputParameter()) {
-                if (param.getName().equalsIgnoreCase("correlationid") && param.getValue().equals(correlationId)) {
+                if (param.getName().equalsIgnoreCase("correlationid") && param.getValue() != null && param.getValue().equals(correlationId)) {
                     return true;
                 }
             }

@@ -11,8 +11,8 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.tosca.convention.Types;
-import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -89,18 +89,18 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
 
             if (nodeToStart.contains(nodeTemplate)) {
                 final AbstractActivity activity =
-                    new ANodeTemplateActivity(nodeTemplate.getId() + "_no_activity", ActivityType.NONE, nodeTemplate);
+                    new NodeTemplateActivity(nodeTemplate.getId() + "_no_activity", ActivityType.NONE, nodeTemplate);
                 activities.add(activity);
                 nodeActivityMapping.put(nodeTemplate, activity);
 
             } else if (AbstractDefrostPlanBuilder.hasFreezeableComponentPolicy(nodeTemplate)) {
-                final AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_defrost_activity",
+                final AbstractActivity activity = new NodeTemplateActivity(nodeTemplate.getId() + "_defrost_activity",
                     ActivityType.DEFROST, nodeTemplate);
                 activities.add(activity);
                 nodeActivityMapping.put(nodeTemplate, activity);
 
             } else {
-                final AbstractActivity activity = new ANodeTemplateActivity(
+                final AbstractActivity activity = new NodeTemplateActivity(
                     nodeTemplate.getId() + "_provisioning_activity", ActivityType.PROVISIONING, nodeTemplate);
                 activities.add(activity);
                 nodeActivityMapping.put(nodeTemplate, activity);
@@ -110,7 +110,7 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
 
         for (final AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
             final AbstractActivity activity =
-                new ARelationshipTemplateActivity(relationshipTemplate.getId() + "_provisioning_activity",
+                new RelationshipTemplateActivity(relationshipTemplate.getId() + "_provisioning_activity",
                     ActivityType.PROVISIONING, relationshipTemplate);
             activities.add(activity);
             relationActivityMapping.put(relationshipTemplate, activity);

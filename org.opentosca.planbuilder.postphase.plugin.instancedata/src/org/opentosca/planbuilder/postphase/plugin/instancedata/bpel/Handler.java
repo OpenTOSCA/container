@@ -853,7 +853,7 @@ public class Handler {
          * Post Phase code
          */
 
-        if (lastSetState.equals("INITIAL")) {
+        if (lastSetState.equals("INITIAL") || lastSetState.equals("CONFIGURED")) {
             try {
                 // set state
                 String nextState = InstanceStates.getNextStableOperationState(lastSetState);
@@ -1145,6 +1145,7 @@ public class Handler {
         final String sourceServiceTemplateUrlVarName = sourceContext.getServiceTemplateURLVar();
         final String targetServiceInstanceVarName = targetContext.getServiceInstanceURLVarName();
         final String targetServiceTemplateUrlVarName = targetContext.getServiceTemplateURLVar();
+        final String targetServiceInstanceIdVarName = targetContext.getServiceInstanceIDVarName();
 
         // create variable for all responses
         final String restCallResponseVarName = createRESTResponseVar(sourceContext);
@@ -1204,7 +1205,7 @@ public class Handler {
                                                                           createRelTInstanceReqVarName,
                                                                           restCallResponseVarName,
                                                                           targetServiceRelationSourceNodeInstanceIdVar,
-                                                                          targetServiceRelationTargetNodeInstanceIdVar);
+                                                                          targetServiceRelationTargetNodeInstanceIdVar, targetServiceInstanceIdVarName);
             Node createRelationInstanceExActiv = ModelUtils.string2dom(bpelString);
             createRelationInstanceExActiv = targetContext.importNode(createRelationInstanceExActiv);
             injectionPreElement.appendChild(createRelationInstanceExActiv);
@@ -1339,6 +1340,11 @@ public class Handler {
             return false;
         }
 
+        final String serviceInstanceIdVarName = context.getServiceInstanceIDVarName();
+        if(serviceInstanceIdVarName == null) {
+            return false;
+        }
+        
         /*
          * Pre Phase code
          */
@@ -1378,8 +1384,14 @@ public class Handler {
             final AbstractNodeTemplate sourceNodeTemplate = context.getRelationshipTemplate().getSource();
             LOG.debug("Trying to create provisioning plan context for sourceNodeTemplate {} of relationshipTemplate {}", sourceNodeTemplate.toString(), context.getRelationshipTemplate().toString());
             
-            injectionPreElement = context.createContext(sourceNodeTemplate,ActivityType.PROVISIONING).getPostPhaseElement();
-            injectionPostElement = context.createContext(sourceNodeTemplate,ActivityType.PROVISIONING).getPostPhaseElement();
+            // Right now the knowledge of DEFROST and PROVISIONING activities is to hard of an assumption, if you ask me
+            BPELPlanContext sourceContext = context.createContext(sourceNodeTemplate,ActivityType.PROVISIONING, ActivityType.DEFROST);
+            if(sourceContext == null) {
+                LOG.error("Couldn't create context for sourceNodeTemplate {}" , sourceNodeTemplate.toString());
+                return false;
+            }
+            injectionPreElement = sourceContext.getPostPhaseElement();
+            injectionPostElement = sourceContext.getPostPhaseElement();
         }
 
         if (injectionPostElement == null | injectionPreElement == null | sourceInstanceVarName == null
@@ -1421,7 +1433,7 @@ public class Handler {
                                                                           context.getRelationshipTemplate().getId(),
                                                                           createRelTInstanceReqVarName,
                                                                           restCallResponseVarName,
-                                                                          sourceInstanceVarName, targetInstanceVarName);
+                                                                          sourceInstanceVarName, targetInstanceVarName,serviceInstanceIdVarName);
             Node createRelationInstanceExActiv = ModelUtils.string2dom(bpelString);
             createRelationInstanceExActiv = context.importNode(createRelationInstanceExActiv);
             injectionPreElement.appendChild(createRelationInstanceExActiv);

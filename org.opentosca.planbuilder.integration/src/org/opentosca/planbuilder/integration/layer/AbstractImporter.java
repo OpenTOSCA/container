@@ -1,23 +1,26 @@
 package org.opentosca.planbuilder.integration.layer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.AbstractPlanBuilder;
 import org.opentosca.planbuilder.AbstractSimplePlanBuilder;
-import org.opentosca.planbuilder.AbstractTransformingPlanbuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBuildProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELDefrostProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELFreezeProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELScaleOutProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELSituationAwareBuildProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTerminationProcessBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTestManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTransformationProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPMN4TOSCABuilder;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
@@ -33,11 +36,25 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  */
 public abstract class AbstractImporter {
 
+
+    protected AbstractPlan buildAdaptationPlan(final String csarName, final AbstractDefinitions definitions,
+                                               final QName serviceTemplateId,
+                                               final Collection<AbstractNodeTemplate> sourceNodeTemplates,
+                                               final Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
+                                               final Collection<AbstractNodeTemplate> targetNodeTemplates,
+                                               final Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
+        final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder();
+
+        return transformPlanBuilder.buildPlan(csarName, definitions, serviceTemplateId, sourceNodeTemplates,
+                                              sourceRelationshipTemplates, targetNodeTemplates,
+                                              targetRelationshipTemplates);
+    }
+
     protected List<AbstractPlan> buildTransformationPlans(final String sourceCsarName,
                                                           final AbstractDefinitions sourceDefinitions,
                                                           final String targetCsarName,
                                                           final AbstractDefinitions targetDefinitions) {
-        final List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
+        final List<AbstractPlan> plans = new ArrayList<>();
 
 
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder();
@@ -60,9 +77,16 @@ public abstract class AbstractImporter {
      * @return a List of Plans
      */
     public List<AbstractPlan> buildPlans(final AbstractDefinitions defs, final String csarName) {
+
         final List<AbstractPlan> plans = new ArrayList<>();
 
-        final AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
+        AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
+        final BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder();
+
+        if (!sitAwareBuilder.buildPlans(csarName, defs).isEmpty()) {
+            buildPlanBuilder = sitAwareBuilder;
+        }
+
 
         // FIXME: This does not work for me (Michael W. - 2018-02-19)
         // if (!this.hasPolicies(defs)) {
@@ -84,6 +108,9 @@ public abstract class AbstractImporter {
         final AbstractSimplePlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder();
         final AbstractSimplePlanBuilder bpmnPlanBuilder = new BPMN4TOSCABuilder();
 
+        final AbstractSimplePlanBuilder backupPlanBuilder = new BPELBackupManagementProcessBuilder();
+        final AbstractSimplePlanBuilder testPlanBuilder = new BPELTestManagementProcessBuilder();
+
 
         plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
@@ -91,6 +118,8 @@ public abstract class AbstractImporter {
         plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
         plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
         plans.addAll(bpmnPlanBuilder.buildPlans(csarName, defs));
+        plans.addAll(backupPlanBuilder.buildPlans(csarName, defs));
+        plans.addAll(testPlanBuilder.buildPlans(csarName, defs));
 
         return plans;
     }

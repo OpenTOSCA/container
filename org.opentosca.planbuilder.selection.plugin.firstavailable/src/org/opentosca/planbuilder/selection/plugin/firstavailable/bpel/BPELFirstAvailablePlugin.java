@@ -30,32 +30,13 @@ import org.xml.sax.SAXException;
  */
 public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanContext> {
 
-    private String findInstanceURLVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
-        final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
-        for (final String varName : context.getMainVariableNames()) {
-            if (varName.contains(instanceURLVarName)) {
-                return varName;
-            }
-        }
-        return null;
-    }
-
-    private String findInstanceIDVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
-        final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceID_" + templateId + "_";
-        for (final String varName : context.getMainVariableNames()) {
-            if (varName.contains(instanceURLVarName)) {
-                return varName;
-            }
-        }
-        return null;
-    }
-
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
                           final List<String> selectionStrategies) {
+        
         // fetch instance variables
-        final String nodeTemplateInstanceURLVar = findInstanceURLVar(context, nodeTemplate.getId(), true);
-        final String nodeTemplateInstanceIDVar = findInstanceIDVar(context, nodeTemplate.getId(), true);
+        final String nodeTemplateInstanceURLVar = context.findInstanceURLVar(nodeTemplate.getId(), true);
+        final String nodeTemplateInstanceIDVar = context.findInstanceIDVar(nodeTemplate.getId(), true);
         final String serviceTemplateUrlVar = context.getServiceTemplateURLVar();
 
         if (nodeTemplateInstanceURLVar == null | serviceTemplateUrlVar == null | nodeTemplateInstanceIDVar == null) {

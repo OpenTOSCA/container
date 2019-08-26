@@ -29,10 +29,11 @@ public abstract class PlanContext {
 
     protected final Property2VariableMapping propertyMap;
 
-    public PlanContext(final AbstractPlan plan, final AbstractServiceTemplate serviceTemplate, final Property2VariableMapping map,
-                       String serviceInstanceURLVarName, String serviceInstanceIDVarName,
-                       String serviceTemplateURLVarName, String csarFileName) {
-        this.plan  = plan;
+    public PlanContext(final AbstractPlan plan, final AbstractServiceTemplate serviceTemplate,
+                       final Property2VariableMapping map, final String serviceInstanceURLVarName,
+                       final String serviceInstanceIDVarName, final String serviceTemplateURLVarName,
+                       final String csarFileName) {
+        this.plan = plan;
         this.serviceTemplate = serviceTemplate;
         this.serviceInstanceIDVarName = serviceInstanceIDVarName;
         this.serviceTemplateURLVarName = serviceTemplateURLVarName;
@@ -40,7 +41,7 @@ public abstract class PlanContext {
         this.csarFileName = csarFileName;
         this.propertyMap = map;
     }
-    
+
     public Collection<PropertyVariable> getPropertyVariables(final AbstractNodeTemplate nodeTemplate) {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate);
     }
@@ -83,24 +84,14 @@ public abstract class PlanContext {
      * @return a Variable object representing the property
      */
     public PropertyVariable getPropertyVariable(final AbstractNodeTemplate nodeTemplate, final String propertyName) {
-        for (PropertyVariable propertyVariable : this.propertyMap.getNodePropertyVariables(this.serviceTemplate,
-                                                                                           nodeTemplate)) {
-            if (propertyVariable.getPropertyName().equals(propertyName)) {
-                return propertyVariable;
-            }
-        }
-        return null;
+        return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate).stream()
+                               .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
     }
 
-    public PropertyVariable getPropertyVariable(final AbstractRelationshipTemplate relationshipTemplate, final String propertyName) {
-    
-        for (PropertyVariable var : this.propertyMap.getRelationPropertyVariables(this.serviceTemplate,
-                                                                                  relationshipTemplate)) {
-            if (var.getPropertyName().equals(propertyName)) {
-                return var;
-            }
-        }
-        return null;
+    public PropertyVariable getPropertyVariable(final AbstractRelationshipTemplate relationshipTemplate,
+                                                final String propertyName) {
+        return this.propertyMap.getRelationPropertyVariables(this.serviceTemplate, relationshipTemplate).stream()
+                               .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
     }
 
     /**
@@ -113,18 +104,18 @@ public abstract class PlanContext {
      */
     public PropertyVariable getPropertyVariable(final String localName) {
         // then on everything else
-        for (final AbstractNodeTemplate infraNode : this.getNodeTemplates()) {
+        for (final AbstractNodeTemplate infraNode : getNodeTemplates()) {
             if (this.getPropertyVariable(infraNode, localName) != null) {
                 return this.getPropertyVariable(infraNode, localName);
             }
         }
-    
-        for (final AbstractRelationshipTemplate infraEdge : this.getRelationshipTemplates()) {
+
+        for (final AbstractRelationshipTemplate infraEdge : getRelationshipTemplates()) {
             if (this.getPropertyVariable(infraEdge, localName) != null) {
                 return this.getPropertyVariable(infraEdge, localName);
             }
         }
-    
+
         return null;
     }
 
@@ -143,7 +134,7 @@ public abstract class PlanContext {
      * @param ref an AbstractArtifactReference
      * @return a File with an absolute path to the file
      */
-    public File getFileFromArtifactReference(final AbstractArtifactReference ref) {        
+    public File getFileFromArtifactReference(final AbstractArtifactReference ref) {
         return this.plan.getDefinitions().getAbsolutePathOfArtifactReference(ref);
     }
 
@@ -194,23 +185,14 @@ public abstract class PlanContext {
      * @return a String containing the variable name, else null
      */
     public String getVariableNameOfProperty(final AbstractNodeTemplate templateId, final String propertyName) {
-        for (PropertyVariable variable : this.propertyMap.getNodePropertyVariables(this.serviceTemplate, templateId)) {
-            if (variable.getPropertyName().equals(propertyName)) {
-                return variable.getVariableName();
-            }
-        }
-        return null;
+        return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, templateId).stream()
+                               .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
+                               .map(var -> var.getVariableName()).orElse(null);
     }
 
     public String getVariableNameOfProperty(final AbstractRelationshipTemplate templateId, final String propertyName) {
-    
-        for (PropertyVariable propVar : this.propertyMap.getRelationPropertyVariables(this.serviceTemplate,
-                                                                                      templateId)) {
-            if (propVar.getPropertyName().equals(propertyName)) {
-                return propVar.getVariableName();
-            }
-        }
-        return null;
-    
+        return this.propertyMap.getRelationPropertyVariables(this.serviceTemplate, templateId).stream()
+                               .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
+                               .map(var -> var.getVariableName()).orElse(null);
     }
 }

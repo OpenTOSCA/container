@@ -1,8 +1,10 @@
 package org.opentosca.container.api.service;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
@@ -33,6 +35,7 @@ import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
 import org.opentosca.container.core.next.model.SituationTriggerInstance;
 import org.opentosca.container.core.next.model.SituationTriggerProperty;
+import org.opentosca.container.core.next.model.SituationsMonitor;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
@@ -40,6 +43,7 @@ import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepos
 import org.opentosca.container.core.next.repository.SituationRepository;
 import org.opentosca.container.core.next.repository.SituationTriggerInstanceRepository;
 import org.opentosca.container.core.next.repository.SituationTriggerRepository;
+import org.opentosca.container.core.next.repository.SituationsMonitorRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -64,6 +68,7 @@ public class InstanceService {
     private final SituationRepository sitRepo = new SituationRepository();
     private final SituationTriggerRepository sitTrig = new SituationTriggerRepository();
     private final SituationTriggerInstanceRepository sitTrigInst = new SituationTriggerInstanceRepository();
+    private final SituationsMonitorRepository situationsMonitorRepo = new SituationsMonitorRepository();
 
     private RelationshipTemplateService relationshipTemplateService;
     private NodeTemplateService nodeTemplateService;
@@ -614,7 +619,8 @@ public class InstanceService {
         // Source node instance
         newInstance.setSource(getNodeTemplateInstance(request.getSourceNodeTemplateInstanceId()));
         // Target node instance
-        newInstance.setTarget(getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));
+        newInstance.setTarget(getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));        
+        newInstance.setServiceTemplateInstance(this.serviceTemplateInstanceRepository.find(request.getServiceInstanceId()).get());
 
         this.relationshipTemplateInstanceRepository.add(newInstance);
 
@@ -726,6 +732,25 @@ public class InstanceService {
         throw new RuntimeException("SituationTriggerInstance <" + id + "> not found.");
     }
 
+    public SituationsMonitor createNewSituationsMonitor(final ServiceTemplateInstance instance,
+                                                        final Map<String,Collection<Long>> situations) {
+        final SituationsMonitor monitor = new SituationsMonitor();
+
+        monitor.setServiceInstance(instance);                
+      
+        monitor.setNode2Situations(situations);        
+
+        this.situationsMonitorRepo.add(monitor);
+        return monitor;
+    }
+
+    public Collection<SituationsMonitor> getSituationsMonitors() {
+        return this.situationsMonitorRepo.findAll();
+    }
+
+    public Collection<SituationsMonitor> getSituationsMonitors(final Long serviceInstanceId) {
+        return this.getSituationsMonitors().stream().filter(monitor -> monitor.getServiceInstance() != null && monitor.getServiceInstance().getId().equals(serviceInstanceId)).collect(Collectors.toList());
+    }
 
     /* Service Injection */
     /*********************/

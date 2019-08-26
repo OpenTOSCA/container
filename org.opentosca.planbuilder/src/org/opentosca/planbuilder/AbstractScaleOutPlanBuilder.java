@@ -7,13 +7,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.ActivityType;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -51,7 +51,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
         // activity
         for (final AbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
             final AbstractActivity activity =
-                new ANodeTemplateActivity(stratNodeTemplate.getId() + "_strategicselection_activity",
+                new NodeTemplateActivity(stratNodeTemplate.getId() + "_strategicselection_activity",
                     ActivityType.STRATEGICSELECTION, stratNodeTemplate) {};
             abstractScaleOutPlan.getActivites().add(activity);
             mapping.put(stratNodeTemplate, activity);
@@ -71,12 +71,12 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
             for (final List<AbstractRelationshipTemplate> path : paths) {
                 for (final AbstractRelationshipTemplate relationshipTemplate : path) {
                     final AbstractActivity recursiveRelationActivity =
-                        new ARelationshipTemplateActivity(relationshipTemplate.getId() + "recursiveselection_activity",
+                        new RelationshipTemplateActivity(relationshipTemplate.getId() + "recursiveselection_activity",
                             ActivityType.RECURSIVESELECTION, relationshipTemplate) {};
-                    final AbstractActivity recursiveTargetNodeActivity = new ANodeTemplateActivity(
+                    final AbstractActivity recursiveTargetNodeActivity = new NodeTemplateActivity(
                         relationshipTemplate.getTarget().getId() + "_recursiveselection_activity",
                         ActivityType.RECURSIVESELECTION, relationshipTemplate.getTarget());
-                    final AbstractActivity recursiveSourceNodeActivity = new ANodeTemplateActivity(
+                    final AbstractActivity recursiveSourceNodeActivity = new NodeTemplateActivity(
                         relationshipTemplate.getSource().getId() + "_recursiveselection_activity",
                         ActivityType.RECURSIVESELECTION, relationshipTemplate.getSource());
 
@@ -101,7 +101,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
 
                         if (provRelationActivity == null) {
                             provRelationActivity =
-                                new ARelationshipTemplateActivity(relationshipTemplate + "provisioning_acvtivity",
+                                new RelationshipTemplateActivity(relationshipTemplate + "provisioning_acvtivity",
                                     ActivityType.PROVISIONING, relationshipTemplate);
                         }
 

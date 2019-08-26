@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
@@ -82,17 +83,10 @@ public class PlanService {
     }
 
     public TPlan getPlan(final String name, final CSARID id) {
-
-        final List<TPlan> plans = getPlansByType(id, ALL_PLAN_TYPES);
-
-        for (final TPlan plan : plans) {
-            if (plan.getId() != null && plan.getId().equalsIgnoreCase(name)) {
-                return plan;
-            }
-        }
-        return null;
+        return getPlansByType(id, ALL_PLAN_TYPES).stream().filter(plan -> Objects.nonNull(plan.getId())
+            && plan.getId().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
-    
+
 
 
     public String invokePlan(final CSARID csarId, final QName serviceTemplate, final long serviceTemplateInstanceId,
@@ -131,11 +125,11 @@ public class PlanService {
         return false;
     }
 
-    
-    public PlanInstance getPlanInstanceByCorrelationId(String correlationId) {
-    	return this.planInstanceRepository.findByCorrelationId(correlationId);
+
+    public PlanInstance getPlanInstanceByCorrelationId(final String correlationId) {
+        return this.planInstanceRepository.findByCorrelationId(correlationId);
     }
-    
+
     /**
      * Gets the indicated plan instance and performs sanity checks insuring that the plan belongs to the
      * service template, the instance belongs to the plan, and belongs to the service template instance
@@ -261,31 +255,11 @@ public class PlanService {
         if (logger.isDebugEnabled()) {
             logger.debug("Request payload:\n{}", JsonUtil.writeValueAsString(parameters));
         }
-
-        /*
-         * Add parameter "OpenTOSCAContainerAPIServiceInstanceID" as a callback for the plan engine
-         */
-        if (serviceTemplateInstanceId != null) {
-
-            String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + serviceTemplateInstanceId;
-            url = url.replace("{csarid}", csarId.getFileName());
-            url = url.replace("{servicetemplateid}",
-                              UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
-            final URI uri = UriUtil.encode(URI.create(url));
-            final TParameter param = new TParameter();
-
-            param.setName("OpenTOSCAContainerAPIServiceInstanceURL");
-            param.setRequired(TBoolean.fromValue("yes"));
-            param.setType("String");
-            param.setValue(uri.toString());
-            parameters.add(param);
-        }
-
         // set "meta" params
-        for (TParameter param : parameters) {
+        for (final TParameter param : parameters) {
             if (param.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT)
                 && param.getValue() != null && param.getValue().isEmpty()) {
-                String containerRepoUrl = Settings.getSetting("org.opentosca.container.connector.winery.url");
+                final String containerRepoUrl = Settings.getSetting("org.opentosca.container.connector.winery.url");
                 param.setValue(containerRepoUrl);
             }
         }
@@ -309,6 +283,7 @@ public class PlanService {
         }
 
         final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
+
 
         final Collection<ServiceTemplateInstance> serviceInstances;
         if (serviceTemplateInstanceId != null) {

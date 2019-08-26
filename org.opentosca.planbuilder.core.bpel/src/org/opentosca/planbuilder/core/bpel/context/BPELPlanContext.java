@@ -2,12 +2,16 @@ package org.opentosca.planbuilder.core.bpel.context;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.swing.event.ListSelectionEvent;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
@@ -25,7 +29,9 @@ import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.AbstractServiceInstanceHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.ActivityType;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
@@ -255,18 +261,22 @@ public class BPELPlanContext extends PlanContext {
         return true;
     }
 
-    public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType activityType) {       
+    public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType... activityType) {                       
         LOG.debug("Trying to create {} plan context for nodeTemplate {}", activityType, nodeTemplate);
         for(BPELScope scope : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
-            if(scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && scope.getActivity().getType().equals(activityType)) {
+            if(scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && Arrays.asList(activityType).contains(scope.getActivity().getType())) {
                 LOG.debug("Found scope of nodeTemplate");
                 return new BPELPlanContext((BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName,
                                     this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.csarFileName);
             }
         }
         
+        
+        
         return null;
     }
+    
+    
     
     
     /**
@@ -578,6 +588,21 @@ public class BPELPlanContext extends PlanContext {
         this.templateBuildPlan.setRelationshipTemplate(relationBackup);
 
         return true;
+    }
+    
+    /**
+     * Returns a set of nodes that will be provisioned in the plan of this context
+     * @return
+     */
+    public Collection<AbstractNodeTemplate> getNodesInCreation() {
+        Collection<AbstractActivity> activities = this.templateBuildPlan.getBuildPlan().getActivites();
+        Collection<AbstractNodeTemplate> result = new HashSet<AbstractNodeTemplate>();
+        for(AbstractActivity activity : activities) {
+            if((activity instanceof NodeTemplateActivity) && (activity.getType().equals(ActivityType.PROVISIONING) || activity.getType().equals(ActivityType.MIGRATION))) {
+                result.add(((NodeTemplateActivity) activity).getNodeTemplate());
+            }
+        }
+        return result;
     }
 
     /**

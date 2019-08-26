@@ -22,8 +22,8 @@ public class Activator implements BundleActivator {
 
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
-        logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-                    bundleContext.getBundle().getVersion());
+        logger.debug("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
+                     bundleContext.getBundle().getVersion());
         context = bundleContext;
 
         final String processEngine = context.getProperty("org.opentosca.container.engine.plan.plugin.bpel.engine");
@@ -59,8 +59,8 @@ public class Activator implements BundleActivator {
 
     @Override
     public void stop(final BundleContext bundleContext) throws Exception {
-        logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-                    bundleContext.getBundle().getVersion());
+        logger.debug("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
+                     bundleContext.getBundle().getVersion());
         Activator.context = null;
     }
 
