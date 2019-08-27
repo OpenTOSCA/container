@@ -25,11 +25,16 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 
 public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuilder {
 
     static QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
-    
+
+    public AbstractDefrostPlanBuilder(PluginRegistry pluginRegistry) {
+      super(pluginRegistry);
+    }
+
     @Override
     public PlanType createdPlanType() {
         return PlanType.BUILD;

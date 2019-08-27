@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import com.google.gson.JsonArray;
@@ -41,8 +42,11 @@ import org.opentosca.container.api.planbuilder.model.PlanGenerationState;
 import org.opentosca.container.api.planbuilder.model.PlanGenerationState.PlanGenerationStates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
+ * The worker process instance for one single plan generation.
+ * <br>
  * Copyright 2015 IAAS University of Stuttgart <br>
  * <br>
  *
@@ -55,13 +59,14 @@ public class PlanbuilderWorker {
   private final PlanGenerationState state;
   private final IHTTPService httpService;
   private final CsarStorageService csarStorage;
+  private final Importer planBuilderImporter;
 
-
-  public PlanbuilderWorker(final PlanGenerationState state, IHTTPService httpService, CsarStorageService csarStorage
-    ) {
+  public PlanbuilderWorker(final PlanGenerationState state, IHTTPService httpService, CsarStorageService csarStorage,
+    Importer importer) {
     this.state = state;
     this.httpService = httpService;
     this.csarStorage = csarStorage;
+    this.planBuilderImporter = importer;
   }
 
   public PlanGenerationState getState() {
@@ -151,7 +156,6 @@ public class PlanbuilderWorker {
     state.currentMessage = "Generating Plan";
     LOG.debug("Starting to generate Plan");
 
-    final Importer planBuilderImporter = new Importer();
     final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csarId.toOldCsarId());
 
     if (buildPlans.size() <= 0) {

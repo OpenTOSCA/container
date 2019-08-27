@@ -27,16 +27,17 @@ public class DeploymentTestService {
   private static final Logger logger = LoggerFactory.getLogger(DeploymentTestService.class);
 
   private final DeploymentTestRepository repository = new DeploymentTestRepository();
-  private final Importer importer = new Importer();
+  private final Importer importer;
 
   private final ExecutorService pool = Executors.newFixedThreadPool(5);
 
   private final TestExecutor executor;
 
   @Inject
-  public DeploymentTestService(TestExecutor executor) {
+  public DeploymentTestService(TestExecutor executor, Importer importer) {
     logger.debug("Instantiating DeploymentTestService");
     this.executor = executor;
+    this.importer = importer;
   }
 
   /**

@@ -6,13 +6,20 @@ import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 public abstract class AbstractPlanBuilder {
 
     private final static Logger LOG = LoggerFactory.getLogger(AbstractPlanBuilder.class);
 
-    protected final PluginRegistry pluginRegistry = PluginRegistry.INSTANCE;
+    @Inject
+    protected final PluginRegistry pluginRegistry;
 
-    abstract public PlanType createdPlanType();
+  protected AbstractPlanBuilder(PluginRegistry pluginRegistry) {
+    this.pluginRegistry = pluginRegistry;
+  }
+
+  abstract public PlanType createdPlanType();
 
     public boolean isRunning(final AbstractNodeTemplate nodeTemplate) {
         if (nodeTemplate.getProperties() != null) {

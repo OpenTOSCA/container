@@ -24,6 +24,7 @@ import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokerPluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Copyright 2014 IAAS University of Stuttgart <br>
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
+@Component
 public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<BPELPlanContext>,
                                IPlanBuilderProvPhaseParamOperationPlugin<BPELPlanContext>,
                                IPlanBuilderCompensationOperationPlugin<BPELPlanContext> {
@@ -52,7 +54,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             return this.handler.handle(context, operation, ia);
         }
         catch (final Exception e) {
-            BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
+            LOG.error("Couldn't append logic to provphase of Template: "
                 + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
                                                     : context.getRelationshipTemplate().getId(),
                                         e);
@@ -143,7 +145,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                                        internalExternalPropsInput, internalExternalPropsOutput, phase);
         }
         catch (final Exception e) {
-            BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
+            LOG.error("Couldn't append logic to provphase of Template: "
                 + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
                                                     : context.getRelationshipTemplate().getId(),
                                         e);
@@ -174,7 +176,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                                        BPELScopePhaseType.PROVISIONING);
         }
         catch (final Exception e) {
-            BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
+            LOG.error("Couldn't append logic to provphase of Template: "
                 + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
                                                     : context.getRelationshipTemplate().getId(),
                                         e);

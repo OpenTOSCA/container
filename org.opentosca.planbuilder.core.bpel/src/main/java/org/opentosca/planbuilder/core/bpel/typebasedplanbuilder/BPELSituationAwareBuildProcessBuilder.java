@@ -8,8 +8,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
+
+import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.w3c.dom.Node;
 
 import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
@@ -86,11 +89,11 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
 
   private BPELPlanHandler planHandler;
 
-  private BPELPluginHandler bpelPluginHandler = new BPELPluginHandler();
+  private BPELPluginHandler bpelPluginHandler;
 
   private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
-  private final EmptyPropertyToInputHandler emptyPropInit = new EmptyPropertyToInputHandler();
+  private final EmptyPropertyToInputHandler emptyPropInit;
 
   private BPELProcessFragments fragments;
 
@@ -99,7 +102,11 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
    * Default Constructor
    * </p>
    */
-  public BPELSituationAwareBuildProcessBuilder() {
+  @Inject
+  public BPELSituationAwareBuildProcessBuilder(PluginRegistry pluginRegistry) {
+    super(pluginRegistry);
+    bpelPluginHandler = new BPELPluginHandler(pluginRegistry);
+    emptyPropInit = new EmptyPropertyToInputHandler(new BPELScopeBuilder(pluginRegistry));
     try {
       this.planHandler = new BPELPlanHandler();
       this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();

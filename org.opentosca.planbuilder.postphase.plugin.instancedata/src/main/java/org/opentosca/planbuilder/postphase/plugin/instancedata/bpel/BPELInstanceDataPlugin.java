@@ -8,6 +8,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -22,6 +23,7 @@ import org.w3c.dom.NodeList;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
+@Component
 public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELPlanContext>,
                                     IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext> {
 

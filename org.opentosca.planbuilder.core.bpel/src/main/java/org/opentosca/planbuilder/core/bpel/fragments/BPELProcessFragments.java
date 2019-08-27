@@ -24,6 +24,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -34,6 +35,7 @@ import org.xml.sax.SAXException;
 /**
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  */
+@Component
 public class BPELProcessFragments {
 
   private final static Logger LOG = LoggerFactory.getLogger(BPELProcessFragments.class);

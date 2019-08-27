@@ -44,4 +44,8 @@ public class ResourceAccess {
   public Path resolvedPath() {
     return path;
   }
+
+  public static Path resolveUrl(URL resource) throws IOException, IllegalArgumentException {
+    return new ResourceAccess(resource).resolvedPath();
+  }
 }

@@ -20,11 +20,20 @@ import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+
+@Component
 public class BPELPluginHandler {
 
     final static Logger LOG = LoggerFactory.getLogger(BPELPluginHandler.class);
-    protected final PluginRegistry pluginRegistry = PluginRegistry.INSTANCE;
+    protected final PluginRegistry pluginRegistry;
+
+    @Inject
+    public BPELPluginHandler(PluginRegistry pluginRegistry) {
+      this.pluginRegistry = pluginRegistry;
+    }
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractNodeTemplate nodeTemplate) {

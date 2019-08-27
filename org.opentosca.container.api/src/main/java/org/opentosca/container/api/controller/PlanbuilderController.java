@@ -31,6 +31,7 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.container.core.service.impl.CsarStorageServiceImpl;
+import org.opentosca.planbuilder.importer.Importer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -61,9 +62,13 @@ public class PlanbuilderController {
 
   @Nullable
   final CsarStorageService csarStorage;
+  private Importer importer;
 
-  public PlanbuilderController() {
+  @Inject
+  public PlanbuilderController(Importer importer) {
+    this.importer = importer;
     csarStorage = new CsarStorageServiceImpl(Settings.CONTAINER_STORAGE_BASEPATH.resolveSibling("planbuilder-application"));
+    this.importer = importer;
   }
 
   @GET
@@ -101,7 +106,7 @@ public class PlanbuilderController {
     final PlanGenerationState newTaskState = new PlanGenerationState(csarURL, planPostURL);
     final String newId = RunningTasks.putSafe(newTaskState);
     LOG.info("Enqueueing PlanbuilderWorker for CsarUrl {} and planUrl {} with id [{}]", csarURL, planPostURL, newId);
-    backgroundWorker.execute(new PlanbuilderWorker(newTaskState, httpService, csarStorage)::doWork);
+    backgroundWorker.execute(new PlanbuilderWorker(newTaskState, httpService, csarStorage, importer)::doWork);
     return Response.created(URI.create(this.uriInfo.getAbsolutePath() + "/" + newId)).build();
   }
 
@@ -136,7 +141,7 @@ public class PlanbuilderController {
     final PlanGenerationState newTaskState = new PlanGenerationState(csarURL, planPostURL);
     final String newId = RunningTasks.putSafe(newTaskState);
 
-    final PlanbuilderWorker worker = new PlanbuilderWorker(newTaskState, httpService, csarStorage);
+    final PlanbuilderWorker worker = new PlanbuilderWorker(newTaskState, httpService, csarStorage, importer);
     LOG.info("Synchronously Running PlanbuilderWorker for CsarUrl {} and planUrl {} with id [{}]", csarURL, planPostURL, newId);
     worker.doWork();
 

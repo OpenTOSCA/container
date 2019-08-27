@@ -14,4 +14,9 @@
   <context:component-scan base-package="org.opentosca.planbuilder.export" />
   <context:component-scan base-package="org.opentosca.planbuilder.importer" />
 
+  <import resource="classpath:/spring/context-planbuilder-bpel.xml" />
+  <import resource="classpath:/spring/context-planbuilder-model.xml" />
+  <import resource="classpath:/spring/context-planbuilder-integration.xml" />
+  <import resource="classpath*:/spring/context-planbuilder-plugin.xml" />
+
 </beans>

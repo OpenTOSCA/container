@@ -7,9 +7,9 @@ import java.util.Objects;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.dom4j.tree.AbstractNode;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.AbstractDefrostPlanBuilder;
+import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
@@ -28,13 +28,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
+import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,13 +53,16 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
   // some provisioning logic and they must be filled with empty elements)
   private final BPELFinalizer finalizer;
 
-  private final EmptyPropertyToInputHandler emptyPropInit = new EmptyPropertyToInputHandler();
+  private final EmptyPropertyToInputHandler emptyPropInit;
 
-  private final BPELPluginHandler bpelPluginHandler = new BPELPluginHandler();
+  private final BPELPluginHandler bpelPluginHandler;
 
   private CorrelationIDInitializer correlationHandler;
 
-  public BPELDefrostProcessBuilder() {
+  public BPELDefrostProcessBuilder(PluginRegistry pluginRegistry) {
+    super(pluginRegistry);
+    bpelPluginHandler = new BPELPluginHandler(pluginRegistry);
+    emptyPropInit = new EmptyPropertyToInputHandler(new BPELScopeBuilder(pluginRegistry));
     try {
       this.planHandler = new BPELPlanHandler();
       this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
@@ -188,7 +189,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
                           final String serviceInstanceUrl, final String serviceInstanceId,
                           final String serviceTemplateUrl, final String csarFileName) {
     for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
-      final BPELPlanContext context = new BPELPlanContext(buildPlan, bpelScope, propMap, buildPlan.getServiceTemplate(), serviceInstanceUrl,
+      final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), buildPlan, bpelScope, propMap, buildPlan.getServiceTemplate(), serviceInstanceUrl,
         serviceInstanceId, serviceTemplateUrl, csarFileName);
       if (bpelScope.getNodeTemplate() != null) {
 

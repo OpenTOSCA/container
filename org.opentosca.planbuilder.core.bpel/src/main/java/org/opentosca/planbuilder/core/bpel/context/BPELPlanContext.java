@@ -58,6 +58,7 @@ public class BPELPlanContext extends PlanContext {
   private final static Logger LOG = LoggerFactory.getLogger(BPELPlanContext.class);
 
   private final BPELScope templateBuildPlan;
+  private final BPELScopeBuilder scopeBuilder;
 
   private BPELPlanHandler buildPlanHandler;
 
@@ -69,17 +70,17 @@ public class BPELPlanContext extends PlanContext {
 
   /**
    * Constructor
-   *
-   * @param templateBuildPlan the TemplateBuildPlan of a Template
-   * @param serviceTemplateName the name of the ServiceTemplate where the Template of the context
+   *  @param serviceTemplateName the name of the ServiceTemplate where the Template of the context
    *        originates
+   * @param scopeBuilder
+   * @param templateBuildPlan the TemplateBuildPlan of a Template
    * @param map a PropertyMap containing mappings for all Template properties of the TopologyTemplate
-   *        the ServiceTemplate has
    */
-  public BPELPlanContext(final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
+  public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
                          final AbstractServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
                          String serviceInstanceIDVarName, String serviceTemplateURLVarName, String csarFileName) {
     super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, csarFileName);
+    this.scopeBuilder = scopeBuilder;
     this.templateBuildPlan = templateBuildPlan;
     this.bpelTemplateHandler = new BPELScopeHandler();
     try {
@@ -246,12 +247,18 @@ public class BPELPlanContext extends PlanContext {
     return true;
   }
 
+  /**
+   * creates a context with the current context as it's parent scope using the given node template and activity types as input
+   * @param nodeTemplate
+   * @param activityType
+   * @return
+   */
   public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType... activityType) {
     LOG.debug("Trying to create {} plan context for nodeTemplate {}", activityType, nodeTemplate);
     for (BPELScope scope : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
       if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && scope.getActivity().getType().equals(activityType)) {
         LOG.debug("Found scope of nodeTemplate");
-        return new BPELPlanContext((BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName,
+        return new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName,
           this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.csarFileName);
       }
     }
@@ -291,7 +298,7 @@ public class BPELPlanContext extends PlanContext {
                                   final String operationName,
                                   final Map<AbstractParameter, Variable> param2variableMapping) {
 
-    final OperationChain chain = BPELScopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
+    final OperationChain chain = scopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
     if (chain == null) {
       return false;
     }
@@ -309,7 +316,7 @@ public class BPELPlanContext extends PlanContext {
 
     // create context from this context and set the given nodeTemplate as
     // the node for the scope
-    final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan,this.templateBuildPlan, this.propertyMap,
+    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan,this.templateBuildPlan, this.propertyMap,
       this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
       this.serviceTemplateURLVarName, this.csarFileName);
 
@@ -451,7 +458,7 @@ public class BPELPlanContext extends PlanContext {
     }
 
     final OperationChain chain =
-      BPELScopeBuilder.createOperationCall(relationshipTemplate, interfaceName, operationName);
+      scopeBuilder.createOperationCall(relationshipTemplate, interfaceName, operationName);
     if (chain == null) {
       return false;
     }
@@ -462,7 +469,7 @@ public class BPELPlanContext extends PlanContext {
     final AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
     final AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
 
-    final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan,this.templateBuildPlan, this.propertyMap,
+    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan,this.templateBuildPlan, this.propertyMap,
       this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
       this.serviceTemplateURLVarName, this.csarFileName);
 
@@ -482,7 +489,7 @@ public class BPELPlanContext extends PlanContext {
                                   final Map<AbstractParameter, Variable> param2propertyMapping,
                                   final Map<AbstractParameter, Variable> param2propertyOutputMapping,
                                   final BPELScopePhaseType phase) {
-    final OperationChain chain = BPELScopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
+    final OperationChain chain = scopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
     if (chain == null) {
       return false;
     }
@@ -500,7 +507,7 @@ public class BPELPlanContext extends PlanContext {
 
     // create context from this context and set the given nodeTemplate as
     // the node for the scope
-    final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan, this.propertyMap,
+    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan, this.propertyMap,
       this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
       this.serviceTemplateURLVarName, this.csarFileName);
 
@@ -531,7 +538,7 @@ public class BPELPlanContext extends PlanContext {
                                   final Map<AbstractParameter, Variable> param2propertyMapping,
                                   final Map<AbstractParameter, Variable> param2propertyOutputMapping) {
 
-    final OperationChain chain = BPELScopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
+    final OperationChain chain = scopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
     if (chain == null) {
       return false;
     }
@@ -549,7 +556,7 @@ public class BPELPlanContext extends PlanContext {
 
     // create context from this context and set the given nodeTemplate as
     // the node for the scope
-    final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan, this.propertyMap,
+    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan, this.propertyMap,
       this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
       this.serviceTemplateURLVarName, this.csarFileName);
 

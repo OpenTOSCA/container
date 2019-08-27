@@ -18,6 +18,7 @@ import org.opentosca.container.integration.tests.ServiceTrackerUtil;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 
 /**
  * Currently, this integration test assumes that the "MyTinyToDo_Bare_Docker" CSAR has been manually
@@ -43,7 +44,7 @@ public class TestExecutorTest {
 
     if (CsarActions.hasCsar(CSAR_NAME)) {
 
-      final Importer importer = new Importer();
+      final Importer importer = new Importer(getPluginRegistry());
       final AbstractDefinitions defs = importer.getMainDefinitions(this.csar.toOldCsarId());
 
       for (final AbstractServiceTemplate template : defs.getServiceTemplates()) {
@@ -77,5 +78,19 @@ public class TestExecutorTest {
         }
       }
     }
+  }
+
+  private PluginRegistry getPluginRegistry() {
+    return new PluginRegistry(new PluginRegistry.GenericPluginRegistry<>(null)
+      , new PluginRegistry.GenericPluginRegistry<>(null)
+      , new PluginRegistry.GenericPluginRegistry<>(null)
+      , new PluginRegistry.GenericPluginRegistry<>(null)
+      , new PluginRegistry.GenericPluginRegistry<>(null)
+      , new PluginRegistry.GenericPluginRegistry<>(null)
+      , new PluginRegistry.GenericPluginRegistry<>(null)
+      , new PluginRegistry.GenericPluginRegistry<>(null)
+      , new PluginRegistry.GenericPluginRegistry<>(null)
+      , new PluginRegistry.GenericPluginRegistry<>(null)
+    );
   }
 }
