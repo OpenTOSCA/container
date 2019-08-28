@@ -15,6 +15,7 @@ import org.opentosca.planbuilder.plugins.typebased.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -36,48 +37,75 @@ public class PluginRegistry {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginRegistry.class);
 
-  private final GenericPluginRegistry<IPlanBuilderTypePlugin<?>> genericPlugins;
-  private final GenericPluginRegistry<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins;
-  private final GenericPluginRegistry<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins;
-  private final GenericPluginRegistry<IPlanBuilderPrePhaseDAPlugin<?>> daPlugins;
-  private final GenericPluginRegistry<IPlanBuilderPostPhasePlugin<?>> postPlugins;
-  private final GenericPluginRegistry<IPlanBuilderPrePhasePlugin<?>> prePhasePlugins;
-  private final GenericPluginRegistry<IScalingPlanBuilderSelectionPlugin<?>> selectionPlugins;
-  private final GenericPluginRegistry<IPlanBuilderPolicyAwareTypePlugin<?>> policyAwareTypePlugins;
-  private final GenericPluginRegistry<IPlanBuilderPolicyAwarePostPhasePlugin<?>> policyAwarePostPhasePlugins;
-  private final GenericPluginRegistry<IPlanBuilderPolicyAwarePrePhasePlugin<?>> policyAwarePrePhasePlugins;
-
-  /**
-   * This class is a workaround for registering the plugins with each interface they support.
-   * Because the inheritance hierarchy of the interfaces is not disjoint for some of the plugins,
-   * registering the plugins for each of the interfaces they expose can not be done through polymorphism.
-   * Therefore every interface that we want to access plugins through needs to be injected separately.
-   * This class is a simplification for dealing with such an injection pattern.
-   */
-  @Service
-  public static class GenericPluginRegistry<T extends IPlanBuilderPlugin> {
-    final List<T> plugins = new ArrayList<>();
-    // Autowire and required to allow empty plugin registration
-    public GenericPluginRegistry(@Autowired(required = false) Collection<T> availableGenericPlugins) {
-      if (availableGenericPlugins != null) {
-        plugins.addAll(availableGenericPlugins);
-        LOG.info("Registered {} plugins for planbuilder", plugins.size());
-      }
-    }
-  }
+  private final List<IPlanBuilderTypePlugin<?>> genericPlugins = new ArrayList<>();
+  private final List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins = new ArrayList<>();
+  private final List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = new ArrayList<>();
+  private final List<IPlanBuilderPrePhaseDAPlugin<?>> daPlugins = new ArrayList<>();
+  private final List<IPlanBuilderPostPhasePlugin<?>> postPlugins = new ArrayList<>();
+  private final List<IPlanBuilderPrePhasePlugin<?>> prePhasePlugins = new ArrayList<>();
+  private final List<IScalingPlanBuilderSelectionPlugin<?>> selectionPlugins = new ArrayList<>();
+  private final List<IPlanBuilderPolicyAwareTypePlugin<?>> policyAwareTypePlugins = new ArrayList<>();
+  private final List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> policyAwarePostPhasePlugins = new ArrayList<>();
+  private final List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> policyAwarePrePhasePlugins = new ArrayList<>();
 
   @Inject
-  public PluginRegistry(GenericPluginRegistry<IPlanBuilderTypePlugin<?>> genericPlugins, GenericPluginRegistry<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins, GenericPluginRegistry<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins, GenericPluginRegistry<IPlanBuilderPrePhaseDAPlugin<?>> daPlugins, GenericPluginRegistry<IPlanBuilderPostPhasePlugin<?>> postPlugins, GenericPluginRegistry<IPlanBuilderPrePhasePlugin<?>> prePhasePlugins, GenericPluginRegistry<IScalingPlanBuilderSelectionPlugin<?>> selectionPlugins, GenericPluginRegistry<IPlanBuilderPolicyAwareTypePlugin<?>> policyAwareTypePlugins, GenericPluginRegistry<IPlanBuilderPolicyAwarePostPhasePlugin<?>> policyAwarePostPhasePlugins, GenericPluginRegistry<IPlanBuilderPolicyAwarePrePhasePlugin<?>> policyAwarePrePhasePlugins) {
-    this.genericPlugins = genericPlugins;
-    this.provPlugins = provPlugins;
-    this.iaPlugins = iaPlugins;
-    this.daPlugins = daPlugins;
-    this.postPlugins = postPlugins;
-    this.prePhasePlugins = prePhasePlugins;
-    this.selectionPlugins = selectionPlugins;
-    this.policyAwareTypePlugins = policyAwareTypePlugins;
-    this.policyAwarePostPhasePlugins = policyAwarePostPhasePlugins;
-    this.policyAwarePrePhasePlugins = policyAwarePrePhasePlugins;
+  // required is false to allow starting without any planbuilder plugins
+  public PluginRegistry(@Autowired(required = false) Collection<IPlanBuilderPlugin> availablePlugins) {
+    if (availablePlugins == null) {
+      LOG.warn("No planbuilder plugins could be found!");
+      return;
+    }
+    availablePlugins.forEach(this::registerPlugin);
+    LOG.info("Registered {} planbuilder plugins overall.", availablePlugins.stream());
+  }
+
+  private void registerPlugin(IPlanBuilderPlugin plugin) {
+    final List<String> roles = new ArrayList<>();
+    if (plugin instanceof IPlanBuilderTypePlugin<?>) {
+      roles.add(IPlanBuilderTypePlugin.class.getSimpleName());
+      genericPlugins.add((IPlanBuilderTypePlugin<?>)plugin);
+    }
+    if (plugin instanceof IPlanBuilderProvPhaseOperationPlugin<?>) {
+      roles.add(IPlanBuilderProvPhaseOperationPlugin.class.getSimpleName());
+      provPlugins.add((IPlanBuilderProvPhaseOperationPlugin<?>)plugin);
+    }
+    if (plugin instanceof IPlanBuilderPrePhaseIAPlugin<?>) {
+      roles.add(IPlanBuilderPrePhaseIAPlugin.class.getSimpleName());
+      iaPlugins.add((IPlanBuilderPrePhaseIAPlugin<?>)plugin);
+    }
+    if (plugin instanceof IPlanBuilderPrePhaseDAPlugin<?>) {
+      roles.add(IPlanBuilderPrePhaseDAPlugin.class.getSimpleName());
+      daPlugins.add((IPlanBuilderPrePhaseDAPlugin<?>)plugin);
+    }
+    if (plugin instanceof IPlanBuilderPostPhasePlugin<?>) {
+      roles.add(IPlanBuilderPostPhasePlugin.class.getSimpleName());
+      postPlugins.add((IPlanBuilderPostPhasePlugin<?>)plugin);
+    }
+    if (plugin instanceof IPlanBuilderPrePhasePlugin<?>) {
+      roles.add(IPlanBuilderPrePhasePlugin.class.getSimpleName());
+      prePhasePlugins.add((IPlanBuilderPrePhasePlugin<?>)plugin);
+    }
+    if (plugin instanceof IScalingPlanBuilderSelectionPlugin<?>) {
+      roles.add(IScalingPlanBuilderSelectionPlugin.class.getSimpleName());
+      selectionPlugins.add((IScalingPlanBuilderSelectionPlugin<?>)plugin);
+    }
+    if (plugin instanceof IPlanBuilderPolicyAwareTypePlugin<?>) {
+      roles.add(IPlanBuilderPolicyAwareTypePlugin.class.getSimpleName());
+      policyAwareTypePlugins.add((IPlanBuilderPolicyAwareTypePlugin<?>)plugin);
+    }
+    if (plugin instanceof IPlanBuilderPolicyAwarePostPhasePlugin<?>) {
+      roles.add(IPlanBuilderPolicyAwarePostPhasePlugin.class.getSimpleName());
+      policyAwarePostPhasePlugins.add((IPlanBuilderPolicyAwarePostPhasePlugin<?>)plugin);
+    }
+    if (plugin instanceof IPlanBuilderPolicyAwarePrePhasePlugin<?>) {
+      roles.add(IPlanBuilderPolicyAwarePrePhasePlugin.class.getSimpleName());
+      policyAwarePrePhasePlugins.add((IPlanBuilderPolicyAwarePrePhasePlugin<?>)plugin);
+    }
+    if (roles.isEmpty()) {
+      LOG.warn("Plugin {} could not be registered for any roles. It's not available from the PluginRegistry", plugin.getClass().getSimpleName());
+      return;
+    }
+    LOG.info("Registered plugin {} for role(s) {}", plugin.getClass().getSimpleName(), String.join(", ", roles));
   }
 
   /**
@@ -86,11 +114,11 @@ public class PluginRegistry {
    * @return a List of IPlanBuilderTypePlugin
    */
   public List<IPlanBuilderTypePlugin<?>> getTypePlugins() {
-    return genericPlugins.plugins;
+    return genericPlugins;
   }
 
   public List<IPlanBuilderPrePhasePlugin<?>> getPrePlugins() {
-    return prePhasePlugins.plugins;
+    return prePhasePlugins;
   }
 
   /**
@@ -99,7 +127,7 @@ public class PluginRegistry {
    * @return a List of IPlanBuilderProvPhaseOperationPlugin
    */
   public List<IPlanBuilderProvPhaseOperationPlugin<?>> getProvPlugins() {
-    return provPlugins.plugins;
+    return provPlugins;
   }
 
   /**
@@ -108,7 +136,7 @@ public class PluginRegistry {
    * @return a List of IPlanBuilderPrePhaseIAPlugin
    */
   public List<IPlanBuilderPrePhaseIAPlugin<?>> getIaPlugins() {
-    return iaPlugins.plugins;
+    return iaPlugins;
   }
 
   /**
@@ -117,7 +145,7 @@ public class PluginRegistry {
    * @return a List of IPlanBuilderPrePhaseDAPlugin
    */
   public List<IPlanBuilderPrePhaseDAPlugin<?>> getDaPlugins() {
-    return daPlugins.plugins;
+    return daPlugins;
   }
 
   /**
@@ -126,7 +154,7 @@ public class PluginRegistry {
    * @return a List of IPlanBuilderPostPhasePlugin
    */
   public List<IPlanBuilderPostPhasePlugin<?>> getPostPlugins() {
-    return postPlugins.plugins;
+    return postPlugins;
   }
 
   /**
@@ -135,19 +163,19 @@ public class PluginRegistry {
    * @return a List of IScalingPlanBuilderSelectionPlugin
    */
   public List<IScalingPlanBuilderSelectionPlugin<?>> getSelectionPlugins() {
-    return selectionPlugins.plugins;
+    return selectionPlugins;
   }
 
   public List<IPlanBuilderPolicyAwareTypePlugin<?>> getPolicyAwareTypePlugins() {
-    return policyAwareTypePlugins.plugins;
+    return policyAwareTypePlugins;
   }
 
   public List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> getPolicyAwarePostPhasePlugins() {
-    return policyAwarePostPhasePlugins.plugins;
+    return policyAwarePostPhasePlugins;
   }
 
   public List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> getPolicyAwarePrePhasePlugins() {
-    return policyAwarePrePhasePlugins.plugins;
+    return policyAwarePrePhasePlugins;
   }
 
   public boolean canTypePluginHandleCreate(final AbstractNodeTemplate nodeTemplate) {

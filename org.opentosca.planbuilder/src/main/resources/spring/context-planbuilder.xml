@@ -11,8 +11,8 @@
   </description>
 
   <context:annotation-config />
-  <context:component-scan base-package="org.opentosca.planbuilder.export" />
-  <context:component-scan base-package="org.opentosca.planbuilder.importer" />
+
+  <bean class="org.opentosca.planbuilder.plugins.registry.PluginRegistry" />
 
   <import resource="classpath:/spring/context-planbuilder-bpel.xml" />
   <import resource="classpath:/spring/context-planbuilder-model.xml" />

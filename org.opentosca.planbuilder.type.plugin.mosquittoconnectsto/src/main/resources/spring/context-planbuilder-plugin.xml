@@ -9,5 +9,5 @@
     Register the beans within the planbuilder connectsto type plugin
   </description>
 
-  <bean class="org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.bpel.BPELConnectsToTypePluginW" />
+  <bean class="org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.bpel.BPELConnectsToTypePlugin" />
 </beans>

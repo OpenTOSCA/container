@@ -169,8 +169,7 @@ public class GenericWsdlWrapper {
   public GenericWsdlWrapper(final BPELPlan.PlanType planType, final String inputOperationName) throws IOException {
     final URL url = getClass().getClassLoader().getResource("genericProcessWsdl.wsdl");
     try {
-      ResourceAccess wsdlResource = new ResourceAccess(url);
-      this.genericWsdlFileAsString = new String(Files.readAllBytes(wsdlResource.resolvedPath()));
+      this.genericWsdlFileAsString = ResourceAccess.readResourceAsString(url);
     } catch (IOException e) {
       LoggerFactory.getLogger(GenericWsdlWrapper.class).warn("Could not read generic process wsdl from {} with exception", url, e);
       this.genericWsdlFileAsString = "";

@@ -36,8 +36,7 @@ public class ArtifactTypesHandler {
     LOG.debug("Registering the supported ArtifactTypes...");
     URL artifactTypeFolder = getClass().getClassLoader().getResource(ARTIFACT_TYPES_DEFINTION_FOLDER);
     try {
-      ResourceAccess artifactTypes = new ResourceAccess(artifactTypeFolder);
-      readArtifactTypes(artifactTypes.resolvedPath());
+      readArtifactTypes(ResourceAccess.resolveUrl(artifactTypeFolder));
     } catch (final IOException e) {
       LOG.error("Failed to read artifacttype definitions from {} with exception", artifactTypeFolder, e);
     } catch (final IllegalArgumentException e) {

@@ -22,11 +22,8 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.plugins.context.Variable;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -39,7 +36,6 @@ import org.xml.sax.SAXException;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-// FIXME !! IMPORTANT !! Remove Activator and retrieve resources from within the jar file!
 public class ResourceHandler {
 
   private final static Logger LOG = LoggerFactory.getLogger(ResourceHandler.class);
@@ -82,7 +78,8 @@ public class ResourceHandler {
    */
   public String generateAddressingCopy(final String partnerLinkName,
                                        final String requestVariableName) throws IOException {
-    String addressingFileString = readResourceToString("addressingCopy.xml");
+    URL url = getClass().getClassLoader().getResource("addressingCopy.xml");
+    String addressingFileString = ResourceAccess.readResourceAsString(url);
     /*
      * "{partnerLinkName}" "{requestVarName}"
      */
@@ -122,9 +119,7 @@ public class ResourceHandler {
    */
   public String generateAddressingInit(final String requestVariableName) throws IOException {
     final URL url = getClass().getClassLoader().getResource("addressingInit.xml");
-    final ResourceAccess access = new ResourceAccess(url);
-    final Path addressingFile = access.resolvedPath();
-    String addressingFileString = new String(Files.readAllBytes(addressingFile));
+    String addressingFileString = ResourceAccess.readResourceAsString(url);
     /*
      * "{partnerLinkName}" "{requestVarName}"
      */
@@ -166,7 +161,8 @@ public class ResourceHandler {
   private String generateCopyFromExternalParamToInvokerString(final String requestVarName,
                                                               final String requestVarPartName, final String paramName,
                                                               final String invokerParamName) throws IOException {
-    String copyTemplateString = readResourceToString("externalParamCopy2.xml");
+    URL url = getClass().getClassLoader().getResource("externalParamCopy2.xml");
+    String copyTemplateString = ResourceAccess.readResourceAsString(url);
 
     // {paramName}, {requestVarName}, {requestVarPartName}
     copyTemplateString = copyTemplateString.replace("{paramName}", paramName);
@@ -238,7 +234,8 @@ public class ResourceHandler {
                                                             final String invokerRequestVarName,
                                                             final String invokerRequestVarPartName,
                                                             final String invokerParamName) throws IOException {
-    String eprCopyFileString = readResourceToString("EPRCopyToInvokerReplyTo.xml");
+    URL url = getClass().getClassLoader().getResource("EPRCopyToInvokerReplyTo.xml");
+    String eprCopyFileString = ResourceAccess.readResourceAsString(url);
 
     // <!--{partnerLinkName} {requestVarName} {requestVarPartName}
     // {invokerParamName}-->
@@ -296,7 +293,8 @@ public class ResourceHandler {
                                                                 final String requestVarPartName, final String iface,
                                                                 final boolean isNodeTemplate, final String templateId,
                                                                 final Map<String, Variable> internalExternalProps) throws IOException {
-    String assignTemplateString = readResourceToString("assignInvokerAsyncMessage.xml");
+    URL url = getClass().getClassLoader().getResource("assignInvokerAsyncMessage.xml");
+    String assignTemplateString = ResourceAccess.readResourceAsString(url);
 
     /*
      * String values must replace: {csarName}, {serviceTemplateNS}, {serviceTemplateLocalName},
@@ -426,7 +424,8 @@ public class ResourceHandler {
    */
   public String generateMessageIdInit(final String requestVariableName, final String requestVariabelPartName,
                                       final String messageIdPrefix) throws IOException {
-    String initMessageIdFileString = readResourceToString("initMessageId.xml");
+    URL url = getClass().getClassLoader().getResource("initMessageId.xml");
+    String initMessageIdFileString = ResourceAccess.readResourceAsString(url);
 
     // <!-- {requestVarName}, {requestVarPartName}, {messageIdPrefix} -->
     initMessageIdFileString = initMessageIdFileString.replace("{requestVarName}", requestVariableName);
@@ -490,7 +489,8 @@ public class ResourceHandler {
 
   public String generateReplyToCopy(final String partnerLinkName, final String requestVarName,
                                     final String requestVarPartName, final String paramName) throws IOException {
-    String copyTemplateString = readResourceToString("copyReplyTo.xml");
+    URL url = getClass().getClassLoader().getResource("copyReplyTo.xml");
+    String copyTemplateString = ResourceAccess.readResourceAsString(url);
 
     // {paramName}, {partnerLinkName}, {requestVarName},
     // {requestVarPartName}
@@ -633,7 +633,9 @@ public class ResourceHandler {
    */
   private String generateCorrelationIdCopy(final String requestVarName,
                                            final String requestVarPartName) throws IOException {
-    String correlationIdCopyString = readResourceToString("correlationIdCopy.xml");
+    URL url = getClass().getClassLoader().getResource("correlationIdCopy.xml");
+    String correlationIdCopyString = ResourceAccess.readResourceAsString(url);
+
     correlationIdCopyString = correlationIdCopyString.replace("{requestVarName}", requestVarName);
     correlationIdCopyString = correlationIdCopyString.replace("{requestVarPartName}", requestVarPartName);
 
@@ -652,7 +654,8 @@ public class ResourceHandler {
    */
   public String generateServiceInstanceIDCopy(final String bpelVarName, final String requestVarName,
                                               final String requestVarPartName) throws IOException {
-    String serviceInstanceCopyString = readResourceToString("serviceInstanceCopy.xml");
+    URL url = getClass().getClassLoader().getResource("serviceInstanceCopy.xml");
+    String serviceInstanceCopyString = ResourceAccess.readResourceAsString(url);
 
     serviceInstanceCopyString = serviceInstanceCopyString.replace("{bpelVarName}", bpelVarName);
     serviceInstanceCopyString = serviceInstanceCopyString.replace("{requestVarName}", requestVarName);
@@ -663,7 +666,8 @@ public class ResourceHandler {
 
   public String generateNodeInstanceIdCopy(final String bpelVarName, final String requestVarName,
                                            final String requestVarPartName) throws IOException {
-    String serviceInstanceCopyString = readResourceToString("nodeInstanceCopy.xml");
+    URL url = getClass().getClassLoader().getResource("nodeInstanceCopy.xml");
+    String serviceInstanceCopyString = ResourceAccess.readResourceAsString(url);
 
     serviceInstanceCopyString = serviceInstanceCopyString.replace("{bpelVarName}", bpelVarName);
     serviceInstanceCopyString = serviceInstanceCopyString.replace("{requestVarName}", requestVarName);
@@ -685,7 +689,8 @@ public class ResourceHandler {
   private String generateServiceInvokerExternalParamCopyString(final String requestVarName,
                                                                final String requestVarPartName,
                                                                final String paramName) throws IOException {
-    String copyTemplateString = readResourceToString("externalParamCopy.xml");
+    URL url = getClass().getClassLoader().getResource("externalParamCopy.xml");
+    String copyTemplateString = ResourceAccess.readResourceAsString(url);
 
     // {paramName}, {requestVarName}, {requestVarPartName}
     copyTemplateString = copyTemplateString.replace("{paramName}", paramName);
@@ -698,7 +703,8 @@ public class ResourceHandler {
   private String generateServiceInvokerInternalParamCopyString(final String bpelVarName, final String requestVarName,
                                                                final String requestVarPartName,
                                                                final String paramName) throws IOException {
-    String copyTemplateString = readResourceToString("internalParamCopy.xml");
+    URL url = getClass().getClassLoader().getResource("internalParamCopy.xml");
+    String copyTemplateString = ResourceAccess.readResourceAsString(url);
 
     // {bpelVarName}, {requestVarName}, {requestVarPartName}, {paramName}
     copyTemplateString = copyTemplateString.replace("{bpelVarName}", bpelVarName);
@@ -752,10 +758,9 @@ public class ResourceHandler {
   }
 
   public Path getServiceInvokerWSDLFile(final Path invokerXsdFile, final int id) throws IOException {
-    final URL url = this.getClass().getResource("invoker.wsdl");
-    ResourceAccess access = new ResourceAccess(url);
+    final URL url = getClass().getClassLoader().getResource("invoker.wsdl");
 
-    final Path wsdlFile = access.resolvedPath();
+    final Path wsdlFile = ResourceAccess.resolveUrl(url);
     final Path tempFile = createNewTempFile(wsdlFile, id);
     final String fileName = invokerXsdFile.getFileName().toString();
 
@@ -765,20 +770,12 @@ public class ResourceHandler {
   }
 
   public Path getServiceInvokerXSDFile(final int id) throws IOException {
-    final URL url = getClass().getResource("invoker.xsd");
-    ResourceAccess access = new ResourceAccess(url);
+    final URL url = getClass().getClassLoader().getResource("invoker.xsd");
 
-    final Path xsdFile = access.resolvedPath();
+    final Path xsdFile = ResourceAccess.resolveUrl(url);
     final Path tempFile = createNewTempFile(xsdFile, id);
 
     Files.copy(xsdFile, tempFile);
     return tempFile;
   }
-
-  private String readResourceToString(String resourceIdentifier) throws IOException {
-    final URL resourceUrl = getClass().getClassLoader().getResource(resourceIdentifier);
-    final Path fsPath = new ResourceAccess(resourceUrl).resolvedPath();
-    return new String(Files.readAllBytes(fsPath));
-  }
-
 }
