@@ -1,5 +1,8 @@
 package org.opentosca.bus.management.api.resthttp;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.core.osgi.OsgiServiceRegistry;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -10,6 +13,7 @@ import org.opentosca.bus.management.api.resthttp.route.IsFinishedRoute;
 import org.opentosca.bus.management.api.resthttp.route.OptionsRoute;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.restlet.service.CorsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +45,12 @@ public class Activator implements BundleActivator {
         camelContext.addRoutes(new IsFinishedRoute());
         camelContext.addRoutes(new DeleteRoute());
         camelContext.addRoutes(new OptionsRoute());
+        
+        //CorsService corsService = new CorsService();  
+        //corsService.setAllowedOrigins(new HashSet(Arrays.asList("*")));
+        //corsService.setAllowedCredentials(true);
+        //corsService.setSkippingResourceForCorsOptions(true);
+        //camelContext.addService(corsService);
 
         camelContext.start();
 

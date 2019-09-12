@@ -1,6 +1,10 @@
 package org.opentosca.container.api.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +26,17 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
-
+import org.apache.http.NameValuePair;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
@@ -66,6 +80,7 @@ import org.opentosca.container.core.next.model.SituationsMonitor;
 import org.opentosca.container.core.next.repository.DeploymentTestRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
+import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.model.TExportedInterface;
 import org.opentosca.container.core.tosca.model.TExportedOperation;
 import org.opentosca.container.core.tosca.model.TPlan;
@@ -80,6 +95,7 @@ import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+
 
 @Api
 public class ServiceTemplateInstanceController {
@@ -636,19 +652,6 @@ public class ServiceTemplateInstanceController {
 
 
                 for (final NodeTemplateInstance i : nodeInstances) {
-//                    if (states != null && !states.isEmpty() && !states.contains(i.getState())) {
-//                        // skip this node instance, as it not has the proper state
-//                        continue;
-//                    }
-//
-//                    if (relationIds != null && !relationIds.isEmpty()) {
-//                        for (final RelationshipTemplateInstance relInstance : i.getOutgoingRelations()) {
-//                            if (!relationIds.contains(relInstance.getId())) {
-//                                // skip this node instance, as it is no source of the given relation
-//                                continue;
-//                            }
-//                        }
-//                    }
                     
                     if(!i.getServiceTemplateInstance().getTemplateId().toString().equals(this.serviceTemplateId)) {
                         continue;
@@ -683,4 +686,6 @@ public class ServiceTemplateInstanceController {
         resultDTO.setRelationshipTemplateInstancesList(relationshipTemplateInstanceList);
         return Response.ok(resultDTO).build();
     }
+    
+    
 }

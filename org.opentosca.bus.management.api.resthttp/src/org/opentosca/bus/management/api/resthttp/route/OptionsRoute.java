@@ -1,6 +1,7 @@
 package org.opentosca.bus.management.api.resthttp.route;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.opentosca.bus.management.api.resthttp.model.RequestID;
 import org.opentosca.bus.management.api.resthttp.processor.CORSProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 
@@ -24,6 +25,8 @@ public class OptionsRoute extends RouteBuilder {
         //options route
         from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.INVOKE_ENDPOINT
         + "?restletMethods=options").process(corsProcessor).to("stream:out");
+        
+        // ETL hier mit .setHeader(MANAGEMENT_BUS_REQUEST_ID_HEADER, this.method(RequestID.class, "getNextID"))
         
         from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
         + "?restletMethods=options").process(corsProcessor).to("stream:out");

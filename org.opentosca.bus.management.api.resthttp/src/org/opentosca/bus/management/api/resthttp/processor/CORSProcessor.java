@@ -1,10 +1,15 @@
 package org.opentosca.bus.management.api.resthttp.processor;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.restlet.RestletConstants;
 import org.restlet.Response;
 import org.restlet.data.Form;
+import org.restlet.data.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,20 +33,32 @@ public class CORSProcessor implements Processor {
 
         final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
 
-        Form headers = (Form) response.getAttributes().get("org.restlet.http.headers");
+        //Form headers = (Form) response.getAttributes().get("org.restlet.http.headers");
 
-        if (headers == null) {
+        //if (headers == null) {
 
-            headers = new Form();
-            response.getAttributes().put("org.restlet.http.headers", headers);
+            //headers = new Form();
+        //}
+        
+        Set<Method> set = new HashSet<Method>();
+        //method = new Method();
+        set.add(org.restlet.data.Method.POST);
+        set.add(org.restlet.data.Method.GET);
+        set.add(org.restlet.data.Method.DELETE);
+        set.add( org.restlet.data.Method.OPTIONS);
+        
 
-            headers.add("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
-            headers.add("Access-Control-Allow-Headers",
-                        "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
-            headers.add("Access-Control-Allow-Origin", "*");
-            headers.add("Access-Control-Expose-Headers", "Location, Content-Type, Expires, Last-Modified");
-
-        }
+        response.setAccessControlAllowMethods(set);
+        response.setAccessControlAllowHeaders(new HashSet(Arrays.asList("Origin", "Accept", "X-Requested-With", "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers")));
+        response.setAccessControlExposeHeaders(new HashSet(Arrays.asList("Location", "Content-Type", "Expires", "Last-Modified")));
+        response.setAccessControlAllowOrigin( "*" );
+        //headers.add("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
+        //headers.add("Access-Control-Allow-Headers",
+          //          "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+        //headers.add("Access-Control-Allow-Origin", "*");
+        //headers.add("Access-Control-Expose-Headers", "Location, Content-Type, Expires, Last-Modified");
+        //response.getAttributes().put("org.restlet.http.headers", headers);
+        
     }
 
 }

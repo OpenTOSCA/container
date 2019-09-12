@@ -1,9 +1,15 @@
 package org.opentosca.container.api.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -21,6 +27,20 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
 import org.opentosca.container.api.service.InstanceService;
@@ -175,6 +195,143 @@ public class NodeTemplateInstanceController {
             return Response.status(Status.BAD_REQUEST).build();
         }
         return Response.ok().build();
+    }
+    
+    @POST
+    @Path("/{id}/managementoperation")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(hidden = true, value = "")
+    public Response performManagementOperation(@PathParam("id") final Long id,
+    		@ApiParam(required = true,
+            value = "operation input parameters") final String parameters) {
+    	
+    	HttpClient httpclient = HttpClients.createDefault();
+    	HttpPost httppost = new HttpPost("http://localhost:8086/ManagementBus/v1/invoker");
+
+    	// Request parameters and other properties.
+    	StringEntity params = null;
+		try {
+			params = new StringEntity(parameters);
+		} catch (UnsupportedEncodingException e2) {
+			e2.printStackTrace();
+		}
+		httppost.setEntity(params);
+		
+		// get state of operation and operation interface for further processing
+		String nextState = this.instanceService.getNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id).name();
+
+        //Convert String to JSON Object
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+		try {
+			json = (JSONObject) parser.parse(parameters);
+		} catch (org.json.simple.parser.ParseException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+		JSONObject jsonChildObject = null;
+		try {
+			jsonChildObject = (JSONObject)parser.parse(json.get("invocation-information").toString());
+		} catch (org.json.simple.parser.ParseException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+		// if lifecycle interface, set status of node accordingly
+        if (jsonChildObject.get("interface").toString().equals("http://www.example.com/interfaces/lifecycle")) {
+        	String operation = jsonChildObject.get("operation").toString();        	
+        	switch (operation) {
+        	case "uninstall":
+        		// set nextState to DELETED
+        		nextState = "DELETED";
+        		break;
+        	case "configure":
+        		// set nextState to CONFIGURED
+        		nextState = "CONFIGURED";
+        		break;
+        	case "install":
+        		// set nextState to CREATED
+        		nextState = "CREATED";
+        		break;
+        	}
+        }
+		
+		// if other interface, take state from parameters
+    	
+
+    	//Execute and get the response.
+    	HttpResponse response = null;
+		try {
+			response = httpclient.execute(httppost);
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+    	// get id of request    	
+    	String location = response.getFirstHeader("Location").getValue();
+    	String requestId = location.substring(location.lastIndexOf("/") + 1);
+    	
+    	
+    	int counter = 0;
+    	HttpEntity entity = null;
+    	String stringResponse = null;
+
+    	while (counter < 5) {
+        	try {
+    			TimeUnit.SECONDS.sleep(8);
+    		} catch (InterruptedException e1) {
+    			e1.printStackTrace();
+    		}
+        	
+        	try {
+        		response = null;
+        		// check if request has finished
+            	HttpGet httpget = new HttpGet("http://localhost:8086/ManagementBus/v1/invoker/activeRequests/" + requestId + "/response");
+            	
+    			response = httpclient.execute(httpget);
+    	    	entity = response.getEntity();
+    	    	stringResponse = EntityUtils.toString(entity, "UTF-8");
+    	    	if (stringResponse.contains("java.lang.Exception")) {
+    	    		counter = counter++;
+    	    		//System.out.println(EntityUtils.toString(entity, "UTF-8"));
+    	    	} else {
+    	    		//System.out.println(EntityUtils.toString(entity, "UTF-8"));
+        			counter = 5;
+    	    	}
+    		} catch (ClientProtocolException e) {
+    			System.out.println(e);
+
+    		} catch (IOException e) {
+    			System.out.println(e);
+    		}
+    	}
+
+    	
+    	// if so, change state of NodeTemplateInstance
+
+    	if (entity != null) {
+    		// Change the state
+    		
+    	    try (InputStream instream = entity.getContent()) {
+    	        // if management operation successful, change the state!
+    	    	try {
+    	            this.instanceService.setNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id, nextState);
+    	        }
+    	        catch (final IllegalArgumentException e) { // this handles a null request too
+    	            return Response.status(Status.BAD_REQUEST).build();
+    	        }
+    	    } catch (UnsupportedOperationException e) {
+    	    	return Response.status(Status.BAD_REQUEST).build();
+			} catch (IOException e) {
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+    	}
+    	JSONObject jsonResponse = new JSONObject();
+    	jsonResponse.put("state", nextState);
+    	return Response.ok(jsonResponse).build();
+
     }
 
     @GET
