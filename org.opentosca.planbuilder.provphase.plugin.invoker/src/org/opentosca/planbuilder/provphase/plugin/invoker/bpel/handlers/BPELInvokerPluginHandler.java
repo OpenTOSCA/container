@@ -306,9 +306,6 @@ public class BPELInvokerPluginHandler {
             }
         }
 
-        // TODO: add maybe here the additional input param "instanceRef" if OperatingSystemInterface and
-        // abstract OS Node type found?
-
         // add external props to plan output message
         for (final String paraName : internalExternalPropsOutput.keySet()) {
             if (internalExternalPropsOutput.get(paraName) == null) {
