@@ -2,13 +2,11 @@ package org.opentosca.container.api.controller;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
@@ -22,7 +20,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @Api
-@Path("/placement")
 public class PlacementController {
 
     private static final Logger logger = LoggerFactory.getLogger(PlacementController.class);
@@ -33,10 +30,13 @@ public class PlacementController {
     @Context
     ResourceContext resourceContext;
 
-    @ApiParam("list of node templates to be placed")
-    @PathParam("nodetemplatelist")
-    String nodeTemplateList;
+    @ApiParam("ID of CSAR")
+    @PathParam("csar")
+    String csarId;
 
+    @ApiParam("qualified name of the service template")
+    @PathParam("servicetemplate")
+    String serviceTemplateId;
 
     private final InstanceService instanceService;
 
@@ -46,11 +46,12 @@ public class PlacementController {
 
     // TODO: implement this method by returning all running instances of operating system instances
     @POST
-    @Produces({MediaType.APPLICATION_JSON})
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     // TODO: value = what gets returned to the REST caller
     @ApiOperation(hidden = true, value = "")
-    public Response getInstances(final Request request) {
+    public Response getInstances(@ApiParam("ID of csar") @PathParam("csar") final String csar,
+                                 @ApiParam("qualified name of service template") @PathParam("servicetemplate") final String servicetemplate) {
         return Response.status(Status.ACCEPTED).build();
     }
 }
