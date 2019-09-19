@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <bpel:copy>
 	<!-- {requestVarName}, {requestVarPartName}, {messageIdPrefix} -->
 	<bpel:from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">

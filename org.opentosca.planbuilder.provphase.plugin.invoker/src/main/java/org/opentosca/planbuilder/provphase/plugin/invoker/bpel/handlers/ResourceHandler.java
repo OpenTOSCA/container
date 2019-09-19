@@ -3,14 +3,12 @@
  */
 package org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -18,8 +16,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.FileUtils;
-import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
@@ -55,14 +51,13 @@ public class ResourceHandler {
 
   }
 
-  public Path createNewTempFile(final Path file, final int id) throws IOException {
+  public Path touchNewTempFile(final Path file, final int id) throws IOException {
     final String filename = file.getFileName().toString();
     final String[] segments = filename.split("\\.", 2);
     // we assume the given filename had a . in it!
     assert (segments.length == 2);
     final Path tempFile = Files.createTempFile(segments[0] + id, "." + segments[1]);
 
-    Files.copy(file, tempFile);
     return tempFile;
   }
 
@@ -761,10 +756,10 @@ public class ResourceHandler {
     final URL url = getClass().getClassLoader().getResource("invoker.wsdl");
 
     final Path wsdlFile = ResourceAccess.resolveUrl(url);
-    final Path tempFile = createNewTempFile(wsdlFile, id);
+    final Path tempFile = touchNewTempFile(wsdlFile, id);
     final String fileName = invokerXsdFile.getFileName().toString();
 
-    Files.write(tempFile, new String(Files.readAllBytes(tempFile)).replaceAll("invoker.xsd", fileName).getBytes());
+    Files.write(tempFile, new String(Files.readAllBytes(wsdlFile)).replaceAll("invoker.xsd", fileName).getBytes());
 
     return tempFile;
   }
@@ -773,9 +768,9 @@ public class ResourceHandler {
     final URL url = getClass().getClassLoader().getResource("invoker.xsd");
 
     final Path xsdFile = ResourceAccess.resolveUrl(url);
-    final Path tempFile = createNewTempFile(xsdFile, id);
+    final Path tempFile = touchNewTempFile(xsdFile, id);
 
-    Files.copy(xsdFile, tempFile);
+    Files.copy(xsdFile, Files.newOutputStream(tempFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE));
     return tempFile;
   }
 }

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" validate="no" name="AssignCreateEC2SIRequest">
 	<bpel:copy>
 		<bpel:from>
@@ -8,7 +7,7 @@
 					<impl:PlanCorrelationID>{planCorrelation}</impl:PlanCorrelationID>
 					<impl:CsarID>{csarName}</impl:CsarID>
 					<impl:ServiceInstanceID>{serviceInstanceID}</impl:ServiceInstanceID>
-					<impl:NodeInstanceID>{nodeInstanceID}</impl:NodeInstanceID>	
+					<impl:NodeInstanceID>{nodeInstanceID}</impl:NodeInstanceID>
 					<impl:ServiceTemplateIDNamespaceURI>{serviceTemplateNS}</impl:ServiceTemplateIDNamespaceURI>
 					<impl:ServiceTemplateIDLocalPart>{serviceTemplateLocalName}</impl:ServiceTemplateIDLocalPart>
 					{interface}

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" validate="no" name="$assignName">
     <bpel:copy>
         <!-- $stringVarName, $NodeInstanceResponseVarName -->
