@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
 	validate="yes" name="$assignName">
-	<!--$assignName : Reads from $inputElementLocalName and adds the content 
+	<!--$assignName : Reads from $inputElementLocalName and adds the content
 		inside $StringVariableName wrapped inside a CorrelationId element -->
 	<bpel:copy>
 		<bpel:from>
@@ -15,6 +14,6 @@
 		</bpel:from>
 		<bpel:to variable="$StringVariableName">
 			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[/*[local-name()='correlationID']]]></bpel:query>
-		</bpel:to>			
-	</bpel:copy>	
+		</bpel:to>
+	</bpel:copy>
 </bpel:assign>

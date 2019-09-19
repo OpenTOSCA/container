@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <bpel:if xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
 	<bpel:condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{booleanExpression}</bpel:condition>
 	<bpel:sequence>
@@ -9,7 +8,7 @@
 				expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{integerExpression}</bpel:startCounterValue>
 			<bpel:finalCounterValue
 				expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{integerExpression2}</bpel:finalCounterValue>
-				
+
 
 			<bpel:scope>
 				<bpel:forEach counterName="relationInstanceIndex" parallel="no">

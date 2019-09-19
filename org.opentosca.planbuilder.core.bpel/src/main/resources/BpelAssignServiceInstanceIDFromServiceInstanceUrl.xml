@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
 	validate="no" name="$assignName">
 	<!-- $ServiceInstanceURLVarName, $ServiceInstanceIDVarName -->
 	<bpel:copy>
-		<!-- //*[local-name()='link' and namespace-uri()='http://opentosca.org/api/pp']/@*[local-name()='href' 
+		<!-- //*[local-name()='link' and namespace-uri()='http://opentosca.org/api/pp']/@*[local-name()='href'
 			and namespace-uri()='http://www.w3.org/1999/xlink'] -->
 		<bpel:from variable="$ServiceInstanceURLVarName">
 			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string(codepoints-to-string(reverse(string-to-codepoints(substring-before(codepoints-to-string(reverse(string-to-codepoints($$ServiceInstanceURLVarName))), '/')))))]]></bpel:query>
