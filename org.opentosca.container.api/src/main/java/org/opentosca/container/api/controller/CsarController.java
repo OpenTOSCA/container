@@ -349,7 +349,7 @@ public class CsarController {
     if (errors.size() > 0) {
       logger.error("Error deleting CSAR");
       errors.forEach(s -> logger.error(s));
-      return Response.serverError().build();
+      return Response.serverError().entity(errors).build();
     }
     return Response.noContent().build();
   }

@@ -88,7 +88,7 @@ public class PlanService {
       logger.info(msg);
       throw new NotFoundException(msg);
     }
-    if (!pi.getTemplateId().getLocalPart().equals(plan)) {
+    if (!pi.getTemplateId().getLocalPart().equals(plan.getId())) {
       throw new NotFoundException(String.format("The passed plan instance <%s> does not belong to the passed plan template: %s", planInstanceId, plan));
     }
 

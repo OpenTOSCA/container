@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.repository;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -9,6 +10,7 @@ import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 import javax.xml.namespace.QName;
 
+import org.hibernate.Hibernate;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
@@ -18,6 +20,26 @@ public class ServiceTemplateInstanceRepository extends JpaRepository<ServiceTemp
 
   public ServiceTemplateInstanceRepository() {
     super(ServiceTemplateInstance.class);
+  }
+
+  @Override
+  public Optional<ServiceTemplateInstance> find(final Long id) {
+    try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
+      final ServiceTemplateInstance entity = em.find(this.clazz, id);
+      em.refresh(entity);
+      fetchDependentBags(entity);
+      return Optional.ofNullable(entity);
+    } catch (final Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  private void fetchDependentBags(ServiceTemplateInstance entity) {
+    Hibernate.initialize(entity.getDeploymentTests());
+    Hibernate.initialize(entity.getNodeTemplateInstances());
+    Hibernate.initialize(entity.getProperties());
+    Hibernate.initialize(entity.getRelationshipTemplateInstances());
+    Hibernate.initialize(entity.getPlanInstances());
   }
 
   public Collection<ServiceTemplateInstance> findByTemplateId(final QName templateId) {
