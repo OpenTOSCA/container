@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.importer.context.impl;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -200,7 +201,7 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
 	}
 
 	@Override
-	public Map<String, List<BPMN4TOSCATemplate>> getBPMN4TOSCAPlans(CSARID csarId) {
+	public Map<String, List<BPMN4TOSCATemplate>> getBPMN4TOSCAPlans() {
 		Map<String, List<BPMN4TOSCATemplate>> plans = new HashMap<String, List<BPMN4TOSCATemplate>>();
 		ObjectMapper objectMapper = new ObjectMapper();
 		ObjectReader reader = objectMapper.readerFor(new TypeReference<List<BPMN4TOSCATemplate>>() {
@@ -208,19 +209,14 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
 
 		CSARHandler content = new CSARHandler();
 		try {
-			Set<AbstractFile> files = content.getCSARContentForID(csarId).getFilesRecursively();
+			Collection<AbstractFile> files = this.definitions.getFiles();
 			for (AbstractFile file : files) {
 				if (file.getName().endsWith(".json") && file.getPath().contains("servicetemplates")
 						&& file.getPath().contains("plans")) {
-					System.out.println("BJÖRN");
-					System.out.println(file.getName());
-					plans.put("test", reader.readValue(file.getFile().toFile()));
+					plans.put(file.getName(), reader.readValue(file.getFile().toFile()));
 				}
 				;
 			}
-		} catch (UserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

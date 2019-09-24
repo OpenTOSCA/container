@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.importer.context.impl;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -320,6 +321,10 @@ public class DefinitionsImpl extends AbstractDefinitions {
      */
     protected Definitions getDefinitions() {
         return this.definitions;
+    }
+
+    protected Collection<AbstractFile> getFiles() {
+    	return this.filesInCsar;
     }
 
     /**

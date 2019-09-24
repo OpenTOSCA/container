@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -18,15 +17,13 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.omg.CORBA.RepositoryIdHelper;
-import org.opentosca.container.core.model.csar.CSARContent;
-import org.opentosca.container.core.model.csar.id.CSARID;
+//import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.planbuilder.AbstractBPMN4TOSCAPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -59,7 +56,8 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 	}
 
 	public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
-			final AbstractServiceTemplate serviceTemplate, String planName, List<BPMN4TOSCATemplate> template) {
+			final AbstractServiceTemplate serviceTemplate, final String name,
+			final List<BPMN4TOSCATemplate> bpmnWorkflow) {
 
 		String namespace;
 		if (serviceTemplate.getTargetNamespace() != null) {
@@ -73,7 +71,6 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 			final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_BPMN4TOSCAPlan");
 			final String processNamespace = serviceTemplate.getTargetNamespace() + "_BPMN4TOSCAPlan";
 
-			// TODO
 			final AbstractPlan BPMN4TOSCAPlan = this.generatePlan(new QName(processNamespace, processName).toString(),
 					definitions, serviceTemplate);
 
@@ -83,8 +80,8 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 			final BPELPlan newPlan = this.planHandler.createEmptyBPELPlan(processNamespace, processName, BPMN4TOSCAPlan,
 					"initiate");
 
-			newPlan.setTOSCAInterfaceName("TEST1");
-			newPlan.setTOSCAOperationname(planName);
+			newPlan.setTOSCAInterfaceName("TEST");
+			newPlan.setTOSCAOperationname("start");
 
 			this.planHandler.initializeBPELSkeleton(newPlan, csarName);
 
@@ -104,8 +101,7 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 	public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
 		final List<AbstractPlan> plans = new ArrayList<>();
 		for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-			for (Entry<String, List<BPMN4TOSCATemplate>> template : serviceTemplate
-					.getBPMN4TOSCAPlans(new CSARID(csarName)).entrySet()) {
+			for (Entry<String, List<BPMN4TOSCATemplate>> template : serviceTemplate.getBPMN4TOSCAPlans().entrySet()) {
 				final BPELPlan newPlan = buildPlan(csarName, definitions, serviceTemplate, template.getKey(),
 						template.getValue());
 				if (newPlan != null) {
@@ -118,8 +114,13 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 
 			}
 		}
-		System.out.println("TEST");
 		return plans;
 	}
 
+	@Override
+	public AbstractPlan buildPlan(String csarName, AbstractDefinitions definitions,
+			AbstractServiceTemplate serviceTemplateId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

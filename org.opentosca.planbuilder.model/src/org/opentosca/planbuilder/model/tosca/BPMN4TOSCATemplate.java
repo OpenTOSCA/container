@@ -7,8 +7,8 @@ public class BPMN4TOSCATemplate {
 	private Parameter[] input;
 	private String name;
 	private String nodeInterface;
-	private String NodeOperation;
-	private String NodeTemplate;
+	private String nodeOperation;
+	private String nodeTemplate;
 	private Parameter[] output;
 	private Position position;
 	private Template template;
@@ -36,11 +36,11 @@ public class BPMN4TOSCATemplate {
 	}
 
 	public String getNodeOperation() {
-		return NodeOperation;
+		return nodeOperation;
 	}
 
 	public String getNodeTemplate() {
-		return NodeTemplate;
+		return nodeTemplate;
 	}
 
 	public Parameter[] getOutput() {
@@ -79,8 +79,23 @@ class Position {
 }
 
 class Template {
+	private String id;
+	private String namespace;
+	private String type;
 	private String nodeInterface;
 	private String operation;
+
+	public String getId() {
+		return id;
+	}
+
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public String getType() {
+		return type;
+	}
 
 	public String getNodeInterface() {
 		return nodeInterface;
@@ -94,6 +109,7 @@ class Template {
 class Parameter {
 	private String name;
 	private String type;
+	private String required;
 	private String value;
 
 	public String getName() {
@@ -102,6 +118,10 @@ class Parameter {
 
 	public String getType() {
 		return type;
+	}
+
+	public String getRequired() {
+		return required;
 	}
 
 	public String getValue() {

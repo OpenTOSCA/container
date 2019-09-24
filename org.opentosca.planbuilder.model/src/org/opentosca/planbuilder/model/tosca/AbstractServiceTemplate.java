@@ -4,7 +4,6 @@ import java.awt.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-import org.opentosca.container.core.model.csar.id.CSARID;
 
 /**
  * <p>
@@ -85,5 +84,5 @@ public abstract class AbstractServiceTemplate {
      * 
      * @return
      */
-	public abstract Map<String, java.util.List<BPMN4TOSCATemplate>> getBPMN4TOSCAPlans(CSARID csarId);
+	public abstract Map<String, java.util.List<BPMN4TOSCATemplate>> getBPMN4TOSCAPlans();
 }

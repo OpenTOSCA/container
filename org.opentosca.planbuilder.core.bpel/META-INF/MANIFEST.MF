@@ -7,7 +7,10 @@ Bundle-Activator: org.opentosca.planbuilder.core.bpel.Activator
 Bundle-ClassPath: .,
  META-INF/resources/
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: javax.wsdl;version="1.6.0",
+Import-Package: com.fasterxml.jackson.core;version="2.6.2",
+ com.fasterxml.jackson.core.type;version="2.4.5",
+ com.fasterxml.jackson.databind;version="2.4.5",
+ javax.wsdl;version="1.6.0",
  javax.wsdl.factory;version="1.6.0",
  javax.wsdl.xml;version="1.6.0",
  org.apache.commons.io;version="2.2.0",
