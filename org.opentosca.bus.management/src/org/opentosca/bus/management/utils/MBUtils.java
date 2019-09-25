@@ -56,18 +56,18 @@ public class MBUtils {
         // fetch all possible hosting nodes
         final List<String> hostingNodeTemplateIDs = new ArrayList<>();
         hostingNodeTemplateIDs.add(nodeTemplateID);
-        hostingNodeTemplateIDs.addAll(ServiceHandler.toscaEngineService.getRelatedNodeTemplateIDs(csarID,
-                                                                                                  serviceTemplateID,
-                                                                                                  nodeTemplateID,
-                                                                                                  Types.hostedOnRelationType));
-        hostingNodeTemplateIDs.addAll(ServiceHandler.toscaEngineService.getRelatedNodeTemplateIDs(csarID,
-                                                                                                  serviceTemplateID,
-                                                                                                  nodeTemplateID,
-                                                                                                  Types.deployedOnRelationType));
-        hostingNodeTemplateIDs.addAll(ServiceHandler.toscaEngineService.getRelatedNodeTemplateIDs(csarID,
-                                                                                                  serviceTemplateID,
-                                                                                                  nodeTemplateID,
-                                                                                                  Types.dependsOnRelationType));
+        hostingNodeTemplateIDs.addAll(ServiceHandler.toscaEngineService.getTransitiveNodeTemplateIDs(csarID,
+                                                                                                     serviceTemplateID,
+                                                                                                     nodeTemplateID,
+                                                                                                     Types.hostedOnRelationType));
+        hostingNodeTemplateIDs.addAll(ServiceHandler.toscaEngineService.getTransitiveNodeTemplateIDs(csarID,
+                                                                                                     serviceTemplateID,
+                                                                                                     nodeTemplateID,
+                                                                                                     Types.deployedOnRelationType));
+        hostingNodeTemplateIDs.addAll(ServiceHandler.toscaEngineService.getTransitiveNodeTemplateIDs(csarID,
+                                                                                                     serviceTemplateID,
+                                                                                                     nodeTemplateID,
+                                                                                                     Types.dependsOnRelationType));
 
         for (final String hostingNodeTemplateId : hostingNodeTemplateIDs) {
             final QName nodeType =
