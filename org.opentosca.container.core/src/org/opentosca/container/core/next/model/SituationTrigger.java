@@ -46,6 +46,12 @@ public class SituationTrigger extends PersistenceObject {
     @Column(nullable = false)
     private String operationName;
 
+    @Column(nullable = false)
+    private long wcetInSeconds;
+
+    @Column(nullable = false)
+    private long timeAvailableInSeconds;
+
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "situationTrigger")
     private Collection<SituationTriggerInstance> situationTriggerInstances;
@@ -108,6 +114,22 @@ public class SituationTrigger extends PersistenceObject {
 
     public void setOperationName(final String operationName) {
         this.operationName = operationName;
+    }
+
+    public long getWcetInSeconds() {
+        return this.wcetInSeconds;
+    }
+
+    public void setWcetInSeconds(final long wcetInSeconds) {
+        this.wcetInSeconds = wcetInSeconds;
+    }
+
+    public long getTimeAvailableInSeconds() {
+        return this.timeAvailableInSeconds;
+    }
+
+    public void setTimeAvailableInSeconds(final long timeAvailableInSeconds) {
+        this.timeAvailableInSeconds = timeAvailableInSeconds;
     }
 
     public Set<SituationTriggerProperty> getInputs() {

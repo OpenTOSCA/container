@@ -44,6 +44,12 @@ public class SituationTriggerDTO extends ResourceSupport {
     @XmlElement(name = "InterfaceName")
     private String interfaceName;
 
+    @XmlElement(name = "WCETinSeconds")
+    private Long wcetInSeconds;
+
+    @XmlElement(name = "TimeAvailableInSeconds")
+    private Long timeAvailableInSeconds;
+
     @XmlElement(name = "OperationName")
     private String operationName;
 
@@ -54,6 +60,22 @@ public class SituationTriggerDTO extends ResourceSupport {
 
     public Long getId() {
         return this.id;
+    }
+
+    public Long getWcetInSeconds() {
+        return this.wcetInSeconds;
+    }
+
+    public void setWcetInSeconds(final Long wcetInSeconds) {
+        this.wcetInSeconds = wcetInSeconds;
+    }
+
+    public Long getTimeAvailableInSeconds() {
+        return this.timeAvailableInSeconds;
+    }
+
+    public void setTimeAvailableInSeconds(final Long timeAvailableInSeconds) {
+        this.timeAvailableInSeconds = timeAvailableInSeconds;
     }
 
     public void setId(final Long id) {

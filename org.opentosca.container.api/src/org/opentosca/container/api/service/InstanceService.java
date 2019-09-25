@@ -619,8 +619,9 @@ public class InstanceService {
         // Source node instance
         newInstance.setSource(getNodeTemplateInstance(request.getSourceNodeTemplateInstanceId()));
         // Target node instance
-        newInstance.setTarget(getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));        
-        newInstance.setServiceTemplateInstance(this.serviceTemplateInstanceRepository.find(request.getServiceInstanceId()).get());
+        newInstance.setTarget(getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));
+        newInstance.setServiceTemplateInstance(this.serviceTemplateInstanceRepository.find(request.getServiceInstanceId())
+                                                                                     .get());
 
         this.relationshipTemplateInstanceRepository.add(newInstance);
 
@@ -677,6 +678,7 @@ public class InstanceService {
                                                       final ServiceTemplateInstance serviceInstance,
                                                       final NodeTemplateInstance nodeInstance,
                                                       final String interfaceName, final String operationName,
+                                                      final long wcetInSeconds, final long timeAvailableInSeconds,
                                                       final Set<SituationTriggerProperty> inputs) {
         final SituationTrigger newInstance = new SituationTrigger();
 
@@ -686,6 +688,8 @@ public class InstanceService {
         newInstance.setServiceInstance(serviceInstance);
         newInstance.setInterfaceName(interfaceName);
         newInstance.setOperationName(operationName);
+        newInstance.setWcetInSeconds(wcetInSeconds);
+        newInstance.setTimeAvailableInSeconds(timeAvailableInSeconds);
         if (nodeInstance != null) {
             newInstance.setNodeInstance(nodeInstance);
         }
@@ -733,12 +737,12 @@ public class InstanceService {
     }
 
     public SituationsMonitor createNewSituationsMonitor(final ServiceTemplateInstance instance,
-                                                        final Map<String,Collection<Long>> situations) {
+                                                        final Map<String, Collection<Long>> situations) {
         final SituationsMonitor monitor = new SituationsMonitor();
 
-        monitor.setServiceInstance(instance);                
-      
-        monitor.setNode2Situations(situations);        
+        monitor.setServiceInstance(instance);
+
+        monitor.setNode2Situations(situations);
 
         this.situationsMonitorRepo.add(monitor);
         return monitor;
@@ -749,7 +753,8 @@ public class InstanceService {
     }
 
     public Collection<SituationsMonitor> getSituationsMonitors(final Long serviceInstanceId) {
-        return this.getSituationsMonitors().stream().filter(monitor -> monitor.getServiceInstance() != null && monitor.getServiceInstance().getId().equals(serviceInstanceId)).collect(Collectors.toList());
+        return this.getSituationsMonitors().stream().filter(monitor -> monitor.getServiceInstance() != null
+            && monitor.getServiceInstance().getId().equals(serviceInstanceId)).collect(Collectors.toList());
     }
 
     /* Service Injection */

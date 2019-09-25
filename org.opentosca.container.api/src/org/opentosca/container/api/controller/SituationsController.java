@@ -162,7 +162,9 @@ public class SituationsController {
             this.instanceService.createNewSituationTrigger(sits, situationTrigger.isOnActivation(),
                                                            situationTrigger.isSingleInstance(), serviceInstance,
                                                            nodeInstance, situationTrigger.getInterfaceName(),
-                                                           situationTrigger.getOperationName(), inputs);
+                                                           situationTrigger.getOperationName(),
+                                                           situationTrigger.getWcetInSeconds(),
+                                                           situationTrigger.getTimeAvailableInSeconds(), inputs);
 
         final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);
         return Response.ok(instanceURI).build();
@@ -184,7 +186,7 @@ public class SituationsController {
         return Response.ok(SituationTriggerInstanceDTO.Converter.convert(this.instanceService.getSituationTriggerInstance(situationTriggerInstanceId)))
                        .build();
     }
-    
+
     public void setInstanceService(final InstanceService instanceService) {
         this.instanceService = instanceService;
     }
