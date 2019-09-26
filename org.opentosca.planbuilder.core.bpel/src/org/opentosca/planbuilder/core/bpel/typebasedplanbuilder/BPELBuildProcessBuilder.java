@@ -227,7 +227,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      * First there will be checked if any generic plugin can handle a template of the TopologyTemplate
      * </p>
      *
-     * @param buildPlan a BuildPlan which is alread initialized
+     * @param buildPlan a BuildPlan which is already initialized
      * @param map a PropertyMap which contains mappings from Template to Property and to variable name
      *        of inside the BuidlPlan
      */
@@ -247,7 +247,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
                 // if this nodeTemplate has the label running (Property: State=Running), skip
                 // provisioning and just generate instance data handling
-                // todo extend by abstract OS check
+                // extended check for OperatingSystem node type
                 if (isRunning(nodeTemplate) || nodeTemplate.getType().getName().equals("OperatingSystem")) {
                     BPELBuildProcessBuilder.LOG.debug("Skipping the provisioning of NodeTemplate "
                         + bpelScope.getNodeTemplate().getId() + "  beacuse state=running is set.");
