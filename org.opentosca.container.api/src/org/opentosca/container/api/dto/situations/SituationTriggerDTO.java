@@ -153,7 +153,6 @@ public class SituationTriggerDTO extends ResourceSupport {
             dto.setId(object.getId());
             dto.setOnActivation(object.isTriggerOnActivation());
             dto.setIsSingleInstance(object.isSingleInstance());
-
             final Collection<Long> situationIds = Lists.newArrayList();
 
             for (final Situation situation : object.getSituations()) {
@@ -170,6 +169,8 @@ public class SituationTriggerDTO extends ResourceSupport {
             }
             dto.setInterfaceName(object.getInterfaceName());
             dto.setOperationName(object.getOperationName());
+            dto.setTimeAvailableInSeconds(object.getTimeAvailableInSeconds());
+            dto.setWcetInSeconds(object.getWcetInSeconds());
             final Collection<SituationTriggerInputDTO> inputs = Sets.newHashSet();
             object.getInputs().forEach(x -> inputs.add(SituationTriggerInputDTO.Converter.convert(x)));
             dto.setInputParams(inputs);

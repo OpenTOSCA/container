@@ -74,6 +74,8 @@ public class SituationTriggerInstanceListener {
             final String interfaceName = this.instance.getSituationTrigger().getInterfaceName();
             final String operationName = this.instance.getSituationTrigger().getOperationName();
             final Set<SituationTriggerProperty> inputs = this.instance.getSituationTrigger().getInputs();
+            final Long timeAvailableInSeconds = this.instance.getSituationTrigger().getTimeAvailableInSeconds();
+            final Long wcetInSeconds = this.instance.getSituationTrigger().getWcetInSeconds();
 
             final ServiceTemplateInstance servInstance = this.instance.getSituationTrigger().getServiceInstance();
             final NodeTemplateInstance nodeInstance = this.instance.getSituationTrigger().getNodeInstance();
@@ -82,6 +84,15 @@ public class SituationTriggerInstanceListener {
 
             if (nodeInstance == null) {
                 // plan invocation
+                if (wcetInSeconds > timeAvailableInSeconds) {
+                    System.out.printf("Update (WCET = %d s) not completable in timeframe of %d s. Aborting.",
+                                      wcetInSeconds, timeAvailableInSeconds);
+                    return;
+                } else {
+                    System.out.printf("Update (WCET = %d s) is completable in timeframe of %d s. Executing.",
+                                      wcetInSeconds, timeAvailableInSeconds);
+                }
+
                 final QName planId = this.toscaEngine.getToscaReferenceMapper()
                                                      .getBoundaryPlanOfCSARInterface(servInstance.getCsarId(),
                                                                                      interfaceName, operationName);
@@ -161,7 +172,8 @@ public class SituationTriggerInstanceListener {
         private boolean isPlanExecutionFinished(final TPlanDTO plan, final String correlationId) {
 
             for (final TParameterDTO param : plan.getOutputParameters().getOutputParameter()) {
-                if (param.getName().equalsIgnoreCase("correlationid") && param.getValue() != null && param.getValue().equals(correlationId)) {
+                if (param.getName().equalsIgnoreCase("correlationid") && param.getValue() != null
+                    && param.getValue().equals(correlationId)) {
                     return true;
                 }
             }
