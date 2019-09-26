@@ -1,6 +1,8 @@
 package org.opentosca.container.api.controller;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -10,12 +12,13 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.container.api.dto.PlacementModel;
+import org.opentosca.container.api.dto.PlacementNodeTemplate;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +58,24 @@ public class PlacementController {
     public Response getInstances(@ApiParam("node template list need to be placed") final PlacementModel request) throws InstantiationException,
                                                                                                                  IllegalAccessException,
                                                                                                                  IllegalArgumentException {
+        // all node templates that need to be placed
+        final List<PlacementNodeTemplate> nodeTemplatesToBePlaced = request.getNeedToBePlaced();
+        // all running node template instances
         final Collection<NodeTemplateInstance> nodeTemplateInstanceList =
             this.instanceService.getAllNodeTemplateInstances();
-        return Response.status(Status.ACCEPTED).build();
+        // loop over all node templates that need to be placed
+        for (int i = 0; i < nodeTemplatesToBePlaced.size(); i++) {
+            // search for valid running node template instances where node template can be placed
+            for (final NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstanceList) {
+                final List<NodeTemplateInstance> validInstances = new ArrayList<>();
+                nodeTemplatesToBePlaced.get(i).setValidNodeTemplateInstances(validInstances);
+                // check if node type of instance is supported os node type
+                if (Utils.isSupportedVMNodeType(nodeTemplateInstance.getTemplateType())) {
+                    // yay, we found an option, add to list
+                    nodeTemplatesToBePlaced.get(i).getValidNodeTemplateInstances().add(nodeTemplateInstance);
+                }
+            }
+        }
+        return Response.ok(nodeTemplatesToBePlaced).build();
     }
 }
