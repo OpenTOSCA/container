@@ -1,5 +1,7 @@
 package org.opentosca.container.api.controller;
 
+import java.util.Collection;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.PathParam;
@@ -11,7 +13,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.opentosca.container.api.dto.PlacementModel;
 import org.opentosca.container.api.service.InstanceService;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,14 +48,15 @@ public class PlacementController {
         this.instanceService = instanceService;
     }
 
-    // TODO: implement this method by returning all running instances of operating system instances
     @POST
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    // TODO: value = what gets returned to the REST caller
     @ApiOperation(hidden = true, value = "")
-    public Response getInstances(@ApiParam("ID of csar") @PathParam("csar") final String csar,
-                                 @ApiParam("qualified name of service template") @PathParam("servicetemplate") final String servicetemplate) {
+    public Response getInstances(@ApiParam("node template list need to be placed") final PlacementModel request) throws InstantiationException,
+                                                                                                                 IllegalAccessException,
+                                                                                                                 IllegalArgumentException {
+        final Collection<NodeTemplateInstance> nodeTemplateInstanceList =
+            this.instanceService.getAllNodeTemplateInstances();
         return Response.status(Status.ACCEPTED).build();
     }
 }
