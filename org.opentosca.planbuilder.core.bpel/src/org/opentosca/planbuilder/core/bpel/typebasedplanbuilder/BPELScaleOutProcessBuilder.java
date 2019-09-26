@@ -129,18 +129,20 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         final AbstractRelationshipTemplate relationshipTemplate = getFirstOutgoingInfrastructureRelation(nodeTemplate);
         if (relationshipTemplate == null) {
             return;
-        }
-        final PlanContext relationContext = this.createContext(relationshipTemplate, plan, map, csarFileName);
+        }        
         final String relationInstanceVarName =
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate, relationshipTemplate.getId(), false);
 
+        
+        
         // create response variable
         final QName anyTypeDeclId =
-            nodeContext.importQName(new QName("http://www.w3.org/2001/XMLSchema", "any", "xsd"));
-        final String responseVarName =
+            nodeContext.importQName(new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
+        String responseVarName =
             "recursiveSelection_NodeInstance_" + nodeTemplate.getId() + System.currentTimeMillis() + "_Response";
-        nodeContext.addVariable(responseVarName, BPELPlan.VariableType.TYPE, anyTypeDeclId);
-
+        boolean added  = nodeContext.addGlobalVariable(responseVarName, BPELPlan.VariableType.TYPE, anyTypeDeclId);
+        
+      
 
         final String serviceTemplateUrlVarName = serviceInstanceHandler.getServiceTemplateURLVariableName(plan);
 
@@ -212,6 +214,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         final String nodeTemplateInstanceVarName =
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate,
                                                             relationshipTemplate.getTarget().getId(), true);
+                
 
         final String serviceInstanceIdVarName = this.serviceInstanceHandler.getServiceTemplateURLVariableName(plan);
 
@@ -563,19 +566,21 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         final Map<String, String> selectionStrategyBorderNodesMap =
             transformSelectionStrategyListToMap(selectionStrategyBorderNodes);
 
+        System.out.println("test");
+        
         final Map<String, AbstractNodeTemplate> selectionStrategyNodeTemplatesMap = new HashMap<>();
 
         final List<AnnotatedAbstractNodeTemplate> annotNodes = new ArrayList<>();
 
-        for (final String selectionStrategy : selectionStrategyBorderNodesMap.keySet()) {
+        for (final String annotatedNode : selectionStrategyBorderNodesMap.keySet()) {
             final AbstractNodeTemplate node =
-                fetchNodeTemplate(topologyTemplate, selectionStrategyBorderNodesMap.get(selectionStrategy));
+                fetchNodeTemplate(topologyTemplate, annotatedNode);
             if (node != null) {
                 if (findAnnotNode(annotNodes, node) != null) {
-                    findAnnotNode(annotNodes, node).getAnnotations().add(selectionStrategy);
+                    findAnnotNode(annotNodes, node).getAnnotations().add(selectionStrategyBorderNodesMap.get(annotatedNode));
                 } else {
                     final List<String> annot = new ArrayList<>();
-                    annot.add(selectionStrategy);
+                    annot.add(selectionStrategyBorderNodesMap.get(annotatedNode));
                     annotNodes.add(new AnnotatedAbstractNodeTemplate(node, annot));
                 }
             }
@@ -748,7 +753,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             if (selectionStrategyBorderNode.split("\\[").length == 2 && selectionStrategyBorderNode.endsWith("]")) {
                 final String selectionStrategy = selectionStrategyBorderNode.split("\\[")[0];
                 final String borderNode = selectionStrategyBorderNode.split("\\[")[1].replace("]", "");
-                selectionStrategyBorderNodesMap.put(selectionStrategy, borderNode);
+                selectionStrategyBorderNodesMap.put(borderNode, selectionStrategy);
             } else {
                 LOG.error("Parsing Selection Strategies and border Node Templates had an error. Couldn't parse \""
                     + selectionStrategyBorderNode + "\" properly.");

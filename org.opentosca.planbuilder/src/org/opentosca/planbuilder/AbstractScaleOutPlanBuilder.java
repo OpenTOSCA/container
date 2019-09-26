@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -36,114 +38,89 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
         return PlanType.MANAGE;
     }
 
-
     public AbstractPlan generateSOG(final String id, final AbstractDefinitions defintions,
                                     final AbstractServiceTemplate serviceTemplate,
                                     final ScalingPlanDefinition scalingPlanDefinition) {
-        final Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<>();
 
         final AbstractPlan abstractScaleOutPlan =
             AbstractBuildPlanBuilder.generatePOG(id, defintions, serviceTemplate, scalingPlanDefinition.nodeTemplates,
                                                  scalingPlanDefinition.relationshipTemplates);;
         abstractScaleOutPlan.setType(org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType.MANAGE);
 
-        // add instance selection activties by starting for each node strat selection
-        // activity
+
+
         for (final AbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
+            // each node with annotation gets a strat select activity
             final AbstractActivity activity =
                 new NodeTemplateActivity(stratNodeTemplate.getId() + "_strategicselection_activity",
                     ActivityType.STRATEGICSELECTION, stratNodeTemplate) {};
             abstractScaleOutPlan.getActivites().add(activity);
-            mapping.put(stratNodeTemplate, activity);
-
-            // here we create recursive selection activities and connect everything
-            final Collection<List<AbstractRelationshipTemplate>> paths = new HashSet<>();
-
-            findOutgoingInfrastructurePaths(paths, stratNodeTemplate);
-
-            if (paths.isEmpty()) {
-                for (final AbstractRelationshipTemplate relation : stratNodeTemplate.getIngoingRelations()) {
-                    abstractScaleOutPlan.getLinks().add(new Link(activity,
-                        abstractScaleOutPlan.findRelationshipTemplateActivity(relation, ActivityType.PROVISIONING)));
-                }
-            }
-
-            for (final List<AbstractRelationshipTemplate> path : paths) {
-                for (final AbstractRelationshipTemplate relationshipTemplate : path) {
-                    final AbstractActivity recursiveRelationActivity =
-                        new RelationshipTemplateActivity(relationshipTemplate.getId() + "recursiveselection_activity",
-                            ActivityType.RECURSIVESELECTION, relationshipTemplate) {};
-                    final AbstractActivity recursiveTargetNodeActivity = new NodeTemplateActivity(
-                        relationshipTemplate.getTarget().getId() + "_recursiveselection_activity",
-                        ActivityType.RECURSIVESELECTION, relationshipTemplate.getTarget());
-                    final AbstractActivity recursiveSourceNodeActivity = new NodeTemplateActivity(
-                        relationshipTemplate.getSource().getId() + "_recursiveselection_activity",
-                        ActivityType.RECURSIVESELECTION, relationshipTemplate.getSource());
-
-                    abstractScaleOutPlan.getActivites().add(recursiveRelationActivity);
-                    abstractScaleOutPlan.getActivites().add(recursiveSourceNodeActivity);
-                    abstractScaleOutPlan.getActivites().add(recursiveTargetNodeActivity);
-
-                    abstractScaleOutPlan.getLinks()
-                                        .add(new Link(recursiveRelationActivity, recursiveTargetNodeActivity));
-                    abstractScaleOutPlan.getLinks()
-                                        .add(new Link(recursiveSourceNodeActivity, recursiveRelationActivity));
-                }
-
-                for (final AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate()
-                                                                                              .getRelationshipTemplates()) {
-                    if (relationshipTemplate.getSource().equals(stratNodeTemplate)
-                        | relationshipTemplate.getTarget().equals(stratNodeTemplate)) {
-
-                        AbstractActivity provRelationActivity =
-                            abstractScaleOutPlan.findRelationshipTemplateActivity(relationshipTemplate,
-                                                                                  ActivityType.PROVISIONING);
-
-                        if (provRelationActivity == null) {
-                            provRelationActivity =
-                                new RelationshipTemplateActivity(relationshipTemplate + "provisioning_acvtivity",
-                                    ActivityType.PROVISIONING, relationshipTemplate);
-                        }
-
-                        final AbstractActivity recursiveRelationActivity =
-                            abstractScaleOutPlan.findRelationshipTemplateActivity(relationshipTemplate,
-                                                                                  ActivityType.RECURSIVESELECTION);
-
-                        abstractScaleOutPlan.getLinks().add(new Link(recursiveRelationActivity, provRelationActivity));
-                    }
-                }
-            }
-
         }
+
+        for (final AbstractNodeTemplate recursiveSelectedNode : scalingPlanDefinition.nodeTemplatesRecursiveSelection) {
+            final AbstractActivity activity =
+                new NodeTemplateActivity(recursiveSelectedNode.getId() + "_recursiveselection_activity",
+                    ActivityType.RECURSIVESELECTION, recursiveSelectedNode) {};
+            abstractScaleOutPlan.getActivites().add(activity);
+        }
+
+        for (final AbstractRelationshipTemplate recursiveSelectedRelation : scalingPlanDefinition.relationshipTemplatesRecursiveSelection) {
+            final AbstractActivity activity =
+                new RelationshipTemplateActivity(recursiveSelectedRelation.getId() + "_recursiveselection_activity",
+                    ActivityType.RECURSIVESELECTION, recursiveSelectedRelation) {};
+            abstractScaleOutPlan.getActivites().add(activity);
+        }
+
+
+        // now connect everything
+        Set<Link> links = new HashSet<Link>();
+        for (final AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate()
+                                                                          .getRelationshipTemplates()) {
+            AbstractActivity relActivity = abstractScaleOutPlan.findRelationshipTemplateActivity(relation, null);
+            AbstractNodeTemplate src = relation.getSource();
+            AbstractActivity srcActivity = abstractScaleOutPlan.findNodeTemplateActivity(src, null);
+            AbstractNodeTemplate trg = relation.getTarget();
+            AbstractActivity trgActivity = abstractScaleOutPlan.findNodeTemplateActivity(trg, null);
+
+            if (scalingPlanDefinition.relationshipTemplates.contains(relation)) {
+                // this relation will be provisioned
+                Collection<AbstractNodeTemplate> nodes = new HashSet<AbstractNodeTemplate>();
+                ModelUtils.getNodesFromNodeToSink(trg, nodes);
+                Collection<AbstractNodeTemplate> sinks = this.getSinks(nodes);
+
+                for (AbstractNodeTemplate sink : sinks) {
+                    AbstractActivity sinkActivity = abstractScaleOutPlan.findNodeTemplateActivity(sink, null);
+                    links.add(new Link(sinkActivity, relActivity));
+                    // if we connect connects Relations with the activity of their source, we always create a cycle
+                    if (!relation.getType().equals(Types.connectsToRelationType)) {
+                        links.add(new Link(relActivity, srcActivity));
+                    }
+
+                }
+
+
+            } else if (scalingPlanDefinition.relationshipTemplatesRecursiveSelection.contains(relation)) {
+                // this relation will be selected from instances
+                // this node will be recursively selected i.e. selected from top to bottom of the topology we fetch
+                // instances
+                links.add(new Link(srcActivity, relActivity));
+                links.add(new Link(relActivity, trgActivity));
+            }
+        }
+
+        abstractScaleOutPlan.getLinks().addAll(links);
 
         return abstractScaleOutPlan;
     }
 
-    private void findOutgoingInfrastructurePaths(final Collection<List<AbstractRelationshipTemplate>> paths,
-                                                 final AbstractNodeTemplate nodeTemplate) {
-        final List<AbstractRelationshipTemplate> infrastructureEdges = new ArrayList<>();
-        ModelUtils.getInfrastructureEdges(nodeTemplate, infrastructureEdges);
-
-        for (final AbstractRelationshipTemplate infrastructureEdge : infrastructureEdges) {
-            List<AbstractRelationshipTemplate> pathToAdd = null;
-            for (final List<AbstractRelationshipTemplate> path : paths) {
-                if (path.get(path.size() - 1).getTarget().equals(infrastructureEdge.getSource())) {
-                    pathToAdd = path;
-                    break;
-                }
+    private Collection<AbstractNodeTemplate> getSinks(Collection<AbstractNodeTemplate> nodes) {
+        Collection<AbstractNodeTemplate> sinks = new HashSet<AbstractNodeTemplate>();
+        for (AbstractNodeTemplate node : nodes) {
+            if (node.getOutgoingRelations().isEmpty()) {
+                sinks.add(node);
             }
-
-            if (pathToAdd == null) {
-                // we didn't find a path where this infrastructureEdge is
-                // connected to => create a new path
-                pathToAdd = new ArrayList<>();
-                paths.add(pathToAdd);
-            }
-
-            pathToAdd.add(infrastructureEdge);
-            findOutgoingInfrastructurePaths(paths, infrastructureEdge.getTarget());
         }
-
+        return sinks;
     }
 
 }

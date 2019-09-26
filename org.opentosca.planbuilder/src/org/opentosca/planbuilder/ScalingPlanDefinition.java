@@ -112,8 +112,8 @@ public class ScalingPlanDefinition {
     }
 
     // recursive selections
-    public List<AbstractNodeTemplate> nodeTemplatesRecursiveSelection;
-    public List<AbstractRelationshipTemplate> relationshipTemplatesRecursiveSelection;
+    public Set<AbstractNodeTemplate> nodeTemplatesRecursiveSelection;
+    public Set<AbstractRelationshipTemplate> relationshipTemplatesRecursiveSelection;
 
     // border crossing relations
     public Set<AbstractRelationshipTemplate> borderCrossingRelations;
@@ -128,8 +128,8 @@ public class ScalingPlanDefinition {
         this.relationshipTemplates = relationshipTemplate;
         this.selectionStrategy2BorderNodes = selectionStrategy2BorderNodes;
 
-        this.nodeTemplatesRecursiveSelection = new ArrayList<>();
-        this.relationshipTemplatesRecursiveSelection = new ArrayList<>();
+        this.nodeTemplatesRecursiveSelection = new HashSet<>();
+        this.relationshipTemplatesRecursiveSelection = new HashSet<>();
 
         init();
 
@@ -147,18 +147,28 @@ public class ScalingPlanDefinition {
             ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.hostedOnRelationType, sinkNodes);
             ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, sinkNodes);
             ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.deployedOnRelationType, sinkNodes);
+            
+            for(AbstractNodeTemplate node :sinkNodes) {
+                
+                final List<AbstractRelationshipTemplate> outgoing =
+                    ModelUtils.getOutgoingRelations(node, Types.hostedOnRelationType, Types.dependsOnRelationType,
+                                                    Types.deployedOnRelationType);
+                this.relationshipTemplatesRecursiveSelection.addAll(outgoing);
+            }          
 
             sinkNodes.remove(nodeTemplate);
 
-            final List<AbstractRelationshipTemplate> outgoing =
-                ModelUtils.getOutgoingRelations(nodeTemplate, Types.hostedOnRelationType, Types.dependsOnRelationType,
-                                                Types.deployedOnRelationType);
-
+            
             this.nodeTemplatesRecursiveSelection.addAll(sinkNodes);
-            this.relationshipTemplatesRecursiveSelection.addAll(outgoing);
+            
         }
     }
 
+    /**
+     * Returns Relations that cross the scale-out group
+     * 
+     * @return a Set of AbstractRelationshipTemplates
+     */
     private Set<AbstractRelationshipTemplate> calculateBorderCrossingRelations() {
         final Set<AbstractRelationshipTemplate> borderCrossingRelations = new HashSet<>();
 
@@ -218,6 +228,16 @@ public class ScalingPlanDefinition {
         return borderCrossingRelations;
     }
 
+    /**
+     * Checks whether the given relation crosses the scale out group, and if it does return the node
+     * which has to be strategicaly selected (i.e. needs a specific algorithm to select a single
+     * instance)
+     * 
+     * @param relationship the relationship to check
+     * @param nodesToScale the nodes of the scale out group
+     * @return an AbstractNodeTemplate where an instance has to be selected properly if the relation is
+     *         crossing the group, null if not
+     */
     private AbstractNodeTemplate crossesBorder(final AbstractRelationshipTemplate relationship,
                                                final List<AbstractNodeTemplate> nodesToScale) {
 
@@ -226,6 +246,8 @@ public class ScalingPlanDefinition {
 
         final QName baseType = ModelUtils.getRelationshipBaseType(relationship);
 
+        // NOTE: it is important to to know that connection can cross the group from outside to inside and
+        // the other way around
         if (baseType.equals(Types.connectsToRelationType)) {
             // if either the source or target is not in the nodesToScale
             // list =>
@@ -237,13 +259,13 @@ public class ScalingPlanDefinition {
             }
         } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
             | baseType.equals(Types.deployedOnRelationType)) {
-            // if target is not in the nodesToScale list => relation crosses
-            // border
-            if (!nodesToScale.contains(target)) {
-                return target;
-            }
+                // if target is not in the nodesToScale list => relation crosses
+                // border
+                if (!nodesToScale.contains(target)) {
+                    return target;
+                }
 
-        }
+            }
 
         return null;
     }

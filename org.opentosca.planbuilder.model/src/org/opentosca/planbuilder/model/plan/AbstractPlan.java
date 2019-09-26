@@ -169,8 +169,8 @@ public abstract class AbstractPlan {
 
     public AbstractActivity findRelationshipTemplateActivity(final AbstractRelationshipTemplate relationshipTemplate,
                                                              final ActivityType type) {
-        for (final AbstractActivity activity : findRelationshipTemplateActivities(relationshipTemplate)) {
-            if (activity.getType().equals(type)) {
+        for (final AbstractActivity activity : findRelationshipTemplateActivities(relationshipTemplate)) {            
+            if (type == null || activity.getType().equals(type)) {
                 return activity;
             }
         }
@@ -207,7 +207,7 @@ public abstract class AbstractPlan {
 
     public AbstractActivity findNodeTemplateActivity(final AbstractNodeTemplate nodeTemplate, final ActivityType type) {
         for (final AbstractActivity activity : findNodeTemplateActivities(nodeTemplate)) {
-            if (activity.getType().equals(type)) {
+            if (type == null || activity.getType().equals(type)) {
                 return activity;
             }
         }

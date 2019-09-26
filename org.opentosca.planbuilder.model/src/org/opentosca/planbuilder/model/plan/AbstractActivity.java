@@ -34,5 +34,10 @@ public abstract class AbstractActivity {
         }
         return true;
     }
+    
+    @Override
+    public String toString() {
+        return this.id + ":" + this.type;
+    }
 
 }

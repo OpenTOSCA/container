@@ -367,7 +367,7 @@ public class ModelUtils {
      * @param nodes a List of AbstractNodeTemplate to add the result to
      */
     public static void getNodesFromNodeToSink(final AbstractNodeTemplate nodeTemplate,
-                                              final List<AbstractNodeTemplate> nodes) {
+                                              final Collection<AbstractNodeTemplate> nodes) {
         nodes.add(nodeTemplate);
         for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
             if (outgoingTemplate.getType().equals(Types.connectsToRelationType)) {
