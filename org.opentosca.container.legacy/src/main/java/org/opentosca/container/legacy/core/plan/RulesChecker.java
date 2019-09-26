@@ -239,7 +239,7 @@ public class RulesChecker {
       LOG.debug("Properties are not set.");
       return null;
     }
-    final Object any = properties.getAny();
+    final Object any = properties.getInternalAny();
     if (!(any instanceof Element)) {
       LOG.debug("Properties is not of class Element.");
       return null;

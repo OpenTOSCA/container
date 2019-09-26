@@ -71,7 +71,7 @@ public class RESTMessageGenerator {
           String value = "";
           for (final TEntityTemplate.Properties props : docs) {
             // downcast SHOULD be safe here
-            Document doc = (Document) props.getAny();
+            Document doc = (Document) props.getInternalAny();
             if (doc == null) {
               continue;
             }

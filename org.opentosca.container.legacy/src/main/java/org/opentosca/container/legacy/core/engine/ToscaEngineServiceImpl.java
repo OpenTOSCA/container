@@ -620,8 +620,8 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
       if (artifactTemplate.getProperties() != null) {
 
-        if (artifactTemplate.getProperties().getAny() instanceof Element) {
-          final Document returnDoc = xmlSerializerService.getXmlSerializer().elementIntoDocument((Element) artifactTemplate.getProperties().getAny());
+        if (artifactTemplate.getProperties().getInternalAny() instanceof Element) {
+          final Document returnDoc = xmlSerializerService.getXmlSerializer().elementIntoDocument((Element) artifactTemplate.getProperties().getInternalAny());
 
           if (returnDoc != null) {
             LOG.debug("Return the Properties of the ArtifactTemplate \"" + artifactTemplateID + "\".");
@@ -847,7 +847,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
     // return the document containing the properties if found
     if (properties != null) {
-      final Object any = properties.getAny();
+      final Object any = properties.getInternalAny();
       if (any instanceof Element) {
         final Element element = (Element) any;
         return element.getOwnerDocument();

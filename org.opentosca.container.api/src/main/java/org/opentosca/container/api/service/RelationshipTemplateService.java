@@ -116,7 +116,7 @@ public class RelationshipTemplateService {
       .getRelationshipTemplate(relationshipTemplateId)
       .getProperties();
     // FIXME do null- and typechecking. possibly do not even return a Document here!
-    return ((Element) props.getAny()).getOwnerDocument();
+    return ((Element) props.getInternalAny()).getOwnerDocument();
   }
 
   /**

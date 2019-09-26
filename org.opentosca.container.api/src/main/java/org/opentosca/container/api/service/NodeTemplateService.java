@@ -134,7 +134,7 @@ public class NodeTemplateService {
     TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(serviceTemplate, nodeTemplateId);
 
     TEntityTemplate.Properties ntProps = nodeTemplate.getProperties();
-    final Document properties = ModelUtil.createDocumentFromElement((Element) ntProps.getAny());
+    final Document properties = ModelUtil.createDocumentFromElement((Element) ntProps.getInternalAny());
     // final Document properties =
     //      this.toscaEngineService.getPropertiesOfNodeTemplate(csar.id().toOldCsarId(), serviceTemplateQName, nodeTemplateId);
     return properties;
