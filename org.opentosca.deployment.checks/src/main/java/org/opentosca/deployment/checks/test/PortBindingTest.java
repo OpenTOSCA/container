@@ -2,11 +2,11 @@ package org.opentosca.deployment.checks.test;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicyTemplate;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.deployment.checks.TestContext;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +18,9 @@ public class PortBindingTest implements TestExecutionPlugin {
   private static Logger logger = LoggerFactory.getLogger(PortBindingTest.class);
 
   @Override
-  public DeploymentTestResult execute(final TestContext context, final AbstractNodeTemplate nodeTemplate,
+  public DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
                                       final NodeTemplateInstance nodeTemplateInstance,
-                                      final AbstractPolicyTemplate policyTemplate) {
+                                      final TPolicyTemplate policyTemplate) {
 
     logger.debug("Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
       this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
@@ -39,9 +39,9 @@ public class PortBindingTest implements TestExecutionPlugin {
   }
 
   @Override
-  public boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate) {
+  public boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate) {
 
-    if (policyTemplate.getType().getId().equals(ANNOTATION)) {
+    if (policyTemplate.getType().equals(ANNOTATION)) {
       return true;
     }
 

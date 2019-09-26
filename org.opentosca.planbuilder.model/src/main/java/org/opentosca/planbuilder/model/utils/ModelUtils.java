@@ -3,12 +3,7 @@ package org.opentosca.planbuilder.model.utils;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -21,6 +16,12 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.http.annotation.Obsolete;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.opentosca.container.core.common.NotFoundException;
+import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
@@ -342,6 +343,7 @@ public class ModelUtils {
      * @param nodeTemplate an AbstractNodeTemplate
      * @return a QName which represents the baseType of the given NodeTemplate
      */
+    @Deprecated
     public static QName getNodeBaseType(final AbstractNodeTemplate nodeTemplate) {
         ModelUtils.LOG.debug("Beginning search for basetype of: " + nodeTemplate.getId());
         final List<QName> typeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType());
@@ -355,6 +357,26 @@ public class ModelUtils {
         }
         // FIXME: when there are no basetypes we're screwed
         return typeHierarchy.get(typeHierarchy.size() - 1);
+    }
+
+    public static TNodeType getNodeBaseType(Csar csar, final TNodeTemplate nodeTemplate) {
+      LOG.debug("Beginning search for basetype of: " + nodeTemplate.getId());
+      final List<TNodeType> typeHierarchy;
+      try {
+        typeHierarchy = ToscaEngine.resolveNodeTypeHierarchy(csar, nodeTemplate.getName());
+      } catch (NotFoundException e) {
+        return null;
+      }
+      for (final TNodeType type : typeHierarchy) {
+        ModelUtils.LOG.debug("Checking Type in Hierarchy, type: " + type.toString());
+        if (type.getQName().equals(Types.TOSCABASETYPE_SERVER)) {
+          return type;
+        } else if (type.getQName().equals(Types.TOSCABASETYPE_OS)) {
+          return type;
+        }
+      }
+      // FIXME: when there are no basetypes we're screwed
+      return typeHierarchy.get(typeHierarchy.size() - 1);
     }
 
     /**
@@ -472,6 +494,7 @@ public class ModelUtils {
      * @return a List containing an order of inheritance of NodeTypes for this NodeType with itself at
      *         the first spot in the list.
      */
+    @Obsolete
     public static List<QName> getNodeTypeHierarchy(final AbstractNodeType nodeType) {
         ModelUtils.LOG.debug("Beginning calculating NodeType Hierarchy for: " + nodeType.getId().toString());
         final List<QName> typeHierarchy = new ArrayList<>();

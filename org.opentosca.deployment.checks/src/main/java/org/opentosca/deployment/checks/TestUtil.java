@@ -8,11 +8,14 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+
+import org.opentosca.container.core.tosca.convention.Utils;
 
 /**
  * Utility class
@@ -33,10 +36,10 @@ public abstract class TestUtil {
     for (final RelationshipTemplateInstance r : outgoingRelations) {
 
       final NodeTemplateInstance target = r.getTarget();
-      final AbstractNodeTemplate targetTemplate = context.getNodeTemplate(target);
+      final TNodeTemplate targetTemplate = context.getNodeTemplate(target);
 
-      if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(ModelUtils.getNodeBaseType(targetTemplate))
-        || org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(ModelUtils.getNodeBaseType(targetTemplate))) {
+      if (Utils.isSupportedInfrastructureNodeType(ModelUtils.getNodeBaseType(context.getCsar(), targetTemplate).getQName())
+        || Utils.isSupportedCloudProviderNodeType(ModelUtils.getNodeBaseType(context.getCsar(), targetTemplate).getQName())) {
         nodes.add(target);
       }
 

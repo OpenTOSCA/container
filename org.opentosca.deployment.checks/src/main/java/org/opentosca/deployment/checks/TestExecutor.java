@@ -1,7 +1,9 @@
 package org.opentosca.deployment.checks;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,14 +12,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.camel.CamelContext;
+import org.eclipse.winery.common.ids.definitions.PolicyTemplateId;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicyTemplate;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.deployment.checks.test.HttpTest;
 import org.opentosca.deployment.checks.test.ManagementOperationTest;
 import org.opentosca.deployment.checks.test.TcpPingTest;
 import org.opentosca.deployment.checks.test.TestExecutionPlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +30,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import javax.inject.Inject;
+import javax.xml.namespace.QName;
 
 public class TestExecutor {
 
@@ -68,15 +73,19 @@ public class TestExecutor {
       // handled by a registered plugin
       for (final NodeTemplateInstance nodeTemplateInstance : context.getNodeTemplateInstances()) {
         for (final TestExecutionPlugin plugin : this.plugins) {
-          final AbstractNodeTemplate nodeTemplate = context.getNodeTemplate(nodeTemplateInstance);
-          final List<AbstractPolicyTemplate> policyTemplates =
-            nodeTemplate.getPolicies().stream().filter(Objects::nonNull).map(p -> p.getTemplate())
-              .collect(Collectors.toList());
-          for (final AbstractPolicyTemplate policyTemplate : policyTemplates) {
+          final TNodeTemplate nodeTemplate = context.getNodeTemplate(nodeTemplateInstance);
+          final Csar csar = context.getCsar();
+          final List<TPolicyTemplate> policyTemplates = Optional.ofNullable(nodeTemplate.getPolicies())
+            .map(ps -> ps.getPolicy())
+            .orElse(Collections.emptyList()).stream()
+            .filter(Objects::nonNull)
+            .map(p -> (TPolicyTemplate)csar.queryRepository(new PolicyTemplateId(p.getPolicyRef())))
+            .collect(Collectors.toList());
+          for (final TPolicyTemplate policyTemplate : policyTemplates) {
             if (plugin.canExecute(nodeTemplate, policyTemplate)) {
               logger.info("Schedule job \"{}\" for node template \"{}\" (instance={}) because annotation \"{}\" is attached...",
                 plugin.getClass().getSimpleName(), nodeTemplate.getId(),
-                nodeTemplateInstance.getId(), policyTemplate.getType().getId());
+                nodeTemplateInstance.getId(), policyTemplate.getType());
               futures.add(submit(plugin, context, nodeTemplate, nodeTemplateInstance, policyTemplate));
             }
           }
@@ -114,9 +123,9 @@ public class TestExecutor {
   }
 
   private CompletableFuture<DeploymentTestResult> submit(final TestExecutionPlugin plugin, final TestContext context,
-                                                         final AbstractNodeTemplate nodeTemplate,
+                                                         final TNodeTemplate nodeTemplate,
                                                          final NodeTemplateInstance nodeTemplateInstance,
-                                                         final AbstractPolicyTemplate policyTemplate) {
+                                                         final TPolicyTemplate policyTemplate) {
     final long start = System.currentTimeMillis();
     return CompletableFuture.supplyAsync(() -> {
       final long d = System.currentTimeMillis() - start;

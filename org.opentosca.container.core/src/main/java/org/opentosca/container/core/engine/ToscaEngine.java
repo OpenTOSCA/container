@@ -9,6 +9,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.winery.common.ids.definitions.NodeTypeId;
 import org.eclipse.winery.model.tosca.*;
 import org.eclipse.winery.model.tosca.TEntityType.DerivedFrom;
 import org.eclipse.winery.model.tosca.visitor.Visitor;
@@ -130,27 +131,11 @@ public final class ToscaEngine {
   }
 
   public static List<TNodeType> resolveNodeTypeHierarchy(Csar csar, String nodeTypeId) throws NotFoundException {
-    final Comparator<TNodeType> compareById = Comparator.comparing(TNodeType::getName);
-    List<TNodeType> nodeTypes = csar.nodeTypes();
-    nodeTypes.sort(compareById);
-
     List<TNodeType> typeRefs = new ArrayList<>();
     TNodeType target = resolveNodeTypeReference(csar, nodeTypeId);
     typeRefs.add(target);
-    // local introduced for correct null-analysis
-    final TNodeType stub = new TNodeType();
-    DerivedFrom derivedFrom = target.getDerivedFrom();
-    while (derivedFrom != null) {
-      // update stub to take the ID of the supertype
-      stub.setName(derivedFrom.getTypeRef().toString());
-      // find the target in our nodeTypes
-      int index = Collections.binarySearch(nodeTypes, stub, compareById);
-      if (index < 0) {
-        // target type not found
-        return typeRefs;
-      }
-      target = nodeTypes.get(index);
-      derivedFrom = target.getDerivedFrom();
+    while (target.getDerivedFrom() != null) {
+      target = (TNodeType)csar.queryRepository(new NodeTypeId(target.getDerivedFrom().getTypeRef()));
       typeRefs.add(target);
     }
     return typeRefs;

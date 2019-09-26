@@ -3,25 +3,30 @@ package org.opentosca.deployment.checks;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.DeploymentTest;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 public class TestContext {
 
-  private AbstractServiceTemplate serviceTemplate;
-  private ServiceTemplateInstance serviceTemplateInstance;
-  private DeploymentTest deploymentTest;
+  private final Csar csar;
+  private final TServiceTemplate serviceTemplate;
+  private final ServiceTemplateInstance serviceTemplateInstance;
+  private final DeploymentTest deploymentTest;
 
-  public AbstractServiceTemplate getServiceTemplate() {
-    return this.serviceTemplate;
+  public TestContext(Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, DeploymentTest deploymentTest) {
+    this.csar = csar;
+    this.serviceTemplate = serviceTemplate;
+    this.serviceTemplateInstance = serviceTemplateInstance;
+    this.deploymentTest = deploymentTest;
   }
 
-  public void setServiceTemplate(final AbstractServiceTemplate serviceTemplate) {
-    this.serviceTemplate = serviceTemplate;
+  public TServiceTemplate getServiceTemplate() {
+    return this.serviceTemplate;
   }
 
   public ServiceTemplateInstance getServiceTemplateInstance() {
@@ -29,17 +34,6 @@ public class TestContext {
       return this.serviceTemplateInstance;
     } else {
       throw new IllegalStateException();
-    }
-  }
-
-  public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
-    this.serviceTemplateInstance = serviceTemplateInstance;
-  }
-
-  public synchronized void setDeploymentTest(final DeploymentTest deploymentTest) {
-    this.deploymentTest = deploymentTest;
-    if (this.serviceTemplateInstance != null) {
-      this.deploymentTest.setServiceTemplateInstance(this.serviceTemplateInstance);
     }
   }
 
@@ -57,7 +51,7 @@ public class TestContext {
     }
   }
 
-  public synchronized Collection<AbstractNodeTemplate> getNodeTemplates() {
+  public synchronized Collection<TNodeTemplate> getNodeTemplates() {
     if (this.serviceTemplate == null) {
       throw new IllegalStateException();
     }
@@ -71,15 +65,19 @@ public class TestContext {
     return this.serviceTemplateInstance.getNodeTemplateInstances();
   }
 
-  public synchronized AbstractNodeTemplate getNodeTemplate(final NodeTemplateInstance nodeTemplateInstance) {
+  public synchronized TNodeTemplate getNodeTemplate(final NodeTemplateInstance nodeTemplateInstance) {
     return getNodeTemplates().stream()
-      .filter(o -> o.getType().getId().equals(nodeTemplateInstance.getTemplateType()))
+      .filter(o -> o.getType().equals(nodeTemplateInstance.getTemplateType()))
       .findFirst().orElseThrow(IllegalStateException::new);
   }
 
-  public synchronized NodeTemplateInstance getNodeTemplateInstance(final AbstractNodeTemplate nodeTemplate) {
+  public synchronized NodeTemplateInstance getNodeTemplateInstance(final TNodeTemplate nodeTemplate) {
     return getNodeTemplateInstances().stream()
       .filter(o -> o.getTemplateId().getLocalPart().equals(nodeTemplate.getId()))
       .findFirst().orElseThrow(IllegalStateException::new);
+  }
+
+  public Csar getCsar() {
+    return csar;
   }
 }

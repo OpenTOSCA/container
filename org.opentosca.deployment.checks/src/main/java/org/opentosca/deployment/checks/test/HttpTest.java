@@ -17,12 +17,12 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicyTemplate;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.deployment.checks.TestContext;
 import org.opentosca.deployment.checks.TestUtil;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +39,9 @@ public class HttpTest implements org.opentosca.deployment.checks.test.TestExecut
   private static Logger logger = LoggerFactory.getLogger(HttpTest.class);
 
   @Override
-  public DeploymentTestResult execute(final TestContext context, final AbstractNodeTemplate nodeTemplate,
+  public DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
                                       final NodeTemplateInstance nodeTemplateInstance,
-                                      final AbstractPolicyTemplate policyTemplate) {
+                                      final TPolicyTemplate policyTemplate) {
 
     logger.debug("Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
       this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
@@ -59,7 +59,7 @@ public class HttpTest implements org.opentosca.deployment.checks.test.TestExecut
     Set<NodeTemplateInstance> nodes;
 
     // Input properties
-    final Map<String, String> inputProperties = policyTemplate.getProperties().asMap();
+    final Map<String, String> inputProperties = policyTemplate.getProperties().getKVProperties();
     logger.debug("Input properties: {}", inputProperties);
     // TODO String testMethod = inputProperties.get("TestMethod");
     final String testPath = inputProperties.get("TestPath");
@@ -107,7 +107,7 @@ public class HttpTest implements org.opentosca.deployment.checks.test.TestExecut
      * Determine HTTPS or HTTP
      */
     String scheme = "http://";
-    if (policyTemplate.getType().getId().equals(ANNOTATION_HTTPS_TEST)) {
+    if (policyTemplate.getType().equals(ANNOTATION_HTTPS_TEST)) {
       scheme = "https://";
     }
 
@@ -115,7 +115,7 @@ public class HttpTest implements org.opentosca.deployment.checks.test.TestExecut
     logger.debug("URL: {}", url);
     try {
       final URL endpoint = new URL(url);
-      final HttpURLConnection con = getConnection(endpoint, policyTemplate.getType().getId());
+      final HttpURLConnection con = getConnection(endpoint, policyTemplate.getType());
       con.setRequestMethod("GET");
       final int status = con.getResponseCode();
       con.disconnect();
@@ -154,10 +154,10 @@ public class HttpTest implements org.opentosca.deployment.checks.test.TestExecut
   }
 
   @Override
-  public boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate) {
+  public boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate) {
 
-    if (policyTemplate.getType().getId().equals(ANNOTATION_HTTP_TEST)
-      || policyTemplate.getType().getId().equals(ANNOTATION_HTTPS_TEST)) {
+    if (policyTemplate.getType().equals(ANNOTATION_HTTP_TEST)
+      || policyTemplate.getType().equals(ANNOTATION_HTTPS_TEST)) {
       return true;
     }
 

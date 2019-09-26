@@ -137,7 +137,7 @@ public class PlanService {
       if (PlanTypes.isPlanTypeURI(plan.getPlanType()).equals(PlanTypes.BUILD)
         && Boolean.parseBoolean(Settings.OPENTOSCA_DEPLOYMENT_TESTS)) {
         logger.debug("Plan \"{}\" is a build plan, so we schedule deployment tests...", plan.getName());
-        this.deploymentTestService.runAfterPlan(csar.id().toOldCsarId(), correlationId);
+        this.deploymentTestService.runAfterPlan(csar.id(), correlationId);
       }
       return correlationId;
     } catch (final UnsupportedEncodingException e) {

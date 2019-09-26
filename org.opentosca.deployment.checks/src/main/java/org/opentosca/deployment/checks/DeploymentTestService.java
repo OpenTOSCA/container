@@ -6,9 +6,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-import javax.ws.rs.InternalServerErrorException;
 
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.DeploymentTest;
 import org.opentosca.container.core.next.model.DeploymentTestState;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -16,9 +17,7 @@ import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.DeploymentTestRepository;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
-import org.opentosca.planbuilder.importer.Importer;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,17 +26,17 @@ public class DeploymentTestService {
   private static final Logger logger = LoggerFactory.getLogger(DeploymentTestService.class);
 
   private final DeploymentTestRepository repository = new DeploymentTestRepository();
-  private final Importer importer;
+  private final CsarStorageService csarStorage;
 
   private final ExecutorService pool = Executors.newFixedThreadPool(5);
 
   private final TestExecutor executor;
 
   @Inject
-  public DeploymentTestService(TestExecutor executor, Importer importer) {
+  public DeploymentTestService(TestExecutor executor, CsarStorageService csarStorage) {
     logger.debug("Instantiating DeploymentTestService");
     this.executor = executor;
-    this.importer = importer;
+    this.csarStorage = csarStorage;
   }
 
   /**
@@ -46,7 +45,7 @@ public class DeploymentTestService {
    * @param csarId        The corresponding CSAR
    * @param correlationId The correlation ID of a plan
    */
-  public void runAfterPlan(final CSARID csarId, final String correlationId) {
+  public void runAfterPlan(final CsarId csarId, final String correlationId) {
     logger.info("Trigger deployment test after plan has been finished; correlation_id={}, csar={}", correlationId,
       csarId);
     this.pool.submit(() -> {
@@ -86,7 +85,7 @@ public class DeploymentTestService {
    * @param serviceTemplateInstance The service template instance
    * @return The created Verification object
    */
-  public DeploymentTest run(final CSARID csarId, final ServiceTemplateInstance serviceTemplateInstance) {
+  public DeploymentTest run(final CsarId csarId, final ServiceTemplateInstance serviceTemplateInstance) {
 
     logger.info("Trigger deployment test for service template instance \"{}\" of CSAR \"{}\"",
       serviceTemplateInstance.getId(), csarId);
@@ -101,13 +100,9 @@ public class DeploymentTestService {
     this.pool.submit(() -> {
       logger.info("Executing deployment test...");
       // Prepare the context
-      final AbstractDefinitions defs = this.importer.getMainDefinitions(csarId);
-      final AbstractServiceTemplate serviceTemplate =
-        defs.getServiceTemplates().stream().findFirst().orElseThrow(InternalServerErrorException::new);
-      final TestContext context = new TestContext();
-      context.setServiceTemplate(serviceTemplate);
-      context.setServiceTemplateInstance(serviceTemplateInstance);
-      context.setDeploymentTest(result);
+      final Csar csar = csarStorage.findById(csarId);
+      final TServiceTemplate entryServiceTemplate = csar.entryServiceTemplate();
+      final TestContext context = new TestContext(csar, entryServiceTemplate, serviceTemplateInstance, result);
       final CompletableFuture<Void> future = this.executor.verify(context);
       logger.info("Wait until jobs has been finished...");
       try {

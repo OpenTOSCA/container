@@ -450,7 +450,7 @@ public class ServiceTemplateInstanceController {
         + serviceTemplate.getId() + "\" could not be found");
     }
 
-    final DeploymentTest result = this.deploymentTestService.run(csar.id().toOldCsarId(), sti);
+    final DeploymentTest result = this.deploymentTestService.run(csar.id(), sti);
     final URI location = this.uriInfo.getAbsolutePathBuilder().path(String.valueOf(result.getId())).build();
     return Response.created(UriUtil.encode(location)).build();
   }

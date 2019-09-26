@@ -14,7 +14,10 @@ import javax.xml.namespace.QName;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
+import org.eclipse.winery.common.ids.definitions.NodeTypeId;
+import org.eclipse.winery.model.tosca.*;
 import org.opentosca.bus.management.header.MBHeader;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.utils.Types;
@@ -49,9 +52,9 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
   }
 
   @Override
-  public DeploymentTestResult execute(final TestContext context, final AbstractNodeTemplate nodeTemplate,
+  public DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
                                       final NodeTemplateInstance nodeTemplateInstance,
-                                      final AbstractPolicyTemplate policyTemplate) {
+                                      final TPolicyTemplate policyTemplate) {
 
     logger.debug("Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
       this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
@@ -67,7 +70,7 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
     }
 
     // Input properties
-    final Map<String, String> inputProperties = policyTemplate.getProperties().asMap();
+    final Map<String, String> inputProperties = policyTemplate.getProperties().getKVProperties();
     logger.debug("Input properties: {}", inputProperties);
 
     /*
@@ -75,7 +78,9 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
      */
     final String interfaceName = inputProperties.get("InterfaceName");
     final String operationName = inputProperties.get("OperationName");
-    if (!checkInterfaceOperationSpecification(nodeTemplate.getType(), interfaceName, operationName)) {
+    final Csar csar = context.getCsar();
+    final TNodeType nodeType = (TNodeType)csar.queryRepository(new NodeTypeId(nodeTemplate.getType()));
+    if (!checkInterfaceOperationSpecification(nodeType.getInterfaces(), interfaceName, operationName)) {
       result.append("Wrong InterfaceName and/or OperationName specified");
       result.failed();
     }
@@ -109,11 +114,9 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
     inputParameters.putAll(parsedInputParameters);
     logger.debug("Merged input parameters: {}", inputParameters);
 
-    /*
-     * Filter input parameters that only the required ones are submitted
-     */
+    // Filter input parameters so that only the required ones are submitted
     final Set<String> requiredInputParameters =
-      getRequiredInputParameters(nodeTemplate.getType(), interfaceName, operationName);
+      getRequiredInputParameters(nodeType.getInterfaces(), interfaceName, operationName);
     final Map<String, Object> body =
       inputParameters.entrySet().stream().filter(e -> requiredInputParameters.contains(e.getKey()))
         .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
@@ -154,13 +157,13 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
   }
 
   private CompletableFuture<Map<String, String>> invoke(final TestContext context,
-                                                        final AbstractNodeTemplate nodeTemplate,
+                                                        final TNodeTemplate nodeTemplate,
                                                         final String interfaceName, final String operationName,
                                                         final Map<String, Object> body) throws Exception {
 
     final Map<String, Object> headers = new HashMap<>();
     headers.put(MBHeader.CSARID.toString(), context.getServiceTemplateInstance().getCsarId());
-    headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), context.getServiceTemplate().getQName());
+    headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), context.getServiceTemplate().getId());
     headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), new URI(String.valueOf(context.getServiceTemplateInstance().getId())));
     headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), nodeTemplate.getId());
     headers.put(MBHeader.NODEINSTANCEID_STRING.toString(), String.valueOf(context.getNodeTemplateInstance(nodeTemplate).getId()));
@@ -191,8 +194,8 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
     if (id == null || context == null) {
       return new HashMap<>();
     }
-    final Collection<AbstractNodeTemplate> nodeTemplates = context.getNodeTemplates();
-    for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
+    final Collection<TNodeTemplate> nodeTemplates = context.getNodeTemplates();
+    for (final TNodeTemplate nodeTemplate : nodeTemplates) {
       if (nodeTemplate.getId().equals(id)) {
         final NodeTemplateInstance instance = context.getNodeTemplateInstance(nodeTemplate);
         final Set<NodeTemplateInstance> nodes = Sets.newHashSet(instance);
@@ -204,11 +207,11 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
     return new HashMap<>();
   }
 
-  private boolean checkInterfaceOperationSpecification(final AbstractNodeType nodeType, final String interfaceName,
+  private boolean checkInterfaceOperationSpecification(final TInterfaces interfaces, final String interfaceName,
                                                        final String operationName) {
-    for (final AbstractInterface i : nodeType.getInterfaces()) {
+    for (final TInterface i : interfaces.getInterface()) {
       if (i.getName().equals(interfaceName)) {
-        for (final AbstractOperation o : i.getOperations()) {
+        for (final TOperation o : i.getOperation()) {
           if (o.getName().equals(operationName)) {
             logger.debug("Found specified operation \"{}\" on interface \"{}\"", operationName,
               interfaceName);
@@ -217,19 +220,18 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
         }
       }
     }
-    logger.debug("Could not find operation \"{}\" on interface \"{}\", not specified in Node Type {}",
-      operationName, interfaceName, nodeType.getId());
+    logger.debug("Could not find operation \"{}\" on interface \"{}\"", operationName, interfaceName);
     return false;
   }
 
-  private Set<String> getRequiredInputParameters(final AbstractNodeType nodeType, final String interfaceName,
+  private Set<String> getRequiredInputParameters(final TInterfaces nodeTypeInterfaces, final String interfaceName,
                                                  final String operationName) {
-    for (final AbstractInterface i : nodeType.getInterfaces()) {
+    for (final TInterface i : nodeTypeInterfaces.getInterface()) {
       if (i.getName().equals(interfaceName)) {
-        for (final AbstractOperation o : i.getOperations()) {
+        for (final TOperation o : i.getOperation()) {
           if (o.getName().equals(operationName)) {
             final Set<String> inputParameters =
-              o.getInputParameters().stream().map(p -> p.getName()).collect(Collectors.toSet());
+              o.getInputParameters().getInputParameter().stream().map(p -> p.getName()).collect(Collectors.toSet());
             logger.debug("Required input parameters of operation \"{}\" ({}): {}", operationName,
               interfaceName, inputParameters);
             return inputParameters;
@@ -237,13 +239,12 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
         }
       }
     }
-    logger.debug("Could not find operation \"{}\" on interface \"{}\", not specified in Node Type {}",
-      operationName, interfaceName, nodeType.getId());
+    logger.debug("Could not find operation \"{}\" on interface \"{}\"", operationName, interfaceName);
     return Sets.newHashSet();
   }
 
   @Override
-  public boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate) {
-    return policyTemplate.getType().getId().equals(ANNOTATION);
+  public boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate) {
+    return policyTemplate.getType().equals(ANNOTATION);
   }
 }

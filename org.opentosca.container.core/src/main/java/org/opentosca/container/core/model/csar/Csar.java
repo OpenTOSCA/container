@@ -6,15 +6,9 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.winery.common.ids.definitions.DefinitionsChildId;
 import org.eclipse.winery.model.selfservice.Application;
-import org.eclipse.winery.model.tosca.TArtifactTemplate;
-import org.eclipse.winery.model.tosca.TDefinitions;
-import org.eclipse.winery.model.tosca.TExportedOperation;
-import org.eclipse.winery.model.tosca.TNodeType;
-import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
-import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.*;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.backwards.ToscaMetaFileReplacement;
 
@@ -26,6 +20,8 @@ public interface Csar {
   public List<TArtifactTemplate> artifactTemplates();
 
   public List<TServiceTemplate> serviceTemplates();
+
+  public List<TPolicyTemplate> policyTemplates();
 
   @Nullable
   public TServiceTemplate entryServiceTemplate();
@@ -48,6 +44,8 @@ public interface Csar {
   public AbstractFile topologyPicture();
 
   public Application selfserviceMetadata();
+
+  public TExtensibleElements queryRepository(DefinitionsChildId definitionId);
 
   void exportTo(Path targetPath) throws IOException;
 

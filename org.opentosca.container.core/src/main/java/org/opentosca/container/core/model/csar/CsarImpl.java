@@ -16,11 +16,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
-import org.eclipse.winery.common.ids.definitions.NodeTypeId;
-import org.eclipse.winery.common.ids.definitions.NodeTypeImplementationId;
-import org.eclipse.winery.common.ids.definitions.RelationshipTypeImplementationId;
-import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.common.ids.definitions.*;
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.tosca.*;
 import org.eclipse.winery.repository.backend.IRepository;
@@ -83,6 +79,13 @@ public class CsarImpl implements Csar {
   @Override
   public List<TServiceTemplate> serviceTemplates() {
     return wineryRepo.getAllDefinitionsChildIds(ServiceTemplateId.class).stream()
+      .map(wineryRepo::getElement)
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<TPolicyTemplate> policyTemplates() {
+    return wineryRepo.getAllDefinitionsChildIds(PolicyTemplateId.class).stream()
       .map(wineryRepo::getElement)
       .collect(Collectors.toList());
   }
@@ -155,6 +158,11 @@ public class CsarImpl implements Csar {
     return wineryRepo.getAllDefinitionsChildIds(RelationshipTypeImplementationId.class).stream()
       .map(wineryRepo::getElement)
       .collect(Collectors.toList());
+  }
+
+  @Override
+  public TExtensibleElements queryRepository(DefinitionsChildId id) {
+    return wineryRepo.getElement(id);
   }
 
   @Override
