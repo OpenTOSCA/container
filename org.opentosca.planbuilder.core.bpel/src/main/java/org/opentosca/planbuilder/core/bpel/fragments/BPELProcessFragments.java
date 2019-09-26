@@ -1,23 +1,19 @@
 package org.opentosca.planbuilder.core.bpel.fragments;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -63,7 +59,7 @@ public class BPELProcessFragments {
 
   public String createAssignVarWithLiteral(final String literal, final String varName,
                                            final String intent) throws IOException {
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("assignVarWithLiteral.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/assignVarWithLiteral.xml"));
     template = template.replaceAll("\\$literal", literal);
     template = template.replaceAll("\\$VarName", varName);
     template = template.replaceAll("\\$intent", intent);
@@ -125,7 +121,7 @@ public class BPELProcessFragments {
 
   public String createAssignAndPostSituationMonitor(Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies,
                                                     Map<AbstractPolicy, String> policy2IdMap , String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws IOException {
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPELMonitoringSituation.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPELMonitoringSituation.xml"));
 
     String situationIdRequestBody = "";
     String copyFromInputToRequestBody = "";
@@ -185,7 +181,7 @@ public class BPELProcessFragments {
                                                    final String toVarName,
                                                    final String xpathQuery) throws IOException {
     // <!-- $xpath2query, $fromVarName, $toVarName -->
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("assignVarFromVarWithXpath2Query.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/assignVarFromVarWithXpath2Query.xml"));
     template = template.replaceAll("\\$assignName", assignName);
     template = template.replaceAll("\\$fromVarName", fromVarName);
     template = template.replaceAll("\\$toVarName", toVarName);
@@ -196,7 +192,7 @@ public class BPELProcessFragments {
   public Node createHTTPPOST(final String urlVarName, final String requestVarName,
                              final String responseVarName) throws IOException, SAXException {
     String template =
-      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml"));
+      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml"));
     template = template.replaceAll("\\$InstanceDataURLVar", urlVarName);
     template = template.replaceAll("\\$RequestVarName", requestVarName);
     template = template.replaceAll("\\$ResponseVarName", responseVarName);
@@ -204,7 +200,7 @@ public class BPELProcessFragments {
   }
 
   public Node createHTTPPOST(final String urlVarName, final String responseVarName) throws IOException, SAXException {
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml"));
     template = template.replaceAll("\\$InstanceDataURLVar", urlVarName);
     template = template.replaceAll("\\$ResponseVarName", responseVarName);
     return this.transformStringToNode(template);
@@ -214,7 +210,7 @@ public class BPELProcessFragments {
                                                      final String part1, final String toVarName, final String part2,
                                                      final String xpathQuery1, final String xpathQuery2,
                                                      final String intent, final QName extension) throws IOException {
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("assignVarFromVarWithXpath2Queries.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/assignVarFromVarWithXpath2Queries.xml"));
     template = template.replaceAll("\\$assignName", assignName);
     template = template.replaceAll("\\$fromVarName", fromVarName);
     template = template.replaceAll("\\$toVarName", toVarName);
@@ -268,7 +264,7 @@ public class BPELProcessFragments {
                                                                                     final String stringVarName,
                                                                                     final String nodeInstanceResponseVarName) throws IOException {
     // <!-- $assignName, $stringVarName, $NodeInstanceResponseVarName -->
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BpelAssignFromNodeInstanceRequestToStringVar.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelAssignFromNodeInstanceRequestToStringVar.xml"));
     template = template.replace("$assignName", assignName);
     template = template.replace("$stringVarName", stringVarName);
     template = template.replace("$NodeInstanceResponseVarName", nodeInstanceResponseVarName);
@@ -311,7 +307,7 @@ public class BPELProcessFragments {
   public String createAssignFromInstancePropertyToBPELVariableAsString(final String assignName,
                                                                        final String nodeInstancePropertyResponseVarName,
                                                                        final Map<Element, String> propElement2BpelVarNameMap) throws IOException {
-    final String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BpelCopyFromPropertyVarToNodeInstanceProperty.xml"));
+    final String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelCopyFromPropertyVarToNodeInstanceProperty.xml"));
 
     String assignString =
       "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BPELPlan.bpelNamespace + "\" >";
@@ -336,7 +332,7 @@ public class BPELProcessFragments {
 
   public String createAssignSelectFirstRelationInstanceFromResponse(final String referencesResponseVarName, final String resultVarName) throws IOException {
     String bpelAssignString =
-      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BpelAssignSelectFromRelationInstancesRequestToStringVar.xml"));
+      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelAssignSelectFromRelationInstancesRequestToStringVar.xml"));
 
     bpelAssignString =
       bpelAssignString.replaceAll("\\$assignName", "assignSelectFirstReference" + System.currentTimeMillis());
@@ -355,7 +351,7 @@ public class BPELProcessFragments {
     // BpelAssignSelectFromNodeInstancesRequestToStringVar.xml
     // <!-- $assignName, $stringVarName, $NodeInstancesResponseVarName -->
     String bpelAssignString =
-      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BpelAssignSelectFromNodeInstancesRequestToStringVar.xml"));
+      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelAssignSelectFromNodeInstancesRequestToStringVar.xml"));
 
     bpelAssignString =
       bpelAssignString.replaceAll("\\$assignName", "assignSelectFirstReference" + System.currentTimeMillis());
@@ -431,7 +427,7 @@ public class BPELProcessFragments {
   public String createAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query,
                                                                   final String stringVarName) throws IOException {
     // <!-- {AssignName},{xpath2query}, {stringVarName} -->
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("assignStringVarWithXpath2Query.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/assignStringVarWithXpath2Query.xml"));
     template = template.replace("{AssignName}", assignName);
     template = template.replace("{xpath2query}", xpath2Query);
     template = template.replace("{stringVarName}", stringVarName);
@@ -451,7 +447,7 @@ public class BPELProcessFragments {
                                                              final String serviceInstanceIdVarName,
                                                              final String responseVarName) throws IOException {
     // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightGET_NodeInstances_InstanceDataAPI.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_NodeInstances_InstanceDataAPI.xml"));
     template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
     template = template.replace("$ResponseVarName", responseVarName);
     template = template.replace("$nodeTemplateId", nodeTemplateId);
@@ -463,7 +459,7 @@ public class BPELProcessFragments {
                                                          final String unassignedLogReqMessage) throws IOException {
     // BPEL4RESTLightPOST_PlanInstance_Logs.xml
     // <!-- $urlVarName, $requestVar, $correlationId -->
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightPOST_PlanInstance_Logs.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightPOST_PlanInstance_Logs.xml"));
     template = template.replaceAll("\\$urlVarName", urlVarName);
     template = template.replaceAll("\\$requestVar", unassignedLogReqMessage);
     template = template.replaceAll("\\$contentStringVar", stringVarNameWithLogContent);
@@ -482,7 +478,7 @@ public class BPELProcessFragments {
   public String createBPEL4RESTLightPUTState(final String instanceURLVarName,
                                              final String requestVarName) throws IOException {
     // <!-- $urlVarName, $requestVar -->
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightPUTInstanceState.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightPUTInstanceState.xml"));
     template = template.replace("$urlVarName", instanceURLVarName);
     template = template.replace("$requestVar", requestVarName);
     return template;
@@ -508,7 +504,7 @@ public class BPELProcessFragments {
                                                                  final String serviceInstanceIdVarName,
                                                                  final String responseVarName) throws IOException {
     // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightGET_RelationInstances_InstanceDataAPI.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_RelationInstances_InstanceDataAPI.xml"));
     template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
     template = template.replace("$ResponseVarName", responseVarName);
     template = template.replace("relationshipTemplateId", relationshipTemplateId);
@@ -536,7 +532,7 @@ public class BPELProcessFragments {
     // <!-- $serviceInstanceURLVar, $relationshipTemplateId, $ResponseVarName,
     // $nodeInstanceIdVarName -->
     String template =
-      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml"));
+      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml"));
 
     // <!-- $ServiceTemplateURLVarKeyword, $relationshipTemplateId,
     // $nodeInstanceIdVarName,
@@ -574,7 +570,7 @@ public class BPELProcessFragments {
    */
   public String createRESTDeleteOnURLBPELVarAsString(final String bpelVarName,
                                                      final String responseVarName) throws IOException {
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightDELETE.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightDELETE.xml"));
     template = template.replace("$urlVarName", bpelVarName);
     template = template.replace("$ResponseVarName", responseVarName);
     return template;
@@ -628,7 +624,7 @@ public class BPELProcessFragments {
     // $serviceInstanceUrlVarName, $templateType -->
 
     // <!-- $InstanceDataURLVar, $ResponseVarName, $nodeType -->
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml"));
     template = template.replaceAll("\\$InstanceDataURLVar", serviceTemplateUrlVar);
     template = template.replaceAll("\\$ResponseVarName", responseVarName);
     template = template.replaceAll("\\$templateId", templateId);
@@ -656,7 +652,7 @@ public class BPELProcessFragments {
                                                                       final String responseVarName,
                                                                       final String templateId,
                                                                       final String query) throws IOException {
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightGET_RelationInstance_InstanceDataAPI.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_RelationInstance_InstanceDataAPI.xml"));
     template = template.replaceAll("\\$InstanceDataURLVar", serviceTemplateUrlVar);
     template = template.replaceAll("\\$ResponseVarName", responseVarName);
     template = template.replaceAll("\\$templateId", templateId);
@@ -698,7 +694,7 @@ public class BPELProcessFragments {
   public String createRESTExtensionGETForInstancePropertiesAsString(final String nodeInstanceIDUrl,
                                                                     final String responseVarName) throws IOException {
     // <!-- $urlVarName, $ResponseVarName -->
-    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightGET_NodeInstance_Properties.xml"));
+    String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_NodeInstance_Properties.xml"));
     template = template.replace("$urlVarName", nodeInstanceIDUrl);
     template = template.replace("$ResponseVarName", responseVarName);
 
@@ -722,7 +718,7 @@ public class BPELProcessFragments {
   public String generateServiceInstanceRequestMessageAssign(final String inputMessageElementLocalName,
                                                             final String anyElementariableName) throws IOException {
     String bpelAssignString =
-      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BpelAssignServiceInstanceCorrelationIdPOSTRequest.xml"));
+      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelAssignServiceInstanceCorrelationIdPOSTRequest.xml"));
     // <!-- $inputElementLocalName, $StringVariableName, $assignName -->
     bpelAssignString = bpelAssignString.replaceAll("\\$inputElementLocalName", inputMessageElementLocalName);
     bpelAssignString = bpelAssignString.replaceAll("\\$StringVariableName", anyElementariableName);
@@ -751,7 +747,7 @@ public class BPELProcessFragments {
    */
   public String generateAssignFromInputMessageToStringVariable(final String inputMessageElementLocalName,
                                                                final String stringVariableName) throws IOException {
-    String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BpelAssignFromInputToStringVar.xml"));
+    String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelAssignFromInputToStringVar.xml"));
     // <!-- $inputElementLocalName, $StringVariableName, $assignName -->
     bpelAssignString = bpelAssignString.replace("$inputElementLocalName", inputMessageElementLocalName);
     bpelAssignString = bpelAssignString.replace("$StringVariableName", stringVariableName);
@@ -780,7 +776,7 @@ public class BPELProcessFragments {
 
   public String generateBPEL4RESTLightGETonURL(final String urlVarName,
                                                final String responseVarName) throws IOException {
-    String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightGET_URL_ApplicationXML.xml"));
+    String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_URL_ApplicationXML.xml"));
     // <!-- $ResponseVarName, $urlVar -->
     bpelAssignString = bpelAssignString.replace("$ResponseVarName", responseVarName);
     bpelAssignString = bpelAssignString.replace("$urlVar", urlVarName);
@@ -812,7 +808,7 @@ public class BPELProcessFragments {
     // $serviceTemplateId, $ResponseVarName
 
     String bpel4RestString =
-      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml"));
+      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml"));
 
     bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
     bpel4RestString = bpel4RestString.replace("$CSARName", csarId);
@@ -858,7 +854,7 @@ public class BPELProcessFragments {
     // tags in xml snippet: $InstanceDataURLVar, $CSARName,
     // $serviceTemplateId, $ResponseVarName
     String bpel4RestString =
-      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml"));
+      ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml"));
 
     bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
     bpel4RestString = bpel4RestString.replace("$RequestVarName", requestVariableName);
@@ -942,7 +938,7 @@ public class BPELProcessFragments {
   public String generateBPELIfTrueThrowFaultAsString(final String xpath1Expr,
                                                      final QName faultQName) throws IOException {
     // <!-- $xpath1Expr, $faultPrefix, $faultNamespace, $faultLocalName-->
-    String bpelIfString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BPELIfTrueThrowFault.xml"));
+    String bpelIfString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPELIfTrueThrowFault.xml"));
 
     bpelIfString = bpelIfString.replace("$xpath1Expr", xpath1Expr);
 
@@ -995,7 +991,7 @@ public class BPELProcessFragments {
                                                                   final String outputVarLocalName) throws IOException {
     // BpelAssignOutputVarFromStringVariable.xml
     // <!-- ${assignName}, ${variableName}, ${outputVarName}, ${outputVarPartName}, ${outputVarPrefix}, ${outputVarLocalName} -->
-    String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BpelCopyOutputVarFromStringVariable.xml"));
+    String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelCopyOutputVarFromStringVariable.xml"));
     bpelAssignString = bpelAssignString.replace("${variableName}", variableName);
     bpelAssignString = bpelAssignString.replace("${outputVarName}", outputVarName);
     bpelAssignString = bpelAssignString.replace("${outputVarPartName}", outputVarPartName);
@@ -1056,7 +1052,7 @@ public class BPELProcessFragments {
                                                                            final String planName,
                                                                            final String buildPlanUrlVarName) throws IOException {
     // <!-- $assignName $ServiceInstanceResponseVarName $ServiceInstanceURLVarName-->
-    String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BpelAssignServiceInstancePOSTResponse.xml"));
+    String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelAssignServiceInstancePOSTResponse.xml"));
     bpelAssignString =
       bpelAssignString.replaceAll("\\$assignName", "assignServiceInstance" + System.currentTimeMillis());
     bpelAssignString =
@@ -1103,7 +1099,7 @@ public class BPELProcessFragments {
                                                                                 final String planName,
                                                                                 final String buildPlanUrlVarName) throws IOException {
     // <!-- $assignName $ServiceInstanceResponseVarName $ServiceInstanceURLVarName-->
-    String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("BpelAssignServiceInstancePOSTResponse2.xml"));
+    String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelAssignServiceInstancePOSTResponse2.xml"));
     bpelAssignString =
       bpelAssignString.replaceAll("\\$assignName", "assignServiceInstance" + System.currentTimeMillis());
     bpelAssignString =

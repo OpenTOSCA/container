@@ -55,7 +55,7 @@ public class PlanService {
   public List<PlanInstance> getPlanInstances(final Csar csar, final TServiceTemplate serviceTemplate, String planName, final PlanTypes... planTypes) {
     TPlan plan = csar.plans().stream()
       .filter(tplan -> Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString()))
-        && tplan.getName().equals(planName))
+        && planName.equals(tplan.getName()))
       .findFirst()
       .orElseThrow(NotFoundException::new);
 

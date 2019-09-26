@@ -112,8 +112,8 @@ public class ServiceTemplateInstanceController {
   @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response createServiceTemplateInstance(final CreateServiceTemplateInstanceRequest request) {
-
     if (request == null || request.getCorrelationId() == null || request.getCorrelationId().trim().length() == 0) {
+      logger.debug("Request to create service template instance failed basic precondition(s)");
       return Response.status(Status.BAD_REQUEST).build();
     }
 
@@ -125,10 +125,10 @@ public class ServiceTemplateInstanceController {
 
       return Response.ok(uri).build();
     } catch (final IllegalArgumentException e) {
-      return Response.status(Status.BAD_REQUEST).build();
+      logger.debug("Illegal Argument when creating serviceTemplateInstance", e);
+      return Response.status(Status.CONFLICT).build();
     } catch (InstantiationException | IllegalAccessException e) {
       logger.debug("Internal error occurred: {}", e.getMessage());
-
       return Response.serverError().build();
     } catch (final NotFoundException e) {
       logger.debug("Didn't find PlanInstances with given correlationId: {}", e.getMessage());

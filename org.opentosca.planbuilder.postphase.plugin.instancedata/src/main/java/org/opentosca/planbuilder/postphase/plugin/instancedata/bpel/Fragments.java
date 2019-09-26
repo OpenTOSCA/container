@@ -3,7 +3,6 @@
  */
 package org.opentosca.planbuilder.postphase.plugin.instancedata.bpel;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -14,8 +13,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.FileUtils;
-import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -59,7 +56,7 @@ public class Fragments {
    */
   public String createRESTDeleteOnURLBPELVarAsString(final String bpelVarName,
                                                      final String responseVarName) throws IOException {
-    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightDELETE.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightDELETE.xml");
     // <!-- $urlVarName, $ResponseVarName -->
     String template = ResourceAccess.readResourceAsString(url);
     template = template.replace("$urlVarName", bpelVarName);
@@ -99,7 +96,7 @@ public class Fragments {
                                                        final String RequestVarName) throws IOException {
     // BPEL4RESTLightPUT_NodeInstance_State_InstanceDataAPI.xml
     // <!-- $RequestVarName,$nodeInstanceURLVar -->
-    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightPUT_Instance_State_InstanceDataAPI.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightPUT_Instance_State_InstanceDataAPI.xml");
     String bpel4restString = ResourceAccess.readResourceAsString(url);;
 
     bpel4restString = bpel4restString.replace("$instanceURLVar", instanceURLVar);
@@ -112,7 +109,7 @@ public class Fragments {
                                                        final String ResponseVarName) throws IOException {
     // BPEL4RESTLightPUT_NodeInstance_State_InstanceDataAPI.xml
     // <!-- $RequestVarName,$nodeInstanceURLVar -->
-    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightGET_Instance_State_InstanceDataAPI.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightGET_Instance_State_InstanceDataAPI.xml");
     String bpel4restString = ResourceAccess.readResourceAsString(url);
 
     bpel4restString = bpel4restString.replace("$instanceURLVar", instanceURLVar);
@@ -148,7 +145,7 @@ public class Fragments {
                                                                       final String nodeInstancePOSTResponseVarName) throws IOException {
     // BPELAssignFromNodeInstancePOSTResponseToStringVar.xml
     // <!-- $stringVarName, $NodeInstanceResponseVarName -->
-    final URL url = getClass().getClassLoader().getResource("BPELAssignFromNodeInstancePOSTResponseToStringVar.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPELAssignFromNodeInstancePOSTResponseToStringVar.xml");
     String bpelAssignString = ResourceAccess.readResourceAsString(url);
 
     bpelAssignString = bpelAssignString.replaceAll("\\$stringVarName", nodeInstanceURLVarName);
@@ -174,7 +171,7 @@ public class Fragments {
                                                                           final String relationInstancePOSTResponseVarName) throws IOException {
     // BPELAssignFromNodeInstancePOSTResponseToStringVar.xml
     // <!-- $stringVarName, $RelationInstanceResponseVarName, relationInstanceIDVar-->
-    final URL url = getClass().getClassLoader().getResource("BPELAssignFromRelationInstancePOSTResponseToStringVar.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPELAssignFromRelationInstancePOSTResponseToStringVar.xml");
     String bpelAssignString = ResourceAccess.readResourceAsString(url);
 
     bpelAssignString = bpelAssignString.replaceAll("\\$stringVarName", stringVarName);
@@ -200,7 +197,7 @@ public class Fragments {
                                                        final String nodeTemplateId,
                                                        final String responseVariableName) throws IOException {
     // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightPOST_NodeInstance_InstanceDataAPI.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightPOST_NodeInstance_InstanceDataAPI.xml");
     String bpel4RestString = ResourceAccess.readResourceAsString(url);
 
     bpel4RestString = bpel4RestString.replaceAll("\\$serviceInstanceURLVar", serviceInstanceURLVar);
@@ -232,7 +229,7 @@ public class Fragments {
                                                            final String sourceInstanceIdVarName,
                                                            final String targetInstanceIdVarName) throws IOException {
     // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightPOST_RelationInstance_InstanceDataAPI.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightPOST_RelationInstance_InstanceDataAPI.xml");
     String bpel4RestString = ResourceAccess.readResourceAsString(url);
 
     bpel4RestString = bpel4RestString.replaceAll("\\$serviceInstanceURLVar", serviceInstanceURLVar);
@@ -250,7 +247,7 @@ public class Fragments {
                                                           final String responseVariableName) throws IOException {
     // tags in xml snippet: $InstanceDataURLVar, $CSARName,
     // $serviceTemplateId, $ResponseVarName
-    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
     String bpel4RestString = ResourceAccess.readResourceAsString(url);
 
     bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
@@ -276,7 +273,7 @@ public class Fragments {
 
   public String generateServiceInstanceURLVarAssign(final String serviceInstanceResponseVarName,
                                                     final String serviceInstanceURLVarName) throws IOException {
-    final URL url = getClass().getClassLoader().getResource("BpelAssignServiceInstancePOSTResponse.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BpelAssignServiceInstancePOSTResponse.xml");
     String bpelAssignString = ResourceAccess.readResourceAsString(url);
     // <!-- $assignName $ServiceInstanceResponseVarName
     // $ServiceInstanceURLVarName-->
@@ -311,7 +308,7 @@ public class Fragments {
 
   public String generateInstancePropertiesGET(final String instanceUrlVarName,
                                               final String bpel4RestLightResponseVarName) throws IOException {
-    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightGET_Instance_Properties.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightGET_Instance_Properties.xml");
     String bpel4restLightGETString = ResourceAccess.readResourceAsString(url);
     // <!-- $urlVarName, $ResponseVarName -->
     bpel4restLightGETString = bpel4restLightGETString.replace("$urlVarName", instanceUrlVarName);
@@ -331,7 +328,7 @@ public class Fragments {
 
   public String generateAssignFromNodeInstanceResonseToStringVar(final String stringVarName,
                                                                  final String nodeInstanceResponseVarName) throws IOException {
-    final URL url = getClass().getClassLoader().getResource("BpelAssignFromNodeInstanceRequestToStringVar.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BpelAssignFromNodeInstanceRequestToStringVar.xml");
     String bpelAssignString = ResourceAccess.readResourceAsString(url);
     // <!-- $stringVarName, $NodeInstanceResponseVarName -->
     bpelAssignString = bpelAssignString.replace("$stringVarName", stringVarName);
@@ -352,7 +349,7 @@ public class Fragments {
 
   public String generateNodeInstancePropertiesGET(final String instanceDataUrlVarName, final String responseVarName,
                                                   final QName nodeType) throws IOException {
-    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
     String bpelAssignString = ResourceAccess.readResourceAsString(url);
 
     // $InstanceDataURLVar, $ResponseVarName, $nodeType
@@ -368,7 +365,7 @@ public class Fragments {
                                                                 final int nodeInstanceIndex) throws IOException {
     // <!-- $stringVarName, $ServiceInstanceResponseVarName,
     // $nodeInstanceIndex -->
-    final URL url = getClass().getClassLoader().getResource("BpelAssignFromServiceInstanceRequestToStringVar.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BpelAssignFromServiceInstanceRequestToStringVar.xml");
     String bpelAssignString = ResourceAccess.readResourceAsString(url);
 
     bpelAssignString = bpelAssignString.replace("$stringVarName", stringVarName);
@@ -394,7 +391,7 @@ public class Fragments {
   public String generateBPEL4RESTLightGET(final String urlVarName, final String responseVarName) throws IOException {
     // BPEL4RESTLightGET_ServiceInstance_InstanceDataAPI.xml
     // <!-- $serviceInstanceUrlVarName, $ResponseVarName -->
-    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightGET.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightGET.xml");
     String bpelServiceInstanceGETString = ResourceAccess.readResourceAsString(url);
 
     bpelServiceInstanceGETString = bpelServiceInstanceGETString.replace("$urlVarName", urlVarName);
@@ -413,7 +410,7 @@ public class Fragments {
 
   public String generateAssignFromInputMessageToStringVariable(final String inputMessageElementLocalName,
                                                                final String stringVariableName) throws IOException {
-    final URL url = getClass().getClassLoader().getResource("BpelAssignFromInputToStringVar.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BpelAssignFromInputToStringVar.xml");
     String bpelAssignString = ResourceAccess.readResourceAsString(url);
     // <!-- $inputElementLocalName, $StringVariableName, $assignName -->
     bpelAssignString = bpelAssignString.replace("$inputElementLocalName", inputMessageElementLocalName);
@@ -438,7 +435,7 @@ public class Fragments {
                                                       final String nodeInstancePropertyRequestVarName,
                                                       final String nodeInstancePropertyLocalName,
                                                       final String nodeInstancePropertyNamespace) throws IOException {
-    final URL url = getClass().getClassLoader().getResource("BpelCopyFromPropertyVarToNodeInstanceProperty.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BpelCopyFromPropertyVarToNodeInstanceProperty.xml");
     String bpelAssignString = ResourceAccess.readResourceAsString(url);
     // <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,
     // $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
@@ -492,7 +489,7 @@ public class Fragments {
 
   public String generateInstancesBPEL4RESTLightPUT(final String requestVarName,
                                                    final String instanceURLVarName) throws IOException {
-    final URL url = getClass().getClassLoader().getResource("BPEL4RESTLightPUT_Instance_InstanceDataAPI.xml");
+    final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightPUT_Instance_InstanceDataAPI.xml");
     String bpel4RESTLightPut = ResourceAccess.readResourceAsString(url);
 
     // <!-- $RequestVarName,$nodeInstanceURLVar -->

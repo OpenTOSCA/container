@@ -79,7 +79,7 @@ public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlan
     // {outputVarPrefix} -->
 
     final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-      .getResource("assignSelfserviceApplicationUrl.xml");
+      .getResource("vinothek-plugin/assignSelfserviceApplicationUrl.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelfragmentfile);
     template = template.replace("{serverIpVarName}", serverIpVarName);

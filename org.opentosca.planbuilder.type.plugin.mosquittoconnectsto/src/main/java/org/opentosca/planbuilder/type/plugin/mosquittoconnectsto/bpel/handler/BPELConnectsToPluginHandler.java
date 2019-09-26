@@ -222,7 +222,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
                                                                   final String stringVarName) throws IOException {
         // <!-- {AssignName},{xpath2query}, {stringVarName} -->
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-                                     .getResource("assignStringVarWithXpath2Query.xml");
+                                     .getResource("mosquittoconnectsto-plugin/assignStringVarWithXpath2Query.xml");
         final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelFragmentFile);
         template = template.replace("{AssignName}", assignName);

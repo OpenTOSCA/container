@@ -23,7 +23,6 @@ import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -706,7 +705,7 @@ public class BPELInvokerPluginHandler {
                                                                 final String stringVarName) throws IOException {
     // <!-- {AssignName},{xpath2query}, {stringVarName} -->
     final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-      .getResource("assignStringVarWithXpath2Query.xml");
+      .getResource("invoker-plugin/assignStringVarWithXpath2Query.xml");
     final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelFragmentFile);
     template = template.replace("{AssignName}", assignName);

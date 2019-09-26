@@ -93,7 +93,7 @@ public class ResourceHandler {
     // {assignName}{prefix}{requestVarName}{serverIpVarName}{requestVarName}{inputMessageVarName}{script}
     // -->
     final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-      .getResource("assRunScriptRequest.xml");
+      .getResource("fileupload-plugin/assRunScriptRequest.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelfragmentfile);
     template = template.replace("{assignName}", assignName);
@@ -162,7 +162,7 @@ public class ResourceHandler {
    */
   public File getLinuxFileUploadWSDLFile() throws IOException {
     final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-      .getResource("EC2LinuxIAService.wsdl");
+      .getResource("fileupload-plugin/EC2LinuxIAService.wsdl");
     final File wsdlFile = new File(FileLocator.toFileURL(url).getPath());
     return wsdlFile;
   }
@@ -175,7 +175,7 @@ public class ResourceHandler {
    */
   public File getOpenToscaReferencesSchema() throws IOException {
     final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-      .getResource("openTOSCAReferencesSchema.xsd");
+      .getResource("fileupload-plugin/openTOSCAReferencesSchema.xsd");
     final File xsdFile = new File(FileLocator.toFileURL(url).getPath());
     return xsdFile;
   }
@@ -253,7 +253,7 @@ public class ResourceHandler {
                                                     final String planRequestName, final String remoteFilePath,
                                                     final String remotePath) throws IOException {
     final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-      .getResource("assignRemoteTransferFileRequestFragment.xml");
+      .getResource("fileupload-plugin/assignRemoteTransferFileRequestFragment.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelfragmentfile);
     template = template.replace("{AssignName}", assignName);
@@ -299,7 +299,7 @@ public class ResourceHandler {
   public String getRESTExtensionGETAsString(final String csarFileName, final String responseName,
                                             final String relativeFilePath) throws IOException {
     final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-      .getResource("restExtensionGetFragment.xml");
+      .getResource("fileupload-plugin/restExtensionGetFragment.xml");
     final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelfragmentfile);
     template = template.replace("{CSAR_filename}", csarFileName);
@@ -358,7 +358,7 @@ public class ResourceHandler {
     // {AssignName},{RequestVarName},{ServerIpPropVarName},{prefix},{localPath},{remotePath},{SSHKey}
     // -->
     final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-      .getResource("assignTransferFileRequestFragment.xml");
+      .getResource("fileupload-plugin/assignTransferFileRequestFragment.xml");
     final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelFragmentFile);
     template = template.replace("{AssignName}", assignName);
@@ -417,7 +417,7 @@ public class ResourceHandler {
     // <!-- {InvokeName} {partnerlinkName} {portTypePrefix} {inputVarName}
     // {outputVarName}-->
     final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-      .getResource("invokeTransferFile.xml");
+      .getResource("fileupload-plugin/invokeTransferFile.xml");
     final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
     String template = FileUtils.readFileToString(bpelFragmentFile);
     template = template.replace("{InvokeName}", invokeName);
