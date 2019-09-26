@@ -1,5 +1,7 @@
 package org.opentosca.container.api.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -15,7 +17,7 @@ public class PlacementNodeTemplate {
     @JsonProperty("node_type")
     private String nodeType;
 
-    private String instanceRef;
+    private List<NodeTemplateInstanceDTO> validNodeTemplateInstances;
 
     PlacementNodeTemplate() {}
 
@@ -49,11 +51,11 @@ public class PlacementNodeTemplate {
         return this.nodeType;
     }
 
-    public void setInstanceRef(final String instanceRef) {
-        this.instanceRef = instanceRef;
+    public void setValidNodeTemplateInstances(final List<NodeTemplateInstanceDTO> validNodeTemplateInstances) {
+        this.validNodeTemplateInstances = validNodeTemplateInstances;
     }
 
-    public String getInstaceRef() {
-        return this.instanceRef;
+    public List<NodeTemplateInstanceDTO> getValidNodeTemplateInstances() {
+        return this.validNodeTemplateInstances;
     }
 }
