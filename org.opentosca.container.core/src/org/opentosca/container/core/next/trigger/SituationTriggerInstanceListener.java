@@ -2,6 +2,7 @@ package org.opentosca.container.core.next.trigger;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -13,10 +14,12 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.SituationTriggerInstance;
 import org.opentosca.container.core.next.model.SituationTriggerInstanceProperty;
 import org.opentosca.container.core.next.model.SituationTriggerProperty;
+import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.SituationTriggerInstanceRepository;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
@@ -93,6 +96,11 @@ public class SituationTriggerInstanceListener {
                                       wcetInSeconds, timeAvailableInSeconds);
                 }
 
+                final PlanInstanceRepository planRepo = new PlanInstanceRepository();
+                final Collection<PlanInstance> allOccurences = planRepo.findAll();
+                for (final PlanInstance instance : allOccurences) {
+                    System.out.println(instance.getId());
+                }
                 final QName planId = this.toscaEngine.getToscaReferenceMapper()
                                                      .getBoundaryPlanOfCSARInterface(servInstance.getCsarId(),
                                                                                      interfaceName, operationName);

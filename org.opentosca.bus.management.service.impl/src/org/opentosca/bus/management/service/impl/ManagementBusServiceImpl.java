@@ -158,10 +158,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             event.setMessage("Finished execution of IA for NodeTemplate '" + nodeTemplateID + "' interface '"
                 + neededInterface + "' and operation '" + neededOperation + "' after " + duration + "ms");
             LOG.info("IA execution duration: {}ms", duration);
+            event.setNodeTemplateID(nodeTemplateID);
+            event.setInterfaceName(neededInterface);
+            event.setOperationName(neededOperation);
+            event.setExecutionDuration(duration);
 
             // update plan in repository with new log event
             final PlanInstanceRepository repo = new PlanInstanceRepository();
             final PlanInstance plan = repo.findByCorrelationId(correlationID);
+
             if (Objects.nonNull(plan)) {
                 plan.addEvent(event);
                 repo.update(plan);
@@ -170,12 +175,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Searches for the NodeType/RelationshipType of the given operation, updates the input
-     * parameters and passes the request on to invoke the corresponding IA.
+     * Searches for the NodeType/RelationshipType of the given operation, updates the input parameters
+     * and passes the request on to invoke the corresponding IA.
      *
      * @param exchange exchange containing the header fields which identify the current operation
-     * @param serviceTemplateInstanceID service instance which contains the instance data to update
-     *        the input parameters
+     * @param serviceTemplateInstanceID service instance which contains the instance data to update the
+     *        input parameters
      * @param neededInterface the interface of the searched operation
      * @param neededOperation the searched operation
      */
@@ -305,8 +310,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Invokes the given operation on the given IA if it implements it. If the IA is not yet
-     * deployed, the deployment is performed before the invocation.
+     * Invokes the given operation on the given IA if it implements it. If the IA is not yet deployed,
+     * the deployment is performed before the invocation.
      *
      * @param exchange exchange containing the input parameters of the operation
      * @param csarID ID of the CSAR
@@ -318,8 +323,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @param neededInterface the interface of the searched operation
      * @param neededOperation the searched operation
      *
-     * @return <tt>true</tt> if the IA implements the given operation and it was invoked
-     *         successfully, <tt>false</tt> otherwise
+     * @return <tt>true</tt> if the IA implements the given operation and it was invoked successfully,
+     *         <tt>false</tt> otherwise
      */
     private boolean invokeIAOperation(Exchange exchange, final CSARID csarID, final Long serviceTemplateInstanceID,
                                       final QName typeID, final NodeTemplateInstance nodeTemplateInstance,
@@ -343,14 +348,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // get ArtifactTemplate and ArtifactType of the IA
         final QName artifactTemplateID =
             ServiceHandler.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfATypeImplementation(csarID,
-                                                                                                                typeImplementationID, iaName);
+                                                                                                                typeImplementationID,
+                                                                                                                iaName);
         LOG.debug("ArtifactTemplate: {}", artifactTemplateID.toString());
 
-        final String artifactType = ServiceHandler.toscaEngineService
-                                                                     .getArtifactTypeOfAImplementationArtifactOfATypeImplementation(csarID,
-                                                                                                                                    typeImplementationID,
-                                                                                                                                    iaName)
-                                                                     .toString();
+        final String artifactType =
+            ServiceHandler.toscaEngineService.getArtifactTypeOfAImplementationArtifactOfATypeImplementation(csarID,
+                                                                                                            typeImplementationID,
+                                                                                                            iaName)
+                                             .toString();
         LOG.debug("ArtifactType: {}", artifactType);
 
         // retrieve deployment type for the IA
@@ -393,7 +399,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // Prevent two threads from trying to deploy the same IA concurrently and avoid the deletion
         // of an IA after successful checking that an IA is already deployed.
         final String identifier =
-            getUniqueSynchronizationString(triggeringContainer, deploymentLocation, typeImplementationID, iaName, serviceTemplateInstanceID.toString());
+            getUniqueSynchronizationString(triggeringContainer, deploymentLocation, typeImplementationID, iaName,
+                                           serviceTemplateInstanceID.toString());
         synchronized (getLockForString(identifier)) {
 
             LOG.debug("Checking if IA was already deployed...");
@@ -413,8 +420,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointURI);
 
                 // store new endpoint for the IA
-                final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType, triggeringContainer,
-                    deploymentLocation, csarID, serviceTemplateInstanceID, null, typeImplementationID, iaName, new HashMap<String,String>());
+                final WSDLEndpoint endpoint =
+                    new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, csarID,
+                        serviceTemplateInstanceID, null, typeImplementationID, iaName, new HashMap<String, String>());
                 ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
 
                 // Call IA, send response to caller and terminate bus
@@ -496,9 +504,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                 LOG.debug("IA successfully deployed. Storing endpoint...");
 
                                 // store new endpoint for the IA
-                                final WSDLEndpoint endpoint =
-                                    new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation,
-                                        csarID, serviceTemplateInstanceID, null, typeImplementationID, iaName, new HashMap<String,String>());
+                                final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType,
+                                    triggeringContainer, deploymentLocation, csarID, serviceTemplateInstanceID, null,
+                                    typeImplementationID, iaName, new HashMap<String, String>());
                                 ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
                             }
 
@@ -641,11 +649,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // retrieve interface and operation names for the given IA
         final String providedInterface =
             ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfATypeImplementation(csarID,
-                                                                                                         typeImplementationID, implementationArtifactName);
+                                                                                                         typeImplementationID,
+                                                                                                         implementationArtifactName);
 
         final String providedOperation =
             ServiceHandler.toscaEngineService.getOperationOfAImplementationArtifactOfATypeImplementation(csarID,
-                                                                                                         typeImplementationID, implementationArtifactName);
+                                                                                                         typeImplementationID,
+                                                                                                         implementationArtifactName);
 
         LOG.debug("Needed interface: {}. Provided interface: {}", neededInterface, providedInterface);
         LOG.debug("Needed operation: {}. Provided operation: {}", neededOperation, providedOperation);
@@ -686,13 +696,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Delete all endpoints for the given ServiceTemplateInstance from the <tt>EndpointService</tt>.
-     * In case an endpoint is the only one for a certain implementation artifact, it is undeployed
-     * too.
+     * Delete all endpoints for the given ServiceTemplateInstance from the <tt>EndpointService</tt>. In
+     * case an endpoint is the only one for a certain implementation artifact, it is undeployed too.
      *
      * @param csarID The CSAR to which the ServiceTemplateInstance belongs.
-     * @param serviceInstance The ServiceTemplateInstance for which the endpoints have to be
-     *        removed.
+     * @param serviceInstance The ServiceTemplateInstance for which the endpoints have to be removed.
      */
     private void deleteEndpointsForServiceInstance(final CSARID csarID, final ServiceTemplateInstance serviceInstance) {
         final Long instanceID = serviceInstance.getId();
@@ -715,8 +723,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 + "Managing Container: {}; NodeTypeImplementation: {}; IA name: {}", triggeringContainer,
                       deploymentLocation, typeImpl, iaName);
 
-            final String identifier =
-                getUniqueSynchronizationString(triggeringContainer, deploymentLocation, typeImpl, iaName, instanceID.toString());
+            final String identifier = getUniqueSynchronizationString(triggeringContainer, deploymentLocation, typeImpl,
+                                                                     iaName, instanceID.toString());
 
             // synchronize deletion to avoid concurrency issues
             synchronized (getLockForString(identifier)) {
@@ -732,11 +740,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 if (count == 1) {
                     LOG.debug("Undeploying corresponding IA...");
 
-                    final String artifactType = ServiceHandler.toscaEngineService
-                                                                                 .getArtifactTypeOfAImplementationArtifactOfATypeImplementation(csarID,
-                                                                                                                                                typeImpl,
-                                                                                                                                                iaName)
-                                                                                 .toString();
+                    final String artifactType =
+                        ServiceHandler.toscaEngineService.getArtifactTypeOfAImplementationArtifactOfATypeImplementation(csarID,
+                                                                                                                        typeImpl,
+                                                                                                                        iaName)
+                                                         .toString();
 
                     // create exchange for the undeployment plug-in invocation
                     Exchange exchange = new DefaultExchange(Activator.camelContext);
@@ -782,8 +790,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Creates a unique String which identifies an IA on a certain OpenTOSCA Container node. The
-     * String can be used to synchronize the access to the management infrastructure (e.g. tomcat).
+     * Creates a unique String which identifies an IA on a certain OpenTOSCA Container node. The String
+     * can be used to synchronize the access to the management infrastructure (e.g. tomcat).
      *
      * @param triggeringContainer OpenTOSCA Container that triggered the deployment
      * @param deploymentLocation OpenTOSCA Container where the IA is managed
@@ -796,7 +804,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                         final String deploymentLocation, final QName typeImpl,
                                                         final String iaName, final String serviceInstanceId) {
 
-        if (Objects.isNull(triggeringContainer) || Objects.isNull(deploymentLocation) || Objects.isNull(typeImpl) 
+        if (Objects.isNull(triggeringContainer) || Objects.isNull(deploymentLocation) || Objects.isNull(typeImpl)
             || Objects.isNull(iaName) || Objects.isNull(serviceInstanceId)) {
             return null;
         }
@@ -806,8 +814,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Returns an Object which can be used to synchronize all actions related to a certain String
-     * value.
+     * Returns an Object which can be used to synchronize all actions related to a certain String value.
      *
      * @param lockString
      * @return the object which can be used for synchronization
@@ -834,7 +841,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                         final String implementationArtifactName) {
         final Document specificContent =
             ServiceHandler.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifact(csarID,
-                                                                                                  typeImplementationID, implementationArtifactName);
+                                                                                                  typeImplementationID,
+                                                                                                  implementationArtifactName);
         if (specificContent != null) {
             LOG.debug("ArtifactSpecificContent specified!");
             exchange.getIn().setHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), specificContent);
@@ -843,8 +851,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Checks if a certain property was specified in the Tosca.xml of the ArtifactTemplate and
-     * returns it if so.
+     * Checks if a certain property was specified in the Tosca.xml of the ArtifactTemplate and returns
+     * it if so.
      *
      * @param csarID the ID of the CSAR which contains the ArtifactTemplate
      * @param artifactTemplateID the ID of the ArtifactTemplate
@@ -877,8 +885,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Checks if a PortType property was specified in the Tosca.xml of the ArtifactTemplate and
-     * returns it if so.
+     * Checks if a PortType property was specified in the Tosca.xml of the ArtifactTemplate and returns
+     * it if so.
      *
      * @param csarID the ID of the CSAR which contains the ArtifactTemplate
      * @param artifactTemplateID the ID of the ArtifactTemplate
