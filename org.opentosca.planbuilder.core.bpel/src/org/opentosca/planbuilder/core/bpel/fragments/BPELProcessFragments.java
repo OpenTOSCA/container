@@ -535,6 +535,40 @@ public class BPELProcessFragments {
                                                                                     nodeInstanceIdVarName);
         return this.transformStringToNode(templateString);
     }
+    
+    public Node createBPEL4RESTLightRelationInstancesSourceNodeInstanceQueryGETAsNode(final String serviceInstanceIdVarName,
+                                                                                      final String relationshipTemplateId,
+                                                                                      final String responseVarName,
+                                                                                      final String nodeInstanceIdVarName) throws IOException,
+                                                                                                                          SAXException {
+        final String templateString =
+            createBPEL4RESTLightRelationInstancesSourceNodeInstanceQueryGETAsString(serviceInstanceIdVarName,
+                                                                                    relationshipTemplateId,
+                                                                                    responseVarName,
+                                                                                    nodeInstanceIdVarName);
+        return this.transformStringToNode(templateString);
+    }
+    
+    public String createBPEL4RESTLightRelationInstancesSourceNodeInstanceQueryGETAsString(final String serviceTemplateUrlVarName,
+                                                                                          final String relationshipTemplateId,
+                                                                                          final String responseVarName,
+                                                                                          final String nodeInstanceIdVarName) throws IOException {
+        // BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml
+        // <!-- $serviceInstanceURLVar, $relationshipTemplateId, $ResponseVarName,
+        // $nodeInstanceIdVarName -->
+        String template =
+            this.loadFragmentResourceAsString("BPEL4RESTLightGET_RelationInstances_QueryOnSourceInstance_InstanceDataAPI.xml");
+
+        // <!-- $ServiceTemplateURLVarKeyword, $relationshipTemplateId,
+        // $nodeInstanceIdVarName,
+        // $ResponseVarName-->
+
+        template = template.replace("$ServiceTemplateURLVarKeyword", serviceTemplateUrlVarName);
+        template = template.replace("$relationshipTemplateId", relationshipTemplateId);
+        template = template.replace("$ResponseVarName", responseVarName);
+        template = template.replace("$nodeInstanceIdVarName", nodeInstanceIdVarName);
+        return template;
+    }
 
     public String createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsString(final String serviceTemplateUrlVarName,
                                                                                           final String relationshipTemplateId,
