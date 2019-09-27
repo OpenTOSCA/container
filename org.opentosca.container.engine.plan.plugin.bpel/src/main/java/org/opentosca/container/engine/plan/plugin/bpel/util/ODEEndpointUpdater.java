@@ -60,21 +60,19 @@ import org.slf4j.LoggerFactory;
  * Copyright 2012 IAAS University of Stuttgart <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * @see org.opentosca.core.endpoint.service.ICoreEndpointService
+ * @see org.opentosca.container.core.service.ICoreEndpointService
  * @see org.apache.ode.schemas.dd._2007._03.TDeployment
  */
 public class ODEEndpointUpdater {
 
   private static final Logger LOG = LoggerFactory.getLogger(ODEEndpointUpdater.class);
-  // the services are static (bind/unbind too), if not, instantiation of
-  // this class will not have the services
-  private static ICoreEndpointService endpointService;
-  private static ICoreEndpointService oldEndpointService;
 
   private final WSDLFactory factory;
 
   private CsarId csarId;
   private final String servicesRoot;
+  private ICoreEndpointService endpointService;
+
   // @hahnml: The type of plan engine used (BPS or ODE)
   private String engineType;
 
@@ -85,20 +83,11 @@ public class ODEEndpointUpdater {
    *
    * @throws WSDLException if no instance of WSDLFactory was found
    */
-  public ODEEndpointUpdater(final String servicesRoot, final String engineType) throws WSDLException {
+  public ODEEndpointUpdater(final String servicesRoot, final String engineType, ICoreEndpointService endpointService) throws WSDLException {
     this.factory = WSDLFactory.newInstance();
     this.servicesRoot = servicesRoot;
     this.engineType = engineType;
-  }
-
-  /**
-   * Contructor
-   *
-   * @throws WSDLException if no instance of WSDLFactory was found
-   */
-  public ODEEndpointUpdater() throws WSDLException {
-    this.factory = WSDLFactory.newInstance();
-    this.servicesRoot = null;
+    this.endpointService = endpointService;
   }
 
   /**
@@ -530,7 +519,7 @@ public class ODEEndpointUpdater {
       // in the wsdl spec they use the extensibility mechanism
       final ExtensibilityElement element = (ExtensibilityElement) obj;
       for (final WSDLEndpoint endpoint : getWSDLEndpointsFromEndpointDB(port)) {
-
+        LOG.debug("Changing address for endpoint: {}", endpoint.getURI());
         if (changeAddress(element, endpoint)) {
           changed = true;
         }
@@ -577,19 +566,21 @@ public class ODEEndpointUpdater {
    */
   private List<WSDLEndpoint> getWSDLEndpointsFromEndpointDB(final Port port) {
     final List<WSDLEndpoint> endpoints = new LinkedList<>();
-    if (ODEEndpointUpdater.endpointService != null) {
+    if (endpointService != null) {
       LOG.debug("Fetching Endpoints for PortType {} ",
         port.getBinding().getPortType().getQName().toString());
-      final List<WSDLEndpoint> temp =
-        ODEEndpointUpdater.endpointService.getWSDLEndpoints(port.getBinding().getPortType().getQName(),
-          Settings.OPENTOSCA_CONTAINER_HOSTNAME, this.csarId);
+      final List<WSDLEndpoint> temp = endpointService.getWSDLEndpoints();
       for (final WSDLEndpoint endpoint : temp) {
-        LOG.debug("Found endpoint: {}", endpoint.getURI().toString());
-        endpoints.add(endpoint);
+        if (endpoint.getPortType().equals(port.getBinding().getPortType().getQName())
+          && endpoint.getManagingContainer().equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
+          LOG.debug("Found endpoint: {}", endpoint.getURI().toString());
+          endpoints.add(endpoint);
+        }
       }
     } else {
       LOG.debug("Endpoint service not available");
     }
+    LOG.debug("{} endpoints found for PortType {}", endpoints.size(), port.getBinding().getPortType().getQName().toString());
     return endpoints;
   }
 
@@ -621,39 +612,6 @@ public class ODEEndpointUpdater {
       return false;
     }
     return true;
-  }
-
-  /**
-   * Bind method for EndpointService
-   *
-   * @param endpointService the EndpointService to bind
-   */
-  protected static void bindEndpointService(final ICoreEndpointService endpointService) {
-    if (endpointService != null) {
-      LOG.debug("Registering EndpointService {}", endpointService.toString());
-      if (ODEEndpointUpdater.endpointService == null) {
-        ODEEndpointUpdater.endpointService = endpointService;
-      } else {
-        ODEEndpointUpdater.oldEndpointService = endpointService;
-        ODEEndpointUpdater.endpointService = endpointService;
-      }
-      LOG.debug("Registered EndpointService {}", endpointService.toString());
-    }
-  }
-
-  /**
-   * Unbind method for EndpointService
-   *
-   * @param endpointService the EndpointService to unbind
-   */
-  protected static void unbindEndpointService(final ICoreEndpointService endpointService) {
-    LOG.debug("Unregistering EndpointService {}", endpointService.toString());
-    if (ODEEndpointUpdater.oldEndpointService == null) {
-      ODEEndpointUpdater.endpointService = null;
-    } else {
-      ODEEndpointUpdater.oldEndpointService = null;
-    }
-    LOG.debug("Unregistered EndpointService {}", endpointService.toString());
   }
 
   /**

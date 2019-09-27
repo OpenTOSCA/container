@@ -140,7 +140,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     // till end the process can't be instantiated by the container
     QName portType = null;
     try {
-      odeUpdater = new ODEEndpointUpdater(servicesUrl, processEngine);
+      odeUpdater = new ODEEndpointUpdater(servicesUrl, processEngine, endpointService);
       portType = odeUpdater.getPortType(planContents);
       if (!odeUpdater.changeEndpoints(planContents, csarId)) {
         LOG.error("Not all endpoints used by the plan {} have been changed",

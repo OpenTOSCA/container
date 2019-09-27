@@ -1,6 +1,9 @@
 package org.opentosca.bus.management.api.soaphttp.route;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
@@ -17,6 +20,10 @@ import org.opentosca.bus.management.api.soaphttp.processor.RequestProcessor;
 import org.opentosca.bus.management.api.soaphttp.processor.ResponseProcessor;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.springframework.stereotype.Component;
 
@@ -56,11 +63,29 @@ public class Route extends RouteBuilder {
 
   private final IToscaEngineService toscaEngineService;
   private final IManagementBusService managementBusService;
+  private final ICoreEndpointService endpointService;
 
   @Inject
-  public Route(IToscaEngineService toscaEngineService, IManagementBusService managementBusService) {
+  public Route(IToscaEngineService toscaEngineService, IManagementBusService managementBusService,
+               ICoreEndpointService endpointService) {
     this.toscaEngineService = toscaEngineService;
     this.managementBusService = managementBusService;
+    this.endpointService = endpointService;
+
+    storeManagementEndpoint();
+  }
+
+  private void storeManagementEndpoint() {
+    try {
+      URI uri = new URI(Route.PUBLIC_ENDPOINT);
+      final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+      final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, localContainer, localContainer,
+        new CsarId("***"), null, null, null, null, new HashMap<String,String>());
+      endpointService.storeWSDLEndpoint(endpoint);
+    }
+    catch (final URISyntaxException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
