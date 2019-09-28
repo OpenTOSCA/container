@@ -493,8 +493,7 @@ public class BPELInvokerPluginHandler {
                         final Map<String, Variable> internalExternalPropsOutput,
                         final BPELScopePhaseType appendToPrePhase) throws Exception {
 
-    // fetch "meta"-data for invoker message (e.g. csarid, nodetemplate
-    // id..)
+    // fetch "meta"-data for invoker message (e.g. csarid, nodetemplate id..)
     boolean isNodeTemplate = true;
     String templateId = "";
     if (context.getNodeTemplate() != null) {

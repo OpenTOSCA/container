@@ -9,6 +9,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.common.ids.definitions.NodeTypeId;
 import org.eclipse.winery.model.tosca.*;
 import org.eclipse.winery.model.tosca.TEntityType.DerivedFrom;
@@ -16,6 +17,8 @@ import org.eclipse.winery.model.tosca.visitor.Visitor;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.xml.XMLHelper;
 import org.opentosca.container.core.model.csar.Csar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -36,6 +39,8 @@ import org.w3c.dom.Element;
  */
 @NonNullByDefault
 public final class ToscaEngine {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ToscaEngine.class);
 
   /**
    * Gets a serviceTemplate from a csar by it's QName. This delegates to {@link #resolveServiceTemplate(Csar, QName)},
@@ -352,6 +357,55 @@ public final class ToscaEngine {
       .filter(nti -> QName.valueOf(nti.getIdFromIdOrNameField()).equals(nodeTypeImplQname))
       .findFirst()
       .orElseThrow(() -> new NotFoundException("No node type implementation was found for the QName " + nodeTypeImplQname));
+  }
+
+  public static ResolvedArtifacts resolvedDeploymentArtifactsOfNodeTemplate(Csar context, TNodeTemplate nodeTemplate) {
+    final ResolvedArtifacts result = new ResolvedArtifacts();
+    result.setDeploymentArtifacts(resolvedDeploymentArtifactsForNodeTemplate(context, nodeTemplate));
+    return result;
+  }
+
+  public static List<ResolvedArtifacts.ResolvedDeploymentArtifact> resolvedDeploymentArtifactsForNodeTemplate(Csar context, TNodeTemplate nodeTemplate) {
+    LOG.debug("Trying to fetch DAs of NodeTemplate {}", nodeTemplate.getName());
+    if (nodeTemplate.getDeploymentArtifacts() == null
+        || nodeTemplate.getDeploymentArtifacts().getDeploymentArtifact() == null) {
+      LOG.info("NodeTemplate {} has no deployment artifacts", nodeTemplate.getName());
+      return Collections.emptyList();
+    }
+
+    return nodeTemplate.getDeploymentArtifacts().getDeploymentArtifact().stream()
+      .map(da -> ToscaEngine.resolveDA(context, nodeTemplate, da))
+      .collect(Collectors.toList());
+  }
+
+  private static ResolvedArtifacts.ResolvedDeploymentArtifact resolveDA(Csar context, TNodeTemplate nodeTemplate, TDeploymentArtifact da) {
+    final ResolvedArtifacts.ResolvedDeploymentArtifact result = new ResolvedArtifacts.ResolvedDeploymentArtifact();
+    result.setName(da.getName());
+    result.setType(da.getArtifactType());
+
+    // assumption: there is artifactSpecificContent OR an artifactTemplateRef
+    if (da.getArtifactRef() != null) {
+      result.setArtifactSpecificContent(/* resolve artifact specific content */null);
+      return result;
+    }
+
+    TArtifactTemplate template = (TArtifactTemplate) context.queryRepository(new ArtifactTemplateId(da.getArtifactRef()));
+    final List<String> references = new ArrayList<>();
+    for (final TArtifactReference artifactReference : Optional.ofNullable(template.getArtifactReferences()).map(ars -> ars.getArtifactReference()).orElse(Collections.emptyList())) {
+      // if there is no include patterns, just add the reference
+      if (artifactReference.getIncludeOrExclude() == null
+        || artifactReference.getIncludeOrExclude().isEmpty()) {
+          references.add(artifactReference.getReference());
+          continue;
+      }
+      artifactReference.getIncludeOrExclude().stream()
+        .filter(o -> o instanceof TArtifactReference.Include)
+        .map(TArtifactReference.Include.class::cast)
+        .forEach(includePattern -> references.add(artifactReference.getReference() + "/" + includePattern.getPattern()));
+    }
+    result.setReferences(references);
+
+    return result;
   }
 
   @Nullable

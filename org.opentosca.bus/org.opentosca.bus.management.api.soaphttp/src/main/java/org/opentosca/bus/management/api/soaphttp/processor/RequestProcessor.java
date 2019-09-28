@@ -17,6 +17,7 @@ import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.headers.Header;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.opentosca.bus.management.api.soaphttp.model.Doc;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationAsync;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationSync;
@@ -27,8 +28,10 @@ import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
-import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.legacy.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -56,12 +59,11 @@ public class RequestProcessor implements Processor {
   public static final String MB_MANAGEMENT_SOAPHTTP_API_ID = "org.opentosca.bus.management.api.soaphttp";
 
   private static final Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
-
-  private final IToscaEngineService toscaEngineService;
+  private final CsarStorageService csarStorage;
 
   @Inject
-  public RequestProcessor(IToscaEngineService toscaEngineService) {
-    this.toscaEngineService = toscaEngineService;
+  public RequestProcessor(CsarStorageService csarStorage) {
+    this.csarStorage = csarStorage;
   }
 
   @Override
@@ -117,8 +119,10 @@ public class RequestProcessor implements Processor {
       final List<ResolvedDeploymentArtifact> resolvedDAs = new ArrayList<>();
       if (nodeTemplateID != null) {
         final QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
-        final ResolvedArtifacts resolvedArtifacts =
-          toscaEngineService.getResolvedArtifactsOfNodeTemplate(new CSARID(csarIDString), nodeTemplateQName);
+        final Csar csar = csarStorage.findById(new CsarId(csarIDString));
+        final TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(csar, serviceTemplateID, nodeTemplateID);
+
+        final ResolvedArtifacts resolvedArtifacts = ToscaEngine.resolvedDeploymentArtifactsOfNodeTemplate(csar, nodeTemplate);
         resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
       }
 
@@ -253,7 +257,7 @@ public class RequestProcessor implements Processor {
       exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
     }
 
-    final CSARID csarID = new CSARID(csarIDString);
+    final CsarId csarID = new CsarId(csarIDString);
 
     exchange.getIn().setHeader(MBHeader.CSARID.toString(), csarID);
     exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), operationName);

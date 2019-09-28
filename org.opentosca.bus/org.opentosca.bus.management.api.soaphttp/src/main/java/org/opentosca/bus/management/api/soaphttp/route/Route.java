@@ -21,8 +21,8 @@ import org.opentosca.bus.management.api.soaphttp.processor.ResponseProcessor;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.springframework.stereotype.Component;
@@ -61,14 +61,14 @@ public class Route extends RouteBuilder {
   // Checks if invoking a Plan
   final Predicate IS_INVOKE_PLAN = header(CxfConstants.OPERATION_NAME).isEqualTo("invokePlan");
 
-  private final IToscaEngineService toscaEngineService;
+  private final CsarStorageService csarStorageService;
   private final IManagementBusService managementBusService;
   private final ICoreEndpointService endpointService;
 
   @Inject
-  public Route(IToscaEngineService toscaEngineService, IManagementBusService managementBusService,
+  public Route(CsarStorageService csarStorageService, IManagementBusService managementBusService,
                ICoreEndpointService endpointService) {
-    this.toscaEngineService = toscaEngineService;
+    this.csarStorageService = csarStorageService;
     this.managementBusService = managementBusService;
     this.endpointService = endpointService;
 
@@ -97,8 +97,9 @@ public class Route extends RouteBuilder {
       + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT.toString()
       + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
     final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL.toString()
-      + "&serviceName={http://siserver.org/wsdl}InvokerService&portName={http://siserver.org/wsdl}CallbackPort&dataFormat=PAYLOAD&loggingFeatureEnabled=true&headerFilterStrategy=#"
-      + CxfHeaderFilterStrategy.class.getName();
+      + "&headerFilterStrategy=#dropAllMessageHeadersStrategy"
+      + "&serviceName={http://siserver.org/wsdl}InvokerService&portName={http://siserver.org/wsdl}CallbackPort"
+      + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
     // Checks if invoke is sync or async
     final Predicate MESSAGEID = header("MessageID").isNotNull();
@@ -112,7 +113,7 @@ public class Route extends RouteBuilder {
     responseJaxb.setPartClass("org.opentosca.bus.management.api.soaphttp.model.InvokeResponse");
     responseJaxb.setPartNamespace(new QName("http://siserver.org/schema", "invokeResponse"));
 
-    final Processor requestProcessor = new RequestProcessor(toscaEngineService);
+    final Processor requestProcessor = new RequestProcessor(csarStorageService);
     final Processor responseProcessor = new ResponseProcessor();
 
     this.from(INVOKE_ENDPOINT)
