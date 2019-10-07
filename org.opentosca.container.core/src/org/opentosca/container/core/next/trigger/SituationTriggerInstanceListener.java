@@ -15,6 +15,7 @@ import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.SituationTriggerInstance;
 import org.opentosca.container.core.next.model.SituationTriggerInstanceProperty;
@@ -98,8 +99,13 @@ public class SituationTriggerInstanceListener {
 
                 final PlanInstanceRepository planRepo = new PlanInstanceRepository();
                 final Collection<PlanInstance> allOccurences = planRepo.findAll();
-                for (final PlanInstance instance : allOccurences) {
-                    System.out.println(instance.getId());
+                for (final PlanInstance currInstance : allOccurences) {
+                    final List<PlanInstanceEvent> currEventsOfInstance = currInstance.getEvents();
+                    for (final PlanInstanceEvent aEvent : currEventsOfInstance) {
+                        // TODO: Find all Operations of triggered trigger (i.e. scale-out contains startContainer...)
+                        // TODO: Go through all Events and find WCET of each of the operations
+                    }
+                    System.out.println(this.instance.getId());
                 }
                 final QName planId = this.toscaEngine.getToscaReferenceMapper()
                                                      .getBoundaryPlanOfCSARInterface(servInstance.getCsarId(),
