@@ -12,8 +12,14 @@ import java.util.Map;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.container.connector.bps.BpsConnector;
 import org.opentosca.container.connector.ode.OdeConnector;
@@ -26,6 +32,7 @@ import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.trigger.SituationTriggerInstanceListener;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.service.IFileAccessService;
@@ -36,7 +43,12 @@ import org.opentosca.container.engine.plan.plugin.bpel.util.Messages;
 import org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
 
 /**
  * This class implements functionality for deployment of WS-BPEL 2.0 Processes through the
@@ -87,6 +99,8 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     static private String PASSWORD = Messages.BpelPlanEnginePlugin_engineLoginPw;
     static private String URL = Messages.BpelPlanEnginePlugin_engineAddress;
     static private String SERVICESURL = Messages.BpelPlanEnginPlugin_engineServiceRootAddress;
+
+    private final Map<String, List<String>> planToOperationMap = new HashMap<>();
 
     public BpelPlanEnginePlugin() {
         final String processEngine = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.engine");
@@ -141,12 +155,13 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         return capabilities;
     }
 
-    
-    public boolean deployPlanFile(final Path filePath, final CSARID csarId, final QName planId, Map<String,String> endpointMetadata) {
+
+    public boolean deployPlanFile(final Path filePath, final CSARID csarId, final QName planId,
+                                  Map<String, String> endpointMetadata) {
         List<File> planContents;
         File tempDir;
         File tempPlan;
-        QName portType = null;               
+        QName portType = null;
 
         if (this.fileAccessService != null) {
             // creating temporary dir for update
@@ -155,19 +170,76 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             BpelPlanEnginePlugin.LOG.debug("Unzipping Plan '{}' to '{}'.", filePath.getFileName().toString(),
                                            tempDir.getAbsolutePath());
             planContents = this.fileAccessService.unzip(filePath.toFile(), tempDir);
+            // currently assuming all operations are contained in the single existing bpel file. Hopefully there
+            // are not multiple bpel files in some cases
+            for (final File plan : planContents) {
+                final int i = plan.getName().lastIndexOf('.');
+                if (i > 0) {
+                    if (plan.getName().substring(i + 1).equals("bpel")) {
+                        try {
+                            final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                            final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                            final Document docToParse = dBuilder.parse(plan);
+                            docToParse.getDocumentElement().normalize();
+
+                            final XPath xPath = XPathFactory.newInstance().newXPath();
+                            final String expression = "//*[local-name()='OperationName']";
+                            final NodeList nodeList =
+                                (NodeList) xPath.compile(expression).evaluate(docToParse, XPathConstants.NODESET);
+
+                            final List<String> operationNames = new ArrayList<>();
+
+                            for (int j = 0; j < nodeList.getLength(); j++) {
+                                if (nodeList.item(j).getNodeType() == Node.ELEMENT_NODE) {
+                                    final Element currElement = (Element) nodeList.item(j);
+                                    final String thisOperation = currElement.getChildNodes().item(0).getTextContent();
+                                    operationNames.add(thisOperation);
+                                }
+
+                            }
+                            this.planToOperationMap.put(planId.getLocalPart(), operationNames);
+                            final SituationTriggerInstanceListener triggerListener =
+                                new SituationTriggerInstanceListener();
+                            triggerListener.setPlanToOperationMap(this.planToOperationMap);
+
+                            System.out.println("wait");
+
+
+
+                        }
+                        catch (final ParserConfigurationException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        catch (final SAXException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        catch (final IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        catch (final XPathExpressionException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                }
+            }
         } else {
             BpelPlanEnginePlugin.LOG.error("FileAccessService is not available, can't create needed temporary space on disk");
             return false;
         }
-        
-     // changing endpoints in WSDLs
+
+        // changing endpoints in WSDLs
         ODEEndpointUpdater odeUpdater;
         try {
             odeUpdater = new ODEEndpointUpdater(SERVICESURL, ENGINE);
             portType = odeUpdater.getPortType(planContents);
             if (!odeUpdater.changeEndpoints(planContents, csarId)) {
-                BpelPlanEnginePlugin.LOG.error("Not all endpoints used by the plan {} have been changed",
-                                               filePath);
+                BpelPlanEnginePlugin.LOG.error("Not all endpoints used by the plan {} have been changed", filePath);
             }
         }
         catch (final WSDLException e) {
@@ -180,7 +252,8 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             bpelRestUpdater = new BPELRESTLightUpdater();
             if (!bpelRestUpdater.changeEndpoints(planContents, csarId)) {
                 // we don't abort deployment here
-                BpelPlanEnginePlugin.LOG.warn("Could'nt change all endpoints inside BPEL4RESTLight Elements in the given process {}", filePath);
+                BpelPlanEnginePlugin.LOG.warn("Could'nt change all endpoints inside BPEL4RESTLight Elements in the given process {}",
+                                              filePath);
             }
         }
         catch (final TransformerConfigurationException e) {
@@ -252,7 +325,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             }
         }
 
-        if (endpoint == null) {         
+        if (endpoint == null) {
             return false;
         }
 
@@ -262,10 +335,10 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
             // save endpoint
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-            final WSDLEndpoint wsdlEndpoint =
-                new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata);   
+            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType, localContainer, localContainer,
+                csarId, null, planId, null, null, endpointMetadata);
             this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-           
+
         } else {
             BpelPlanEnginePlugin.LOG.error("Error while processing plan");
             if (processId == null) {
@@ -277,15 +350,15 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             if (portType == null) {
                 BpelPlanEnginePlugin.LOG.error("PortType of process is null");
             }
-            
-            if(this.endpointService == null) {
+
+            if (this.endpointService == null) {
                 BpelPlanEnginePlugin.LOG.error("Endpoint Service is null");
             }
             return false;
         }
         return true;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -307,7 +380,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             AbstractArtifact planReference = null;
 
             planReference = this.toscaEngine.getPlanModelReferenceAbstractArtifact(csar, planId);
-       
+
             if (planReference == null) {
                 BpelPlanEnginePlugin.LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
                                                planRef.getReference());
@@ -341,15 +414,15 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 return false;
             }
 
-            return this.deployPlanFile(fetchedPlan, csarId, planId, new HashMap<String,String>());
-            
-          
+            return deployPlanFile(fetchedPlan, csarId, planId, new HashMap<String, String>());
+
+
 
         } else {
             BpelPlanEnginePlugin.LOG.error("Can't fetch relevant files from FileService: FileService not available");
             return false;
         }
-        
+
     }
 
     /**

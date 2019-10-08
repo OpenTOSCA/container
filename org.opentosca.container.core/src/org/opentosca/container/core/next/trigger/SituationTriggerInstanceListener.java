@@ -3,7 +3,10 @@ package org.opentosca.container.core.next.trigger;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.PostPersist;
@@ -37,6 +40,12 @@ public class SituationTriggerInstanceListener {
 
     private static final List<SituationTriggerInstanceObserver> obs = Lists.newArrayList();
 
+    private static Map<String, List<String>> planToOperationMap = new HashMap<>();
+
+    // public SituationTriggerInstanceListener(Map<String, List<String>> map) {
+    // this.planToOperationMap = map;
+    // }
+
     @PostPersist
     public void startSituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
         final SituationTriggerInstanceObserver obs = new SituationTriggerInstanceObserver(instance);
@@ -55,6 +64,7 @@ public class SituationTriggerInstanceListener {
         private final IToscaEngineService toscaEngine;
 
         private final SituationTriggerInstance instance;
+
 
         public SituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
             this.instance = instance;
@@ -97,16 +107,12 @@ public class SituationTriggerInstanceListener {
                                       wcetInSeconds, timeAvailableInSeconds);
                 }
 
-                final PlanInstanceRepository planRepo = new PlanInstanceRepository();
-                final Collection<PlanInstance> allOccurences = planRepo.findAll();
-                for (final PlanInstance currInstance : allOccurences) {
-                    final List<PlanInstanceEvent> currEventsOfInstance = currInstance.getEvents();
-                    for (final PlanInstanceEvent aEvent : currEventsOfInstance) {
-                        // TODO: Find all Operations of triggered trigger (i.e. scale-out contains startContainer...)
-                        // TODO: Go through all Events and find WCET of each of the operations
-                    }
-                    System.out.println(this.instance.getId());
-                }
+                long calculatedTimeFromPreviousExecutions = 0;
+
+                // contains mapping of Planname to its contained operations
+                final Map<String, List<String>> planNameToOperationsMap = getPlanToOperationMap();
+
+                // get info about current plan
                 final QName planId = this.toscaEngine.getToscaReferenceMapper()
                                                      .getBoundaryPlanOfCSARInterface(servInstance.getCsarId(),
                                                                                      interfaceName, operationName);
@@ -114,6 +120,35 @@ public class SituationTriggerInstanceListener {
                                                    .getPlanForCSARIDAndPlanID(servInstance.getCsarId(), planId);
 
                 final TPlanDTO planDTO = new TPlanDTO(plan, planId.getNamespaceURI());
+
+                // find all operations contained in current plan
+                final List<String> allOperationsInPlan = planNameToOperationsMap.get(plan.getId());
+
+                // get all previously completed operations from DB
+                final PlanInstanceRepository planRepo = new PlanInstanceRepository();
+                final Collection<PlanInstance> allOccurences = planRepo.findAll();
+
+                if (allOperationsInPlan != null) {
+                    // iterate through all InstanceEvents searching for execution times of previous events for same Plan
+                    for (final PlanInstance currInstance : allOccurences) {
+                        if (currInstance.getTemplateId().getLocalPart().equals(plan.getId())) {
+                            for (final String oneOperation : allOperationsInPlan) {
+                                for (final PlanInstanceEvent aEvent : currInstance.getEvents()) {
+                                    if (Objects.nonNull(aEvent.getOperationName())
+                                        && Objects.nonNull(aEvent.getExecutionDuration())) {
+                                        if (aEvent.getOperationName().equals(oneOperation)) {
+                                            calculatedTimeFromPreviousExecutions += aEvent.getExecutionDuration();
+                                            // TODO: Prevent adding time up when same plan has already been executed 2
+                                            // times
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
 
                 for (final TParameterDTO param : planDTO.getInputParameters().getInputParameter()) {
                     if (param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
@@ -195,6 +230,14 @@ public class SituationTriggerInstanceListener {
             return false;
         }
 
+    }
+
+    public Map<String, List<String>> getPlanToOperationMap() {
+        return this.planToOperationMap;
+    }
+
+    public void setPlanToOperationMap(Map<String, List<String>> planToOperationMap) {
+        this.planToOperationMap = planToOperationMap;
     }
 
 }
