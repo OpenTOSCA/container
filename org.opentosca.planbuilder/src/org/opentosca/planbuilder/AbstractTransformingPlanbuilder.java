@@ -106,7 +106,8 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         // any component that is a platform node (every node without outgoing
         // hostedOn edges), or is a node in the subgraph where its (transitive) platform
         // nodes are also in the subgraph are valid
-        Set<AbstractNodeTemplate> deployableMaxCommonSubgraph = this.getDeployableSubgraph(maxCommonSubgraph);
+        
+        Set<AbstractNodeTemplate> deployableMaxCommonSubgraph = this.getDeployableSubgraph(new HashSet<AbstractNodeTemplate>(this.getCorrespondingNodes(maxCommonSubgraph, targetNodeTemplates)));
 
         // determine steps which have to be deleted from the original topology
         Set<AbstractNodeTemplate> nodesToTerminate = new HashSet<AbstractNodeTemplate>(sourceNodeTemplates);
@@ -581,6 +582,10 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             && this.mappingEquals(rel1.getTarget(), rel2.getTarget()))) {
             return false;
         }
+        
+        if(!rel1.getId().equals(rel2.getId())) {
+            return false;
+        }
 
         return true;
     }
@@ -627,6 +632,12 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         // return false;
         // }
         LOG.debug("Matched node {} with node {} ", node1.getId(), node2.getId());
+        
+        
+        if(!node1.getId().equals(node2.getId())) {
+            return false;
+        }
+        
         return true;
     }
 
