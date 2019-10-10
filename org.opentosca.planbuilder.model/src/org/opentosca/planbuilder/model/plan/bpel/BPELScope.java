@@ -50,6 +50,11 @@ public class BPELScope{
 
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
+    
+    @Override
+    public String toString() {
+        return "BPELScope Plan: " + buildPlan.getId() + " Activity: " + this.act + ((this.getNodeTemplate() != null) ? " Node: " +this.nodeTemplate.getId() : " Relation: " + this.relationshipTemplate.getId());
+    }
 
     public static enum BPELScopePhaseType {
         PRE, PROVISIONING, POST
