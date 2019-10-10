@@ -20,6 +20,7 @@ public class PlacementNodeTemplate {
     @JsonProperty("node_type")
     private String nodeType;
 
+    @JsonProperty("valid_node_template_instances")
     private List<NodeTemplateInstance> validNodeTemplateInstances;
 
     PlacementNodeTemplate() {}
@@ -28,7 +29,6 @@ public class PlacementNodeTemplate {
         this.id = id;
         this.name = name;
         this.nodeType = nodeType;
-        this.validNodeTemplateInstances = Lists.newArrayList();
     }
 
     public void setId(final String id) {
@@ -55,8 +55,12 @@ public class PlacementNodeTemplate {
         return this.nodeType;
     }
 
-    public void setValidNodeTemplateInstances(final List<NodeTemplateInstance> validNodeTemplateInstances) {
-        this.validNodeTemplateInstances = validNodeTemplateInstances;
+    public void createValidNodeTemplateInstancesList() {
+        this.validNodeTemplateInstances = Lists.newArrayList();
+    }
+
+    public void addNodeTemplateInstance(final NodeTemplateInstance validNodeTemplateInstance) {
+        this.validNodeTemplateInstances.add(validNodeTemplateInstance);
     }
 
     public List<NodeTemplateInstance> getValidNodeTemplateInstances() {

@@ -14,8 +14,8 @@ public class PlacementModel {
 
     PlacementModel() {}
 
-    PlacementModel(final List<PlacementNodeTemplate> need_to_be_placed) {
-        this.needToBePlaced = need_to_be_placed;
+    PlacementModel(final List<PlacementNodeTemplate> needToBePlaced) {
+        this.needToBePlaced = needToBePlaced;
     }
 
     public void setNeedToBePlaced(final List<PlacementNodeTemplate> needToBePlaced) {

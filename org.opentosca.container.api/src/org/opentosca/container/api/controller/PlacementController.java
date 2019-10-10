@@ -1,6 +1,5 @@
 package org.opentosca.container.api.controller;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.PlacementModel;
 import org.opentosca.container.api.dto.PlacementNodeTemplate;
@@ -58,6 +58,29 @@ public class PlacementController {
     public Response getInstances(@ApiParam("node template list need to be placed") final PlacementModel request) throws InstantiationException,
                                                                                                                  IllegalAccessException,
                                                                                                                  IllegalArgumentException {
+
+        // FOLLOWING CODE IS JUST FOR TEST PURPOSES, we manually create a node template instance and add
+        // some properties to it
+        // #########################################################################################################
+        // create node templ instance 1
+        final NodeTemplateInstance testNodeTemplateInstance = new NodeTemplateInstance();
+        testNodeTemplateInstance.setId(9223372036854775806L);
+        final QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/nodetypes", "Ubuntu-14.04-VM");
+        final QName ubuntu1404ServerVmNodeTemplate = new QName("http://opentosca.org/nodetypes", "Ubuntu-14.04-VM1");
+        testNodeTemplateInstance.setTemplateId(ubuntu1404ServerVmNodeTemplate);
+        testNodeTemplateInstance.setTemplateType(ubuntu1404ServerVmNodeType);
+
+        // create node templ instance 2
+        final NodeTemplateInstance testNodeTemplateInstance2 = new NodeTemplateInstance();
+        testNodeTemplateInstance2.setId(9223372036854775805L);
+        final QName ubuntu1804ServerVmNodeType = new QName("http://opentosca.org/nodetypes", "Ubuntu-18.04-VM");
+        final QName ubuntu1804ServerVmNodeTemplate = new QName("http://opentosca.org/nodetypes", "Ubuntu-18.04-VM1");
+        testNodeTemplateInstance2.setTemplateType(ubuntu1804ServerVmNodeType);
+        testNodeTemplateInstance2.setTemplateId(ubuntu1804ServerVmNodeTemplate);
+        // ##########################################################################################################
+
+
+
         // all node templates that need to be placed
         final List<PlacementNodeTemplate> nodeTemplatesToBePlaced = request.getNeedToBePlaced();
         // all running node template instances
@@ -65,10 +88,16 @@ public class PlacementController {
             this.instanceService.getAllNodeTemplateInstances();
         // loop over all node templates that need to be placed
         for (int i = 0; i < nodeTemplatesToBePlaced.size(); i++) {
+            nodeTemplatesToBePlaced.get(i).createValidNodeTemplateInstancesList();
+            // FOLLOWING CODE IS JUST FOR TEST PURPOSES, we manually add our manually created instances to
+            // result list /
+            // ##########################################################################
+            nodeTemplatesToBePlaced.get(i).addNodeTemplateInstance(testNodeTemplateInstance);
+            nodeTemplatesToBePlaced.get(i).addNodeTemplateInstance(testNodeTemplateInstance2);
+            // ##########################################################################
+
             // search for valid running node template instances where node template can be placed
             for (final NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstanceList) {
-                final List<NodeTemplateInstance> validInstances = new ArrayList<>();
-                nodeTemplatesToBePlaced.get(i).setValidNodeTemplateInstances(validInstances);
                 // check if node type of instance is supported os node type
                 if (Utils.isSupportedVMNodeType(nodeTemplateInstance.getTemplateType())) {
                     // yay, we found an option, add to list
