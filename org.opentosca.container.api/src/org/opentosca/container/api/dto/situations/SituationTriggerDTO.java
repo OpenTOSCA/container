@@ -44,9 +44,6 @@ public class SituationTriggerDTO extends ResourceSupport {
     @XmlElement(name = "InterfaceName")
     private String interfaceName;
 
-    @XmlElement(name = "WCETinSeconds")
-    private Long wcetInSeconds;
-
     @XmlElement(name = "TimeAvailableInSeconds")
     private Long timeAvailableInSeconds;
 
@@ -60,14 +57,6 @@ public class SituationTriggerDTO extends ResourceSupport {
 
     public Long getId() {
         return this.id;
-    }
-
-    public Long getWcetInSeconds() {
-        return this.wcetInSeconds;
-    }
-
-    public void setWcetInSeconds(final Long wcetInSeconds) {
-        this.wcetInSeconds = wcetInSeconds;
     }
 
     public Long getTimeAvailableInSeconds() {
@@ -170,7 +159,6 @@ public class SituationTriggerDTO extends ResourceSupport {
             dto.setInterfaceName(object.getInterfaceName());
             dto.setOperationName(object.getOperationName());
             dto.setTimeAvailableInSeconds(object.getTimeAvailableInSeconds());
-            dto.setWcetInSeconds(object.getWcetInSeconds());
             final Collection<SituationTriggerInputDTO> inputs = Sets.newHashSet();
             object.getInputs().forEach(x -> inputs.add(SituationTriggerInputDTO.Converter.convert(x)));
             dto.setInputParams(inputs);

@@ -47,9 +47,6 @@ public class SituationTrigger extends PersistenceObject {
     private String operationName;
 
     @Column(nullable = false)
-    private long wcetInSeconds;
-
-    @Column(nullable = false)
     private long timeAvailableInSeconds;
 
     @OrderBy("createdAt DESC")
@@ -114,14 +111,6 @@ public class SituationTrigger extends PersistenceObject {
 
     public void setOperationName(final String operationName) {
         this.operationName = operationName;
-    }
-
-    public long getWcetInSeconds() {
-        return this.wcetInSeconds;
-    }
-
-    public void setWcetInSeconds(final long wcetInSeconds) {
-        this.wcetInSeconds = wcetInSeconds;
     }
 
     public long getTimeAvailableInSeconds() {

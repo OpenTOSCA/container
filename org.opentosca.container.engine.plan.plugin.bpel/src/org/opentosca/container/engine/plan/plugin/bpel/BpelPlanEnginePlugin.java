@@ -157,7 +157,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
 
     public boolean deployPlanFile(final Path filePath, final CSARID csarId, final QName planId,
-                                  Map<String, String> endpointMetadata) {
+                                  final Map<String, String> endpointMetadata) {
         List<File> planContents;
         File tempDir;
         File tempPlan;
@@ -201,11 +201,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                             final SituationTriggerInstanceListener triggerListener =
                                 new SituationTriggerInstanceListener();
                             triggerListener.setPlanToOperationMap(this.planToOperationMap);
-
-                            System.out.println("wait");
-
-
-
                         }
                         catch (final ParserConfigurationException e) {
                             // TODO Auto-generated catch block

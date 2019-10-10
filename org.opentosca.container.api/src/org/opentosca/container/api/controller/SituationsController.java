@@ -163,7 +163,6 @@ public class SituationsController {
                                                            situationTrigger.isSingleInstance(), serviceInstance,
                                                            nodeInstance, situationTrigger.getInterfaceName(),
                                                            situationTrigger.getOperationName(),
-                                                           situationTrigger.getWcetInSeconds(),
                                                            situationTrigger.getTimeAvailableInSeconds(), inputs);
 
         final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);

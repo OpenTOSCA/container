@@ -42,10 +42,6 @@ public class SituationTriggerInstanceListener {
 
     private static Map<String, List<String>> planToOperationMap = new HashMap<>();
 
-    // public SituationTriggerInstanceListener(Map<String, List<String>> map) {
-    // this.planToOperationMap = map;
-    // }
-
     @PostPersist
     public void startSituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
         final SituationTriggerInstanceObserver obs = new SituationTriggerInstanceObserver(instance);
@@ -89,7 +85,6 @@ public class SituationTriggerInstanceListener {
             final String operationName = this.instance.getSituationTrigger().getOperationName();
             final Set<SituationTriggerProperty> inputs = this.instance.getSituationTrigger().getInputs();
             final Long timeAvailableInSeconds = this.instance.getSituationTrigger().getTimeAvailableInSeconds();
-            final Long wcetInSeconds = this.instance.getSituationTrigger().getWcetInSeconds();
 
             final ServiceTemplateInstance servInstance = this.instance.getSituationTrigger().getServiceInstance();
             final NodeTemplateInstance nodeInstance = this.instance.getSituationTrigger().getNodeInstance();
@@ -98,19 +93,13 @@ public class SituationTriggerInstanceListener {
 
             if (nodeInstance == null) {
                 // plan invocation
-                if (wcetInSeconds > timeAvailableInSeconds) {
-                    System.out.printf("Update (WCET = %d s) not completable in timeframe of %d s. Aborting.",
-                                      wcetInSeconds, timeAvailableInSeconds);
-                    return;
-                } else {
-                    System.out.printf("Update (WCET = %d s) is completable in timeframe of %d s. Executing.",
-                                      wcetInSeconds, timeAvailableInSeconds);
-                }
 
                 long calculatedTimeFromPreviousExecutions = 0;
 
                 // contains mapping of Planname to its contained operations
                 final Map<String, List<String>> planNameToOperationsMap = getPlanToOperationMap();
+                // map of longest execution times for each operation
+                final Map<String, Long> longestDurationMap = new HashMap<>();
 
                 // get info about current plan
                 final QName planId = this.toscaEngine.getToscaReferenceMapper()
@@ -129,24 +118,31 @@ public class SituationTriggerInstanceListener {
                 final Collection<PlanInstance> allOccurences = planRepo.findAll();
 
                 if (allOperationsInPlan != null) {
-                    // iterate through all InstanceEvents searching for execution times of previous events for same Plan
                     for (final PlanInstance currInstance : allOccurences) {
                         if (currInstance.getTemplateId().getLocalPart().equals(plan.getId())) {
-                            for (final String oneOperation : allOperationsInPlan) {
-                                for (final PlanInstanceEvent aEvent : currInstance.getEvents()) {
-                                    if (Objects.nonNull(aEvent.getOperationName())
-                                        && Objects.nonNull(aEvent.getExecutionDuration())) {
-                                        if (aEvent.getOperationName().equals(oneOperation)) {
-                                            calculatedTimeFromPreviousExecutions += aEvent.getExecutionDuration();
-                                            // TODO: Prevent adding time up when same plan has already been executed 2
-                                            // times
-                                        }
-                                    }
-                                }
-                            }
+                            iterateInstanceEventsForExecutionTimes(longestDurationMap, allOperationsInPlan,
+                                                                   currInstance);
                         }
                     }
                 }
+                // add up the times of longest durations found for operations in plan
+                for (final Long duration : longestDurationMap.values()) {
+                    calculatedTimeFromPreviousExecutions += duration;
+                }
+                if (calculatedTimeFromPreviousExecutions > 0) {
+                    // check if time is shorter than timeAvailable
+                    if (calculatedTimeFromPreviousExecutions > timeAvailableInSeconds * 1000) {
+                        this.LOG.debug("Update (WCET = %d ms) not completable in timeframe of %d ms. Aborting.",
+                                       calculatedTimeFromPreviousExecutions, timeAvailableInSeconds);
+                        return;
+                    } else {
+                        this.LOG.debug("Update (WCET = %d ms) is completable in timeframe of %d ms. Executing.",
+                                       calculatedTimeFromPreviousExecutions, timeAvailableInSeconds);
+                    }
+                }
+
+
+                this.LOG.debug("Time: " + calculatedTimeFromPreviousExecutions);
 
 
 
@@ -218,6 +214,46 @@ public class SituationTriggerInstanceListener {
 
         }
 
+        /**
+         * iterate through all InstanceEvents searching for execution times of previous events of same Plan
+         *
+         * @param longestDurationMap
+         * @param allOperationsInPlan
+         * @param currInstance
+         */
+        private void iterateInstanceEventsForExecutionTimes(final Map<String, Long> longestDurationMap,
+                                                            final List<String> allOperationsInPlan,
+                                                            final PlanInstance currInstance) {
+            for (final String oneOperationFromPlan : allOperationsInPlan) {
+                for (final PlanInstanceEvent aEvent : currInstance.getEvents()) {
+                    if (Objects.nonNull(aEvent.getOperationName()) && Objects.nonNull(aEvent.getExecutionDuration())) {
+                        if (aEvent.getOperationName().equals(oneOperationFromPlan)) {
+                            checkIfCurrentOperationExecutionTimeIsLonger(longestDurationMap, aEvent);
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * if operation already contained in map, check if current execution duration is larger (replace) or
+         * smaller (leave)
+         *
+         * @param longestDurationMap
+         * @param aEvent
+         */
+        private void checkIfCurrentOperationExecutionTimeIsLonger(final Map<String, Long> longestDurationMap,
+                                                                  final PlanInstanceEvent aEvent) {
+            // key already exists in map
+            if (longestDurationMap.containsKey(aEvent.getOperationName())) {
+                if (longestDurationMap.get(aEvent.getOperationName()) < aEvent.getExecutionDuration()) {
+                    longestDurationMap.put(aEvent.getOperationName(), aEvent.getExecutionDuration());
+                }
+            } else {
+                longestDurationMap.put(aEvent.getOperationName(), aEvent.getExecutionDuration());
+            }
+        }
+
         private boolean isPlanExecutionFinished(final TPlanDTO plan, final String correlationId) {
 
             for (final TParameterDTO param : plan.getOutputParameters().getOutputParameter()) {
@@ -236,7 +272,7 @@ public class SituationTriggerInstanceListener {
         return this.planToOperationMap;
     }
 
-    public void setPlanToOperationMap(Map<String, List<String>> planToOperationMap) {
+    public void setPlanToOperationMap(final Map<String, List<String>> planToOperationMap) {
         this.planToOperationMap = planToOperationMap;
     }
 
