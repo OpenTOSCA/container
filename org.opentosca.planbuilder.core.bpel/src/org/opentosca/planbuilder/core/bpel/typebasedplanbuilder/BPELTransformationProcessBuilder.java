@@ -497,10 +497,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
     private void addNodeRelationInstanceVariables(BPELPlan plan, AbstractServiceTemplate sourceServiceTemplate,
                                                   AbstractServiceTemplate targetServiceTemplate) {
         for (BPELScope scope : this.getTerminationScopes(plan)) {
-
-            System.out.println("Adding Instance Vars to Scope: ");
-            System.out.println(scope);
-
             boolean added =
                 this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
             while (!added) {
@@ -514,8 +510,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         }
 
         for (BPELScope scope : this.getProvisioningScopes(plan)) {
-            System.out.println("Adding Instance Vars to Scope: ");
-            System.out.println(scope);
             boolean added =
                 this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
             while (!added) {
@@ -529,8 +523,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         }
 
         for (BPELScope scope : this.getMigrationScopes(plan)) {
-            System.out.println("Adding Instance Vars to Scope: ");
-            System.out.println(scope);
             boolean added =
                 this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
             while (!added) {
