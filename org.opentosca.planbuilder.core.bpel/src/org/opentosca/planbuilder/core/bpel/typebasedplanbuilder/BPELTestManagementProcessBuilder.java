@@ -154,6 +154,15 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
         runPlugins(newTestPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarName);
 
         this.correlationHandler.addCorrellationID(newTestPlan);
+        
+        this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newTestPlan,
+                                                                         this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTestPlan),
+                                                                         "ERROR", serviceInstanceUrl);
+        this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newTestPlan,
+                                                                         this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTestPlan),
+                                                                         "FAILED",
+                                                                         this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newTestPlan));
+        
         this.finalizer.finalize(newTestPlan);
 
         LOG.debug("Created Plan:");
