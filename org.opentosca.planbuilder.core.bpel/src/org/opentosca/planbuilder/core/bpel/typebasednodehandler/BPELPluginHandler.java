@@ -39,6 +39,9 @@ public class BPELPluginHandler {
             case DEFROST:
                 result = handleDefrostActivity(context, bpelScope, nodeTemplate);
                 break;
+            case BPMN4TOSCA:
+            	result = handleBPMN4TOSCAActivity();
+            	break;
             default:
                 result = false;
                 break;
@@ -212,4 +215,9 @@ public class BPELPluginHandler {
         }
         return result;
     }
+    
+    private boolean handleBPMN4TOSCAActivity() {
+		return false;
+
+	}
 }
