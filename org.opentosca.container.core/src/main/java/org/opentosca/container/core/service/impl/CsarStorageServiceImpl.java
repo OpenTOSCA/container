@@ -44,6 +44,8 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CsarStorageServiceImpl.class);
 
+  private static final Object repositoryFactoryConfigurationMutex = new Object();
+
   private final Path basePath;
 
   public CsarStorageServiceImpl() {
@@ -126,15 +128,19 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     ImportMetaInformation importInfo = null;
     try {
       Files.createDirectory(permanentLocation);
-      // CsarImporter doesn't allow overriding the repository it imports to
-      RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(permanentLocation));
+      synchronized (repositoryFactoryConfigurationMutex) {
+        // CsarImporter doesn't allow overriding the repository it imports to
+        // therefore we need to reconfigure the RepositoryFactory to overwrite the target location
+        // That configuration must not be changed in a different thread during the import process
+        RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(permanentLocation));
 
-      CsarImporter importer = new CsarImporter();
-      final CsarImportOptions importOptions = new CsarImportOptions();
-      importOptions.setValidate(false); // avoid triggering accountability meddling with this
-      importOptions.setAsyncWPDParsing(true);
-      importOptions.setOverwrite(false);
-      importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
+        CsarImporter importer = new CsarImporter();
+        final CsarImportOptions importOptions = new CsarImportOptions();
+        importOptions.setValidate(false); // avoid triggering accountability meddling with this
+        importOptions.setAsyncWPDParsing(true);
+        importOptions.setOverwrite(false);
+        importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
+      }
       if (!importInfo.errors.isEmpty()) {
         throw new UserException("Importing the csar failed with errors: " + importInfo.errors.stream().collect(Collectors.joining(System.lineSeparator())));
       }
