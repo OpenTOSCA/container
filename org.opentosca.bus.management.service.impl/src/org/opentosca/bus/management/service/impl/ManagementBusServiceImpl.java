@@ -109,12 +109,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         final Message message = exchange.getIn();
 
-        final String csarID = message.getHeader(MBHeader.CSARID.toString(), String.class);
-        LOG.debug("csarID: {}", csarID);
-                
+        final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
+        LOG.debug("CSARID: {}", csarID.toString());
+
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
-        LOG.debug("ServiceTemplateId:  {}", serviceTemplateID.toString());
-        
+        LOG.debug("serviceTemplateID: {}", serviceTemplateID);
+
         final URI serviceInstanceID = exchange.getIn().getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
         LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
 
@@ -149,24 +149,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // operation invocation is only possible with retrieved ServiceTemplateInstance ID
-        if (Objects.nonNull(serviceTemplateInstanceID)) {     
-                                
-            if(Boolean.valueOf(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK)) {                                
-                List<String> outputParams = ServiceHandler.toscaEngineService.getOutputParametersOfTypeOperation(new CSARID(csarID), ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(new CSARID(csarID), serviceTemplateID, nodeTemplateID), neededInterface, neededOperation);                                               
-                
-                HashMap<String,String> responseMap = new HashMap<String,String>();
-                
-                for(String outputParam : outputParams) {
-                    responseMap.put(outputParam, "managementBusMockValue");
-                }
+        if (Objects.nonNull(serviceTemplateInstanceID)) {
 
-                exchange.getIn().setBody(responseMap);
-                
-                handleResponse(exchange);
-            } else {                
-                invokeIA(exchange, serviceTemplateInstanceID, nodeTemplateID, relationship, neededInterface,
-                         neededOperation);
-            }            
+            if (Boolean.valueOf(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK)) {
+                this.respondViaMocking(exchange, csarID, serviceTemplateID, nodeTemplateID, neededInterface,
+                                       neededOperation);
+            } else {
+                this.invokeIA(exchange, csarID, serviceTemplateID, serviceTemplateInstanceID, nodeTemplateID, relationship, neededInterface,
+                              neededOperation);
+            }
         } else {
             LOG.error("Unable to invoke operation without ServiceTemplateInstance ID!");
             handleResponse(exchange);
@@ -190,6 +181,26 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
     }
 
+    private void respondViaMocking(Exchange exchange, CSARID csarID, QName serviceTemplateID, String nodeTemplateID,
+                                   String neededInterface, String neededOperation) {
+        List<String> outputParams =
+            ServiceHandler.toscaEngineService.getOutputParametersOfTypeOperation(csarID,
+                                                                                 ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID,
+                                                                                                                                             serviceTemplateID,
+                                                                                                                                             nodeTemplateID),
+                                                                                 neededInterface, neededOperation);
+
+        HashMap<String, String> responseMap = new HashMap<String, String>();
+
+        for (String outputParam : outputParams) {
+            responseMap.put(outputParam, "managementBusMockValue");
+        }
+
+        exchange.getIn().setBody(responseMap);
+
+        handleResponse(exchange);
+    }
+
     /**
      * Searches for the NodeType/RelationshipType of the given operation, updates the input parameters
      * and passes the request on to invoke the corresponding IA.
@@ -200,15 +211,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @param neededInterface the interface of the searched operation
      * @param neededOperation the searched operation
      */
-    private void invokeIA(final Exchange exchange, final Long serviceTemplateInstanceID, final String nodeTemplateID,
+    private void invokeIA(final Exchange exchange, final CSARID csarID, final QName serviceTemplateID, final Long serviceTemplateInstanceID, final String nodeTemplateID,
                           final String relationship, final String neededInterface, final String neededOperation) {
         final Message message = exchange.getIn();
 
-        final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
-        LOG.debug("CSARID: {}", csarID.toString());
 
-        final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
-        LOG.debug("serviceTemplateID: {}", serviceTemplateID);
 
         QName typeID = null;
         if (Objects.nonNull(nodeTemplateID)) {
