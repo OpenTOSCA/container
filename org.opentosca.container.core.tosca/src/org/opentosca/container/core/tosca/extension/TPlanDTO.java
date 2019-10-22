@@ -39,12 +39,18 @@ public class TPlanDTO {
     @XmlSchemaType(name = "anyURI")
     protected String planLanguage;
 
+    @XmlAttribute(name = "calculatedWCET")
+    @XmlSchemaType(name = "anyURI")
+    protected long calculatedWCET;
+
+
 
     public TPlanDTO(final TPlan plan, final String namespace) {
         this.id = new QName(namespace, plan.getId());
         this.name = plan.getName();
         this.planType = plan.getPlanType();
         this.planLanguage = plan.getPlanLanguage();
+        this.calculatedWCET = plan.getCalculatedWCET();
 
         if (null != plan.getInputParameters()) {
             this.inputParameters = new InputParameters();
@@ -205,6 +211,14 @@ public class TPlanDTO {
      */
     public void setPlanLanguage(final String value) {
         this.planLanguage = value;
+    }
+
+    public long getCalculatedWCET() {
+        return this.calculatedWCET;
+    }
+
+    public void setCalculatedWCET(final long calculatedWCET) {
+        this.calculatedWCET = calculatedWCET;
     }
 
 

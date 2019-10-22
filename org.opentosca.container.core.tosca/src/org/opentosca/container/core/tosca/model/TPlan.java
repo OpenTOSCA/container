@@ -126,6 +126,9 @@ public class TPlan extends TExtensibleElements {
     @XmlSchemaType(name = "anyURI")
     protected String planLanguage;
 
+    @XmlAttribute(name = "calculatedWCET")
+    @XmlSchemaType(name = "anyURI")
+    protected long calculatedWCET;
 
     /**
      * Gets the value of the precondition property.
@@ -305,6 +308,14 @@ public class TPlan extends TExtensibleElements {
      */
     public void setPlanLanguage(final String value) {
         this.planLanguage = value;
+    }
+
+    public long getCalculatedWCET() {
+        return this.calculatedWCET;
+    }
+
+    public void setCalculatedWCET(final long calulatedWCET) {
+        this.calculatedWCET = calulatedWCET;
     }
 
 

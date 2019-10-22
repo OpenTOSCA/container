@@ -50,6 +50,9 @@ public class PlanDTO extends ResourceSupport {
     @XmlElement(name = "PlanModelReference")
     private String planModelReference;
 
+    @XmlElement(name = "PlanModelReference")
+    private long calculatedWCET;
+
 
     public PlanDTO() {
 
@@ -65,6 +68,7 @@ public class PlanDTO extends ResourceSupport {
         this.outputParameters.addAll(plan.getOutputParameters().getOutputParameter().stream()
                                          .map(p -> new TParameter(p)).collect(Collectors.toList()));
         this.planModelReference = plan.getPlanModelReference().getReference();
+        this.calculatedWCET = plan.getCalculatedWCET();
     }
 
     public String getId() {
@@ -128,6 +132,15 @@ public class PlanDTO extends ResourceSupport {
         this.planModelReference = planModelReference;
     }
 
+    @ApiModelProperty(name = "calculated_wcet")
+    public long getCalculatedWCET() {
+        return this.calculatedWCET;
+    }
+
+    public void setCalculatedWCET(final long calculatedWCET) {
+        this.calculatedWCET = calculatedWCET;
+    }
+
 
     public static final class Converter {
 
@@ -138,6 +151,7 @@ public class PlanDTO extends ResourceSupport {
             plan.setName(object.getName());
             plan.setPlanLanguage(object.getPlanLanguage());
             plan.setPlanType(object.getPlanType());
+            plan.setCalculatedWCET(object.getCalculatedWCET());
 
             final TPlanDTO.InputParameters inputParameters = new TPlanDTO.InputParameters();
             for (final TParameter param : object.getInputParameters()) {
@@ -161,6 +175,7 @@ public class PlanDTO extends ResourceSupport {
             plan.setName(object.getName());
             plan.setPlanLanguage(object.getPlanLanguage());
             plan.setPlanType(object.getPlanType());
+            plan.setCalculatedWCET(object.getCalculatedWCET());
 
             final List<TParameter> inputParameters = object.getInputParameters().getInputParameter().stream().map(p -> {
                 final TParameter parameter = new TParameter();

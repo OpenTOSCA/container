@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.glassfish.jersey.uri.UriComponent;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
@@ -38,10 +37,10 @@ import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.next.trigger.SituationTriggerInstanceListener;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
-import org.opentosca.container.core.tosca.model.TBoolean;
 import org.opentosca.container.core.tosca.model.TPlan;
 import org.opentosca.deployment.tests.DeploymentTestService;
 import org.slf4j.Logger;
@@ -241,6 +240,16 @@ public class PlanService {
                                final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
                                final PlanTypes... planTypes) {
 
+        final TPlan p = getPlan(plan, csarId);
+
+
+        final SituationTriggerInstanceListener triggerInstanceListener = new SituationTriggerInstanceListener();
+        final long calculatedWCET = triggerInstanceListener.calculateWCETForPlan(p);
+        p.setCalculatedWCET(calculatedWCET);
+        logger.info("Calculated WCET: " + calculatedWCET);
+
+
+
         if (parameters == null) {
             return Response.status(Status.BAD_REQUEST).build();
         }
@@ -264,9 +273,11 @@ public class PlanService {
             }
         }
 
-        final TPlan p = getPlan(plan, csarId);
+
         final String correlationId = invokePlan(csarId, serviceTemplate, serviceTemplateInstanceId, p, parameters);
         final URI location = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(correlationId).build());
+
+
 
         return Response.created(location).entity(correlationId).build();
     }

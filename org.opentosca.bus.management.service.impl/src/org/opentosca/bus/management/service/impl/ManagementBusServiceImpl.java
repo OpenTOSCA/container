@@ -615,6 +615,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 plan = repo.findByCorrelationId(correlationID);
                 plan.addEvent(event);
                 repo.update(plan);
+
             } else {
                 LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
             }
