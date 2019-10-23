@@ -1,13 +1,15 @@
 package org.opentosca.container.core.engine.xml.impl;
 
-import java.io.File;
+import java.net.URL;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.eclipse.winery.model.tosca.Definitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,55 +20,37 @@ import org.springframework.stereotype.Service;
  * @see org.opentosca.container.core.engine.xml.IXMLSerializerService
  */
 @Service
+@NonNullByDefault
 class XMLSerializerServiceImpl implements IXMLSerializerService {
 
-  private IXMLSerializer xmlSerializer;
-  private IFileAccessService fileAccessService = null;
+  private final IXMLSerializer xmlSerializer;
 
   private final Logger LOG = LoggerFactory.getLogger(XMLSerializerServiceImpl.class);
+
+  public XMLSerializerServiceImpl() {
+    this.LOG.debug("Caching a new XMLSerializer.");
+    final URL schemaFile = getClass().getClassLoader().getResource("TOSCA-v1.0.xsd");
+
+    // this boolean is for preventing a unused warning and to get
+    // the Serialization working with validation easily if needed
+    final boolean trueForCreateValidation = false;
+    if (trueForCreateValidation) {
+      this.LOG.debug("Create TOSCA XML Serialization with schema validation.");
+      this.xmlSerializer = new XMLSerializerFactory().createSerializer(Definitions.class, schemaFile);
+    } else {
+      this.LOG.debug("Create TOSCA XML Serialization without schema validation.");
+      this.xmlSerializer = new XMLSerializerFactory().createSerializer(Definitions.class, null);
+    }
+    this.xmlSerializer.setValidation(true);
+  }
 
 
   /**
    * {@inheritDoc}
    */
   @Override
+  @Bean
   public IXMLSerializer getXmlSerializer() {
-    if (this.xmlSerializer == null) {
-      this.LOG.error("There is no XMLSerializer initiated yet.");
-    }
     return this.xmlSerializer;
   }
-
-  public void bindIFileAccessService(final IFileAccessService service) {
-    if (service == null) {
-      this.LOG.error("Service IFileAccessService is null.");
-    } else {
-      this.LOG.debug("Bind of the IFileAccessService.");
-      this.fileAccessService = service;
-
-      if (this.xmlSerializer == null) {
-
-        this.LOG.debug("Create a new XMLSerializer.");
-        final File schemaFile = this.fileAccessService.getOpenToscaSchemaFile();
-
-        // this boolean is for preventing a unused warning and to get
-        // the Serialization working with validation easily if needed
-        final boolean trueForCreateValidation = false;
-        if (trueForCreateValidation) {
-          this.LOG.debug("Create TOSCA XML Serialization with schema validation.");
-          this.xmlSerializer = new XMLSerializerFactory().createSerializer(Definitions.class, schemaFile);
-        } else {
-          this.LOG.debug("Create TOSCA XML Serialization without schema validation.");
-          this.xmlSerializer = new XMLSerializerFactory().createSerializer(Definitions.class, null);
-        }
-        this.xmlSerializer.setValidation(true);
-      }
-    }
-  }
-
-  public void unbindIFileAccessService(final IFileAccessService service) {
-    this.LOG.debug("Unbind of the IFileAccessService.");
-    this.fileAccessService = null;
-  }
-
 }

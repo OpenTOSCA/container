@@ -13,18 +13,17 @@ import org.apache.camel.Predicate;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.cxf.common.header.CxfHeaderFilterStrategy;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.opentosca.bus.management.api.soaphttp.processor.RequestProcessor;
 import org.opentosca.bus.management.api.soaphttp.processor.ResponseProcessor;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -64,13 +63,15 @@ public class Route extends RouteBuilder {
   private final CsarStorageService csarStorageService;
   private final IManagementBusService managementBusService;
   private final ICoreEndpointService endpointService;
+  private final ContainerEngine containerEngine;
 
   @Inject
   public Route(CsarStorageService csarStorageService, IManagementBusService managementBusService,
-               ICoreEndpointService endpointService) {
+               ICoreEndpointService endpointService, ContainerEngine containerEngine) {
     this.csarStorageService = csarStorageService;
     this.managementBusService = managementBusService;
     this.endpointService = endpointService;
+    this.containerEngine = containerEngine;
 
     storeManagementEndpoint();
   }
@@ -113,7 +114,7 @@ public class Route extends RouteBuilder {
     responseJaxb.setPartClass("org.opentosca.bus.management.api.soaphttp.model.InvokeResponse");
     responseJaxb.setPartNamespace(new QName("http://siserver.org/schema", "invokeResponse"));
 
-    final Processor requestProcessor = new RequestProcessor(csarStorageService);
+    final Processor requestProcessor = new RequestProcessor(csarStorageService, containerEngine);
     final Processor responseProcessor = new ResponseProcessor();
 
     this.from(INVOKE_ENDPOINT)

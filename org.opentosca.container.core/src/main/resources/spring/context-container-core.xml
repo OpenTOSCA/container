@@ -15,7 +15,7 @@
   <context:component-scan base-package="org.opentosca.container.core.impl.plan" />
   <context:component-scan base-package="org.opentosca.container.core.impl.service" />
   <context:component-scan base-package="org.opentosca.container.core.service.impl" />
-
-  <bean class="org.opentosca.container.core.engine.xml.impl.XMLSerializerServiceImpl" />
-
+  <!-- xml serializer service -->
+  <context:component-scan base-package="org.opentosca.container.core.engine.xml.impl" />
+  <context:component-scan base-package="org.opentosca.container.core.engine.next" />
 </beans>

@@ -11,12 +11,19 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TEntityType;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
 import org.opentosca.bus.management.utils.MBUtils;
+import org.opentosca.container.core.common.NotFoundException;
+import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.engine.xml.IXMLSerializer;
+import org.opentosca.container.core.engine.xml.IXMLSerializerService;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.tosca.convention.Utils;
-import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -35,12 +42,12 @@ import org.w3c.dom.NodeList;
 public class ParameterHandler {
 
   private final static Logger LOG = LoggerFactory.getLogger(ParameterHandler.class);
+  private final IXMLSerializer xmlSerializer;
 
-  private final IToscaEngineService toscaEngineService;
 
   @Inject
-  public ParameterHandler(IToscaEngineService toscaEngineService) {
-    this.toscaEngineService = toscaEngineService;
+  public ParameterHandler(IXMLSerializer xmlSerializer) {
+    this.xmlSerializer = xmlSerializer;
   }
 
   /**
@@ -66,15 +73,15 @@ public class ParameterHandler {
    * @return the updated input parameters.
    */
   public Map<String, String> updateInputParams(final Map<String, String> inputParams,
-                                               final CSARID csarID,
+                                               final Csar csar,
                                                final NodeTemplateInstance nodeTemplateInstance,
                                                final RelationshipTemplateInstance relationshipTemplateInstance,
                                                final String neededInterface,
                                                final String neededOperation) {
     if (Objects.nonNull(relationshipTemplateInstance)) {
-      return updateInputParamsForRelationshipTemplate(inputParams, csarID, relationshipTemplateInstance, neededInterface, neededOperation);
+      return updateInputParamsForRelationshipTemplate(inputParams, csar, relationshipTemplateInstance, neededInterface, neededOperation);
     } else if (Objects.nonNull(nodeTemplateInstance)) {
-      return updateInputParamsForNodeTemplate(inputParams, csarID, nodeTemplateInstance, neededInterface, neededOperation);
+      return updateInputParamsForNodeTemplate(inputParams, csar, nodeTemplateInstance, neededInterface, neededOperation);
     } else {
       LOG.warn("Unable to update input parameters with nodeTemplateInstance and relationshipTemplateInstance equal to null!");
       return inputParams;
@@ -94,7 +101,7 @@ public class ParameterHandler {
    * @return the updated input parameters.
    */
   private Map<String, String> updateInputParamsForNodeTemplate(final Map<String, String> inputParams,
-                                                                          final CSARID csarID,
+                                                                          final Csar csar,
                                                                           NodeTemplateInstance nodeTemplateInstance,
                                                                           final String neededInterface,
                                                                           final String neededOperation) {
@@ -104,7 +111,7 @@ public class ParameterHandler {
     LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams.toString());
 
     // check if operation has input params at all
-    final Set<String> unsetParameters = getExpectedInputParams(csarID, nodeTemplateInstance.getTemplateType(), neededInterface, neededOperation);
+    final Set<String> unsetParameters = getExpectedInputParams(csar, nodeTemplateInstance.getTemplateType(), neededInterface, neededOperation);
     if (unsetParameters.isEmpty()) {
       LOG.debug("No input params defined for this operation.");
       return inputParams;
@@ -205,7 +212,7 @@ public class ParameterHandler {
    * @return the updated input parameters.
    */
   private Map<String, String> updateInputParamsForRelationshipTemplate(final Map<String, String> inputParams,
-                                                                                  final CSARID csarID,
+                                                                                  final Csar csar,
                                                                                   final RelationshipTemplateInstance relationshipTemplateInstance,
                                                                                   final String neededInterface,
                                                                                   final String neededOperation) {
@@ -216,7 +223,7 @@ public class ParameterHandler {
     LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams.toString());
 
     // check if operation has input params at all
-    final Set<String> expectedParams = getExpectedInputParams(csarID, relationshipTemplateInstance.getTemplateType(), neededInterface, neededOperation);
+    final Set<String> expectedParams = getExpectedInputParams(csar, relationshipTemplateInstance.getTemplateType(), neededInterface, neededOperation);
     if (expectedParams.isEmpty()) {
       LOG.debug("No input params defined for this operation.");
       return inputParams;
@@ -247,17 +254,26 @@ public class ParameterHandler {
    * Returns the input parameters of the given operation which are specified in the TOSCA
    * definitions of the NodeType or RelationshipType.
    *
-   * @param csarID        ID of the CSAR which contains the NodeType or RelationshipType with the
-   *                      operation
+   * @param csar          The CSAR which contains the NodeType or RelationshipType with the operation
    * @param typeID        ID of the NodeType or RelationshipType which contains the operation
    * @param interfaceName the name of the interface which contains the operation
    * @param operationName the operation name for which the parameters are searched
    * @return specified input parameters of the operation
    */
-  private Set<String> getExpectedInputParams(final CSARID csarID, final QName typeID,
+  private Set<String> getExpectedInputParams(final Csar csar, final QName typeID,
                                              final String interfaceName, final String operationName) {
 
-    final Node definedInputParameters = toscaEngineService.getInputParametersOfATypeOperation(csarID, typeID, interfaceName, operationName);
+    final TOperation resolvedOperation;
+    try {
+      TEntityType entityType = ToscaEngine.resolveEntityTypeReference(csar, typeID);
+      TInterface typeInterface = ToscaEngine.resolveInterfaceAbstract(entityType, interfaceName);
+      resolvedOperation = ToscaEngine.resolveOperation(typeInterface, operationName);
+    } catch (NotFoundException e) {
+      LOG.warn("Could not resolve Operation {} on Interface {} for Type {}", operationName, interfaceName, typeID);
+      return Collections.emptySet();
+    }
+
+    final Node definedInputParameters = xmlSerializer.marshalToNode(resolvedOperation.getInputParameters());
     if (Objects.isNull(definedInputParameters)) {
       return Collections.emptySet();
     }

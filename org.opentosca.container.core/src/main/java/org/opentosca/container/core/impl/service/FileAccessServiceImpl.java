@@ -10,8 +10,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.service.IFileAccessService;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,10 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class FileAccessServiceImpl implements IFileAccessService {
 
-  final private static Logger LOG = LoggerFactory.getLogger(FileAccessServiceImpl.class);
-
-  private final Bundle BUNDLE = FrameworkUtil.getBundle(FileAccessServiceImpl.class);
-
+  private static final Logger LOG = LoggerFactory.getLogger(FileAccessServiceImpl.class);
 
   /**
    * @param relFilePath
@@ -40,7 +35,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
     File fileRes = null;
 
     try {
-      bundleResURL = this.BUNDLE.getEntry("/META-INF/resources/" + relFilePath);
+      bundleResURL = this.getClass().getResource(relFilePath);
       // convert bundle resource URL to file URL
       fileResURL = FileLocator.toFileURL(bundleResURL);
       fileRes = new File(fileResURL.toURI());
@@ -72,7 +67,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
    */
   public File getOpenToscaSchemaFile() {
     LOG.debug("Get the TOSCA XML schema");
-    return this.getResource("TOSCA-v1.0.xsd");
+    return this.getResource("/TOSCA-v1.0.xsd");
   }
 
   @Override

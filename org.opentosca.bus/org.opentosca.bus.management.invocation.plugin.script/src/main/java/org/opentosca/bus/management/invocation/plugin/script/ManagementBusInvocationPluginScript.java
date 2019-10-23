@@ -1,11 +1,7 @@
 package org.opentosca.bus.management.invocation.plugin.script;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -16,23 +12,25 @@ import javax.xml.namespace.QName;
 import org.apache.camel.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.winery.model.tosca.*;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.script.typeshandler.ArtifactTypesHandler;
 import org.opentosca.bus.management.utils.MBUtils;
+import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.engine.next.ContainerEngine;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Management Bus-Plug-in for Script IAs which have to be executed on a host machine.<br>
@@ -56,15 +54,17 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
   final private static Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginScript.class);
 
-  private final IToscaEngineService toscaEngineService;
   private final ArtifactTypesHandler typesHandler;
+  private final CsarStorageService storage;
+  private final ContainerEngine containerEngine;
 
   private final CamelContext camelContext;
 
   @Inject
-  public ManagementBusInvocationPluginScript(IToscaEngineService toscaEngineService, ArtifactTypesHandler typesHandler, @Named("fallback") CamelContext camelContext) {
-    this.toscaEngineService = toscaEngineService;
+  public ManagementBusInvocationPluginScript(ArtifactTypesHandler typesHandler, CsarStorageService storage, ContainerEngine containerEngine, @Named("fallback") CamelContext camelContext) {
     this.typesHandler = typesHandler;
+    this.storage = storage;
+    this.containerEngine = containerEngine;
     this.camelContext = camelContext;
   }
 
@@ -73,94 +73,79 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     LOG.debug("Management Bus Script Plugin getting information...");
 
     final Message message = exchange.getIn();
-    final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
+    final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
     LOG.debug("CsarID: {}", csarID);
     final QName artifactTemplateID = message.getHeader(MBHeader.ARTIFACTTEMPLATEID_QNAME.toString(), QName.class);
     LOG.debug("ArtifactTemplateID: {}", artifactTemplateID);
-    String nodeTemplateID = message.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
-    LOG.debug("NodeTemplateID: {}", nodeTemplateID);
-    final String relationshipTemplateID =
-      message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), String.class);
+    final String relationshipTemplateID = message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), String.class);
     LOG.debug("RelationshipTemplateID: {}", relationshipTemplateID);
     final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
     LOG.debug("ServiceTemplateID: {}", serviceTemplateID);
+
+
     final String interfaceName = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
     LOG.debug("InterfaceName: {}", interfaceName);
     final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
     LOG.debug("OperationName: {}", operationName);
-    final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
-    LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
-    final String nodeInstanceID = message.getHeader(MBHeader.NODEINSTANCEID_STRING.toString(), String.class);
-    LOG.debug("NodeInstanceID: {}", nodeInstanceID);
+    final Csar csar = storage.findById(csarID);
+    final TRelationshipTemplate relationshipTemplate = ToscaEngine.getRelationshipTemplate(csar, QName.valueOf(relationshipTemplateID)).orElse(null);
+    final TServiceTemplate serviceTemplate = ToscaEngine.getServiceTemplate(csar, serviceTemplateID);
+    try {
+      final TArtifactTemplate artifactTemplate = ToscaEngine.resolveArtifactTemplate(csar, artifactTemplateID);
+      final TArtifactType artifactType = ToscaEngine.resolveArtifactType(csar, artifactTemplate.getType());
+      final TNodeTemplate nodeTemplate = getNodeTemplate(message, csar, relationshipTemplate, serviceTemplate, interfaceName, operationName);
+      final TNodeType nodeType = ToscaEngine.resolveNodeTypeReference(csar, nodeTemplate.getType());
+      final TOperation operation = ToscaEngine.resolveOperation(nodeType, interfaceName, operationName);
 
-    if (nodeTemplateID == null && relationshipTemplateID != null) {
-      final QName relationshipTypeID = toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarID, serviceTemplateID, relationshipTemplateID);
-      final boolean isBoundToSourceNode = toscaEngineService.isOperationOfRelationshipBoundToSourceNode(csarID, relationshipTypeID, interfaceName, operationName);
-      nodeTemplateID = isBoundToSourceNode ? toscaEngineService.getSourceNodeTemplateIDOfRelationshipTemplate(csarID, serviceTemplateID, relationshipTemplateID)
-        : toscaEngineService.getTargetNodeTemplateIDOfRelationshipTemplate(csarID, serviceTemplateID, relationshipTemplateID);
-    }
-    
-    final QName nodeTypeID = toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
-    LOG.debug("NodeType: {}", nodeTypeID);
-
-    // Determine output parameters of the current operation
-    final List<String> outputParameters = new LinkedList<>();
-    final boolean hasOutputParams = toscaEngineService.hasOperationOfATypeSpecifiedOutputParams(csarID, nodeTypeID, interfaceName, operationName);
-    if (hasOutputParams) {
-      final Node outputParametersNode = toscaEngineService.getOutputParametersOfATypeOperation(csarID, nodeTypeID, interfaceName, operationName);
-      if (outputParametersNode != null) {
-        final NodeList children = outputParametersNode.getChildNodes();
-
-        for (int i = 0; i < children.getLength(); i++) {
-          final Node child = children.item(i);
-
-          if (child.getNodeType() == Node.ELEMENT_NODE) {
-            final String name = ((Element) child).getAttribute("name");
-            outputParameters.add(name);
-          }
-        }
-      }
-    }
-    for (final String param : outputParameters) {
-      LOG.debug("Output parameter: {}", param);
-    }
-
-    final QName artifactType = toscaEngineService.getArtifactTypeOfArtifactTemplate(csarID, artifactTemplateID);
-    LOG.debug("ArtifactType of ArtifactTemplate {} : {}", artifactTemplateID, artifactType);
-
-    if (artifactType == null || nodeTemplateID == null) {
-      LOG.warn("Could not determine ArtifactType of ArtifactTemplate: {}!", artifactTemplateID);
+      return handleExchangeInternal(exchange, message, csarID, serviceTemplateID, csar, serviceTemplate, artifactTemplate, artifactType, nodeTemplate, nodeType, operation);
+    } catch (NotFoundException e) {
+      LOG.warn("Failed to resolve a strongly typed CSAR content reference, invocation failed!", e);
       return exchange;
     }
-    // search operating system IA to upload files and run scripts on
-    // target machine
-    final String osNodeTemplateID = MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID, true,
+  }
+
+  private Exchange handleExchangeInternal(Exchange exchange, Message message, CsarId csarID, QName serviceTemplateID, Csar csar, TServiceTemplate serviceTemplate, TArtifactTemplate artifactTemplate, TArtifactType artifactType, TNodeTemplate nodeTemplate, TNodeType nodeType, TOperation operation) throws NotFoundException {
+    LOG.debug("ArtifactType of ArtifactTemplate {} : {}", artifactTemplate.getId(), artifactType);
+    if (artifactType == null || nodeTemplate == null) {
+      LOG.warn("Could not determine ArtifactType of ArtifactTemplate: {}!", artifactTemplate.getId());
+      return exchange;
+    }
+    final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
+    LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
+    // search operating system IA to upload files and run scripts on target machine
+    final TNodeTemplate osNodeTemplate = MBUtils.getOperatingSystemNodeTemplate(csar, serviceTemplate, nodeTemplate, true,
       Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/")));
 
-    if (osNodeTemplateID == null) {
+    if (osNodeTemplate == null) {
       LOG.warn("No OperatingSystem-NodeTemplate found!");
       return exchange;
     }
-    final QName osNodeTypeID = toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, osNodeTemplateID);
-    if (osNodeTypeID == null) {
+    final TNodeType osNodeType = ToscaEngine.resolveNodeTypeReference(csar, osNodeTemplate.getType());
+    if (osNodeType == null) {
+      // This shouldn't ever happen
       LOG.warn("No OperatingSystem-NodeType found!");
       return exchange;
     }
-    LOG.debug("OperatingSystem-NodeType found: {}", osNodeTypeID);
-    final String osIAName = MBUtils.getOperatingSystemIA(csarID, serviceTemplateID, osNodeTemplateID);
+    LOG.debug("OperatingSystem-NodeType found: {}", osNodeType);
+    final TImplementationArtifact osIA = MBUtils.getOperatingSystemIA(csar, serviceTemplate, osNodeType);
 
-    if (osIAName == null) {
+    if (osIA == null) {
       LOG.warn("No OperatingSystem-IA found!");
       return exchange;
     }
+
+    final String nodeInstanceID = message.getHeader(MBHeader.NODEINSTANCEID_STRING.toString(), String.class);
+    LOG.debug("NodeInstanceID: {}", nodeInstanceID);
+
+
     final Object params = message.getBody();
     // create headers
-    final HashMap<String, Object> headers = new HashMap<>();
+    final Map<String, Object> headers = new HashMap<>();
 
     headers.put(MBHeader.CSARID.toString(), csarID);
     headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
-    headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), osNodeTemplateID);
-    headers.put(MBHeader.INTERFACENAME_STRING.toString(), MBUtils.getInterfaceForOperatingSystemNodeType(csarID, osNodeTypeID));
+    headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), osNodeTemplate);
+    headers.put(MBHeader.INTERFACENAME_STRING.toString(), MBUtils.getInterfaceForOperatingSystemNodeType(osNodeType));
     headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceID);
     headers.put(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
 
@@ -170,17 +155,19 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     LOG.debug("Packages installed.");
 
     // get list of artifacts
-    final List<String> artifactReferences = toscaEngineService.getArtifactReferenceWithinArtifactTemplate(csarID, artifactTemplateID);
-    LOG.debug("{} contains {} artifacts. Uploading and executing them...", artifactTemplateID, artifactReferences.size());
+    final List<TArtifactReference> artifactReferences = (artifactTemplate.getArtifactReferences() == null)
+      ? Collections.emptyList()
+      : artifactTemplate.getArtifactReferences().getArtifactReference();
+    LOG.debug("{} contains {} artifacts. Uploading and executing them...", artifactTemplate.getId(), artifactReferences.size());
 
     // Map which contains the output parameters
     final Map<String, String> resultMap = new HashMap<>();
-    final String targetBasePath = "~/" + csarID.getFileName();
+    final String targetBasePath = "~/" + csarID.csarName();
 
     // upload and execute all contained artifacts
-    for (final String artifactRef : artifactReferences) {
-      final String fileSource = Settings.CONTAINER_API + "/csars/" + csarID.getFileName() + "/content/" + artifactRef;
-      final String targetFilePath = targetBasePath + "/" + artifactRef;
+    for (final TArtifactReference artifactRef : artifactReferences) {
+      final String fileSource = Settings.CONTAINER_API + "/csars/" + csarID.csarName() + "/content/" + artifactRef.getReference();
+      final String targetFilePath = targetBasePath + "/" + artifactRef.getReference();
       final String targetFileFolderPath = FilenameUtils.getFullPathNoEndSeparator(targetFilePath);
       final String createDirCommand = "sleep 1 && mkdir -p " + targetFileFolderPath;
 
@@ -188,7 +175,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       // create directory before uploading file
       runScript(createDirCommand, headers);
       // upload file
-      transferFile(csarID, artifactTemplateID, fileSource, targetFilePath, headers);
+      transferFile(fileSource, targetFilePath, headers);
       LOG.debug("File successfully uploaded.");
 
       // run script
@@ -196,7 +183,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       final String fileNameWithE = FilenameUtils.getName(targetFilePath);
       final String fileNameWithoutE = FilenameUtils.getBaseName(targetFilePath);
 
-      String artifactTypeSpecificCommand = createArtifcatTypeSpecificCommandString(csarID, artifactType, artifactTemplateID, params);
+      String artifactTypeSpecificCommand = createArtifactTypeSpecificCommandString(csar, artifactType, artifactTemplate, params);
       LOG.debug("Replacing further generic placeholder...");
       // replace placeholders
       artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_PATH, targetFilePath);
@@ -204,7 +191,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_NAME_WITH_EXTENSION, fileNameWithE);
       artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION, fileNameWithoutE);
       artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_NAME_PATH_MAP,
-        createDANamePathMapEnvVar(csarID, serviceTemplateID, nodeTypeID, nodeTemplateID) + " CSAR='" + csarID + "' NodeInstanceID='" + nodeInstanceID + "' ServiceInstanceID='" + serviceInstanceID + "' ");
+        createDANamePathMapEnvVar(csar, nodeType, nodeTemplate) + " CSAR='" + csarID + "' NodeInstanceID='" + nodeInstanceID + "' ServiceInstanceID='" + serviceInstanceID + "' ");
       artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_INPUT_PARAMETER, createParamsString(params));
 
       // delete the uploaded file on the remote site to save resources
@@ -217,7 +204,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
       // check for output parameters in the script result and add them to the
       // operation result
-      addOutputParametersToResultMap(resultMap, result, outputParameters);
+      addOutputParametersToResultMap(resultMap, result, operation);
     }
 
     // remove the created directories
@@ -236,6 +223,20 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     return exchange;
   }
 
+  private TNodeTemplate getNodeTemplate(Message message, Csar csar, TRelationshipTemplate relationshipTemplate, TServiceTemplate serviceTemplate, String interfaceName, String operationName) throws NotFoundException {
+    String nodeTemplateID = message.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
+    LOG.debug("NodeTemplateID: {}", nodeTemplateID);
+    if (nodeTemplateID == null && relationshipTemplate != null) {
+      // backfill the node template from the relationship template
+      final TRelationshipType relationshipType = ToscaEngine.resolveRelationshipTypeReference(csar, relationshipTemplate.getType());
+      final boolean isBoundToSourceNode = ToscaEngine.isOperationBoundToSourceNode(relationshipType, interfaceName, operationName);
+      return isBoundToSourceNode
+        ? (TNodeTemplate) relationshipTemplate.getSourceElement().getRef()
+        : (TNodeTemplate) relationshipTemplate.getTargetElement().getRef();
+    }
+    return ToscaEngine.resolveNodeTemplate(serviceTemplate, nodeTemplateID);
+  }
+
   /**
    * Check if the output parameters for this script service operation are returned in the script
    * result and add them to the result map.
@@ -245,8 +246,9 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
    * @param result           The returned result of the run script operation
    * @param outputParameters The output parameters that are expected for the operation
    */
-  private void addOutputParametersToResultMap(final Map<String, String> resultMap, final Object result, final List<String> outputParameters) {
-    if (outputParameters.isEmpty()) {
+  private void addOutputParametersToResultMap(final Map<String, String> resultMap, final Object result, final TOperation operation) {
+    final boolean hasOutputParams = operation.getOutputParameters() != null;
+    if (!hasOutputParams) {
       return;
     }
     if (!(result instanceof HashMap<?, ?>)) {
@@ -254,7 +256,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       return;
     }
     LOG.debug("Adding output parameters to the response message.");
-    final HashMap<?, ?> resultHashMap = (HashMap<?, ?>) result;
+    final Map<?, ?> resultHashMap = (HashMap<?, ?>) result;
 
     // get ScriptResult part of the response which contains the parameters
     if (!resultHashMap.containsKey(ManagementBusInvocationPluginScript.RUN_SCRIPT_OUTPUT_PARAMETER_NAME)) {
@@ -271,30 +273,30 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
     // split result on line breaks as every parameter is returned in a separate "echo" command
     final String[] resultParameters = scriptResultString.split("[\\r\\n]+");
+
     // add each parameter that is defined in the operation and passed back
-    for (final String outputParameter : outputParameters) {
+    for (final TParameter outputParameter : operation.getOutputParameters().getOutputParameter()) {
       for (int i = resultParameters.length - 1; i >= 0; i--) {
-        if (resultParameters[i].startsWith(outputParameter)) {
+        if (resultParameters[i].startsWith(outputParameter.getName())) {
           final String value = resultParameters[i].substring(resultParameters[i].indexOf("=") + 1);
 
           LOG.debug("Adding parameter {} with value: {}", outputParameter, value);
-          resultMap.put(outputParameter, value);
+          resultMap.put(outputParameter.getName(), value);
         }
       }
     }
-
   }
 
   /**
    * @return mapping with DeploymentArtifact names and their paths.
    */
-  private String createDANamePathMapEnvVar(final CSARID csarID, final QName serviceTemplateID, final QName nodeTypeID,
-                                           final String nodeTemplateID) {
-    LOG.debug("Checking if NodeTemplate {} has DAs...", nodeTemplateID);
+  private String createDANamePathMapEnvVar(final Csar csar, final TNodeType nodeType, final TNodeTemplate nodeTemplate) {
+    LOG.debug("Checking if NodeTemplate {} has DAs...", nodeTemplate.getName());
     List<String> daArtifactReferences;
-    final HashMap<String, List<String>> daNameReferenceMapping = new HashMap<>();
 
-    final ResolvedArtifacts resolvedArtifacts = toscaEngineService.getResolvedArtifactsOfNodeTemplate(csarID, new QName(serviceTemplateID.getNamespaceURI(), nodeTemplateID));
+    final Map<String, List<String>> daNameReferenceMapping = new HashMap<>();
+
+    final ResolvedArtifacts resolvedArtifacts = containerEngine.resolvedDeploymentArtifacts(csar, nodeTemplate);
     for (final ResolvedDeploymentArtifact resolvedDA : resolvedArtifacts.getDeploymentArtifacts()) {
       daArtifactReferences = resolvedDA.getReferences();
 
@@ -305,23 +307,34 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       }
     }
 
-    final List<QName> nodeTypeImpls = toscaEngineService.getTypeImplementationsOfType(csarID, nodeTypeID);
-    for (final QName nodeTypeImpl : nodeTypeImpls) {
-      final List<String> daNames = toscaEngineService.getDeploymentArtifactNamesOfNodeTypeImplementation(csarID, nodeTypeImpl);
-      for (final String daName : daNames) {
-        final QName daArtifactTemplate = toscaEngineService.getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(csarID, nodeTypeImpl, daName);
-        daArtifactReferences = toscaEngineService.getArtifactReferenceWithinArtifactTemplate(csarID, daArtifactTemplate);
-        for (final String daArtifactReference : daArtifactReferences) {
-          LOG.debug("Artifact reference for DA: {} found: {} .", daName, daArtifactReference);
+    final List<TNodeTypeImplementation> nodeTypeImpls = ToscaEngine.getNodeTypeImplementations(csar, nodeType);
+    for (final TNodeTypeImplementation nodeTypeImpl : nodeTypeImpls) {
+      TDeploymentArtifacts das = nodeTypeImpl.getDeploymentArtifacts();
+      if (das == null) {
+        continue;
+      }
+      for (final TDeploymentArtifact da : das.getDeploymentArtifact()) {
+        final TArtifactTemplate daArtifactTemplate;
+        try {
+          daArtifactTemplate = ToscaEngine.resolveArtifactTemplate(csar, da.getArtifactRef());
+        } catch (NotFoundException e) {
+          LOG.warn("Failed to find ArtifactTemplate with reference [{}] for DeploymentArtifact {}", da.getArtifactRef(), da.getName());
+          continue;
+        }
+        if (daArtifactTemplate.getArtifactReferences() == null) {
+          continue;
+        }
+        for (final TArtifactReference daArtifactReference : daArtifactTemplate.getArtifactReferences().getArtifactReference()) {
+          LOG.debug("Artifact reference for DA: {} found: {} .", da.getName(), daArtifactReference);
 
-          List<String> currentValue = daNameReferenceMapping.computeIfAbsent(daName, k -> new ArrayList<>());
-          currentValue.add(daArtifactReference);
+          List<String> currentValue = daNameReferenceMapping.computeIfAbsent(da.getName(), k -> new ArrayList<>());
+          currentValue.add(daArtifactReference.getReference());
         }
       }
     }
     String daEnvMap = "";
     if (!daNameReferenceMapping.isEmpty()) {
-      LOG.debug("NodeTemplate {} has {} DAs.", nodeTemplateID, daNameReferenceMapping.size());
+      LOG.debug("NodeTemplate {} has {} DAs.", nodeTemplate.getName(), daNameReferenceMapping.size());
       daEnvMap += "DAs=\"";
       for (final Entry<String, List<String>> da : daNameReferenceMapping.entrySet()) {
         final String daName = da.getKey();
@@ -336,7 +349,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       }
       daEnvMap += "\" ";
       LOG.debug("Created DA-DANamePathMapEnvVar for NodeTemplate {} : {}",
-        nodeTemplateID, daEnvMap);
+        nodeTemplate.getName(), daEnvMap);
     }
 
     return daEnvMap;
@@ -346,14 +359,14 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
    * Installs required and specified packages of the specified ArtifactType. Required packages are
    * in defined the corresponding *.xml file.
    */
-  private void installPackages(final QName artifactType, final HashMap<String, Object> headers) {
-    final List<String> requiredPackages = typesHandler.getRequiredPackages(artifactType);
+  private void installPackages(final TArtifactType artifactType, final Map<String, Object> headers) {
+    final List<String> requiredPackages = typesHandler.getRequiredPackages(artifactType.getQName());
     if (requiredPackages.isEmpty()) {
       LOG.debug("ArtifactType: {} needs no packages to install.", requiredPackages, artifactType);
       return;
     }
     final String requiredPackagesString = String.join(" ", requiredPackages);
-    final HashMap<String, String> inputParamsMap = new HashMap<>();
+    final Map<String, String> inputParamsMap = new HashMap<>();
     inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_PACKAGENAMES, requiredPackagesString);
 
     LOG.debug("Installing packages: {} for ArtifactType: {} ", requiredPackages, artifactType);
@@ -364,9 +377,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
   /**
    * For transferring files to the target machine.
    */
-  private void transferFile(final CSARID csarID, final QName artifactTemplate, final String source,
-                            final String target, final HashMap<String, Object> headers) {
-    final HashMap<String, String> inputParamsMap = new HashMap<>();
+  private void transferFile(final String source, final String target, final Map<String, Object> headers) {
+    final Map<String, String> inputParamsMap = new HashMap<>();
     inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_TARGETABSOLUTPATH, target);
     inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SOURCEURLORLOCALPATH, source);
 
@@ -386,7 +398,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
    * For running scripts on the target machine. Commands to be executed are defined in the
    * corresponding *.xml file.
    */
-  private Object runScript(final String commandsString, final HashMap<String, Object> headers) {
+  private Object runScript(final String commandsString, final Map<String, Object> headers) {
     LOG.debug("RunScript: {} ", commandsString);
     final HashMap<String, String> inputParamsMap = new HashMap<>();
     inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SCRIPT, commandsString);
@@ -407,12 +419,13 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
    *
    * @return the created command
    */
-  @SuppressWarnings("unchecked")
-  private String createArtifcatTypeSpecificCommandString(final CSARID csarID, final QName artifactType,
-                                                         final QName artifactTemplateID, final Object params) {
+  private String createArtifactTypeSpecificCommandString(final Csar csar,
+                                                                 final TArtifactType artifactType,
+                                                                 final TArtifactTemplate artifactTemplate,
+                                                                 final Object params) {
     LOG.debug("Creating ArtifactType specific command for artifactType {}:...", artifactType);
 
-    final List<String> commands = typesHandler.getCommands(artifactType);
+    final List<String> commands = typesHandler.getCommands(artifactType.getQName());
     String commandsString = String.join(" && ", commands);
     LOG.debug("Defined generic command for ArtifactType {} : {} ", artifactType, commandsString);
 
@@ -420,15 +433,17 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     if (commandsString.contains("{{") && commandsString.contains("}}")) {
       LOG.debug("Replacing the placeholder of the generic command with properties data and/or provided input parameter...");
 
-      HashMap<String, String> paramsMap = new HashMap<>();
+      final Map<String, String> paramsMap;
       if (params instanceof HashMap) {
         paramsMap = (HashMap<String, String>) params;
       } else if (params instanceof Document) {
         final Document paramsDoc = (Document) params;
         paramsMap = MBUtils.docToMap(paramsDoc, true);
+      } else {
+        paramsMap = new HashMap<>();
       }
 
-      final Document propDoc = toscaEngineService.getPropertiesOfAArtifactTemplate(csarID, artifactTemplateID);
+      final Document propDoc = ToscaEngine.getEntityTemplateProperties(artifactTemplate);
       if (propDoc != null) {
         paramsMap.putAll(MBUtils.docToMap(propDoc, true));
       }
@@ -492,8 +507,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
    * @param paramsMap
    * @param headers
    */
-  private Object invokeManagementBusEngine(final HashMap<String, String> paramsMap,
-                                           final HashMap<String, Object> headers) {
+  private Object invokeManagementBusEngine(final Map<String, String> paramsMap,
+                                           final Map<String, Object> headers) {
     LOG.debug("Invoking the Management Bus...");
 
     final ProducerTemplate template = camelContext.createProducerTemplate();

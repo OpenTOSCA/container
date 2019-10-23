@@ -3,6 +3,7 @@ package org.opentosca.bus.management.service.impl.util;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.opentosca.bus.management.service.impl.collaboration.Constants;
 import org.opentosca.bus.management.service.impl.PluginRegistry;
 import org.apache.camel.Exchange;
@@ -10,12 +11,12 @@ import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPl
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.script.ManagementBusInvocationPluginScript;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.legacy.core.engine.IToscaEngineService;
+import org.opentosca.container.core.common.xml.XMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -31,12 +32,10 @@ public class PluginHandler {
 
   private final static Logger LOG = LoggerFactory.getLogger(PluginHandler.class);
 
-  private final IToscaEngineService toscaEngineService;
   private final PluginRegistry pluginRegistry;
 
   @Inject
-  public PluginHandler(IToscaEngineService toscaEngineService, PluginRegistry pluginRegistry) {
-    this.toscaEngineService = toscaEngineService;
+  public PluginHandler(PluginRegistry pluginRegistry) {
     this.pluginRegistry = pluginRegistry;
   }
 
@@ -110,11 +109,11 @@ public class PluginHandler {
    * @param artifactType to check if supported.
    * @return the deployment type or otherwise <tt>null</tt>.
    */
-  public String hasSupportedDeploymentType(final String artifactType) {
+  public String getSupportedDeploymentType(final QName artifactType) {
     LOG.debug("Searching if a deployment plug-in supports the type {}", artifactType);
     // Check if the ArtifactType can be deployed by a plug-in
-    if (pluginRegistry.getDeploymentPluginServices().containsKey(artifactType)) {
-      return artifactType;
+    if (pluginRegistry.getDeploymentPluginServices().containsKey(artifactType.toString())) {
+      return artifactType.toString();
     }
 
     LOG.debug("Did not find a plugin in the list of currently known plugins: {}", pluginRegistry.getDeploymentPluginServices().toString());
@@ -130,15 +129,17 @@ public class PluginHandler {
    * @param artifactTemplateID to get properties to check for InvocationTyp.
    * @return the invocation type or otherwise <tt>null</tt>.
    */
-  public String hasSupportedInvocationType(final String artifactType, final CSARID csarID,
-                                                  final QName artifactTemplateID) {
+  public String getSupportedInvocationType(final QName artifactType, final TArtifactTemplate artifactTemplate) {
 
     LOG.debug("Searching if a invocation plug-in supports the type {}", artifactType);
     // First check if a plug-in is registered that supports the ArtifactType.
-    if (pluginRegistry.getInvocationPluginServices().containsKey(artifactType)) {
-      return artifactType;
+    if (pluginRegistry.getInvocationPluginServices().containsKey(artifactType.toString())) {
+      return artifactType.toString();
     } else {
-      final Document properties = toscaEngineService.getPropertiesOfAArtifactTemplate(csarID, artifactTemplateID);
+      final Document properties = artifactTemplate.getProperties() != null
+        && artifactTemplate.getProperties().getInternalAny() instanceof Element
+        ? XMLHelper.fromRootNode((Element)artifactTemplate.getProperties().getInternalAny())
+        : null;
       // Second check if a invocation-type is specified in TOSCA definition
       final String invocationType = getInvocationType(properties);
       if (invocationType != null) {

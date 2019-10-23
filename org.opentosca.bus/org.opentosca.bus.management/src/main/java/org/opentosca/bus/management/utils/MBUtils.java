@@ -1,23 +1,27 @@
 package org.opentosca.bus.management.utils;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.winery.model.tosca.*;
+import org.opentosca.container.core.common.NotFoundException;
+import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
-import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -28,83 +32,116 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
+
+//FIXME this piece of ... needs to do actual transaction management, because Hibernate actually follows the JPA spec!
+@NonNullByDefault
 public class MBUtils {
 
   private static final Logger LOG = LoggerFactory.getLogger(MBUtils.class);
 
   // repository to access ServiceTemplateInstance data
   private static final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
-
-  @Inject
-  private static IToscaEngineService toscaEngineService;
+  private static final NodeTemplateInstanceRepository nodeTemplateInstanceRepository = new NodeTemplateInstanceRepository();
 
   /**
-   * Returns the OperatingSystem NodeTemplate.
+   * Finds the operating system node template, optionally requiring that it has a NodeInstance associated with a given serviceTemplateInstanceId.
    *
-   * @param csarID
-   * @param serviceTemplateID
-   * @param nodeTemplateID
-   * @return name of the OperatingSystem NodeTemplate.
+   * @return The OperatingSystem NodeTemplate.
    */
-  public static String getOperatingSystemNodeTemplateID(final CSARID csarID, final QName serviceTemplateID,
-                                                        String nodeTemplateID, boolean mustHaveInstance, Long serviceTemplateInstanceID) {
+  @Nullable
+  public static TNodeTemplate getOperatingSystemNodeTemplate(final Csar csar,
+                                                        final TServiceTemplate serviceTemplate,
+                                                        final TNodeTemplate nodeTemplate,
+                                                        boolean mustHaveNodeInstance,
+                                                        Long serviceTemplateInstanceId) {
 
-    LOG.debug("Searching the OperatingSystemNode of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
-      nodeTemplateID, serviceTemplateID, csarID);
-
-    // fetch all possible hosting nodes
-    List<String> hostingNodeTemplateIDs = toscaEngineService.getRelatedNodeTemplateIDs(csarID, serviceTemplateID, nodeTemplateID, Types.hostedOnRelationType);
-    hostingNodeTemplateIDs.addAll(toscaEngineService.getRelatedNodeTemplateIDs(csarID, serviceTemplateID, nodeTemplateID, Types.deployedOnRelationType));
-    hostingNodeTemplateIDs.addAll(toscaEngineService.getRelatedNodeTemplateIDs(csarID, serviceTemplateID, nodeTemplateID, Types.dependsOnRelationType));
-
-    for(String hostingNodeTemplateId : hostingNodeTemplateIDs) {
-      QName nodeType = toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, hostingNodeTemplateId);
-      // check if Operating System Node and if instance is needed
-      if(isOperatingSystemNodeType(csarID, nodeType)) {
-        if (mustHaveInstance) {
-          if (getNodeTemplateInstance(serviceTemplateInstanceID, hostingNodeTemplateId) != null) {
-            return hostingNodeTemplateId;
-          }
-        } else {
-          return hostingNodeTemplateId;
-        }
+    // Need to do exhaustive checking of all osNodeTypes for NodeInstance criteria
+    final Queue<TNodeTemplate> osNodeTemplates = new LinkedList<>();
+    final Queue<TNodeTemplate> nodeTemplateGraph = new LinkedList<>();
+    final Set<TNodeTemplate> traversedTemplates = new HashSet<>();
+    nodeTemplateGraph.add(nodeTemplate);
+    while (!nodeTemplateGraph.isEmpty()) {
+      final TNodeTemplate current = nodeTemplateGraph.poll();
+      if (!traversedTemplates.add(current)) {
+        // skip templates we already traversed
+        continue;
       }
-      // if this node is not an operating system node, then maybe one of its own hosting nodes
-      String node = getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, hostingNodeTemplateId, mustHaveInstance, serviceTemplateInstanceID);
-      if(node != null) {
-        return node;
+      final TNodeType currentNodeType;
+      try {
+        currentNodeType = ToscaEngine.resolveNodeTypeReference(csar, nodeTemplate.getType().toString());
+      } catch (NotFoundException e) {
+        //
+        continue;
+      }
+      if (isOperatingSystemNodeType(currentNodeType)) {
+        // just return the first result if we don't need to check for a node instance
+        if (!mustHaveNodeInstance) {
+          return current;
+        }
+        osNodeTemplates.add(current);
+        continue;
+      }
+      // nodeType was not an OS node type, therefore traverse the Graph "downwards"
+      Stream.concat(Stream.concat(
+        ToscaEngine.getRelatedNodeTemplates(serviceTemplate, nodeTemplate, Types.hostedOnRelationType),
+        ToscaEngine.getRelatedNodeTemplates(serviceTemplate, nodeTemplate, Types.deployedOnRelationType)
+      ), ToscaEngine.getRelatedNodeTemplates(serviceTemplate, nodeTemplate, Types.dependsOnRelationType))
+        // avoid cycles in the graph
+        .filter(t -> !traversedTemplates.contains(t))
+        .forEach(nodeTemplateGraph::add);
+    }
+    // return the first result that has an instance
+    for (TNodeTemplate osTemplate : osNodeTemplates) {
+      if (getNodeTemplateInstance(serviceTemplateInstanceId, osTemplate) != null) {
+        return osTemplate;
       }
     }
-
     return null;
   }
 
   /**
    * Checks if the specified NodeType is the OperatingSystem NodeType.
    *
-   * @return true if the specified NodeType is the OperatingSystem NodeType. Otherwise false.
+   * @return true if the specified NodeType is one of the OperatingSystem NodeTypes. Otherwise false.
    */
-  private static boolean isOperatingSystemNodeType(final CSARID csarID, final QName nodeType) {
-    return (toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-          && toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE))
-      || (toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
-          && toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE));
+  private static boolean isOperatingSystemNodeType(final TNodeType nodeType) {
+    TInterfaces exposedInterfaces = nodeType.getInterfaces();
+    boolean isOs = exposedInterfaces.getInterface().stream()
+      .filter(tInterface -> Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM.equals(tInterface.getName()))
+      .anyMatch(os -> doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+        && doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE));
+    boolean isDocker = exposedInterfaces.getInterface().stream()
+      .filter(tInterface -> Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER.equals(tInterface.getName()))
+      .anyMatch(os -> doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
+        && doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE));
+    return isOs || isDocker;
+  }
+
+  private static boolean doesInterfaceContainOperation(TNodeType nodeType, String interfaceName, String operationName) {
+    try {
+      return doesInterfaceContainOperation(ToscaEngine.resolveInterface(nodeType, interfaceName), operationName);
+    } catch (NotFoundException e) {
+      return false;
+    }
+  }
+
+  private static boolean doesInterfaceContainOperation(TInterface tInterface, String operationName) {
+    return tInterface.getOperation().stream().anyMatch(op -> operationName.equals(op.getName()));
   }
 
   /**
    * Returns the OS interface of the given OS Node Type
    *
-   * @param csarID   the CSAR Id where the referenced Node Type is declared
-   * @param nodeType a QName of the Node Type to check
+   * @param nodeType The Node Type to check
    * @return a String containing the name of the OS interface, or if the given Node Type is not an
    * OS Node Type null
    */
-  public static String getInterfaceForOperatingSystemNodeType(final CSARID csarID, final QName nodeType) {
-    if (toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-      && toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
+  public static String getInterfaceForOperatingSystemNodeType(final TNodeType nodeType) {
+    if (doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+        && doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
       return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM;
-    } else if (toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
-      && toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
+    } else if (doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
+      && doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
       return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER;
     }
     return null;
@@ -113,40 +150,24 @@ public class MBUtils {
   /**
    * Returns the name of the OperatingSystem ImplementationArtifact.
    *
-   * @param csarID
-   * @param serviceTemplateID
-   * @param osNodeTemplateID
+   * @param csar
+   * @param serviceTemplate
+   * @param osNodeTemplate
    * @return name of the OperatingSystem ImplementationArtifact.
    */
-  public static String getOperatingSystemIA(final CSARID csarID, final QName serviceTemplateID, final String osNodeTemplateID) {
+  public static TImplementationArtifact getOperatingSystemIA(final Csar csar, final TServiceTemplate serviceTemplate, final TNodeType osNodeType) {
+    LOG.debug("Searching the OperatingSystem-IA of OS-NodeType: {}, ServiceTemplate: {} & CSAR: {} ...", osNodeType, serviceTemplate, csar);
 
-    LOG.debug("Searching the OperatingSystem-IA of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...", osNodeTemplateID, serviceTemplateID, csarID);
-
-    final QName osNodeType = toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, osNodeTemplateID);
-    final List<QName> osNodeTypeImpls = toscaEngineService.getTypeImplementationsOfType(csarID, osNodeType);
-
-    for (final QName osNodeTypeImpl : osNodeTypeImpls) {
-
-      LOG.debug("NodeTypeImpl: {} ", osNodeTypeImpl);
-
-      final List<String> osIANames = toscaEngineService.getImplementationArtifactNamesOfTypeImplementation(csarID, osNodeTypeImpl);
-
-      for (final String osIAName : osIANames) {
-
-        LOG.debug("IA: {} ", osIAName);
-
-        final String osIAInterface = toscaEngineService.getInterfaceOfAImplementationArtifactOfATypeImplementation(csarID, osNodeTypeImpl, osIAName);
-
-        LOG.debug("Interface: {} ", osIAInterface);
-
-        if (osIAInterface == null
-          || osIAInterface.equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM)
-          || osIAInterface.equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER)) {
-          return osIAName;
+    for (final TNodeTypeImplementation implementation : ToscaEngine.getNodeTypeImplementations(csar, osNodeType)) {
+      for (final TImplementationArtifact artifact : ToscaEngine.implementationArtifacts(implementation)) {
+        @Nullable final String interfaceName = artifact.getInterfaceName();
+        if (interfaceName != null &&
+            (interfaceName.equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM)
+            || interfaceName.equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER))){
+          return artifact;
         }
       }
     }
-
     return null;
   }
 
@@ -223,6 +244,10 @@ public class MBUtils {
     }
   }
 
+  public static NodeTemplateInstance getNodeTemplateInstance(final Long serviceTemplateInstanceId, final TNodeTemplate nodeTemplate) {
+    return getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplate.getId());
+  }
+
   /**
    * Retrieve the NodeTemplateInstance which is contained in a certain ServiceTemplateInstance and
    * has a certain template ID.
@@ -240,11 +265,7 @@ public class MBUtils {
     final Optional<ServiceTemplateInstance> serviceTemplateInstance = serviceTemplateInstanceRepository.find(serviceTemplateInstanceID);
 
     if (serviceTemplateInstance.isPresent()) {
-      return serviceTemplateInstance.get().getNodeTemplateInstances().stream()
-        .filter((nodeInstance) -> nodeInstance.getTemplateId().getLocalPart().equals(nodeTemplateID))
-        .filter((nodeInstance) -> nodeInstance.getState().equals(NodeTemplateInstanceState.CREATED)
-                                  || nodeInstance.getState().equals(NodeTemplateInstanceState.STARTED))
-        .findFirst().orElse(null);
+      return nodeTemplateInstanceRepository.find(serviceTemplateInstance.get(), nodeTemplateID, Stream.of(NodeTemplateInstanceState.CREATED, NodeTemplateInstanceState.STARTED).collect(Collectors.toSet()));
     } else {
       LOG.warn("Unable to find ServiceTemplateInstance!");
       return null;

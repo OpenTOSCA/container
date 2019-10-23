@@ -3,6 +3,7 @@ package org.opentosca.container.core.engine.xml.impl;
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.List;
 
 import javax.xml.XMLConstants;
@@ -43,6 +44,7 @@ import org.xml.sax.SAXException;
  * @author Christian Endres - endrescn@studi.informatik.uni-stuttgart.de
  */
 public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
+  private static final Logger LOG = LoggerFactory.getLogger(XMLSerializer.class);
 
   private SchemaFactory schemaFactory;
   private Schema schema = null;
@@ -60,8 +62,6 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
   private DocumentBuilderFactory documentBuilderFactory;
   private DocumentBuilder documentBuilder;
 
-  // logger
-  private final Logger LOG = LoggerFactory.getLogger(XMLSerializer.class);
 
 
   /**
@@ -70,9 +70,9 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
    * @param context    The context of the JAXB classes - the package in which all related files are.
    * @param schemaFile File of the Schema. If null, no validation will be instantiated.
    */
-  public XMLSerializer(final Class<?> context, final File schemaFile) {
+  public XMLSerializer(final Class<?> context, final URL schemaFile) {
 
-    this.LOG.debug("Start the initiation of the JAXB objects for context \"" + context.getPackage().getName()
+    LOG.debug("Start the initiation of the JAXB objects for context \"" + context.getPackage().getName()
       + "\".");
 
     try {

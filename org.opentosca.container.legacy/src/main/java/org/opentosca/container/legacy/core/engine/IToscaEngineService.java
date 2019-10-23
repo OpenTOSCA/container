@@ -223,19 +223,6 @@ public interface IToscaEngineService {
   public List<String> getInputParametersOfTypeOperation(CSARID csarID, QName typeId, String interfaceName,
                                                         String operationName);
 
-  /**
-   * This method returns a List of Strings containing the InputParameter of Elements of the
-   * specified operation of the specified interface of the specified NodeType or RelationshipType
-   * within the specified csarID.
-   *
-   * @param csarID        of the CSAR.
-   * @param typeId        of the NodeType or RelationshipType containing the operation.
-   * @param interfaceName of the operation.
-   * @param operationName of which the parameters should be returned.
-   * @return A List of String containing the OutputParameters.
-   */
-  public List<String> getOutputParametersOfTypeOperation(CSARID csarID, QName typeId, String interfaceName,
-                                                         String operationName);
 
   /**
    * This method returns a node containing the OutputParameter of Elements of the specified

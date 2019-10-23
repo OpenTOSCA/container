@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.eclipse.winery.model.tosca.TRequiredContainerFeature;
+import org.eclipse.winery.model.tosca.TRequiredContainerFeatures;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.container.core.model.capability.provider.ProviderType;
 import org.opentosca.container.core.service.ICoreCapabilityService;
@@ -32,6 +35,13 @@ public class DeploymentPluginCapabilityChecker {
   @Inject
   public DeploymentPluginCapabilityChecker(ICoreCapabilityService capabilityService) {
     this.capabilityService = capabilityService;
+  }
+
+  public boolean capabilitiesAreMet(final TRequiredContainerFeatures requiredFeatures, final IManagementBusDeploymentPluginService plugin) {
+    if (requiredFeatures == null || requiredFeatures.getRequiredContainerFeature().isEmpty()) {
+      return true;
+    }
+    return capabilitiesAreMet(requiredFeatures.getRequiredContainerFeature().stream().map(TRequiredContainerFeature::getFeature).collect(Collectors.toList()), plugin);
   }
 
   /**

@@ -29,6 +29,7 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -54,16 +55,17 @@ import com.google.gson.Gson;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @see MBHeader
  */
-@Component
 public class RequestProcessor implements Processor {
   public static final String MB_MANAGEMENT_SOAPHTTP_API_ID = "org.opentosca.bus.management.api.soaphttp";
 
   private static final Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
   private final CsarStorageService csarStorage;
+  private final ContainerEngine containerEngine;
 
-  @Inject
-  public RequestProcessor(CsarStorageService csarStorage) {
+  // FIXME we're manually instantiating this. Probably better not to do that...
+  public RequestProcessor(CsarStorageService csarStorage, ContainerEngine containerEngine) {
     this.csarStorage = csarStorage;
+    this.containerEngine = containerEngine;
   }
 
   @Override
@@ -122,7 +124,7 @@ public class RequestProcessor implements Processor {
         final Csar csar = csarStorage.findById(new CsarId(csarIDString));
         final TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(csar, serviceTemplateID, nodeTemplateID);
 
-        final ResolvedArtifacts resolvedArtifacts = ToscaEngine.resolvedDeploymentArtifactsOfNodeTemplate(csar, nodeTemplate);
+        final ResolvedArtifacts resolvedArtifacts = containerEngine.resolvedDeploymentArtifacts(csar, nodeTemplate);
         resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
       }
 

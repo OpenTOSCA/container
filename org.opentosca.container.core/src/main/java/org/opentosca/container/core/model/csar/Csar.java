@@ -45,6 +45,7 @@ public interface Csar {
 
   public Application selfserviceMetadata();
 
+  @Nullable
   public TExtensibleElements queryRepository(DefinitionsChildId definitionId);
 
   void exportTo(Path targetPath) throws IOException;

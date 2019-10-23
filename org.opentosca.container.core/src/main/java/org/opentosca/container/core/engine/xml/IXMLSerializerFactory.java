@@ -1,6 +1,7 @@
 package org.opentosca.container.core.engine.xml;
 
 import java.io.File;
+import java.net.URL;
 
 public interface IXMLSerializerFactory {
 
@@ -12,6 +13,6 @@ public interface IXMLSerializerFactory {
    * @param schemaFile   A File object which provides the Schema file of TOSCA.
    * @return An instance of the XML Serializer of the TOSCA universe.
    */
-  public abstract IXMLSerializer createSerializer(Class<?> classContext, File schemaFile);
+  public abstract IXMLSerializer createSerializer(Class<?> classContext, URL schemaFile);
 
 }

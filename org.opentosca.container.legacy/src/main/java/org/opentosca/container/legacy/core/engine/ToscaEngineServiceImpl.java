@@ -1777,12 +1777,6 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     return parseParameters(getInputParametersOfATypeOperation(csarID, typeId, interfaceName, operationName));
   }
 
-  @Override
-  public List<String> getOutputParametersOfTypeOperation(final CSARID csarID, final QName typeId,
-                                                         final String interfaceName, final String operationName) {
-    return parseParameters(getOutputParametersOfATypeOperation(csarID, typeId, interfaceName, operationName));
-  }
-
   private List<String> parseParameters(final Node node) {
 
     final List<String> params = new ArrayList<>();

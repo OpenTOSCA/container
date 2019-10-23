@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.repository;
 
 import java.util.Collection;
+import java.util.Set;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -9,14 +10,47 @@ import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 import javax.xml.namespace.QName;
 
+import org.hibernate.Hibernate;
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 
 public class NodeTemplateInstanceRepository extends JpaRepository<NodeTemplateInstance> {
 
   public NodeTemplateInstanceRepository() {
     super(NodeTemplateInstance.class);
+  }
+
+
+  public NodeTemplateInstance find(final ServiceTemplateInstance sti, String nodeTemplateId, Set<NodeTemplateInstanceState> acceptableStates) {
+    try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
+      final CriteriaBuilder cb = em.getCriteriaBuilder();
+
+      final ParameterExpression<ServiceTemplateInstance> owner = cb.parameter(ServiceTemplateInstance.class, "sti");
+      final ParameterExpression<QName> templateId = cb.parameter(QName.class, "ntId");
+
+      final CriteriaQuery<NodeTemplateInstance> query = cb.createQuery(NodeTemplateInstance.class);
+      final Root<NodeTemplateInstance> nti = query.from(NodeTemplateInstance.class);
+      final CriteriaBuilder.In<NodeTemplateInstanceState> stateCheck = cb.in(nti.get("state"));
+      acceptableStates.forEach(stateCheck::value);
+
+      query.select(nti).where(
+        cb.equal(nti.get("serviceTemplateInstance"), owner)
+        , cb.equal(nti.get("templateId"), templateId)
+        , stateCheck);
+
+      final TypedQuery<NodeTemplateInstance> q = em.createQuery(query);
+      q.setParameter(owner, sti);
+      q.setParameter(templateId, new QName(nodeTemplateId));
+
+      final NodeTemplateInstance result = q.getSingleResult();
+      Hibernate.initialize(result.getDeploymentTestResults());
+      Hibernate.initialize(result.getProperties());
+      Hibernate.initialize(result.getOutgoingRelations());
+      return result;
+    }
   }
 
   public Collection<NodeTemplateInstance> findByTemplateId(final QName templateId) {
