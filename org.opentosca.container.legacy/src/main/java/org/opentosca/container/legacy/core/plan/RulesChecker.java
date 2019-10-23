@@ -111,7 +111,7 @@ public class RulesChecker {
 
           boolean found = false;
           while (!found) {
-            TNodeTemplate targetNT = ToscaEngine.getRelatedNodeTemplateWithin(serviceTemplate, sourceRuleNTemplate, relationshipRule.getType());
+            TNodeTemplate targetNT = ToscaEngine.getRelatedNodeTemplate(serviceTemplate, sourceRuleNTemplate, relationshipRule.getType());
 
             if (targetNT == null) {
               switch (ruleType) {

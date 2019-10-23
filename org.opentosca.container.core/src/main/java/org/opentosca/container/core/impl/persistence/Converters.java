@@ -35,7 +35,7 @@ public abstract class Converters {
   private static DocumentConverter xmlConverter = new DocumentConverter();
 
   public static ServiceInstance convert(final ServiceTemplateInstance object) {
-    final ServiceInstance si = new ServiceInstance(object.getCsarId().toOldCsarId(), object.getTemplateId(), "");
+    final ServiceInstance si = new ServiceInstance(object.getCsarId(), object.getTemplateId(), "");
     if (object.getId() != null) {
       si.setId(object.getId().intValue());
     }
@@ -59,7 +59,7 @@ public abstract class Converters {
         sti = o.get();
       } else {
         sti = new ServiceTemplateInstance();
-        sti.setCsarId(new CsarId(object.getCSAR_ID()));
+        sti.setCsarId(object.getCsarID());
         sti.setTemplateId(object.getServiceTemplateID());
         sti.setState(ServiceTemplateInstanceState.INITIAL);
       }

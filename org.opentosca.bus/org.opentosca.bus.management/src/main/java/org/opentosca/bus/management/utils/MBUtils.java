@@ -66,13 +66,7 @@ public class MBUtils {
         // skip templates we already traversed
         continue;
       }
-      final TNodeType currentNodeType;
-      try {
-        currentNodeType = ToscaEngine.resolveNodeTypeReference(csar, nodeTemplate.getType().toString());
-      } catch (NotFoundException e) {
-        //
-        continue;
-      }
+      final TNodeType currentNodeType = ToscaEngine.resolveNodeType(csar, nodeTemplate);
       if (isOperatingSystemNodeType(currentNodeType)) {
         // just return the first result if we don't need to check for a node instance
         if (!mustHaveNodeInstance) {
@@ -82,13 +76,11 @@ public class MBUtils {
         continue;
       }
       // nodeType was not an OS node type, therefore traverse the Graph "downwards"
-      Stream.concat(Stream.concat(
-        ToscaEngine.getRelatedNodeTemplates(serviceTemplate, nodeTemplate, Types.hostedOnRelationType),
-        ToscaEngine.getRelatedNodeTemplates(serviceTemplate, nodeTemplate, Types.deployedOnRelationType)
-      ), ToscaEngine.getRelatedNodeTemplates(serviceTemplate, nodeTemplate, Types.dependsOnRelationType))
-        // avoid cycles in the graph
-        .filter(t -> !traversedTemplates.contains(t))
-        .forEach(nodeTemplateGraph::add);
+      ToscaEngine.getRelatedNodeTemplates(serviceTemplate, nodeTemplate,
+        Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType)
+      // avoid cycles in the graph
+      .filter(t -> !traversedTemplates.contains(t))
+      .forEach(nodeTemplateGraph::add);
     }
     // return the first result that has an instance
     for (TNodeTemplate osTemplate : osNodeTemplates) {

@@ -103,7 +103,6 @@ public class ServiceTemplateInstanceController {
     }
 
     list.add(UriUtil.generateSelfLink(this.uriInfo));
-
     return Response.ok(list).build();
   }
 

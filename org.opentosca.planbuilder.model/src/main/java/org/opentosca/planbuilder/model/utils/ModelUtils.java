@@ -363,7 +363,7 @@ public class ModelUtils {
       LOG.debug("Beginning search for basetype of: " + nodeTemplate.getId());
       final List<TNodeType> typeHierarchy;
       try {
-        typeHierarchy = ToscaEngine.resolveNodeTypeHierarchy(csar, nodeTemplate.getName());
+        typeHierarchy = ToscaEngine.resolveNodeTypeHierarchy(csar, nodeTemplate);
       } catch (NotFoundException e) {
         return null;
       }

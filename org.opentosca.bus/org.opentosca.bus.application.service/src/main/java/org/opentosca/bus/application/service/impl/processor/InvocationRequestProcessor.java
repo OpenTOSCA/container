@@ -50,7 +50,7 @@ public class InvocationRequestProcessor implements Processor {
     this.containerProxy = containerProxy;
     this.pluginRegistry = pluginRegistry;
   }
-  
+
   @Override
   public void process(final Exchange exchange) throws Exception {
     LOG.debug("InvokeOperation request processing started...");
@@ -82,8 +82,7 @@ public class InvocationRequestProcessor implements Processor {
 
     final QName nodeType = nodeInstance.getNodeType();
     final ServiceInstance serviceInstance = nodeInstance.getServiceInstance();
-    // FIXME don't rely on the old model FFS!
-    final CsarId csarID = new CsarId(serviceInstance.getCSAR_ID());
+    final CsarId csarID = serviceInstance.getCsarID();
     final QName serviceTemplateID = serviceInstance.getServiceTemplateID();
 
     if (nodeTemplateID == null) {

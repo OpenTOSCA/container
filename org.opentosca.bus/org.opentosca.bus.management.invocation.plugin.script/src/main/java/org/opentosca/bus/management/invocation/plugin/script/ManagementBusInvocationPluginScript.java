@@ -88,11 +88,12 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
     LOG.debug("OperationName: {}", operationName);
     final Csar csar = storage.findById(csarID);
-    final TRelationshipTemplate relationshipTemplate = ToscaEngine.getRelationshipTemplate(csar, QName.valueOf(relationshipTemplateID)).orElse(null);
-    final TServiceTemplate serviceTemplate = ToscaEngine.getServiceTemplate(csar, serviceTemplateID);
     try {
+      final TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateID);
       final TArtifactTemplate artifactTemplate = ToscaEngine.resolveArtifactTemplate(csar, artifactTemplateID);
       final TArtifactType artifactType = ToscaEngine.resolveArtifactType(csar, artifactTemplate.getType());
+      // the relationship template does not need to be present
+      final TRelationshipTemplate relationshipTemplate = ToscaEngine.getRelationshipTemplate(csar, QName.valueOf(relationshipTemplateID)).orElse(null);
       final TNodeTemplate nodeTemplate = getNodeTemplate(message, csar, relationshipTemplate, serviceTemplate, interfaceName, operationName);
       final TNodeType nodeType = ToscaEngine.resolveNodeTypeReference(csar, nodeTemplate.getType());
       final TOperation operation = ToscaEngine.resolveOperation(nodeType, interfaceName, operationName);

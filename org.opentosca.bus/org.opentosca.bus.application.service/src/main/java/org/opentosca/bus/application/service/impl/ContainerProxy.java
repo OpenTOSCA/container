@@ -149,15 +149,15 @@ public class ContainerProxy {
     // FIXME not sure whether that's equivalent!
     final TNodeType nodeType;
     try {
-      nodeType = ToscaEngine.resolveNodeTypeReference(csar, nodeTypeName.getLocalPart());
+      nodeType = ToscaEngine.resolveNodeTypeReference(csar, nodeTypeName);
     } catch (NotFoundException missing) {
       LOG.warn("Did not find NodeType requested with csarId {}, nodeTypeName: {}", csarId, nodeTypeName);
       return null;
     }
-    final List<TNodeTypeImplementation> nodeTypeImplementationsIDs = ToscaEngine.nodeTypeImplementations(csar, nodeType);
-    LOG.trace("The NodeType [{}] has {} NodeTypeImplementations.", nodeTypeName, nodeTypeImplementationsIDs.size());
+    final List<TNodeTypeImplementation> nodeTypeImplementations = ToscaEngine.nodeTypeImplementations(csar, nodeType);
+    LOG.trace("The NodeType [{}] has {} NodeTypeImplementations.", nodeTypeName, nodeTypeImplementations.size());
 
-    for (final TNodeTypeImplementation nodeTypeImplementation : nodeTypeImplementationsIDs) {
+    for (final TNodeTypeImplementation nodeTypeImplementation : nodeTypeImplementations) {
       // if there are DAs
       final TDeploymentArtifacts deploymentArtifacts = nodeTypeImplementation.getDeploymentArtifacts();
       if (deploymentArtifacts == null) {
@@ -447,7 +447,7 @@ public class ContainerProxy {
       LOG.trace("{} isn't the searched NodeTemplate.", nodeTemplate.getId());
       LOG.trace("Getting the underneath Node for checking if it is the searched NodeTemplate.");
 
-      nodeTemplate = ToscaEngine.getRelatedNodeTemplateWithin(context, nodeTemplate, relationshipType);
+      nodeTemplate = ToscaEngine.getRelatedNodeTemplate(context, nodeTemplate, relationshipType);
       if (nodeTemplate != null) {
         LOG.trace("Checking if the underneath Node: {} is the searched NodeTemplate.", nodeTemplateId);
         props = ToscaEngine.getNodeTemplateProperties(nodeTemplate);
