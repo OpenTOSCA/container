@@ -97,20 +97,17 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
   }
 
   @Override
-  public String invokePlan(final CsarId csarID, final QName serviceTemplateId, long serviceTemplateInstanceID,
+  public String invokePlan(final CsarId csarID, final TServiceTemplate serviceTemplate, long serviceTemplateInstanceID,
                            final TPlanDTO givenPlan) throws UnsupportedEncodingException {
 
     final Csar csar = csarStorage.findById(csarID);
     // refill information that might not be sent
     LOG.info("Invoke the Plan \"" + givenPlan.getId() + "\" of type \"" + givenPlan.getPlanType() + "\" of CSAR \"" + csarID.csarName() + "\".");
     final TPlan storedPlan;
-    final TServiceTemplate serviceTemplate;
     try {
       storedPlan = retrieveStoredPlan(csar, givenPlan);
-      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateId);
     } catch (NotFoundException e) {
       // WTF, this warrants a 500: ServiceTemplate was deleted between invocation and reaching this point?!
-      // FIXME it's easier to pass the TServiceTemplate in the first place
       return null;
     }
     final PlanInvocationEvent planEvent = buildPlanInvocationEvent(csarID, serviceTemplate, csar, storedPlan);
@@ -131,20 +128,20 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     if (serviceTemplateInstanceID == -1) {
       serviceTemplateInstanceID = 1000 + (int) (Math.random() * (Integer.MAX_VALUE - 1000));
       // get new correlationID
-      correlationID = correlationHandler.getNewCorrelationID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID, planEvent, true);
+      correlationID = correlationHandler.getNewCorrelationID(csarID, QName.valueOf(serviceTemplate.getId()), (int) serviceTemplateInstanceID, planEvent, true);
     } else {
       // get new correlationID
-      correlationID = correlationHandler.getNewCorrelationID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID, planEvent, false);
+      correlationID = correlationHandler.getNewCorrelationID(csarID, QName.valueOf(serviceTemplate.getId()), (int) serviceTemplateInstanceID, planEvent, false);
     }
 
     // plan is of type build, thus create an instance and put the
     // CSARInstanceID into the plan
     ServiceTemplateInstanceID instanceID;
     if (PlanTypes.isPlanTypeURI(planEvent.getPlanType()).equals(PlanTypes.BUILD)) {
-      instanceID = csarInstanceManagement.createNewInstance(csarID, serviceTemplateId);
+      instanceID = csarInstanceManagement.createNewInstance(csarID, QName.valueOf(serviceTemplate.getId()));
       planEvent.setCSARInstanceID(instanceID.getInstanceID());
     } else {
-      instanceID = new ServiceTemplateInstanceID(csarID, serviceTemplateId, (int) serviceTemplateInstanceID);
+      instanceID = new ServiceTemplateInstanceID(csarID, QName.valueOf(serviceTemplate.getId()), (int) serviceTemplateInstanceID);
     }
     csarInstanceManagement.correlateCSARInstanceWithPlanInstance(instanceID, correlationID);
     csarInstanceManagement.setCorrelationAsActive(csarID, correlationID);
@@ -176,7 +173,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     // send the message to the service bus
     final Map<String, Object> eventValues = new Hashtable<>();
     eventValues.put("CSARID", csarID);
-    eventValues.put("SERVICETEMPLATEID", serviceTemplateId);
+    eventValues.put("SERVICETEMPLATEID", QName.valueOf(serviceTemplate.getId()));
     eventValues.put("PLANID", planEvent.getPlanID());
     eventValues.put("PLANLANGUAGE", planEvent.getPlanLanguage());
     eventValues.put("OPERATIONNAME", planEvent.getOperationName());

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
@@ -29,7 +30,7 @@ public interface IPlanInvocationEngine {
    */
   public void invokePlan(CsarId csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan, String correlationID) throws UnsupportedEncodingException;
 
-  public String invokePlan(CsarId csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan) throws UnsupportedEncodingException;
+  public String invokePlan(CsarId csarID, TServiceTemplate serviceTemplate, long serviceTemplateInstanceID, TPlanDTO plan) throws UnsupportedEncodingException;
 
   public void correctCorrelationToServiceTemplateInstanceIdMapping(CsarId csarID, QName serviceTemplateId, String corrId, int correctSTInstanceId);
 

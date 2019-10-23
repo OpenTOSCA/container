@@ -84,7 +84,8 @@ public final class ToscaEngine {
   }
 
   public static Optional<TNodeTemplate> getNodeTemplate(TServiceTemplate serviceTemplate, String nodeTemplate) {
-    return Optional.ofNullable(serviceTemplate.getTopologyTemplate().getNodeTemplate(nodeTemplate));
+    return Optional.ofNullable(serviceTemplate.getTopologyTemplate())
+      .map(tt -> tt.getNodeTemplate(nodeTemplate));
   }
 
   public static boolean isOperationBoundToSourceNode(final TRelationshipType relationshipType, final String interfaceName, final String operationName) {

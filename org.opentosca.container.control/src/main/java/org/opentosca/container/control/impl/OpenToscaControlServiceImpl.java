@@ -109,7 +109,7 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
   public String invokePlanInvocation(CsarId csarId, TServiceTemplate serviceTemplate, long instanceId,
                                      TPlanDTO plan) throws UnsupportedEncodingException {
     LOGGER.info("Invoking Plan [{}]", plan.getName());
-    final String correlationId = planInvocationEngine.invokePlan(csarId, new QName(serviceTemplate.getId()), instanceId, plan);
+    final String correlationId = planInvocationEngine.invokePlan(csarId, serviceTemplate, instanceId, plan);
     if (correlationId != null) {
       LOGGER.info("Plan Invocation was sucessful.");
     } else {
