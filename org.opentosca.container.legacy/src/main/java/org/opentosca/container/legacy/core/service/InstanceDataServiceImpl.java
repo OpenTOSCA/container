@@ -23,14 +23,18 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.eclipse.winery.model.tosca.*;
 import org.opentosca.container.core.common.ReferenceNotFoundException;
 import org.opentosca.container.core.engine.NodeTemplateInstanceCounts;
+import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.impl.persistence.Converters;
 import org.opentosca.container.core.impl.persistence.DaoUtil;
 import org.opentosca.container.core.impl.persistence.NodeInstanceDAO;
 import org.opentosca.container.core.impl.persistence.RelationInstanceDAO;
 import org.opentosca.container.core.impl.persistence.ServiceInstanceDAO;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.instance.IdConverter;
 import org.opentosca.container.core.model.instance.NodeInstance;
 import org.opentosca.container.core.model.instance.RelationInstance;
@@ -41,11 +45,8 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.IInstanceDataService;
-import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
-import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TPropertyMapping;
-import org.opentosca.container.legacy.core.engine.IToscaEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -62,17 +63,18 @@ import org.w3c.dom.NodeList;
  * values for the default properties of created instances.
  */
 @Deprecated
-@WebService(name = "InstanceDataService")
-@SOAPBinding(style = SOAPBinding.Style.RPC)
+// removed demarcation as entry-point via webservice for ongoing deprecation efforts
+//@WebService(name = "InstanceDataService")
+//@SOAPBinding(style = SOAPBinding.Style.RPC)
 @Service
 public class InstanceDataServiceImpl implements IInstanceDataService {
   private static final Logger LOG = LoggerFactory.getLogger(InstanceDataServiceImpl.class);
 
-  private final IToscaEngineService toscaEngineService;
-
   private final ServiceTemplateInstanceRepository serviceRepository = new ServiceTemplateInstanceRepository();
   private final NodeTemplateInstanceRepository nodeRepository = new NodeTemplateInstanceRepository();
   private final RelationshipTemplateInstanceRepository relationshipRepository = new RelationshipTemplateInstanceRepository();
+
+  private final CsarStorageService storage;
 
   // used for persistence
   private final ServiceInstanceDAO siDAO = new ServiceInstanceDAO();
@@ -80,8 +82,8 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   private final RelationInstanceDAO riDAO = new RelationInstanceDAO();
 
   @Inject
-  public InstanceDataServiceImpl(IToscaEngineService toscaEngineService) {
-    this.toscaEngineService = toscaEngineService;
+  public InstanceDataServiceImpl(CsarStorageService storage) {
+    this.storage = storage;
   }
 
   @Override
@@ -123,7 +125,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
   @Override
   @WebMethod(exclude = true)
-  public List<ServiceInstance> getServiceInstancesWithDetails(final CSARID csarId, final QName serviceTemplateId,
+  public List<ServiceInstance> getServiceInstancesWithDetails(final CsarId csarId, final QName serviceTemplateId,
                                                               final Integer serviceTemplateInstanceID) {
     LOG.info("getServiceInstancesWithDetails(): {}", csarId);
     LOG.info("getServiceInstancesWithDetails(): {}", serviceTemplateId);
@@ -153,7 +155,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
   @Override
   @WebMethod(exclude = true)
-  public ServiceInstance createServiceInstance(final CSARID csarID,
+  public ServiceInstance createServiceInstance(final CsarId csarID,
                                                final QName serviceTemplateID) throws ReferenceNotFoundException {
     LOG.info("createServiceInstance(): {}", csarID);
     LOG.info("createServiceInstance(): {}", serviceTemplateID);
@@ -161,21 +163,22 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     LOG.debug("Starting creating ServiceInstance for " + serviceTemplateID + " in " + csarID);
     // TODO: boolean flag for cascading creation? cool or not?
     // check if serviceTemplate doesn't exist
-    if (!doesServiceTemplateExist(toscaEngineService, csarID, serviceTemplateID)) {
-      LOG.warn(String.format("Failed to create ServiceInstance for CSAR-ID: %s / serviceTemplateID: %s - was not found!", csarID, serviceTemplateID));
+    Csar csar = storage.findById(csarID);
+    TServiceTemplate template = ToscaEngine.getServiceTemplate(csar, serviceTemplateID);
+    if (template == null) {
+      LOG.warn("Failed to create ServiceInstance for CSAR-ID: {} / serviceTemplateID: {} - was not found!", csarID, serviceTemplateID);
       throw new ReferenceNotFoundException("ServiceTemplate doesn't exist in the specified CSAR");
     }
-    // retrieve serviceTemplateName
-    final String serviceTemplateName = toscaEngineService.getNameOfReference(csarID, serviceTemplateID);
+    final String serviceTemplateName = template.getName();
     // get all min and maxCounts from the ServiceTemplate and construct
     // nodeInstances from it automatically
-    final NodeTemplateInstanceCounts instanceCounts = toscaEngineService.getInstanceCountsOfNodeTemplatesByServiceTemplateID(csarID, serviceTemplateID);
+    final NodeTemplateInstanceCounts instanceCounts = ContainerEngine.getInstanceCounts(template);
 
     // creation of real objects
     ServiceInstance serviceInstance = new ServiceInstance(csarID, serviceTemplateID, serviceTemplateName);
 
     // construct initial properties of serviceTemplate
-    final Document properties = createServiceInstancePropertiesFromServiceTemplate(csarID, serviceTemplateID);
+    final Document properties = createServiceInstancePropertiesFromServiceTemplate(template);
 
     serviceInstance.setProperties(properties);
 
@@ -325,7 +328,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
   @Override
   @WebMethod(exclude = true)
-  public NodeInstance createNodeInstance(final CSARID csarId, final QName serviceTemplateId,
+  public NodeInstance createNodeInstance(final CsarId csarId, final QName serviceTemplateId,
                                          final int serviceTemplateInstanceID,
                                          final QName nodeTemplateID) throws ReferenceNotFoundException {
     LOG.info("createNodeInstance(): {}", csarId);
@@ -347,31 +350,27 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       throw new ReferenceNotFoundException(msg);
     }
     final ServiceInstance serviceInstance = serviceInstances.get(0);
-
-    // check if nodeTemplate exists
-    if (!toscaEngineService.doesNodeTemplateExist(csarId, serviceTemplateId, nodeTemplateID.getLocalPart())) {
-      final String msg = String.format("Failed to create NodeInstance: NodeTemplate: csar: %s serviceTemplateID: %s , nodeTemplateID: '%s' - could not be retrieved / does not exist",
+    final Csar csar = storage.findById(csarId);
+    final TNodeTemplate nodeTemplate = ToscaEngine.getNodeTemplate(csar, serviceTemplateId, nodeTemplateID.getLocalPart())
+      // check if nodeTemplate exists
+      .orElseThrow(() -> {
+        final String msg = String.format("Failed to create NodeInstance: NodeTemplate: csar: %s serviceTemplateID: %s , nodeTemplateID: '%s' - could not be retrieved / does not exist",
           serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(), nodeTemplateID);
-      LOG.warn(msg);
-      throw new ReferenceNotFoundException(msg);
-    }
+        LOG.warn(msg);
+        return new ReferenceNotFoundException(msg);
+      });
 
-    final String nodeTemplateName = toscaEngineService.getNameOfReference(csarId, nodeTemplateID);
-
-    // use localparts because serviceInstance QName namespace HAS to be the
-    // same as the namespace of the nodeInstance
-    final QName nodeTypeOfNodeTemplate = toscaEngineService.getNodeTypeOfNodeTemplate(csarId, serviceTemplateId,
-        nodeTemplateID.getLocalPart());
+    final String nodeTemplateName = nodeTemplate.getName();
 
     // use localparts because serviceInstance QName namespace HAS to be the
     // same as the namespace of the nodeInstance
-    final Document propertiesOfNodeTemplate =
-      toscaEngineService.getPropertiesOfTemplate(csarId, serviceTemplateId,
-        nodeTemplateID.getLocalPart()
-          .toString());
+    final TNodeType nodeType = ToscaEngine.resolveNodeType(csar, nodeTemplate);
 
-    NodeInstance nodeInstance =
-      new NodeInstance(nodeTemplateID, nodeTemplateName, nodeTypeOfNodeTemplate, serviceInstance);
+    // use localparts because serviceInstance QName namespace HAS to be the
+    // same as the namespace of the nodeInstance
+    final Document propertiesOfNodeTemplate = ToscaEngine.getEntityTemplateProperties(nodeTemplate);
+
+    NodeInstance nodeInstance = new NodeInstance(nodeTemplateID, nodeTemplateName, nodeType.getQName(), serviceInstance);
     // set default properties
     nodeInstance.setProperties(propertiesOfNodeTemplate);
     nodeInstance = this.niDAO.saveNodeInstance(nodeInstance);
@@ -380,7 +379,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
   @Override
   @WebMethod(exclude = true)
-  public RelationInstance createRelationInstance(final CSARID csarId, final QName serviceTemplateId,
+  public RelationInstance createRelationInstance(final CsarId csarId, final QName serviceTemplateId,
                                                  final int serviceTemplateInstanceID,
                                                  final QName relationshipTemplateID, final String sourceInstanceId,
                                                  final String targetInstanceId) {
@@ -392,20 +391,26 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     LOG.info("createRelationInstance(): {}", sourceInstanceId);
     LOG.info("createRelationInstance(): {}", targetInstanceId);
 
-    final String relationshipTemplateName = toscaEngineService.getNameOfReference(csarId, relationshipTemplateID);
+    final Csar csar = storage.findById(csarId);
+    // FIXME stop throwing unspecific runtime exceptions!
+    final TRelationshipTemplate relationshipTemplate = ToscaEngine.getRelationshipTemplate(csar, relationshipTemplateID)
+      .orElseThrow(RuntimeException::new);
 
     // use localparts because serviceInstance QName namespace HAS to be the
     // same as the namespace of the nodeInstance
-    final QName nodeTypeOfNodeTemplate = toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId, serviceTemplateId, relationshipTemplateID.getLocalPart());
+    // FIXME stop throwing unspecific runtime exceptions!
+    final TNodeTemplate associatedNodeTemplate = ToscaEngine.getNodeTemplate(csar, serviceTemplateId, relationshipTemplateID.getLocalPart())
+      .orElseThrow(RuntimeException::new);
+    final TNodeType nodeType = ToscaEngine.resolveNodeType(csar, associatedNodeTemplate);
 
     // use localparts because serviceInstance QName namespace HAS to be the
     // same as the namespace of the nodeInstance
-    final Document propertiesOfRelationshipTemplate = toscaEngineService.getPropertiesOfTemplate(csarId, serviceTemplateId, relationshipTemplateID.getLocalPart().toString());
+    final Document propertiesOfRelationshipTemplate = ToscaEngine.getEntityTemplateProperties(relationshipTemplate);
 
     final NodeInstance sourceInstance = getNodeInstances(URI.create(sourceInstanceId), null, null, null).get(0);
     final NodeInstance targetInstance = getNodeInstances(URI.create(targetInstanceId), null, null, null).get(0);
 
-    RelationInstance relationInstance = new RelationInstance(relationshipTemplateID, relationshipTemplateName, nodeTypeOfNodeTemplate, null, sourceInstance, targetInstance);
+    RelationInstance relationInstance = new RelationInstance(relationshipTemplateID, relationshipTemplate.getName(), nodeType.getQName(), null, sourceInstance, targetInstance);
 
     // set default properties
     relationInstance.setProperties(propertiesOfRelationshipTemplate);
@@ -740,8 +745,13 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       return;
     }
 
+    final Csar csar = storage.findById(serviceInstance.getCsarID());
+    final TServiceTemplate serviceTemplate = ToscaEngine.getServiceTemplate(csar, serviceInstance.getServiceTemplateID());
+    if (serviceTemplate == null) {
+      LOG.warn("Attempted to update properties for service instance associated with missing service template {}", serviceInstance.getServiceTemplateID());
+    }
     // check if the serviceTemplate has propertyMappings
-    final TBoundaryDefinitions boundaryDefs = toscaEngineService.getBoundaryDefinitionsOfServiceTemplate(serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID());
+    final TBoundaryDefinitions boundaryDefs = serviceTemplate.getBoundaryDefinitions();
     if (boundaryDefs == null || boundaryDefs.getProperties() == null || boundaryDefs.getProperties().getPropertyMappings() == null) {
       // if there are no property mappings there is no need to update.
       // The properties can only be updated be external clients via setting properties by hand
@@ -863,24 +873,6 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     return null;
   }
 
-  /**
-   * This method uses the toscaReferenceMapper of the given toscaEngineService to determine if the
-   * given csarID contains the serviceTemplate specified by serviceTemplateID
-   *
-   * @param toscaEngineService
-   * @param csarID
-   * @param serviceTemplateID
-   * @return true, if the given ServiceTemplate exists in the CSAR specified by the input parameter
-   */
-  private static boolean doesServiceTemplateExist(final IToscaEngineService toscaEngineService, final CSARID csarID,
-                                                  final QName serviceTemplateID) {
-    final List<QName> serviceTemplateIDsContainedInCSAR = toscaEngineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarID);
-    if (serviceTemplateIDsContainedInCSAR == null) {
-      return false;
-    }
-    return serviceTemplateIDsContainedInCSAR.contains(serviceTemplateID);
-  }
-
   private String fetchPropertyValueFromNodeInstance(final NodeInstance nodeInstance, final String propertyLocalName) {
     if (nodeInstance.getProperties() == null) {
       return null;
@@ -958,20 +950,18 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
    * @param serviceTemplateId the Id of the serviceTemplate
    * @return a DOM document containing elements representing properties of the serviceTemplate
    */
-  private Document createServiceInstancePropertiesFromServiceTemplate(final CSARID csarId,
-                                                                      final QName serviceTemplateId) {
-    LOG.debug("Creating initial ServiceInstance Properties for " + serviceTemplateId + " in " + csarId);
-    final TBoundaryDefinitions boundaryDefs = toscaEngineService.getBoundaryDefinitionsOfServiceTemplate(csarId, serviceTemplateId);
+  private Document createServiceInstancePropertiesFromServiceTemplate(TServiceTemplate template) {
+    final TBoundaryDefinitions boundaryDefs = template.getBoundaryDefinitions();
 
     Element propertiesElement = null;
     if (boundaryDefs != null && boundaryDefs.getProperties() != null) {
-      LOG.debug("Properties found in Bounds for ST {}", serviceTemplateId);
+      LOG.debug("Properties found in Bounds for ST {}", template.getId());
       propertiesElement = (Element) boundaryDefs.getProperties().getAny();
       if (null == propertiesElement || null == propertiesElement.getOwnerDocument()) {
         LOG.debug("null pointer ahead!");
       }
     } else {
-      LOG.debug("No Properties found in Bounds for ST {} thus create blank ones", serviceTemplateId);
+      LOG.debug("No Properties found in Bounds for ST {} thus create blank ones", template.getId());
       final Document emptyDoc = InstanceDataServiceImpl.emptyDocument();
       final Element createElementNS = emptyDoc.createElementNS("http://docs.oasis-open.org/tosca/ns/2011/12", "Properties");
       createElementNS.setAttribute("xmlns:tosca", "http://docs.oasis-open.org/tosca/ns/2011/12");

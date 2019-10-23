@@ -2,6 +2,7 @@ package org.opentosca.container.core.engine.next;
 
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.model.tosca.*;
+import org.opentosca.container.core.engine.NodeTemplateInstanceCounts;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.model.csar.Csar;
@@ -14,6 +15,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.inject.Inject;
+import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,26 +37,11 @@ public final class ContainerEngine {
     this.xmlSerializerService = xmlSerializerService;
   }
 
-  public NodeTemplateInstance resolveRelationshipOperationTarget(RelationshipTemplateInstance relationshipInstance,
-                                                                 TRelationshipType relationshipType,
-                                                                 String interfaceName, String operationName) {
-    boolean operationIsAttachedToSource = Optional.ofNullable(relationshipType.getSourceInterfaces()).map(TInterfaces::getInterface)
-      .orElse(Collections.emptyList()).stream()
-      .filter(iface -> interfaceName == null || iface.getName().equals(interfaceName))
-      .flatMap(iface -> iface.getOperation().stream())
-      .anyMatch(op -> op.getName().equals(operationName));
-    if (operationIsAttachedToSource) {
-      return relationshipInstance.getSource();
-    } else {
-      return relationshipInstance.getTarget();
-    }
-  }
   public ResolvedArtifacts resolvedDeploymentArtifacts(Csar context, TNodeTemplate nodeTemplate) {
     final ResolvedArtifacts result = new ResolvedArtifacts();
     result.setDeploymentArtifacts(resolvedDeploymentArtifactsForNodeTemplate(context, nodeTemplate));
     return result;
   }
-
   public List<ResolvedArtifacts.ResolvedDeploymentArtifact> resolvedDeploymentArtifactsForNodeTemplate(Csar context, TNodeTemplate nodeTemplate) {
     LOG.debug("Trying to fetch DAs of NodeTemplate {}", nodeTemplate.getName());
     if (nodeTemplate.getDeploymentArtifacts() == null
@@ -123,5 +110,47 @@ public final class ContainerEngine {
       }
     }
     return xmlSerializerService.getXmlSerializer().elementsIntoDocument(listOfAnyElements, "DeploymentArtifactSpecificContent");
+  }
+
+  public static NodeTemplateInstance resolveRelationshipOperationTarget(RelationshipTemplateInstance relationshipInstance,
+                                                                 TRelationshipType relationshipType,
+                                                                 String interfaceName, String operationName) {
+    boolean operationIsAttachedToSource = Optional.ofNullable(relationshipType.getSourceInterfaces()).map(TInterfaces::getInterface)
+      .orElse(Collections.emptyList()).stream()
+      .filter(iface -> interfaceName == null || iface.getName().equals(interfaceName))
+      .flatMap(iface -> iface.getOperation().stream())
+      .anyMatch(op -> op.getName().equals(operationName));
+    if (operationIsAttachedToSource) {
+      return relationshipInstance.getSource();
+    } else {
+      return relationshipInstance.getTarget();
+    }
+  }
+
+  public static NodeTemplateInstanceCounts getInstanceCounts(TServiceTemplate serviceTemplate) {
+    final List<TEntityTemplate> nodeTemplateOrRelationshipTemplate =
+      serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate();
+
+    // store nodeTemplates in own list so we dont alter the jaxb object
+    final List<TNodeTemplate> nodeTemplates = new ArrayList<>();
+    for (final TEntityTemplate tEntityTemplate : nodeTemplateOrRelationshipTemplate) {
+      // only add it if its a nodeTemplate
+      if (tEntityTemplate instanceof TNodeTemplate) {
+        nodeTemplates.add((TNodeTemplate) tEntityTemplate);
+      }
+    }
+
+    // construct result object (getMin and MaxInstance from JAXB and store
+    // them in result object)
+    final NodeTemplateInstanceCounts counts = new NodeTemplateInstanceCounts();
+    for (final TNodeTemplate tNodeTemplate : nodeTemplates) {
+      final QName nodeTemplateQName = new QName(serviceTemplate.getTargetNamespace(), tNodeTemplate.getId());
+      final int minInstances = tNodeTemplate.getMinInstances();
+      // in xml the maxInstances attribute is a String because it also can
+      // contain "unbounded"
+      final String maxInstances = tNodeTemplate.getMaxInstances();
+      counts.addInstanceCount(nodeTemplateQName, minInstances, maxInstances);
+    }
+    return counts;
   }
 }

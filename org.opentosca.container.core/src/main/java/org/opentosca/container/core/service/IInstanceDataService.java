@@ -6,7 +6,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.common.ReferenceNotFoundException;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.instance.NodeInstance;
 import org.opentosca.container.core.model.instance.RelationInstance;
 import org.opentosca.container.core.model.instance.ServiceInstance;
@@ -29,7 +29,7 @@ public interface IInstanceDataService {
    * @param ServiceTemplateID
    * @return the new generated ServiceInstance
    */
-  public ServiceInstance createServiceInstance(CSARID csarID,
+  public ServiceInstance createServiceInstance(CsarId csarID,
                                                QName serviceTemplateID) throws ReferenceNotFoundException;
 
   /**
@@ -54,11 +54,13 @@ public interface IInstanceDataService {
   /**
    * Create a <code>NodeInstance</code>of the specified nodeTemplate of the given serviceInstanceID
    *
-   * @param nodeTemplateID
+   *
+   * @param csarId
    * @param serviceInstanceID
+   * @param nodeTemplateID
    * @return the new generated NodeInstance
    */
-  public NodeInstance createNodeInstance(CSARID csarId, QName serviceTemplateId, int serviceInstanceID,
+  public NodeInstance createNodeInstance(CsarId csarId, QName serviceTemplateId, int serviceInstanceID,
                                          QName nodeTemplateID) throws ReferenceNotFoundException;
 
   /**
@@ -76,7 +78,7 @@ public interface IInstanceDataService {
    * @return a new RelationInstance Object
    * @throws ReferenceNotFoundException
    */
-  public RelationInstance createRelationInstance(CSARID csarId, QName serviceTemplateId,
+  public RelationInstance createRelationInstance(CsarId csarId, QName serviceTemplateId,
                                                  int serviceTemplateInstanceID, QName relationshipTemplateID,
                                                  String sourceInstanceId,
                                                  String targetInstanceId) throws ReferenceNotFoundException;
@@ -177,7 +179,7 @@ public interface IInstanceDataService {
   public NodeInstance createNodeInstance(QName nodeTemplateIDQName,
                                          URI serviceInstanceIdURI) throws ReferenceNotFoundException;
 
-  public List<ServiceInstance> getServiceInstancesWithDetails(CSARID csarId, QName serviceTemplateId,
+  public List<ServiceInstance> getServiceInstancesWithDetails(CsarId csarId, QName serviceTemplateId,
                                                               Integer serviceTemplateInstanceID);
 
   public QName getRelationInstanceState(URI relationInstanceID) throws ReferenceNotFoundException;

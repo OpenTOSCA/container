@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.instance.ServiceInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class ServiceInstanceDAO {
 
-  private static Logger logger = LoggerFactory.getLogger(ServiceInstanceDAO.class);
+  private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceDAO.class);
 
   ServiceTemplateInstanceRepository repository = new ServiceTemplateInstanceRepository();
 
@@ -65,7 +65,7 @@ public class ServiceInstanceDAO {
     return new ArrayList<>();
   }
 
-  public List<ServiceInstance> getServiceInstances(final CSARID csarId, final QName serviceTemplateId,
+  public List<ServiceInstance> getServiceInstances(final CsarId csarId, final QName serviceTemplateId,
                                                    final Integer serviceTemplateInstanceID) {
     logger.info("Not Implemented: Service instances cannot be queried");
     return new ArrayList<>();

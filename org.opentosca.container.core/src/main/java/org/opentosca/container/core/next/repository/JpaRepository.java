@@ -12,7 +12,6 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
 
   protected final Class<T> clazz;
 
-
   public JpaRepository(final Class<T> clazz) {
     this.clazz = clazz;
   }

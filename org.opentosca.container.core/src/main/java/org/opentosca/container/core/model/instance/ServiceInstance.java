@@ -13,6 +13,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.common.jpa.QNameConverter;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.w3c.dom.Document;
 
@@ -28,7 +29,7 @@ public class ServiceInstance {
   // Query to retrieve ServiceInstances identified by a some parameters
   public final static String getServiceInstances = "ServiceInstance.getServiceInstancesQuery";
   protected final static String getServiceInstancesQuery =
-    "select s from ServiceInstance s where" + " s.id = COALESCE(:id, s.id) AND"
+    "select s from ServiceInstance s where s.id = COALESCE(:id, s.id) AND"
       + " s.serviceTemplateName = COALESCE(:serviceTemplateName, s.serviceTemplateName) AND"
       + " s.serviceTemplateID = COALESCE(:serviceTemplateID, s.serviceTemplateID)";
 
@@ -53,7 +54,7 @@ public class ServiceInstance {
   private Date created;
 
   @Transient
-  private CSARID csarID;
+  private CsarId csarID;
 
   @Column(name = "csarID")
   private String csarID_DB;
@@ -92,11 +93,11 @@ public class ServiceInstance {
    *                            the ServiceTemplate
    * @param serviceTemplateName - the name of the ServiceTemplate
    */
-  public ServiceInstance(final CSARID csarID, final QName serviceTemplateID, final String serviceTemplateName) {
+  public ServiceInstance(final CsarId csarID, final QName serviceTemplateID, final String serviceTemplateName) {
     super();
     this.csarID = csarID;
     // needed to persist the object
-    this.csarID_DB = csarID.getFileName();
+    this.csarID_DB = csarID.csarName();
     setServiceTemplateID(serviceTemplateID);
     this.serviceTemplateName = serviceTemplateName;
 
@@ -128,7 +129,7 @@ public class ServiceInstance {
     this.serviceTemplateName = serviceTemplateName;
   }
 
-  public CSARID getCSAR_ID() {
+  public CsarId getCSAR_ID() {
     return this.csarID;
   }
 
@@ -149,7 +150,7 @@ public class ServiceInstance {
         new URI(Settings.CONTAINER_API_LEGACY + "/CSARs/" + this.csarID + "/ServiceTemplates/"
           + URLEncoder.encode(URLEncoder.encode(this.serviceTemplateID.toString(), "UTF-8"), "UTF-8")
           + "/Instances/" + this.id);
-      this.csarID = new CSARID(this.csarID_DB);
+      this.csarID = new CsarId(this.csarID_DB);
     } catch (final URISyntaxException e) {
       e.printStackTrace();
     } catch (final UnsupportedEncodingException e) {
@@ -278,11 +279,11 @@ public class ServiceInstance {
     this.id = id;
   }
 
-  public CSARID getCsarID() {
+  public CsarId getCsarID() {
     return this.csarID;
   }
 
-  public void setCsarID(final CSARID csarID) {
+  public void setCsarID(final CsarId csarID) {
     this.csarID = csarID;
   }
 

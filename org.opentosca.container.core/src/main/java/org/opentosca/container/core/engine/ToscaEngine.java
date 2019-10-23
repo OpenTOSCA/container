@@ -82,6 +82,14 @@ public final class ToscaEngine {
     return nullable;
   }
 
+  public static Optional<TNodeTemplate> getNodeTemplate(Csar csar, QName serviceTemplateId, String nodeTemplate) {
+    TServiceTemplate serviceTemplate = getServiceTemplate(csar, serviceTemplateId);
+    if (serviceTemplate == null) {
+      return Optional.empty();
+    }
+    return getNodeTemplate(serviceTemplate, nodeTemplate);
+  }
+
   public static Optional<TNodeTemplate> getNodeTemplate(TServiceTemplate serviceTemplate, String nodeTemplate) {
     try {
       return Optional.of(resolveNodeTemplate(serviceTemplate, nodeTemplate));
@@ -143,6 +151,14 @@ public final class ToscaEngine {
         inner.addSuppressed(e);
         throw inner;
       }
+    }
+  }
+
+  public static TNodeType resolveNodeType(Csar csar, TNodeTemplate nodeTemplate) {
+    try {
+      return resolveNodeTypeReference(csar, nodeTemplate.getType());
+    } catch (NotFoundException e) {
+      throw new RuntimeException("Could not resolve NodeType of an existing NodeTemplate, something went badly wrong", e);
     }
   }
 
