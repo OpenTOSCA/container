@@ -145,7 +145,14 @@ public class BPELFinalizer {
             parent.removeChild(extensions);
             buildPlan.setBpelExtensionsElement(null);
         }
-
+        
+        if(buildPlan.getBpelFaultHandlersElement().getChildNodes().getLength() == 0) {
+            buildPlan.getBpelDocument().removeChild(buildPlan.getBpelFaultHandlersElement());
+        } else {
+            this.buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan).appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "rethrow"));
+        }
+        
+        
         makeSequential(buildPlan);
 
         for (final BPELScope templateBuildPlan : buildPlan.getTemplateBuildPlans()) {

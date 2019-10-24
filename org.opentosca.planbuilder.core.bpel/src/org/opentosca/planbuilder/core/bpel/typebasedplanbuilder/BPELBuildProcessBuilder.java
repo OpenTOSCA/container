@@ -179,8 +179,13 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                                                                           newBuildPlan.getBpelMainSequenceOutputAssignElement(),
                                                                           "CREATED", serviceInstanceUrl);
 
+            this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "ERROR", serviceInstanceUrl);
+            this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "FAILED", this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan));
+            
             this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
 
+            
+            
             this.finalizer.finalize(newBuildPlan);
             return newBuildPlan;
         }

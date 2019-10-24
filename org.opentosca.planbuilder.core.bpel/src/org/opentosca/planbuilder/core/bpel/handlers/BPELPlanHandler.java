@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.crypto.dom.DOMURIReference;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -1039,6 +1040,40 @@ public class BPELPlanHandler {
         }
     }
 
+
+    /**
+     * adds the given BPEL XML to the main fault handler as a catch with the given faultName, if
+     * faultName is null append it to the main catchAll
+     * 
+     * @param bpelToAppend bpel xml as DOM Element
+     * @param faultName a QName for the fault the catch block is working with
+     * @return true iff adding the code was successful
+     */
+    public boolean appendToMainFaultHandler(Element bpelToAppend, QName faultName, BPELPlan plan) {
+
+        Element catchElement;
+
+        if (faultName != null) {
+            QName registeredQName = this.importNamespace(faultName, plan);
+            catchElement = plan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "catch");
+            catchElement.setAttribute("faultName", registeredQName.getPrefix() + ":" + registeredQName.getLocalPart());
+            plan.getBpelFaultHandlersElement().appendChild(catchElement);
+        } else {
+            catchElement = this.getMainCatchAllFaultHandlerSequenceElement(plan);
+        }
+
+        Node importedNode = plan.getBpelDocument().importNode(bpelToAppend, true);
+        catchElement.appendChild(importedNode);
+
+        return true;
+    }
+
+
+    public Element getMainCatchAllFaultHandlerSequenceElement(BPELPlan plan) {
+        return (Element) plan.getBpelFaultHandlersElement().getElementsByTagName("catchAll").item(0).getFirstChild();        
+    }
+    
+
     public boolean assignInitValueToVariable(Variable var, String value, BPELPlan plan) {
         return assignInitValueToVariable(var.getVariableName(), value, plan);
     }
@@ -1070,6 +1105,23 @@ public class BPELPlanHandler {
 
         // init and append imports element
         newBuildPlan.setBpelImportElements(new ArrayList<Element>());
+
+        newBuildPlan.setBpelFaultHandlersElement(newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
+                                                                                                "faultHandlers"));
+        
+        
+        newBuildPlan.getBpelProcessElement().appendChild(newBuildPlan.getBpelFaultHandlersElement());
+                        
+        Element catchAll = newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
+            "catchAll");
+        Element errorScope = newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
+            "sequence");
+        
+        errorScope.appendChild(newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
+            "empty"));
+        catchAll.appendChild(errorScope);
+        
+        newBuildPlan.getBpelFaultHandlersElement().appendChild(catchAll);
 
         // TODO this is here to not to forget that the imports elements aren't
         // attached, cause there are none and import elements aren't nested in a
