@@ -242,10 +242,8 @@ public class PlanService {
 
         final TPlan p = getPlan(plan, csarId);
 
-
         final SituationTriggerInstanceListener triggerInstanceListener = new SituationTriggerInstanceListener();
         final long calculatedWCET = triggerInstanceListener.calculateWCETForPlan(p);
-        p.setCalculatedWCET(calculatedWCET);
         logger.info("Calculated WCET: " + calculatedWCET);
 
 
