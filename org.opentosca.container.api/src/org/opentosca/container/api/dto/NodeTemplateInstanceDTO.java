@@ -1,5 +1,6 @@
 package org.opentosca.container.api.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -11,6 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -25,6 +27,10 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
 
     @XmlElement(name = "NodeTemplateId")
     private String nodeTemplateId;
+
+    @JsonIgnore
+    @XmlAttribute(name = "_links")
+    private ArrayList links;
 
     @XmlElement(name = "NodeTemplateType")
     private String nodeTemplateType;

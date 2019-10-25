@@ -2,8 +2,6 @@ package org.opentosca.container.api.dto;
 
 import java.util.List;
 
-import org.opentosca.container.core.next.model.NodeTemplateInstance;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
@@ -21,7 +19,7 @@ public class PlacementNodeTemplate {
     private String nodeType;
 
     @JsonProperty("valid_node_template_instances")
-    private List<NodeTemplateInstance> validNodeTemplateInstances;
+    private List<NodeTemplateInstanceDTO> validNodeTemplateInstances;
 
     PlacementNodeTemplate() {}
 
@@ -59,11 +57,11 @@ public class PlacementNodeTemplate {
         this.validNodeTemplateInstances = Lists.newArrayList();
     }
 
-    public void addNodeTemplateInstance(final NodeTemplateInstance validNodeTemplateInstance) {
+    public void addNodeTemplateInstance(final NodeTemplateInstanceDTO validNodeTemplateInstance) {
         this.validNodeTemplateInstances.add(validNodeTemplateInstance);
     }
 
-    public List<NodeTemplateInstance> getValidNodeTemplateInstances() {
+    public List<NodeTemplateInstanceDTO> getValidNodeTemplateInstances() {
         return this.validNodeTemplateInstances;
     }
 }
