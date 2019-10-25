@@ -16,6 +16,7 @@ import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,20 +36,20 @@ public class ParameterHandler {
     private final static Logger LOG = LoggerFactory.getLogger(ParameterHandler.class);
 
     /**
-     * Updates missing input parameters for a operation on a NodeTemplate or RelationshipTemplate
-     * with instance data. The provided input parameters have priority, which means if one parameter
-     * is provided and found in the instance data, then the provided parameter is used. <br>
+     * Updates missing input parameters for a operation on a NodeTemplate or RelationshipTemplate with
+     * instance data. The provided input parameters have priority, which means if one parameter is
+     * provided and found in the instance data, then the provided parameter is used. <br>
      * <br>
      *
      * If nodeTemplateInstance and relationshipTemplateInstance are provided, the update will be
-     * performed based on the RelationshipTemplate. If one of the parameters is <tt>null</tt> the
-     * other one is used to perform the update. If both are <tt>null</tt> an update is not possible.
+     * performed based on the RelationshipTemplate. If one of the parameters is <tt>null</tt> the other
+     * one is used to perform the update. If both are <tt>null</tt> an update is not possible.
      *
      * @param inputParams the set of provided input parameters
      * @param csarID of the CSAR containing the NodeTemplate/RelationshipTemplate
-     * @param nodeTemplateInstance the NodeTemplateInstance object which is used as entry point to
-     *        the stored instance data. If it does not contain all needed parameters the search is
-     *        continued downwards in the topology
+     * @param nodeTemplateInstance the NodeTemplateInstance object which is used as entry point to the
+     *        stored instance data. If it does not contain all needed parameters the search is continued
+     *        downwards in the topology
      * @param relationshipTemplateInstance the RelationshipTemplateInstance object which is used as
      *        entry point to the stored instance data. The update is performed based on the
      *        RelationshipTemplate and the source/target stack of the topology
@@ -79,8 +80,8 @@ public class ParameterHandler {
 
     /**
      * Updates missing input parameters for a operation on a NodeTemplate with instance data. The
-     * provided input parameters have priority, which means if one parameter is provided and found
-     * in the instance data, then the provided parameter is used.
+     * provided input parameters have priority, which means if one parameter is provided and found in
+     * the instance data, then the provided parameter is used.
      *
      * @param inputParams the set of provided input parameters
      * @param csarID of the CSAR containing the NodeTemplate
@@ -127,6 +128,33 @@ public class ParameterHandler {
 
         // search for parameters downwards in the topology until all are set
         while (!unsetParameters.isEmpty()) {
+            if (nodeTemplateInstance.getTemplateType().equals(Types.abstractOperatingSystemNodeType)) {
+                final Map<String, String> propMap = nodeTemplateInstance.getPropertiesAsMap();
+                if (Objects.nonNull(propMap)) {
+                    for (final String key : propMap.keySet()) {
+                        if (key.contains("instanceRef")) {
+                            final String value = propMap.get(key);
+                            final String[] setOfValues = value.split(",");
+                            final Long serviceTemplateInstanceId = Long.parseLong(setOfValues[0]);
+                            final String nodeTemplateId = setOfValues[1];
+                            final Long nodeTemplateInstanceId = Long.parseLong(setOfValues[2]);
+                            LOG.debug("Found instanceRef Property: " + key + " with value: " + propMap.get(key));
+                            // get instance we selected based on ID in instanceRef property
+                            // TODO: maybe try to find node template instance directly based on ID, otherwise we would
+                            // have to pass service
+                            // template the node template instance belongs to...and also node template id...
+                            final NodeTemplateInstance selectedInstance =
+                                MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplateId);
+                            // iterate over unset params and set them according to the selected instance
+                            unsetParameters.stream().forEach(param -> {
+                                if (supportedIPPropertyNames.contains(param)) {
+                                    // TODO: get params fro selected instance
+                                }
+                            });
+                        }
+                    }
+                }
+            }
 
             // retrieve stored instance data for current node
             final Map<String, String> propertiesMap = nodeTemplateInstance.getPropertiesAsMap();
@@ -190,17 +218,17 @@ public class ParameterHandler {
     }
 
     /**
-     * Updates missing input parameters for a operation on a RelationshipTemplate with instance
-     * data. The provided input parameters have priority, which means if one parameter is provided
-     * and found in the instance data, then the provided parameter is used. <br>
+     * Updates missing input parameters for a operation on a RelationshipTemplate with instance data.
+     * The provided input parameters have priority, which means if one parameter is provided and found
+     * in the instance data, then the provided parameter is used. <br>
      * <br>
      *
      * <b>Convention:</b><br>
      * Input parameters without prefix are searched on the RelationshipTemplateInstance. <br>
-     * Input parameters with prefix "SRC_" are searched on the NodeTemplateInstance which is the
-     * source of the RelationshipTemplate. <br>
-     * Input parameters with prefix "TRG_" are searched on the NodeTemplateInstance which is the
-     * target of the RelationshipTemplate.
+     * Input parameters with prefix "SRC_" are searched on the NodeTemplateInstance which is the source
+     * of the RelationshipTemplate. <br>
+     * Input parameters with prefix "TRG_" are searched on the NodeTemplateInstance which is the target
+     * of the RelationshipTemplate.
      *
      * @param inputParams the set of provided input parameters
      * @param csarID of the CSAR containing the RelationshipTemplate
@@ -255,11 +283,10 @@ public class ParameterHandler {
     }
 
     /**
-     * Returns the input parameters of the given operation which are specified in the TOSCA
-     * definitions of the NodeType or RelationshipType.
+     * Returns the input parameters of the given operation which are specified in the TOSCA definitions
+     * of the NodeType or RelationshipType.
      *
-     * @param csarID ID of the CSAR which contains the NodeType or RelationshipType with the
-     *        operation
+     * @param csarID ID of the CSAR which contains the NodeType or RelationshipType with the operation
      * @param typeID ID of the NodeType or RelationshipType which contains the operation
      * @param interfaceName the name of the interface which contains the operation
      * @param operationName the operation name for which the parameters are searched
@@ -296,8 +323,8 @@ public class ParameterHandler {
     }
 
     /**
-     * Checks if one of the supported properties is defined in the Map and returns an optional with
-     * the corresponding value.
+     * Checks if one of the supported properties is defined in the Map and returns an optional with the
+     * corresponding value.
      *
      * @param supportedProperties a List of supported properties
      * @param propertiesMap a Map containing properties of a NodeTemplateInstance

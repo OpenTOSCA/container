@@ -152,11 +152,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (Objects.nonNull(serviceTemplateInstanceID)) {
 
             if (Boolean.valueOf(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK)) {
-                this.respondViaMocking(exchange, csarID, serviceTemplateID, nodeTemplateID, neededInterface,
-                                       neededOperation);
+                respondViaMocking(exchange, csarID, serviceTemplateID, nodeTemplateID, neededInterface,
+                                  neededOperation);
             } else {
-                this.invokeIA(exchange, csarID, serviceTemplateID, serviceTemplateInstanceID, nodeTemplateID, relationship, neededInterface,
-                              neededOperation);
+                this.invokeIA(exchange, csarID, serviceTemplateID, serviceTemplateInstanceID, nodeTemplateID,
+                              relationship, neededInterface, neededOperation);
             }
         } else {
             LOG.error("Unable to invoke operation without ServiceTemplateInstance ID!");
@@ -181,18 +181,19 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
     }
 
-    private void respondViaMocking(Exchange exchange, CSARID csarID, QName serviceTemplateID, String nodeTemplateID,
-                                   String neededInterface, String neededOperation) {
-        List<String> outputParams =
+    private void respondViaMocking(final Exchange exchange, final CSARID csarID, final QName serviceTemplateID,
+                                   final String nodeTemplateID, final String neededInterface,
+                                   final String neededOperation) {
+        final List<String> outputParams =
             ServiceHandler.toscaEngineService.getOutputParametersOfTypeOperation(csarID,
                                                                                  ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID,
                                                                                                                                              serviceTemplateID,
                                                                                                                                              nodeTemplateID),
                                                                                  neededInterface, neededOperation);
 
-        HashMap<String, String> responseMap = new HashMap<String, String>();
+        final HashMap<String, String> responseMap = new HashMap<>();
 
-        for (String outputParam : outputParams) {
+        for (final String outputParam : outputParams) {
             responseMap.put(outputParam, "managementBusMockValue");
         }
 
@@ -211,8 +212,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @param neededInterface the interface of the searched operation
      * @param neededOperation the searched operation
      */
-    private void invokeIA(final Exchange exchange, final CSARID csarID, final QName serviceTemplateID, final Long serviceTemplateInstanceID, final String nodeTemplateID,
-                          final String relationship, final String neededInterface, final String neededOperation) {
+    private void invokeIA(final Exchange exchange, final CSARID csarID, final QName serviceTemplateID,
+                          final Long serviceTemplateInstanceID, final String nodeTemplateID, final String relationship,
+                          final String neededInterface, final String neededOperation) {
         final Message message = exchange.getIn();
 
 
@@ -221,7 +223,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (Objects.nonNull(nodeTemplateID)) {
             typeID =
                 ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
-        } else if (Objects.nonNull(nodeTemplateID)) {
+        } else if (Objects.nonNull(relationship)) {
             typeID =
                 ServiceHandler.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarID, serviceTemplateID,
                                                                                             relationship);

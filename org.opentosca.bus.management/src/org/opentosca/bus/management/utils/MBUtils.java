@@ -36,6 +36,7 @@ public class MBUtils {
     final private static ServiceTemplateInstanceRepository serviceTemplateInstanceRepository =
         new ServiceTemplateInstanceRepository();
 
+
     /**
      *
      * Returns the OperatingSystem NodeTemplate.
@@ -305,6 +306,7 @@ public class MBUtils {
             return null;
         }
     }
+
 
     /**
      * Get the next NodeTemplateInstance connected with a HostedOn/DeployedOn/... Relation.
