@@ -13,6 +13,7 @@ import org.opentosca.container.core.common.EntityExistsException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.container.core.impl.service.internal.file.visitors.DirectoryDeleteVisitor;
 import org.opentosca.container.core.impl.service.internal.file.visitors.DirectoryVisitor;
@@ -144,7 +145,7 @@ public class CoreFileServiceImpl implements ICoreFileService {
 
     Path csarDownloadDirectory = null;
     try {
-      final Path tempDirectory = createTimestampDirectory();
+      final Path tempDirectory = FileSystem.getTemporaryFolder();
       csarDownloadDirectory = tempDirectory.resolve("content");
       Files.createDirectory(csarDownloadDirectory);
 
@@ -201,17 +202,5 @@ public class CoreFileServiceImpl implements ICoreFileService {
       }
     }
     LOG.debug("Deleting all CSARs completed.");
-  }
-
-  /**
-   * Creates a directory with the current timestamp in the system's temporary storage location
-   *
-   * @return An existing or newly created directory to be used for temporary storage
-   * @throws IOException If creating directories failed.
-   */
-  private Path createTimestampDirectory() throws IOException {
-    Path timestamped = Paths.get(System.getProperty("java.io.tmpdir"), String.valueOf(System.nanoTime()));
-    Files.createDirectories(timestamped);
-    return timestamped;
   }
 }

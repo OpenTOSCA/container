@@ -215,8 +215,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     LOGGER.debug("Exporting CSAR \"{}\"...", csarId.csarName());
     Csar csar = findById(csarId);
 
-    final Path tempDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
-    final Path csarDownloadDirectory = tempDirectory.resolve("content");
+    final Path csarDownloadDirectory = Paths.get(System.getProperty("java.io.tmpdir"), "content");
     try {
       // only create temp directory if it doesn't exist
       if (!Files.exists(csarDownloadDirectory)) {

@@ -328,18 +328,12 @@ public class FileAccessServiceImpl implements IFileAccessService {
    */
   @Override
   public File getTemp() {
-    Path tempDir;
-    do {
-      tempDir = Paths.get(System.getProperty("java.io.tmpdir") + File.separator + System.nanoTime());
-    } while (Files.exists(tempDir));
-
     try {
-      Files.createDirectories(tempDir);
+      return FileSystem.getTemporaryFolder().toFile();
     } catch (final IOException exc) {
       LOG.warn("An IO Exception occured.", exc);
       return null;
     }
-    return tempDir.toFile();
   }
 
   @Override

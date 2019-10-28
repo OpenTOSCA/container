@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.container.core.impl.service.internal.file.visitors.DirectoryDeleteVisitor;
 import org.opentosca.container.core.impl.service.internal.file.visitors.DirectoryVisitor;
@@ -61,8 +62,7 @@ public class CSARUnpacker {
     LOG.debug("Unpacking CSAR located at \"{}\"...", this.csarFile);
 
     try {
-      this.csarUnpackDirectory = Paths.get(System.getProperty("java.io.tmpdir"), String.valueOf(System.nanoTime()));
-      Files.createDirectories(csarUnpackDirectory);
+      this.csarUnpackDirectory = FileSystem.getTemporaryFolder();
       LOG.debug("Unpacking directory: {}", csarUnpackDirectory);
 
       final List<File> unpackedFiles = ZipManager.getInstance().unzip(this.csarFile.toFile(), csarUnpackDirectory.toFile());

@@ -24,6 +24,7 @@ import org.eclipse.winery.model.selfservice.ApplicationOption;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.impl.service.FileAccessServiceImpl;
+import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -63,8 +64,7 @@ public class Util {
     final String id = String.valueOf(System.currentTimeMillis());
     final ApplicationOption option = new ApplicationOption();
 
-    final File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")
-      + Long.toString(System.currentTimeMillis()));
+    final File tmpDir = FileSystem.getTemporaryFolder().toFile();
     tmpDir.mkdir();
 
     final File planInputMessageFile = new File(tmpDir, "plan.input.default." + id + ".xml");
@@ -88,15 +88,15 @@ public class Util {
    */
   public static File writePlan2TmpFolder(final BPELPlan buildPlan) {
     final Exporter planBuilderExporter = new Exporter(new FileAccessServiceImpl());
-    final File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator")
-      + Long.toString(System.currentTimeMillis()));
-    tmpDir.mkdir();
-
-    final File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator")
-      + buildPlan.getBpelProcessElement().getAttribute("name") + ".zip");
 
     try {
+      final File tmpDir = FileSystem.getTemporaryFolder().toFile();
+      tmpDir.mkdir();
+
+      final File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator")
+        + buildPlan.getBpelProcessElement().getAttribute("name") + ".zip");
       planBuilderExporter.exportToPlanFile(uploadFile.toURI(), buildPlan);
+      return uploadFile;
     } catch (final IOException e) {
       e.printStackTrace();
       return null;
@@ -104,8 +104,6 @@ public class Util {
       e.printStackTrace();
       return null;
     }
-
-    return uploadFile;
   }
 
   private static QName getBuildPlanServiceName(final Deploy deploy) {

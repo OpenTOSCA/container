@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.client.Client;
 import javax.xml.namespace.QName;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -19,7 +18,6 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.management.IManagementBus;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
-import org.opentosca.container.core.impl.plan.PlanLogHandler;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
@@ -34,7 +32,6 @@ import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepos
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
-import org.opentosca.container.core.service.IPlanLogHandler;
 import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
@@ -48,6 +45,9 @@ import org.w3c.dom.NodeList;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
@@ -68,6 +68,10 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
 
   private static final String nsBPEL = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
   private static final String nsBPMN = "http://www.omg.org/spec/BPMN";
+
+  private static final String PROCESS_INSTANCE_PATH = "/process-instance?processInstanceIds=";
+  private static final String HISTORY_PATH = "/history/variable-instance";
+  private static final String EMPTY_JSON = "[]";
 
   // this is one of the dependecies keeping PlanInvocationEngine in legacy.
   @Deprecated
@@ -436,9 +440,9 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
 
-    LOG.trace("Processing a list of {} parameters", inputParameters.size());
+    LOG.debug("Processing a list of {} parameters", inputParameters.size());
     for (final TParameterDTO param : inputParameters) {
-      LOG.trace("Put in the parameter {} with value \"{}\".", param.getName(), param.getValue());
+      LOG.debug("Put in the parameter {} with value \"{}\".", param.getName(), param.getValue());
       if (param.getName().equalsIgnoreCase("CorrelationID")) {
         LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
         map.put(param.getName(), correlationID);
@@ -553,78 +557,59 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
       LOG.trace("Found invocation in plan history for instance: {}", event.getCSARInstanceID());
       final CsarId csarID = new CsarId(event.getCSARID());
 
-      // parse the body
+      // parse process instance ID out of REST response
       final String planInstanceID = this.parseRESTResponse(response);
       LOG.debug("Parsing REST response, found instance ID {} for Correlation {}", planInstanceID, correlationID);
-
-      // if plan is not null
       if (null == planInstanceID || planInstanceID.equals("")) {
         LOG.error("The parsing of the response failed!");
         return;
       }
 
-      /**
-       * TODO remove jersey and search for the history with the bus(?)!!!
-       */
-
-      // searching for history
-      final String pathBase = "http://localhost:8080/engine-rest/";
-      final String pathProcessInstance = "process-instance?processInstanceIds=";
-      final String pathHistoryVariables = "history/variable-instance";
-
       LOG.debug("Instance ID: " + planInstanceID);
-      final Client client = ClientBuilder.newClient();
-      client.register(HttpAuthenticationFeature.basic("demo", "demo"));
+      // create web resource to retrieve the current state of the process instance
+      final Client client = Client.create();
+      WebResource webResource = Client.create()
+        .resource(Settings.ENGINE_PLAN_BPMN_URL + PROCESS_INSTANCE_PATH + planInstanceID);
 
-      boolean ended = false;
-      String path = pathBase + pathProcessInstance + planInstanceID;
-
-      WebTarget webResource = client.target(path);
-      Response camundaResponse;
-      while (!ended) {
-        camundaResponse = webResource.request().get();
-        final String resp = camundaResponse.readEntity(String.class);
+      // wait until the process instance terminates
+      while (true) {
+        final String resp = webResource.get(ClientResponse.class).getEntity(String.class);
         LOG.debug("Active process instance response: " + resp);
 
         try {
-          Thread.sleep(1000);
+          Thread.sleep(10000);
         } catch (final InterruptedException e) {
           e.printStackTrace();
         }
 
-        if (resp.equals("[]")) {
-          LOG.debug("The plan instance {} is not active any more, thus, the output can be retrieved.", planInstanceID);
-          ended = true;
-        }
-
-        if (resp.contains("Process instance with id " + planInstanceID + " does not exist")) {
-          ended = true;
+        // Check if history contains process instance with this ID
+        if (resp.equals(EMPTY_JSON)) {
+          LOG.debug("The plan instance {} is not active any more.", planInstanceID);
+          break;
         }
       }
 
-      final ICSARInstanceManagementService instMngr = csarInstanceManagement;
-      final Map<String, String> map = instMngr.getOutputForCorrelation(correlationID);
+      final Map<String, String> map = csarInstanceManagement.getOutputForCorrelation(correlationID);
 
+      // get output parameters of the plan from the process instance variables
       for (final TParameterDTO param : event.getOutputParameter()) {
-        // History of process instance TODO get here the output
-        // parameters
-        path = pathBase + pathHistoryVariables;
-        // + "?processInstanceId=" + planInstanceID;
+        final String path = Settings.ENGINE_PLAN_BPMN_URL + HISTORY_PATH;
 
-        webResource = client.target(path);
+        // get variable instances of the process instance with the param name
+        webResource = client.resource(path);
         webResource = webResource.queryParam("processInstanceId", planInstanceID);
         webResource = webResource.queryParam("activityInstanceIdIn", planInstanceID);
-        // webResource = webResource.queryParam("variableName",
-        // "ApplicationURL");
         webResource = webResource.queryParam("variableName", param.getName());
-        camundaResponse = webResource.request().get();
-        final String responseStr = camundaResponse.readEntity(String.class);
-        LOG.trace("Query:\n{}", webResource.getUri());
-        LOG.trace("History has for variable \"{}\" the value \"{}\"", param.getName(), responseStr);
+        final String responseStr = webResource.get(ClientResponse.class).getEntity(String.class);
 
-        final JsonParser parser = new JsonParser();
+        if (responseStr.equals(EMPTY_JSON)) {
+          LOG.warn("Unable to find variable instance for output parameter: {}", param.getName());
+          continue;
+        }
+
         String value = null;
         try {
+          final JsonParser parser = new JsonParser();
           final JsonObject json =
             (JsonObject) parser.parse(responseStr.substring(1, responseStr.length() - 1));
           value = json.get("value").getAsString();
@@ -694,10 +679,5 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
   public TPlanDTO getActivePublicPlanOfInstance(final ServiceTemplateInstanceID csarInstanceID,
                                                 final String correlationID) {
     return correlationHandler.getPlanDTOForCorrelation(csarInstanceID, correlationID);
-  }
-
-  @Override
-  public IPlanLogHandler getPlanLogHandler() {
-    return PlanLogHandler.instance;
   }
 }
