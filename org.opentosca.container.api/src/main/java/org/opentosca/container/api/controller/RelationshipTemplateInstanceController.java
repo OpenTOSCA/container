@@ -69,7 +69,9 @@ public class RelationshipTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get all relationship template instances",
     response = RelationshipTemplateInstanceListDTO.class)
-  public Response getRelationshipTemplateInstances(@QueryParam(value = "state") final List<RelationshipTemplateInstanceState> states, @QueryParam(value = "target") final Long targetNodeInstanceId) {
+  public Response getRelationshipTemplateInstances(@QueryParam(value = "state") final List<RelationshipTemplateInstanceState> states,
+                                                   @QueryParam(value = "target") final Long targetNodeInstanceId,
+                                                   @QueryParam(value = "serviceInstanceId") final Long serviceInstanceId) {
     final QName relationshipTemplateQName =
       new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.relationshiptemplate);
     final Collection<RelationshipTemplateInstance> relationshipInstances =
@@ -85,6 +87,10 @@ public class RelationshipTemplateInstanceController {
       }
       if (states != null && !states.isEmpty() && !states.contains(i.getState())) {
         // skip this node instance, as it not has the proper state
+        continue;
+      }
+
+      if (serviceInstanceId != null && !i.getServiceTemplateInstance().getId().equals(serviceInstanceId)) {
         continue;
       }
 

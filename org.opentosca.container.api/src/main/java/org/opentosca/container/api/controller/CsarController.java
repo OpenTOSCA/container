@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -319,17 +320,11 @@ public class CsarController {
   }
 
   private void doApplyEnrichment(WineryConnector wc, Path tempFile, String applyEnrichment) {
-    if (applyEnrichment == null) {
-      logger.warn("Enrichment status was null. Continuing without enrichment");
-      return;
-    }
-    logger.info("Found enrichment status in request. Continue with enrichment");
-
-    final boolean applyEnrichmentParsed = Boolean.parseBoolean(applyEnrichment);
-    // perform management feature enrichment for the given CSAR
-    if (applyEnrichmentParsed) {
+    if (Objects.nonNull(applyEnrichment) && Boolean.parseBoolean(applyEnrichment)) {
+      logger.debug("Enrichment status is true. Continue with enrichment.");
       wc.performManagementFeatureEnrichment(tempFile.toFile());
     }
+    logger.debug("Enrichment status is null or false. Continue without enrichment.");
   }
 
   @DELETE

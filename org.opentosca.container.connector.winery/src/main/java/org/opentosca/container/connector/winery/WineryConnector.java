@@ -9,25 +9,26 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.*;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.FormBodyPart;
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.FormBodyPartBuilder;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.opentosca.container.core.common.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Copyright 2016 IAAS University of Stuttgart
@@ -40,7 +41,6 @@ public class WineryConnector {
 
   private static final String FEATURE_ENRICHMENT_SUFFIX = "/topologytemplate/availablefeatures";
 
-  private final DefaultHttpClient client = new DefaultHttpClient();
   private final String wineryPath;
 
   public WineryConnector() {
@@ -58,24 +58,21 @@ public class WineryConnector {
   }
 
   public boolean isWineryRepositoryAvailable() {
-
-    final HttpGet get = new HttpGet();
-    get.setHeader("Accept", "application/json");
-    try {
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
       final URI serviceTemplatesUri = new URI(this.wineryPath + "servicetemplates");
       LOG.debug("Checking if winery is available at " + serviceTemplatesUri.toString());
-      get.setURI(serviceTemplatesUri);
-      final HttpResponse resp = this.client.execute(get);
 
-      EntityUtils.consume(resp.getEntity());
-      if (resp.getStatusLine().getStatusCode() < 400) {
-        return true;
-      }
+      final HttpGet get = new HttpGet();
+      get.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+      get.setURI(serviceTemplatesUri);
+      final CloseableHttpResponse resp = httpClient.execute(get);
+      resp.close();
+
+      return resp.getStatusLine().getStatusCode() < 400;
     } catch (URISyntaxException | IOException e) {
-      LOG.info("Exception when checking for winery availability. Assuming winery is not available");
-      LOG.debug("Details: ", e);
+      LOG.error("Exception while checking for availability of Container Repository: ", e);
+      return false;
     }
-    return false;
   }
 
   public String getWineryPath() {
@@ -100,28 +97,35 @@ public class WineryConnector {
   }
 
   private String uploadCSARToWinery(final File file, final boolean overwrite) throws URISyntaxException, IOException {
-    final MultipartEntity entity = new MultipartEntity();
+    final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 
     final ContentBody fileBody = new FileBody(file);
-    final ContentBody overwriteBody = new StringBody(String.valueOf(overwrite));
+    final ContentBody overwriteBody = new StringBody(String.valueOf(overwrite), ContentType.TEXT_PLAIN);
+    final FormBodyPart filePart = FormBodyPartBuilder.create("file", fileBody).build();
+    final FormBodyPart overwritePart = FormBodyPartBuilder.create("overwrite", overwriteBody).build();
+    builder.addPart(filePart);
+    builder.addPart(overwritePart);
 
-    final FormBodyPart filePart = new FormBodyPart("file", fileBody);
-    final FormBodyPart overwritePart = new FormBodyPart("overwrite", overwriteBody);
-    entity.addPart(filePart);
-    entity.addPart(overwritePart);
+    final HttpEntity entity = builder.build();
 
     final HttpPost wineryPost = new HttpPost();
 
     wineryPost.setURI(new URI(this.wineryPath));
     wineryPost.setEntity(entity);
-    final HttpResponse wineryResp = this.client.execute(wineryPost);
-    String location = getHeaderValue(wineryResp, "Location");
-    closeConnection(wineryResp);
 
-    if (Objects.nonNull(location) && location.endsWith("/")) {
-      location = location.substring(0, location.length() - 1);
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+      final CloseableHttpResponse wineryResp = httpClient.execute(wineryPost);
+      String location = getHeaderValue(wineryResp, HttpHeaders.LOCATION);
+      wineryResp.close();
+
+      if (Objects.nonNull(location) && location.endsWith("/")) {
+        location = location.substring(0, location.length() - 1);
+      }
+      return location;
+    } catch (final IOException e) {
+      LOG.error("Exception while uploading CSAR to the Container Repository: ", e);
+      return "";
     }
-    return location;
   }
 
   public QName uploadCSAR(final File file, final boolean overwrite) throws URISyntaxException, IOException {
@@ -141,17 +145,17 @@ public class WineryConnector {
                                                     final Set<QName> nodeTypes, final QName infrastructureNodeType,
                                                     final Map<String, String> tags) throws URISyntaxException,
     IOException {
-    final MultipartEntity entity = new MultipartEntity();
+    final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 
     // file
     final ContentBody fileBody = new FileBody(file);
-    final FormBodyPart filePart = new FormBodyPart("file", fileBody);
-    entity.addPart(filePart);
+    final FormBodyPart filePart = FormBodyPartBuilder.create("file", fileBody).build();
+    builder.addPart(filePart);
 
     // artefactType
-    final ContentBody artefactTypeBody = new StringBody(artifactType.toString());
-    final FormBodyPart artefactTypePart = new FormBodyPart("artefactType", artefactTypeBody);
-    entity.addPart(artefactTypePart);
+    final ContentBody artefactTypeBody = new StringBody(artifactType.toString(), ContentType.TEXT_PLAIN);
+    final FormBodyPart artefactTypePart = FormBodyPartBuilder.create("artefactType", artefactTypeBody).build();
+    builder.addPart(artefactTypePart);
 
     // nodeTypes
     if (!nodeTypes.isEmpty()) {
@@ -161,17 +165,18 @@ public class WineryConnector {
       }
 
       final ContentBody nodeTypesBody =
-        new StringBody(nodeTypesAsString.substring(0, nodeTypesAsString.length() - 1));
-      final FormBodyPart nodeTypesPart = new FormBodyPart("nodeTypes", nodeTypesBody);
-      entity.addPart(nodeTypesPart);
+        new StringBody(nodeTypesAsString.substring(0, nodeTypesAsString.length() - 1), ContentType.TEXT_PLAIN);
+      final FormBodyPart nodeTypesPart = FormBodyPartBuilder.create("nodeTypes", nodeTypesBody).build();
+      builder.addPart(nodeTypesPart);
     }
 
     // infrastructureNodeType
     if (infrastructureNodeType != null) {
-      final ContentBody infrastructureNodeTypeBody = new StringBody(infrastructureNodeType.toString());
+      final ContentBody infrastructureNodeTypeBody =
+        new StringBody(infrastructureNodeType.toString(), ContentType.TEXT_PLAIN);
       final FormBodyPart infrastructureNodeTypePart =
-        new FormBodyPart("infrastructureNodeType", infrastructureNodeTypeBody);
-      entity.addPart(infrastructureNodeTypePart);
+        FormBodyPartBuilder.create("infrastructureNodeType", infrastructureNodeTypeBody).build();
+      builder.addPart(infrastructureNodeTypePart);
     }
 
     // tags
@@ -185,29 +190,36 @@ public class WineryConnector {
         }
       }
 
-      final ContentBody tagsBody = new StringBody(tagsString.substring(0, tagsString.length() - 1));
-      final FormBodyPart tagsPart = new FormBodyPart("tags", tagsBody);
-      entity.addPart(tagsPart);
+      final ContentBody tagsBody =
+        new StringBody(tagsString.substring(0, tagsString.length() - 1), ContentType.TEXT_PLAIN);
+      final FormBodyPart tagsPart = FormBodyPartBuilder.create("tags", tagsBody).build();
+      builder.addPart(tagsPart);
     }
 
-    // POST to XaaSPackager
-    final HttpPost xaasPOST = new HttpPost();
-    xaasPOST.setURI(new URI(this.wineryPath + "servicetemplates/"));
-    xaasPOST.setEntity(entity);
-    final HttpResponse xaasResp = this.client.execute(xaasPOST);
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+      // POST to XaaSPackager
+      final HttpPost xaasPOST = new HttpPost();
+      xaasPOST.setURI(new URI(this.wineryPath + "servicetemplates/"));
+      xaasPOST.setEntity(builder.build());
+      final CloseableHttpResponse xaasResp = httpClient.execute(xaasPOST);
+      xaasResp.close();
 
-    // create QName of the created serviceTemplate resource
-    String location = getHeaderValue(xaasResp, "Location");
+      // create QName of the created serviceTemplate resource
+      String location = getHeaderValue(xaasResp, HttpHeaders.LOCATION);
 
-    if (location.endsWith("/")) {
-      location = location.substring(0, location.length() - 1);
+      if (location.endsWith("/")) {
+        location = location.substring(0, location.length() - 1);
+      }
+
+      final String localPart = getLastPathFragment(location);
+      final String namespaceDblEnc = getLastPathFragment(location.substring(0, location.lastIndexOf("/")));
+      final String namespace = URLDecoder.decode(URLDecoder.decode(namespaceDblEnc));
+
+      return new QName(namespace, localPart);
+    } catch (final IOException e) {
+      LOG.error("Exception while calling Xaas packager: ", e);
+      return null;
     }
-
-    final String localPart = getLastPathFragment(location);
-    final String namespaceDblEnc = getLastPathFragment(location.substring(0, location.lastIndexOf("/")));
-    final String namespace = URLDecoder.decode(URLDecoder.decode(namespaceDblEnc));
-
-    return new QName(namespace, localPart);
   }
 
   private String getLastPathFragment(final String url) {
@@ -219,96 +231,11 @@ public class WineryConnector {
   }
 
   private String getHeaderValue(final HttpResponse response, final String headerName) {
-    for (final Header header : response.getAllHeaders()) {
-      if (header.getName().equals(headerName)) {
-        return header.getValue();
-      }
-    }
-    return null;
-  }
-
-  public List<QName> getServiceTemplates(final List<String> tags) {
-    final List<QName> qnames = new ArrayList<>();
-    final ObjectMapper mapper = new ObjectMapper();
-
-    for (final QName serviceTemplateId : this.getServiceTemplates()) {
-      WineryConnector.LOG.debug("Querying Winery Repository at " + this.wineryPath + " for ServiceTemplate "
-        + serviceTemplateId);
-      try {
-
-        final HttpGet serviceTemplateTagsGET = new HttpGet();
-        serviceTemplateTagsGET.setHeader("Accept", "application/json");
-        serviceTemplateTagsGET.setURI(new URI(this.wineryPath + "servicetemplates/"
-          + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI())) + "/"
-          + serviceTemplateId.getLocalPart() + "/tags"));
-
-        final HttpResponse serviceTemplateTagsGETResp = this.client.execute(serviceTemplateTagsGET);
-        final String tagsJsonResponse = EntityUtils.toString(serviceTemplateTagsGETResp.getEntity());
-
-        final JsonNode tagsJsonNode = mapper.readTree(tagsJsonResponse);
-
-        int matched = 0;
-
-        if (!tagsJsonNode.isArray()) {
-          continue;
-        }
-        for (final Iterator<JsonNode> iter = tagsJsonNode.elements(); iter.hasNext(); ) {
-          final JsonNode key = iter.next();
-
-          final HttpGet serviceTemplateTagGET = new HttpGet();
-          serviceTemplateTagGET.setHeader("Accept", "application/json");
-          serviceTemplateTagGET.setURI(new URI(
-            serviceTemplateTagsGET.getURI().toString() + "/" + key.textValue()));
-
-          final HttpResponse serviceTemplateTagGETResp = this.client.execute(serviceTemplateTagGET);
-          final String tagJsonResponse = EntityUtils.toString(serviceTemplateTagGETResp.getEntity());
-
-          final JsonNode tagJsonNode = mapper.readTree(tagJsonResponse);
-
-          if (!tagJsonNode.isObject() || !tagJsonNode.has("name")) {
-            continue;
-          }
-          if (tags.contains(tagJsonNode.get("name").textValue())) {
-            matched++;
-          }
-        }
-
-        if (matched == tags.size()) {
-          qnames.add(serviceTemplateId);
-        }
-      } catch (URISyntaxException | IOException e) {
-        e.printStackTrace();
-      }
-    }
-    return qnames;
-  }
-
-  public List<QName> getServiceTemplates() {
-    final List<QName> qnames = new ArrayList<>();
-
-    try {
-      final HttpGet get = new HttpGet();
-      get.setHeader("Accept", "application/json");
-      get.setURI(new URI(this.wineryPath + "servicetemplates"));
-      final HttpResponse resp = this.client.execute(get);
-      final String jsonResponse = EntityUtils.toString(resp.getEntity());
-
-      final ObjectMapper mapper = new ObjectMapper();
-      final List<Object> obj = mapper.readValue(jsonResponse, ArrayList.class);
-      for (final Object jsonObj : obj) {
-        // FIXME this depends on the internal representation of json objects in the deserializer
-        final LinkedHashMap<String, String> hashMap = (LinkedHashMap<String, String>) jsonObj;
-
-        final String id = hashMap.get("id");
-        final String namespace = hashMap.get("namespace");
-
-        qnames.add(new QName(namespace, id));
-      }
-    } catch (IOException | URISyntaxException e) {
-      e.printStackTrace();
-    }
-
-    return qnames;
+    return Arrays.stream(response.getAllHeaders())
+      .filter(header -> header.getName().equals(headerName))
+      .findFirst()
+      .map(header -> header.getValue())
+      .orElse(null);
   }
 
   /**
@@ -322,7 +249,7 @@ public class WineryConnector {
       return;
     }
     LOG.debug("Container Repository is available. Uploading file {} to repo...", file.getName());
-    try {
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
       // upload CSAR to enable enrichment in Winery
       final String location = uploadCSARToWinery(file, false);
 
@@ -335,21 +262,22 @@ public class WineryConnector {
 
       // get all available features for the given CSAR
       final HttpGet get = new HttpGet();
-      get.setHeader("Accept", "application/json");
+      get.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
       get.setURI(new URI(location + FEATURE_ENRICHMENT_SUFFIX));
-      HttpResponse resp = this.client.execute(get);
+      CloseableHttpResponse resp = httpClient.execute(get);
       final String jsonResponse = EntityUtils.toString(resp.getEntity());
-      closeConnection(resp);
+      resp.close();
 
       LOG.debug("Container Repository returned the following features:", jsonResponse);
 
       // apply the found features to the CSAR
       final HttpPut put = new HttpPut();
-      put.setHeader("Content-Type", "application/json");
+      put.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
       put.setURI(new URI(location + FEATURE_ENRICHMENT_SUFFIX));
       final StringEntity stringEntity = new StringEntity(jsonResponse);
       put.setEntity(stringEntity);
-      resp = client.execute(put);
+      resp = httpClient.execute(put);
+      resp.close();
 
       LOG.debug("Feature enrichment returned status line: {}", resp.getStatusLine());
 
@@ -359,21 +287,6 @@ public class WineryConnector {
       LOG.debug("Updated CSAR file in the Container with enriched topology.");
     } catch (final Exception e) {
       LOG.error("{} while performing management feature enrichment: {}", e.getClass().getSimpleName(), e.getMessage(), e);
-    }
-  }
-
-  /**
-   * Closes the InputStream of the given HTTP response to release all related resources.
-   *
-   * @param response the response to close
-   */
-  private void closeConnection(final HttpResponse response) {
-    try {
-      if (Objects.nonNull(response.getEntity())) {
-        response.getEntity().getContent().close();
-      }
-    } catch (final Exception e) {
-      LOG.error("Unable to close stream of HTTP response to release resources.", e);
     }
   }
 }

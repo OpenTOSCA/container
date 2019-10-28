@@ -227,7 +227,8 @@ public class Fragments {
                                                            final String requestVariableName,
                                                            final String responseVariableName,
                                                            final String sourceInstanceIdVarName,
-                                                           final String targetInstanceIdVarName) throws IOException {
+                                                           final String targetInstanceIdVarName,
+                                                           final String serviceInstanceIdVarName) throws IOException {
     // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
     final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightPOST_RelationInstance_InstanceDataAPI.xml");
     String bpel4RestString = ResourceAccess.readResourceAsString(url);
@@ -238,6 +239,7 @@ public class Fragments {
     bpel4RestString = bpel4RestString.replaceAll("\\$ResponseVarName", responseVariableName);
     bpel4RestString = bpel4RestString.replaceAll("\\$sourceInstanceIdVarName", sourceInstanceIdVarName);
     bpel4RestString = bpel4RestString.replaceAll("\\$targetInstanceIdVarName", targetInstanceIdVarName);
+    bpel4RestString = bpel4RestString.replaceAll("\\$serviceInstanceIdVarName", serviceInstanceIdVarName);
 
     return bpel4RestString;
   }

@@ -34,12 +34,12 @@ public abstract class AbstractImporter {
     this.pluginRegistry = pluginRegistry;
   }
 
-  protected AbstractPlan buildAdaptationPlan(String csarName, AbstractDefinitions definitions,
-                                             QName serviceTemplateId,
-                                             Collection<AbstractNodeTemplate> sourceNodeTemplates,
-                                             Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
-                                             Collection<AbstractNodeTemplate> targetNodeTemplates,
-                                             Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
+  protected AbstractPlan buildAdaptationPlan(final String csarName, final AbstractDefinitions definitions,
+                                             final QName serviceTemplateId,
+                                             final Collection<AbstractNodeTemplate> sourceNodeTemplates,
+                                             final Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
+                                             final Collection<AbstractNodeTemplate> targetNodeTemplates,
+                                             final Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
     final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder(pluginRegistry);
 
     return transformPlanBuilder.buildPlan(csarName, definitions, serviceTemplateId, sourceNodeTemplates,
@@ -75,7 +75,7 @@ public abstract class AbstractImporter {
     final List<AbstractPlan> plans = new ArrayList<>();
 
     AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder(pluginRegistry);
-    BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(pluginRegistry);
+    final BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(pluginRegistry);
 
     if (!sitAwareBuilder.buildPlans(csarName, defs).isEmpty()) {
       buildPlanBuilder = sitAwareBuilder;
@@ -101,11 +101,16 @@ public abstract class AbstractImporter {
     final AbstractSimplePlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder(pluginRegistry);
     final AbstractSimplePlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder(pluginRegistry);
 
+    final AbstractSimplePlanBuilder backupPlanBuilder = new BPELBackupManagementProcessBuilder(pluginRegistry);
+    final AbstractSimplePlanBuilder testPlanBuilder = new BPELTestManagementProcessBuilder(pluginRegistry);
+
     plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
     plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
     plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
     plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
     plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
+    plans.addAll(backupPlanBuilder.buildPlans(csarName, defs));
+    plans.addAll(testPlanBuilder.buildPlans(csarName, defs));
 
     return plans;
   }

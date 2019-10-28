@@ -11,11 +11,23 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateRelationshipTemplateInstanceRequest {
+
+  @XmlAttribute(name = "service-instance-id")
+  private Long serviceInstanceId;
+
   @XmlAttribute(name = "source-instance-id")
   private Long sourceNodeTemplateInstanceId;
 
   @XmlAttribute(name = "target-instance-id")
   private Long targetNodeTemplateInstanceId;
+
+  public Long getServiceInstanceId() {
+    return serviceInstanceId;
+  }
+
+  public void setServiceInstanceId(Long serviceInstanceId) {
+    this.serviceInstanceId = serviceInstanceId;
+  }
 
   public Long getSourceNodeTemplateInstanceId() {
     return this.sourceNodeTemplateInstanceId;

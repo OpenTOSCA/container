@@ -588,6 +588,7 @@ public class InstanceService {
     newInstance.setSource(getNodeTemplateInstance(request.getSourceNodeTemplateInstanceId()));
     // Target node instance
     newInstance.setTarget(getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));
+    newInstance.setServiceTemplateInstance(serviceTemplateInstanceRepository.find(request.getServiceInstanceId()).get());
 
     this.relationshipTemplateInstanceRepository.add(newInstance);
 

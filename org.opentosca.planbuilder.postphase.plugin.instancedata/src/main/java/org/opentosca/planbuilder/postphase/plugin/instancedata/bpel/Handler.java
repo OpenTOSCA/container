@@ -1141,6 +1141,7 @@ public class Handler {
         final String sourceServiceTemplateUrlVarName = sourceContext.getServiceTemplateURLVar();
         final String targetServiceInstanceVarName = targetContext.getServiceInstanceURLVarName();
         final String targetServiceTemplateUrlVarName = targetContext.getServiceTemplateURLVar();
+        final String targetServiceInstanceIdVarName = targetContext.getServiceInstanceIDVarName();
 
         // create variable for all responses
         final String restCallResponseVarName = createRESTResponseVar(sourceContext);
@@ -1200,7 +1201,7 @@ public class Handler {
                                                                           createRelTInstanceReqVarName,
                                                                           restCallResponseVarName,
                                                                           targetServiceRelationSourceNodeInstanceIdVar,
-                                                                          targetServiceRelationTargetNodeInstanceIdVar);
+                                                                          targetServiceRelationTargetNodeInstanceIdVar, targetServiceInstanceIdVarName);
             Node createRelationInstanceExActiv = ModelUtils.string2dom(bpelString);
             createRelationInstanceExActiv = targetContext.importNode(createRelationInstanceExActiv);
             injectionPreElement.appendChild(createRelationInstanceExActiv);
@@ -1332,6 +1333,11 @@ public class Handler {
             return false;
         }
 
+        final String serviceInstanceIdVarName = context.getServiceInstanceIDVarName();
+        if(serviceInstanceIdVarName == null) {
+            return false;
+        }
+        
         /*
          * Pre Phase code
          */
@@ -1420,7 +1426,7 @@ public class Handler {
                                                                           context.getRelationshipTemplate().getId(),
                                                                           createRelTInstanceReqVarName,
                                                                           restCallResponseVarName,
-                                                                          sourceInstanceVarName, targetInstanceVarName);
+                                                                          sourceInstanceVarName, targetInstanceVarName,serviceInstanceIdVarName);
             Node createRelationInstanceExActiv = ModelUtils.string2dom(bpelString);
             createRelationInstanceExActiv = context.importNode(createRelationInstanceExActiv);
             injectionPreElement.appendChild(createRelationInstanceExActiv);

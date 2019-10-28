@@ -19,7 +19,6 @@ import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
@@ -102,11 +101,7 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
     }
 
     private boolean hasPolicy(final AbstractNodeTemplate nodeTemplate, final QName policyType) {
-        for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().equals(policyType)) {
-                return true;
-            }
-        }
-        return false;
+        return nodeTemplate.getPolicies().stream().filter(policy -> policy.getType().getId().equals(policyType))
+                           .findFirst().isPresent();
     }
 }
