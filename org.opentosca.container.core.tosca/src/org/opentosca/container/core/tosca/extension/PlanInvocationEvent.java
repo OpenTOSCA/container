@@ -319,6 +319,15 @@ public class PlanInvocationEvent {
         return this.planLanguage;
     }
 
+
+    public long getCalculatedWCET() {
+        return this.calculatedWCET;
+    }
+
+    public void setCalculatedWCET(final long calculatedWCET) {
+        this.calculatedWCET = calculatedWCET;
+    }
+
     /**
      * Sets the value of the planLanguage property.
      *

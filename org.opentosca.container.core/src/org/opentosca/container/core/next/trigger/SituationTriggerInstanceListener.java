@@ -219,7 +219,7 @@ public class SituationTriggerInstanceListener {
     /**
      * calculate the WCET for the given Plan by summing up operation times in plan. Does not regard
      * parallel executions.
-     * 
+     *
      * @param plan
      * @return
      */
@@ -248,6 +248,7 @@ public class SituationTriggerInstanceListener {
         for (final Long duration : longestDurationMap.values()) {
             calculatedTimeFromPreviousExecutions += duration;
         }
+        plan.setCalculatedWCET(calculatedTimeFromPreviousExecutions);
         return calculatedTimeFromPreviousExecutions;
     }
 

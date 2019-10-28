@@ -15,6 +15,7 @@ import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
+import org.opentosca.container.core.tosca.model.TBoolean;
 import org.opentosca.container.core.tosca.model.TPlan;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -54,7 +55,7 @@ public class PlanDTO extends ResourceSupport {
     private long calculatedWCET;
 
     @XmlElement(name = "PlanModelReference")
-    private long timeAvailable;
+    private String timeAvailable;
 
     public PlanDTO() {
 
@@ -67,6 +68,11 @@ public class PlanDTO extends ResourceSupport {
         this.planLanguage = plan.getPlanLanguage();
         this.inputParameters.addAll(plan.getInputParameters().getInputParameter().stream().map(p -> new TParameter(p))
                                         .collect(Collectors.toList()));
+        final TParameter myParam = new TParameter();
+        myParam.setName("TimeAvailableTest");
+        myParam.setRequired(TBoolean.NO);
+        myParam.setType("testType");
+        this.inputParameters.add(myParam);
         this.outputParameters.addAll(plan.getOutputParameters().getOutputParameter().stream()
                                          .map(p -> new TParameter(p)).collect(Collectors.toList()));
         this.planModelReference = plan.getPlanModelReference().getReference();
@@ -144,11 +150,11 @@ public class PlanDTO extends ResourceSupport {
     }
 
     @ApiModelProperty(name = "time_available")
-    public long getTimeAvailable() {
+    public String getTimeAvailable() {
         return this.timeAvailable;
     }
 
-    public void setTimeAvailable(final long timeAvailable) {
+    public void setTimeAvailable(final String timeAvailable) {
         this.timeAvailable = timeAvailable;
     }
 
@@ -169,6 +175,11 @@ public class PlanDTO extends ResourceSupport {
             for (final TParameter param : object.getInputParameters()) {
                 inputParameters.getInputParameter().add(new TParameterDTO(param));
             }
+            final TParameter myParam = new TParameter();
+            myParam.setName("TimeAvailableTest");
+            myParam.setRequired(TBoolean.NO);
+            myParam.setType("testType");
+            inputParameters.getInputParameter().add(new TParameterDTO(myParam));
             plan.setInputParameters(inputParameters);
 
             final TPlanDTO.OutputParameters outputParameters = new TPlanDTO.OutputParameters();

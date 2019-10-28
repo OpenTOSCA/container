@@ -45,7 +45,7 @@ public class TPlanDTO {
 
     @XmlAttribute(name = "timeAvailable")
     @XmlSchemaType(name = "anyURI")
-    protected long timeAvailable;
+    protected String timeAvailable;
 
     public TPlanDTO(final TPlan plan, final String namespace) {
         this.id = new QName(namespace, plan.getId());
@@ -224,11 +224,11 @@ public class TPlanDTO {
         this.calculatedWCET = calculatedWCET;
     }
 
-    public long getTimeAvailable() {
+    public String getTimeAvailable() {
         return this.timeAvailable;
     }
 
-    public void setTimeAvailable(final long timeAvailable) {
+    public void setTimeAvailable(final String timeAvailable) {
         this.timeAvailable = timeAvailable;
     }
 

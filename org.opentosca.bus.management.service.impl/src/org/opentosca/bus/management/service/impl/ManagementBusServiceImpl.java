@@ -127,6 +127,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
         LOG.debug("Correlation ID: {}", correlationID);
 
+
         // get the ServiceTemplateInstance ID Long from the serviceInstanceID URI
         Long serviceTemplateInstanceID = null;
         if (Objects.nonNull(serviceInstanceID)) {
@@ -552,6 +553,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
         LOG.debug("csarInstanceID: {}", serviceInstanceID);
 
+
+
         if (correlationID != null) {
 
             // get the PlanInstance object which contains all needed information
@@ -615,6 +618,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 plan = repo.findByCorrelationId(correlationID);
                 plan.addEvent(event);
                 repo.update(plan);
+
 
             } else {
                 LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
