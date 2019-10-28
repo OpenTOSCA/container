@@ -130,6 +130,10 @@ public class TPlan extends TExtensibleElements {
     @XmlSchemaType(name = "anyURI")
     protected long calculatedWCET;
 
+    @XmlAttribute(name = "timeAvailable")
+    @XmlSchemaType(name = "anyURI")
+    protected long timeAvailable;
+
     /**
      * Gets the value of the precondition property.
      *
@@ -316,6 +320,14 @@ public class TPlan extends TExtensibleElements {
 
     public void setCalculatedWCET(final long calulatedWCET) {
         this.calculatedWCET = calulatedWCET;
+    }
+
+    public long getTimeAvailable() {
+        return this.timeAvailable;
+    }
+
+    public void setTimeAvailable(final long timeAvailable) {
+        this.timeAvailable = timeAvailable;
     }
 
 
