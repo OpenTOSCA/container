@@ -248,7 +248,6 @@ public class SituationTriggerInstanceListener {
         for (final Long duration : longestDurationMap.values()) {
             calculatedTimeFromPreviousExecutions += duration;
         }
-        plan.setCalculatedWCET(calculatedTimeFromPreviousExecutions);
         return calculatedTimeFromPreviousExecutions;
     }
 

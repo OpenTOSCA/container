@@ -55,7 +55,7 @@ public class PlanDTO extends ResourceSupport {
     private long calculatedWCET;
 
     @XmlElement(name = "PlanModelReference")
-    private String timeAvailable;
+    private long timeAvailable;
 
     public PlanDTO() {
 
@@ -68,11 +68,11 @@ public class PlanDTO extends ResourceSupport {
         this.planLanguage = plan.getPlanLanguage();
         this.inputParameters.addAll(plan.getInputParameters().getInputParameter().stream().map(p -> new TParameter(p))
                                         .collect(Collectors.toList()));
-        final TParameter myParam = new TParameter();
-        myParam.setName("TimeAvailableTest");
-        myParam.setRequired(TBoolean.NO);
-        myParam.setType("testType");
-        this.inputParameters.add(myParam);
+        final TParameter timeAvailableParam = new TParameter();
+        timeAvailableParam.setName("AvailableTimeForExecution(Optional)");
+        timeAvailableParam.setRequired(TBoolean.NO);
+        timeAvailableParam.setType("String");
+        this.inputParameters.add(timeAvailableParam);
         this.outputParameters.addAll(plan.getOutputParameters().getOutputParameter().stream()
                                          .map(p -> new TParameter(p)).collect(Collectors.toList()));
         this.planModelReference = plan.getPlanModelReference().getReference();
@@ -150,11 +150,11 @@ public class PlanDTO extends ResourceSupport {
     }
 
     @ApiModelProperty(name = "time_available")
-    public String getTimeAvailable() {
+    public long getTimeAvailable() {
         return this.timeAvailable;
     }
 
-    public void setTimeAvailable(final String timeAvailable) {
+    public void setTimeAvailable(final long timeAvailable) {
         this.timeAvailable = timeAvailable;
     }
 

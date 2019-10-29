@@ -242,15 +242,26 @@ public class PlanService {
 
         final TPlan p = getPlan(plan, csarId);
 
-        final SituationTriggerInstanceListener triggerInstanceListener = new SituationTriggerInstanceListener();
-        final long calculatedWCET = triggerInstanceListener.calculateWCETForPlan(p);
-        logger.info("Calculated WCET: " + calculatedWCET);
-
-
-
         if (parameters == null) {
             return Response.status(Status.BAD_REQUEST).build();
         }
+
+        final SituationTriggerInstanceListener triggerInstanceListener = new SituationTriggerInstanceListener();
+        try {
+            final long calculatedWCET = p.getCalculatedWCET();
+            final long availableTimeForExecution = Long.parseLong(parameters.get(parameters.size() - 1).getValue());
+            p.setTimeAvailable(availableTimeForExecution);
+            logger.info("Calculated WCET: " + calculatedWCET);
+            logger.info("Available Time for Execution: " + availableTimeForExecution);
+            if (availableTimeForExecution < calculatedWCET) {
+                logger.info("Not enough time available for execution (Time Available < WCET). Aborting.");
+                return null;
+            }
+        }
+        catch (final Exception e) {
+            logger.info("Optinal Parameter Available Time for Execution was left empty.");
+        }
+
 
         if (!hasPlan(csarId, planTypes, plan)) {
             logger.info("Plan \"" + plan + "\" could not be found");

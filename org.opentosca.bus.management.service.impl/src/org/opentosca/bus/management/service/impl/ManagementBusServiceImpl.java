@@ -42,7 +42,9 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
+import org.opentosca.container.core.next.trigger.SituationTriggerInstanceListener;
 import org.opentosca.container.core.service.ICoreEndpointService;
+import org.opentosca.container.core.tosca.model.TPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -99,6 +101,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     private final static String placeholderStart = "/PLACEHOLDER_";
     private final static String placeholderEnd = "_PLACEHOLDER/";
+
 
     @Override
     public void invokeIA(final Exchange exchange) {
@@ -614,10 +617,22 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     + "ms");
                 LOG.info("Plan execution duration: {}ms", duration);
 
+                // write WCET back to Plan
+                final TPlan currentPlan =
+                    ServiceHandler.toscaEngineService.getToscaReferenceMapper()
+                                                     .getPlanForCSARIDAndPlanID(csarID, plan.getTemplateId());
+
+                final SituationTriggerInstanceListener instanceListener = new SituationTriggerInstanceListener();
+                final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan);
+                if (calculatedWCET > 0 && calculatedWCET < duration) {
+                    currentPlan.setCalculatedWCET(duration);
+                }
+
                 // update plan in repository with new log event
                 plan = repo.findByCorrelationId(correlationID);
                 plan.addEvent(event);
                 repo.update(plan);
+
 
 
             } else {
