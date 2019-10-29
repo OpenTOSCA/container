@@ -52,6 +52,7 @@ public class Settings {
   public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
 
   public final static String OPENTOSCA_DEPLOYMENT_TESTS = settings.getProperty("org.opentosca.deployment.checks", "false");
+  public final static String OPENTOSCA_BUS_MANAGEMENT_MOCK = settings.getProperty("org.opentosca.bus.management.mocking", "false");
   public final static Path CONTAINER_STORAGE_BASEPATH = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "container", "csar-storage");
 
   /**

@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.namespace.QName;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.model.tosca.*;
 import org.opentosca.bus.management.service.impl.collaboration.CollaborationContext;
@@ -189,13 +190,26 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
   }
 
+  private void respondViaMocking(TOperation.@Nullable OutputParameters outputParameters, Exchange exchange) {
+    if (outputParameters == null || outputParameters.getOutputParameter().isEmpty()) {
+      return;
+    }
+    Map<String, String> responseMap = new HashMap<>();
+    outputParameters.getOutputParameter()
+      .forEach(param -> {
+        responseMap.put(param.getName(), "managementBusMockValue");
+      });
+
+    exchange.getIn().setBody(responseMap);
+    handleResponse(exchange);
+  }
+
   /**
    * Searches for the NodeType/RelationshipType of the given operation, updates the input
    * parameters and passes the request on to invoke the corresponding IA.
    *
-   * @param exchange                  exchange containing the header fields which identify the current operation
-   * @param serviceTemplateInstanceID service instance which contains the instance data to update
-   *                                  the input parameters
+   * @param exchange  exchange containing the header fields which identify the current operation
+   * @param arguments a bundle-object containing all relevant invocation arguments
    */
   private PlanInstanceEvent internalInvokeIA(IAInvocationArguments arguments, Exchange exchange) {
     LOG.debug("Starting Management Bus: InvokeIA");
@@ -285,9 +299,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
    * Searches the right IA for the given operation and invokes it with the given parameters.
    *
    * @param exchange                  exchange containing the input parameters of the operation
-   * @param csarID                    ID of the CSAR
+   * @param csar                      the CSAR
    * @param serviceTemplateInstanceID ID of the service instance
-   * @param typeID                    NodeType/RelationshipType that implements the operation
+   * @param type                      NodeType/RelationshipType that implements the operation
    * @param nodeTemplateInstance      NodeTemplateInstance for the deployment distribution decision
    * @param neededInterface           the interface of the searched operation
    * @param neededOperation           the searched operation
@@ -305,6 +319,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
       TInterface nodeTypeInterface = ToscaEngine.resolveInterfaceAbstract(type, neededInterface);
       TOperation operation = ToscaEngine.resolveOperation(nodeTypeInterface, neededOperation);
       hasOutputParams = operation.getOutputParameters() != null && !operation.getOutputParameters().getOutputParameter().isEmpty();
+      if (Boolean.parseBoolean(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK)) {
+        respondViaMocking(operation.getOutputParameters(), exchange);
+        return;
+      }
     } catch (NotFoundException notFound) {
       LOG.warn("Tried to invoke an unknown operation on an IA");
       return;
@@ -343,12 +361,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
    * deployed, the deployment is performed before the invocation.
    *
    * @param exchange                  exchange containing the input parameters of the operation
-   * @param csar                    ID of the CSAR
+   * @param csar                      The CSAR
    * @param serviceTemplateInstanceID ID of the service instance
-   * @param typeID                    NodeType/RelationshipType that implements the operation
+   * @param type                      NodeType/RelationshipType that implements the operation
    * @param nodeTemplateInstance      NodeTemplateInstance for the deployment distribution decision
-   * @param typeImplementationID      NodeTypeImpl/RelationshipTypeImpl containing the IA
-   * @param iaName                    the name of the IA
+   * @param typeImplementation        NodeTypeImpl/RelationshipTypeImpl containing the IA
+   * @param ia                        the Implementation Artifact itself
    * @param neededInterface           the interface of the searched operation
    * @param neededOperation           the searched operation
    * @return <tt>true</tt> if the IA implements the given operation and it was invoked
@@ -805,7 +823,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
    * Checks if a certain property was specified in the Tosca.xml of the ArtifactTemplate and
    * returns it if so.
    *
-   * @param csarID             the ID of the CSAR which contains the ArtifactTemplate
    * @param artifactTemplate the ID of the ArtifactTemplate
    * @param propertyName       the name of the property
    * @return the property value if specified, null otherwise
@@ -833,8 +850,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
    * Checks if a PortType property was specified in the Tosca.xml of the ArtifactTemplate and
    * returns it if so.
    *
-   * @param csarID             the ID of the CSAR which contains the ArtifactTemplate
-   * @param artifactTemplateID the ID of the ArtifactTemplate
+   * @param artifactTemplate the ArtifactTemplate
    * @return the PortType property value as QName if specified, null otherwise
    */
   private QName getPortTypeQName(final TArtifactTemplate artifactTemplate) {
