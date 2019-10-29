@@ -144,7 +144,7 @@ public class MBUtils {
    *
    * @param csar
    * @param serviceTemplate
-   * @param osNodeTemplate
+   * @param osNodeType
    * @return name of the OperatingSystem ImplementationArtifact.
    */
   public static TImplementationArtifact getOperatingSystemIA(final Csar csar, final TServiceTemplate serviceTemplate, final TNodeType osNodeType) {
@@ -257,7 +257,9 @@ public class MBUtils {
     final Optional<ServiceTemplateInstance> serviceTemplateInstance = serviceTemplateInstanceRepository.find(serviceTemplateInstanceID);
 
     if (serviceTemplateInstance.isPresent()) {
-      return nodeTemplateInstanceRepository.find(serviceTemplateInstance.get(), nodeTemplateID, Stream.of(NodeTemplateInstanceState.CREATED, NodeTemplateInstanceState.STARTED).collect(Collectors.toSet()));
+      return nodeTemplateInstanceRepository.find(serviceTemplateInstance.get(), nodeTemplateID,
+        Stream.of(NodeTemplateInstanceState.CREATED, NodeTemplateInstanceState.STARTED)
+          .collect(Collectors.toSet()));
     } else {
       LOG.warn("Unable to find ServiceTemplateInstance!");
       return null;

@@ -191,6 +191,14 @@ public class BPELPluginHandler {
             ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
                                           Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE);
 
+        // generate code for the pre handling, e.g., upload DAs
+        for (final IPlanBuilderPrePhasePlugin prePlugin : this.pluginRegistry.getPrePlugins()) {
+            if (prePlugin.canHandleCreate(nodeTemplate)) {
+                LOG.info("Handling NodeTemplate {} with pre plugin {}", nodeTemplate.getId(), prePlugin.getID());
+                result &= prePlugin.handleCreate(context, nodeTemplate);
+            }
+        }
+
         LOG.debug("Defrost on NodeTemplate {} needs the following input parameters:", nodeTemplate.getName());
         for (final AbstractParameter param : defrostOp.getInputParameters()) {
             LOG.debug("Input param: {}", param.getName());
