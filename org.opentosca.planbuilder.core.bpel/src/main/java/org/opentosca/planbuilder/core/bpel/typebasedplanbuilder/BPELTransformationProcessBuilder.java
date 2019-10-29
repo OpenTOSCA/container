@@ -240,6 +240,14 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
       transformationBPELPlan.getBpelMainSequenceOutputAssignElement(),
       "CREATED", serviceInstanceURL);
 
+    this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(transformationBPELPlan,
+      this.planHandler.getMainCatchAllFaultHandlerSequenceElement(transformationBPELPlan),
+      "ERROR", serviceInstanceURL);
+    this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(transformationBPELPlan,
+      this.planHandler.getMainCatchAllFaultHandlerSequenceElement(transformationBPELPlan),
+      "FAILED",
+      this.serviceInstanceHandler.findPlanInstanceUrlVariableName(transformationBPELPlan));
+
     this.finalizer.finalize(transformationBPELPlan);
 
     // iterate over terminated nodes and create for each loop per instance
@@ -480,19 +488,51 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
   private void addNodeRelationInstanceVariables(BPELPlan plan, AbstractServiceTemplate sourceServiceTemplate,
                                                 AbstractServiceTemplate targetServiceTemplate) {
     for (BPELScope scope : this.getTerminationScopes(plan)) {
-      this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
-      this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, sourceServiceTemplate);
+      boolean added =
+        this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
+      while (!added) {
+        added = this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
+      }
+
+      added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, sourceServiceTemplate);
+      while (!added) {
+        added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, sourceServiceTemplate);
+      }
     }
     for (BPELScope scope : this.getProvisioningScopes(plan)) {
-      this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
-      this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, targetServiceTemplate);
+      boolean added =
+        this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
+      while (!added) {
+        added = this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
+      }
+
+      added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, targetServiceTemplate);
+      while (!added) {
+        added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, targetServiceTemplate);
+      }
     }
 
     for (BPELScope scope : this.getMigrationScopes(plan)) {
-      this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
-      this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, sourceServiceTemplate);
-      this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
-      this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, targetServiceTemplate);
+      boolean added =
+        this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
+      while (!added) {
+        added = this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
+      }
+
+      added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, sourceServiceTemplate);
+      while (!added) {
+        added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, sourceServiceTemplate);
+      }
+
+      added = this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
+      while (!added) {
+        added = this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
+      }
+
+      added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, targetServiceTemplate);
+      while (!added) {
+        added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, targetServiceTemplate);
+      }
     }
   }
 
@@ -528,8 +568,8 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
           this.bpelPluginHandler.handleActivity(context, bpelScope, bpelScope.getNodeTemplate());
         } else if (activity.getType().equals(ActivityType.MIGRATION)) {
 
-          AbstractNodeTemplate sourceNodeTemplate = bpelScope.getNodeTemplate();
-          AbstractNodeTemplate targetNodeTemplate =
+          AbstractNodeTemplate sourceRelationshipTemplate = bpelScope.getNodeTemplate();
+          AbstractNodeTemplate targetRelationshipTemplate =
             this.getCorrespondingNode(bpelScope.getNodeTemplate(),
               targetServiceTemplate.getTopologyTemplate().getNodeTemplates());
 
@@ -542,9 +582,9 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             targetServiceInstanceId, targetServiceTemplateUrl, targetCsarName);
 
           for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleUpdate(sourceNodeTemplate, targetNodeTemplate)) {
-              postPhasePlugin.handleUpdate(sourceContext, targetContext, sourceNodeTemplate,
-                targetNodeTemplate);
+            if (postPhasePlugin.canHandleUpdate(sourceRelationshipTemplate, targetRelationshipTemplate)) {
+              postPhasePlugin.handleUpdate(sourceContext, targetContext, sourceRelationshipTemplate,
+                targetRelationshipTemplate);
             }
           }
 

@@ -1136,10 +1136,7 @@ public class Handler {
     public boolean handleUpdate(final BPELPlanContext sourceContext, final BPELPlanContext targetContext,
                                 AbstractRelationshipTemplate sourceRelationshipTemplate,
                                 AbstractRelationshipTemplate targetRelationshipTemplate) {
-
-        final String sourceServiceInstanceVarName = sourceContext.getServiceInstanceURLVarName();
-        final String sourceServiceTemplateUrlVarName = sourceContext.getServiceTemplateURLVar();
-        final String targetServiceInstanceVarName = targetContext.getServiceInstanceURLVarName();
+        
         final String targetServiceTemplateUrlVarName = targetContext.getServiceTemplateURLVar();
         final String targetServiceInstanceIdVarName = targetContext.getServiceInstanceIDVarName();
 
@@ -1728,7 +1725,9 @@ public class Handler {
             if (child.getNodeType() == Node.ELEMENT_NODE) {
                 final String propertyName = child.getLocalName();
                 final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
-                mapping.put(propVarName, child);
+                if(propVarName != null) {
+                    mapping.put(propVarName, child);
+                }
             }
 
         }

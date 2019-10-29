@@ -141,6 +141,11 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
       newTerminationPlan.getBpelMainSequenceCallbackInvokeElement(),
       "DELETED", serviceInstanceURLVarName);
 
+    this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(newTerminationPlan,
+      this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTerminationPlan),
+      "ERROR", serviceInstanceURLVarName);
+    this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(newTerminationPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTerminationPlan), "FAILED", this.serviceInstanceHandler.findPlanInstanceUrlVariableName(newTerminationPlan));
+
     this.correlationHandler.addCorrellationID(newTerminationPlan);
 
     this.finalizer.finalize(newTerminationPlan);

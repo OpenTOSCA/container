@@ -181,6 +181,14 @@ public class BPELPlan extends AbstractPlan {
         this.csarName = csarName;
     }
 
+    public Element getBpelFaultHandlersElement() {
+        return bpelFaultHandlersElement;
+    }
+
+    public void setBpelFaultHandlersElement(Element bpelFaultHandlersElement) {
+        this.bpelFaultHandlersElement = bpelFaultHandlersElement;
+    }
+
     /**
      * Returns all files this bBuildPlan has imported
      *

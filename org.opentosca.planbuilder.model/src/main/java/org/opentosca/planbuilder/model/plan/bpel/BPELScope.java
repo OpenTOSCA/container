@@ -43,6 +43,11 @@ public class BPELScope {
 
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
+    
+    @Override
+    public String toString() {
+        return "BPELScope Plan: " + buildPlan.getId() + " Activity: " + this.act + ((this.getNodeTemplate() != null) ? " Node: " +this.nodeTemplate.getId() : " Relation: " + this.relationshipTemplate.getId());
+    }
 
     public BPELScope(AbstractActivity activity) {
         this.act = activity;
