@@ -256,7 +256,7 @@ public class BPELPlanContext extends PlanContext {
   public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType... activityType) {
     LOG.debug("Trying to create {} plan context for nodeTemplate {}", activityType, nodeTemplate);
     for (BPELScope scope : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
-      if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && scope.getActivity().getType().equals(activityType)) {
+      if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && Arrays.asList(activityType).contains(scope.getActivity().getType())) {
         LOG.debug("Found scope of nodeTemplate");
         return new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName,
           this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.csarFileName);
