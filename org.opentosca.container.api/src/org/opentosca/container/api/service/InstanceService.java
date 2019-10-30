@@ -677,7 +677,8 @@ public class InstanceService {
                                                       final ServiceTemplateInstance serviceInstance,
                                                       final NodeTemplateInstance nodeInstance,
                                                       final String interfaceName, final String operationName,
-                                                      final Set<SituationTriggerProperty> inputs) {
+                                                      final Set<SituationTriggerProperty> inputs,
+                                                      final float eventProbability, final String eventTime) {
         final SituationTrigger newInstance = new SituationTrigger();
 
         newInstance.setSituations(situations);
@@ -690,6 +691,13 @@ public class InstanceService {
             newInstance.setNodeInstance(nodeInstance);
         }
         newInstance.setInputs(inputs);
+        
+        if (eventProbability != -1.0f) {
+            newInstance.setEventProbability(eventProbability);
+        }
+        if (eventTime != null) {
+            newInstance.setEventTime(eventTime);
+        }
 
         this.sitTrig.add(newInstance);
 
