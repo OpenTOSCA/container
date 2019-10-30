@@ -60,7 +60,13 @@ public class PropertyMappingsHelper {
   private void updateServiceInstanceProperties(final ServiceTemplateInstance serviceInstance,
                                                final Document proprtiesAsXML) {
     Csar owningCsar = storage.findById(serviceInstance.getCsarId());
-    TServiceTemplate template = ToscaEngine.getServiceTemplate(owningCsar, serviceInstance.getTemplateId());
+    TServiceTemplate template = null;
+    try {
+      template = ToscaEngine.resolveServiceTemplate(owningCsar, serviceInstance.getTemplateId());
+    } catch (org.opentosca.container.core.common.NotFoundException e) {
+      logger.warn("Could not find service template associated with the serviceTemplateInstance {}", serviceInstance.getId(), e);
+      return;
+    }
     // check if the serviceTemplate has propertyMappings
     final TBoundaryDefinitions.Properties.PropertyMappings propertyMappings = template.getBoundaryDefinitions().getProperties().getPropertyMappings();
     if (propertyMappings == null) {
@@ -230,7 +236,7 @@ public class PropertyMappingsHelper {
                                                        final String nodeTemplateId) {
 
     for (final NodeTemplateInstance nodeInstance : nodeInstances) {
-      if (nodeInstance.getTemplateId().getLocalPart().equals(nodeTemplateId)) {
+      if (nodeInstance.getTemplateId().equals(nodeTemplateId)) {
         return nodeInstance;
       }
     }
@@ -260,7 +266,7 @@ public class PropertyMappingsHelper {
     }
 
     for (final NodeTemplateInstance nodeInstance : nodeInstances) {
-      if (nodeInstance.getTemplateId().getLocalPart().equals(template.getId())) {
+      if (nodeInstance.getTemplateId().equals(template.getId())) {
         return nodeInstance;
       }
     }

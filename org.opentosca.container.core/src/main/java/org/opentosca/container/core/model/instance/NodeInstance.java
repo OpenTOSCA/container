@@ -79,10 +79,10 @@ public class NodeInstance {
    *                         NodeTemplate
    * @param nodeTemplateName - the name of the nodeTemplate
    */
-  public NodeInstance(final QName nodeTemplateID, final String nodeTemplateName, final QName nodeTypeOfNodeTemplate,
+  public NodeInstance(final String nodeTemplateID, final String nodeTemplateName, final QName nodeTypeOfNodeTemplate,
                       final ServiceInstance serviceInstance) {
     super();
-    this.nodeTemplateID = nodeTemplateID;
+    this.nodeTemplateID = QName.valueOf(nodeTemplateID);
     this.nodeTemplateName = nodeTemplateName;
     this.serviceInstance = serviceInstance;
     this.created = new Date();

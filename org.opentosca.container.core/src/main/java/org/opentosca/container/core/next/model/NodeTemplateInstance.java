@@ -44,9 +44,8 @@ public class NodeTemplateInstance extends PersistenceObject {
   @OneToMany(mappedBy = "source")
   private Collection<RelationshipTemplateInstance> outgoingRelations = new ArrayList<>();
 
-  @Convert(converter = QNameConverter.class)
   @Column(name = "TEMPLATE_ID", nullable = false)
-  private QName templateId;
+  private String templateId;
 
   @Convert(converter = QNameConverter.class)
   @Column(name = "TEMPLATE_TYPE", nullable = false)
@@ -64,7 +63,7 @@ public class NodeTemplateInstance extends PersistenceObject {
   }
 
   public String getName() {
-    return this.templateId.getLocalPart();
+    return this.templateId;
   }
 
   public NodeTemplateInstanceState getState() {
@@ -150,11 +149,11 @@ public class NodeTemplateInstance extends PersistenceObject {
     }
   }
 
-  public QName getTemplateId() {
+  public String getTemplateId() {
     return this.templateId;
   }
 
-  public void setTemplateId(final QName templateId) {
+  public void setTemplateId(final String templateId) {
     this.templateId = templateId;
   }
 

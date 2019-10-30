@@ -32,18 +32,17 @@ public class ServiceTemplateService {
     return csarContent.serviceTemplates().stream().map(TServiceTemplate::getId).collect(Collectors.toSet());
   }
 
-  public Document getPropertiesOfServiceTemplate(final CsarId csarId, final QName serviceTemplateId) {
-    logger.debug("Getting ServiceTemplate properties for " + serviceTemplateId + " in " + csarId);
+  public Document getPropertiesOfServiceTemplate(final CsarId csarId, final String serviceTemplateName) {
+    logger.debug("Getting ServiceTemplate properties for " + serviceTemplateName + " in " + csarId);
     final Csar csarContent = this.csarStorage.findById(csarId);
     final TBoundaryDefinitions boundaryDefs = csarContent.serviceTemplates().stream()
-      // FIXME that predicate seems problematic
-      .filter(template -> template.getId().equals(serviceTemplateId.toString()))
+      .filter(template -> template.getName().equals(serviceTemplateName))
       .findFirst()
-      .map(template -> template.getBoundaryDefinitions())
-      .orElseThrow(() -> new NoSuchElementException(String.format("Could not find serviceTemplate with id [%s] on csar [%s]", serviceTemplateId, csarId)));
+      .map(TServiceTemplate::getBoundaryDefinitions)
+      .orElseThrow(() -> new NoSuchElementException(String.format("Could not find serviceTemplate with id [%s] on csar [%s]", serviceTemplateName, csarId)));
 
     if (boundaryDefs != null && boundaryDefs.getProperties() != null) {
-      logger.debug("Properties found in BoundaryDefinitions for ST {}", serviceTemplateId);
+      logger.debug("Properties found in BoundaryDefinitions for ST {}", serviceTemplateName);
       final Element propertiesElement = (Element) boundaryDefs.getProperties().getAny();
       if (null != propertiesElement && null != propertiesElement.getOwnerDocument()) {
         return propertiesElement.getOwnerDocument();

@@ -148,11 +148,11 @@ public class RelationshipTemplateInstanceController {
       "/csars/{csar}/servicetemplates/{servicetemplate}/nodetemplates/{nodetemplate}/instances/{nodetemplateinstance}";
     final URI sourceNodeTemplateInstanceUri =
       this.uriInfo.getBaseUriBuilder().path(path).build(dto.getCsarId(), dto.getServiceTemplateId(),
-        instance.getSource().getTemplateId().getLocalPart(),
+        instance.getSource().getTemplateId(),
         dto.getSourceNodeTemplateInstanceId());
     final URI targetNodeTemplateInstanceUri =
       this.uriInfo.getBaseUriBuilder().path(path).build(dto.getCsarId(), dto.getServiceTemplateId(),
-        instance.getTarget().getTemplateId().getLocalPart(),
+        instance.getTarget().getTemplateId(),
         dto.getTargetNodeTemplateInstanceId());
     dto.add(Link.fromUri(UriUtil.encode(sourceNodeTemplateInstanceUri)).rel("source_node_template_instance")
       .build());

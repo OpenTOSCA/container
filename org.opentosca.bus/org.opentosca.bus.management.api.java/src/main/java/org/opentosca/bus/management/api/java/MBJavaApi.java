@@ -154,6 +154,7 @@ public class MBJavaApi implements IManagementBus {
 
     // Optional parameter if message is of type HashMap. Not needed for Document.
     final Long serviceInstanceID = (Long) eventValues.get("SERVICEINSTANCEID");
+    // TODO the QName retrieval here might be incorrect
     final QName serviceTemplateID = (QName) eventValues.get("SERVICETEMPLATEID");
 
     // Should be of type Document or HashMap<String, String>. Maybe better handle them
@@ -161,7 +162,7 @@ public class MBJavaApi implements IManagementBus {
     // final Object message = eventValues.get("BODY");
     final Map<String, String> inputParameter = (Map<String, String>) eventValues.get("INPUTS");
 
-    Map<String, String> message = createRequestBody(csarID, serviceTemplateID, serviceInstanceID, inputParameter, messageID);
+    Map<String, String> message = createRequestBody(csarID, serviceTemplateID.toString(), serviceInstanceID, inputParameter, messageID);
 
     ConsumerTemplate consumer = invokePlan(operationName, messageID, async, serviceInstanceID.toString(), message, csarID, planID, planLanguage);
 
@@ -251,8 +252,9 @@ public class MBJavaApi implements IManagementBus {
 
     } else {
       try {
+        // FIXME the QName conversion of the instance is probably a bad idea
         BPELPlan adaptationPlan =
-          (BPELPlan) importer.generateAdaptationPlan(instance.getCsarId().toOldCsarId(), instance.getTemplateId(),
+          (BPELPlan) importer.generateAdaptationPlan(instance.getCsarId().toOldCsarId(), QName.valueOf(instance.getTemplateId()),
             currentConfigNodeIds, currentConfigRelationIds,
             targetConfigNodeIds, targetConfigRelationIds);
 
@@ -433,7 +435,7 @@ public class MBJavaApi implements IManagementBus {
 
     for (AbstractNodeTemplate node : topology.getNodeTemplates()) {
       for (NodeTemplateInstance inst : instance.getNodeTemplateInstances()) {
-        if (inst.getTemplateId().getLocalPart().equals(node.getId())
+        if (inst.getTemplateId().equals(node.getId())
           && validNodeState.contains(inst.getState())) {
           currentlyRunningNodes.add(node);
         }
@@ -560,9 +562,9 @@ public class MBJavaApi implements IManagementBus {
     return new SituationRepository();
   }
 
-  public Map<String, String> createRequestBody(final CsarId csarID, final QName serviceTemplateID,
-                                               Long serviceTemplateInstanceId,
-                                               final Map<String, String> inputParameter, final String correlationID) {
+  private Map<String, String> createRequestBody(final CsarId csarID, final String serviceTemplateID,
+                                                Long serviceTemplateInstanceId,
+                                                final Map<String, String> inputParameter, final String correlationID) {
 
     final Map<String, String> map = new HashMap<>();
 
@@ -617,11 +619,11 @@ public class MBJavaApi implements IManagementBus {
     return map;
   }
 
-  private String createServiceInstanceURI(CsarId csarId, QName serviceTemplate, Long serviceTemplateInstanceId) {
+  private String createServiceInstanceURI(CsarId csarId, String serviceTemplate, Long serviceTemplateInstanceId) {
     String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + serviceTemplateInstanceId;
     url = url.replace("{csarid}", csarId.csarName());
     url = url.replace("{servicetemplateid}",
-      UriComponent.encode(UriComponent.encode(serviceTemplate.toString(),
+      UriComponent.encode(UriComponent.encode(serviceTemplate,
         UriComponent.Type.PATH_SEGMENT),
         UriComponent.Type.PATH_SEGMENT));
 

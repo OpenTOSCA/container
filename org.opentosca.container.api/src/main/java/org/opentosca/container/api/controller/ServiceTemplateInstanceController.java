@@ -307,13 +307,12 @@ public class ServiceTemplateInstanceController {
    * @return
    * @throws NotFoundException if the instance does not belong to the service template
    */
-  private ServiceTemplateInstance resolveInstance(final Long instanceId,
-                                                  final String templateId) throws NotFoundException {
+  private ServiceTemplateInstance resolveInstance(final Long instanceId, final String templateId) throws NotFoundException {
     // We only need to check that the instance belongs to the template, the rest is
     // guaranteed while this is a sub-resource
     final ServiceTemplateInstance instance = this.instanceService.getServiceTemplateInstance(instanceId, false);
 
-    if (!instance.getTemplateId().equals(QName.valueOf(templateId))) {
+    if (!instance.getTemplateId().equals(templateId)) {
       logger.info("Service template instance <{}> could not be found", instanceId);
       throw new NotFoundException(String.format("Service template instance <%s> could not be found", instanceId));
     }

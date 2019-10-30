@@ -65,7 +65,7 @@ public class ServiceInstanceDAO {
     return new ArrayList<>();
   }
 
-  public List<ServiceInstance> getServiceInstances(final CsarId csarId, final QName serviceTemplateId,
+  public List<ServiceInstance> getServiceInstances(final CsarId csarId, final String serviceTemplateId,
                                                    final Integer serviceTemplateInstanceID) {
     logger.info("Not Implemented: Service instances cannot be queried");
     return new ArrayList<>();

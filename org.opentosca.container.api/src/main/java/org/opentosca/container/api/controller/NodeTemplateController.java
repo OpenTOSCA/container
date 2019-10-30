@@ -90,10 +90,10 @@ public class NodeTemplateController {
   public Response getNodeTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
                                   @ApiParam("ID of node template") @PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
-
+    logger.debug("Invoking getNodeTemplate");
     NodeTemplateDTO result;
     try {
-      result = this.nodeTemplateService.getNodeTemplateById(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId);
+      result = this.nodeTemplateService.getNodeTemplateById(csarId, serviceTemplateId, nodeTemplateId);
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       throw new NotFoundException(e.getMessage(), e);
     }
@@ -109,7 +109,7 @@ public class NodeTemplateController {
                                                      @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
                                                      @ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId) {
     logger.debug("Invoking getInstances");
-    if (!this.nodeTemplateService.hasNodeTemplate(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId)) {
+    if (!this.nodeTemplateService.hasNodeTemplate(csarId, serviceTemplateId, nodeTemplateId)) {
       logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
       throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
     }

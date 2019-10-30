@@ -89,11 +89,10 @@ public class ServiceInstance {
   /**
    * Creates a new instance of a ServiceTemplate. ID and creation date will be set automatically.
    *
-   * @param serviceTemplateID   - the serviceTemplateID specified by the Namespace and the ID value of
-   *                            the ServiceTemplate
+   * @param serviceTemplateName - the serviceTemplateName, equivalent to the local ID value of the ServiceTemplate
    * @param serviceTemplateName - the name of the ServiceTemplate
    */
-  public ServiceInstance(final CsarId csarID, final QName serviceTemplateID, final String serviceTemplateName) {
+  public ServiceInstance(final CsarId csarID, final String serviceTemplateName) {
     super();
     this.csarID = csarID;
     // needed to persist the object

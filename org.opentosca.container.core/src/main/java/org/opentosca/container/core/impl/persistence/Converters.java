@@ -35,7 +35,7 @@ public abstract class Converters {
   private static DocumentConverter xmlConverter = new DocumentConverter();
 
   public static ServiceInstance convert(final ServiceTemplateInstance object) {
-    final ServiceInstance si = new ServiceInstance(object.getCsarId(), object.getTemplateId(), "");
+    final ServiceInstance si = new ServiceInstance(object.getCsarId(), object.getTemplateId());
     if (object.getId() != null) {
       si.setId(object.getId().intValue());
     }
@@ -60,7 +60,7 @@ public abstract class Converters {
       } else {
         sti = new ServiceTemplateInstance();
         sti.setCsarId(object.getCsarID());
-        sti.setTemplateId(object.getServiceTemplateID());
+        sti.setTemplateId(object.getServiceTemplateName());
         sti.setState(ServiceTemplateInstanceState.INITIAL);
       }
       final Document properties = object.getProperties();
@@ -79,7 +79,7 @@ public abstract class Converters {
   }
 
   public static NodeInstance convert(final NodeTemplateInstance object) {
-    final NodeInstance ni = new NodeInstance(object.getTemplateId(), "", object.getTemplateType(),
+    final NodeInstance ni = new NodeInstance(object.getTemplateId(), object.getTemplateId(), object.getTemplateType(),
       convert(object.getServiceTemplateInstance()));
     if (object.getId() != null) {
       ni.setId(object.getId().intValue());
@@ -105,7 +105,7 @@ public abstract class Converters {
       } else {
         nti = new NodeTemplateInstance();
         nti.setTemplateType(object.getNodeType());
-        nti.setTemplateId(object.getNodeTemplateID());
+        nti.setTemplateId(object.getNodeTemplateName());
         nti.setState(NodeTemplateInstanceState.INITIAL);
         if (object.getProperties() != null) {
           final NodeTemplateInstanceProperty prop = new NodeTemplateInstanceProperty();

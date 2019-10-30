@@ -13,10 +13,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
+import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.*;
 import org.opentosca.container.core.next.repository.*;
@@ -49,16 +53,20 @@ public class InstanceService {
   private final SituationTriggerInstanceRepository sitTrigInst = new SituationTriggerInstanceRepository();
   private final SituationsMonitorRepository situationsMonitorRepo = new SituationsMonitorRepository();
 
-  @Inject
-  private RelationshipTemplateService relationshipTemplateService;
-  @Inject
-  private NodeTemplateService nodeTemplateService;
-  @Inject
-  private ServiceTemplateService serviceTemplateService;
-  @Inject
-  private CsarStorageService storage;
+  private final RelationshipTemplateService relationshipTemplateService;
+  private final NodeTemplateService nodeTemplateService;
+  private final ServiceTemplateService serviceTemplateService;
+  private final CsarStorageService storage;
 
   private final DocumentConverter converter = new DocumentConverter();
+
+  @Inject
+  public InstanceService(RelationshipTemplateService relationshipTemplateService, NodeTemplateService nodeTemplateService, ServiceTemplateService serviceTemplateService, CsarStorageService storage) {
+    this.relationshipTemplateService = relationshipTemplateService;
+    this.nodeTemplateService = nodeTemplateService;
+    this.serviceTemplateService = serviceTemplateService;
+    this.storage = storage;
+  }
 
   public Document convertPropertyToDocument(final Property property) {
     return (Document) this.converter.convertToEntityAttribute(property.getValue());
@@ -99,10 +107,6 @@ public class InstanceService {
 
   /******************************/
   public Collection<ServiceTemplateInstance> getServiceTemplateInstances(final String serviceTemplate) {
-    return this.getServiceTemplateInstances(QName.valueOf(serviceTemplate));
-  }
-
-  public Collection<ServiceTemplateInstance> getServiceTemplateInstances(final QName serviceTemplate) {
     logger.debug("Requesting instances of ServiceTemplate \"{}\"...", serviceTemplate);
     return this.serviceTemplateInstanceRepository.findByTemplateId(serviceTemplate);
   }
@@ -195,12 +199,12 @@ public class InstanceService {
     this.serviceTemplateInstanceRepository.remove(instance);
   }
 
-  public ServiceTemplateInstance createServiceTemplateInstance(final String csarId, final String serviceTemplateQName,
+  public ServiceTemplateInstance createServiceTemplateInstance(final String csarId, final String serviceTemplateName,
                                                                final String correlationId) throws NotFoundException,
     InstantiationException,
     IllegalAccessException,
     IllegalArgumentException {
-    final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateQName);
+    final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
     final PlanInstanceRepository repository = new PlanInstanceRepository();
     PlanInstance pi = null;
 
@@ -217,11 +221,9 @@ public class InstanceService {
     // If the found plan is a build plan there shouldn't be a service template instance available,
     // if it is a transformation plan the service instance mustn't be of the service template the new service instance should belong to
     if ((pi.getType().equals(PlanType.BUILD) && pi.getServiceTemplateInstance() == null)
-      || (pi.getType().equals(PlanType.TRANSFORMATION) && !pi.getServiceTemplateInstance().getTemplateId().toString().equals(serviceTemplateQName))) {
-      final QName stqn = QName.valueOf(serviceTemplateQName);
-      final ServiceTemplateInstance result = this.createServiceTemplateInstance(csar, stqn, pi);
+      || (pi.getType().equals(PlanType.TRANSFORMATION) && !pi.getServiceTemplateInstance().getTemplateId().equals(serviceTemplateName))) {
 
-      return result;
+      return this.createServiceTemplateInstance(csar, serviceTemplateName, pi);
     } else {
       final String msg = "The build plan instance is already associted with a service template instance!";
       logger.info(msg);
@@ -229,18 +231,18 @@ public class InstanceService {
     }
   }
 
-  private ServiceTemplateInstance createServiceTemplateInstance(final CsarId csarId, final QName serviceTemplateQName,
+  private ServiceTemplateInstance createServiceTemplateInstance(final CsarId csarId, final String serviceTemplateName,
                                                                 final PlanInstance buildPlanInstance) throws InstantiationException,
     IllegalAccessException,
     IllegalArgumentException {
     final Document propertiesAsDoc =
-      createServiceInstanceInitialPropertiesFromServiceTemplate(csarId, serviceTemplateQName);
+      createServiceInstanceInitialPropertiesFromServiceTemplate(csarId, serviceTemplateName);
     final ServiceTemplateInstanceProperty property =
       convertDocumentToProperty(propertiesAsDoc, ServiceTemplateInstanceProperty.class);
 
     final ServiceTemplateInstance instance = new ServiceTemplateInstance();
     instance.setCsarId(csarId);
-    instance.setTemplateId(serviceTemplateQName);
+    instance.setTemplateId(serviceTemplateName);
     instance.setState(ServiceTemplateInstanceState.INITIAL);
     instance.addProperty(property);
     instance.addPlanInstance(buildPlanInstance);
@@ -252,17 +254,17 @@ public class InstanceService {
   }
 
   private Document createServiceInstanceInitialPropertiesFromServiceTemplate(final CsarId csarId,
-                                                                             final QName serviceTemplateQName) {
+                                                                             final String serviceTemplateName) {
 
     final Document existingProperties =
-      this.serviceTemplateService.getPropertiesOfServiceTemplate(csarId, serviceTemplateQName);
+      this.serviceTemplateService.getPropertiesOfServiceTemplate(csarId, serviceTemplateName);
 
     if (existingProperties != null) {
       return existingProperties;
     }
 
     logger.debug("No Properties found in BoundaryDefinitions for ST {} thus creating blank ones",
-      serviceTemplateQName);
+      serviceTemplateName);
     final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     dbf.setNamespaceAware(true);
     DocumentBuilder db;
@@ -292,15 +294,13 @@ public class InstanceService {
     return this.nodeTemplateInstanceRepository.findByTemplateId(nodeTemplateQName);
   }
 
-  public NodeTemplateInstance resolveNodeTemplateInstance(final String serviceTemplateQName,
+  public NodeTemplateInstance resolveNodeTemplateInstance(final String serviceTemplateName,
                                                           final String nodeTemplateId, final Long id) {
     // We only need to check that the instance belongs to the template, the rest is
     // guaranteed while this is a sub-resource
-    final QName nodeTemplateQName =
-      new QName(QName.valueOf(serviceTemplateQName).getNamespaceURI(), nodeTemplateId);
     final NodeTemplateInstance instance = getNodeTemplateInstance(id);
-
-    if (!instance.getTemplateId().equals(nodeTemplateQName)) {
+    if (!(instance.getTemplateId().equals(nodeTemplateId)
+        && instance.getServiceTemplateInstance().getTemplateId().equals(serviceTemplateName))) {
       logger.info("Node template instance <{}> could not be found", id);
       throw new NotFoundException(String.format("Node template instance <%s> could not be found", id));
     }
@@ -327,7 +327,7 @@ public class InstanceService {
     return node.getState();
   }
 
-  public void setNodeTemplateInstanceState(final String serviceTemplateQName, final String nodeTemplateId,
+  public void setNodeTemplateInstanceState(final String serviceTemplateName, final String nodeTemplateId,
                                            final Long id,
                                            final String state) throws NotFoundException, IllegalArgumentException {
 
@@ -340,7 +340,7 @@ public class InstanceService {
       throw new IllegalArgumentException(msg, e);
     }
 
-    final NodeTemplateInstance node = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
+    final NodeTemplateInstance node = resolveNodeTemplateInstance(serviceTemplateName, nodeTemplateId, id);
     node.setState(newState);
     this.nodeTemplateInstanceRepository.update(node);
   }
@@ -379,24 +379,25 @@ public class InstanceService {
   }
 
   public NodeTemplateInstance createNewNodeTemplateInstance(final String csarId,
-                                                            final String serviceTemplateQNameAsString,
+                                                            final String serviceTemplateNameAsString,
                                                             final String nodeTemplateId,
                                                             final Long serviceTemplateInstanceId) throws InstantiationException,
     IllegalAccessException,
     IllegalArgumentException {
-    final QName serviceTemplateQName = QName.valueOf(serviceTemplateQNameAsString);
-    final NodeTemplateDTO dto;
-    final Document propertiesAsDocument;
+    final Csar csar = storage.findById(new CsarId(csarId));
+    final TServiceTemplate serviceTemplate;
+    final TNodeTemplate nodeTemplate;
     try {
-      dto = this.nodeTemplateService.getNodeTemplateById(csarId, serviceTemplateQName, nodeTemplateId);
-      propertiesAsDocument = this.nodeTemplateService.getPropertiesOfNodeTemplate(csarId, serviceTemplateQName, nodeTemplateId);
+      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateNameAsString);
+      nodeTemplate = ToscaEngine.resolveNodeTemplate(serviceTemplate, nodeTemplateId);
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       throw new NotFoundException(e.getMessage(), e);
     }
+    final NodeTemplateDTO dto = nodeTemplateService.createNodeTemplate(nodeTemplate, csar);
+    final Document propertiesAsDocument = ToscaEngine.getEntityTemplateProperties(nodeTemplate);
 
     // Properties
     // We set the properties of the template as initial properties
-
     final NodeTemplateInstance newInstance = new NodeTemplateInstance();
     if (propertiesAsDocument != null) {
       final NodeTemplateInstanceProperty properties =
@@ -406,16 +407,18 @@ public class InstanceService {
     // State
     newInstance.setState(NodeTemplateInstanceState.INITIAL);
     // Template
-    newInstance.setTemplateId(new QName(serviceTemplateQName.getNamespaceURI(), nodeTemplateId));
+    newInstance.setTemplateId(nodeTemplate.getName());
     // Type
     newInstance.setTemplateType(QName.valueOf(dto.getNodeType()));
     // ServiceTemplateInstance
     final ServiceTemplateInstance serviceTemplateInstance = getServiceTemplateInstance(serviceTemplateInstanceId, false);
 
-    if (!serviceTemplateInstance.getTemplateId().equals(serviceTemplateQName)) {
+    // only compare the names, because ServiceTemplateInstance does not keep the
+    // fully namespaced QName as the parent Id (which sucks, but it is what it is for now)
+    if (!serviceTemplateInstance.getTemplateId().equals(serviceTemplate.getName())) {
       final String msg =
         String.format("Service template instance id <%s> does not belong to service template: %s",
-          serviceTemplateInstanceId, serviceTemplateQName);
+          serviceTemplateInstanceId, serviceTemplate.getName());
       logger.debug(msg);
       throw new IllegalArgumentException(msg);
     }
@@ -445,8 +448,6 @@ public class InstanceService {
    * Gets a reference to the relationship template instance. Ensures that the instance actually
    * belongs to the relationship template.
    *
-   * @param instanceId
-   * @param templateId
    * @return
    * @throws NotFoundException if the instance does not belong to the relationship template
    */
@@ -599,10 +600,7 @@ public class InstanceService {
                                                  final String relationshipTemplateId, final Long instanceId) {
     final RelationshipTemplateInstance instance =
       resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, instanceId); // throws
-    // exception
-    // if
-    // not
-    // found
+    // exception if not found
     this.relationshipTemplateInstanceRepository.remove(instance);
   }
 
@@ -714,21 +712,4 @@ public class InstanceService {
       .filter(monitor -> monitor.getServiceInstance() != null && monitor.getServiceInstance().getId().equals(serviceInstanceID))
       .collect(Collectors.toList());
   }
-
-  /* Service Injection */
-
-  /*********************/
-
-  public void setRelationshipTemplateService(final RelationshipTemplateService relationshipTemplateService) {
-    this.relationshipTemplateService = relationshipTemplateService;
-  }
-
-  public void setNodeTemplateService(final NodeTemplateService nodeTemplateService) {
-    this.nodeTemplateService = nodeTemplateService;
-  }
-
-  public void setServiceTemplateService(final ServiceTemplateService serviceTemplateService) {
-    this.serviceTemplateService = serviceTemplateService;
-  }
-
 }

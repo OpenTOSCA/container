@@ -46,9 +46,8 @@ public class ServiceTemplateInstance extends PersistenceObject {
   @Column(name = "CSAR_ID", nullable = false)
   private CsarId csarId;
 
-  @Convert(converter = QNameConverter.class)
   @Column(name = "TEMPLATE_ID", nullable = false)
-  private QName templateId;
+  private String templateId;
 
   @Column(name = "CREATION_CORRELATION_ID", nullable = true)
   private String creationCorrelationId;
@@ -132,11 +131,11 @@ public class ServiceTemplateInstance extends PersistenceObject {
     this.csarId = csarId;
   }
 
-  public QName getTemplateId() {
+  public String getTemplateId() {
     return this.templateId;
   }
 
-  public void setTemplateId(final QName templateId) {
+  public void setTemplateId(final String templateId) {
     this.templateId = templateId;
   }
 

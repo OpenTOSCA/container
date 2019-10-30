@@ -29,7 +29,7 @@ public class NodeTemplateInstanceRepository extends JpaRepository<NodeTemplateIn
       final CriteriaBuilder cb = em.getCriteriaBuilder();
 
       final ParameterExpression<ServiceTemplateInstance> owner = cb.parameter(ServiceTemplateInstance.class, "sti");
-      final ParameterExpression<QName> templateId = cb.parameter(QName.class, "ntId");
+      final ParameterExpression<String> templateId = cb.parameter(String.class, "ntId");
 
       final CriteriaQuery<NodeTemplateInstance> query = cb.createQuery(NodeTemplateInstance.class);
       final Root<NodeTemplateInstance> nti = query.from(NodeTemplateInstance.class);
@@ -43,7 +43,7 @@ public class NodeTemplateInstanceRepository extends JpaRepository<NodeTemplateIn
 
       final TypedQuery<NodeTemplateInstance> q = em.createQuery(query);
       q.setParameter(owner, sti);
-      q.setParameter(templateId, new QName(nodeTemplateId));
+      q.setParameter(templateId, nodeTemplateId);
 
       final NodeTemplateInstance result = q.getSingleResult();
       Hibernate.initialize(result.getDeploymentTestResults());

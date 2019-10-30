@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
@@ -20,7 +19,6 @@ import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
-import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
@@ -31,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 // TODO it is assumed that the name of the node template is the same as its id.
 
@@ -47,8 +44,12 @@ public class NodeTemplateService {
   // TODO add some trace logging
   private static Logger LOGGER = LoggerFactory.getLogger(NodeTemplateService.class);
 
+  private final CsarStorageService storage;
+
   @Inject
-  private CsarStorageService storage;
+  public NodeTemplateService(CsarStorageService storage) {
+    this.storage = storage;
+  }
 
   /**
    * Gets a collection of node templates associated to a given service template.
@@ -86,7 +87,7 @@ public class NodeTemplateService {
    * @throws NotFoundException If the service template does not contain the specified node
    *                           template
    */
-  public NodeTemplateDTO getNodeTemplateById(final String csarId, final QName serviceTemplateQName,
+  public NodeTemplateDTO getNodeTemplateById(final String csarId, final String serviceTemplateQName,
                                              final String nodeTemplateId) throws NotFoundException {
     final Csar csar = storage.findById(new CsarId(csarId));
     TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateQName);
@@ -99,15 +100,15 @@ public class NodeTemplateService {
    * Checks whether the specified service template contains a given node template.
    *
    * @param csarId               The id of the CSAR
-   * @param serviceTemplateQName the QName of the service template
+   * @param serviceTemplateName  the name of the service template
    * @param nodeTemplateId       the id of the node template to check for
    * @return <code>true</code> when the CSAR contains the service template and the service
    * template contains the node template, otherwise <code>false</code>
    */
-  public boolean hasNodeTemplate(final String csarId, final QName serviceTemplateQName, final String nodeTemplateId) {
+  public boolean hasNodeTemplate(final String csarId, final String serviceTemplateName, final String nodeTemplateId) {
     final Csar csar = this.storage.findById(new CsarId(csarId));
     try {
-      TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateQName);
+      TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateName);
       @SuppressWarnings("unused")
       TNodeTemplate indicator = ToscaEngine.resolveNodeTemplate(serviceTemplate, nodeTemplateId);
       return true;
@@ -126,18 +127,14 @@ public class NodeTemplateService {
    * @return
    * @throws NotFoundException
    */
-  public Document getPropertiesOfNodeTemplate(final String csarId, final QName serviceTemplateQName,
+  public Document getPropertiesOfNodeTemplate(final String csarId, final String serviceTemplateQName,
                                               final String nodeTemplateId) throws NotFoundException {
     final Csar csar = storage.findById(new CsarId(csarId));
 
     TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateQName);
     TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(serviceTemplate, nodeTemplateId);
 
-    TEntityTemplate.Properties ntProps = nodeTemplate.getProperties();
-    final Document properties = ModelUtil.createDocumentFromElement((Element) ntProps.getInternalAny());
-    // final Document properties =
-    //      this.toscaEngineService.getPropertiesOfNodeTemplate(csar.id().toOldCsarId(), serviceTemplateQName, nodeTemplateId);
-    return properties;
+    return ToscaEngine.getEntityTemplateProperties(nodeTemplate);
   }
 
   // TODO Careful! this method assumes that the namespace of a node template is the same namespace
@@ -147,12 +144,9 @@ public class NodeTemplateService {
    * Creates a new instance of the NodeTemplateDTO class. It fetches the qualified name of node
    * type of the node template.
    *
-   * @param csarId
-   * @param serviceTemplateQName
-   * @param nodeTemplateIde
    * @return
    */
-  private NodeTemplateDTO createNodeTemplate(final TNodeTemplate toscaObject, final Csar csar) {
+  public NodeTemplateDTO createNodeTemplate(final TNodeTemplate toscaObject, final Csar csar) {
     final QName nodeTypeId = toscaObject.getType();
     final NodeTemplateDTO currentNodeTemplate = new NodeTemplateDTO();
     currentNodeTemplate.setId(toscaObject.getId());
@@ -203,12 +197,5 @@ public class NodeTemplateService {
       wrapped.add(tParam);
     }
     return wrapped;
-  }
-
-  /* Service Injection */
-
-  /*********************/
-  public void setCsarStorageService(final CsarStorageService storageService) {
-    this.storage = storageService;
   }
 }

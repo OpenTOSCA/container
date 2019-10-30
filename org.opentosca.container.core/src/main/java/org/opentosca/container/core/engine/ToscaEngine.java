@@ -66,6 +66,25 @@ public final class ToscaEngine {
     return serviceTemplate;
   }
 
+  /**
+   * Resolves a ServiceTemplate from a csar by it's <b>local</b> name.
+   * If no matching serviceTemplate can be found, an Exception is thrown.
+   *
+   * @param csar                The csar to query for the service template with the given name
+   * @param serviceTemplateName The local name of the service template
+   * @return A {@link TServiceTemplate} instance from within the given CSAR where the local name matches
+   *         the search parameter given to this method.
+   * @throws NotFoundException
+   */
+  public static TServiceTemplate resolveServiceTemplate(Csar csar, String serviceTemplateName) throws NotFoundException {
+    // Iterate service templates here to allow resolving service templates by name without knowing their fully qualified Id
+    return csar.serviceTemplates()
+      .stream()
+      .filter(st -> serviceTemplateName.equals(st.getName()))
+      .findFirst()
+      .orElseThrow(() -> new NotFoundException(String.format("Csar %s does not contain a service template with the name %s", csar.id(), serviceTemplateName)));
+  }
+
   public static TNodeTemplate resolveNodeTemplate(Csar csar, QName serviceTemplateId, String nodeTemplate) throws NotFoundException {
     return resolveNodeTemplate(resolveServiceTemplate(csar, serviceTemplateId), nodeTemplate);
   }

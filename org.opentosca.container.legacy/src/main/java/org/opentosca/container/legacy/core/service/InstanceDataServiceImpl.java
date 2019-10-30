@@ -85,10 +85,9 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       }
     }
 
-    if (serviceTemplateId != null) {
+    if (serviceTemplateName != null) {
       LOG.info("Using serviceTemplateId: {}", serviceTemplateId);
-      final Collection<ServiceTemplateInstance> result =
-        this.serviceRepository.findByTemplateId(serviceTemplateId);
+      final Collection<ServiceTemplateInstance> result = this.serviceRepository.findByTemplateId(serviceTemplateName);
       if (result != null) {
         LOG.info("Result: {}", result.size());
         return result.stream().map(Converters::convert).collect(Collectors.toList());
@@ -98,8 +97,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   }
 
   @Override
-  @WebMethod(exclude = true)
-  public List<ServiceInstance> getServiceInstancesWithDetails(final CsarId csarId, final QName serviceTemplateId,
+  public List<ServiceInstance> getServiceInstancesWithDetails(final CsarId csarId, final String serviceTemplateId,
                                                               final Integer serviceTemplateInstanceID) {
     LOG.info("getServiceInstancesWithDetails(): {}", csarId);
     LOG.info("getServiceInstancesWithDetails(): {}", serviceTemplateId);
@@ -116,8 +114,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     }
 
     if (serviceTemplateId != null) {
-      final Collection<ServiceTemplateInstance> result =
-        this.serviceRepository.findByTemplateId(serviceTemplateId);
+      final Collection<ServiceTemplateInstance> result = this.serviceRepository.findByTemplateId(serviceTemplateId);
       if (result != null) {
         LOG.info("Result: {}", result.size());
         return result.stream().map(Converters::convert).collect(Collectors.toList());
