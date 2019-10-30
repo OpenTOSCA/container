@@ -22,80 +22,15 @@ public interface IInstanceDataService {
   // TODO: remove deprecated methods!
 
   /**
-   * Creates a <code>ServiceInstance</code> of the specified serviceTemplate (specified by the given
-   * ID and TemplateNamespace)
-   *
-   * @param serviceTemplateNamespace
-   * @param ServiceTemplateID
-   * @return the new generated ServiceInstance
-   */
-  public ServiceInstance createServiceInstance(CsarId csarID,
-                                               QName serviceTemplateID) throws ReferenceNotFoundException;
-
-  /**
-   * Deletes the serviceInstance represnted by the given <code>serviceInstanceID</code>
-   *
-   * @param serviceInstanceID - of the instance which will be deleted
-   */
-  public void deleteServiceInstance(URI serviceInstanceID);
-
-  /**
    * Queries for all ServiceInstances identified by the given parameters. It then returns a List of
    * the matching serviceInstances.
    *
    * @param serviceInstanceID : ID to identify the serviceInstance
    * @return List containing all corresponding ServiceInstances
    * @TODO: additional parameters in JDOC
-   * @see serviceInstance
    */
   public List<ServiceInstance> getServiceInstances(URI serviceInstanceID, String serviceTemplateName,
                                                    QName serviceTemplateID);
-
-  /**
-   * Create a <code>NodeInstance</code>of the specified nodeTemplate of the given serviceInstanceID
-   *
-   *
-   * @param csarId
-   * @param serviceInstanceID
-   * @param nodeTemplateID
-   * @return the new generated NodeInstance
-   */
-  public NodeInstance createNodeInstance(CsarId csarId, QName serviceTemplateId, int serviceInstanceID,
-                                         QName nodeTemplateID) throws ReferenceNotFoundException;
-
-  /**
-   * Create a <code>RelationInstance</code>of the specified Relationship Template of the given
-   * serviceInstanceID
-   *
-   * @param csarId                    the Id of the CSAR the Relationship Template should belong to
-   * @param serviceTemplateId         the Service Template ID the Relationship Template should belong to
-   * @param serviceTemplateInstanceID the Instance ID of the Service Template
-   * @param relationshipTemplateID    the ID of the Relationship Template
-   * @param sourceInstanceId          the id of the node instance which is the source of this relationship
-   *                                  instance
-   * @param targetInstanceId          the id of the node instance which is the target of this relationship
-   *                                  instance
-   * @return a new RelationInstance Object
-   * @throws ReferenceNotFoundException
-   */
-  public RelationInstance createRelationInstance(CsarId csarId, QName serviceTemplateId,
-                                                 int serviceTemplateInstanceID, QName relationshipTemplateID,
-                                                 String sourceInstanceId,
-                                                 String targetInstanceId) throws ReferenceNotFoundException;
-
-  /**
-   * Deletes the specified NodeInstance
-   *
-   * @param nodeInstanceID
-   */
-  public void deleteNodeInstance(URI nodeInstanceID);
-
-  /**
-   * Deletes the specified RelationInstance
-   *
-   * @param relationInstanceID the RelationInstance Id as URI
-   */
-  public void deleteRelationInstance(URI relationInstanceID);
 
   /**
    * returns all NodeInstances matching the given parameters the parameters are ANDed therefore a
@@ -123,77 +58,6 @@ public interface IInstanceDataService {
   public List<RelationInstance> getRelationInstances(URI relationInstanceID, QName relationshipTemplateID,
                                                      String relationshipTemplateName, URI serviceInstanceID);
 
-  /**
-   * returns the state of the NodeInstance specified by <code>nodeInstanceID</code>
-   *
-   * @param nodeInstanceID
-   * @return State
-   * @throws ReferenceNotFoundException if nodeInstanceID doesn't exist
-   */
-  public QName getNodeInstanceState(URI nodeInstanceID) throws ReferenceNotFoundException;
-
-  /**
-   * Sets the state of the specified nodeInstanceID
-   *
-   * @param nodeInstanceID
-   * @param state
-   * @throws ReferenceNotFoundException if nodeInstanceID doesn't exist
-   */
-  public void setNodeInstanceState(URI nodeInstanceID, String state) throws ReferenceNotFoundException;
-
-  /**
-   * returns a DOM structure containing all properties specified in the propertiesList
-   * <ul>
-   * <li>if propertiesList is <code>empty</code> all properties are returned</li>
-   * <li>if propertiesList is <code>null</code> no properties are returned</li>
-   * </ul>
-   *
-   * @param serviceInstanceID
-   * @param propertiesList
-   * @return DOM
-   * @throws ReferenceNotFoundException
-   */
-  public Document getServiceInstanceProperties(URI serviceInstanceID,
-                                               List<QName> propertiesList) throws ReferenceNotFoundException;
-
-  /**
-   * returns a DOM structure containing all properties specified in the propertiesList
-   * <ul>
-   * <li>if propertiesList is <code>empty</code> all properties are returned</li>
-   * <li>if propertiesList is <code>null</code> no properties are returned</li>
-   * </ul>
-   *
-   * @param nodeInstanceID
-   * @param propertiesList
-   * @return DOM
-   * @throws ReferenceNotFoundException
-   */
-  public Document getNodeInstanceProperties(URI nodeInstanceID,
-                                            List<QName> propertiesList) throws ReferenceNotFoundException;
-
-  public void setNodeInstanceProperties(URI nodeInstanceID, Document properties) throws ReferenceNotFoundException;
-
-  public void setServiceInstanceProperties(URI serviceInstanceID,
-                                           Document properties) throws ReferenceNotFoundException;
-
-  public NodeInstance createNodeInstance(QName nodeTemplateIDQName,
-                                         URI serviceInstanceIdURI) throws ReferenceNotFoundException;
-
-  public List<ServiceInstance> getServiceInstancesWithDetails(CsarId csarId, QName serviceTemplateId,
+  public List<ServiceInstance> getServiceInstancesWithDetails(CsarId csarId, String serviceTemplateId,
                                                               Integer serviceTemplateInstanceID);
-
-  public QName getRelationInstanceState(URI relationInstanceID) throws ReferenceNotFoundException;
-
-  public void setRelationInstanceState(URI relationInstanceID, String state) throws ReferenceNotFoundException;
-
-  public void setRelationInstanceProperties(URI relationInstanceID,
-                                            Document properties) throws ReferenceNotFoundException;
-
-  public Document getRelationInstanceProperties(URI relationInstanceID,
-                                                List<QName> propertiesList) throws ReferenceNotFoundException;
-
-  public String getServiceInstanceState(URI serviceInstanceID) throws ReferenceNotFoundException;
-
-  public void setServiceInstanceState(URI serviceInstanceIDtoURI, String state) throws ReferenceNotFoundException;
-
 }

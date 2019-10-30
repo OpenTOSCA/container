@@ -24,7 +24,6 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.AbstractArtifact;
-import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.backwards.ArtifactResolver;
@@ -154,7 +153,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     // update the bpel and bpel4restlight elements (ex.: GET, PUT,..)
     BPELRESTLightUpdater bpelRestUpdater;
     try {
-      bpelRestUpdater = new BPELRESTLightUpdater();
+      bpelRestUpdater = new BPELRESTLightUpdater(endpointService);
       if (!bpelRestUpdater.changeEndpoints(planContents, csarId)) {
         // we don't abort deployment here
         LOG.warn("Couldn't change all endpoints inside BPEL4RESTLight Elements in the given process {}", planLocation);

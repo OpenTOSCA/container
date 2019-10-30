@@ -73,6 +73,7 @@ public class CsarController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get all CSARs", response = CsarListDTO.class)
   public Response getCsars() {
+    logger.debug("Invoking getCsars");
     try {
       final CsarListDTO list = new CsarListDTO();
       for (final Csar csarContent : this.storage.findAll()) {
@@ -98,6 +99,7 @@ public class CsarController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get a CSAR", response = CsarDTO.class)
   public Response getCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
+    logger.debug("Invoking getCsar");
     try {
       final Csar csarContent = storage.findById(new CsarId(id));
       final Application metadata = csarContent.selfserviceMetadata();
@@ -152,6 +154,7 @@ public class CsarController {
   @javax.ws.rs.Path("/{csar}/content")
   @ApiOperation(hidden = true, value = "")
   public DirectoryController getContent(@PathParam("csar") final String id) {
+    logger.debug("Invoking getContent");
     try {
       return new DirectoryController(new FileSystemDirectory(storage.findById(new CsarId(id)).getSaveLocation()));
     } catch (NoSuchElementException e) {
@@ -166,6 +169,7 @@ public class CsarController {
   public Response uploadCsar(@FormDataParam("enrichment") final String applyEnrichment,
       @FormDataParam("file") final InputStream is,
       @FormDataParam("file") final FormDataContentDisposition file) {
+    logger.debug("Invoking uploadCsar");
     if (is == null || file == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
@@ -191,7 +195,7 @@ public class CsarController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Handles an upload request for a CSAR file")
   public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request) {
-
+    logger.debug("Invoking uploadCsar");
     if (request == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
@@ -331,6 +335,7 @@ public class CsarController {
   @javax.ws.rs.Path("/{csar}")
   @ApiOperation(value = "Delete a CSAR")
   public Response deleteCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
+    logger.debug("Invoking deleteCsar");
     Csar csarContent;
     try {
       csarContent = storage.findById(new CsarId(id));
@@ -355,6 +360,7 @@ public class CsarController {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
+    logger.debug("Invoking transformCsar");
     final CsarId sourceCsar = new CsarId(request.getSourceCsarName());
     final CsarId targetCsar = new CsarId(request.getTargetCsarName());
 

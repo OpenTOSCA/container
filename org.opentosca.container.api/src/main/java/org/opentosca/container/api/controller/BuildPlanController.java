@@ -66,6 +66,7 @@ public class BuildPlanController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get build plans of service template", response = PlanListDTO.class)
   public Response getBuildPlans(@Context final UriInfo uriInfo) {
+    LOGGER.debug("Invoking getBuildPlans");
     PlanListDTO list = new PlanListDTO();
     csar.plans().stream()
       .filter(tplan -> tplan.getPlanType().equals(PLAN_TYPE.toString()))
@@ -91,6 +92,7 @@ public class BuildPlanController {
   @ApiOperation(value = "Get a build plan", response = PlanDTO.class)
   public Response getBuildPlan(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                @Context final UriInfo uriInfo) {
+    LOGGER.debug("Invoking getBuildPlan");
     PlanDTO dto = csar.plans().stream()
       .filter(tplan -> Arrays.stream(ALL_PLAN_TYPES).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
       .filter(tplan -> tplan.getId() != null && tplan.getName().equals(plan))
@@ -110,6 +112,7 @@ public class BuildPlanController {
   @ApiOperation(value = "Get build plan instances", response = PlanInstanceListDTO.class)
   public Response getBuildPlanInstances(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                         @Context final UriInfo uriInfo) {
+    LOGGER.debug("Invoking getBuildPlanInstances");
     List<PlanInstance> planInstances = planService.getPlanInstances(csar, serviceTemplate, plan, PLAN_TYPE);
 
     final PlanInstanceListDTO list = new PlanInstanceListDTO();
@@ -140,6 +143,7 @@ public class BuildPlanController {
                                   @Context final UriInfo uriInfo,
                                   @ApiParam(required = true,
                                     value = "plan input parameters") final List<TParameter> parameters) {
+    LOGGER.debug("Invoking invokeBuildPlan");
     // We pass -1L because "PlanInvocationEngine.invokePlan()" expects it for build plans
     String correlationId = planService.invokePlan(csar, serviceTemplate, -1L, plan, parameters, PLAN_TYPE);
     return Response.ok(correlationId).build();
@@ -152,6 +156,7 @@ public class BuildPlanController {
   public Response getBuildPlanInstance(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                        @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                        @Context final UriInfo uriInfo) {
+    LOGGER.debug("Invoking getBuildPlanInstance");
     PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
 
     final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
@@ -180,6 +185,7 @@ public class BuildPlanController {
   public Response getBuildPlanInstanceState(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                             @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                             @Context final UriInfo uriInfo) {
+    LOGGER.debug("Invoking getBuildPlanInstanceState");
     PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
     return Response.ok(pi.getState().toString()).build();
   }
@@ -191,6 +197,7 @@ public class BuildPlanController {
   public Response changeBuildPlanInstanceState(@PathParam("plan") final String plan,
                                                @PathParam("instance") final String instance,
                                                @Context final UriInfo uriInfo, final String request) {
+    LOGGER.debug("Invoking changeBuildPlanInstanceState");
     PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
     return planService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request))
       ? Response.ok().build()
@@ -205,6 +212,7 @@ public class BuildPlanController {
   public Response getBuildPlanInstanceLogs(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                            @ApiParam("Correlation ID") @PathParam("instance") final String instance,
                                            @Context final UriInfo uriInfo) {
+    LOGGER.debug("Invoking getBuildPlanInstanceLogs");
     PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
 
     final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
@@ -222,6 +230,7 @@ public class BuildPlanController {
   public Response addBuildPlanLogEntry(@PathParam("plan") final String plan,
                                        @PathParam("instance") final String instance, @Context final UriInfo uriInfo,
                                        final CreatePlanInstanceLogEntryRequest logEntry) {
+    LOGGER.debug("Invoking addBuildPlanLogEntry");
     final String entry = logEntry.getLogEntry();
     if (entry == null || entry.length() <= 0) {
       LOGGER.info("Log entry is empty!");

@@ -42,9 +42,10 @@ public class NodeTemplateController {
   @Context
   ResourceContext resourceContext;
 
-  private NodeTemplateService nodeTemplateService;
-  private InstanceService instanceService;
+  private final NodeTemplateService nodeTemplateService;
+  private final InstanceService instanceService;
 
+  // can't be injected because this is instantiated by the parent resource
   public NodeTemplateController(final NodeTemplateService nodeTemplateService,
                                 final InstanceService instanceService) {
     this.nodeTemplateService = nodeTemplateService;
@@ -56,7 +57,7 @@ public class NodeTemplateController {
   @ApiOperation(value = "Get all node templates of a service template", response = NodeTemplateListDTO.class)
   public Response getNodeTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
-
+    logger.debug("Invoking getNodeTemplates");
     // this validates that the CSAR contains the service template
     final List<NodeTemplateDTO> nodeTemplateIds =
       this.nodeTemplateService.getNodeTemplatesOfServiceTemplate(csarId, serviceTemplateId);
@@ -107,7 +108,7 @@ public class NodeTemplateController {
   public NodeTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
                                                      @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
                                                      @ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId) {
-
+    logger.debug("Invoking getInstances");
     if (!this.nodeTemplateService.hasNodeTemplate(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId)) {
       logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
       throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
@@ -117,13 +118,5 @@ public class NodeTemplateController {
     this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
     return child;
-  }
-
-  public void setNodeTemplateService(final NodeTemplateService nodeTemplateService) {
-    this.nodeTemplateService = nodeTemplateService;
-  }
-
-  public void setInstanceService(final InstanceService instanceService) {
-    this.instanceService = instanceService;
   }
 }

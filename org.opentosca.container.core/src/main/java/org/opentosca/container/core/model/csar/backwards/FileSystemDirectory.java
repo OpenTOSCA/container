@@ -15,6 +15,7 @@ import org.opentosca.container.core.model.AbstractDirectory;
 import org.opentosca.container.core.model.AbstractFile;
 
 // we want to remove the idea of directories
+// TODO consider implementing equals and hashcode for JPA equality checks
 @Deprecated
 public class FileSystemDirectory extends AbstractDirectory {
 

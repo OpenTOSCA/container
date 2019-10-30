@@ -73,6 +73,7 @@ public class NodeTemplateInstanceController {
   public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
                                            @QueryParam(value = "source") final List<Long> relationIds,
                                            @QueryParam(value = "serviceInstanceId") final Long serviceInstanceId) {
+    logger.debug("Invoking getNodeTemplateInstances");
     final QName nodeTemplateQName =
       new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.nodetemplate);
     final Collection<NodeTemplateInstance> nodeInstances =
@@ -120,6 +121,7 @@ public class NodeTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response createNodeTemplateInstance(@Context final UriInfo uriInfo, final String serviceTemplateInstanceId) {
+    logger.debug("Invoking createNodeTemplateInstance");
     try {
       final NodeTemplateInstance createdInstance =
         this.instanceService.createNewNodeTemplateInstance(this.csar, this.servicetemplate, this.nodetemplate,
@@ -127,8 +129,10 @@ public class NodeTemplateInstanceController {
       final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
       return Response.ok(instanceURI).build();
     } catch (final IllegalArgumentException e) {
+      logger.warn("Failed to correctly parse request information for creating a NodeTemplateInstance", e);
       return Response.status(Status.BAD_REQUEST).build();
     } catch (InstantiationException | IllegalAccessException e) {
+      logger.warn("Failed to create new NodeTemplateInstance with exception.", e);
       return Response.serverError().build();
     }
   }
@@ -138,7 +142,7 @@ public class NodeTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get a node template instance", response = NodeTemplateInstanceDTO.class)
   public Response getNodeTemplateInstance(@ApiParam("ID of node template instance") @PathParam("id") final Long id) {
-
+    logger.debug("Invoking getNodeTemplateInstance");
     final NodeTemplateInstance instance =
       this.instanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
     final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(instance);
@@ -155,6 +159,7 @@ public class NodeTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response deleteNodeTemplateInstance(@PathParam("id") final Long id) {
+    logger.debug("Invoking deleteNodeTemplateInstance");
     this.instanceService.deleteNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
     return Response.noContent().build();
   }
@@ -164,6 +169,7 @@ public class NodeTemplateInstanceController {
   @Produces( {MediaType.TEXT_PLAIN})
   @ApiOperation(value = "Get state of a node template instance", response = String.class)
   public Response getNodeTemplateInstanceState(@ApiParam("ID node template instance") @PathParam("id") final Long id) {
+    logger.debug("Invoking getNodeTemplateInstanceState");
     final NodeTemplateInstanceState state =
       this.instanceService.getNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id);
     return Response.ok(state.toString()).build();
@@ -174,6 +180,7 @@ public class NodeTemplateInstanceController {
   @Consumes( {MediaType.TEXT_PLAIN})
   @ApiOperation(hidden = true, value = "")
   public Response updateNodeTemplateInstanceState(@PathParam("id") final Long id, final String request) {
+    logger.debug("Invoking updateNodeTemplateInstanceState");
     try {
       this.instanceService.setNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id, request);
     } catch (final IllegalArgumentException e) { // this handles a null request too
@@ -187,6 +194,7 @@ public class NodeTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
+    logger.debug("Invoking getNodeTemplateInstanceProperties");
     final Document properties =
       this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
 
@@ -204,6 +212,7 @@ public class NodeTemplateInstanceController {
     value = "Get properties of a node template instance",
     response = Map.class)
   public Map<String, String> getNodeTemplateInstancePropertiesAsJson(@PathParam("id") final Long id) {
+    logger.debug("Invoking getNodeTemplateInstancePropertiesAsJson");
     final NodeTemplateInstance instance =
       this.instanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
     return instance.getPropertiesAsMap();
@@ -215,6 +224,7 @@ public class NodeTemplateInstanceController {
   @ApiOperation(hidden = true, value = "")
   public Response getNodeTemplateInstanceProperty(@PathParam("id") final Long id,
                                                   @PathParam("propname") final String propertyName) {
+    logger.debug("Invoking getNodeTemplateInstanceProperty");
     final Document properties =
       this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
 
@@ -233,7 +243,7 @@ public class NodeTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
-
+    logger.debug("Invoking updateNodeTemplateInstanceProperties");
     try {
       this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
         request);
@@ -254,7 +264,7 @@ public class NodeTemplateInstanceController {
   public Response updateNodeTemplateInstanceProperty(@PathParam("id") final Long id,
                                                      @PathParam("propname") final String propertyName,
                                                      final Document request) {
-
+    logger.debug("Invoking updateNodeTemplateInstanceProperty");
     try {
       final Document properties =
         this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);

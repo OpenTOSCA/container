@@ -53,17 +53,21 @@ public class BoundaryDefinitionController {
   @Context
   private Request request;
 
+  private final CsarStorageService storage;
+
   @Inject
-  private CsarStorageService storage;
+  public BoundaryDefinitionController(CsarStorageService storage) {
+    this.storage = storage;
+  }
 
   @GET
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response getBoundaryDefinitions(@PathParam("csar") final String csarId,
                                          @PathParam("servicetemplate") final String servicetemplate) {
+    logger.debug("Invoking getBoundaryDefinitions");
 
     final Csar csar = this.storage.findById(new CsarId(csarId));
-
     final TServiceTemplate serviceTemplate;
     try {
       serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, QName.valueOf(servicetemplate));
@@ -94,6 +98,7 @@ public class BoundaryDefinitionController {
   @ApiOperation(value = "Get properties of a service tempate", response = PropertiesDTO.class)
   public Response getBoundaryDefinitionProperties(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+    logger.debug("Invoking getBoundaryDefinitionProperties");
     final Csar csar = this.storage.findById(new CsarId(csarId));
     final TServiceTemplate serviceTemplate;
     try {
@@ -142,7 +147,7 @@ public class BoundaryDefinitionController {
   @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
   public Response getBoundaryDefinitionInterfaces(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
-
+    logger.debug("Invoking getBoundaryDefinitionInterfaces");
     final Csar csar = this.storage.findById(new CsarId(csarId));
     final TServiceTemplate serviceTemplate;
     try {
@@ -178,7 +183,7 @@ public class BoundaryDefinitionController {
   public Response getBoundaryDefinitionInterface(@ApiParam("interface name") @PathParam("name") final String name,
                                                  @ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
-
+    logger.debug("Invoking getBoundaryDefinitionInterface");
     final Csar csar = this.storage.findById(new CsarId(csarId));
     final TServiceTemplate serviceTemplate;
     try {
@@ -235,10 +240,5 @@ public class BoundaryDefinitionController {
     dto.add(UriUtil.generateSelfLink(this.uriInfo));
 
     return Response.ok(dto).build();
-  }
-
-  public void setCsarStorageService(final CsarStorageService storageService) {
-    logger.debug("Binding CsarStorageService");
-    this.storage = storageService;
   }
 }

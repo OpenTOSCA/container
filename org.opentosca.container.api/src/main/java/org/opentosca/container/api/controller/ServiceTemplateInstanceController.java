@@ -89,6 +89,7 @@ public class ServiceTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get all instances of a service template", response = ServiceTemplateInstanceListDTO.class)
   public Response getServiceTemplateInstances() {
+    logger.debug("Invoking getServiceTemplateInstances");
     final Collection<ServiceTemplateInstance> serviceInstances =
       this.instanceService.getServiceTemplateInstances(serviceTemplate.getId());
     logger.debug("Found <{}> instances of ServiceTemplate \"{}\" ", serviceInstances.size(), serviceTemplate.getId());
@@ -111,6 +112,7 @@ public class ServiceTemplateInstanceController {
   @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response createServiceTemplateInstance(final CreateServiceTemplateInstanceRequest request) {
+    logger.debug("Invoking createServiceTemplateInstance");
     if (request == null || request.getCorrelationId() == null || request.getCorrelationId().trim().length() == 0) {
       logger.debug("Request to create service template instance failed basic precondition(s)");
       return Response.status(Status.BAD_REQUEST).build();
@@ -141,6 +143,7 @@ public class ServiceTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get a service template instance", response = ServiceTemplateInstanceDTO.class)
   public Response getServiceTemplateInstance(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
+    logger.debug("Invoking getServiceTemplateInstance");
     final ServiceTemplateInstance instance = resolveInstance(id, serviceTemplate.getId());
     final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
 
@@ -182,12 +185,14 @@ public class ServiceTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response deleteServiceTemplateInstance(@PathParam("id") final Long id) {
+    logger.debug("Invoking deleteServiceTemplateInstance");
     this.instanceService.deleteServiceTemplateInstance(id);
     return Response.noContent().build();
   }
 
   @Path("/{id}/managementplans")
   public ManagementPlanController getManagementPlans(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
+    logger.debug("Invoking getManagementPlans");
     final ServiceTemplateInstance instance = resolveInstance(id, serviceTemplate.getId());
     return new ManagementPlanController(csar, serviceTemplate, id, this.planService, PlanTypes.TERMINATION, PlanTypes.OTHERMANAGEMENT);
   }
@@ -197,6 +202,7 @@ public class ServiceTemplateInstanceController {
   @Produces( {MediaType.TEXT_PLAIN})
   @ApiOperation(value = "Get state of a service template instance", response = String.class)
   public Response getServiceTemplateInstanceState(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
+    logger.debug("Invoking getServiceTemplateInstanceState");
     final ServiceTemplateInstanceState state = this.instanceService.getServiceTemplateInstanceState(id);
     return Response.ok(state.toString()).build();
   }
@@ -206,6 +212,7 @@ public class ServiceTemplateInstanceController {
   @Consumes( {MediaType.TEXT_PLAIN})
   @ApiOperation(hidden = true, value = "")
   public Response updateServiceTemplateInstanceState(@PathParam("id") final Long id, final String request) {
+    logger.debug("Invoking updateServiceTemplateInstanceState");
     try {
       this.instanceService.setServiceTemplateInstanceState(id, request);
     } catch (final IllegalArgumentException e) { // this handles a null request too
@@ -219,6 +226,7 @@ public class ServiceTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response getServiceTemplateInstanceProperties(@PathParam("id") final Long id) {
+    logger.debug("Invoking getServiceTemplateInstanceProperties");
     final ServiceTemplateInstance instance = this.instanceService.getServiceTemplateInstance(id, true);
     final Document properties = instance.getPropertiesAsDocument();
 
@@ -234,6 +242,7 @@ public class ServiceTemplateInstanceController {
   @Produces({MediaType.APPLICATION_JSON})
   @ApiOperation(value = "Gets the properties of a service template instance", response = Map.class)
   public Map<String, String> getServiceTemplateInstancePropertiesAsJSON(@PathParam("id") final Long id) {
+    logger.debug("Invoking getServiceTemplateInstancePropertiesAsJSON");
     final ServiceTemplateInstance serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(id, true);
     return serviceTemplateInstance.getPropertiesAsMap();
   }
@@ -244,7 +253,7 @@ public class ServiceTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
   @ApiOperation(hidden = true, value = "")
   public Response updateServiceTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
-
+    logger.debug("Invoking updateServiceTemplateInstanceProperties");
     try {
       this.instanceService.setServiceTemplateInstanceProperties(id, request);
     } catch (final IllegalArgumentException e) { // this handles a null request too
@@ -259,6 +268,7 @@ public class ServiceTemplateInstanceController {
   @Path("/{id}/situationsmonitors")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public Response getSituationMonitors(@PathParam("id") final Long id) {
+    logger.debug("Invoking getSituationMonitors");
     Collection<SituationsMonitor> monitors = this.instanceService.getSituationsMonitors(id);
     final SituationsMonitorListDTO dto = new SituationsMonitorListDTO();
 
@@ -274,6 +284,7 @@ public class ServiceTemplateInstanceController {
   @Consumes({MediaType.APPLICATION_XML})
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public Response createSituationMonitor(@PathParam("id") final Long id, SituationsMonitorDTO monitor) {
+    logger.debug("Invoking createSituationMonitor");
     ServiceTemplateInstance servInstance = this.instanceService.getServiceTemplateInstance(id, false);
 
     Map<String,Collection<Long>> mapping = new HashMap<>();
@@ -315,7 +326,7 @@ public class ServiceTemplateInstanceController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
   public Response getInterfaces(@PathParam("id") final Long id) {
-
+    logger.debug("Invoking getInterfaces");
     List<TExportedInterface> boundaryInterfaces = serviceTemplate.getBoundaryDefinitions().getInterfaces().getInterface();
     logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", boundaryInterfaces.size(),
       serviceTemplate.getId(), csar.id().csarName());
@@ -382,6 +393,7 @@ public class ServiceTemplateInstanceController {
   @Produces(MediaType.APPLICATION_JSON)
   @ApiOperation(hidden = true, value = "")
   public Response getDeploymentTests(@PathParam("id") final Integer id) {
+    logger.debug("Invoking getDeploymentTests");
     // TODO: Check if instance belongs to CSAR and Service Template
     final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
     if (sti == null) {
@@ -413,6 +425,7 @@ public class ServiceTemplateInstanceController {
   @ApiOperation(hidden = true, value = "")
   public Response getDeploymentTest(@PathParam("id") final Integer id,
                                     @PathParam("deploymenttest") final Integer deploymenttest) {
+    logger.debug("Invoking getDeploymentTest");
     // TODO: Check if instance belongs to CSAR and Service Template
     final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
     if (sti == null) {
@@ -440,6 +453,7 @@ public class ServiceTemplateInstanceController {
   @Produces(MediaType.APPLICATION_JSON)
   @ApiOperation(hidden = true, value = "")
   public Response createDeploymentTest(@PathParam("id") final Integer id) {
+    logger.debug("Invoking createDeploymentTest");
     // TODO: Check if instance belongs to CSAR and Service Template
     final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
     if (sti == null) {

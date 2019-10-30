@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -24,12 +25,14 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -58,19 +61,22 @@ import org.xml.sax.SAXException;
  * @See org.opentosca.container.engine.plan.plugin.bpel.util.BPEL4RESTLightElement
  * @See org.opentosca.container.engine.plan.plugin.bpel.util.BPEL4RESTLightElementType
  */
+@NonNullByDefault
 public class BPELRESTLightUpdater {
 
   private final static Logger LOG = LoggerFactory.getLogger(BPELRESTLightUpdater.class);
 
-  private ICoreEndpointService endpointService;
+  private final ICoreEndpointService endpointService;
   private final DocumentBuilder builder;
   private final DocumentBuilderFactory domFactory;
   private final XPathFactory factory;
   private final TransformerFactory transformerFactory;
   private final Transformer transformer;
 
-  public BPELRESTLightUpdater() throws ParserConfigurationException, TransformerConfigurationException {
+  // not injected because instance-creation is manual
+  public BPELRESTLightUpdater(ICoreEndpointService endpointService) throws ParserConfigurationException, TransformerConfigurationException {
     // initialize parsers
+    this.endpointService = endpointService;
     this.domFactory = DocumentBuilderFactory.newInstance();
     this.domFactory.setNamespaceAware(true);
     this.builder = this.domFactory.newDocumentBuilder();
@@ -114,14 +120,10 @@ public class BPELRESTLightUpdater {
     final Set<URI> localURIs = getRESTURI(elements);
     final Set<BPELRESTLightElement> notChanged = new HashSet<>();
 
-    if (endpointService != null) {
-      for (final URI localUri : localURIs) {
-        for (final RESTEndpoint endpoint : endpointService.getRestEndpoints(localUri, Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId)) {
-          notChanged.addAll(changeAddress(endpoint, elements));
-        }
+    for (final URI localUri : localURIs) {
+      for (final RESTEndpoint endpoint : endpointService.getRestEndpoints(localUri, Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId)) {
+        notChanged.addAll(changeAddress(endpoint, elements));
       }
-    } else {
-      LOG.warn("No EndpointService available");
     }
 
     if (notChanged.isEmpty()) {
@@ -321,29 +323,5 @@ public class BPELRESTLightUpdater {
       }
     }
     return null;
-  }
-
-  /**
-   * Bind method for EndpointService
-   *
-   * @param endpointService the EndpointService to bind
-   */
-  public void bindEndpointService(final ICoreEndpointService endpointService) {
-    if (endpointService != null) {
-      LOG.trace("Registering EndpointService {}", endpointService.toString());
-      this.endpointService = endpointService;
-      LOG.trace("Registered EndpointService {}", endpointService.toString());
-    }
-  }
-
-  /**
-   * Unbind method for EndpointService
-   *
-   * @param endpointService the EndpointService to unbind
-   */
-  public void unbindEndpointService(final ICoreEndpointService endpointService) {
-    LOG.trace("Unregistering EndpointService {}", endpointService.toString());
-    this.endpointService = null;
-    LOG.trace("Unregistered EndpointService {}", endpointService.toString());
   }
 }

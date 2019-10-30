@@ -44,8 +44,7 @@ public class PropertyMappingsHelper {
    * Evaluates the property mappings of a boundary definition's properties against the xml fragment
    * representing these properties and uses node template instances for this purpose.
    *
-   * @param serviceTemplateInstanceId the id of the service template instance whose property mappings
-   *                                  we want to evaluate
+   * @param serviceInstance the service template instance whose property mappings we want to evaluate
    * @return the xml fragment representing the properties after property mappings are evaluated
    * @throws NotFoundException thrown when the id does not correspond to a service template instance
    */

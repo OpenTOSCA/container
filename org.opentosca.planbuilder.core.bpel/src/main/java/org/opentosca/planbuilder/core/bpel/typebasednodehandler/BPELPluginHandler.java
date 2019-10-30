@@ -82,13 +82,10 @@ public class BPELPluginHandler {
         // methods
         final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForTermination(relationshipTemplate);
         if (plugin != null) {
-            LOG.info("Handling RelationshipTemplate {} with type plugin {}", relationshipTemplate.getId(),
-                     plugin.getID());
+            LOG.info("Handling RelationshipTemplate {} with type plugin {}", relationshipTemplate.getId(), plugin.getID());
             result &= plugin.handleTerminate(context, relationshipTemplate);
-
         } else {
-            LOG.info("Couldn't handle RelationshipTemplate {} with type plugin", relationshipTemplate.getId());
-
+            LOG.warn("Couldn't handle RelationshipTemplate {} with type plugin", relationshipTemplate.getId());
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
@@ -111,10 +108,8 @@ public class BPELPluginHandler {
         if (plugin != null) {
             LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
             result &= plugin.handleTerminate(context, nodeTemplate);
-
         } else {
-            LOG.info("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
-
+            LOG.warn("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {

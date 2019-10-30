@@ -51,7 +51,7 @@ public final class ToscaEngine {
   }
 
   /**
-   * Resolves a serviceTemplate from a csar by it's QName.
+   * Resolves a serviceTemplate from a csar by it's fully qualified QName.
    * If no matching serviceTemplate can be found, an Exception is thrown.
    *
    * @return A {@link TServiceTemplate} instance matching the passed QName as it's id.
