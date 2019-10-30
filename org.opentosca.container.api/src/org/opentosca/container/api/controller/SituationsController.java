@@ -153,6 +153,15 @@ public class SituationsController {
 
         final Set<SituationTriggerProperty> inputs = Sets.newHashSet();
 
+        float eventProbability = -1.0f;
+        if (situationTrigger.getEventProbability() != -1.0f) {
+            eventProbability = situationTrigger.getEventProbability();
+        }
+
+        String eventTime = null;
+        if (situationTrigger.getEventTime() != null) {
+            eventTime = situationTrigger.getEventTime();
+        }
 
         situationTrigger.getInputParams()
                         .forEach(x -> inputs.add(new SituationTriggerProperty(x.getName(), x.getValue(), x.getType())));
@@ -162,7 +171,8 @@ public class SituationsController {
             this.instanceService.createNewSituationTrigger(sits, situationTrigger.isOnActivation(),
                                                            situationTrigger.isSingleInstance(), serviceInstance,
                                                            nodeInstance, situationTrigger.getInterfaceName(),
-                                                           situationTrigger.getOperationName(), inputs);
+                                                           situationTrigger.getOperationName(), inputs,
+                                                           eventProbability, eventTime);
 
         final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);
         return Response.ok(instanceURI).build();
