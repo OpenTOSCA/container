@@ -304,14 +304,14 @@ public class MBUtils {
    * ServiceTemplateInstance and has a certain template ID.
    *
    * @param serviceTemplateInstanceID this ID identifies the ServiceTemplateInstance
-   * @param relationshipTemplateID    the template ID to identify the correct instance
+   * @param relationshipTemplateName    the template ID to identify the correct instance
    * @return the found RelationshipTemplateInstance or <tt>null</tt> if no instance was found that
    * matches the parameters
    */
   public static RelationshipTemplateInstance getRelationshipTemplateInstance(final Long serviceTemplateInstanceID,
-                                                                             final String relationshipTemplateID) {
+                                                                             final String relationshipTemplateName) {
     LOG.debug("Trying to retrieve RelationshipTemplateInstance for ServiceTemplateInstance ID {} and RelationshipTemplate ID {} ...",
-      serviceTemplateInstanceID, relationshipTemplateID);
+      serviceTemplateInstanceID, relationshipTemplateName);
 
     final Optional<ServiceTemplateInstance> serviceTemplateInstance =
       serviceTemplateInstanceRepository.find(serviceTemplateInstanceID);
@@ -319,8 +319,7 @@ public class MBUtils {
     if (serviceTemplateInstance.isPresent()) {
       return serviceTemplateInstance.get().getNodeTemplateInstances().stream()
         .flatMap(nodeInstance -> nodeInstance.getOutgoingRelations().stream())
-        .filter(relationshipInstance -> relationshipInstance.getTemplateId()
-          .getLocalPart().equals(relationshipTemplateID))
+        .filter(relationshipInstance -> relationshipInstance.getTemplateId().equals(relationshipTemplateName))
         .findFirst().orElse(null);
     } else {
       LOG.warn("Unable to find ServiceTemplateInstance!");

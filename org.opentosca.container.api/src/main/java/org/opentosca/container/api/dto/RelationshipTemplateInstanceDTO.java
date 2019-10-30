@@ -132,11 +132,11 @@ public class RelationshipTemplateInstanceDTO extends ResourceSupport {
       final RelationshipTemplateInstanceDTO dto = new RelationshipTemplateInstanceDTO();
 
       dto.setId(object.getId());
-      dto.setRelationshipTemplateId(object.getTemplateId().getLocalPart());
+      dto.setRelationshipTemplateId(object.getTemplateId());
       dto.setRelationshipTemplateType(object.getTemplateType().toString());
       dto.setCreatedAt(object.getCreatedAt());
       dto.setState(object.getState());
-      dto.setServiceTemplateId(object.getSource().getServiceTemplateInstance().getTemplateId().toString());
+      dto.setServiceTemplateId(object.getSource().getServiceTemplateInstance().getTemplateId());
       dto.setCsarId(object.getSource().getServiceTemplateInstance().getCsarId().toString());
       dto.setSourceNodeTemplateInstanceId(object.getSource().getId());
       dto.setTargetNodeTemplateInstanceId(object.getTarget().getId());

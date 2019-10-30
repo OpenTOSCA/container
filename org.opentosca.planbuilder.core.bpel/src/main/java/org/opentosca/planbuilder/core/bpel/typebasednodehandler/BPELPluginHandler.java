@@ -27,8 +27,8 @@ import javax.inject.Inject;
 @Component
 public class BPELPluginHandler {
 
-    final static Logger LOG = LoggerFactory.getLogger(BPELPluginHandler.class);
-    protected final PluginRegistry pluginRegistry;
+    private static final Logger LOG = LoggerFactory.getLogger(BPELPluginHandler.class);
+    private final PluginRegistry pluginRegistry;
 
     @Inject
     public BPELPluginHandler(PluginRegistry pluginRegistry) {
@@ -37,49 +37,35 @@ public class BPELPluginHandler {
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractNodeTemplate nodeTemplate) {
-        boolean result = false;
         switch (bpelScope.getActivity().getType()) {
             case PROVISIONING:
-                result = this.handleProvisioningActivity(context, bpelScope, nodeTemplate);
-                break;
+                return this.handleProvisioningActivity(context, bpelScope, nodeTemplate);
             case TERMINATION:
-                result = this.handleTerminationActivity(context, bpelScope, nodeTemplate);
-                break;
+                return this.handleTerminationActivity(context, bpelScope, nodeTemplate);
             case DEFROST:
-                result = handleDefrostActivity(context, bpelScope, nodeTemplate);
-                break;
+                return handleDefrostActivity(context, bpelScope, nodeTemplate);
             default:
-                result = false;
-                break;
+                return false;
         }
-
-        return result;
     }
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractRelationshipTemplate relationshipTemplate) {
-        boolean result = false;
         switch (bpelScope.getActivity().getType()) {
             case PROVISIONING:
-                result = this.handleProvisioningActivity(context, bpelScope, relationshipTemplate);
-                break;
+                return this.handleProvisioningActivity(context, bpelScope, relationshipTemplate);
             case TERMINATION:
-                result = this.handleTerminationActivity(context, bpelScope, relationshipTemplate);
-                break;
+                return this.handleTerminationActivity(context, bpelScope, relationshipTemplate);
             default:
-                result = false;
-                break;
+                return false;
         }
-        return result;
     }
 
 
     private boolean handleTerminationActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                               final AbstractRelationshipTemplate relationshipTemplate) {
         boolean result = true;
-
-        // generate code for the termination, e.g., call install, start or create
-        // methods
+        // generate code for the termination, e.g., call install, start or create methods
         final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForTermination(relationshipTemplate);
         if (plugin != null) {
             LOG.info("Handling RelationshipTemplate {} with type plugin {}", relationshipTemplate.getId(), plugin.getID());

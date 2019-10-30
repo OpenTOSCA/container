@@ -56,7 +56,7 @@ public class PluginRegistry {
       return;
     }
     availablePlugins.forEach(this::registerPlugin);
-    LOG.info("Registered {} planbuilder plugins overall.", availablePlugins.stream());
+    LOG.info("Registered {} planbuilder plugins overall.", availablePlugins.size());
   }
 
   private void registerPlugin(IPlanBuilderPlugin plugin) {

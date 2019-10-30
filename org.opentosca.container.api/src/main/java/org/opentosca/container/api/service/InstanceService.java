@@ -548,7 +548,7 @@ public class InstanceService {
   }
 
   public RelationshipTemplateInstance createNewRelationshipTemplateInstance(final String csarId,
-                                                                            final String serviceTemplateId,
+                                                                            final String serviceTemplateName,
                                                                             final String relationshipTemplateId,
                                                                             final CreateRelationshipTemplateInstanceRequest request) throws InstantiationException,
     IllegalAccessException,
@@ -562,16 +562,15 @@ public class InstanceService {
       throw new IllegalArgumentException(msg);
     }
 
-    final QName serviceTemplateQName = QName.valueOf(serviceTemplateId);
     final RelationshipTemplateInstance newInstance = new RelationshipTemplateInstance();
     final RelationshipTemplateDTO dto =
-      this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateQName,
+      this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName,
         relationshipTemplateId);
 
     // Properties
     // We set the properties of the template as initial properties
     final Document propertiesAsDocument =
-      this.relationshipTemplateService.getPropertiesOfRelationshipTemplate(csarId, serviceTemplateQName,
+      this.relationshipTemplateService.getPropertiesOfRelationshipTemplate(csarId, serviceTemplateName,
         relationshipTemplateId);
 
     if (propertiesAsDocument != null) {
@@ -582,7 +581,7 @@ public class InstanceService {
     // State
     newInstance.setState(RelationshipTemplateInstanceState.INITIAL);
     // Template
-    newInstance.setTemplateId(new QName(serviceTemplateQName.getNamespaceURI(), relationshipTemplateId));
+    newInstance.setTemplateId(relationshipTemplateId);
     // Type
     newInstance.setTemplateType(QName.valueOf(dto.getRelationshipType()));
     // Source node instance

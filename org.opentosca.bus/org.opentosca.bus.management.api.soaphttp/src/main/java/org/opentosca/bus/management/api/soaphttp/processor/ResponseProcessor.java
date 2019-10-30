@@ -42,6 +42,7 @@ public class ResponseProcessor implements Processor {
 
       ResponseProcessor.LOG.debug("Response is of type HashMap.");
 
+      @SuppressWarnings("unchecked")
       final HashMap<String, String> responseMap = exchange.getIn().getBody(HashMap.class);
 
       final ParamsMap paramsMap = new ParamsMap();

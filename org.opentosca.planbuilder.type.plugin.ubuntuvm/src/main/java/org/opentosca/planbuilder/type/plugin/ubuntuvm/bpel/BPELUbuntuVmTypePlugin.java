@@ -51,12 +51,15 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
     private boolean allDependenciesAreMet(final AbstractNodeTemplate nodeTemplate) {
         if (nodeTemplate == null) {
             BPELUbuntuVmTypePlugin.LOG.debug("NodeTemplate is null");
+            return false;
         }
         if (nodeTemplate.getType() == null) {
             BPELUbuntuVmTypePlugin.LOG.debug("NodeTemplate NodeType is null. NodeTemplate Id:" + nodeTemplate.getId());
+            return false;
         }
         if (nodeTemplate.getType().getId() == null) {
             BPELUbuntuVmTypePlugin.LOG.debug("NodeTemplate NodeType id is null");
+            return false;
         }
         // this plugin can handle all referenced nodeTypes
         if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {

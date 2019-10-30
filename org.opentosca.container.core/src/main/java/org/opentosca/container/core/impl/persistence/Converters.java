@@ -133,7 +133,7 @@ public abstract class Converters {
   }
 
   public static RelationInstance convert(final RelationshipTemplateInstance object) {
-    final RelationInstance ri = new RelationInstance(object.getTemplateId(), object.getTemplateId().getLocalPart(),
+    final RelationInstance ri = new RelationInstance(object.getTemplateId(), object.getTemplateId(),
       object.getTemplateType(), null /* ServiceInstance */, null /* Source NodeInstance */,
       null /* Target NodeInstance */);
     if (object.getId() != null) {

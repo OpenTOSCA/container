@@ -12,6 +12,7 @@ import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPl
 import org.opentosca.bus.management.invocation.plugin.script.ManagementBusInvocationPluginScript;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.xml.XMLHelper;
+import org.opentosca.container.core.engine.ToscaEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -136,10 +137,7 @@ public class PluginHandler {
     if (pluginRegistry.getInvocationPluginServices().containsKey(artifactType.toString())) {
       return artifactType.toString();
     } else {
-      final Document properties = artifactTemplate.getProperties() != null
-        && artifactTemplate.getProperties().getInternalAny() instanceof Element
-        ? XMLHelper.fromRootNode((Element)artifactTemplate.getProperties().getInternalAny())
-        : null;
+      final Document properties = ToscaEngine.getEntityTemplateProperties(artifactTemplate);
       // Second check if a invocation-type is specified in TOSCA definition
       final String invocationType = getInvocationType(properties);
       if (invocationType != null) {

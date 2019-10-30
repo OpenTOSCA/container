@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
@@ -14,6 +15,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TEntityType;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
@@ -126,7 +128,7 @@ public class ParameterHandler {
     final List<String> supportedUsernamePropertyNames = Utils.getSupportedVirtualMachineLoginUserNamePropertyNames();
 
     // remove already defined properties from the set
-    inputParams.keySet().stream().forEach(param -> unsetParameters.remove(param));
+    unsetParameters.removeAll(inputParams.keySet());
 
     // search for parameters downwards in the topology until all are set
     while (!unsetParameters.isEmpty()) {
@@ -144,32 +146,33 @@ public class ParameterHandler {
         unsetParameters.stream().forEach(param -> {
           if (supportedIPPropertyNames.contains(param)) {
             LOG.debug("Supported IP-Property found.");
-            getSupportedProperty(supportedIPPropertyNames,
-              propertiesMap).ifPresent(foundValue -> inputParams.put(param, foundValue));
+            getSupportedProperty(supportedIPPropertyNames, propertiesMap)
+              .ifPresent(foundValue -> inputParams.put(param, foundValue));
 
           } else if (supportedInstanceIdPropertyNames.contains(param)) {
             LOG.debug("Supported InstanceID-Property found.");
-            getSupportedProperty(supportedInstanceIdPropertyNames,
-              propertiesMap).ifPresent(foundValue -> inputParams.put(param, foundValue));
+            getSupportedProperty(supportedInstanceIdPropertyNames, propertiesMap)
+              .ifPresent(foundValue -> inputParams.put(param, foundValue));
 
           } else if (supportedPasswordPropertyNames.contains(param)) {
             LOG.debug("Supported Password-Property found.");
-            getSupportedProperty(supportedPasswordPropertyNames,
-              propertiesMap).ifPresent(foundValue -> inputParams.put(param, foundValue));
+            getSupportedProperty(supportedPasswordPropertyNames, propertiesMap)
+              .ifPresent(foundValue -> inputParams.put(param, foundValue));
 
           } else if (supportedUsernamePropertyNames.contains(param)) {
             LOG.debug("Supported Username-Property found.");
-            getSupportedProperty(supportedUsernamePropertyNames,
-              propertiesMap).ifPresent(foundValue -> inputParams.put(param, foundValue));
+            getSupportedProperty(supportedUsernamePropertyNames, propertiesMap)
+              .ifPresent(foundValue -> inputParams.put(param, foundValue));
 
           } else {
-            propertiesMap.keySet().stream().filter(name -> name.equals(param)).findFirst()
+            propertiesMap.keySet().stream()
+              .filter(name -> name.equals(param)).findFirst()
               .ifPresent(name -> inputParams.put(param, propertiesMap.get(name)));
           }
         });
 
         // remove found properties
-        inputParams.keySet().stream().forEach(param -> unsetParameters.remove(param));
+        unsetParameters.removeAll(inputParams.keySet());
       } else {
         LOG.debug("No stored instance data found for current node: {}", nodeTemplateInstance.getId());
       }
@@ -273,21 +276,10 @@ public class ParameterHandler {
       return Collections.emptySet();
     }
 
-    final Node definedInputParameters = xmlSerializer.marshalToNode(resolvedOperation.getInputParameters());
-    if (Objects.isNull(definedInputParameters)) {
-      return Collections.emptySet();
-    }
-
-    final Set<String> inputParams = new HashSet<>();
-    final NodeList definedInputParameterList = definedInputParameters.getChildNodes();
-    for (int i = 0; i < definedInputParameterList.getLength(); i++) {
-      final Node currentNode = definedInputParameterList.item(i);
-      if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
-        final String name = ((Element) currentNode).getAttribute("name");
-        inputParams.add(name);
-      }
-    }
-    return inputParams;
+    return Optional.ofNullable(resolvedOperation.getInputParameters())
+      .map(TOperation.InputParameters::getInputParameter)
+      .map(l -> l.stream().map(TParameter::getName).collect(Collectors.toSet()))
+      .orElse(Collections.emptySet());
   }
 
   /**

@@ -444,8 +444,7 @@ public class MBJavaApi implements IManagementBus {
 
     for (AbstractRelationshipTemplate relation : topology.getRelationshipTemplates()) {
       for (RelationshipTemplateInstance inst : instance.getRelationshipTemplateInstances()) {
-        if (inst.getTemplateId().getLocalPart().equals(relation.getId())
-          && validRelationState.contains(inst.getState())) {
+        if (inst.getTemplateId().equals(relation.getId()) && validRelationState.contains(inst.getState())) {
           currentlyRunningRelations.add(relation);
         }
       }

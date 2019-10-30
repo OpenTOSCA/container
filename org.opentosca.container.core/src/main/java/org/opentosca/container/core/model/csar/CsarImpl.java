@@ -39,7 +39,7 @@ public class CsarImpl implements Csar {
   private final CsarId id;
   private final Optional<ServiceTemplateId> entryServiceTemplate;
   // TODO evaluate putting the savelocation into an additional field here!
-  private IRepository wineryRepo;
+  private final IRepository wineryRepo;
 
   // this is just for bridging purposes
   @Deprecated

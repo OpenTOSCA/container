@@ -78,12 +78,11 @@ public class RelationshipTemplateController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Get a relationship template", response = RelationshipTemplateDTO.class)
   public Response getRelationshipTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
-                                          @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
+                                          @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateName,
                                           @ApiParam("ID of relationship template") @PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
 
     final RelationshipTemplateDTO result =
-      this.relationshipTemplateService.getRelationshipTemplateById(csarId, QName.valueOf(serviceTemplateId),
-        relationshipTemplateId);
+      this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName, relationshipTemplateId);
 
     result.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
     result.add(UriUtil.generateSelfLink(this.uriInfo));

@@ -43,10 +43,10 @@ public class RelationInstance {
   @Transient
   private URI relationInstanceID;
 
-  @Convert(converter = QNameConverter.class)
-  private QName relationshipTemplateID;
+  // same as the relationshipTemplate name, because backwards compat
+  private String relationshipTemplateID;
 
-  // the name of the corresponding NodeTemplate
+  // the name of the corresponding RelationshipTemplate
   private String relationshipTemplateName;
 
   @Temporal(TemporalType.TIMESTAMP)
@@ -89,7 +89,7 @@ public class RelationInstance {
    *                                 value of the RelationshipTemplate
    * @param relationshipTemplateName - the name of the nodeTemplate
    */
-  public RelationInstance(final QName relationshipTemplateID, final String relationshipTemplateName,
+  public RelationInstance(final String relationshipTemplateID, final String relationshipTemplateName,
                           final QName relationshipTypeOfRelationshipTemplate, final ServiceInstance serviceInstance,
                           final NodeInstance sourceInstanceID, final NodeInstance targetInstanceID) {
     super();
@@ -119,7 +119,7 @@ public class RelationInstance {
     return this.relationInstanceID;
   }
 
-  public QName getRelationshipTemplateID() {
+  public String getRelationshipTemplateID() {
     return this.relationshipTemplateID;
   }
 
@@ -170,7 +170,7 @@ public class RelationInstance {
         + URLEncoder.encode(URLEncoder.encode(this.serviceInstance.getServiceTemplateID().toString(), "UTF-8"),
         "UTF-8")
         + "/Instances/" + this.serviceInstance.getDBId() + "/RelationshipTemplates/"
-        + this.relationshipTemplateID.getLocalPart() + "/Instances/" + this.id);
+        + this.relationshipTemplateID + "/Instances/" + this.id);
 
     } catch (final URISyntaxException e) {
       e.printStackTrace();
@@ -200,7 +200,7 @@ public class RelationInstance {
     this.relationInstanceID = relationInstanceID;
   }
 
-  public void setRelationshipTemplateID(final QName relationshipTemplateID) {
+  public void setRelationshipTemplateID(final String relationshipTemplateID) {
     this.relationshipTemplateID = relationshipTemplateID;
   }
 
