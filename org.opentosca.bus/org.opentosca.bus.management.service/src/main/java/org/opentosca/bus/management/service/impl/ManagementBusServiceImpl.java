@@ -237,7 +237,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         typeID = nodeTemplate.get().getType();
       }
     } else if (Objects.nonNull(arguments.relationshipTemplateId)) {
-      Optional<TRelationshipTemplate> relTemplate = ToscaEngine.getRelationshipTemplate(csar, serviceTemplate, arguments.relationshipTemplateId);
+      Optional<TRelationshipTemplate> relTemplate = ToscaEngine.getRelationshipTemplate(serviceTemplate, arguments.relationshipTemplateId);
       if (relTemplate.isPresent()) {
         typeID = relTemplate.get().getType();
       }

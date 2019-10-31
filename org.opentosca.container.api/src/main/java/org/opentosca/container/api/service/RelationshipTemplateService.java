@@ -1,12 +1,14 @@
 package org.opentosca.container.api.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
@@ -108,9 +110,13 @@ public class RelationshipTemplateService {
     final Csar csar = storage.findById(new CsarId(csarId));
     try {
       final TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateName);
-      // FIXME forced get here because I'm lazy right now
-      final TRelationshipTemplate relationshipTemplate = ToscaEngine.getRelationshipTemplate(csar, serviceTemplate, relationshipTemplateId).get();
-      return ((Element)relationshipTemplate.getProperties().getInternalAny()).getOwnerDocument();
+      return ToscaEngine.getRelationshipTemplate(serviceTemplate, relationshipTemplateId)
+        .map(TRelationshipTemplate::getProperties)
+        .map(TEntityTemplate.Properties::getInternalAny)
+        .filter(Element.class::isInstance)
+        .map(Element.class::cast)
+        .map(Element::getOwnerDocument)
+        .orElse(null);
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       LOG.warn("Could not get properties of relationship template {} for service template {} in csar {}",
         relationshipTemplateId, serviceTemplateName, csarId);

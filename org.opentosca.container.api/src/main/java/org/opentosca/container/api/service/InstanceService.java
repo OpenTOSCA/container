@@ -94,7 +94,7 @@ public class InstanceService {
       logger.debug(msg);
       throw new IllegalArgumentException(msg);
     }
-    final String propertyAsString = (String) this.converter.convertToDatabaseColumn(propertyDoc);
+    final String propertyAsString = this.converter.convertToDatabaseColumn(propertyDoc);
     final T property = type.newInstance();
     property.setName("xml");
     property.setType("xml");
@@ -104,8 +104,6 @@ public class InstanceService {
   }
 
   /* Service Template Instances */
-
-  /******************************/
   public Collection<ServiceTemplateInstance> getServiceTemplateInstances(final String serviceTemplate) {
     logger.debug("Requesting instances of ServiceTemplate \"{}\"...", serviceTemplate);
     return this.serviceTemplateInstanceRepository.findByTemplateId(serviceTemplate);
@@ -287,8 +285,6 @@ public class InstanceService {
   }
 
   /* Node Template Instances */
-
-  /******************************/
   public Collection<NodeTemplateInstance> getNodeTemplateInstances(final QName nodeTemplateQName) {
     logger.debug("Requesting instances of NodeTemplate \"{}\"...", nodeTemplateQName);
     return this.nodeTemplateInstanceRepository.findByTemplateId(nodeTemplateQName);
@@ -437,8 +433,6 @@ public class InstanceService {
   }
 
   /* Relationship Template Instances */
-
-  /***********************************/
   public Collection<RelationshipTemplateInstance> getRelationshipTemplateInstances(final QName relationshipTemplateQName) {
     logger.debug("Requesting instances of RelationshipTemplate \"{}\"...", relationshipTemplateQName);
     return this.relationshipTemplateInstanceRepository.findByTemplateId(relationshipTemplateQName);
@@ -448,18 +442,16 @@ public class InstanceService {
    * Gets a reference to the relationship template instance. Ensures that the instance actually
    * belongs to the relationship template.
    *
-   * @return
    * @throws NotFoundException if the instance does not belong to the relationship template
    */
-  public RelationshipTemplateInstance resolveRelationshipTemplateInstance(final String serviceTemplateQName,
+  public RelationshipTemplateInstance resolveRelationshipTemplateInstance(final String serviceTemplateName,
                                                                           final String relationshipTemplateId,
                                                                           final Long instanceId) throws NotFoundException {
     // We only need to check that the instance belongs to the template, the rest is
     // guaranteed while this is a sub-resource
-    final RelationshipTemplateInstance instance = getRelationshipTemplateInstanc(instanceId);
-    final QName relationshipTemplateQName =
-      new QName(QName.valueOf(serviceTemplateQName).getNamespaceURI(), relationshipTemplateId);
-    if (!instance.getTemplateId().equals(relationshipTemplateQName)) {
+    final RelationshipTemplateInstance instance = getRelationshipTemplateInstance(instanceId);
+    if (!(instance.getTemplateId().equals(relationshipTemplateId)
+        && instance.getServiceTemplateInstance().getTemplateId().equals(serviceTemplateName))) {
       logger.info("Relationship template instance <{}> could not be found", instanceId);
       throw new NotFoundException(
         String.format("Relationship template instance <%s> could not be found", instanceId));
@@ -468,7 +460,7 @@ public class InstanceService {
     return instance;
   }
 
-  private RelationshipTemplateInstance getRelationshipTemplateInstanc(final Long id) {
+  private RelationshipTemplateInstance getRelationshipTemplateInstance(final Long id) {
     logger.debug("Requesting relationship template instance <{}>...", id);
     final Optional<RelationshipTemplateInstance> instance = this.relationshipTemplateInstanceRepository.find(id);
 
@@ -556,8 +548,7 @@ public class InstanceService {
 
     if (request == null || request.getSourceNodeTemplateInstanceId() == null
       || request.getTargetNodeTemplateInstanceId() == null) {
-      final String msg =
-        String.format("Relationship template instance creation request is empty or missing content");
+      final String msg = "Relationship template instance creation request is empty or missing content";
       logger.info(msg);
       throw new IllegalArgumentException(msg);
     }
@@ -597,9 +588,9 @@ public class InstanceService {
 
   public void deleteRelationshipTemplateInstance(final String serviceTemplateQName,
                                                  final String relationshipTemplateId, final Long instanceId) {
+    // throws exception if not found
     final RelationshipTemplateInstance instance =
-      resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, instanceId); // throws
-    // exception if not found
+      resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, instanceId);
     this.relationshipTemplateInstanceRepository.remove(instance);
   }
 

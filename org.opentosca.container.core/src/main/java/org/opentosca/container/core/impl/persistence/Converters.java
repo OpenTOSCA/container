@@ -26,10 +26,9 @@ import org.opentosca.container.core.next.utils.Enums;
 import org.w3c.dom.Document;
 
 public abstract class Converters {
+
   private static ServiceTemplateInstanceRepository stiRepository = new ServiceTemplateInstanceRepository();
-
   private static NodeTemplateInstanceRepository ntiRepository = new NodeTemplateInstanceRepository();
-
   private static RelationshipTemplateInstanceRepository rtiRepository = new RelationshipTemplateInstanceRepository();
 
   private static DocumentConverter xmlConverter = new DocumentConverter();

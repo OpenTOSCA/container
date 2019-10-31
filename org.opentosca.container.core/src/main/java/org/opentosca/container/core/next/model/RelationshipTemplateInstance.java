@@ -47,6 +47,7 @@ public class RelationshipTemplateInstance extends PersistenceObject {
   public RelationshipTemplateInstance() {
   }
 
+
   public RelationshipTemplateInstanceState getState() {
     return this.state;
   }

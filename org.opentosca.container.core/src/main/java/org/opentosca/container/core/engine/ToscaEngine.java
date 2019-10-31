@@ -263,13 +263,8 @@ public final class ToscaEngine {
     return outputParams != null && !outputParams.getOutputParameter().isEmpty();
   }
 
-  public static Optional<TRelationshipTemplate> getRelationshipTemplate(Csar csar, TServiceTemplate serviceTemplate, String localTemplateId) {
-    return getRelationshipTemplate(csar, new QName(serviceTemplate.getTargetNamespace(), localTemplateId));
-  }
-
-  // FIXME rewrite using winery's ModelUtilities.resolveRelationshipTemplate which requires a TServiceTemplate to work off of
-  public static Optional<TRelationshipTemplate> getRelationshipTemplate(Csar csar, QName relationshipTemplateId) {
-    return Optional.ofNullable((TRelationshipTemplate) csar.queryRepository(new ArtifactTemplateId(relationshipTemplateId)));
+  public static Optional<TRelationshipTemplate> getRelationshipTemplate(TServiceTemplate serviceTemplate, String localTemplateId) {
+    return Optional.ofNullable(serviceTemplate.getTopologyTemplate().getRelationshipTemplate(localTemplateId));
   }
 
   public static List<? extends TEntityTypeImplementation> getTypeImplementations(Csar csar, TEntityType type) {

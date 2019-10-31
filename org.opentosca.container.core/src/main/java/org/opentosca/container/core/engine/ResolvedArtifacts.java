@@ -113,7 +113,4 @@ public class ResolvedArtifacts {
   public void setImplementationArtifacts(final List<ResolvedImplementationArtifact> implementationArtifacts) {
     this.implementationArtifacts = implementationArtifacts;
   }
-
-  ;
-
 }

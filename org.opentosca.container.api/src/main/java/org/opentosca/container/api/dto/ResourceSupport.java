@@ -35,8 +35,6 @@ public class ResourceSupport {
 
   /**
    * Returns all {@link Link}s contained in this resource.
-   *
-   * @return
    */
   @XmlElement(name = "Link")
   @XmlElementWrapper(name = "Links")
@@ -48,8 +46,6 @@ public class ResourceSupport {
 
   /**
    * Adds the given link to the resource.
-   *
-   * @param link
    */
   public void add(final Link link) {
     Objects.requireNonNull(link, "Link must not be null!");
@@ -58,8 +54,6 @@ public class ResourceSupport {
 
   /**
    * Adds all given {@link Link}s to the resource.
-   *
-   * @param links
    */
   public void add(final Iterable<Link> links) {
     Objects.requireNonNull(links, "Given links must not be null!");
@@ -80,8 +74,6 @@ public class ResourceSupport {
 
   /**
    * Returns whether the resource contains {@link Link}s at all.
-   *
-   * @return
    */
   public boolean hasLinks() {
     return !this.links.isEmpty();
@@ -89,9 +81,6 @@ public class ResourceSupport {
 
   /**
    * Returns whether the resource contains a {@link Link} with the given rel.
-   *
-   * @param rel
-   * @return
    */
   public boolean hasLink(final String rel) {
     return getLink(rel) != null;
@@ -107,8 +96,7 @@ public class ResourceSupport {
   /**
    * Returns the link with the given rel.
    *
-   * @param rel
-   * @return the link with the given rel or {@literal null} if none found.
+   *  @return the link with the given rel or {@literal null} if none found.
    */
   public Link getLink(final String rel) {
     for (final Link link : this.links) {

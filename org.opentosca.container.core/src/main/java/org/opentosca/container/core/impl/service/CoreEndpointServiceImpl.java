@@ -1,20 +1,15 @@
 package org.opentosca.container.core.impl.service;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.xml.namespace.QName;
 
-import org.eclipse.osgi.framework.console.CommandInterpreter;
-import org.eclipse.osgi.framework.console.CommandProvider;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint.restMethod;
@@ -32,7 +27,7 @@ import org.springframework.stereotype.Service;
  * For the JPA-Queries refer to: {@link RESTEndpoint}, {@link WSDLEndpoint}
  */
 @Service
-public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandProvider, AutoCloseable {
+public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoCloseable {
   private final static Logger LOG = LoggerFactory.getLogger(CoreEndpointServiceImpl.class);
 
   private EntityManager em;
@@ -49,11 +44,6 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
                                              final CsarId csarId) {
     final ArrayList<WSDLEndpoint> results = new ArrayList<>();
 
-    /**
-     * Create Query to retrieve WSDL-Endpoints
-     *
-     * @see WSDLEndpoint#getWSDLEndpointByPortTyp
-     */
     final TypedQuery<WSDLEndpoint> getWSDLEndpointsQuery = em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId and e.PortType = :portType", WSDLEndpoint.class);
 
     // Set Parameters for the Query
@@ -195,102 +185,6 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     this.em.getTransaction().commit();
   }
 
-  /**
-   * The following methods provide OSGi-Console commands.
-   */
-
-  @Override
-  public String getHelp() {
-    final StringBuffer buf = new StringBuffer();
-    buf.append("---OpenTOSCA Endpoint Management---\n");
-    buf.append("\tendpoint_clear - Clears both endpoint Dbs\n");
-    buf.append("\tendpoint_clear_wsdl - Clear wsdl endpoint db\n");
-    buf.append("\tendpoint_clear_rest - Clear rest endpoint db\n");
-    buf.append("\tendpoint_show_wsdl - Shows all WSDL-Endpoints\n");
-    buf.append("\tendpoint_show_rest - Shows all REST-Endpoints\n");
-    buf.append("\tendpoint_add_dummy_rest - Add dummy rest endpoint db\n");
-    buf.append("\tendpoint_add_dummy_wsdl - Add dummy wsdl endpoint db\n");
-    return buf.toString();
-  }
-
-  public void _endpoint_clear(final CommandInterpreter commandInterpreter) {
-    _endpoint_clear_rest(commandInterpreter);
-    _endpoint_clear_wsdl(commandInterpreter);
-  }
-
-  public void _endpoint_clear_wsdl(final CommandInterpreter commandInterpreter) {
-    if (!this.em.getTransaction().isActive()) {
-      this.em.getTransaction().begin();
-    }
-    final Query query = this.em.createQuery("DELETE FROM WSDLEndpoint");
-    final int deletedWSDL = query.executeUpdate();
-    commandInterpreter.println("Deleted " + deletedWSDL + " WSDLEndpoints.");
-    this.em.getTransaction().commit();
-  }
-
-  public void _endpoint_clear_rest(final CommandInterpreter commandInterpreter) {
-    if (!this.em.getTransaction().isActive()) {
-      this.em.getTransaction().begin();
-    }
-    final Query query = this.em.createQuery("DELETE FROM RESTEndpoint");
-    final int deletedREST = query.executeUpdate();
-    commandInterpreter.println("Deleted " + deletedREST + " RESTEndpoints.");
-    this.em.getTransaction().commit();
-  }
-
-  public void _endpoint_add_dummy_rest(final CommandInterpreter commandInterpreter) {
-    try {
-      final RESTEndpoint endpoint = new RESTEndpoint(new URI("http://www.balbla.com/xyz"), restMethod.GET, "test",
-        "test", new CsarId("mockup.example.test"), 5L, new HashMap<>());
-      storeRESTEndpoint(endpoint);
-    } catch (final URISyntaxException e) {
-      e.printStackTrace();
-    }
-
-  }
-
-  public void _endpoint_add_dummy_wsdl(final CommandInterpreter commandInterpreter) {
-    try {
-
-      // URI uri, QName portType, CsarId csarId, String planid, QName
-      // nodeTypeImplementation, String iaName
-      final WSDLEndpoint endpoint = new WSDLEndpoint(new URI("http://blabla/"), new QName("somePort"), "test",
-        "test", new CsarId("mockup.example.test"), 5L, new QName("{someNamespace}someplanid"),
-        new QName("{someNamespace}someNodeTypeImplId"), "some ia name", new HashMap<>());
-      storeWSDLEndpoint(endpoint);
-    } catch (final URISyntaxException e) {
-      e.printStackTrace();
-    }
-
-  }
-
-  public void _endpoint_show_rest(final CommandInterpreter commandInterpreter) {
-
-    final TypedQuery<RESTEndpoint> query = this.em.createQuery("SELECT e FROM RESTEndpoint e", RESTEndpoint.class);
-    final List<RESTEndpoint> queryResults = query.getResultList();
-    for (final RESTEndpoint e : queryResults) {
-      commandInterpreter.println("SeriviceTemplateID: " + e.getCsarId() + " URI: " + e.getURI());
-    }
-
-  }
-
-  public void _endpoint_show_wsdl(final CommandInterpreter commandInterpreter) {
-    final TypedQuery<WSDLEndpoint> query = this.em.createQuery("SELECT e FROM WSDLEndpoint e", WSDLEndpoint.class);
-    final List<WSDLEndpoint> queryResults = query.getResultList();
-    for (final WSDLEndpoint e : queryResults) {
-      commandInterpreter.println("CSARId: " + e.getCsarId());
-
-      if (e.getPortType() != null) {
-        commandInterpreter.println("PortType: " + e.getPortType().toString());
-      }
-      commandInterpreter.println("PlanId: " + (e.getPlanId() == null ? "" : e.getPlanId().toString()));
-      commandInterpreter.println("IaName: " + (e.getIaName() == null ? "" : e.getIaName()));
-      commandInterpreter.println("URI: " + e.getURI().toString());
-      commandInterpreter.println("Metadata: " + e.getMetadata());
-      commandInterpreter.println("");
-    }
-  }
-
   @Override
   public WSDLEndpoint getWSDLEndpointForPlanId(String triggeringContainer, final CsarId csarId, final QName planId) {
     WSDLEndpoint endpoint = null;
@@ -401,11 +295,6 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
   }
 
   @Override
-  public void close() throws Exception {
-    em.close();
-  }
-
-  @Override
   public List<WSDLEndpoint> getWSDLEndpointsForSTID(String triggeringContainer, Long serviceTemplateInstanceID) {
     final List<WSDLEndpoint> endpoints = new ArrayList<>();
     final TypedQuery<WSDLEndpoint> queryWSDLEndpoint =
@@ -421,4 +310,8 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, CommandPro
     return endpoints;
   }
 
+  @Override
+  public void close() {
+    em.close();
+  }
 }
