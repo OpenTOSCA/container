@@ -7,9 +7,12 @@ import javax.persistence.EntityManager;
 
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class JpaRepository<T> implements Repository<T, Long> {
 
+  protected static final Logger logger = LoggerFactory.getLogger(JpaRepository.class);
   protected final Class<T> clazz;
 
   public JpaRepository(final Class<T> clazz) {
@@ -80,9 +83,14 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
   public Optional<T> find(final Long id) {
     try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
       final T entity = em.find(this.clazz, id);
+      if (entity == null) {
+        return Optional.empty();
+      }
       em.refresh(entity);
-      return Optional.ofNullable(entity);
+      initializeInstance(entity);
+      return Optional.of(entity);
     } catch (final Exception e) {
+      logger.info("Failed to find instance of class {} with id {} in persistence context.", clazz.getSimpleName(), id, e);
       return Optional.empty();
     }
   }
@@ -94,4 +102,6 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
         .getResultList();
     }
   }
+
+  protected abstract void initializeInstance(final T instance);
 }

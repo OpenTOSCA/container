@@ -23,23 +23,12 @@ public class ServiceTemplateInstanceRepository extends JpaRepository<ServiceTemp
   }
 
   @Override
-  public Optional<ServiceTemplateInstance> find(final Long id) {
-    try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
-      final ServiceTemplateInstance entity = em.find(this.clazz, id);
-      em.refresh(entity);
-      fetchDependentBags(entity);
-      return Optional.ofNullable(entity);
-    } catch (final Exception e) {
-      return Optional.empty();
-    }
-  }
-
-  private void fetchDependentBags(ServiceTemplateInstance entity) {
-    Hibernate.initialize(entity.getDeploymentTests());
-    Hibernate.initialize(entity.getNodeTemplateInstances());
-    Hibernate.initialize(entity.getProperties());
-    Hibernate.initialize(entity.getRelationshipTemplateInstances());
-    Hibernate.initialize(entity.getPlanInstances());
+  protected void initializeInstance(ServiceTemplateInstance instance) {
+    Hibernate.initialize(instance.getDeploymentTests());
+    Hibernate.initialize(instance.getNodeTemplateInstances());
+    Hibernate.initialize(instance.getProperties());
+    Hibernate.initialize(instance.getRelationshipTemplateInstances());
+    Hibernate.initialize(instance.getPlanInstances());
   }
 
   public Collection<ServiceTemplateInstance> findByTemplateId(final String templateId) {

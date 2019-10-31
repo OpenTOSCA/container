@@ -8,4 +8,8 @@ public class SituationRepository extends JpaRepository<Situation> {
     super(Situation.class);
   }
 
+  @Override
+  protected void initializeInstance(Situation instance) {
+    // no dependent bags or other stuff to be fetched
+  }
 }

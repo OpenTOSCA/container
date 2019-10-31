@@ -31,11 +31,15 @@ public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
       q.setParameter(correlationIdParameter, correlationId);
       // Execute
       PlanInstance result = q.getSingleResult();
-      // fetch dependent entity bags
-       Hibernate.initialize(result.getEvents());
-       Hibernate.initialize(result.getInputs());
-       Hibernate.initialize(result.getOutputs());
+      initializeInstance(result);
       return result;
     }
+  }
+
+  @Override
+  protected void initializeInstance(PlanInstance instance) {
+    Hibernate.initialize(instance.getEvents());
+    Hibernate.initialize(instance.getInputs());
+    Hibernate.initialize(instance.getOutputs());
   }
 }

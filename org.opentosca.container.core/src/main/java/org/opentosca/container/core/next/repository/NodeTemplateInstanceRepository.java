@@ -46,9 +46,7 @@ public class NodeTemplateInstanceRepository extends JpaRepository<NodeTemplateIn
       q.setParameter(templateId, nodeTemplateId);
 
       final NodeTemplateInstance result = q.getSingleResult();
-      Hibernate.initialize(result.getDeploymentTestResults());
-      Hibernate.initialize(result.getProperties());
-      Hibernate.initialize(result.getOutgoingRelations());
+      initializeInstance(result);
       return result;
     }
   }
@@ -85,5 +83,13 @@ public class NodeTemplateInstanceRepository extends JpaRepository<NodeTemplateIn
 
       return q.getResultList();
     }
+  }
+
+  @Override
+  protected void initializeInstance(NodeTemplateInstance instance) {
+    Hibernate.initialize(instance.getDeploymentTestResults());
+    Hibernate.initialize(instance.getProperties());
+    Hibernate.initialize(instance.getOutgoingRelations());
+    Hibernate.initialize(instance.getIncomingRelations());
   }
 }

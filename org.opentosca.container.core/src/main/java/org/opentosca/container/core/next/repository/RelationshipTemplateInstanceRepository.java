@@ -9,6 +9,7 @@ import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 import javax.xml.namespace.QName;
 
+import org.hibernate.Hibernate;
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
@@ -34,5 +35,10 @@ public class RelationshipTemplateInstanceRepository extends JpaRepository<Relati
       // Execute
       return q.getResultList();
     }
+  }
+
+  @Override
+  protected void initializeInstance(RelationshipTemplateInstance instance) {
+    Hibernate.initialize(instance.getProperties());
   }
 }
