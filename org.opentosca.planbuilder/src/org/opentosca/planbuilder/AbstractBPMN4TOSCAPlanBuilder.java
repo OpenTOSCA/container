@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
@@ -20,6 +23,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.tosca.BPMN4TOSCATemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractBPMN4TOSCAPlanBuilder extends AbstractSimplePlanBuilder {
 
@@ -72,6 +76,30 @@ public abstract class AbstractBPMN4TOSCAPlanBuilder extends AbstractSimplePlanBu
 						activities.add(activity);
 						nodeActivityMapping.put(nodeTemplate, activity);
 					}
+				}
+			}
+
+		}
+		for (final AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
+			final AbstractActivity activity = relationActivityMapping.get(relationshipTemplate);
+			final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
+
+			AbstractActivity sourceActivity = nodeActivityMapping.get(relationshipTemplate.getSource());
+			AbstractActivity targetActivity = nodeActivityMapping.get(relationshipTemplate.getTarget());
+			if (baseType.equals(Types.connectsToRelationType)) {
+				if (sourceActivity != null) {
+					links.add(new Link(sourceActivity, activity));
+				}
+				if (targetActivity != null) {
+					links.add(new Link(targetActivity, activity));
+				}
+			} else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
+					| baseType.equals(Types.deployedOnRelationType)) {
+				if (targetActivity != null) {
+					links.add(new Link(targetActivity, activity));
+				}
+				if (sourceActivity != null) {
+					links.add(new Link(activity, sourceActivity));
 				}
 			}
 

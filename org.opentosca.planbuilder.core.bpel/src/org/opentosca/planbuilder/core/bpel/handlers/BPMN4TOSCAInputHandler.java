@@ -2,27 +2,26 @@ package org.opentosca.planbuilder.core.bpel.handlers;
 
 import java.util.List;
 
-import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.BPMN4TOSCATemplate;
-import org.opentosca.planbuilder.model.tosca.Parameter;
 import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
 
-public class bpmn4toscaInputHandler {
-	// TODO
-	public void initializePropertiesFromWorkflow(final BPELPlan plan, final Property2VariableMapping propMap,
-			String serviceInstanceUrl, String serviceInstanceId, String serviceTemplateUrl,
+public class BPMN4TOSCAInputHandler {
+	// TODO Fallunterscheidung nach type --> einfügen der entsprechenden Werte
+	public Property2VariableMapping initializePropertiesFromWorkflow(final BPELPlan plan,
 			AbstractServiceTemplate serviceTemplate, String csarName, final List<BPMN4TOSCATemplate> bpmnWorkflow) {
+		System.out.println("BJÖRN");
 		
 		for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
 			final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
-			final BPELPlanContext context = new BPELPlanContext(plan, templatePlan, propMap,
-					plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
+			System.out.println(nodeTemplate.getName());
+			//final BPELPlanContext context = new BPELPlanContext(plan, templatePlan, propMap,
+				//	plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
 
-			System.out.println(propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate));
+		//System.out.println(propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate));
 			/**
 			 * for (BPMN4TOSCATemplate bpmn4toscaTemplate : bpmnWorkflow) { if
 			 * (bpmn4toscaTemplate.getInput() != null) { for (Parameter inputParameter :
@@ -32,6 +31,7 @@ public class bpmn4toscaInputHandler {
 			 * addToPlanInput(plan, content, var, context); } } } }
 			 */
 		}
+		return null;
 	}
 
 }

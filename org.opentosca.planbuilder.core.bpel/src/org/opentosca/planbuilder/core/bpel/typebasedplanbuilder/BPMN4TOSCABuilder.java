@@ -1,40 +1,34 @@
 package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.management.ObjectName;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.omg.CORBA.RepositoryIdHelper;
-//import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.planbuilder.AbstractBPMN4TOSCAPlanBuilder;
+import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.bpel.handlers.bpmn4toscaInputHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.EmptyPropertyToInputHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.BPMN4TOSCAInputHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
+import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.BPMN4TOSCATemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
+import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +39,12 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 	private BPELPlanHandler planHandler;
 	private SimplePlanBuilderServiceInstanceHandler serviceInstanceVarsHandler;
 	private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
-	private final PropertyVariableHandler propertyInitializer;
+	// private final PropertyVariableHandler propertyInitializer;
 	private final ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
 	private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
-	private final bpmn4toscaInputHandler propertyInit = new bpmn4toscaInputHandler();
+	private final BPMN4TOSCAInputHandler propertyInit = new BPMN4TOSCAInputHandler();
 	private final BPELFinalizer finalizer;
+	private BPELPluginHandler bpelPluginHandler = new BPELPluginHandler();
 
 	public BPMN4TOSCABuilder() {
 		try {
@@ -61,7 +56,7 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
+		// this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
 		this.propertyOutputInitializer = new ServiceTemplateBoundaryPropertyMappingsToOutputHandler();
 		this.finalizer = new BPELFinalizer();
 	}
@@ -97,28 +92,39 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 
 			this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(newPlan, serviceTemplate);
 			this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(newPlan, serviceTemplate);
-			
-			//TODO: inputs aus BPMN
-			final Property2VariableMapping propMap = this.propertyInitializer.initializePropertiesAsVariables(newPlan,
-					serviceTemplate);
+
+			// TODO: inputs aus BPMN
+			// final Property2VariableMapping propMap =
+			// this.propertyInitializer.initializePropertiesAsVariables(newPlan,serviceTemplate);
+
+			final Property2VariableMapping propMap = this.propertyInit.initializePropertiesFromWorkflow(newPlan,
+					serviceTemplate, csarName, bpmnWorkflow);
 
 			this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
 					newPlan);
 			if (newInstance) {
-				//TODO: outputs aus BPMN
-				this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, newPlan, propMap,
-						serviceTemplate);
+				// TODO: outputs aus BPMN
+				/**
+				 * this.propertyOutputInitializer.initializeBuildPlanOutput(definitions,
+				 * newPlan, propMap, serviceTemplate);
+				 */
 				this.serviceInstanceInitializer
 						.appendCreateServiceInstanceVarsAndAnitializeWithInstanceDataAPI(newPlan);
 				String serviceInstanceUrl = this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(newPlan);
 				String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newPlan);
 				String serviceTemplateUrl = this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newPlan);
-				this.propertyInit.initializePropertiesFromWorkflow(newPlan, propMap, serviceInstanceUrl,
-						serviceInstanceID, serviceTemplateUrl, serviceTemplate, csarName, bpmnWorkflow);
+				/**
+				 * this.propertyInit.initializePropertiesFromWorkflow(newPlan, propMap,
+				 * serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, serviceTemplate,
+				 * csarName, bpmnWorkflow);
+				 */
+
+				runPlugins(newPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarName,
+						bpmnWorkflow);
 			} else {
 				this.serviceInstanceVarsHandler.addServiceInstanceHandlingFromInput(newPlan);
 			}
-			runPlugins(newPlan);
+
 			this.finalizer.finalize(newPlan);
 			return newPlan;
 		}
@@ -138,7 +144,7 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 						template.getValue());
 				if (newPlan != null) {
 					BPELBuildProcessBuilder.LOG
-							.debug("Created BuildPlan " + newPlan.getBpelProcessElement().getAttribute("name"));
+							.debug("Created BPMN4TOSCAPlan " + newPlan.getBpelProcessElement().getAttribute("name"));
 					plans.add(newPlan);
 				}
 
@@ -154,9 +160,25 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 		return null;
 	}
 
-	private void runPlugins(final BPELPlan plan) {
+	private void runPlugins(final BPELPlan plan, final Property2VariableMapping map, String serviceInstanceUrl,
+			String serviceInstanceID, String serviceTemplateUrl, String csarFileName,
+			final List<BPMN4TOSCATemplate> bpmnWorkflow) {
 		for (final BPELScope bpelScope : plan.getTemplateBuildPlans()) {
-			
+			// TODO
+			final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
+			final BPELPlanContext context = new BPELPlanContext(plan, bpelScope, map, plan.getServiceTemplate(),
+					serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarFileName);
+//			for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
+//				this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
+//			}
+			BPMN4TOSCATemplate bpmn4toscaTask = bpmnWorkflow.stream()
+					.filter(bpmnActivity -> nodeTemplate.getId().equals(bpmnActivity.getTemplate().getId())).findAny()
+					.orElse(null);
+
+			final Map<AbstractParameter, Variable> inputs = new HashMap<>();
+			context.executeOperation(nodeTemplate, bpmn4toscaTask.getTemplate().getNodeInterface(),
+					bpmn4toscaTask.getTemplate().getOperation(), inputs);
+
 		}
 
 	}
