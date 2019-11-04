@@ -69,7 +69,7 @@ public class PlanDTO extends ResourceSupport {
         this.inputParameters.addAll(plan.getInputParameters().getInputParameter().stream().map(p -> new TParameter(p))
                                         .collect(Collectors.toList()));
         final TParameter timeAvailableParam = new TParameter();
-        timeAvailableParam.setName("AvailableTimeForExecution(Optional)");
+        timeAvailableParam.setName("AvailableTimeForExecution");
         timeAvailableParam.setRequired(TBoolean.NO);
         timeAvailableParam.setType("String");
         this.inputParameters.add(timeAvailableParam);
@@ -175,11 +175,6 @@ public class PlanDTO extends ResourceSupport {
             for (final TParameter param : object.getInputParameters()) {
                 inputParameters.getInputParameter().add(new TParameterDTO(param));
             }
-            final TParameter myParam = new TParameter();
-            myParam.setName("TimeAvailableTest");
-            myParam.setRequired(TBoolean.NO);
-            myParam.setType("testType");
-            inputParameters.getInputParameter().add(new TParameterDTO(myParam));
             plan.setInputParameters(inputParameters);
 
             final TPlanDTO.OutputParameters outputParameters = new TPlanDTO.OutputParameters();

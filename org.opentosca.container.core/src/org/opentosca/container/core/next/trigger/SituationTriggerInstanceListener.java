@@ -105,7 +105,7 @@ public class SituationTriggerInstanceListener {
 
 
 
-                final long calculatedTimeFromPreviousExecutions = calculateWCETForPlan(plan);
+                final long calculatedTimeFromPreviousExecutions = plan.getCalculatedWCET();
 
                 if (calculatedTimeFromPreviousExecutions > 0) {
                     // check if time is shorter than timeAvailable
@@ -209,11 +209,11 @@ public class SituationTriggerInstanceListener {
     }
 
     public Map<String, List<String>> getPlanToOperationMap() {
-        return this.planToOperationMap;
+        return SituationTriggerInstanceListener.planToOperationMap;
     }
 
     public void setPlanToOperationMap(final Map<String, List<String>> planToOperationMap) {
-        this.planToOperationMap = planToOperationMap;
+        SituationTriggerInstanceListener.planToOperationMap = planToOperationMap;
     }
 
     /**

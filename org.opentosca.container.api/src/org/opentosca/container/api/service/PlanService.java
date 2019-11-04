@@ -37,7 +37,6 @@ import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
-import org.opentosca.container.core.next.trigger.SituationTriggerInstanceListener;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
@@ -246,7 +245,6 @@ public class PlanService {
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-        final SituationTriggerInstanceListener triggerInstanceListener = new SituationTriggerInstanceListener();
         try {
             final long calculatedWCET = p.getCalculatedWCET();
             final long availableTimeForExecution = Long.parseLong(parameters.get(parameters.size() - 1).getValue());
