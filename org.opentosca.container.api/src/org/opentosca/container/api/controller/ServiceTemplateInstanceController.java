@@ -247,9 +247,6 @@ public class ServiceTemplateInstanceController {
         catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         }
-        if(request.contains("CREATED")) {
-            return Response.serverError().build();
-        }
         
         return Response.ok().build();
     }
