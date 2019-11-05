@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.common.Settings;
@@ -59,6 +60,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
     private final static ServiceTemplateInstanceRepository stiRepo = new ServiceTemplateInstanceRepository();
 
+    private final static PlanInstanceRepository planRepo = new PlanInstanceRepository();
+
     @Override
     public String createCorrelationId(final CSARID csarID, final QName serviceTemplateId,
                                       long serviceTemplateInstanceID, final TPlanDTO givenPlan) {
@@ -80,22 +83,15 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         planEvent.setIsActive(true);
         planEvent.setHasFailed(false);
 
+        // generate CorrelationId for the plan execution
+        correlationID = generateUniqueCorrelationId();
+
+        // update serviceTemplateInstanceID for build plas
         if (serviceTemplateInstanceID == -1) {
             serviceTemplateInstanceID = 1000 + (int) (Math.random() * (Integer.MAX_VALUE - 1000));
-            // get new correlationID
-            correlationID =
-                ServiceProxy.correlationHandler.getNewCorrelationID(csarID, serviceTemplateId,
-                                                                    (int) serviceTemplateInstanceID, planEvent, true);
-        } else {
-            // get new correlationID
-
-            correlationID =
-                ServiceProxy.correlationHandler.getNewCorrelationID(csarID, serviceTemplateId,
-                                                                    (int) serviceTemplateInstanceID, planEvent, false);
         }
 
-        // plan is of type build, thus create an instance and put the
-        // CSARInstanceID into the plan
+        // plan is of type build, thus create an instance and put the CSARInstanceID into the plan
         ServiceTemplateInstanceID instanceID;
         if (PlanTypes.isPlanTypeURI(planEvent.getPlanType()).equals(PlanTypes.BUILD)) {
             instanceID = ServiceProxy.csarInstanceManagement.createNewInstance(csarID, serviceTemplateId);
@@ -470,8 +466,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
                 this.LOG.error("The returned response cannot be matched to a supported plan language!");
                 return;
             }
-
-            ServiceProxy.correlationHandler.removeCorrelation(correlationID);
         }
     }
 
@@ -481,12 +475,17 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         return instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TPlanDTO getActivePublicPlanOfInstance(final ServiceTemplateInstanceID csarInstanceID,
-                                                  final String correlationID) {
-        return ServiceProxy.correlationHandler.getPlanDTOForCorrelation(csarInstanceID, correlationID);
+    private synchronized String generateUniqueCorrelationId() {
+        while (true) {
+            final String correlationId = String.valueOf(System.currentTimeMillis());
+
+            try {
+                planRepo.findByCorrelationId(correlationId);
+                this.LOG.debug("CorrelationId {} already in use.", correlationId);
+            }
+            catch (final NoResultException e) {
+                return correlationId;
+            }
+        }
     }
 }

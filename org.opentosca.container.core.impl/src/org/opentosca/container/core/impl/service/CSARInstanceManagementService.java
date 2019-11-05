@@ -57,30 +57,6 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
         }
     }
 
-    @Override
-    public List<String> getActiveCorrelations(final CSARID csarID) {
-        // LOG.trace("Return {} correlations of active plans for csar {}",
-        // mapCSARIDToFinishedPlanCorrelation.get(csarID).size(), csarID);
-        return this.mapCSARIDToActivePlanCorrelation.get(csarID);
-    }
-
-    @Override
-    public List<String> getFinishedCorrelations(final CSARID csarID) {
-        // LOG.trace("Return {} correlations of finished plans for csar {}",
-        // mapCSARIDToFinishedPlanCorrelation.get(csarID).size(), csarID);
-        return this.mapCSARIDToFinishedPlanCorrelation.get(csarID);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<ServiceTemplateInstanceID> getInstancesOfCSAR(final CSARID csarID) {
-
-        this.LOG.debug("Return the current list of instances for CSAR \"" + csarID + "\".");
-        return this.instanceStorage.getInstancesOfCSAR(csarID);
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -102,7 +78,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
                                               final String correlationID) {
         this.LOG.info("Store correlation {} for CSAR \"" + csarID + "\" instance {}.", correlationID, instanceID);
         this.instanceStorage.storeNewCorrelationForInstance(csarID, instanceID, correlationID);
-        this.LOG.debug(this.toString());
+        this.LOG.debug(toString());
     }
 
     /**
@@ -111,7 +87,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
     @Override
     public boolean deleteInstance(final CSARID csarID, final ServiceTemplateInstanceID instanceID) {
         this.LOG.debug("Delete instance {} of CSAR {}.", instanceID.toString(), csarID);
-        this.LOG.debug(this.toString());
+        this.LOG.debug(toString());
         return this.instanceStorage.deleteInstanceOfCSAR(csarID, instanceID);
     }
 
@@ -137,14 +113,6 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
      * {@inheritDoc}
      */
     @Override
-    public List<String> getCorrelationsOfInstance(final CSARID csarID, final ServiceTemplateInstanceID instanceID) {
-        return this.instanceStorage.getCorrelationList(csarID, instanceID);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         final String ls = System.getProperty("line.separator");
@@ -156,7 +124,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
                 builder.append("   " + instanceID + ls);
                 for (final String correlationID : this.instanceStorage.getCorrelationList(csarID, instanceID)) {
                     builder.append("      " + correlationID + " "
-                        + this.getPlanFromHistory(correlationID).getPlanCorrelationID() + ls);
+                        + getPlanFromHistory(correlationID).getPlanCorrelationID() + ls);
                 }
             }
             builder.append(ls);
@@ -186,10 +154,5 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
     @Override
     public void correlateCorrelationIdToPlan(final String correlationID, final PlanInvocationEvent planEvent) {
         this.mapCorrelationIdToPlanEvent.put(correlationID, planEvent);
-    }
-
-    @Override
-    public PlanInvocationEvent getPlanForCorrelationId(final String correlationId) {
-        return this.mapCorrelationIdToPlanEvent.get(correlationId);
     }
 }

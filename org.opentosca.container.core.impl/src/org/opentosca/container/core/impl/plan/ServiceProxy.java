@@ -19,8 +19,6 @@ public class ServiceProxy {
     public static IXMLSerializerService xmlSerializerService = null;
     public static ICSARInstanceManagementService csarInstanceManagement = null;
 
-    public static CorrelationHandler correlationHandler = new CorrelationHandler();
-
     public static EventAdmin eventAdmin;
 
     private final Logger LOG = LoggerFactory.getLogger(ServiceProxy.class);
