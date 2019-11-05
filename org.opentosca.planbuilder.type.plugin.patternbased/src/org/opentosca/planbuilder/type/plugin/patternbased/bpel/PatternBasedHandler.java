@@ -62,7 +62,7 @@ public abstract class PatternBasedHandler {
 
         return invoker.handle(context, hostingContainer.getId(), true, matching.operationName.getName(),
                               matching.interfaceName.getName(), transformForInvoker(matching.inputMatching),
-                              transformForInvoker(matching.outputMatching), BPELScopePhaseType.PROVISIONING);
+                              transformForInvoker(matching.outputMatching), context.getProvisioningPhaseElement());
     }
 
     private Map<String, Variable> transformForInvoker(final Map<AbstractParameter, Variable> map) {

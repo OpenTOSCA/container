@@ -1003,13 +1003,19 @@ public class BPELPlanHandler {
                 final BPELScope newEmpty3SequenceScopeBPELActivity =
                     this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan);
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
-                abstract2bpelMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);
+                abstract2bpelMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);                             
+                
+                final BPELScope newCompensationHandlerScope = this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan);                                
+                newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);                
             } else if (activity instanceof RelationshipTemplateActivity) {
                 final RelationshipTemplateActivity rtActivity = (RelationshipTemplateActivity) activity;
                 final BPELScope newEmpty3SequenceScopeBPELActivity =
                     this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan);
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
                 abstract2bpelMap.put(rtActivity, newEmpty3SequenceScopeBPELActivity);
+                
+                final BPELScope newCompensationHandlerScope = this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan);                  
+                newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);                                              
             }
         }
 

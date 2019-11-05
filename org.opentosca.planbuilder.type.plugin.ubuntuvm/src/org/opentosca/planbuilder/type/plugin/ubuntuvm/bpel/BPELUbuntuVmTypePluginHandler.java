@@ -411,7 +411,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu",
                                     startRequestInputParams, new HashMap<String, Variable>(),
-                                    BPELScopePhaseType.PROVISIONING);
+                                    context.getProvisioningPhaseElement());
 
         return true;
     }
@@ -654,7 +654,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
                                     createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
-                                    BPELScopePhaseType.PROVISIONING);
+                                    context.getProvisioningPhaseElement());
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -673,7 +673,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
+                                    startRequestOutputParams, context.getProvisioningPhaseElement());
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
             if (policy.getType().getId().equals(this.onlyModeledPortsPolicyType)) {
@@ -744,7 +744,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
+                                    startRequestOutputParams, context.getProvisioningPhaseElement());
     }
 
     private List<Variable> fetchModeledPortsOfInfrastructure(final PlanContext context,
@@ -943,7 +943,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
                                     createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
-                                    BPELScopePhaseType.PROVISIONING);
+                                    context.getProvisioningPhaseElement());
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -961,7 +961,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
+                                    startRequestOutputParams, context.getProvisioningPhaseElement());
 
         return true;
     }
@@ -1170,7 +1170,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
                                     createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
-                                    BPELScopePhaseType.PROVISIONING);
+                                     context.getProvisioningPhaseElement());
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -1188,7 +1188,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
+                                    startRequestOutputParams, context.getProvisioningPhaseElement());
 
         return true;
     }

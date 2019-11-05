@@ -445,8 +445,7 @@ public class BPELScopeHandler {
     public void initializeXMLElements(final BPELScope newTemplateBuildPlan, final BPELPlan buildPlan) {
         // set the build plan of the new template buildplan
         newTemplateBuildPlan.setBuildPlan(buildPlan);
-
-        newTemplateBuildPlan.getBuildPlan();
+        
         // initialize bpelScopeElement and append to flow
         newTemplateBuildPlan.setBpelScopeElement(newTemplateBuildPlan.getBpelDocument()
                                                                      .createElementNS(BPELPlan.bpelNamespace, "scope"));
