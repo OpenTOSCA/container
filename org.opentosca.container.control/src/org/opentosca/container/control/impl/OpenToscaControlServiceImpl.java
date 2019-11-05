@@ -125,7 +125,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
             for (final TPlan plan : plans.getPlan()) {
 
-            	if (!OpenToscaControlServiceImpl.planEngine.deployPlan(plan, namespace, csarID)) {
+                if (!OpenToscaControlServiceImpl.planEngine.deployPlan(plan, namespace, csarID)) {
                     listOfUndeployedPlans.add(plan);
                 }
             }
@@ -313,14 +313,6 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     @Override
     public int getCSARInstanceIDForCorrelationID(final String correlationID) {
         return OpenToscaControlServiceImpl.instanceManagement.getInstanceForCorrelation(correlationID).getInstanceID();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<String> getCorrelationsOfServiceTemplateInstance(final ServiceTemplateInstanceID csarInstanceID) {
-        return OpenToscaControlServiceImpl.planInvocationEngine.getActiveCorrelationsOfInstance(csarInstanceID);
     }
 
     /**

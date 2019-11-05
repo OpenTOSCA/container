@@ -493,14 +493,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         return params.stream().collect(Collectors.toMap(TParameterDTO::getName, TParameterDTO::getValue));
     }
 
-    @Override
-    public void correctCorrelationToServiceTemplateInstanceIdMapping(final CSARID csarID, final QName serviceTemplateId,
-                                                                     final String corrId,
-                                                                     final int correctSTInstanceId) {
-        ServiceProxy.correlationHandler.correlateBuildPlanCorrToServiceTemplateInstanceId(csarID, serviceTemplateId,
-                                                                                          corrId, correctSTInstanceId);
-    }
-
 
     public Map<String, String> createRequest(final CSARID csarID, final QName serviceTemplateID,
                                              final Long serviceTemplateInstanceId, final QName planInputMessageID,
@@ -788,15 +780,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         final String resp = (String) responseBody;
         final String instanceID = resp.substring(resp.indexOf("href\":\"") + 7, resp.length());
         return instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<String> getActiveCorrelationsOfInstance(final ServiceTemplateInstanceID csarInstanceID) {
-        return ServiceProxy.correlationHandler.getActiveCorrelationsOfInstance(csarInstanceID);
-
     }
 
     /**
