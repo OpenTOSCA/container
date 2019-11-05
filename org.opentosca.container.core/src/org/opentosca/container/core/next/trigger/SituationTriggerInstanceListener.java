@@ -115,9 +115,12 @@ public class SituationTriggerInstanceListener {
                 }
 
                 try {
+
                     final String correlationId =
-                        this.planInvocEngine.invokePlan(servInstance.getCsarId(), servInstance.getTemplateId(),
-                                                        servInstance.getId(), planDTO);
+                        this.planInvocEngine.createCorrelationId(servInstance.getCsarId(), servInstance.getTemplateId(),
+                                                                 servInstance.getId(), planDTO);
+                    this.planInvocEngine.invokePlan(servInstance.getCsarId(), servInstance.getTemplateId(),
+                                                    servInstance.getId(), planDTO, correlationId);
 
                     // now wait for finished execution
 
@@ -161,7 +164,8 @@ public class SituationTriggerInstanceListener {
         private boolean isPlanExecutionFinished(final TPlanDTO plan, final String correlationId) {
 
             for (final TParameterDTO param : plan.getOutputParameters().getOutputParameter()) {
-                if (param.getName().equalsIgnoreCase("correlationid") && param.getValue() != null && param.getValue().equals(correlationId)) {
+                if (param.getName().equalsIgnoreCase("correlationid") && param.getValue() != null
+                    && param.getValue().equals(correlationId)) {
                     return true;
                 }
             }
