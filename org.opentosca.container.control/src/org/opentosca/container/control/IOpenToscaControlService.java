@@ -9,7 +9,6 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
-import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
 
 /**
@@ -101,16 +100,4 @@ public interface IOpenToscaControlService {
      */
     public String invokePlanInvocation(CSARID csarID, QName serviceTemplateId, long serviceTemplateInstanceID,
                                        TPlanDTO plan) throws UnsupportedEncodingException;
-
-    /**
-     * Returns a specific active PublicPlan of a CSARInstance
-     *
-     * @param csarInstanceID
-     * @param correlationID
-     * @return the Plan
-     */
-    public TPlanDTO getActivePlanOfInstance(ServiceTemplateInstanceID csarInstanceID, String correlationID);
-
-    int getCSARInstanceIDForCorrelationID(String correlationID);
-
 }

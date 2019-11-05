@@ -17,7 +17,6 @@ import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
-import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.core.service.ICoreDeploymentTrackerService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -308,21 +307,6 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
             }
         }
         return true;
-    }
-
-    @Override
-    public int getCSARInstanceIDForCorrelationID(final String correlationID) {
-        return OpenToscaControlServiceImpl.instanceManagement.getInstanceForCorrelation(correlationID).getInstanceID();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TPlanDTO getActivePlanOfInstance(final ServiceTemplateInstanceID csarInstanceID,
-                                            final String correlationID) {
-        return OpenToscaControlServiceImpl.planInvocationEngine.getActivePublicPlanOfInstance(csarInstanceID,
-                                                                                              correlationID);
     }
 
     /**
