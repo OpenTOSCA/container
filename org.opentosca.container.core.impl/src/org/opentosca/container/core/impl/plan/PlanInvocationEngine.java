@@ -41,11 +41,6 @@ import com.sun.jersey.api.client.WebResource;
 /**
  * The Implementation of the Engine. Also deals with OSGI events for communication with the mock-up
  * Servicebus.
- *
- * Copyright 2013 Christian Endres
- *
- * @author endrescn@fachschaft.informatik.uni-stuttgart.de
- *
  */
 public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler {
 
@@ -56,41 +51,24 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     private final String EMPTY_JSON = "[]";
 
     private final static ServiceTemplateInstanceRepository stiRepo = new ServiceTemplateInstanceRepository();
-
     private final static PlanInstanceRepository planRepo = new PlanInstanceRepository();
 
     @Override
     public String createCorrelationId(final CSARID csarID, final QName serviceTemplateId,
-                                      long serviceTemplateInstanceID, final TPlanDTO givenPlan) {
-
-        // refill information that might not be sent
-        final TPlan storedPlan = ServiceProxy.toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
-
-        // TODO: delete after refactor
-        final PlanInvocationEvent planEvent = new PlanInvocationEvent();
-        String correlationID;
-
-        planEvent.setCSARID(csarID.toString());
-        // planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID,
-        // givenPlan.getId()));
-        planEvent.setInterfaceName(ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
-        planEvent.setOperationName(ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
-        // planEvent.setOutputMessageID(storedPlan.getOutputMessageID());
-        planEvent.setPlanLanguage(storedPlan.getPlanLanguage());
-        planEvent.setPlanType(storedPlan.getPlanType());
-        planEvent.setPlanID(givenPlan.getId());
-        planEvent.setIsActive(true);
-        planEvent.setHasFailed(false);
+                                      final long serviceTemplateInstanceID, final TPlanDTO givenPlan) {
 
         // generate CorrelationId for the plan execution
-        correlationID = generateUniqueCorrelationId();
+        while (true) {
+            final String correlationId = String.valueOf(System.currentTimeMillis());
 
-        // update serviceTemplateInstanceID for build plas
-        if (serviceTemplateInstanceID == -1) {
-            serviceTemplateInstanceID = 1000 + (int) (Math.random() * (Integer.MAX_VALUE - 1000));
+            try {
+                planRepo.findByCorrelationId(correlationId);
+                this.LOG.debug("CorrelationId {} already in use.", correlationId);
+            }
+            catch (final NoResultException e) {
+                return correlationId;
+            }
         }
-
-        return correlationID;
     }
 
     /**
@@ -115,12 +93,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         final TPlan storedPlan = ServiceProxy.toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
 
         if (null == storedPlan) {
-            this.LOG.error("Plan " + givenPlan.getId() + " with name " + givenPlan.getName() + " is null!");
-            return;
-        }
-        if (!storedPlan.getId().equals(givenPlan.getId().getLocalPart())) {
-            this.LOG.error("Plan " + givenPlan.getId() + " with internal ID " + givenPlan.getName()
-                + " should copy of PublicPlan " + storedPlan.getId() + "!");
+            this.LOG.error("Plan {} with name {} is null!", givenPlan.getId(), givenPlan.getName());
             return;
         }
 
@@ -143,14 +116,12 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         if (null == publicPlanMap) {
             this.LOG.error("Wrong type! \"" + givenPlan.getPlanType() + "\"");
             return;
-
         }
 
         planEvent.setCSARID(csarID.toString());
 
         planEvent.setInterfaceName(ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
         planEvent.setOperationName(ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
-        // planEvent.setOutputMessageID(storedPlan.getOutputMessageID());
         planEvent.setPlanLanguage(storedPlan.getPlanLanguage());
         planEvent.setPlanType(storedPlan.getPlanType());
         planEvent.setPlanID(givenPlan.getId());
@@ -236,7 +207,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         pi.setType(PlanType.fromString(storedPlan.getPlanType()));
         pi.setState(PlanInstanceState.RUNNING);
         pi.setTemplateId(givenPlan.getId());
-
 
         stiRepo.find(serviceTemplateInstanceID)
                .ifPresent(serviceTemplateInstance -> pi.setServiceTemplateInstance(serviceTemplateInstance));
@@ -377,19 +347,5 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
         final String resp = (String) responseBody;
         final String instanceID = resp.substring(resp.indexOf("href\":\"") + 7, resp.length());
         return instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
-    }
-
-    private synchronized String generateUniqueCorrelationId() {
-        while (true) {
-            final String correlationId = String.valueOf(System.currentTimeMillis());
-
-            try {
-                planRepo.findByCorrelationId(correlationId);
-                this.LOG.debug("CorrelationId {} already in use.", correlationId);
-            }
-            catch (final NoResultException e) {
-                return correlationId;
-            }
-        }
     }
 }
