@@ -17,7 +17,6 @@ import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
-import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.core.service.ICoreDeploymentTrackerService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.ICoreFileService;
@@ -49,7 +48,6 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     protected static ICoreFileService coreFileService = null;
     protected static ICoreEndpointService endpointService = null;
     protected static IPlanInvocationEngine planInvocationEngine = null;
-    protected static ICSARInstanceManagementService instanceManagement = null;
 
     private final Logger LOG = LoggerFactory.getLogger(OpenToscaControlServiceImpl.class);
 
@@ -485,19 +483,5 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     protected void unbindPlanInvocationEngine(final IPlanInvocationEngine service) {
         this.LOG.debug("Unbind of the planInvocationEngine.");
         OpenToscaControlServiceImpl.planInvocationEngine = null;
-    }
-
-    protected void bindICSARInstanceManagementService(final ICSARInstanceManagementService service) {
-        if (service == null) {
-            this.LOG.error("Service ICSARInstanceManagementService is null.");
-        } else {
-            this.LOG.debug("Bind of the ICSARInstanceManagementService.");
-            OpenToscaControlServiceImpl.instanceManagement = service;
-        }
-    }
-
-    protected void unbindICSARInstanceManagementService(final ICSARInstanceManagementService service) {
-        this.LOG.debug("Unbind of the ICSARInstanceManagementService.");
-        OpenToscaControlServiceImpl.instanceManagement = null;
     }
 }

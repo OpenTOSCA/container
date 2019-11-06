@@ -132,10 +132,6 @@ public class CSARIDToInstanceToCorrelation {
         return returnList;
     }
 
-    public boolean deleteCSAR(final CSARID csarID) {
-        return null != this.storageMap.remove(csarID);
-    }
-
     public boolean deleteInstanceOfCSAR(final CSARID csarID, final ServiceTemplateInstanceID instanceID) {
         if (this.storageMap.containsKey(csarID)) {
             return null != this.storageMap.get(csarID).remove(instanceID);
