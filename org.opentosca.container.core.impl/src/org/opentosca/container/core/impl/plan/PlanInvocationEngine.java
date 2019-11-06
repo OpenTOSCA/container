@@ -1,11 +1,10 @@
 package org.opentosca.container.core.impl.plan;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
@@ -13,13 +12,9 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.PlanInstance;
-import org.opentosca.container.core.next.model.PlanInstanceInput;
 import org.opentosca.container.core.next.model.PlanInstanceOutput;
-import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanLanguage;
-import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
-import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
@@ -48,7 +43,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     private final String HISTORY_PATH = "/history/variable-instance";
     private final String EMPTY_JSON = "[]";
 
-    private final static ServiceTemplateInstanceRepository stiRepo = new ServiceTemplateInstanceRepository();
     private final static PlanInstanceRepository planRepo = new PlanInstanceRepository();
 
     @Override
@@ -80,62 +74,33 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
             if (RulesChecker.check(csarID, serviceTemplateId, givenPlan.getInputParameters())) {
                 this.LOG.debug("Deployment Rules are fulfilled. Continuing the provisioning.");
             } else {
-                this.LOG.debug("Deployment Rules are not fulfilled. Arborting the provisioning.");
+                this.LOG.debug("Deployment Rules are not fulfilled. Aborting the provisioning.");
                 return;
             }
         }
 
-        // refill information that might not be sent
-        final TPlan storedPlan = ServiceProxy.toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
-        if (Objects.isNull(storedPlan)) {
-            this.LOG.error("Plan {} with name {} is null!", givenPlan.getId(), givenPlan.getName());
-            return;
-        }
+        this.LOG.info("Invoke the Plan {} of type {} of CSAR {}", givenPlan.getId(), givenPlan.getPlanType(), csarID);
 
-        this.LOG.info("Invoke the Plan {} of type {} of CSAR {}", givenPlan.getId(), storedPlan.getPlanType(), csarID);
-
-        // create a new plan instance
-        final PlanInstance plan = new PlanInstance();
-        plan.setCorrelationId(correlationID);
-        plan.setLanguage(PlanLanguage.fromString(storedPlan.getPlanLanguage()));
-        plan.setType(PlanType.fromString(storedPlan.getPlanType()));
-        plan.setState(PlanInstanceState.RUNNING);
-        plan.setTemplateId(givenPlan.getId());
-
-        // add input parameters to the plan instance
-        final List<TParameterDTO> paramsOfGivenPlan = givenPlan.getInputParameters().getInputParameter();
-        for (final TParameter searchedParam : storedPlan.getInputParameters().getInputParameter()) {
-            String value = "";
-            for (final TParameterDTO givenParam : paramsOfGivenPlan) {
-                if (searchedParam.getName().equals(givenParam.getName())) {
-                    if (Objects.nonNull(givenParam.getValue())) {
-                        value = givenParam.getValue();
-                    }
-                    break;
-                }
+        final HashMap<String, String> input = new HashMap<>();
+        for (final TParameterDTO param : givenPlan.getInputParameters().getInputParameter()) {
+            if (Objects.isNull(param.getValue())) {
+                input.put(param.getName(), "");
+            } else {
+                input.put(param.getName(), param.getValue());
             }
-
-            new PlanInstanceInput(searchedParam.getName(), value, searchedParam.getType()).setPlanInstance(plan);
         }
-
-        // add connection to the service template and update the repository
-        stiRepo.find(serviceTemplateInstanceID)
-               .ifPresent(serviceTemplateInstance -> plan.setServiceTemplateInstance(serviceTemplateInstance));
-        planRepo.add(plan);
 
         // prepare the message for the bus
         final Map<String, Object> eventValues = new Hashtable<>();
         eventValues.put("CSARID", csarID);
         eventValues.put("SERVICETEMPLATEID", serviceTemplateId);
         eventValues.put("PLANID", givenPlan.getId());
-        eventValues.put("PLANLANGUAGE", storedPlan.getPlanLanguage());
+        eventValues.put("PLANLANGUAGE", givenPlan.getPlanLanguage());
         eventValues.put("SERVICEINSTANCEID", serviceTemplateInstanceID);
         eventValues.put("MESSAGEID", correlationID);
         eventValues.put("OPERATIONNAME",
                         ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
-        eventValues.put("INPUTS",
-                        plan.getInputs().stream()
-                            .collect(Collectors.toMap(PlanInstanceInput::getName, PlanInstanceInput::getValue)));
+        eventValues.put("INPUTS", input);
 
         // determine execution style (sync/async)
         if (Objects.isNull(ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId()))

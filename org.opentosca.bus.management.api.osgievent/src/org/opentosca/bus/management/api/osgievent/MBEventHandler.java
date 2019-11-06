@@ -90,8 +90,9 @@ public class MBEventHandler implements EventHandler {
     private EventAdmin eventAdmin;
 
     private ConsumerTemplate invokePlan(final String operationName, final String messageID, final boolean async,
-                                        final String serviceInstanceID, final Object message, final CSARID csarID,
-                                        final QName planID, final String planLanguage) {
+                                        final Long serviceInstanceID, final QName serviceTemplateID,
+                                        final Object message, final CSARID csarID, final QName planID,
+                                        final String planLanguage) {
         MBEventHandler.LOG.debug("Plan invocation is asynchronous: {}", async);
 
         // create the headers for the Exchange which is send to the Management Bus
@@ -100,6 +101,7 @@ public class MBEventHandler implements EventHandler {
         headers.put(MBHeader.PLANID_QNAME.toString(), planID);
         headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
         headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), messageID);
+        headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
         headers.put("OPERATION", OsgiEventOperations.INVOKE_PLAN.getHeaderValue());
         headers.put("PlanLanguage", planLanguage);
 
@@ -107,17 +109,13 @@ public class MBEventHandler implements EventHandler {
         if (message instanceof HashMap) {
             MBEventHandler.LOG.debug("Invocation body is of type HashMap.");
 
-            if (serviceInstanceID != null) {
-                URI serviceInstanceURI;
-                try {
-                    serviceInstanceURI = new URI(serviceInstanceID);
-                    headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
-                }
-                catch (final URISyntaxException e) {
-                    MBEventHandler.LOG.warn("Could not generate service instance URL: {}", e.getMessage(), e);
-                }
-            } else {
-                MBEventHandler.LOG.warn("Service instance ID is null.");
+            URI serviceInstanceURI;
+            try {
+                serviceInstanceURI = new URI(serviceInstanceID.toString());
+                headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
+            }
+            catch (final URISyntaxException e) {
+                MBEventHandler.LOG.warn("Could not generate service instance URL: {}", e.getMessage(), e);
             }
         } else {
             MBEventHandler.LOG.warn("Invocation body is of type: {}", message.getClass());
@@ -171,9 +169,8 @@ public class MBEventHandler implements EventHandler {
                 final Map<String, String> message =
                     createRequestBody(csarID, serviceTemplateID, serviceInstanceID, inputParameter, messageID);
 
-                final ConsumerTemplate consumer =
-                    invokePlan(operationName, messageID, async, serviceInstanceID.toString(), message, csarID, planID,
-                               planLanguage);
+                final ConsumerTemplate consumer = invokePlan(operationName, messageID, async, serviceInstanceID,
+                                                             serviceTemplateID, message, csarID, planID, planLanguage);
 
                 // Threaded reception of response
                 this.executor.submit(() -> {
@@ -329,8 +326,9 @@ public class MBEventHandler implements EventHandler {
             repository.add(pi);
 
 
-            final ConsumerTemplate consumer = invokePlan("adapt", correlationID, true, String.valueOf(instance.getId()),
-                                                         requestBody, instance.getCsarId(), planId, BPELNS);
+            final ConsumerTemplate consumer =
+                invokePlan("adapt", correlationID, true, instance.getId(), instance.getTemplateId(), requestBody,
+                           instance.getCsarId(), planId, BPELNS);
 
             // Threaded reception of response
             this.executor.submit(() -> {
@@ -490,16 +488,14 @@ public class MBEventHandler implements EventHandler {
                                                                                                 final ServiceTemplateInstance instance) {
 
         final Collection<AbstractNodeTemplate> currentlyRunningNodes = new HashSet<>();
-        final Collection<AbstractRelationshipTemplate> currentlyRunningRelations =
-            new HashSet<>();
+        final Collection<AbstractRelationshipTemplate> currentlyRunningRelations = new HashSet<>();
 
         final Collection<NodeTemplateInstanceState> validNodeState = new HashSet<>();
         validNodeState.add(NodeTemplateInstanceState.STARTED);
         validNodeState.add(NodeTemplateInstanceState.CREATED);
         validNodeState.add(NodeTemplateInstanceState.CONFIGURED);
 
-        final Collection<RelationshipTemplateInstanceState> validRelationState =
-            new HashSet<>();
+        final Collection<RelationshipTemplateInstanceState> validRelationState = new HashSet<>();
         validRelationState.add(RelationshipTemplateInstanceState.CREATED);
 
         for (final AbstractNodeTemplate node : topology.getNodeTemplates()) {
