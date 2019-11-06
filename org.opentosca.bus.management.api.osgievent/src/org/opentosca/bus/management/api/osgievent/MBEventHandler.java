@@ -33,15 +33,11 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
-import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceInput;
-import org.opentosca.container.core.next.model.PlanInstanceState;
-import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
-import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.SituationRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.tosca.convention.Types;
@@ -309,23 +305,6 @@ public class MBEventHandler implements EventHandler {
             final Map<String, String> requestBody = createRequestBody(instance.getCsarId(), instance.getTemplateId(),
                                                                       instance.getId(), inputs, correlationID);
 
-
-            // Create a new instance
-            final PlanInstanceRepository repository = new PlanInstanceRepository();
-            final PlanInstance pi = new PlanInstance();
-            pi.setCorrelationId(correlationID);
-
-            pi.setLanguage(PlanLanguage.fromString(BPELNS));
-
-            pi.setType(planType);
-            pi.setState(PlanInstanceState.RUNNING);
-            pi.setTemplateId(planId);
-            pi.setServiceTemplateInstance(instance);
-            pi.setInputs(toPlanInstanceInputs(inputs));
-
-            repository.add(pi);
-
-
             final ConsumerTemplate consumer =
                 invokePlan("adapt", correlationID, true, instance.getId(), instance.getTemplateId(), requestBody,
                            instance.getCsarId(), planId, BPELNS);
@@ -358,10 +337,6 @@ public class MBEventHandler implements EventHandler {
                 this.eventAdmin.postEvent(responseEvent);
             });
 
-
-            // importer.generateAdaptationPlan(instance.getCsarId().getFileName(), instance.getTemplateId(),
-            // sourceNodeTemplateIds, sourceRelationshipTemplateIds, targetNodeTemplateId,
-            // targetRelationshipTemplateId)
         }
     }
 

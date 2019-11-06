@@ -21,7 +21,6 @@ import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPl
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.service.IManagementBusService;
-import org.opentosca.bus.management.service.impl.collaboration.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.DeploymentDistributionDecisionMaker;
 import org.opentosca.bus.management.service.impl.instance.plan.PlanInstanceHandler;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
@@ -95,9 +94,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
 
     private static Map<String, Object> locks = new HashMap<>();
-
-    private final static String placeholderStart = "/PLACEHOLDER_";
-    private final static String placeholderEnd = "_PLACEHOLDER/";
 
     @Override
     public void invokeIA(final Exchange exchange) {
@@ -501,8 +497,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         endpointURI = message.getHeader(MBHeader.ENDPOINT_URI.toString(), URI.class);
 
                         if (Objects.nonNull(endpointURI)) {
-                            if (endpointURI.toString().contains(placeholderStart)
-                                && endpointURI.toString().contains(placeholderEnd)) {
+                            if (endpointURI.toString().contains(Constants.PLACEHOLDER_START)
+                                && endpointURI.toString().contains(Constants.PLACEHOLDER_END)) {
 
                                 // If a placeholder is specified, the service is part of the
                                 // topology. We do not store this endpoints as they are not part of
@@ -576,15 +572,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // generate new unique correlation ID if no ID is passed
         if (Objects.isNull(correlationID)) {
             correlationID = PlanInstanceHandler.createCorrelationId();
+            message.setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationID);
         }
 
         // create the instance data for the plan instance to be started
-        PlanInstanceHandler.createPlanInstance(csarID, serviceTemplateID, serviceTemplateInstanceID, planID,
-                                               correlationID, message.getBody());
-
-        // get the PlanInstance object which contains all needed information
-        final PlanInstanceRepository repo = new PlanInstanceRepository();
-        PlanInstance plan = repo.findByCorrelationId(correlationID);
+        PlanInstance plan = PlanInstanceHandler.createPlanInstance(csarID, serviceTemplateID, serviceTemplateInstanceID,
+                                                                   planID, correlationID, message.getBody());
 
         if (plan != null) {
             LOG.debug("Plan ID: {}", plan.getTemplateId());
@@ -640,9 +633,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             LOG.info("Plan execution duration: {}ms", duration);
 
             // update plan in repository with new log event
+            final PlanInstanceRepository repo = new PlanInstanceRepository();
             plan = repo.findByCorrelationId(correlationID);
             plan.addEvent(event);
             repo.update(plan);
+
+            // update the output parameters in the plan instance
+            PlanInstanceHandler.updatePlanInstanceOutput(plan, csarID, message.getBody());
         } else {
             LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
         }
@@ -888,14 +885,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         if (nodeTemplateInstance != null) {
             final String placeholder =
-                endpoint.toString()
-                        .substring(endpoint.toString().lastIndexOf(placeholderStart),
-                                   endpoint.toString().lastIndexOf(placeholderEnd) + placeholderEnd.length());
+                endpoint.toString().substring(endpoint.toString().lastIndexOf(Constants.PLACEHOLDER_START),
+                                              endpoint.toString().lastIndexOf(Constants.PLACEHOLDER_END)
+                                                  + Constants.PLACEHOLDER_END.length());
 
             LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder, endpoint.toString());
 
             final String[] placeholderProperties =
-                placeholder.replace(placeholderStart, "").replace(placeholderEnd, "").split("_");
+                placeholder.replace(Constants.PLACEHOLDER_START, "").replace(Constants.PLACEHOLDER_END, "").split("_");
 
             String propertyValue = null;
 
