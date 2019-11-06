@@ -163,9 +163,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
         this.LOG.info("Invoke Plan Invocation!");
 
-        final String correlationID =
-            OpenToscaControlServiceImpl.planInvocationEngine.createCorrelationId(csarID, serviceTemplateId,
-                                                                                 csarInstanceID, plan);
+        final String correlationID = OpenToscaControlServiceImpl.planInvocationEngine.createCorrelationId();
 
         if (null != correlationID) {
             this.LOG.info("The Plan Invocation was successfull!!!");
@@ -262,7 +260,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
                 break;
         }
 
-        for (final QName serviceTemplateID : this.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
+        for (final QName serviceTemplateID : OpenToscaControlServiceImpl.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
 
             this.LOG.info("Invoke the PlanEngine for processing the Plans.");
             if (OpenToscaControlServiceImpl.planEngine != null) {

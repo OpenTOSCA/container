@@ -115,9 +115,7 @@ public class SituationTriggerInstanceListener {
 
                 try {
 
-                    final String correlationId =
-                        this.planInvocEngine.createCorrelationId(servInstance.getCsarId(), servInstance.getTemplateId(),
-                                                                 servInstance.getId(), planDTO);
+                    final String correlationId = this.planInvocEngine.createCorrelationId();
                     this.planInvocEngine.invokePlan(servInstance.getCsarId(), servInstance.getTemplateId(),
                                                     servInstance.getId(), planDTO, correlationId);
 

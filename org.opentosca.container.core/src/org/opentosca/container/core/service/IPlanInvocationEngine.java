@@ -14,8 +14,7 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
 public interface IPlanInvocationEngine {
 
 
-    public String createCorrelationId(final CSARID csarID, final QName serviceTemplateId,
-                                      long serviceTemplateInstanceID, final TPlanDTO givenPlan);
+    public String createCorrelationId();
 
     /**
      * Invoke a PublicPlan for a CSAR. If this PublicPlan is of Type OTHERMANAGEMENT or TERMINATION, the
