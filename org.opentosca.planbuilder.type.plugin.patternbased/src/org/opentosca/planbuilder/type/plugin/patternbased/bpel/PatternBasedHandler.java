@@ -16,6 +16,7 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
+import org.w3c.dom.Element;
 
 public abstract class PatternBasedHandler {
 
@@ -58,11 +59,11 @@ public abstract class PatternBasedHandler {
     protected static final BPELInvokerPlugin invoker = new BPELInvokerPlugin();
 
     protected boolean invokeOperation(final BPELPlanContext context, final ConcreteOperationMatching matching,
-                                      final AbstractNodeTemplate hostingContainer) {
+                                      final AbstractNodeTemplate hostingContainer, Element elementToAppendTo) {
 
         return invoker.handle(context, hostingContainer.getId(), true, matching.operationName.getName(),
                               matching.interfaceName.getName(), transformForInvoker(matching.inputMatching),
-                              transformForInvoker(matching.outputMatching), context.getProvisioningPhaseElement());
+                              transformForInvoker(matching.outputMatching), elementToAppendTo);
     }
 
     private Map<String, Variable> transformForInvoker(final Map<AbstractParameter, Variable> map) {
@@ -73,10 +74,10 @@ public abstract class PatternBasedHandler {
 
     protected boolean invokeWithMatching(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
                                          final AbstractInterface iface, final AbstractOperation op,
-                                         final Set<AbstractNodeTemplate> nodesForMatching) {
+                                         final Set<AbstractNodeTemplate> nodesForMatching, Element elementToAppendTo) {
         final ConcreteOperationMatching matching =
             createConcreteOperationMatching(context, createPropertyToParameterMatching(nodesForMatching, iface, op));
-        return invokeOperation(context, matching, nodeTemplate);
+        return invokeOperation(context, matching, nodeTemplate, elementToAppendTo);
     }
 
     protected ConcreteOperationMatching createConcreteOperationMatching(final PlanContext context,
