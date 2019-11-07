@@ -47,7 +47,8 @@ public class BPELScope{
     private Element bpelSequencePrePhaseElement;
     private Element bpelSequenceProvisioningPhaseElement;
     private Element bpelSequencePostPhaseElement;    
-    
+
+
     private BPELScope bpelCompensationScope;
 
     private AbstractNodeTemplate nodeTemplate = null;
@@ -254,6 +255,8 @@ public class BPELScope{
     public void setBpelSequencePostPhaseElement(final Element bpelSequencePostPhaseElement) {
         this.bpelSequencePostPhaseElement = bpelSequencePostPhaseElement;
     }
+    
+
 
     /**
      * Returns the scope containing the compensation activities of this scope
@@ -270,8 +273,8 @@ public class BPELScope{
     public void setBpelCompensationHandlerScope(BPELScope bpelCompensationScope) {
         this.bpelCompensationScope = bpelCompensationScope;        
         Element compensationHandlerElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "compensationHandler");                
-        compensationHandlerElement.appendChild(this.bpelCompensationScope.getBpelScopeElement());
-        this.bpelScopeElement.appendChild(compensationHandlerElement);        
+        compensationHandlerElement.appendChild(this.bpelCompensationScope.getBpelScopeElement());        
+        this.bpelScopeElement.insertBefore(compensationHandlerElement, this.bpelMainSequenceElement);        
     }
 
     

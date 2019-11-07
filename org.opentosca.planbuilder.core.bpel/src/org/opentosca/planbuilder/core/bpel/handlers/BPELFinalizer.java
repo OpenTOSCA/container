@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.core.bpel.handlers;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.slf4j.Logger;
@@ -145,44 +147,47 @@ public class BPELFinalizer {
             parent.removeChild(extensions);
             buildPlan.setBpelExtensionsElement(null);
         }
-        
-        if(buildPlan.getBpelFaultHandlersElement().getChildNodes().getLength() == 0) {
-            buildPlan.getBpelDocument().removeChild(buildPlan.getBpelFaultHandlersElement());
-        } else {
-            this.buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan).appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "compensate"));
-            this.buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan).appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "rethrow"));
-        }
-        
-        
+
         makeSequential(buildPlan);
 
-        for (final BPELScope templateBuildPlan : buildPlan.getTemplateBuildPlans()) {            
+        for (final BPELScope templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
             this.finalizeBPELScope(buildPlan, templateBuildPlan);
             this.finalizeBPELScope(buildPlan, templateBuildPlan.getBpelCompensationHandlerScope());
         }
+
+        if (buildPlan.getBpelFaultHandlersElement().getChildNodes().getLength() == 0) {
+            buildPlan.getBpelDocument().removeChild(buildPlan.getBpelFaultHandlersElement());
+        } else {
+             this.buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan).appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
+             "compensate"));
+            this.buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan)
+                                 .appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
+                                                                                          "rethrow"));
+        }
+
+
+
     }
-    
+
+
     private void finalizeBPELScope(final BPELPlan buildPlan, final BPELScope templateBuildPlan) {
-     // check if any phase of this templatebuildplan has no child
+        // check if any phase of this templatebuildplan has no child
         // elements, if it's empty, add an empty activity
         final Element prePhaseElement = templateBuildPlan.getBpelSequencePrePhaseElement();
         if (prePhaseElement.getChildNodes().getLength() == 0) {
-            final Element emptyElement =
-                buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
+            final Element emptyElement = buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
             prePhaseElement.appendChild(emptyElement);
         }
 
         final Element provPhaseElement = templateBuildPlan.getBpelSequenceProvisioningPhaseElement();
         if (provPhaseElement.getChildNodes().getLength() == 0) {
-            final Element emptyElement =
-                buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
+            final Element emptyElement = buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
             provPhaseElement.appendChild(emptyElement);
         }
 
         final Element postPhaseElement = templateBuildPlan.getBpelSequencePostPhaseElement();
         if (postPhaseElement.getChildNodes().getLength() == 0) {
-            final Element emptyElement =
-                buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
+            final Element emptyElement = buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
             postPhaseElement.appendChild(emptyElement);
         }
 
@@ -214,9 +219,8 @@ public class BPELFinalizer {
                 }
             }
             final Element joinCondition =
-                buildPlan.getBpelDocument()
-                         .createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
-                                          "joinCondition");
+                buildPlan.getBpelDocument().createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
+                                                            "joinCondition");
             joinCondition.setTextContent(condition);
             targets.insertBefore(joinCondition, targets.getFirstChild());
         }

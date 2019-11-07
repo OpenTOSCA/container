@@ -447,31 +447,14 @@ public class BPELInvokerPluginHandler {
         }
 
 
-        try {
-            Node checkForFault =
-                this.resHandler.generateBPELIfTrueThrowFaultAsNode("boolean($" + responseVariableName
-                    + "//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\"Fault\"])",
-                                                                   new QName(
-                                                                       "http://opentosca.org/plans/invocationfault",
-                                                                       templateId + "_" + interfaceName + "_"
-                                                                           + operationName,
-                                                                       "fault" + String.valueOf(System.currentTimeMillis())), responseVariableName);
-
-            checkForFault = context.importNode(checkForFault);
-
-            elementToAppendTo.appendChild(checkForFault);
-        }
-        catch (SAXException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
+        Node responseAssignNode = null;
 
 
         // process response message
         // add assign for response
         try {
 
-            Node responseAssignNode =
+            responseAssignNode =
                 this.resHandler.generateResponseAssignAsNode(responseVariableName, OutputMessagePartName,
                                                              internalExternalPropsOutput,
                                                              "assign_" + responseVariableName, OutputMessageId,
@@ -491,6 +474,27 @@ public class BPELInvokerPluginHandler {
             return false;
         }
 
+        
+        try {
+            Node checkForFault =
+                this.resHandler.generateBPELIfTrueThrowFaultAsNode("boolean($" + responseVariableName
+                    + "//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\"Fault\"])",
+                                                                   new QName(
+                                                                       "http://opentosca.org/plans/invocationfault",
+                                                                       templateId + "_" + interfaceName + "_"
+                                                                           + operationName,
+                                                                       "fault" + String.valueOf(System.currentTimeMillis())), responseVariableName);
+
+            checkForFault = context.importNode(checkForFault);
+            elementToAppendTo.insertBefore(checkForFault, responseAssignNode);
+            
+            //elementToAppendTo.appendChild(checkForFault);
+        }
+        catch (SAXException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        
         return true;
     }
 

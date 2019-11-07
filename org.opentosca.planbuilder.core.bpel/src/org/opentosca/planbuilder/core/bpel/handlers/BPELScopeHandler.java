@@ -230,28 +230,33 @@ public class BPELScopeHandler {
     }
 
 
-    
-    public BPELScope createTemplateBuildPlan(final NodeTemplateActivity nodeTemplateActivity, final BPELPlan buildPlan) {        
+
+    public BPELScope createTemplateBuildPlan(final NodeTemplateActivity nodeTemplateActivity, final BPELPlan buildPlan,
+                                             String namePrefix) {
         final BPELScope newTemplateBuildPlan = new BPELScope(nodeTemplateActivity);
-        this.initializeXMLElements(newTemplateBuildPlan, buildPlan);       
-        this.setName(this.getNCNameFromString(nodeTemplateActivity.getNodeTemplate().getId()) + "_" + nodeTemplateActivity.getType(), newTemplateBuildPlan);
+        this.initializeXMLElements(newTemplateBuildPlan, buildPlan);
+        this.setName(this.getNCNameFromString(((namePrefix == null || namePrefix.isEmpty()) ? "" : namePrefix + "_")
+            + nodeTemplateActivity.getNodeTemplate().getId()) + "_" + nodeTemplateActivity.getType(),
+                     newTemplateBuildPlan);
         newTemplateBuildPlan.setNodeTemplate(nodeTemplateActivity.getNodeTemplate());
         return newTemplateBuildPlan;
     }
 
- 
-    
+
+
     public BPELScope createTemplateBuildPlan(final RelationshipTemplateActivity relationshipTemplateActivity,
-                                             final BPELPlan buildPlan) {
-    
+                                             final BPELPlan buildPlan, String namePrefix) {
+
         final BPELScope newTemplateBuildPlan = new BPELScope(relationshipTemplateActivity);
-        this.initializeXMLElements(newTemplateBuildPlan, buildPlan);        
-        this.setName(this.getNCNameFromString(relationshipTemplateActivity.getRelationshipTemplate().getId()) + "_" + relationshipTemplateActivity.getType(), newTemplateBuildPlan);
+        this.initializeXMLElements(newTemplateBuildPlan, buildPlan);
+        this.setName(this.getNCNameFromString(((namePrefix == null || namePrefix.isEmpty()) ? "" : namePrefix + "_")
+            + relationshipTemplateActivity.getRelationshipTemplate().getId()) + "_"
+            + relationshipTemplateActivity.getType(), newTemplateBuildPlan);
         newTemplateBuildPlan.setRelationshipTemplate(relationshipTemplateActivity.getRelationshipTemplate());
         return newTemplateBuildPlan;
     }
 
-   
+
 
     /**
      * Returns the names of the links declared in the sources element of the given TemplateBuildPlan
@@ -445,7 +450,7 @@ public class BPELScopeHandler {
     public void initializeXMLElements(final BPELScope newTemplateBuildPlan, final BPELPlan buildPlan) {
         // set the build plan of the new template buildplan
         newTemplateBuildPlan.setBuildPlan(buildPlan);
-        
+
         // initialize bpelScopeElement and append to flow
         newTemplateBuildPlan.setBpelScopeElement(newTemplateBuildPlan.getBpelDocument()
                                                                      .createElementNS(BPELPlan.bpelNamespace, "scope"));
