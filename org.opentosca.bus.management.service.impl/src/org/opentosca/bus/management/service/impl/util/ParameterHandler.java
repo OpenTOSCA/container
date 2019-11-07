@@ -139,18 +139,10 @@ public class ParameterHandler {
                             final String nodeTemplateId = setOfValues[1];
                             final Long nodeTemplateInstanceId = Long.parseLong(setOfValues[2]);
                             LOG.debug("Found instanceRef Property: " + key + " with value: " + propMap.get(key));
-                            // get instance we selected based on ID in instanceRef property
-                            // TODO: maybe try to find node template instance directly based on ID, otherwise we would
-                            // have to pass service
-                            // template the node template instance belongs to...and also node template id...
-                            final NodeTemplateInstance selectedInstance =
+
+                            // replace OS node template instance by selected node template instance
+                            nodeTemplateInstance =
                                 MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplateId);
-                            // iterate over unset params and set them according to the selected instance
-                            unsetParameters.stream().forEach(param -> {
-                                if (supportedIPPropertyNames.contains(param)) {
-                                    // TODO: get params fro selected instance
-                                }
-                            });
                         }
                     }
                 }
