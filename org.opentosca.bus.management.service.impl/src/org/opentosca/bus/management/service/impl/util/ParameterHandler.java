@@ -132,14 +132,15 @@ public class ParameterHandler {
                 final Map<String, String> propMap = nodeTemplateInstance.getPropertiesAsMap();
                 if (Objects.nonNull(propMap)) {
                     for (final String key : propMap.keySet()) {
-                        if (key.contains("instanceRef")) {
+                        if (key.equals("instanceRef")) {
                             final String value = propMap.get(key);
                             final String[] setOfValues = value.split(",");
                             final Long serviceTemplateInstanceId = Long.parseLong(setOfValues[0]);
                             final String nodeTemplateId = setOfValues[1];
-                            final Long nodeTemplateInstanceId = Long.parseLong(setOfValues[2]);
+                            // final Long nodeTemplateInstanceId = Long.parseLong(setOfValues[2]);
                             LOG.debug("Found instanceRef Property: " + key + " with value: " + propMap.get(key));
 
+                            // TODO: try to fetch node instance by node instance id
                             // replace OS node template instance by selected node template instance
                             nodeTemplateInstance =
                                 MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplateId);
