@@ -133,6 +133,7 @@ public class ServiceTemplateController {
     public PlacementController startPlacement(@ApiParam(hidden = true) @PathParam("csar") final String csar,
                                               @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
         this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId);
+        // init placement controller if placement is started
         final PlacementController child = new PlacementController(this.instanceService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
