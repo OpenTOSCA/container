@@ -210,7 +210,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         // get the searched operation if available
         final Optional<TOperation> operation =
-            getOperationForType(csarID, typeID, interfaceName, operationName, inputParamListDefined);
+            getOperationForType(csarID, typeID, interfaceName, operationName, inputParamListDefined);        
 
         // check if parameters are defined
         return operation.map((op) -> !op.getInputParameters().getInputParameter().isEmpty()).orElse(false);

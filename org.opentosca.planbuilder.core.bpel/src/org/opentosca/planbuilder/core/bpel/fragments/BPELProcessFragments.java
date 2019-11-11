@@ -53,14 +53,14 @@ public class BPELProcessFragments {
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
-    private String loadFragmentResourceAsString(final String fileName) throws IOException {
+    public String loadFragmentResourceAsString(final String fileName) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource(fileName);
         final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelfragmentfile);
         return template;
     }
 
-    private Node transformStringToNode(String xmlString) throws SAXException, IOException {
+    public Node transformStringToNode(String xmlString) throws SAXException, IOException {
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(xmlString));
         final Document doc = this.docBuilder.parse(is);
