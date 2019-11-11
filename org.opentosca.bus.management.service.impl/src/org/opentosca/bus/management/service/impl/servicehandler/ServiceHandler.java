@@ -8,6 +8,7 @@ import java.util.Map;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
@@ -38,9 +39,34 @@ public class ServiceHandler {
         Collections.synchronizedMap(new HashMap<String, IManagementBusDeploymentPluginService>());
     public static ICoreEndpointService endpointService;
     public static IToscaEngineService toscaEngineService;
+    public static IToscaReferenceMapper toscaReferenceMapper;
     public static ICoreCapabilityService capabilityService;
 
     private final static Logger LOG = LoggerFactory.getLogger(ServiceHandler.class);
+
+    /**
+     * Bind IToscaReferenceMapper.
+     *
+     * @param toscaEngineService - The ToscaReferenceMapper to register.
+     */
+    public void bindToscaReferenceMapper(final IToscaReferenceMapper toscaReferenceMapper) {
+        if (toscaEngineService != null) {
+            ServiceHandler.toscaReferenceMapper = toscaReferenceMapper;
+            LOG.debug("Bind IToscaReferenceMapper: {} bound.", toscaReferenceMapper.toString());
+        } else {
+            LOG.error("Bind IToscaReferenceMapper: Supplied parameter is null!");
+        }
+    }
+
+    /**
+     * Unbind IToscaReferenceMapper.
+     *
+     * @param toscaReferenceMapper - The ToscaReferenceMapper to unregister.
+     */
+    public void unbindToscaReferenceMapper(final IToscaReferenceMapper toscaReferenceMapper) {
+        ServiceHandler.toscaReferenceMapper = null;
+        LOG.debug("Unbind IToscaReferenceMapper unbound.");
+    }
 
     /**
      * Bind EndpointService.

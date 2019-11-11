@@ -14,6 +14,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.impl.Activator;
+import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
 import org.opentosca.bus.management.service.impl.collaboration.model.RemoteOperations;
 import org.slf4j.Logger;
@@ -32,9 +33,9 @@ public class RequestSender {
     private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     /**
-     * Send an operation request to a remote OpenTOSCA Container node. All information needed for
-     * the remote operation that shall be executed has to be defined as header fields of the given
-     * message or passed as CollaborationMessage.
+     * Send an operation request to a remote OpenTOSCA Container node. All information needed for the
+     * remote operation that shall be executed has to be defined as header fields of the given message
+     * or passed as CollaborationMessage.
      *
      * @param message the message containing the headers to send to the remote Container
      * @param operation the operation to perform on the remote Container

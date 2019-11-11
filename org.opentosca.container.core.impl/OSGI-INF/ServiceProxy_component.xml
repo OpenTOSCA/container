@@ -3,6 +3,5 @@
    <implementation class="org.opentosca.container.core.impl.plan.ServiceProxy"/>
    <reference bind="bindtoscaEngineService" cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindtoscaEngineService"/>
    <reference bind="bindEventAdmin" cardinality="1..1" interface="org.osgi.service.event.EventAdmin" name="EventAdmin" policy="static" unbind="unbindEventAdmin"/>
-   <reference bind="bindICSARInstanceManagementService" cardinality="1..1" interface="org.opentosca.container.core.service.ICSARInstanceManagementService" name="ICSARInstanceManagementService" policy="static"/>
    <reference bind="bindIXMLSerializerService" cardinality="1..1" interface="org.opentosca.container.core.engine.xml.IXMLSerializerService" name="IXMLSerializerService" policy="static" unbind="unbindIXMLSerializerService"/>
 </scr:component>
