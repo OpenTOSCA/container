@@ -97,7 +97,7 @@ public class ResourceHandler {
     public String generateBPELIfTrueThrowFaultAsString(final String xpath1Expr,
                                                        final QName faultQName, String faultVariableName) throws IOException {
         // <!-- $xpath1Expr, $faultPrefix, $faultNamespace, $faultLocalName-->
-        String bpelIfString = this.fragments.loadFragmentResourceAsString("ifFaultMessageThrowFault.xml");
+        String bpelIfString = this.loadFragmentResourceAsString("ifFaultMessageThrowFault.xml");
 
         bpelIfString = bpelIfString.replace("$xpath1Expr", xpath1Expr);
 
@@ -107,6 +107,13 @@ public class ResourceHandler {
         bpelIfString = bpelIfString.replace("$faultVariable", faultVariableName);
 
         return bpelIfString;
+    }
+    
+    private String loadFragmentResourceAsString(final String fileName) throws IOException {
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getResource(fileName);
+        final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
+        String template = FileUtils.readFileToString(bpelfragmentfile);
+        return template;
     }
     
 

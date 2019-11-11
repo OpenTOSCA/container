@@ -53,7 +53,7 @@ public class BPELProcessFragments {
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
-    public String loadFragmentResourceAsString(final String fileName) throws IOException {
+    private String loadFragmentResourceAsString(final String fileName) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource(fileName);
         final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelfragmentfile);
