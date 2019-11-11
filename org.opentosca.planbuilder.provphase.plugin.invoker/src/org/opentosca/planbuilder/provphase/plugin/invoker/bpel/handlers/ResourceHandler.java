@@ -17,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Activator;
 import org.osgi.framework.BundleContext;
@@ -41,6 +42,8 @@ public class ResourceHandler {
 
     private final DocumentBuilderFactory docFactory;
     private final DocumentBuilder docBuilder;
+    
+    private final BPELProcessFragments fragments;
 
     /**
      * Constructor
@@ -51,21 +54,7 @@ public class ResourceHandler {
         this.docFactory = DocumentBuilderFactory.newInstance();
         this.docFactory.setNamespaceAware(true);
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-
-    }
-    
-    private String loadFragmentResourceAsString(final String fileName) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getResource(fileName);
-        final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
-        String template = FileUtils.readFileToString(bpelfragmentfile);
-        return template;
-    }
-
-    private Node transformStringToNode(String xmlString) throws SAXException, IOException {
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(xmlString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
+        this.fragments = new BPELProcessFragments();
     }
     
     private BundleContext getContext() {
@@ -93,7 +82,7 @@ public class ResourceHandler {
     public Node generateBPELIfTrueThrowFaultAsNode(final String xpath1Expr, final QName faultQName, final String faultVariableName) throws IOException,
                                                                                                     SAXException {
         final String templateString = generateBPELIfTrueThrowFaultAsString(xpath1Expr, faultQName, faultVariableName);
-        return this.transformStringToNode(templateString);
+        return this.fragments.transformStringToNode(templateString);
     }
 
     /**
@@ -108,7 +97,7 @@ public class ResourceHandler {
     public String generateBPELIfTrueThrowFaultAsString(final String xpath1Expr,
                                                        final QName faultQName, String faultVariableName) throws IOException {
         // <!-- $xpath1Expr, $faultPrefix, $faultNamespace, $faultLocalName-->
-        String bpelIfString = this.loadFragmentResourceAsString("ifFaultMessageThrowFault.xml");
+        String bpelIfString = this.fragments.loadFragmentResourceAsString("ifFaultMessageThrowFault.xml");
 
         bpelIfString = bpelIfString.replace("$xpath1Expr", xpath1Expr);
 
