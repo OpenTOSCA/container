@@ -154,7 +154,7 @@ public class SituationsController {
         final Set<SituationTriggerProperty> inputs = Sets.newHashSet();
 
         float eventProbability = -1.0f;
-        if (situationTrigger.getEventProbability() != -1.0f) {
+        if (Float.compare(situationTrigger.getEventProbability(), eventProbability) != 0) {        	
             eventProbability = situationTrigger.getEventProbability();
         }
 
