@@ -295,7 +295,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
    * @param message
    * @param operationName
    * @param hasOutputParams
-   * @param endpoint
    * @return messagingPattern as String.
    */
   private MessagingPattern determineMP(final Message message, final String operationName, final BindingOperation operation, final Boolean hasOutputParams) {

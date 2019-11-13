@@ -73,7 +73,7 @@ public class TestContext {
 
   public synchronized NodeTemplateInstance getNodeTemplateInstance(final TNodeTemplate nodeTemplate) {
     return getNodeTemplateInstances().stream()
-      .filter(o -> o.getTemplateId().getLocalPart().equals(nodeTemplate.getId()))
+      .filter(o -> o.getTemplateId().equals(nodeTemplate.getId()))
       .findFirst().orElseThrow(IllegalStateException::new);
   }
 

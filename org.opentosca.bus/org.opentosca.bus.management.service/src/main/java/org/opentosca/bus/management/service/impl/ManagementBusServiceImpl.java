@@ -436,7 +436,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     final String identifier = getUniqueSynchronizationString(triggeringContainer, deploymentLocation, typeImplementation.getQName(), ia.getName(), serviceTemplateInstanceID.toString());
     synchronized (getLockForString(identifier)) {
 
-      LOG.debug("Checking if IA was already deployed...");
+      LOG.debug("Checking whether IA [{}] was already deployed", ia.getName());
 
       // check whether there are already stored endpoints for this IA
       final List<WSDLEndpoint> endpoints = endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation, typeImplementation.getQName(), ia.getName());
@@ -477,10 +477,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
       // convert relative references to absolute references to enable access to the IA
       // files from other OpenTOSCA Container nodes
-      LOG.debug("Searching for artifact references for this ArtifactTemplate...");
+      LOG.debug("Searching for artifact references for ArtifactTemplate {}", artifactTemplate.getIdFromIdOrNameField());
       final List<String> artifactReferences = new ArrayList<>();
       for (final TArtifactReference artifact : artifacts) {
-        // XML validated to be anyUri, therefore must be parseable as URI
+        // XML validated to be anyUri, therefore must be parsable as URI
         URI reference = URI.create(artifact.getReference().trim());
         if (reference.getScheme() != null) {
           LOG.warn("ArtifactReference {} of Csar {} is not supported", artifact.getReference(), csar.id());
