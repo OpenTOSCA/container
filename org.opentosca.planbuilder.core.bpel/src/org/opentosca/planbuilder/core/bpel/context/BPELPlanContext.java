@@ -178,6 +178,10 @@ public class BPELPlanContext extends PlanContext {
         }
 
     }
+    
+    public Element getEventHandlersElement() {
+        return this.templateBuildPlan.getBpelEventHandlersElement();
+    }
 
     /**
      * Returns whether this context is for a nodeTemplate
@@ -197,7 +201,7 @@ public class BPELPlanContext extends PlanContext {
         return this.templateBuildPlan.getRelationshipTemplate() != null ? true : false;
     }
 
-    public static Variable getVariable(String varName) {
+    public Variable getVariable(String varName) {
         return new Variable(varName);
     }
 

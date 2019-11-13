@@ -47,6 +47,7 @@ public class BPELScope{
     private Element bpelSequencePrePhaseElement;
     private Element bpelSequenceProvisioningPhaseElement;
     private Element bpelSequencePostPhaseElement;    
+    private Element bpelEventHandlersElement;    
 
 
     private BPELScope bpelCompensationScope;
@@ -333,6 +334,14 @@ public class BPELScope{
      */
     public void setBpelCorrelationSets(final Element bpelCorrelationSets) {
         this.bpelCorrelationSets = bpelCorrelationSets;
+    }
+    
+    public Element getBpelEventHandlersElement() {
+        return bpelEventHandlersElement;
+    }
+
+    public void setBpelEventHandlersElement(Element bpelEventHandlersElement) {
+        this.bpelEventHandlersElement = bpelEventHandlersElement;
     }
 
 }

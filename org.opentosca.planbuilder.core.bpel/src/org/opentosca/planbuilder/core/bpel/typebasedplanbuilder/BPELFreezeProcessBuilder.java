@@ -381,7 +381,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                         e.printStackTrace();
                     }
 
-                    final Variable saveStateUrlVar = BPELPlanContext.getVariable(saveStateUrlVarName);
+                    final Variable saveStateUrlVar = context.getVariable(saveStateUrlVarName);
 
                     final Map<AbstractParameter, Variable> inputs = new HashMap<>();
 

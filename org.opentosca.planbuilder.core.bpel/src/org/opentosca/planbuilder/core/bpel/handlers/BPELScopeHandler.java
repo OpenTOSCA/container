@@ -516,6 +516,12 @@ public class BPELScopeHandler {
         newTemplateBuildPlan.getBpelMainSequenceElement()
                             .appendChild(newTemplateBuildPlan.getBpelSequencePostPhaseElement());
 
+        newTemplateBuildPlan.setBpelEventHandlersElement(newTemplateBuildPlan.getBpelDocument()
+                                                                             .createElementNS(BPELPlan.bpelNamespace,
+                                                                                              "eventHandlers"));
+
+        newTemplateBuildPlan.getBpelScopeElement().appendChild(newTemplateBuildPlan.getBpelEventHandlersElement());
+
     }
 
     /**

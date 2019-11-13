@@ -406,6 +406,16 @@ public class BPELProcessFragments {
 
         return ifElement;
     }
+    
+    public Node createWaitForCondition(String xpathExpr, String durationExpression) throws IOException, SAXException {
+        String templateString = this.loadFragmentResourceAsString("BPELWaitTillTrue.xml");
+        
+        templateString = templateString.replace("$xpath1Expr", xpathExpr);
+        templateString = templateString.replace("$durationexpression", durationExpression);
+        
+        
+        return this.transformStringToNode(templateString);
+    }
 
     /**
      * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String
