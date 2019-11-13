@@ -36,6 +36,12 @@ public class SituationDTO extends ResourceSupport {
 
     @XmlElement(name = "Active", required = false)
     private boolean active;
+    
+    @XmlElement(name = "EventProbability", required = false)
+    private float eventProbability = -1.0f;
+
+    @XmlElement(name = "EventTime", required = false)
+    private String eventTime;
 
     public Long getId() {
         return this.id;
@@ -68,6 +74,22 @@ public class SituationDTO extends ResourceSupport {
     public void setActive(final boolean active) {
         this.active = active;
     }
+    
+    public float getEventProbability() {
+        return this.eventProbability;
+    }
+
+    public void setEventProbability(final float eventProbability) {
+        this.eventProbability = eventProbability;
+    }
+
+    public String getEventTime() {
+        return this.eventTime;
+    }
+
+    public void setEventTime(final String eventTime) {
+        this.eventTime = eventTime;
+    }
 
     public static final class Converter {
 
@@ -78,6 +100,8 @@ public class SituationDTO extends ResourceSupport {
             dto.setSituationTemplateId(object.getSituationTemplateId());
             dto.setActive(object.isActive());
             dto.setThingId(object.getThingId());
+            dto.setEventProbability(object.getEventProbability());
+            dto.setEventTime(object.getEventTime());
 
             return dto;
         }
