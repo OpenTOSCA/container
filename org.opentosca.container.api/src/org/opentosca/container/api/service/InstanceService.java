@@ -639,12 +639,14 @@ public class InstanceService {
     }
 
     /* Situations */
-    public Situation createNewSituation(final String thingId, final String situationTemplateId) {
+    public Situation createNewSituation(final String thingId, final String situationTemplateId, final boolean active, float eventProbability, String eventTime) {
         final Situation newInstance = new Situation();
 
         newInstance.setSituationTemplateId(situationTemplateId);
         newInstance.setThingId(thingId);
-        newInstance.setActive(false);
+        newInstance.setActive(active);
+        newInstance.setEventProbability(eventProbability);
+        newInstance.setEventTime(eventTime);
 
         this.sitRepo.add(newInstance);
 
