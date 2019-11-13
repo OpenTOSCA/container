@@ -178,7 +178,7 @@ public class BPELPlanContext extends PlanContext {
         }
 
     }
-    
+
     public Element getEventHandlersElement() {
         return this.templateBuildPlan.getBpelEventHandlersElement();
     }

@@ -42,6 +42,7 @@ public class ResourceHandler {
 
     private final DocumentBuilderFactory docFactory;
     private final DocumentBuilder docBuilder;  
+    private final BPELProcessFragments fragments;
 
     /**
      * Constructor
@@ -51,7 +52,8 @@ public class ResourceHandler {
     public ResourceHandler() throws ParserConfigurationException {
         this.docFactory = DocumentBuilderFactory.newInstance();
         this.docFactory.setNamespaceAware(true);
-        this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();    
+        this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        this.fragments = new BPELProcessFragments();
     }
     
     private BundleContext getContext() {
@@ -82,12 +84,6 @@ public class ResourceHandler {
         return this.transformStringToNode(templateString);
     }
     
-    public String loadFragmentResourceAsString(final String fileName) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getResource(fileName);
-        final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
-        String template = FileUtils.readFileToString(bpelfragmentfile);
-        return template;
-    }
 
     public Node transformStringToNode(String xmlString) throws SAXException, IOException {
         final InputSource is = new InputSource();
@@ -118,6 +114,13 @@ public class ResourceHandler {
         bpelIfString = bpelIfString.replace("$faultVariable", faultVariableName);
 
         return bpelIfString;
+    }
+    
+    private String loadFragmentResourceAsString(final String fileName) throws IOException {
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getResource(fileName);
+        final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
+        String template = FileUtils.readFileToString(bpelfragmentfile);
+        return template;
     }
     
 

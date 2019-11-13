@@ -17,17 +17,17 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultExchange;
-import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.service.IManagementBusService;
-import org.opentosca.bus.management.service.impl.collaboration.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.DeploymentDistributionDecisionMaker;
+import org.opentosca.bus.management.service.impl.instance.plan.PlanInstanceHandler;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.bus.management.service.impl.util.DeploymentPluginCapabilityChecker;
 import org.opentosca.bus.management.service.impl.util.ParameterHandler;
 import org.opentosca.bus.management.service.impl.util.PluginHandler;
+import org.opentosca.bus.management.service.impl.util.Util;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
@@ -46,8 +46,6 @@ import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Engine for delegating invoke-requests of implementation artifacts or plans to matching
@@ -97,9 +95,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     private static Map<String, Object> locks = new HashMap<>();
 
-    private final static String placeholderStart = "/PLACEHOLDER_";
-    private final static String placeholderEnd = "_PLACEHOLDER/";
-
     @Override
     public void invokeIA(final Exchange exchange) {
         LOG.debug("Starting Management Bus: InvokeIA");
@@ -134,29 +129,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Correlation ID: {}", correlationID);
 
         // get the ServiceTemplateInstance ID Long from the serviceInstanceID URI
-        Long serviceTemplateInstanceID = null;
-        if (Objects.nonNull(serviceInstanceID)) {
-            try {
-                serviceTemplateInstanceID =
-                    Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
-                LOG.debug("ServiceTemplateInstance ID: {}", serviceTemplateInstanceID);
-            }
-            catch (final NumberFormatException e) {
-                LOG.error("Unable to parse ServiceTemplateInstance ID out of serviceInstanceID: {}", serviceInstanceID);
-            }
-        } else {
-            LOG.error("Unable to parse ServiceTemplateInstance ID out of serviceInstanceID because it is null!");
-        }
+        final Long serviceTemplateInstanceID = Util.determineServiceTemplateInstanceId(serviceInstanceID);
 
         // operation invocation is only possible with retrieved ServiceTemplateInstance ID
-        if (Objects.nonNull(serviceTemplateInstanceID)) {
+        if (!serviceTemplateInstanceID.equals(Long.MIN_VALUE)) {
 
             if (Boolean.valueOf(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK)) {
-                this.respondViaMocking(exchange, csarID, serviceTemplateID, nodeTemplateID, neededInterface,
-                                       neededOperation);
+                respondViaMocking(exchange, csarID, serviceTemplateID, nodeTemplateID, neededInterface,
+                                  neededOperation);
             } else {
-                this.invokeIA(exchange, csarID, serviceTemplateID, serviceTemplateInstanceID, nodeTemplateID, relationship, neededInterface,
-                              neededOperation);
+                this.invokeIA(exchange, csarID, serviceTemplateID, serviceTemplateInstanceID, nodeTemplateID,
+                              relationship, neededInterface, neededOperation);
             }
         } else {
             LOG.error("Unable to invoke operation without ServiceTemplateInstance ID!");
@@ -181,18 +164,19 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
     }
 
-    private void respondViaMocking(Exchange exchange, CSARID csarID, QName serviceTemplateID, String nodeTemplateID,
-                                   String neededInterface, String neededOperation) {
-        List<String> outputParams =
+    private void respondViaMocking(final Exchange exchange, final CSARID csarID, final QName serviceTemplateID,
+                                   final String nodeTemplateID, final String neededInterface,
+                                   final String neededOperation) {
+        final List<String> outputParams =
             ServiceHandler.toscaEngineService.getOutputParametersOfTypeOperation(csarID,
                                                                                  ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID,
                                                                                                                                              serviceTemplateID,
                                                                                                                                              nodeTemplateID),
                                                                                  neededInterface, neededOperation);
 
-        HashMap<String, String> responseMap = new HashMap<String, String>();
+        final HashMap<String, String> responseMap = new HashMap<>();
 
-        for (String outputParam : outputParams) {
+        for (final String outputParam : outputParams) {
             responseMap.put(outputParam, "managementBusMockValue");
         }
 
@@ -211,8 +195,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @param neededInterface the interface of the searched operation
      * @param neededOperation the searched operation
      */
-    private void invokeIA(final Exchange exchange, final CSARID csarID, final QName serviceTemplateID, final Long serviceTemplateInstanceID, final String nodeTemplateID,
-                          final String relationship, final String neededInterface, final String neededOperation) {
+    private void invokeIA(final Exchange exchange, final CSARID csarID, final QName serviceTemplateID,
+                          final Long serviceTemplateInstanceID, final String nodeTemplateID, final String relationship,
+                          final String neededInterface, final String neededOperation) {
         final Message message = exchange.getIn();
 
 
@@ -401,7 +386,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Deployment type {} and invocation type {} are supported.", deploymentType, invocationType);
 
         // retrieve portType property if specified
-        final QName portType = getPortTypeQName(csarID, artifactTemplateID);
+        final QName portType = Util.getPortTypeQName(csarID, artifactTemplateID);
 
         // retrieve specific content for the IA if defined and add to the headers
         exchange = addSpecificContent(exchange, csarID, typeImplementationID, iaName);
@@ -496,7 +481,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         message.setHeader(MBHeader.ARTIFACTREFERENCES_LISTSTRING.toString(), artifactReferences);
 
                         // search ServiceEndpoint property for the artifact
-                        final String serviceEndpoint = getProperty(csarID, artifactTemplateID, "ServiceEndpoint");
+                        final String serviceEndpoint = Util.getProperty(csarID, artifactTemplateID, "ServiceEndpoint");
                         message.setHeader(MBHeader.ARTIFACTSERVICEENDPOINT_STRING.toString(), serviceEndpoint);
 
                         if (Objects.nonNull(serviceEndpoint)) {
@@ -512,8 +497,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         endpointURI = message.getHeader(MBHeader.ENDPOINT_URI.toString(), URI.class);
 
                         if (Objects.nonNull(endpointURI)) {
-                            if (endpointURI.toString().contains(placeholderStart)
-                                && endpointURI.toString().contains(placeholderEnd)) {
+                            if (endpointURI.toString().contains(Constants.PLACEHOLDER_START)
+                                && endpointURI.toString().contains(Constants.PLACEHOLDER_END)) {
 
                                 // If a placeholder is specified, the service is part of the
                                 // topology. We do not store this endpoints as they are not part of
@@ -566,7 +551,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         final Message message = exchange.getIn();
 
-        final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+        String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
         LOG.debug("Correlation ID: {}", correlationID);
 
         final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
@@ -575,74 +560,88 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
         LOG.debug("csarInstanceID: {}", serviceInstanceID);
 
-        if (correlationID != null) {
+        final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
+        LOG.debug("serviceTemplateID: {}", serviceTemplateID);
 
-            // get the PlanInstance object which contains all needed information
-            final PlanInstanceRepository repo = new PlanInstanceRepository();
-            PlanInstance plan = repo.findByCorrelationId(correlationID);
+        final QName planID = message.getHeader(MBHeader.PLANID_QNAME.toString(), QName.class);
+        LOG.debug("planID: {}", planID);
 
-            if (plan != null) {
-                LOG.debug("Plan ID: {}", plan.getTemplateId());
-                LOG.debug("Plan language: {}", plan.getLanguage().toString());
+        // get the ServiceTemplateInstance ID Long from the serviceInstanceID URI
+        final Long serviceTemplateInstanceID = Util.determineServiceTemplateInstanceId(serviceInstanceID);
 
-                LOG.debug("Getting endpoint for the plan...");
-                ServiceHandler.endpointService.printPlanEndpoints();
-                final WSDLEndpoint WSDLendpoint =
-                    ServiceHandler.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
-                                                                            csarID, plan.getTemplateId());
+        // generate new unique correlation ID if no ID is passed
+        if (Objects.isNull(correlationID)) {
+            correlationID = PlanInstanceHandler.createCorrelationId();
+            message.setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationID);
+        }
 
-                if (WSDLendpoint != null) {
+        // create the instance data for the plan instance to be started
+        PlanInstance plan = PlanInstanceHandler.createPlanInstance(csarID, serviceTemplateID, serviceTemplateInstanceID,
+                                                                   planID, correlationID, message.getBody());
 
-                    final URI endpoint = WSDLendpoint.getURI();
-                    LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
+        if (plan != null) {
+            LOG.debug("Plan ID: {}", plan.getTemplateId());
+            LOG.debug("Plan language: {}", plan.getLanguage().toString());
 
-                    // Assumption. Should be checked with ToscaEngine
-                    message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
-                    message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+            LOG.debug("Getting endpoint for the plan...");
+            ServiceHandler.endpointService.printPlanEndpoints();
+            final WSDLEndpoint WSDLendpoint =
+                ServiceHandler.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID,
+                                                                        plan.getTemplateId());
 
-                    if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
-                        exchange = PluginHandler.callMatchingInvocationPlugin(exchange, "REST",
-                                                                              Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+            if (WSDLendpoint != null) {
 
-                    } else {
-                        exchange = PluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP",
-                                                                              Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-                    }
+                final URI endpoint = WSDLendpoint.getURI();
+                LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
 
-                    // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
-                    // was executed.
-                    if (plan.getType().equals(PlanType.TERMINATION)) {
-                        LOG.debug("Executed plan was a termination plan. Removing endpoints...");
+                // Assumption. Should be checked with ToscaEngine
+                message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
+                message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
 
-                        final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
+                if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
+                    exchange = PluginHandler.callMatchingInvocationPlugin(exchange, "REST",
+                                                                          Settings.OPENTOSCA_CONTAINER_HOSTNAME);
 
-                        if (serviceInstance != null) {
-                            deleteEndpointsForServiceInstance(csarID, serviceInstance);
-                        } else {
-                            LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
-                        }
-                    }
                 } else {
-                    LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!",
-                             plan.getTemplateId(), csarID);
+                    exchange = PluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP",
+                                                                          Settings.OPENTOSCA_CONTAINER_HOSTNAME);
                 }
 
-                // add end timestamp and log message with duration
-                event.setEndTimestamp(new Date());
-                final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
-                event.setMessage("Finished plan execution with correlation id " + correlationID + " after " + duration
-                    + "ms");
-                LOG.info("Plan execution duration: {}ms", duration);
+                // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
+                // was executed.
+                if (plan.getType().equals(PlanType.TERMINATION)) {
+                    LOG.debug("Executed plan was a termination plan. Removing endpoints...");
 
-                // update plan in repository with new log event
-                plan = repo.findByCorrelationId(correlationID);
-                plan.addEvent(event);
-                repo.update(plan);
+                    final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
+
+                    if (serviceInstance != null) {
+                        deleteEndpointsForServiceInstance(csarID, serviceInstance);
+                    } else {
+                        LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
+                    }
+                }
             } else {
-                LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
+                LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!",
+                         plan.getTemplateId(), csarID);
             }
+
+            // add end timestamp and log message with duration
+            event.setEndTimestamp(new Date());
+            final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
+            event.setMessage("Finished plan execution with correlation id " + correlationID + " after " + duration
+                + "ms");
+            LOG.info("Plan execution duration: {}ms", duration);
+
+            // update plan in repository with new log event
+            final PlanInstanceRepository repo = new PlanInstanceRepository();
+            plan = repo.findByCorrelationId(correlationID);
+            plan.addEvent(event);
+            repo.update(plan);
+
+            // update the output parameters in the plan instance
+            PlanInstanceHandler.updatePlanInstanceOutput(plan, csarID, message.getBody());
         } else {
-            LOG.warn("No correlation ID specified to identify the plan. Invocation aborted!");
+            LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
         }
 
         handleResponse(exchange);
@@ -874,61 +873,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Checks if a certain property was specified in the Tosca.xml of the ArtifactTemplate and returns
-     * it if so.
-     *
-     * @param csarID the ID of the CSAR which contains the ArtifactTemplate
-     * @param artifactTemplateID the ID of the ArtifactTemplate
-     * @param propertyName the name of the property
-     * @return the property value if specified, null otherwise
-     */
-    private String getProperty(final CSARID csarID, final QName artifactTemplateID, final String propertyName) {
-        final Document properties =
-            ServiceHandler.toscaEngineService.getPropertiesOfAArtifactTemplate(csarID, artifactTemplateID);
-
-        // check if there are specified properties at all
-        if (properties != null) {
-
-            final NodeList list = properties.getFirstChild().getChildNodes();
-
-            // iterate through properties and check name
-            for (int i = 0; i < list.getLength(); i++) {
-
-                final Node propNode = list.item(i);
-
-                final String localName = propNode.getLocalName();
-
-                if (localName != null && localName.equals(propertyName)) {
-                    return propNode.getTextContent().trim();
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Checks if a PortType property was specified in the Tosca.xml of the ArtifactTemplate and returns
-     * it if so.
-     *
-     * @param csarID the ID of the CSAR which contains the ArtifactTemplate
-     * @param artifactTemplateID the ID of the ArtifactTemplate
-     * @return the PortType property value as QName if specified, null otherwise
-     */
-    private QName getPortTypeQName(final CSARID csarID, final QName artifactTemplateID) {
-        QName portType = null;
-        try {
-            portType = QName.valueOf(getProperty(csarID, artifactTemplateID, "PortType"));
-            LOG.debug("PortType property: {}", portType.toString());
-            return portType;
-        }
-        catch (final IllegalArgumentException e) {
-            LOG.warn("PortType property can not be parsed to QName.");
-        }
-        return null;
-    }
-
-    /**
      * Replaces placeholder with a matching instance data value. Placeholder is defined like
      * "/PLACEHOLDER_VMIP_IP_PLACEHOLDER/"
      *
@@ -941,14 +885,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         if (nodeTemplateInstance != null) {
             final String placeholder =
-                endpoint.toString()
-                        .substring(endpoint.toString().lastIndexOf(placeholderStart),
-                                   endpoint.toString().lastIndexOf(placeholderEnd) + placeholderEnd.length());
+                endpoint.toString().substring(endpoint.toString().lastIndexOf(Constants.PLACEHOLDER_START),
+                                              endpoint.toString().lastIndexOf(Constants.PLACEHOLDER_END)
+                                                  + Constants.PLACEHOLDER_END.length());
 
             LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder, endpoint.toString());
 
             final String[] placeholderProperties =
-                placeholder.replace(placeholderStart, "").replace(placeholderEnd, "").split("_");
+                placeholder.replace(Constants.PLACEHOLDER_START, "").replace(Constants.PLACEHOLDER_END, "").split("_");
 
             String propertyValue = null;
 

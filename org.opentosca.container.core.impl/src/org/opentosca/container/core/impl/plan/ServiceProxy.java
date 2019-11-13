@@ -3,7 +3,6 @@ package org.opentosca.container.core.impl.plan;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
-import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +16,6 @@ public class ServiceProxy {
     public static IToscaEngineService toscaEngineService = null;
     public static IToscaReferenceMapper toscaReferenceMapper = null;
     public static IXMLSerializerService xmlSerializerService = null;
-    public static ICSARInstanceManagementService csarInstanceManagement = null;
-
-    public static CorrelationHandler correlationHandler = new CorrelationHandler();
 
     public static EventAdmin eventAdmin;
 
@@ -40,20 +36,6 @@ public class ServiceProxy {
         ServiceProxy.eventAdmin = null;
     }
 
-    protected void bindICSARInstanceManagementService(final ICSARInstanceManagementService service) {
-        if (service == null) {
-            this.LOG.error("Service ICSARInstanceManagementService is null.");
-        } else {
-            this.LOG.debug("Bind of the ICSARInstanceManagementService.");
-            ServiceProxy.csarInstanceManagement = service;
-        }
-    }
-
-    protected void unbindICSARInstanceManagementService(final ICSARInstanceManagementService service) {
-        this.LOG.debug("Unbind of the ICSARInstanceManagementService.");
-        ServiceProxy.csarInstanceManagement = null;
-    }
-
     protected void bindtoscaEngineService(final IToscaEngineService service) {
         if (service == null) {
             this.LOG.error("Service toscaEngineService is null.");
@@ -66,7 +48,6 @@ public class ServiceProxy {
             } else {
                 this.LOG.error("The ToscaReferenceMapper is not ready yet.");
             }
-
         }
     }
 
@@ -81,7 +62,6 @@ public class ServiceProxy {
         } else {
             this.LOG.debug("Bind of the IXMLSerializerService.");
             ServiceProxy.xmlSerializerService = service;
-
         }
     }
 
@@ -89,5 +69,4 @@ public class ServiceProxy {
         this.LOG.debug("Unbind of the IXMLSerializerService.");
         ServiceProxy.xmlSerializerService = null;
     }
-
 }

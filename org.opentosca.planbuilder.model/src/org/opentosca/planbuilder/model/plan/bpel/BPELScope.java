@@ -49,7 +49,6 @@ public class BPELScope{
     private Element bpelSequencePostPhaseElement;    
     private Element bpelEventHandlersElement;    
 
-
     private BPELScope bpelCompensationScope;
 
     private AbstractNodeTemplate nodeTemplate = null;
