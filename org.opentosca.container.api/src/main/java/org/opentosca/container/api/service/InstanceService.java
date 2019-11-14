@@ -285,9 +285,9 @@ public class InstanceService {
   }
 
   /* Node Template Instances */
-  public Collection<NodeTemplateInstance> getNodeTemplateInstances(final QName nodeTemplateQName) {
-    logger.debug("Requesting instances of NodeTemplate \"{}\"...", nodeTemplateQName);
-    return this.nodeTemplateInstanceRepository.findByTemplateId(nodeTemplateQName);
+  public Collection<NodeTemplateInstance> getNodeTemplateInstances(final String nodeTemplateName) {
+    logger.debug("Requesting instances of NodeTemplate \"{}\"...", nodeTemplateName);
+    return this.nodeTemplateInstanceRepository.findByTemplateId(nodeTemplateName);
   }
 
   public NodeTemplateInstance resolveNodeTemplateInstance(final String serviceTemplateName,

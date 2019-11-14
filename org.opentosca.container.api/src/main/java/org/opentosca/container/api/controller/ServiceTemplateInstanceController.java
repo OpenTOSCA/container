@@ -57,7 +57,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @Api
-// not marked as @RestController becuase it is created by a parent controller
+// not marked as @RestController because it is created by a parent controller
 public class ServiceTemplateInstanceController {
 
   private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateInstanceController.class);

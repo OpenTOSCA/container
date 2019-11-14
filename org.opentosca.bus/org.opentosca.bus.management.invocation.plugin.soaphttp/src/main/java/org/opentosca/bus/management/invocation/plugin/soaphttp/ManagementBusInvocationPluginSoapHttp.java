@@ -107,8 +107,8 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
       final QName messagePayloadType = ((javax.wsdl.Part) operation.getOperation().getInput().getMessage().getOrderedParts(null).get(0)).getElementName();
 //      final QName messagePayloadType = operation.getOperation().getInput().getMessage().getPart(messagePayloadPart).getElementName();
       // getting the port name involves this mess
-      String portName = getPortName(wsdl, operation);
-      headers.put("SOAPEndpoint", endpoint + "." + portName);
+//      String portName = getPortName(wsdl, operation);
+      headers.put("SOAPEndpoint", endpoint);
 
       messagingPattern = determineMP(message, operationName, operation, hasOutputParams);
       if (messagingPattern == null) {

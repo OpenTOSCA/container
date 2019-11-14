@@ -51,11 +51,11 @@ public class NodeTemplateInstanceRepository extends JpaRepository<NodeTemplateIn
     }
   }
 
-  public Collection<NodeTemplateInstance> findByTemplateId(final QName templateId) {
+  public Collection<NodeTemplateInstance> findByTemplateId(final String templateId) {
     try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
       final CriteriaBuilder cb = em.getCriteriaBuilder();
 
-      final ParameterExpression<QName> templateIdParameter = cb.parameter(QName.class);
+      final ParameterExpression<String> templateIdParameter = cb.parameter(String.class);
 
       final CriteriaQuery<NodeTemplateInstance> cq = cb.createQuery(NodeTemplateInstance.class);
       final Root<NodeTemplateInstance> sti = cq.from(NodeTemplateInstance.class);

@@ -74,10 +74,7 @@ public class NodeTemplateInstanceController {
                                            @QueryParam(value = "source") final List<Long> relationIds,
                                            @QueryParam(value = "serviceInstanceId") final Long serviceInstanceId) {
     logger.debug("Invoking getNodeTemplateInstances");
-    final QName nodeTemplateQName =
-      new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.nodetemplate);
-    final Collection<NodeTemplateInstance> nodeInstances =
-      this.instanceService.getNodeTemplateInstances(nodeTemplateQName);
+    final Collection<NodeTemplateInstance> nodeInstances = this.instanceService.getNodeTemplateInstances(nodetemplate);
     logger.debug("Found <{}> instances of NodeTemplate \"{}\" ", nodeInstances.size(), this.nodetemplate);
 
     final NodeTemplateInstanceListDTO list = new NodeTemplateInstanceListDTO();
