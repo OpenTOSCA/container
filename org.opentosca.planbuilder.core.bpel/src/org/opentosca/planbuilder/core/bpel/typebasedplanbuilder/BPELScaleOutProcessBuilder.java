@@ -25,6 +25,7 @@ import org.opentosca.planbuilder.core.bpel.tosca.handlers.EmptyPropertyToInputHa
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
+import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -81,6 +82,8 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     private final List<String> opNames = new ArrayList<>();
 
     private CorrelationIDInitializer correlationHandler;
+    
+    private BPELPluginHandler pluginhandler = new BPELPluginHandler();
 
     public BPELScaleOutProcessBuilder() {
         try {
@@ -335,7 +338,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             final AbstractPlan abstractScaleOutPlan = generateSOG(new QName(processNamespace, processName).toString(),
                                                                   definitions, serviceTemplate, scalingPlanDefinition);
 
-            printGraph(abstractScaleOutPlan);
 
             final BPELPlan bpelScaleOutProcess =
                 this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractScaleOutPlan, "scale-out");
@@ -398,15 +400,8 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                                                    csarName);
             }
 
-            for (final AnnotatedAbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
-                final IScalingPlanBuilderSelectionPlugin selectionPlugin = findSelectionPlugin(stratNodeTemplate);
-                if (selectionPlugin != null) {
-                    final BPELScope scope =
-                        this.planHandler.getTemplateBuildPlanById(stratNodeTemplate.getId(), bpelScaleOutProcess);
-                    selectionPlugin.handle(new BPELPlanContext(bpelScaleOutProcess,scope, propMap, serviceTemplate, serviceInstanceUrl,
-                        serviceInstanceId, serviceTemplateUrl, csarName), stratNodeTemplate,
-                                           new ArrayList<>(stratNodeTemplate.getAnnotations()));
-                }
+            for (final AnnotatedAbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {                
+                this.pluginhandler.handleActivity(this.createContext(stratNodeTemplate, bpelScaleOutProcess, propMap, csarName), bpelScaleOutProcess.getTemplateBuildPlan(stratNodeTemplate), stratNodeTemplate);                
             }
 
             for (final AbstractActivity activ : bpelScaleOutProcess.getActivites()) {
@@ -577,11 +572,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         final List<String> selectionStrategyBorderNodes = getElementsFromCSV(selectionStrategyBorderNodesCSV);
 
         final Map<String, String> selectionStrategyBorderNodesMap =
-            transformSelectionStrategyListToMap(selectionStrategyBorderNodes);
-
-        System.out.println("test");
-        
-        final Map<String, AbstractNodeTemplate> selectionStrategyNodeTemplatesMap = new HashMap<>();
+            transformSelectionStrategyListToMap(selectionStrategyBorderNodes);                
 
         final List<AnnotatedAbstractNodeTemplate> annotNodes = new ArrayList<>();
 
@@ -612,17 +603,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         return null;
     }
 
-    private IScalingPlanBuilderSelectionPlugin findSelectionPlugin(final AnnotatedAbstractNodeTemplate stratNodeTemplate) {
-
-        for (final IScalingPlanBuilderSelectionPlugin plugin : this.pluginRegistry.getSelectionPlugins()) {
-            final List<String> a = new ArrayList<>(stratNodeTemplate.getAnnotations());
-            if (plugin.canHandle(stratNodeTemplate, a)) {
-                return plugin;
-            }
-        }
-        return null;
-    }
-
     private List<String> getElementsFromCSV(String csvString) {
         csvString = cleanCSVString(csvString);
         final String[] scalingPlanRelationNamesRawSplit = csvString.split(",");
@@ -642,18 +622,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         return null;
     }
 
-    private AbstractRelationshipTemplate getFirstOutgoingInfrastructureRelation(final AbstractNodeTemplate nodeTemplate) {
-        final List<AbstractRelationshipTemplate> relations =
-            ModelUtils.getOutgoingRelations(nodeTemplate, Types.hostedOnRelationType);
-        relations.addAll(ModelUtils.getOutgoingRelations(nodeTemplate, Types.dependsOnRelationType));
-        relations.addAll(ModelUtils.getOutgoingRelations(nodeTemplate, Types.deployedOnRelationType));
-
-        if (!relations.isEmpty()) {
-            return relations.get(0);
-        }
-
-        return null;
-    }
 
     private AbstractServiceTemplate getServiceTemplate(final AbstractDefinitions defs, final QName serviceTemplateId) {
         for (final AbstractServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
@@ -665,111 +633,32 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         return null;
     }
 
-    private void printGraph(final AbstractPlan abstractScaleOutPlan) {
-
-        LOG.debug("Scale Out Plan: " + abstractScaleOutPlan.getId());
-
-        LOG.debug("Activities: ");
-
-        for (final AbstractActivity activ : abstractScaleOutPlan.getActivites()) {
-            LOG.debug("id: " + activ.getId() + " type: " + activ.getType());
-        }
-
-        LOG.debug("Links: ");
-        for (final Link link : abstractScaleOutPlan.getLinks()) {
-            String srcId = null;
-            String trgtId = null;
-
-            if (link.getSrcActiv() != null) {
-                srcId = link.getSrcActiv().getId();
-            }
-
-            if (link.getTrgActiv() != null) {
-                trgtId = link.getTrgActiv().getId();
-            }
-
-            LOG.debug("(" + srcId + ", " + trgtId + ")");
-        }
-
-    }
-
-    private void runProvisioningLogicGeneration(final BPELPlan plan, final AbstractNodeTemplate nodeTemplate,
-                                                final Property2VariableMapping map, String serviceInstanceUrl,
-                                                String serviceInstanceId, String serviceTemplateUrl,
-                                                String csarFileName) {
-        // handling nodetemplate
-        final BPELPlanContext context =
-            new BPELPlanContext(plan,this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map,
-                plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarFileName);
-        // check if we have a generic plugin to handle the template
-        // Note: if a generic plugin fails during execution the
-        // TemplateBuildPlan is broken!
-
-        for (IPlanBuilderPrePhasePlugin prePhasePlugin : this.pluginRegistry.getPrePlugins()) {
-            if (prePhasePlugin.canHandleCreate(nodeTemplate)) {
-                prePhasePlugin.handleCreate(context, nodeTemplate);
-            }
-        }
-
-        final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
-        if (plugin != null) {
-
-
-            BPELScaleOutProcessBuilder.LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(),
-                                                plugin.getID());
-            plugin.handleCreate(context, nodeTemplate);
-
-        } else {
-            BPELScaleOutProcessBuilder.LOG.debug("Can't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
-        }
-
-        for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
-                postPhasePlugin.handleCreate(context, nodeTemplate);
-            }
-        }
-    }
-
-    private void runProvisioningLogicGeneration(final BPELPlan plan,
-                                                final AbstractRelationshipTemplate relationshipTemplate,
-                                                final Property2VariableMapping map, String csarFileName) {
-        // handling relationshiptemplate
-
-        final BPELPlanContext context = this.createContext(relationshipTemplate, plan, map, csarFileName);
-
-        // check if we have a generic plugin to handle the template
-        // Note: if a generic plugin fails during execution the
-        // TemplateBuildPlan is broken here!
-        // TODO implement fallback
-        if (this.pluginRegistry.findTypePluginForCreation(relationshipTemplate) != null) {
-            BPELScaleOutProcessBuilder.LOG.info("Handling RelationshipTemplate {} with type plugin",
-                                                relationshipTemplate.getId());
-            IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
-            this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);
-
-        } else {
-            BPELScaleOutProcessBuilder.LOG.debug("Couldn't handle RelationshipTemplate {} with type plugin",
-                                                 relationshipTemplate.getId());
-        }
-
-        for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleCreate(relationshipTemplate)) {
-                postPhasePlugin.handleCreate(context, relationshipTemplate);
-            }
-        }
-    }
-
     private void runProvisioningLogicGeneration(final BPELPlan plan, final Property2VariableMapping map,
                                                 final List<AbstractNodeTemplate> nodeTemplates,
                                                 final List<AbstractRelationshipTemplate> relationshipTemplates,
                                                 String serviceInstanceUrl, String serviceInstanceId,
                                                 String serviceTemplateUrl, String csarFileName) {
         for (final AbstractNodeTemplate node : nodeTemplates) {
-            this.runProvisioningLogicGeneration(plan, node, map, serviceInstanceUrl, serviceInstanceId,
-                                                serviceTemplateUrl, csarFileName);
+            // handling nodetemplate
+            final BPELPlanContext context =
+                new BPELPlanContext(plan,this.planHandler.getTemplateBuildPlanById(node.getId(), plan), map,
+                    plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarFileName);
+            // check if we have a generic plugin to handle the template
+            // Note: if a generic plugin fails during execution the
+            // TemplateBuildPlan is broken!
+            
+            this.pluginhandler.handleActivity(context, plan.getTemplateBuildPlan(node), node);
         }
         for (final AbstractRelationshipTemplate relation : relationshipTemplates) {
-            this.runProvisioningLogicGeneration(plan, relation, map, csarFileName);
+            // handling nodetemplate
+            final BPELPlanContext context =
+                new BPELPlanContext(plan,this.planHandler.getTemplateBuildPlanById(relation.getId(), plan), map,
+                    plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarFileName);
+            // check if we have a generic plugin to handle the template
+            // Note: if a generic plugin fails during execution the
+            // TemplateBuildPlan is broken!
+            
+            this.pluginhandler.handleActivity(context, plan.getTemplateBuildPlan(relation), relation);
         }
     }
 

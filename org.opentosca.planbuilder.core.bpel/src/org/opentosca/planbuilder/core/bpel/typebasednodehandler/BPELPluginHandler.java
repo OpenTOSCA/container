@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.planbuilder.ScalingPlanDefinition.AnnotatedAbstractNodeTemplate;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -18,6 +19,7 @@ import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.typebased.IScalingPlanBuilderSelectionPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,8 @@ public class BPELPluginHandler {
             case DEFROST:
                 result = handleDefrostActivity(context, bpelScope, nodeTemplate);
                 break;
+            case STRATEGICSELECTION: 
+                result = handleSelectionActivity(context, bpelScope, (AnnotatedAbstractNodeTemplate) nodeTemplate);
             default:
                 result = false;
                 break;
@@ -46,6 +50,8 @@ public class BPELPluginHandler {
 
         return result;
     }
+
+    
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractRelationshipTemplate relationshipTemplate) {
@@ -146,6 +152,21 @@ public class BPELPluginHandler {
             }
         }
         return result;
+    }
+    
+    private boolean handleSelectionActivity(BPELPlanContext context, BPELScope bpelScope,
+                                            AnnotatedAbstractNodeTemplate nodeTemplate) {
+        for (final IScalingPlanBuilderSelectionPlugin plugin : this.pluginRegistry.getSelectionPlugins()) {
+            final List<String> a = new ArrayList<>(nodeTemplate.getAnnotations());
+            if (plugin.canHandle(nodeTemplate, a)) {
+
+                return plugin.handle(context, nodeTemplate,
+                                       new ArrayList<>(nodeTemplate.getAnnotations()));
+            }
+        }
+        
+   
+        return false;
     }
 
     private boolean handleProvisioningActivity(final BPELPlanContext context, final BPELScope bpelScope,
