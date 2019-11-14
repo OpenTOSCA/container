@@ -66,7 +66,6 @@ public class PlacementController {
             this.instanceService.getAllNodeTemplateInstances();
         // loop over all node templates that need to be placed
         for (int i = 0; i < nodeTemplatesToBePlaced.size(); i++) {
-            nodeTemplatesToBePlaced.get(i).createValidNodeTemplateInstancesList();
 
             // search for valid running node template instances where node template can be placed
             for (final NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstanceList) {
