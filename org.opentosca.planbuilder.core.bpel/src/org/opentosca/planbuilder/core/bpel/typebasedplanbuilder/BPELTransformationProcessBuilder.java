@@ -168,10 +168,13 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
         // load nodeTemplate properties from source service instance
         Collection<BPELScope> terminationScopes = this.getTerminationScopes(transformationBPELPlan);
-        this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(transformationBPELPlan,
-                                                                                       sourcesProp2VarMap, serviceTemplateURL,
-                                                                                       terminationScopes,
-                                                                                       serviceTemplate, "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
+
+//        this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(transformationBPELPlan,
+//                                                                                       sourcesProp2VarMap,
+//                                                                                       serviceTemplateURL,
+//                                                                                       terminationScopes,
+//                                                                                       serviceTemplate,
+//                                                                                       "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 
 
 
@@ -337,11 +340,13 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
         // load nodeTemplate properties from source service instance
         Collection<BPELScope> terminationScopes = this.getTerminationScopes(transformationBPELPlan);
-        this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(transformationBPELPlan,
-                                                                                       sourcePropMap,
-                                                                                       sourceServiceTemplateURL,
-                                                                                       terminationScopes,
-                                                                                       sourceServiceTemplate, "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
+
+//        this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(transformationBPELPlan,
+//                                                                                       sourcePropMap,
+//                                                                                       sourceServiceTemplateURL,
+//                                                                                       terminationScopes,
+//                                                                                       sourceServiceTemplate,
+//                                                                                       "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 
         // handle target service instance information
         this.serviceInstanceHandler.initServiceInstancesURLVariableFromAvailableServiceInstanceUrlVar(transformationBPELPlan,

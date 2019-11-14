@@ -114,20 +114,34 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             this.serviceInstanceHandler.getServiceTemplateURLVariableName(newTerminationPlan);
         
         String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(newTerminationPlan);
-        
-        this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(newTerminationPlan, propMap,
-                                                                                       serviceTemplateURLVarName,
-                                                                                       serviceTemplate, "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
+
 
         // fetch all nodeinstances that are running
-        this.instanceVarsHandler.addNodeInstanceFindLogic(newTerminationPlan,
-                                                          "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED&amp;serviceInstanceId=$bpelvar["+serviceInstanceId+"]",
-                                                          serviceTemplate);
-        this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan, propMap,
-                                                                                serviceTemplate);
+        // FIXME this must be removed, as it only is used to update initially all properties, however, this
+        // is done in every scope for each node template already
+        // The main problem is that when the plan calls operations of other nodes in a scope of
+        // another one, e.g. the removeContainer operation of DockerEngine, it can't determine
+        // the node instance id of the docker engine as this is done after(!) the docker container, and
+        // therefore the nodeinstance is not available
 
-        this.instanceVarsHandler.addRelationInstanceFindLogic(newTerminationPlan, "?state=CREATED&amp;state=INITIAL&amp;serviceInstanceId=$bpelvar["+serviceInstanceId+"]",
-                                                              serviceTemplate);
+        // this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(newTerminationPlan,
+        // propMap,
+        // serviceTemplateURLVarName,
+        // serviceTemplate,
+        // "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
+        // this.instanceVarsHandler.addNodeInstanceFindLogic(newTerminationPlan,
+        // "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED&amp;serviceInstanceId=$bpelvar["
+        // + serviceInstanceId + "]",
+        // serviceTemplate);
+        // this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan,
+        // propMap,
+        // serviceTemplate);
+        //
+        // this.instanceVarsHandler.addRelationInstanceFindLogic(newTerminationPlan,
+        // "?state=CREATED&amp;state=INITIAL&amp;serviceInstanceId=$bpelvar["
+        // + serviceInstanceId + "]",
+        // serviceTemplate);
+
 
         final List<BPELScope> changedActivities = runPlugins(newTerminationPlan, propMap, csarName);
 
@@ -142,6 +156,14 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         this.serviceInstanceHandler.appendSetServiceInstanceState(newTerminationPlan,
                                                                   newTerminationPlan.getBpelMainSequenceCallbackInvokeElement(),
                                                                   "DELETED", serviceInstanceURLVarName);
+
+        this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(newTerminationPlan,
+                                                                         this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTerminationPlan),
+                                                                         "ERROR", serviceInstanceURLVarName);
+        this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(newTerminationPlan,
+                                                                         this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTerminationPlan),
+                                                                         "FAILED",
+                                                                         this.serviceInstanceHandler.findPlanInstanceUrlVariableName(newTerminationPlan));
 
         this.correlationHandler.addCorrellationID(newTerminationPlan);
 
