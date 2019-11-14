@@ -254,7 +254,7 @@ public class BPELInvokerPluginHandler {
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput,
-                          Element elementToAppendTo) throws IOException {
+                          Element elementToAppendTo) throws IOException {                
         final File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
         final File wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
         // register wsdls and xsd
@@ -493,7 +493,7 @@ public class BPELInvokerPluginHandler {
         catch (SAXException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
-        }
+        }                
         
         return true;
     }

@@ -2,10 +2,13 @@
 package org.opentosca.planbuilder.type.plugin.patternbased.bpel;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPlugin;
@@ -46,32 +49,70 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
         boolean check = true;
+        Map<AbstractOperation,AbstractOperation> usedOps = new HashMap<AbstractOperation,AbstractOperation>();
         if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate)) {
+            AbstractOperation createOp =  null;
+            AbstractOperation terminateOp = null;
             LOG.debug("Handling by container pattern");
             check &= containerPatternHandler.handleCreate(templateContext, nodeTemplate,
                                                           templateContext.getProvisioningPhaseElement());
-
+            createOp = containerPatternHandler.getContainerPatternCreateMethod(nodeTemplate);
+            usedOps.put(createOp, null);
             if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
                 LOG.debug("Adding container pattern compensation logic");
                 check &=
                     containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
                                                             templateContext.getProvisioningCompensationPhaseElement());
+                terminateOp = containerPatternHandler.getContainerPatternTerminateMethod(nodeTemplate);
+                usedOps.put(createOp, terminateOp);
             }
         } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
             LOG.debug("Handling by lifecycle pattern");
 
+            AbstractOperation installOp = null;
+            AbstractOperation configureOp = null;
+            AbstractOperation startOp = null;
+            AbstractOperation uninstallOp = null;
+            AbstractOperation stopOp = null;
+            
             check &= lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
                                                           templateContext.getProvisioningPhaseElement());
 
+            installOp = lifecyclePatternHandler.getLifecyclePatternInstallMethod(nodeTemplate);
+            configureOp = lifecyclePatternHandler.getLifecyclePatternConfigureMethod(nodeTemplate);
+            startOp = lifecyclePatternHandler.getLifecyclePatternStartMethod(nodeTemplate);
+            if(installOp != null) {
+                usedOps.put(installOp, null);
+            }
+            if(configureOp != null){
+                usedOps.put(configureOp, null);
+            }
+            if(startOp != null) {
+                usedOps.put(startOp, null);
+            }
+            
             if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
                 LOG.debug("Adding lifecycle pattern compensation logic");
                 check &=
                     lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
                                                             templateContext.getProvisioningCompensationPhaseElement());
+                stopOp = lifecyclePatternHandler.getLifecyclePatternStopMethod(nodeTemplate);
+                uninstallOp = lifecyclePatternHandler.getLifecyclePatternUninstallMethod(nodeTemplate);
+                if(installOp != null & uninstallOp != null) {
+                    usedOps.put(installOp, uninstallOp);
+                }                
+                if(startOp != null & stopOp != null) {
+                    usedOps.put(startOp, stopOp);
+                }
             }
         } else {
             return false;
         }
+        
+        for(AbstractOperation op : usedOps.keySet()) {
+            templateContext.addUsedOperation(op, usedOps.get(op));
+        }
+        
         return check;
     }
 
@@ -145,31 +186,77 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
         boolean check = true;
+        Map<AbstractOperation,AbstractOperation> usedOps = new HashMap<AbstractOperation,AbstractOperation>();
         if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
             LOG.debug("Handling by container pattern");
+             
+            AbstractOperation createOp =  null;
+            AbstractOperation terminateOp = null;
+                       
             check &= containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
                                                              templateContext.getProvisioningPhaseElement());
+            terminateOp = containerPatternHandler.getContainerPatternTerminateMethod(nodeTemplate);
+            usedOps.put(terminateOp, null);
 
             if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate)) {
                 LOG.debug("Adding container pattern compensation logic");
                 check &=
                     containerPatternHandler.handleCreate(templateContext, nodeTemplate,
                                                          templateContext.getProvisioningCompensationPhaseElement());
+                createOp = containerPatternHandler.getContainerPatternCreateMethod(nodeTemplate);
+                usedOps.put(terminateOp, createOp);
             }
 
         } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
             LOG.debug("Handling by lifecycle pattern");
             check &= lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
                                                              templateContext.getProvisioningPhaseElement());
+            
+            AbstractOperation installOp = null;
+            AbstractOperation configureOp = null;
+            AbstractOperation startOp = null;
+            AbstractOperation uninstallOp = null;
+            AbstractOperation stopOp = null;
+            
+            stopOp = lifecyclePatternHandler.getLifecyclePatternStopMethod(nodeTemplate);
+            uninstallOp = lifecyclePatternHandler.getLifecyclePatternUninstallMethod(nodeTemplate);
+
+            if(stopOp != null) {
+                usedOps.put(stopOp, null);
+            }
+            
+            if(uninstallOp != null) {
+                usedOps.put(uninstallOp, null);
+            }
+      
             if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
                 LOG.debug("Adding lifecycle pattern compensation logic");
                 check &=
                     lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
                                                          templateContext.getProvisioningCompensationPhaseElement());
+                
+                installOp = lifecyclePatternHandler.getLifecyclePatternInstallMethod(nodeTemplate);
+                configureOp = lifecyclePatternHandler.getLifecyclePatternConfigureMethod(nodeTemplate);
+                startOp = lifecyclePatternHandler.getLifecyclePatternStartMethod(nodeTemplate);
+                
+                if(installOp != null & uninstallOp != null) {
+                    usedOps.put(uninstallOp, installOp);
+                }                
+                if(startOp != null & stopOp != null) {
+                    usedOps.put(stopOp, startOp);
+                }
+                if(configureOp != null) {
+                    usedOps.put(null, configureOp);
+                }
             }
         } else {
             return false;
         }
+        
+        for(AbstractOperation op : usedOps.keySet()){
+          templateContext.addUsedOperation(op, usedOps.get(op));  
+        }
+        
         return check;
     }
 

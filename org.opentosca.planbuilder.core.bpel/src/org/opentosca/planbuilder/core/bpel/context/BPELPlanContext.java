@@ -37,7 +37,10 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
@@ -108,6 +111,25 @@ public class BPELPlanContext extends PlanContext {
 
     }
 
+    
+    public void addUsedOperation(AbstractOperation operation, AbstractOperation compensationOperation) {
+        this.templateBuildPlan.addUsedOperation(operation, compensationOperation);       
+    }
+    
+    public boolean addUsedOperation(String interfaceName, String operationName, String compensationInterfaceName, String compensationOperationName) {
+        AbstractOperation op = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(interfaceName, operationName);
+        AbstractOperation compensationOp = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(compensationInterfaceName, compensationOperationName);
+        if(op != null) {
+            this.addUsedOperation(op, compensationOp);
+            return true;
+        } else {
+            return false;
+        }        
+    }
+    
+    public Map<AbstractOperation, AbstractOperation> getUsedOperations() {
+        return this.templateBuildPlan.getUsedOperations();
+    }
 
     // TODO Refactor methods up to the BPEL specific methods
 

@@ -1,20 +1,13 @@
 package org.opentosca.planbuilder.postphase.plugin.situations.bpel;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.text.Document;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -32,7 +25,6 @@ import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwarePrePha
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -61,80 +53,23 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
-        return this.getSituationAwareExecutionPolicy(nodeTemplate) != null
-            && !this.getSituationPolicies(nodeTemplate).isEmpty();
-    }
-
-    private Collection<AbstractPolicy> getSituationPolicies(Collection<AbstractNodeTemplate> nodeTemplates) {
-        Set<AbstractPolicy> policies = new HashSet<AbstractPolicy>();
-        for (AbstractNodeTemplate node : nodeTemplates) {
-            policies.addAll(this.getSituationPolicies(node));
-        }
-        return policies;
-    }
-
-    private Collection<AbstractPolicy> getSituationPolicies(AbstractNodeTemplate nodeTemplate) {
-        Set<AbstractPolicy> policies = new HashSet<AbstractPolicy>();
-        for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().getLocalPart().startsWith("SituationPolicy")) {
-                policies.add(policy);
-            }
-        }
-        return policies;
-    }
-
-    private AbstractPolicy getSituationAwareExecutionPolicy(AbstractNodeTemplate nodeTemplate) {
-        for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().getLocalPart().startsWith("SituationAwareExecutionPolicy")) {
-                return policy;
-            }
-        }
-        return null;
-    }
-
-    private Collection<AbstractNodeTemplate> fetchUsedNodeTemplates(BPELPlanContext context) {
-        // in some cases plugins use operations of other node templates (e.g. docker containers and docker
-        // engines or VM's and cloud providers)
-        // therefore we have to find those node templates here
-        Collection<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
-
-
-        Element provPhaseElement = context.getProvisioningPhaseElement();
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        try {
-            NodeList nodeTemplateIDNodes =
-                (NodeList) xpath.evaluate("//*[local-name()='invokeOperationAsync']/*[local-name()='NodeTemplateID']",
-                                          provPhaseElement, XPathConstants.NODESET);
-
-            for (int i = 0; i < nodeTemplateIDNodes.getLength(); i++) {
-                String nodeTemplateId = nodeTemplateIDNodes.item(i).getTextContent();
-                for (AbstractNodeTemplate node : context.getNodeTemplates()) {
-                    if (node.getId().equals(nodeTemplateId)) {
-                        nodes.add(node);
-                    }
-                }
-            }
-        }
-        catch (XPathExpressionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return nodes;
+    public boolean canHandleCreate(BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+        Collection<AbstractNodeTemplate> nodes = SituationPluginUtils.findUsedNodes(context);
+        return SituationPluginUtils.getSituationAwareExecutionPolicy(nodes) != null & !SituationPluginUtils.getSituationPolicies(nodes).isEmpty();
     }
 
     @Override
     public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+        Collection<AbstractNodeTemplate> usedNodes = SituationPluginUtils.findUsedNodes(context);
         // get annotated policy for the situational scope
-        AbstractPolicy situationAwareExecutionPolicy = this.getSituationAwareExecutionPolicy(nodeTemplate);
+        AbstractPolicy situationAwareExecutionPolicy = SituationPluginUtils.getSituationAwareExecutionPolicy(usedNodes);
         String entryMode = situationAwareExecutionPolicy.getTemplate().getProperties().asMap().get("EntryMode");
         String situationViolation =
             situationAwareExecutionPolicy.getTemplate().getProperties().asMap().get("SituationViolation");
 
 
         // get annotated situation policies
-        Collection<AbstractPolicy> situationPolicies = this.getSituationPolicies(this.fetchUsedNodeTemplates(context));
+        Collection<AbstractPolicy> situationPolicies = SituationPluginUtils.getSituationPolicies(usedNodes);
         Map<AbstractPolicy, Variable> situationPolicies2DataVariables = new HashMap<AbstractPolicy, Variable>();
         Map<AbstractPolicy, Variable> situationPolicies2IdVariables = new HashMap<AbstractPolicy, Variable>();
         Map<AbstractPolicy, String> situationPolicies2InputParamName = new HashMap<AbstractPolicy, String>();
@@ -180,32 +115,52 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
         }
 
         // add update situation data
-        this.addGETSituationData(context, situationPolicies2IdVariables, situationPolicies2DataVariables,
-                                 context.getPrePhaseElement());
+        SituationPluginUtils.addGETSituationData(context, situationPolicies2IdVariables, situationPolicies2DataVariables,
+                                 context.getPrePhaseElement(), this.fragments);
 
-        String xpathQuery = this.getSituationDataEvaluationQuery(situationPolicies2DataVariables);     
+        String situationsActiveXpathQuery = SituationPluginUtils.getSituationDataEvaluationQuery(situationPolicies2DataVariables);
+
+
+
+        
+        
+        String combinedQuery = situationsActiveXpathQuery;
+        
+        if(SituationPluginUtils.isWCETCalculationPossible(context, nodeTemplate, usedNodes)) {
+            String situationsMinActiveTimeXpathQuery =
+            SituationPluginUtils.getSituationMinActiveTimeEvaluationQuery(situationPolicies2DataVariables);
+        
+            Variable compensationWcetTimeVariable = SituationPluginUtils.appendCompensationWCETCalculation(context, nodeTemplate, usedNodes);
+            
+            String wcetQuery = "number($" + compensationWcetTimeVariable.getVariableName() + ") <= number(" + situationsMinActiveTimeXpathQuery + ")";
+            
+            combinedQuery += " and " + wcetQuery;
+        }
+
 
         // If entryMode is 'abort' we exit the process if one situation is not active at this point
         if (entryMode.equals("Abort")) {
-            Node node = this.createIfXPathExprTrueThrowError(xpathQuery, nodeTemplate);
+            Node node = SituationPluginUtils.createIfXPathExprTrueThrowError(combinedQuery, nodeTemplate, this.mainFragments);
             node = context.importNode(node);
             context.getPrePhaseElement().appendChild(node);
             context.getProvisioningCompensationPhaseElement()
                    .appendChild(context.createElement(BPELPlan.bpelNamespace, "exit"));
         }
 
-        // ..if 'wait' we wait 10s and re-evaluate via a while activity wrapping a sequence of wait and data updates
+        // ..if 'wait' we wait 5s and re-evaluate via a while activity wrapping a sequence of wait and data
+        // updates
         if (entryMode.equals("Wait")) {
             try {
                 Element waitForConditionActivities =
-                    (Element) this.mainFragments.createWaitForCondition("not(" + xpathQuery + ")", "'PT10S'");
+                    (Element) this.mainFragments.createWaitForCondition("not(" + combinedQuery + ")",
+                                                                        "'PT5S'");
                 waitForConditionActivities = (Element) context.importNode(waitForConditionActivities);
-                
-                
-                Node seq = this.getFirstChildNode(waitForConditionActivities, "sequence");                
-                
-                this.addGETSituationData(context, situationPolicies2IdVariables, situationPolicies2DataVariables,
-                                         (Element)seq);
+
+
+                Node seq = SituationPluginUtils.getFirstChildNode(waitForConditionActivities, "sequence");
+
+                SituationPluginUtils.addGETSituationData(context, situationPolicies2IdVariables, situationPolicies2DataVariables,
+                                         (Element) seq, this.fragments);
 
                 waitForConditionActivities = (Element) context.importNode(waitForConditionActivities);
                 context.getPrePhaseElement().appendChild(waitForConditionActivities);
@@ -221,7 +176,8 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
         }
 
         try {
-            Node assignStartedVar = this.mainFragments.createAssignXpathQueryToStringVarFragmentAsNode(nodeTemplate.getId()
+            Node assignStartedVar = this.mainFragments.createAssignXpathQueryToStringVarFragmentAsNode(nodeTemplate
+                                                                                                                   .getId()
                 + "_assignSituationScopeStarted", "boolean('true')", situationalScopeStartedVariable.getVariableName());
             assignStartedVar = context.importNode(assignStartedVar);
             context.getPrePhaseElement().appendChild(assignStartedVar);
@@ -236,141 +192,27 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
         }
 
         /* Add EventHandler Activity that observes the situations */
-        this.addSituationObservationActivities(context, nodeTemplate, "'PT10S'", situationPolicies2DataVariables,
+        SituationPluginUtils.addSituationObservationActivities(context, nodeTemplate, "'PT5S'", situationPolicies2DataVariables,
                                                situationPolicies2IdVariables, situationViolation,
-                                               situationalScopeStartedVariable);
+                                               situationalScopeStartedVariable, this.fragments, this.mainFragments);
         return true;
     }
-    
-    private Node getFirstChildNode(Node node, String localName) {
-        NodeList childList = node.getChildNodes();
-        for(int i = 0; i< childList.getLength(); i++) {           
-            String nodeName = childList.item(i).getNodeName();            
-            if(childList.item(i).getNodeType() == Node.ELEMENT_NODE && nodeName.substring(nodeName.indexOf(":") + 1).equals(localName)) {
-                return childList.item(i);
-            }            
-        }
-        return null;
-    }
-
-    private Node createIfXPathExprTrueThrowError(String xpathQuery, AbstractNodeTemplate nodeTemplate) {
-        Node node = this.mainFragments.createIfTrueThrowsError(xpathQuery, new QName("http://opentosca.org/situations",
-            "SituationsNotActive_AbortError_" + nodeTemplate.getId()));
-        return node;
-    }
-
-    private String getSituationDataEvaluationQuery(Map<AbstractPolicy, Variable> situationPolicies2DataVariables) {
-        String xpathQuery = "";
-        for (Variable situationDataVar : situationPolicies2DataVariables.values()) {
-            xpathQuery += "count($" + situationDataVar.getVariableName()
-                + "/*[local-name()='Active' and text()='true']) = 1 and ";
-        }
-        xpathQuery = xpathQuery.substring(0, xpathQuery.length() - " and ".length());
-        return xpathQuery;
-    }
-
-    private void addGETSituationData(BPELPlanContext context,
-                                     Map<AbstractPolicy, Variable> situationPolicies2IdVariables,
-                                     Map<AbstractPolicy, Variable> situationPolicies2DataVariables,
-                                     Element elementToAppendTo) {
-        for (AbstractPolicy policy : situationPolicies2DataVariables.keySet()) {
-            try {
-                // fetch situation data
-                Node fetchSituationState =
-                    this.fragments.generateBPEL4RESTLightGETAsNode(situationPolicies2IdVariables.get(policy)
-                                                                                                .getVariableName(),
-                                                                   situationPolicies2DataVariables.get(policy)
-                                                                                                  .getVariableName());
-                fetchSituationState = context.importNode(fetchSituationState);
-                elementToAppendTo.appendChild(fetchSituationState);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            catch (SAXException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
-
-    private void addSituationDataUpdate(BPELPlanContext context, Node nodeToAppendTo,
-                                        Map<AbstractPolicy, Variable> situationPolicies2DataVariables,
-                                        Map<AbstractPolicy, Variable> situationPolicies2IdVariables,
-                                        String situationViolation, Variable situationalScopeStartedVariable) {
-        // main sequence
-        Element sequenceElement = context.createElement(BPELPlan.bpelNamespace, "sequence");
-
-        this.addGETSituationData(context, situationPolicies2IdVariables, situationPolicies2DataVariables,
-                                 sequenceElement);
-
-        String evalDataExpr = this.getSituationDataEvaluationQuery(situationPolicies2DataVariables);
-
-
-        if (situationViolation.equals("Abort")) {
-            // we exit the process if the situation are not active
-            Element ifElement = this.createXpathExprIfElement(context, evalDataExpr);
-            ifElement.appendChild(context.createElement(BPELPlan.bpelNamespace, "exit"));
-        }
-
-        if (situationViolation.equals("Compensate")) {
-            // throw error when situation not okay and use integrated compensation logic
-            Node throwErrorIfEvalFalse =
-                context.importNode(this.createIfXPathExprTrueThrowError(evalDataExpr, context.getNodeTemplate()));
-            sequenceElement.appendChild(throwErrorIfEvalFalse);
-        }
-
-        // add the fetch/check/action sequence into an if that checks whether the scope started already
-        Element ifElement =
-            this.createXpathExprIfElement(context, "$" + situationalScopeStartedVariable.getVariableName());
-        ifElement.appendChild(sequenceElement);
-        nodeToAppendTo.appendChild(ifElement);
-    }
-
-    private Element createXpathExprIfElement(BPELPlanContext context, String xpr) {
-        Element ifElement = context.createElement(BPELPlan.bpelNamespace, "if");
-        Element conditionElement = context.createElement(BPELPlan.bpelNamespace, "condition");
-        conditionElement.setAttribute("expressionLanguage", BPELPlan.xpath2Namespace);
-        conditionElement.setTextContent(xpr);
-        ifElement.appendChild(conditionElement);
-        return ifElement;
-    }
-
-    private void addSituationObservationActivities(final BPELPlanContext context,
-                                                   final AbstractNodeTemplate nodeTemplate, String durationExpression,
-                                                   Map<AbstractPolicy, Variable> situationPolicies2DataVariables,
-                                                   Map<AbstractPolicy, Variable> situationPolicies2IdVariables,
-                                                   String situationViolation,
-                                                   Variable situationalScopeStartedVariable) {
-        Element onAlarmElement = this.createOnAlarmEventHandler(context, durationExpression);
-        this.addSituationDataUpdate(context, onAlarmElement, situationPolicies2DataVariables,
-                                    situationPolicies2IdVariables, situationViolation, situationalScopeStartedVariable);        
-        context.getEventHandlersElement().appendChild(onAlarmElement);
-    }
-
-    private Element createOnAlarmEventHandler(BPELPlanContext context, String durationExpression) {
-        Element onAlarmElement = context.createElement(BPELPlan.bpelNamespace, "onAlarm");
-        Element repeatElement = context.createElement(BPELPlan.bpelNamespace, "repeatEvery");
-        repeatElement.setAttribute("expressionLanguague", BPELPlan.xpath2Namespace);
-        repeatElement.setTextContent(durationExpression);
-        onAlarmElement.appendChild(repeatElement);
-        return onAlarmElement;
-    }
-
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
-        return false;
+    public boolean canHandleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+        // if we can handle creation, we can also handle termination as we only add situation observation
+        // code
+        return this.canHandleCreate(context, nodeTemplate);
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
         // we can handle relations
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
         return false;
     }
 

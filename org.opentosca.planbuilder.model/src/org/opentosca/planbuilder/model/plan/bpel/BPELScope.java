@@ -1,8 +1,14 @@
 package org.opentosca.planbuilder.model.plan.bpel;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,6 +33,7 @@ public class BPELScope{
     
     public BPELScope(AbstractActivity activity) {
         this.act = activity;
+        this.usedOperations = new HashMap<AbstractOperation, AbstractOperation>();
     }
 
     
@@ -50,6 +57,8 @@ public class BPELScope{
     private Element bpelEventHandlersElement;    
 
     private BPELScope bpelCompensationScope;
+    
+    private Map<AbstractOperation, AbstractOperation> usedOperations;
 
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
@@ -341,6 +350,14 @@ public class BPELScope{
 
     public void setBpelEventHandlersElement(Element bpelEventHandlersElement) {
         this.bpelEventHandlersElement = bpelEventHandlersElement;
+    }
+    
+    public Map<AbstractOperation, AbstractOperation> getUsedOperations() {
+        return usedOperations;
+    }
+
+    public void addUsedOperation(AbstractOperation usedOperation, AbstractOperation compensationOperation) {
+        this.usedOperations.put(usedOperation, compensationOperation);        
     }
 
 }

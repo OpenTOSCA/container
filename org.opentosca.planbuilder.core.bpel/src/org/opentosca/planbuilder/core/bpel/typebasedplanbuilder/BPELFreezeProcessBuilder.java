@@ -434,7 +434,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                 }
 
                 for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                    if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+                    if (postPhasePlugin.canHandleCreate(context, nodeTemplate)) {
                         postPhasePlugin.handleCreate(context, nodeTemplate);
                     }
                 }
