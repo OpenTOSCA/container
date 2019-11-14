@@ -132,24 +132,23 @@ public class ParameterHandler {
                 final Map<String, String> propMap = nodeTemplateInstance.getPropertiesAsMap();
                 if (Objects.nonNull(propMap)) {
                     for (final String key : propMap.keySet()) {
+                        // if node templ instance is of OS node type + prop is instanceRef, check for selected instance
                         if (key.equals("instanceRef")) {
                             final String value = propMap.get(key);
+                            /*
+                             * values are sent from frontend delimited by "," in following format:
+                             * service-template-instance-id,node-template-id
+                             */
                             final String[] setOfValues = value.split(",");
-                            try {
-                                final Long serviceTemplateInstanceId = Long.parseLong(setOfValues[0]);
-                                final String nodeTemplateId = setOfValues[1];
-                                // final Long nodeTemplateInstanceId = Long.parseLong(setOfValues[2]);
-                                LOG.debug("Found instanceRef Property: " + key + " with value: " + propMap.get(key));
+                            // get selected service template instance id
+                            final Long serviceTemplateInstanceId = Long.parseLong(setOfValues[0]);
+                            // get selected node template id
+                            final String nodeTemplateId = setOfValues[1];
+                            LOG.debug("Found instanceRef Property: " + key + " with value: " + propMap.get(key));
 
-                                // TODO: try to fetch node instance by node instance id
-                                // replace OS node template instance by selected node template instance
-                                nodeTemplateInstance =
-                                    MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplateId);
-                            }
-                            catch (final NumberFormatException e) {
-                                LOG.error(e.getMessage());
-                            }
-
+                            // replace OS node template instance by selected node template instance
+                            nodeTemplateInstance =
+                                MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplateId);
                         }
                     }
                 }

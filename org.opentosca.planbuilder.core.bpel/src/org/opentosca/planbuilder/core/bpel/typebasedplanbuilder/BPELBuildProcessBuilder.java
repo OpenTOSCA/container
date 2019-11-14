@@ -6,6 +6,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
@@ -179,13 +180,18 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                                                                           newBuildPlan.getBpelMainSequenceOutputAssignElement(),
                                                                           "CREATED", serviceInstanceUrl);
 
-            this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "ERROR", serviceInstanceUrl);
-            this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "FAILED", this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan));
-            
+            this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan,
+                                                                                 this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan),
+                                                                                 "ERROR", serviceInstanceUrl);
+            this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan,
+                                                                                 this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan),
+                                                                                 "FAILED",
+                                                                                 this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan));
+
             this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
 
-            
-            
+
+
             this.finalizer.finalize(newBuildPlan);
             return newBuildPlan;
         }
@@ -224,8 +230,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
         return plans;
     }
 
-
-
     /**
      * <p>
      * This method assigns plugins to the already initialized BuildPlan and its TemplateBuildPlans.
@@ -253,7 +257,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 // if this nodeTemplate has the label running (Property: State=Running), skip
                 // provisioning and just generate instance data handling
                 // extended check for OperatingSystem node type
-                if (isRunning(nodeTemplate) || nodeTemplate.getType().getName().equals("OperatingSystem")) {
+                if (isRunning(nodeTemplate)
+                    || nodeTemplate.getType().getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())) {
                     BPELBuildProcessBuilder.LOG.debug("Skipping the provisioning of NodeTemplate "
                         + bpelScope.getNodeTemplate().getId() + "  beacuse state=running is set.");
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {

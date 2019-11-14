@@ -75,7 +75,6 @@ public class PlacementController {
                     // yay, we found an option, add to list
                     final NodeTemplateInstanceDTO foundInstance =
                         NodeTemplateInstanceDTO.Converter.convert(nodeTemplateInstance);
-                    foundInstance.removeLinks();
                     nodeTemplatesToBePlaced.get(i).getValidNodeTemplateInstances().add(foundInstance);
                 }
             }
