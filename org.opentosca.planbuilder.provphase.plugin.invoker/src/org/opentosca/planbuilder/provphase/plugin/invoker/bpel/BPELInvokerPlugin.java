@@ -24,6 +24,7 @@ import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokerPluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 
 /**
  * Copyright 2014 IAAS University of Stuttgart <br>
@@ -74,7 +75,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
                           final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final BPELScopePhaseType phase) {
+                         Element elementToAppendTo) {
         String templateId = "";
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
@@ -92,7 +93,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       inputParams, new HashMap<String, Variable>(), phase);
+                                       inputParams, new HashMap<String, Variable>(),  elementToAppendTo);
         }
         catch (final Exception e) {
             e.printStackTrace();
@@ -121,7 +122,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       inputParams, new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
+                                       inputParams, new HashMap<String, Variable>(), context.getProvisioningPhaseElement());
         }
         catch (final Exception e) {
             e.printStackTrace();
@@ -147,10 +148,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
-                          final Map<String, Variable> internalExternalPropsOutput, final BPELScopePhaseType phase) {
+                          final Map<String, Variable> internalExternalPropsOutput,  Element elementToAppendTo) {
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
-                                       internalExternalPropsInput, internalExternalPropsOutput, phase);
+                                       internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
         }
         catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
@@ -180,8 +181,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final Map<String, Variable> internalExternalPropsOutput) {
         try {
             return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName,
-                                       internalExternalPropsInput, internalExternalPropsOutput,
-                                       BPELScopePhaseType.PROVISIONING);
+                                       internalExternalPropsInput, internalExternalPropsOutput, context.getProvisioningPhaseElement());
         }
         catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
@@ -210,11 +210,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public boolean handleArtifactReferenceUpload(final AbstractArtifactReference ref,
                                                  final BPELPlanContext templateContext, final PropertyVariable serverIp,
                                                  final PropertyVariable sshUser, final PropertyVariable sshKey,
-                                                 final AbstractNodeTemplate infraTemplate,
-                                                 final BPELScopePhaseType phase) {
+                                                 final AbstractNodeTemplate infraTemplate, Element elementToAppendTo) {
         try {
             return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
-                                                              infraTemplate, phase);
+                                                              infraTemplate, elementToAppendTo);
         }
         catch (final Exception e) {
             LOG.error("Couldn't load internal files", e);
@@ -248,7 +247,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       inputParams, outputParams, BPELScopePhaseType.PROVISIONING);
+                                       inputParams, outputParams, context.getProvisioningPhaseElement());
         }
         catch (final IOException e) {
             e.printStackTrace();
@@ -260,8 +259,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
                           final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          final BPELScopePhaseType phase) {
+                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo) {
         final Map<String, Variable> inputParams = new HashMap<>();
         final Map<String, Variable> outputParams = new HashMap<>();
 
@@ -274,7 +272,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
-                                       outputParams, phase);
+                                       outputParams, elementToAppendTo);
         }
         catch (final Exception e) {
             // TODO Auto-generated catch block
@@ -296,6 +294,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final AbstractImplementationArtifact compensationIa,
                           final Map<AbstractParameter, Variable> compensationParam2VariableMapping) {
         // TODO Auto-generated method stub
+        
+        
+        
+        
         return false;
     }
 

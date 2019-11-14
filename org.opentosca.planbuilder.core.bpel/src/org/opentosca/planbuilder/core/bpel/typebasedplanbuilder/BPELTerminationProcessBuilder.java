@@ -112,9 +112,8 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         this.serviceInstanceHandler.addServiceInstanceHandlingFromInput(newTerminationPlan);
         String serviceTemplateURLVarName =
             this.serviceInstanceHandler.getServiceTemplateURLVariableName(newTerminationPlan);
-        
-        String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(newTerminationPlan);
 
+        String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(newTerminationPlan);
 
         // fetch all nodeinstances that are running
         // FIXME this must be removed, as it only is used to update initially all properties, however, this
@@ -160,6 +159,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(newTerminationPlan,
                                                                          this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTerminationPlan),
                                                                          "ERROR", serviceInstanceURLVarName);
+
         this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(newTerminationPlan,
                                                                          this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTerminationPlan),
                                                                          "FAILED",
@@ -177,13 +177,15 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                     new BPELPlanContext(newTerminationPlan, activ, propMap, newTerminationPlan.getServiceTemplate(),
                         serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName, csarName);
                 this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getNodeTemplate(),
-                                                                   "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED&amp;serviceInstanceId=$bpelvar["+serviceInstanceId+"]");
+                                                                   "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED&amp;serviceInstanceId=$bpelvar["
+                                                                       + serviceInstanceId + "]");
             } else {
                 final BPELPlanContext context =
                     new BPELPlanContext(newTerminationPlan, activ, propMap, newTerminationPlan.getServiceTemplate(),
                         serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName, csarName);
                 this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getRelationshipTemplate(),
-                                                                   "?state=CREATED&amp;state=INITIAL&amp;serviceInstanceId=$bpelvar["+serviceInstanceId+"]");
+                                                                   "?state=CREATED&amp;state=INITIAL&amp;serviceInstanceId=$bpelvar["
+                                                                       + serviceInstanceId + "]");
             }
         }
 
@@ -241,15 +243,15 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
                 final BPELPlanContext context = new BPELPlanContext(plan, bpelScope, propMap, plan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
-                result = this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);                
+                result = this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
             } else {
                 AbstractRelationshipTemplate relationshipTempalte = bpelScope.getRelationshipTemplate();
                 final BPELPlanContext context = new BPELPlanContext(plan, bpelScope, propMap, plan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
                 result = this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTempalte);
             }
-            
-            if(result) {
+
+            if (result) {
                 changedActivities.add(bpelScope);
             }
 

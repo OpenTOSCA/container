@@ -242,11 +242,12 @@ public class ServiceTemplateInstanceController {
     @ApiOperation(hidden = true, value = "")
     public Response updateServiceTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         try {
-            this.instanceService.setServiceTemplateInstanceState(id, request);
+            this.instanceService.setServiceTemplateInstanceState(id, request);            
         }
         catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         }
+        
         return Response.ok().build();
     }
 

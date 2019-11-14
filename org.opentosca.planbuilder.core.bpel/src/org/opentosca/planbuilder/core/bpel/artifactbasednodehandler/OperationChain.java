@@ -19,6 +19,7 @@ import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOper
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
+import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -376,8 +377,7 @@ public class OperationChain {
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
                                                 final Map<AbstractParameter, Variable> param2propertyMapping,
-                                                final Map<AbstractParameter, Variable> param2propertyOutputMapping,
-                                                final BPELScopePhaseType phase) {
+                                                final Map<AbstractParameter, Variable> param2propertyOutputMapping, Element elementToAppendTo) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
@@ -429,7 +429,7 @@ public class OperationChain {
                     final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin =
                         (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
                     if (!(op instanceof InterfaceDummy)) {
-                        if (paramPlugin.handle(context, op, ia, param2propertyMapping, phase)) {
+                        if (paramPlugin.handle(context, op, ia, param2propertyMapping, elementToAppendTo)) {
                             checkCount++;
                         }
                     } else {
@@ -454,7 +454,7 @@ public class OperationChain {
                             }
                         };
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, param2propertyOutputMapping,
-                                               phase)) {
+                                               elementToAppendTo)) {
                             checkCount++;
                         }
                     }
@@ -467,8 +467,7 @@ public class OperationChain {
     }
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
-                                                final Map<AbstractParameter, Variable> param2propertyMapping,
-                                                final BPELScopePhaseType phase) {
+                                                final Map<AbstractParameter, Variable> param2propertyMapping, Element elementToAppendTo) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
@@ -501,7 +500,7 @@ public class OperationChain {
                     final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin =
                         (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
                     if (!(op instanceof InterfaceDummy)) {
-                        if (paramPlugin.handle(context, op, ia, param2propertyMapping, phase)) {
+                        if (paramPlugin.handle(context, op, ia, param2propertyMapping, elementToAppendTo)) {
                             checkCount++;
                         }
                     } else {
@@ -525,7 +524,7 @@ public class OperationChain {
                                 return this.iface.getOperation(this.operationName).getInputParameters();
                             }
                         };
-                        if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, phase)) {
+                        if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, elementToAppendTo)) {
                             checkCount++;
                         }
                     }

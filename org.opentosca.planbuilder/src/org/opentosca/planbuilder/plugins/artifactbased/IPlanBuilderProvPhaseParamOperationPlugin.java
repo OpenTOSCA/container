@@ -2,12 +2,12 @@ package org.opentosca.planbuilder.plugins.artifactbased;
 
 import java.util.Map;
 
-import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -39,7 +39,7 @@ public interface IPlanBuilderProvPhaseParamOperationPlugin<T extends PlanContext
                           Map<AbstractParameter, Variable> param2propertyMapping);
 
     public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                          Map<AbstractParameter, Variable> param2propertyMapping, BPELScopePhaseType phase);
+                          Map<AbstractParameter, Variable> param2propertyMapping, Element elementToAppendTo);
 
     public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
                           Map<AbstractParameter, Variable> param2propertyMapping,
@@ -47,6 +47,6 @@ public interface IPlanBuilderProvPhaseParamOperationPlugin<T extends PlanContext
 
     public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
                           Map<AbstractParameter, Variable> param2propertyMapping,
-                          Map<AbstractParameter, Variable> param2PropertyOutputMapping, BPELScopePhaseType phase);
+                          Map<AbstractParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo);
 
 }
