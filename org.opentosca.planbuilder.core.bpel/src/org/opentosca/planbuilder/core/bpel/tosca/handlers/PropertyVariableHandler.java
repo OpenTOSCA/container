@@ -53,15 +53,21 @@ public class PropertyVariableHandler {
      */
     public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan buildPlan,
                                                                     final AbstractServiceTemplate serviceTemplate) {
-        return this.initializePropertiesAsVariables(buildPlan, serviceTemplate,
-                                                    serviceTemplate.getTopologyTemplate().getNodeTemplates(),
-                                                    serviceTemplate.getTopologyTemplate().getRelationshipTemplates());
+        final Property2VariableMapping map = new Property2VariableMapping();
+
+        for (BPELScope scope : buildPlan.getTemplateBuildPlans()) {
+            this.initializePropertiesAsVariables(map, scope, serviceTemplate);
+        }
+
+        return map;
     }
 
-    public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan plan,
-                                                                    final AbstractServiceTemplate serviceTemplate,
-                                                                    final Collection<AbstractNodeTemplate> nodes,
-                                                                    final Collection<AbstractRelationshipTemplate> relations) {
+
+    public Property2VariableMapping initializePropertiesAsVariables(BPELPlan plan,
+                                                                    AbstractServiceTemplate serviceTemplate,
+                                                                    Collection<AbstractNodeTemplate> nodes,
+                                                                    Collection<AbstractRelationshipTemplate> relations) {
+
         final Property2VariableMapping map = new Property2VariableMapping();
 
         for (final AbstractNodeTemplate nodeTemplate : nodes) {
@@ -72,8 +78,12 @@ public class PropertyVariableHandler {
         for (final AbstractRelationshipTemplate relationshipTemplate : relations) {
             this.initializePropertiesAsVariables(map, plan.getTemplateBuildPlan(relationshipTemplate), serviceTemplate);
         }
+
+
         return map;
     }
+
+
 
     /**
      * Initializes Properties inside the given PropertyMap of the given TemplateBuildPlan
@@ -203,5 +213,7 @@ public class PropertyVariableHandler {
             }
         }
     }
+
+
 
 }

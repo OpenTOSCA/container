@@ -115,6 +115,9 @@ public abstract class AbstractNodeTemplate {
      */
     @Override
     public boolean equals(final Object o) {
+        if(this == o) {
+            return true;
+        }
         if (o instanceof AbstractNodeTemplate) {
             final AbstractNodeTemplate node = (AbstractNodeTemplate) o;
             if (!node.getId().equals(this.getId())) {

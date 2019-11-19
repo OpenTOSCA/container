@@ -92,9 +92,9 @@ public class BPELPlanContext extends PlanContext {
      */
     public BPELPlanContext(final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
                            final AbstractServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
-                           String serviceInstanceIDVarName, String serviceTemplateURLVarName, String csarFileName) {
+                           String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, String csarFileName) {
         super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName,
-              serviceTemplateURLVarName, csarFileName);
+              serviceTemplateURLVarName, planInstanceUrlVarName, csarFileName);
         this.templateBuildPlan = templateBuildPlan;
         this.bpelTemplateHandler = new BPELScopeHandler();
         try {
@@ -269,7 +269,7 @@ public class BPELPlanContext extends PlanContext {
                 && Arrays.asList(activityType).contains(scope.getActivity().getType())) {
                 LOG.debug("Found scope of nodeTemplate");
                 return new BPELPlanContext((BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate,
-                    this.serviceInstanceURLVarName, this.serviceInstanceIDVarName, this.serviceTemplateURLVarName,
+                    this.serviceInstanceURLVarName, this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.planInstanceUrlVarName,
                     this.csarFileName);
             }
         }
@@ -333,7 +333,7 @@ public class BPELPlanContext extends PlanContext {
         // the node for the scope
         final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.csarFileName);
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -476,7 +476,7 @@ public class BPELPlanContext extends PlanContext {
 
         final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.csarFileName);
+            this.serviceTemplateURLVarName,this.planInstanceUrlVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(null);
         context.templateBuildPlan.setRelationshipTemplate(relationshipTemplate);
@@ -514,7 +514,7 @@ public class BPELPlanContext extends PlanContext {
         // the node for the scope
         final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.csarFileName);
+            this.serviceTemplateURLVarName,this.planInstanceUrlVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -566,7 +566,7 @@ public class BPELPlanContext extends PlanContext {
         // the node for the scope
         final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.csarFileName);
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);

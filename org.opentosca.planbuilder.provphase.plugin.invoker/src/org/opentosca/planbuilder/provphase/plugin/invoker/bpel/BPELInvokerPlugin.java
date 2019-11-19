@@ -4,24 +4,27 @@
 package org.opentosca.planbuilder.provphase.plugin.invoker.bpel;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderCompensationOperationPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
-import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokerPluginHandler;
+import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokeOperationHandler;
+import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELNotifyHandler;
+import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELTransferArtifactHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -34,8 +37,7 @@ import org.w3c.dom.Element;
  *
  */
 public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<BPELPlanContext>,
-                               IPlanBuilderProvPhaseParamOperationPlugin<BPELPlanContext>,
-                               IPlanBuilderCompensationOperationPlugin<BPELPlanContext> {
+                               IPlanBuilderProvPhaseParamOperationPlugin<BPELPlanContext> {
 
     private static final String PLUGIN_ID = "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
 
@@ -50,17 +52,19 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     }
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
-    private final BPELInvokerPluginHandler handler = new BPELInvokerPluginHandler();
+    private final BPELInvokeOperationHandler invokeOperationhandler = new BPELInvokeOperationHandler();
+    private final BPELTransferArtifactHandler transferArtifactHandler = new BPELTransferArtifactHandler();
+    private final BPELNotifyHandler notifyhandler = new BPELNotifyHandler();
 
     public void addLogActivity(final BPELPlanContext context, final String message, final BPELPlanContext.Phase phase) {
-        this.handler.appendLOGMessageActivity(context, message, phase);
+        this.invokeOperationhandler.appendLOGMessageActivity(context, message, phase);
     }
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia) {
         try {
-            return this.handler.handle(context, operation, ia);
+            return this.invokeOperationhandler.handleInvokeOperation(context, operation, ia);
         }
         catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
@@ -92,7 +96,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         }
 
         try {
-            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
+            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
                                        inputParams, new HashMap<String, Variable>(),  elementToAppendTo);
         }
         catch (final Exception e) {
@@ -121,7 +125,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         }
 
         try {
-            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
+            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
                                        inputParams, new HashMap<String, Variable>(), context.getProvisioningPhaseElement());
         }
         catch (final Exception e) {
@@ -150,7 +154,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput,  Element elementToAppendTo) {
         try {
-            return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
+            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate, operationName, interfaceName,
                                        internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
         }
         catch (final Exception e) {
@@ -180,7 +184,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput) {
         try {
-            return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName,
+            return this.invokeOperationhandler.handleInvokeOperation(context, operationName, interfaceName, callbackAddressVarName,
                                        internalExternalPropsInput, internalExternalPropsOutput, context.getProvisioningPhaseElement());
         }
         catch (final Exception e) {
@@ -212,7 +216,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                                                  final PropertyVariable sshUser, final PropertyVariable sshKey,
                                                  final AbstractNodeTemplate infraTemplate, Element elementToAppendTo) {
         try {
-            return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
+            return this.transferArtifactHandler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
                                                               infraTemplate, elementToAppendTo);
         }
         catch (final Exception e) {
@@ -220,6 +224,41 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             return false;
         }
     }
+    
+    public boolean handleSendNotify(BPELPlanContext context) {
+        
+        Map<String, Variable> params = new HashMap<String,Variable>();
+        
+        // TODO/FIXME right now we match all operation params against the available properties and send them over, maybe too much ?
+        Collection<AbstractParameter> parameters = new HashSet<AbstractParameter>();
+        if(context.isNodeTemplate()) {
+            for(AbstractInterface iface : context.getNodeTemplate().getType().getInterfaces()) {
+                for(AbstractOperation op : iface.getOperations()) {
+                    parameters.addAll(op.getInputParameters());
+                }
+            }
+        }
+        
+        // try to match param against a property and add it to the input of the notify call
+        for(AbstractParameter param : parameters) {
+            PropertyVariable propVar = context.getPropertyVariable(param.getName());
+            if(propVar != null) {
+                params.put(propVar.getNodeTemplate().getId() + "_" + propVar.getPropertyName(), propVar);
+            }
+        }
+        
+        
+        try {
+            return this.notifyhandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false;
+        }                
+    }
+    
+    
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
@@ -246,7 +285,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         }
 
         try {
-            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
+            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
                                        inputParams, outputParams, context.getProvisioningPhaseElement());
         }
         catch (final IOException e) {
@@ -271,7 +310,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         }
 
         try {
-            return this.handler.handle(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
+            return this.invokeOperationhandler.handleInvokeOperation(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
                                        outputParams, elementToAppendTo);
         }
         catch (final Exception e) {
@@ -284,58 +323,6 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     @Override
     public int getPriority() {
         return 1;
-    }
-
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final AbstractOperation compensationOperation,
-                          final AbstractImplementationArtifact compensationIa,
-                          final Map<AbstractParameter, Variable> compensationParam2VariableMapping) {
-        // TODO Auto-generated method stub
-        
-        
-        
-        
-        return false;
-    }
-
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final AbstractOperation compensationOperation,
-                          final AbstractImplementationArtifact compensationIa,
-                          final Map<AbstractParameter, Variable> compensationParam2VariableMapping,
-                          final BPELScopePhaseType phase) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          final AbstractOperation compensationOperation,
-                          final AbstractImplementationArtifact compensationIa,
-                          final Map<AbstractParameter, Variable> compensationParam2VariableMapping) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          final AbstractOperation compensationOperation,
-                          final AbstractImplementationArtifact compensationIa,
-                          final Map<AbstractParameter, Variable> compensationParam2VariableMapping,
-                          final BPELScopePhaseType phase) {
-        // TODO Auto-generated method stub
-        return false;
     }
 
 }

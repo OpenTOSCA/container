@@ -114,6 +114,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             this.serviceInstanceHandler.getServiceTemplateURLVariableName(newTerminationPlan);
 
         String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(newTerminationPlan);
+        String planInstanceUrl = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(newTerminationPlan);
 
         this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(newTerminationPlan, propMap,
                                                                                        serviceTemplateURLVarName,
@@ -162,14 +163,14 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             if (activ.getNodeTemplate() != null) {
                 final BPELPlanContext context =
                     new BPELPlanContext(newTerminationPlan, activ, propMap, newTerminationPlan.getServiceTemplate(),
-                        serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName, csarName);
+                        serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName,planInstanceUrl, csarName);
                 this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getNodeTemplate(),
                                                                    "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED&amp;serviceInstanceId=$bpelvar["
                                                                        + serviceInstanceId + "]");
             } else {
                 final BPELPlanContext context =
                     new BPELPlanContext(newTerminationPlan, activ, propMap, newTerminationPlan.getServiceTemplate(),
-                        serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName, csarName);
+                        serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName,planInstanceUrl, csarName);
                 this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getRelationshipTemplate(),
                                                                    "?state=CREATED&amp;state=INITIAL&amp;serviceInstanceId=$bpelvar["
                                                                        + serviceInstanceId + "]");
@@ -222,6 +223,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         String serviceInstanceUrl = this.serviceInstanceHandler.findServiceInstanceUrlVariableName(plan);
         String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
         String serviceTemplateUrl = this.serviceInstanceHandler.findServiceTemplateUrlVariableName(plan);
+        String planInstanceUrl = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(plan);
 
         final List<BPELScope> changedActivities = new ArrayList<>();
         for (final BPELScope bpelScope : plan.getTemplateBuildPlans()) {
@@ -229,12 +231,12 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             if (bpelScope.getNodeTemplate() != null) {
                 final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
                 final BPELPlanContext context = new BPELPlanContext(plan, bpelScope, propMap, plan.getServiceTemplate(),
-                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
+                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
                 result = this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
             } else {
                 AbstractRelationshipTemplate relationshipTempalte = bpelScope.getRelationshipTemplate();
                 final BPELPlanContext context = new BPELPlanContext(plan, bpelScope, propMap, plan.getServiceTemplate(),
-                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
+                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
                 result = this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTempalte);
             }
 

@@ -14,6 +14,14 @@
 		<wsdl:part element="ns:invokeOperation" name="invokeOperation">
 		</wsdl:part>
 	</wsdl:message>
+	<wsdl:message name="notifyPlanMessage">
+		<wsdl:part element="ns:invokeOperationAsync" name="notifyPlan">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="notifyPartnersMessage">
+		<wsdl:part element="ns:invokeOperationAsync" name="notifyPartners">
+		</wsdl:part>
+	</wsdl:message>
 	<wsdl:message name="invokeOperationAsyncMessage">
 		<wsdl:part element="ns:invokeOperationAsync" name="invokeOperationAsync">
 		</wsdl:part>
@@ -39,6 +47,14 @@
 			<wsdl:input message="tns:invokeOperationAsyncMessage">
 			</wsdl:input>
 		</wsdl:operation>
+		<wsdl:operation name="notifyPlan">
+			<wsdl:input message="tns:notifyPlanMessage">
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="notifyPartners">
+			<wsdl:input message="tns:notifyPartnersMessage">
+			</wsdl:input>
+		</wsdl:operation>
 		<wsdl:operation name="invokeOperationSync">
 			<wsdl:input message="tns:invokeOperationSyncMessage">
 			</wsdl:input>
@@ -52,6 +68,10 @@
 	</wsdl:portType>
 	<wsdl:portType name="CallbackPortType">
 		<wsdl:operation name="callback">
+			<wsdl:input message="tns:invokeResponse">
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="receiveNotify">
 			<wsdl:input message="tns:invokeResponse">
 			</wsdl:input>
 		</wsdl:operation>
@@ -90,6 +110,20 @@
 				<soap:body use="literal" />
 			</wsdl:input>
 		</wsdl:operation>
+		<wsdl:operation name="notifyPlan">
+			<soap:operation soapAction="http://siserver.org/notifyPlan"
+				style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="notifyPartners">
+			<soap:operation soapAction="http://siserver.org/notifyPartners"
+				style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
 	</wsdl:binding>
 	<wsdl:binding name="CallbackBinding" type="tns:CallbackPortType">
 		<soap:binding style="document"
@@ -99,15 +133,18 @@
 				<soap:body use="literal" />
 			</wsdl:input>
 		</wsdl:operation>
+		<wsdl:operation name="receiveNotify">
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
 	</wsdl:binding>
 	<wsdl:service name="InvokerService">
 		<wsdl:port binding="tns:InvokeBinding" name="InvokePort">
 			<soap:address location="http://localhost:8081/invoker" />
-		</wsdl:port>		
-	</wsdl:service>
-	<wsdl:service name="CallbackService">		
+		</wsdl:port>
 		<wsdl:port binding="tns:CallbackBinding" name="CallbackPort">
-			<soap:address location="http://localhost:8088/callback" />
+			<soap:address location="http://localhost:8087/callback" />
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>

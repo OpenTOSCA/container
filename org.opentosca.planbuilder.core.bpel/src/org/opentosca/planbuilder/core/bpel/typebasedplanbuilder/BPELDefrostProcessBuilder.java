@@ -117,12 +117,13 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         final String serviceInstanceId = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newDefreezePlan);
         final String serviceTemplateUrl =
             this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newDefreezePlan);
+        final String planInstanceUrl = this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newDefreezePlan);
 
         this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newDefreezePlan, propMap, serviceInstanceUrl,
-                                                                 serviceInstanceId, serviceTemplateUrl, serviceTemplate,
+                                                                 serviceInstanceId, serviceTemplateUrl, planInstanceUrl, serviceTemplate,
                                                                  csarName);
 
-        runPlugins(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
+        runPlugins(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
 
         this.correlationHandler.addCorrellationID(newDefreezePlan);
 
@@ -190,12 +191,12 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map,
                             final String serviceInstanceUrl, final String serviceInstanceID,
-                            final String serviceTemplateUrl, final String csarFileName) {
+                            final String serviceTemplateUrl, String planInstanceUrl, final String csarFileName) {
 
         for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
             final BPELPlanContext context =
                 new BPELPlanContext(buildPlan, bpelScope, map, buildPlan.getServiceTemplate(), serviceInstanceUrl,
-                    serviceInstanceID, serviceTemplateUrl, csarFileName);
+                    serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarFileName);
             if (bpelScope.getNodeTemplate() != null) {
 
                 final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();

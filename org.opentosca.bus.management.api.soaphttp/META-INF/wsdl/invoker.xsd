@@ -27,7 +27,7 @@
 				type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1" name="CsarID"
 				type="xs:string" />
-			<xs:element minOccurs="1" maxOccurs="1" name="ServiceInstanceID"
+			<xs:element minOccurs="0" maxOccurs="1" name="ServiceInstanceID"
 				type="xs:string" />
 			<xs:element minOccurs="0" maxOccurs="1" name="NodeInstanceID"
 				type="xs:string" />
@@ -43,9 +43,9 @@
 			</xs:choice>
 			<xs:element minOccurs="0" maxOccurs="1" name="InterfaceName"
 				type="xs:string" />
-			<xs:element minOccurs="1" maxOccurs="1" name="OperationName"
+			<xs:element minOccurs="0" maxOccurs="1" name="OperationName"
 				type="xs:string" />
-			<xs:element minOccurs="1" maxOccurs="1" name="ReplyTo"
+			<xs:element minOccurs="0" maxOccurs="1" name="ReplyTo"
 				type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1" name="MessageID"
 				type="xs:string" />

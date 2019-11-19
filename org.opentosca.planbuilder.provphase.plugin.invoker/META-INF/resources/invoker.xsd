@@ -23,6 +23,8 @@
 	<xs:element name="invokeOperationAsync" type="ns:invokeOperationAsync" />
 	<xs:complexType name="invokeOperationAsync">
 		<xs:sequence>
+		    <xs:element minOccurs="0" maxOccurs="1" name="PlanCorrelationID"
+				type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1" name="CsarID"
 				type="xs:string" />
 			<xs:element minOccurs="0" maxOccurs="1" name="ServiceInstanceID"
@@ -41,9 +43,9 @@
 			</xs:choice>
 			<xs:element minOccurs="0" maxOccurs="1" name="InterfaceName"
 				type="xs:string" />
-			<xs:element minOccurs="1" maxOccurs="1" name="OperationName"
+			<xs:element minOccurs="0" maxOccurs="1" name="OperationName"
 				type="xs:string" />
-			<xs:element minOccurs="1" maxOccurs="1" name="ReplyTo"
+			<xs:element minOccurs="0" maxOccurs="1" name="ReplyTo"
 				type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1" name="MessageID"
 				type="xs:string" />
@@ -56,9 +58,11 @@
 	<xs:element name="invokeOperationSync" type="ns:invokeOperationSync" />
 	<xs:complexType name="invokeOperationSync">
 		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="1" name="PlanCorrelationID"
+				type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1" name="CsarID"
 				type="xs:string" />
-			<xs:element minOccurs="0" maxOccurs="1" name="ServiceInstanceID"
+			<xs:element minOccurs="1" maxOccurs="1" name="ServiceInstanceID"
 				type="xs:string" />
 			<xs:element minOccurs="0" maxOccurs="1" name="NodeInstanceID"
 				type="xs:string" />

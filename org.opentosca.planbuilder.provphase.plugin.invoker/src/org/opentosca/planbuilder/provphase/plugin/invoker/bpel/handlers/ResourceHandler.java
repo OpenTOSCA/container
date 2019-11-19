@@ -806,6 +806,10 @@ public class ResourceHandler {
     public String getServiceInvokerAsyncRequestMessagePart() {
         return "invokeOperationAsync";
     }
+    
+    public String getServiceInvokerNotifyPlanMessagePart() {
+        return "notifyPlan";
+    }
 
     public QName getServiceInvokerAsyncRequestMessageType() {
         return new QName("http://siserver.org/wsdl", "invokeOperationAsyncMessage");
@@ -813,6 +817,10 @@ public class ResourceHandler {
 
     public QName getServiceInvokerAsyncRequestXSDType() {
         return new QName("http://siserver.org/schema", "invokeOperationAsync");
+    }
+    
+    public QName getServiceInvokerNotifyPlanMessageXSDType() {
+        return new QName("http://siserver.org/schema", "notifyPlanMessage");
     }
 
     public String getServiceInvokerAsyncResponseMessagePart() {
@@ -854,6 +862,79 @@ public class ResourceHandler {
         final File tempFile = createNewTempFile(xsdFile, id);
         return tempFile;
 
+    }
+    
+    
+    public Node generateNotifyPlanRequestMessageInitAssignTemplate(final String csarName, final QName serviceTemplateId, final String messageId, 
+                                                                  final String requestVarName,
+                                                                  final String requestVarPartName,
+                                                                  final Map<String, Variable> internalExternalProps) throws IOException, SAXException {
+        final URL url = this.getContext().getBundle()
+                                     .getResource("assignNotifyMessage.xml");
+        final File assignTemplateFile = new File(FileLocator.toFileURL(url).getPath());
+        String assignTemplateString = FileUtils.readFileToString(assignTemplateFile);
+
+        /*
+         * String values must replace: {csarName}, {serviceTemplateNS}, {serviceTemplateLocalName},
+         * {operationName}, {messageID}, {requestVarName}, {requestVarPartName}
+         *
+         * These must be xml snippets again -> more complicated: {copies} {interface}, {templateID},
+         * {paramsMap},
+         */
+
+        // first the easy ones
+        assignTemplateString = assignTemplateString.replace("{csarName}", csarName);
+        assignTemplateString = assignTemplateString.replace("{planCorrelation}", "");
+
+    
+        assignTemplateString = assignTemplateString.replace("{serviceTemplateNS}", serviceTemplateId.getNamespaceURI());
+        assignTemplateString =
+            assignTemplateString.replace("{serviceTemplateLocalName}", serviceTemplateId.getLocalPart());
+        assignTemplateString = assignTemplateString.replace("{messageID}", messageId);
+        assignTemplateString = assignTemplateString.replace("{requestVarName}", requestVarName);
+        assignTemplateString = assignTemplateString.replace("{requestVarPartName}", requestVarPartName);
+
+        
+
+        assignTemplateString =
+            assignTemplateString.replace("{paramsMap}", generateServiceInvokerParamsMap(internalExternalProps));
+
+        // add copy elements to the assign according to the given map of
+        // parameters
+        for (final String propertyName : internalExternalProps.keySet()) {
+            if (internalExternalProps.get(propertyName) == null) {
+                // parameter is external, fetch value from plan input message
+                String copyString =
+                    generateServiceInvokerExternalParamCopyString(requestVarName, requestVarPartName, propertyName);
+                copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+                assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
+            } else {
+                // parameter is internal, fetch value from bpel variable
+                String copyString =
+                    generateServiceInvokerInternalParamCopyString(internalExternalProps.get(propertyName)
+                                                                                       .getVariableName(),
+                                                                  requestVarName, requestVarPartName, propertyName);
+                copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+                assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
+            }
+        }
+        
+        // assign correlation id
+        String correlationIdCopyString = generateCorrelationIdCopy(requestVarName, requestVarPartName);
+        correlationIdCopyString = correlationIdCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+        assignTemplateString = assignTemplateString.replace("{copies}", correlationIdCopyString + "{copies}");
+       
+
+        assignTemplateString = assignTemplateString.replace("{copies}", "");
+
+
+        ResourceHandler.LOG.debug("Generated Notify Message:");
+        ResourceHandler.LOG.debug(assignTemplateString);
+        
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(assignTemplateString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();        
     }
 
 }

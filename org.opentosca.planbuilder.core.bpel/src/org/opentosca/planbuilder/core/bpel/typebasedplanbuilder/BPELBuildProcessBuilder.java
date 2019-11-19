@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
+import org.opentosca.planbuilder.ChoreographyBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -82,6 +83,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     private final EmptyPropertyToInputHandler emptyPropInit = new EmptyPropertyToInputHandler();
+    
+    private final ChoreographyBuilder choreoBuilder = new ChoreographyBuilder();
 
     /**
      * <p>
@@ -131,8 +134,13 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_buildPlan");
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
 
-            final AbstractPlan buildPlan =
-                this.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+            AbstractPlan buildPlan =
+                AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+            
+            if(this.choreoBuilder.isChoreographyPartner(serviceTemplate)) {
+                LOG.debug("Transforming plan to be part of a choreography: ");
+                buildPlan = this.choreoBuilder.transformToChoreography(buildPlan);
+            }
 
             LOG.debug("Generated the following abstract prov plan: ");
             LOG.debug(buildPlan.toString());
@@ -170,12 +178,13 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newBuildPlan);
             String serviceTemplateUrl =
                 this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newBuildPlan);
+            String planInstanceUrl = this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan);
 
             this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap, serviceInstanceUrl,
-                                                                     serviceInstanceID, serviceTemplateUrl,
+                                                                     serviceInstanceID, serviceTemplateUrl, planInstanceUrl,
                                                                      serviceTemplate, csarName);
 
-            runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarName);
+            runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarName);
 
             this.correlationHandler.addCorrellationID(newBuildPlan);
 
@@ -245,13 +254,13 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      *        of inside the BuidlPlan
      */
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map, String serviceInstanceUrl,
-                            String serviceInstanceID, String serviceTemplateUrl, String csarFileName) {
+                            String serviceInstanceID, String serviceTemplateUrl, String planInstanceUrl, String csarFileName) {
 
 
 
         for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(buildPlan, bpelScope, map, buildPlan.getServiceTemplate(),
-                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarFileName);
+                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarFileName);
             if (bpelScope.getNodeTemplate() != null) {
 
                 final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();

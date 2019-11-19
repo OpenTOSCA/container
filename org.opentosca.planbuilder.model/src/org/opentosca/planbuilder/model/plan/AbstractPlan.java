@@ -1,5 +1,7 @@
 package org.opentosca.planbuilder.model.plan;
 
+import java.awt.List;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -57,6 +59,27 @@ public abstract class AbstractPlan {
         @Override
         public String toString() {
             return "{Src: " + this.srcActiv.getId() + " Trgt: " + this.trgActiv.getId() + "}";
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if(o == this) {
+                return true;
+            }
+            if(!(o instanceof Link)) {
+                return false;
+            }
+            Link oLink = (Link)o;
+            if(!(oLink.getSrcActiv().equals(this.getSrcActiv()) & oLink.getTrgActiv().equals(this.getTrgActiv()))) {
+                return false;
+            }
+                        
+            return true;
+        }
+        
+        @Override
+        public int hashCode() {
+            return this.toString().hashCode();
         }
 
     }
@@ -205,9 +228,9 @@ public abstract class AbstractPlan {
         return foundActivities;
     }
 
-    public AbstractActivity findNodeTemplateActivity(final AbstractNodeTemplate nodeTemplate, final ActivityType type) {
+    public AbstractActivity findNodeTemplateActivity(final AbstractNodeTemplate nodeTemplate, final ActivityType... types) {        
         for (final AbstractActivity activity : findNodeTemplateActivities(nodeTemplate)) {
-            if (activity.getType().equals(type)) {
+            if (Arrays.asList(types).contains(activity.getType())) {
                 return activity;
             }
         }

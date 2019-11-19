@@ -190,11 +190,12 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         final String serviceInstanceUrl = this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(plan);
         final String serviceInstanceId = this.serviceInstanceVarsHandler.findServiceInstanceIdVarName(plan);
         final String serviceTemplateUrl = this.serviceInstanceVarsHandler.findServiceTemplateUrlVariableName(plan);
+        final String planInstanceUrl = this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(plan);
 
 
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(plan, templatePlan, propMap, plan.getServiceTemplate(),
-                serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
+                serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl,planInstanceUrl, csarName);
 
             // only handle NodeTemplates of type with save state interface
             final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
