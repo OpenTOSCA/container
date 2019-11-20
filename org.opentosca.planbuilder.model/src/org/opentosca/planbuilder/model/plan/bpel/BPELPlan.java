@@ -90,7 +90,7 @@ public class BPELPlan extends AbstractPlan {
     private Element bpelPartnerLinksElement;
     private Element bpelProcessVariablesElement;
    
-    private Element bpelFaultHandlersElement;
+    private Element bpelFaultHandlersElement;   
 
     // variables associated with the bpel orchestration
     // the main sequence element of this process
@@ -179,6 +179,14 @@ public class BPELPlan extends AbstractPlan {
      */
     public void setCsarName(final String csarName) {
         this.csarName = csarName;
+    }
+    
+    public Element getBpelFaultHandlersElement() {
+        return bpelFaultHandlersElement;
+    }
+
+    public void setBpelFaultHandlersElement(Element bpelFaultHandlersElement) {
+        this.bpelFaultHandlersElement = bpelFaultHandlersElement;
     }
 
     /**

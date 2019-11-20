@@ -78,9 +78,9 @@ public class BPELPlanContext extends PlanContext {
     private final BPELScopeHandler bpelTemplateHandler;
 
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
-    
-    
-    
+
+
+
     /**
      * Constructor
      *
@@ -93,9 +93,10 @@ public class BPELPlanContext extends PlanContext {
     public BPELPlanContext(final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
                            final AbstractServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
                            String serviceInstanceIDVarName, String serviceTemplateURLVarName, String csarFileName) {
-        super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, csarFileName);
+        super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName,
+              serviceTemplateURLVarName, csarFileName);
         this.templateBuildPlan = templateBuildPlan;
-        this.bpelTemplateHandler = new BPELScopeHandler();       
+        this.bpelTemplateHandler = new BPELScopeHandler();
         try {
             this.buildPlanHandler = new BPELPlanHandler();
             this.bpelProcessHandler = new BPELPlanHandler();
@@ -104,54 +105,54 @@ public class BPELPlanContext extends PlanContext {
         catch (final ParserConfigurationException e) {
             BPELPlanContext.LOG.warn("Coulnd't initialize internal handlers", e);
         }
- 
+
     }
-    
-    
+
+
     // TODO Refactor methods up to the BPEL specific methods
-    
+
     /**
-    *
-    * Looks for a Property with the same localName as the given String. The search is on either the
-    * Infrastructure on the Source or Target of the Template this TemplateContext belongs to.
-    *
-    * @param propertyName a String
-    * @param directionSink whether to look in direction of the sinks or sources (If Template is
-    *        NodeTemplate) or to search on the Source-/Target-Interface (if template is
-    *        RelationshipTemplate)
-    * @return a Variable Object with TemplateId and Name, if null the whole Infrastructure has no
-    *         Property with the specified localName
-    */
-   public PropertyVariable getPropertyVariable(final String propertyName, final boolean directionSink) {
-       final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
+     *
+     * Looks for a Property with the same localName as the given String. The search is on either the
+     * Infrastructure on the Source or Target of the Template this TemplateContext belongs to.
+     *
+     * @param propertyName a String
+     * @param directionSink whether to look in direction of the sinks or sources (If Template is
+     *        NodeTemplate) or to search on the Source-/Target-Interface (if template is
+     *        RelationshipTemplate)
+     * @return a Variable Object with TemplateId and Name, if null the whole Infrastructure has no
+     *         Property with the specified localName
+     */
+    public PropertyVariable getPropertyVariable(final String propertyName, final boolean directionSink) {
+        final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
 
-       if (isNodeTemplate()) {
-           if (directionSink) {
-               // get all NodeTemplates that are reachable from this
-               // nodeTemplate
-               ModelUtils.getNodesFromNodeToSink(getNodeTemplate(), infraNodes);
-           } else {
-               ModelUtils.getNodesFromNodeToSource(getNodeTemplate(), infraNodes);
-           }
-       } else {
-           if (directionSink) {
-               ModelUtils.getNodesFromNodeToSink(getRelationshipTemplate().getSource(), infraNodes);
-           } else {
-               ModelUtils.getNodesFromRelationToSink(getRelationshipTemplate(), infraNodes);
-           }
-       }
+        if (isNodeTemplate()) {
+            if (directionSink) {
+                // get all NodeTemplates that are reachable from this
+                // nodeTemplate
+                ModelUtils.getNodesFromNodeToSink(getNodeTemplate(), infraNodes);
+            } else {
+                ModelUtils.getNodesFromNodeToSource(getNodeTemplate(), infraNodes);
+            }
+        } else {
+            if (directionSink) {
+                ModelUtils.getNodesFromNodeToSink(getRelationshipTemplate().getSource(), infraNodes);
+            } else {
+                ModelUtils.getNodesFromRelationToSink(getRelationshipTemplate(), infraNodes);
+            }
+        }
 
-       for (final AbstractNodeTemplate infraNode : infraNodes) {
+        for (final AbstractNodeTemplate infraNode : infraNodes) {
 
-           for (PropertyVariable var : this.propertyMap.getNodePropertyVariables(this.serviceTemplate, infraNode)) {
-               if (var.getPropertyName().equals(propertyName)) {
-                   return var;
-               }
-           }
-       }
-       return null;
-   }
-   
+            for (PropertyVariable var : this.propertyMap.getNodePropertyVariables(this.serviceTemplate, infraNode)) {
+                if (var.getPropertyName().equals(propertyName)) {
+                    return var;
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Returns the variable name of the first occurence of a property with the given Property name of
      * InfrastructureNodes
@@ -168,7 +169,7 @@ public class BPELPlanContext extends PlanContext {
         }
         return null;
     }
-   
+
     public String getTemplateId() {
         if (getNodeTemplate() != null) {
             return getNodeTemplate().getId();
@@ -177,7 +178,7 @@ public class BPELPlanContext extends PlanContext {
         }
 
     }
-    
+
     /**
      * Returns whether this context is for a nodeTemplate
      *
@@ -229,7 +230,7 @@ public class BPELPlanContext extends PlanContext {
     public boolean addStringValueToPlanResponse(final String localName) {
         return this.buildPlanHandler.addStringElementToPlanResponse(localName, this.templateBuildPlan.getBuildPlan());
     }
-    
+
     /**
      * Adds a variable to the TemplateBuildPlan of the template this context belongs to
      *
@@ -261,24 +262,25 @@ public class BPELPlanContext extends PlanContext {
         return true;
     }
 
-    public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType... activityType) {                       
+    public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType... activityType) {
         LOG.debug("Trying to create {} plan context for nodeTemplate {}", activityType, nodeTemplate);
-        for(BPELScope scope : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
-            if(scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && Arrays.asList(activityType).contains(scope.getActivity().getType())) {
+        for (BPELScope scope : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+            if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate)
+                && Arrays.asList(activityType).contains(scope.getActivity().getType())) {
                 LOG.debug("Found scope of nodeTemplate");
-                return new BPELPlanContext((BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName,
-                                    this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.csarFileName);
+                return new BPELPlanContext((BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate,
+                    this.serviceInstanceURLVarName, this.serviceInstanceIDVarName, this.serviceTemplateURLVarName,
+                    this.csarFileName);
             }
         }
-        
-        
-        
+
+
+
         return null;
     }
-    
-    
-    
-    
+
+
+
     /**
      * Generates a bpel string variable with the given name + "_" + randomPositiveInt.
      *
@@ -329,8 +331,8 @@ public class BPELPlanContext extends PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan,this.templateBuildPlan, this.propertyMap,
-            this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+        final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan,
+            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
             this.serviceTemplateURLVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
@@ -365,7 +367,7 @@ public class BPELPlanContext extends PlanContext {
         }
 
     }
-    
+
     /**
      * Returns alls InfrastructureEdges of the Template this context belongs to
      *
@@ -472,8 +474,8 @@ public class BPELPlanContext extends PlanContext {
         final AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
         final AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
 
-        final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan,this.templateBuildPlan, this.propertyMap,
-            this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+        final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan,
+            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
             this.serviceTemplateURLVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(null);
@@ -491,7 +493,7 @@ public class BPELPlanContext extends PlanContext {
                                     final String operationName,
                                     final Map<AbstractParameter, Variable> param2propertyMapping,
                                     final Map<AbstractParameter, Variable> param2propertyOutputMapping,
-                                    final BPELScopePhaseType phase) {
+                                    final BPELScopePhaseType phase, Element elementToAppendTo) {
         final OperationChain chain = BPELScopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
         if (chain == null) {
             return false;
@@ -510,8 +512,8 @@ public class BPELPlanContext extends PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan, this.propertyMap,
-            this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+        final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan,
+            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
             this.serviceTemplateURLVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
@@ -524,10 +526,10 @@ public class BPELPlanContext extends PlanContext {
             chain.executeOperationProvisioning(context, opNames);
         } else {
             if (param2propertyOutputMapping == null) {
-                chain.executeOperationProvisioning(context, opNames, param2propertyMapping, phase);
+                chain.executeOperationProvisioning(context, opNames, param2propertyMapping, elementToAppendTo);
             } else {
                 chain.executeOperationProvisioning(context, opNames, param2propertyMapping, param2propertyOutputMapping,
-                                                   phase);
+                                                   elementToAppendTo);
             }
         }
 
@@ -562,8 +564,8 @@ public class BPELPlanContext extends PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan, this.propertyMap,
-            this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+        final BPELPlanContext context = new BPELPlanContext((BPELPlan) this.plan, this.templateBuildPlan,
+            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
             this.serviceTemplateURLVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
@@ -589,16 +591,18 @@ public class BPELPlanContext extends PlanContext {
 
         return true;
     }
-    
+
     /**
      * Returns a set of nodes that will be provisioned in the plan of this context
+     * 
      * @return
      */
     public Collection<AbstractNodeTemplate> getNodesInCreation() {
         Collection<AbstractActivity> activities = this.templateBuildPlan.getBuildPlan().getActivites();
         Collection<AbstractNodeTemplate> result = new HashSet<AbstractNodeTemplate>();
-        for(AbstractActivity activity : activities) {
-            if((activity instanceof NodeTemplateActivity) && (activity.getType().equals(ActivityType.PROVISIONING) || activity.getType().equals(ActivityType.MIGRATION))) {
+        for (AbstractActivity activity : activities) {
+            if ((activity instanceof NodeTemplateActivity) && (activity.getType().equals(ActivityType.PROVISIONING)
+                || activity.getType().equals(ActivityType.MIGRATION))) {
                 result.add(((NodeTemplateActivity) activity).getNodeTemplate());
             }
         }
@@ -613,7 +617,7 @@ public class BPELPlanContext extends PlanContext {
     public AbstractNodeTemplate getNodeTemplate() {
         return this.templateBuildPlan.getNodeTemplate();
     }
-    
+
     /**
      * Returns the name of variable which is the input message of the buildPlan
      *
@@ -632,7 +636,7 @@ public class BPELPlanContext extends PlanContext {
         return "output";
     }
 
-    
+
 
     /**
      * Returns the ProvPhase Element of the TemplateBuildPlan this context belongs to
@@ -644,6 +648,15 @@ public class BPELPlanContext extends PlanContext {
     }
 
     /**
+     * Returns the Provisioning Phase Sequence Element of the Compensation scope of this context
+     * 
+     * @return a Element which is a bpel sequence
+     */
+    public Element getProvisioningCompensationPhaseElement() {
+        return this.templateBuildPlan.getBpelCompensationHandlerScope().getBpelSequenceProvisioningPhaseElement();
+    }
+
+    /**
      * Returns the RelationshipTemplate this context handles
      *
      * @return an AbstractRelationshipTemplate if this context handle a RelationshipTemplate, else null
@@ -651,7 +664,7 @@ public class BPELPlanContext extends PlanContext {
     public AbstractRelationshipTemplate getRelationshipTemplate() {
         return this.templateBuildPlan.getRelationshipTemplate();
     }
-    
+
     // All BPEL related methods
     /**
      * Adds a copy element to the main assign element of the buildPlan this context belongs to
@@ -710,9 +723,10 @@ public class BPELPlanContext extends PlanContext {
                                                  final String myRole, final String partnerRole,
                                                  final boolean initializePartnerRole) {
         boolean check = true;
-                
+
         // here we set the qname with namespace of the plan "ba.example"
-        final QName partnerType = new QName(this.templateBuildPlan.getBuildPlan().getProcessNamespace(), partnerLinkType, "tns");
+        final QName partnerType =
+            new QName(this.templateBuildPlan.getBuildPlan().getProcessNamespace(), partnerLinkType, "tns");
         check &= addPLtoDeploy(partnerLinkName, partnerLinkType);
         check &= this.bpelTemplateHandler.addPartnerLink(partnerLinkName, partnerType, myRole, partnerRole,
                                                          initializePartnerRole, this.templateBuildPlan);
@@ -879,7 +893,7 @@ public class BPELPlanContext extends PlanContext {
         return this.templateBuildPlan.getBpelDocument().createElementNS(namespace, localName);
     }
 
-   
+
 
     /**
      * Returns the WSDL Ports of the given WSDL Service
@@ -964,7 +978,7 @@ public class BPELPlanContext extends PlanContext {
         return this.templateBuildPlan.getBpelSequencePrePhaseElement();
     }
 
-    
+
 
     /**
      * Returns the Services inside the given WSDL file which implement the given portType
@@ -1058,7 +1072,7 @@ public class BPELPlanContext extends PlanContext {
         return importNamespace(qname);
     }
 
-   
+
 
     /**
      * Registers the given namespace as extension inside the BuildPlan

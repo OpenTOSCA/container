@@ -27,6 +27,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Property2VariableMapping;
@@ -134,6 +135,12 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         this.serviceInstanceInitializer.appendSetServiceInstanceState(newDefreezePlan,
                                                                       newDefreezePlan.getBpelMainSequenceOutputAssignElement(),
                                                                       "CREATED", serviceInstanceURLVarName);
+        
+        this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newDefreezePlan,
+                                                                         this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newDefreezePlan),
+                                                                         "ERROR", serviceInstanceURLVarName);
+        this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newDefreezePlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newDefreezePlan), "FAILED", this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newDefreezePlan));
+        
         this.finalizer.finalize(newDefreezePlan);
 
         BPELDefrostProcessBuilder.LOG.debug("Created Plan:");
@@ -208,6 +215,11 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
                 // generate code for the activity
                 this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
+            } else if (bpelScope.getRelationshipTemplate() != null) {
+                // handling relationshiptemplate
+                final AbstractRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
+
+                this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate);
             }
         }
     }

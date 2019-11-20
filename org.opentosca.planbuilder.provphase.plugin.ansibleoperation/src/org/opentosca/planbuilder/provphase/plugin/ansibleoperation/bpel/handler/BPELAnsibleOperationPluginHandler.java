@@ -161,7 +161,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                 runScriptRequestInputParams.put("sshUser", sshUserVariable);
                 runScriptRequestInputParams.put("script", runShScriptStringVar);
                 this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", runScriptRequestInputParams,
-                                          new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
+                                          new HashMap<String, Variable>(), templateContext.getProvisioningPhaseElement());
 
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
@@ -172,7 +172,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                 runScriptRequestInputParams.put("Script", runShScriptStringVar);
                 this.invokerPlugin.handle(templateContext, templateId, true, "runScript",
                                           Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
-                                          new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
+                                          new HashMap<String, Variable>(),  templateContext.getProvisioningPhaseElement());
                 break;
             default:
                 return false;
