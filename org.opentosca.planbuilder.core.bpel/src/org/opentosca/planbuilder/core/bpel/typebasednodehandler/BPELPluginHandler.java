@@ -13,6 +13,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.choreography.IPlanBuilderChoreographyPlugin;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
@@ -25,9 +26,12 @@ public class BPELPluginHandler {
 
     final static Logger LOG = LoggerFactory.getLogger(BPELPluginHandler.class);
     protected final PluginRegistry pluginRegistry = new PluginRegistry();
+    
+    
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractNodeTemplate nodeTemplate) {
+                        
         boolean result = false;
         switch (bpelScope.getActivity().getType()) {
             case PROVISIONING:
@@ -38,6 +42,12 @@ public class BPELPluginHandler {
                 break;
             case DEFROST:
                 result = handleDefrostActivity(context, bpelScope, nodeTemplate);
+                break;
+            case SENDNODENOTIFY:
+                result = handleSendNotifyActivity(context, bpelScope, nodeTemplate);
+                break;
+            case RECEIVENODENOTIFY:
+                result = handleReceiveNotifyActivity(context, bpelScope, nodeTemplate);
                 break;
             default:
                 result = false;
@@ -61,6 +71,42 @@ public class BPELPluginHandler {
                 result = false;
                 break;
         }
+        return result;
+    }
+    
+    private boolean handleSendNotifyActivity(BPELPlanContext context, final BPELScope bpelScope, final AbstractNodeTemplate nodeTemplate) {
+        boolean result = true;
+        
+        for(IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
+            if(plugin.canHandleSendNotify(context)) {
+                result = plugin.handleSendNotify(context);
+            }
+        }
+        
+        for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+            if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+                result &= postPhasePlugin.handleCreate(context, nodeTemplate);
+            }
+        }
+        
+        return result;
+    }
+    
+    private boolean handleReceiveNotifyActivity(BPELPlanContext context, final BPELScope scope, final AbstractNodeTemplate nodeTemplate) {
+ boolean result = true;
+        
+        for(IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
+            if(plugin.canHandleReceiveNotify(context)) {
+                result = plugin.handleReceiveNotify(context);
+            }
+        }
+        
+        for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+            if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+                result &= postPhasePlugin.handleCreate(context, nodeTemplate);
+            }
+        }
+        
         return result;
     }
 

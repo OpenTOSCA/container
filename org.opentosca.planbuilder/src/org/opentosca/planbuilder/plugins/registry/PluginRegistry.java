@@ -3,6 +3,8 @@ package org.opentosca.planbuilder.plugins.registry;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.ws.spi.Invoker;
+
 import org.opentosca.planbuilder.AbstractPlanBuilder;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -10,6 +12,7 @@ import org.opentosca.planbuilder.plugins.activator.Activator;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.choreography.IPlanBuilderChoreographyPlugin;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwarePostPhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
@@ -36,6 +39,27 @@ public class PluginRegistry {
 
     private BundleContext getCtx() {
         return Activator.ctx;
+    }
+    
+    public List<IPlanBuilderChoreographyPlugin<?>> getChoreographyPlugins(){
+        final List<IPlanBuilderChoreographyPlugin<?>> plugins = new ArrayList<>();
+        final BundleContext ctx = getCtx();
+        try {
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderChoreographyPlugin.class.getName(), null);
+
+            if (refs != null) {
+                for (final ServiceReference<?> ref : refs) {
+                    plugins.add((IPlanBuilderChoreographyPlugin<?>) ctx.getService(ref));
+                }
+
+            }
+        }
+        catch (final InvalidSyntaxException e) {
+            e.printStackTrace();
+        }
+
+        return plugins;
     }
 
     /**
@@ -365,7 +389,7 @@ public class PluginRegistry {
             }
         }
         return null;
-    }
+    }        
 
     public boolean handleCreateWithTypePlugin(final PlanContext context, final AbstractNodeTemplate nodeTemplate,
                                               IPlanBuilderTypePlugin plugin) {
@@ -377,5 +401,7 @@ public class PluginRegistry {
                                               IPlanBuilderTypePlugin plugin) {
         return plugin.handleCreate(context, relationshipTemplate);
     }
+    
+    
 
 }

@@ -165,7 +165,7 @@ public abstract class PlanContext {
      */
     public List<AbstractNodeTemplate> getNodeTemplates() {
         // find the serviceTemplate
-        return this.plan.getServiceTemplate().getTopologyTemplate().getNodeTemplates();
+        return this.serviceTemplate.getTopologyTemplate().getNodeTemplates();
     }
 
     /**

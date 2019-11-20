@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.plugins.typebased;
+package org.opentosca.planbuilder;
 
 /**
  * <p>

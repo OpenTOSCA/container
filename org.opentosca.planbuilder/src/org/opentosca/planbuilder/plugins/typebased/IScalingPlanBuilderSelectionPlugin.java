@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.plugins.typebased;
 
 import java.util.List;
 
+import org.opentosca.planbuilder.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 

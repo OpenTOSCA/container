@@ -38,13 +38,17 @@ public class ChoreographyBuilder {
         // first case we add receive for instance data from a partner and in other case we send such data
         for(AbstractNodeTemplate unmanagedNode : unmanagedNodes) {
             // we always remove activities for unmanaged nodes in the original plan, as they are either not needed or replaced by a notify from partners
-            activitiesToRemove.addAll(plan.findNodeTemplateActivities(unmanagedNode));                
             // check if this unmanaged node is connected to the managed nodes
+            activitiesToRemove.addAll(plan.findNodeTemplateActivities(unmanagedNode));
+            
+            boolean addedAsNotifyActivity = false;
+            
             for(AbstractRelationshipTemplate relation : unmanagedNode.getOutgoingRelations()) {
                 if(managedNodes.contains(relation.getTarget())) {
                     // in this case we have to receive a notify
                     NodeTemplateActivity nodeActivity = new NodeTemplateActivity("sendNotify_" + unmanagedNode.getId(), ActivityType.SENDNODENOTIFY, unmanagedNode);
                     activitiesToAdd.add(nodeActivity);
+                    addedAsNotifyActivity = true;
                 }
                                 
             }
@@ -54,10 +58,14 @@ public class ChoreographyBuilder {
                     // in this case we have to send a notify
                     NodeTemplateActivity nodeActivity = new NodeTemplateActivity("receiveNotify_" + unmanagedNode.getId(), ActivityType.RECEIVENODENOTIFY, unmanagedNode);
                     activitiesToAdd.add(nodeActivity);
+                    addedAsNotifyActivity = true;
                 }
                 
             }
-            
+            if(!addedAsNotifyActivity) {
+                NodeTemplateActivity nodeActivity = new NodeTemplateActivity("placeholderActivity_" + unmanagedNode.getId(), ActivityType.NONE, unmanagedNode);
+                activitiesToAdd.add(nodeActivity);
+            }
         }
         
         for(AbstractRelationshipTemplate relation : unmanagedRelations) {
@@ -79,6 +87,7 @@ public class ChoreographyBuilder {
             
         }
         
+       
         for(Link linkToUpdate : linksToUpdate) {
             if(activitiesToRemove.contains(linkToUpdate.getTrgActiv())) {
                 for(AbstractActivity activityToAdd : activitiesToAdd) {
@@ -150,9 +159,16 @@ public class ChoreographyBuilder {
     }
 
     private Collection<AbstractNodeTemplate> getUnmanagedChoreographyNodes(final AbstractServiceTemplate serviceTemplate) {
+        Collection<AbstractNodeTemplate> unmanagedNodes = new HashSet<AbstractNodeTemplate>();        
         Collection<AbstractNodeTemplate> nodes = serviceTemplate.getTopologyTemplate().getNodeTemplates();
-        nodes.removeAll(this.getManagedChoreographyNodes(serviceTemplate));
-        return nodes;
+        Collection<AbstractNodeTemplate> managedNodes = this.getManagedChoreographyNodes(serviceTemplate);
+        
+        for(AbstractNodeTemplate node : nodes) {
+            if(!managedNodes.contains(node)) {
+                unmanagedNodes.add(node);
+            }
+        }        
+        return unmanagedNodes;
     }
 
 

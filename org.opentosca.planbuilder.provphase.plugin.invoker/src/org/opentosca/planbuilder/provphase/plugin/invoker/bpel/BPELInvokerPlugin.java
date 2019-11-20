@@ -6,7 +6,6 @@ package org.opentosca.planbuilder.provphase.plugin.invoker.bpel;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -14,12 +13,12 @@ import javax.xml.namespace.QName;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
+import org.opentosca.planbuilder.plugins.choreography.IPlanBuilderChoreographyPlugin;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokeOperationHandler;
@@ -28,6 +27,7 @@ import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELTran
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 /**
  * Copyright 2014 IAAS University of Stuttgart <br>
@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  *
  */
 public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<BPELPlanContext>,
-                               IPlanBuilderProvPhaseParamOperationPlugin<BPELPlanContext> {
+                               IPlanBuilderProvPhaseParamOperationPlugin<BPELPlanContext>, IPlanBuilderChoreographyPlugin<BPELPlanContext> {
 
     private static final String PLUGIN_ID = "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
 
@@ -225,41 +225,57 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         }
     }
     
+    @Override
     public boolean handleSendNotify(BPELPlanContext context) {
         
-        Map<String, Variable> params = new HashMap<String,Variable>();
+        Map<String, PropertyVariable> propMatching = this.notifyhandler.matchOperationParamertsToProperties(context);
         
-        // TODO/FIXME right now we match all operation params against the available properties and send them over, maybe too much ?
-        Collection<AbstractParameter> parameters = new HashSet<AbstractParameter>();
-        if(context.isNodeTemplate()) {
-            for(AbstractInterface iface : context.getNodeTemplate().getType().getInterfaces()) {
-                for(AbstractOperation op : iface.getOperations()) {
-                    parameters.addAll(op.getInputParameters());
-                }
-            }
-        }
-        
-        // try to match param against a property and add it to the input of the notify call
-        for(AbstractParameter param : parameters) {
-            PropertyVariable propVar = context.getPropertyVariable(param.getName());
-            if(propVar != null) {
-                params.put(propVar.getNodeTemplate().getId() + "_" + propVar.getPropertyName(), propVar);
-            }
-        }
-        
+        Map<String,Variable> params = this.notifyhandler.mapToParamMap(propMatching.values());
         
         try {
             return this.notifyhandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
         }
         catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        catch (SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
         }                
     }
     
+    @Override
+    public boolean handleReceiveNotify(BPELPlanContext context) {        
+        Collection<PropertyVariable> properties = this.notifyhandler.getPartnerPropertyVariables(context);
+      
+        Map<String, Variable> params = this.notifyhandler.mapToParamMap(properties);
+       
+        try {
+            return this.notifyhandler.handleReceiveNotify(context, params, context.getProvisioningPhaseElement());
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false;
+        } 
+    }
     
+    @Override
+    public boolean canHandleSendNotify(BPELPlanContext context) {
+        return this.notifyhandler.isValidForSendNotify(context);
+    }
 
+    @Override
+    public boolean canHandleReceiveNotify(BPELPlanContext context) {        
+        return this.notifyhandler.isValidForReceiveNotify(context);
+    }
+    
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
@@ -324,5 +340,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public int getPriority() {
         return 1;
     }
+
+   
 
 }

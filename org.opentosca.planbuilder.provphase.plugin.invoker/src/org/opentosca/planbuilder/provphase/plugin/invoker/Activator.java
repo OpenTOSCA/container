@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.provphase.plugin.invoker;
 
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.choreography.IPlanBuilderChoreographyPlugin;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -19,7 +20,9 @@ import org.osgi.framework.ServiceRegistration;
 public class Activator implements BundleActivator {
 
     private static BundleContext context;
-    private ServiceRegistration<?> registration;
+    private ServiceRegistration<?> provPhaseOperationRegistration;
+    private ServiceRegistration<?> choregraphyRegistration;
+
 
     /**
      * Returns the BundleContext of this Bundle
@@ -36,8 +39,11 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
-        this.registration = Activator.context.registerService(IPlanBuilderProvPhaseOperationPlugin.class.getName(),
-                                                              new BPELInvokerPlugin(), null);
+        this.provPhaseOperationRegistration =
+            Activator.context.registerService(IPlanBuilderProvPhaseOperationPlugin.class.getName(),
+                                              new BPELInvokerPlugin(), null);
+        this.choregraphyRegistration = Activator.context.registerService(IPlanBuilderChoreographyPlugin.class.getName(),
+                                                                         new BPELInvokerPlugin(), null);
     }
 
     /**
@@ -45,7 +51,8 @@ public class Activator implements BundleActivator {
      */
     @Override
     public void stop(final BundleContext bundleContext) throws Exception {
-        this.registration.unregister();
+        this.provPhaseOperationRegistration.unregister();
+        this.choregraphyRegistration.unregister();
         Activator.context = null;
 
     }

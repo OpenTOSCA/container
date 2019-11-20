@@ -1,7 +1,11 @@
 package org.opentosca.planbuilder;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +28,8 @@ public abstract class AbstractPlanBuilder {
         }
     }
 
+
+    
     /**
      * Returns the number of the plugins registered with this planbuilder
      *
@@ -34,4 +40,5 @@ public abstract class AbstractPlanBuilder {
             + this.pluginRegistry.getIaPlugins().size() + this.pluginRegistry.getPostPlugins().size()
             + this.pluginRegistry.getProvPlugins().size();
     }
+    
 }

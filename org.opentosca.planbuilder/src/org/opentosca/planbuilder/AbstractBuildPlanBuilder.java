@@ -31,7 +31,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
     public PlanType createdPlanType() {
         return PlanType.BUILD;
     }
-
+        
 
     protected static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
                                               final AbstractServiceTemplate serviceTemplate,
@@ -72,6 +72,9 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
             };
         return plan;
     }
+    
+    
+    
 
     private static void generatePOGActivitesAndLinks(final Collection<AbstractActivity> activities,
                                                      final Set<Link> links,
@@ -79,9 +82,10 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
                                                      final Collection<AbstractNodeTemplate> nodeTemplates,
                                                      final Map<AbstractRelationshipTemplate, AbstractActivity> relationActivityMapping,
                                                      final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
+       
         for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
             final AbstractActivity activity = new NodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity",
-                ActivityType.PROVISIONING, nodeTemplate);
+                ActivityType.PROVISIONING, nodeTemplate);            
             activities.add(activity);
             nodeActivityMapping.put(nodeTemplate, activity);
         }

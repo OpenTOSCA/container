@@ -820,7 +820,7 @@ public class ResourceHandler {
     }
     
     public QName getServiceInvokerNotifyPlanMessageXSDType() {
-        return new QName("http://siserver.org/schema", "notifyPlanMessage");
+        return new QName("http://siserver.org/wsdl", "notifyPlanMessage");
     }
 
     public String getServiceInvokerAsyncResponseMessagePart() {
