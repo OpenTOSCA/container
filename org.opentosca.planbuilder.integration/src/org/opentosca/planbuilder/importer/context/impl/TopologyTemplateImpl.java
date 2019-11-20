@@ -50,7 +50,7 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
                                 final QName serviceTemplateId) {
         this.topologyTemplate = topologyTemplate;
         this.definitions = definitions;
-        this.serviceTemplateId = serviceTemplateId;
+        this.serviceTemplateId = serviceTemplateId;                
         setUpTemplates();
         setUpRelations();
     }

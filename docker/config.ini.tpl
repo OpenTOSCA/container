@@ -29,6 +29,7 @@ org.opentosca.container.connector.winery.url=http\://{{ .Env.CONTAINER_REPOSITOR
 org.opentosca.container.hostname={{ .Env.PUBLIC_HOSTNAME }}
 org.opentosca.container.port=1337
 org.opentosca.deployment.tests={{ .Env.CONTAINER_DEPLOYMENT_TESTS }}
+org.opentosca.bus.management.mocking={{ .Env.CONTAINER_BUS_MANAGEMENT_MOCK }}
 org.opentosca.container.broker.mqtt.port=1883
 org.opentosca.container.broker.mqtt.username=admin
 org.opentosca.container.broker.mqtt.password=admin

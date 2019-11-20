@@ -173,6 +173,11 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
         this.correlationHandler.addCorrellationID(newFreezePlan);
 
+        this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newFreezePlan,
+                                                                             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newFreezePlan),
+                                                                             "ERROR", serviceInstanceURLVarName);
+        this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newFreezePlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newFreezePlan), "FAILED", this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newFreezePlan));
+
         this.finalizer.finalize(newFreezePlan);
 
         // add for each loop over found node instances to terminate each running

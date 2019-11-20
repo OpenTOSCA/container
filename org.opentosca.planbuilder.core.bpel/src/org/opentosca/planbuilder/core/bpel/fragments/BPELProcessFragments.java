@@ -60,7 +60,7 @@ public class BPELProcessFragments {
         return template;
     }
 
-    private Node transformStringToNode(String xmlString) throws SAXException, IOException {
+    public Node transformStringToNode(String xmlString) throws SAXException, IOException {
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(xmlString));
         final Document doc = this.docBuilder.parse(is);

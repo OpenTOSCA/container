@@ -137,8 +137,10 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                                            newBackupPlan);
         this.serviceInstanceVarsHandler.addServiceInstanceHandlingFromInput(newBackupPlan);
+
         final String serviceTemplateURLVarName =
             this.serviceInstanceVarsHandler.getServiceTemplateURLVariableName(newBackupPlan);
+        
         this.serviceInstanceVarsHandler.appendInitPropertyVariablesFromServiceInstanceData(newBackupPlan, propMap,
                                                                                            serviceTemplateURLVarName,
                                                                                            serviceTemplate, null);
@@ -163,6 +165,16 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         runPlugins(newBackupPlan, propMap, csarName);
 
         this.correlationHandler.addCorrellationID(newBackupPlan);
+
+        this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newBackupPlan,
+                                                                             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBackupPlan),
+                                                                             "ERROR",
+                                                                             this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(newBackupPlan));
+        this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newBackupPlan,
+                                                                             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBackupPlan),
+                                                                             "FAILED",
+                                                                             this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newBackupPlan));
+
         this.finalizer.finalize(newBackupPlan);
 
         LOG.debug("Created Plan:");

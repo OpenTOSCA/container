@@ -5,7 +5,6 @@ import java.util.concurrent.TimeoutException;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.opentosca.bus.management.service.impl.collaboration.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveResponseRoute;
 import org.opentosca.bus.management.service.impl.collaboration.route.SendRequestResponseRoute;
