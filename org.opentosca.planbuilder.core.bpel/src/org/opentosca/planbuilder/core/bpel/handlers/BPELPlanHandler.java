@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,19 +21,22 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
+import org.opentosca.planbuilder.model.plan.ActivityType;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
+import org.opentosca.planbuilder.model.tosca.BPMN4TOSCATemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -353,8 +357,7 @@ public class BPELPlanHandler {
                                   buildPlan.getBpelProcessElement().getAttribute("name"));
         buildPlan.getBpelProcessElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + prefix, namespace);
 
-
-        String test2 = buildPlan.getBpelProcessElement().getAttribute("xmlns:" + prefix);
+        final String test2 = buildPlan.getBpelProcessElement().getAttribute("xmlns:" + prefix);
         if (!test2.isEmpty()) {
             return true;
         } else {
@@ -1018,6 +1021,38 @@ public class BPELPlanHandler {
         initializeConnectionsAsLinkInBPELPlan(plan);
     }
 
+    public void intializeBPMNActivityToBPELSkeleton(final BPELPlan plan, final String csarName,
+                                                    final List<BPMN4TOSCATemplate> bpmnWorkflow) {
+        plan.setCsarName(csarName);
+
+        final Map<AbstractActivity, BPELScope> abstract2bpelMap = new HashMap<>();
+
+        for (final BPMN4TOSCATemplate bpmnActivity : bpmnWorkflow) {
+            if (!bpmnActivity.getType().equals("StartEvent") && !bpmnActivity.getType().equals("EndEvent")) {
+                final NodeTemplateActivity activity = determineNodeTemplateActivity(plan, bpmnActivity, csarName);
+                final BPELScope newEmptyBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(activity, plan);
+                plan.addTemplateBuildPlan(newEmptyBPELActivity);
+                abstract2bpelMap.put(activity, newEmptyBPELActivity);
+            }
+            plan.setAbstract2BPELMapping(abstract2bpelMap);
+            initializeConnectionsAsLinkInBPELPlan(plan);
+        }
+    }
+
+    private NodeTemplateActivity determineNodeTemplateActivity(final BPELPlan plan,
+                                                               final BPMN4TOSCATemplate bpmnActivity,
+                                                               final String csarName) {
+        final AbstractServiceTemplate serviceTemplate = plan.getServiceTemplate();
+        final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
+        final Collection<AbstractNodeTemplate> nodeTemplates = topology.getNodeTemplates();
+        final AbstractNodeTemplate nodeTemplate =
+            nodeTemplates.stream().filter(template -> template.getId().equals(bpmnActivity.getTemplate().getId()))
+                         .findAny().orElse(null);
+        final NodeTemplateActivity newActivity =
+            new NodeTemplateActivity(bpmnActivity.getTemplate().getOperation(), ActivityType.BPMN4TOSCA, nodeTemplate);
+        return newActivity;
+    }
+
     private void initializeConnectionsAsLinkInBPELPlan(final BPELPlan plan) {
         for (final Link link : plan.getLinks()) {
             final BPELScope source = plan.getAbstract2BPEL().get(link.getSrcActiv());
@@ -1039,7 +1074,7 @@ public class BPELPlanHandler {
         }
     }
 
-    public boolean assignInitValueToVariable(Variable var, String value, BPELPlan plan) {
+    public boolean assignInitValueToVariable(final Variable var, final String value, final BPELPlan plan) {
         return assignInitValueToVariable(var.getVariableName(), value, plan);
     }
 
@@ -1301,10 +1336,10 @@ public class BPELPlanHandler {
         // add XMLSchema Namespace for the logic
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
-        this.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
+        addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
         // create Response Variable for interaction
         final String varName = "anyTypeVariable" + System.currentTimeMillis();
-        this.addVariable(varName, VariableType.TYPE, new QName(xsdNamespace, "anyType", xsdPrefix), plan);
+        addVariable(varName, VariableType.TYPE, new QName(xsdNamespace, "anyType", xsdPrefix), plan);
         return varName;
     }
 

@@ -323,9 +323,9 @@ public class DefinitionsImpl extends AbstractDefinitions {
         return this.definitions;
     }
 
-	protected Collection<AbstractFile> getFiles() {
-		return this.filesInCsar;
-	}
+    protected Collection<AbstractFile> getFiles() {
+        return this.filesInCsar;
+    }
 
     /**
      * {@inheritDoc}
