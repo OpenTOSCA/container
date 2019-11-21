@@ -27,7 +27,7 @@
 				type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1" name="CsarID"
 				type="xs:string" />
-			<xs:element minOccurs="1" maxOccurs="1" name="ServiceInstanceID"
+			<xs:element minOccurs="0" maxOccurs="1" name="ServiceInstanceID"
 				type="xs:string" />
 			<xs:element minOccurs="0" maxOccurs="1" name="NodeInstanceID"
 				type="xs:string" />
