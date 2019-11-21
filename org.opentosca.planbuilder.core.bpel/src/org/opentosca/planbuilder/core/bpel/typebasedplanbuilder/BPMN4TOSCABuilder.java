@@ -57,7 +57,6 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        // this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
         this.propertyOutputInitializer = new ServiceTemplateBoundaryPropertyMappingsToOutputHandler();
         this.finalizer = new BPELFinalizer();
     }
@@ -82,9 +81,8 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 
             LOG.debug("Generated the following abstract prov plan: ");
             LOG.debug(BPMN4TOSCAPlan.toString());
-            // TODO: Instanzabfrage
             final BPELPlan newPlan =
-                this.planHandler.createEmptyBPELPlan(processNamespace, processName, BPMN4TOSCAPlan, "initiate");
+                this.planHandler.createEmptyBPELPlan(processNamespace, processName, BPMN4TOSCAPlan, "bpmn4tosca");
 
             newPlan.setTOSCAInterfaceName("BPMN4TOSCA Plans");
             newPlan.setTOSCAOperationname("start");
@@ -94,16 +92,12 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
             this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(newPlan, serviceTemplate);
             this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(newPlan, serviceTemplate);
 
-            // TODO: inputs aus BPMN
-            // final Property2VariableMapping propMap =
-            // this.propertyInitializer.initializePropertiesAsVariables(newPlan,serviceTemplate);
-
             final Property2VariableMapping propMap =
                 this.propertyInit.initializePropertiesFromWorkflow(newPlan, serviceTemplate, csarName, bpmnWorkflow);
 
             this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                                                newPlan);
-            if (newInstance) {
+            
                 // TODO: outputs aus BPMN
                 /**
                  * this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, newPlan, propMap,
@@ -122,7 +116,7 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
 
                 runPlugins(newPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarName,
                            bpmnWorkflow);
-            } else {
+            if (!newInstance) {
                 this.serviceInstanceVarsHandler.addServiceInstanceHandlingFromInput(newPlan);
             }
 
@@ -165,14 +159,9 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
                             final String serviceInstanceID, final String serviceTemplateUrl, final String csarFileName,
                             final List<BPMN4TOSCATemplate> bpmnWorkflow) {
         for (final BPELScope bpelScope : plan.getTemplateBuildPlans()) {
-            // TODO
             final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
             final BPELPlanContext context = new BPELPlanContext(plan, bpelScope, map, plan.getServiceTemplate(),
                 serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarFileName);
-            // for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
-            // this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
-            // }
-
             final Map<AbstractParameter, Variable> inputs = new HashMap<>();
             for (final BPMN4TOSCATemplate bpmn4toscaTemplate : bpmnWorkflow) {
                 if (!bpmn4toscaTemplate.getType().equals("StartEvent")
@@ -181,13 +170,8 @@ public class BPMN4TOSCABuilder extends AbstractBPMN4TOSCAPlanBuilder {
                         context.executeOperation(nodeTemplate, bpmn4toscaTemplate.getTemplate().getNodeInterface(),
                                                  bpmn4toscaTemplate.getTemplate().getOperation(), inputs);
                     }
-                    // TODO: debug and check with BPELInvokerPlugin
                 }
             }
-            // BPMN4TOSCATemplate bpmn4toscaTask = bpmnWorkflow.stream()
-            // .filter(bpmnActivity ->
-            // bpmnActivity.getTemplate().getId().equals(nodeTemplate.getId())).findAny()
-            // .orElse(null);
 
         }
 
