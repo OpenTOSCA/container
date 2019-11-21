@@ -103,9 +103,11 @@
 	<wsdl:service name="InvokerService">
 		<wsdl:port binding="tns:InvokeBinding" name="InvokePort">
 			<soap:address location="http://localhost:8081/invoker" />
-		</wsdl:port>
+		</wsdl:port>		
+	</wsdl:service>
+	<wsdl:service name="CallbackService">		
 		<wsdl:port binding="tns:CallbackBinding" name="CallbackPort">
-			<soap:address location="http://localhost:8087/callback" />
+			<soap:address location="http://localhost:8088/callback" />
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>
