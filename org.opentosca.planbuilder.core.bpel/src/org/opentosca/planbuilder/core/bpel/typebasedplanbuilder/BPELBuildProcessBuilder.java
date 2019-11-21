@@ -285,6 +285,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 final AbstractRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
 
                 this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate);
+            } else {
+                this.bpelPluginHandler.handleActivity(context, bpelScope);
             }
 
         }

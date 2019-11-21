@@ -10,16 +10,23 @@
 				schemaLocation="invoker.xsd" />
 		</xsd:schema>
 	</wsdl:types>
-	<wsdl:message name="invokeOperationMessage">
-		<wsdl:part element="ns:invokeOperation" name="invokeOperation">
-		</wsdl:part>
-	</wsdl:message>
-	<wsdl:message name="notifyPlanMessage">
-		<wsdl:part element="ns:invokeOperationAsync" name="notifyPlan">
+	
+	
+	<wsdl:message name="notifyPartnerMessage">
+		<wsdl:part element="ns:notifyPartner" name="notifyPartner">
 		</wsdl:part>
 	</wsdl:message>
 	<wsdl:message name="notifyPartnersMessage">
-		<wsdl:part element="ns:invokeOperationAsync" name="notifyPartners">
+		<wsdl:part element="ns:notifyPartners" name="notifyPartners">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="receiveNotifyMessage">
+		<wsdl:part element="ns:receiveNotify" name="receiveNotify">
+		</wsdl:part>
+	</wsdl:message>
+	
+	<wsdl:message name="invokeOperationMessage">
+		<wsdl:part element="ns:invokeOperation" name="invokeOperation">
 		</wsdl:part>
 	</wsdl:message>
 	<wsdl:message name="invokeOperationAsyncMessage">
@@ -47,14 +54,6 @@
 			<wsdl:input message="tns:invokeOperationAsyncMessage">
 			</wsdl:input>
 		</wsdl:operation>
-		<wsdl:operation name="notifyPlan">
-			<wsdl:input message="tns:notifyPlanMessage">
-			</wsdl:input>
-		</wsdl:operation>
-		<wsdl:operation name="notifyPartners">
-			<wsdl:input message="tns:notifyPartnersMessage">
-			</wsdl:input>
-		</wsdl:operation>
 		<wsdl:operation name="invokeOperationSync">
 			<wsdl:input message="tns:invokeOperationSyncMessage">
 			</wsdl:input>
@@ -65,6 +64,14 @@
 			<wsdl:input message="tns:invokePlanMessage">
 			</wsdl:input>
 		</wsdl:operation>
+		<wsdl:operation name="notifyPartner">
+			<wsdl:input message="tns:notifyPartnerMessage">
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="notifyPartners">
+			<wsdl:input message="tns:notifyPartnersMessage">
+			</wsdl:input>
+		</wsdl:operation>
 	</wsdl:portType>
 	<wsdl:portType name="CallbackPortType">
 		<wsdl:operation name="callback">
@@ -72,7 +79,7 @@
 			</wsdl:input>
 		</wsdl:operation>
 		<wsdl:operation name="receiveNotify">
-			<wsdl:input message="tns:invokeResponse">
+			<wsdl:input message="tns:receiveNotifyMessage">
 			</wsdl:input>
 		</wsdl:operation>
 	</wsdl:portType>
@@ -110,8 +117,8 @@
 				<soap:body use="literal" />
 			</wsdl:input>
 		</wsdl:operation>
-		<wsdl:operation name="notifyPlan">
-			<soap:operation soapAction="http://siserver.org/notifyPlan"
+		<wsdl:operation name="notifyPartner">
+			<soap:operation soapAction="http://siserver.org/notifyPartner"
 				style="document" />
 			<wsdl:input>
 				<soap:body use="literal" />

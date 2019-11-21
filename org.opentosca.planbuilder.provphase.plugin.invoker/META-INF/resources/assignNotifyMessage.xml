@@ -3,7 +3,7 @@
 	<bpel:copy>
 		<bpel:from>
 			<bpel:literal>
-				<impl:notifyPlanMessage xmlns:impl="http://siserver.org/schema"
+				<impl:notifyPartner xmlns:impl="http://siserver.org/schema"
 					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 					<impl:PlanCorrelationID>{planCorrelation}</impl:PlanCorrelationID>
 					<impl:CsarID>{csarName}</impl:CsarID>						
@@ -12,7 +12,7 @@
 					<impl:MessageID>{messageID}</impl:MessageID>
 					{paramsMap}
 
-				</impl:notifyPlanMessage>
+				</impl:notifyPartner>
 			</bpel:literal>
 		</bpel:from>
 		<bpel:to variable="{requestVarName}" part="{requestVarPartName}"></bpel:to>

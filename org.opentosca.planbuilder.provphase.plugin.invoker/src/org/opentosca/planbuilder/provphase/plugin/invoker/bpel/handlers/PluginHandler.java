@@ -21,6 +21,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.osgi.framework.FrameworkUtil;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -45,6 +46,87 @@ public class PluginHandler {
         }
     }
 
+    
+    public Node appendLOGMessageActivity(final BPELPlanContext context, final String message) {
+        String logMessageTempStringVarName = null;
+        String logMessageContent = null;
+        logMessageTempStringVarName = "instanceDataLogMsg_" + System.currentTimeMillis();
+        logMessageContent = message;
+
+        // create variables
+        logMessageTempStringVarName =
+            context.createGlobalStringVariable(logMessageTempStringVarName, logMessageContent).getVariableName();
+
+        final String logMessageReqVarName = createLogRequestMsgVar(context);
+        final String planInstanceURLVar = context.getPlanInstanceURLVarName();
+
+        try {
+
+
+            Node logPOSTNode =
+                new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(planInstanceURLVar,
+                                                                                          logMessageTempStringVarName,
+                                                                                          logMessageReqVarName);
+            logPOSTNode = context.importNode(logPOSTNode);
+
+            return logPOSTNode;
+
+        }
+        catch (final IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (final SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (final ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public void appendLOGMessageActivity(final BPELPlanContext context, final String message,
+                                         Element elementToAppendTo) {
+        String logMessageTempStringVarName = null;
+        String logMessageContent = null;
+        logMessageTempStringVarName = "instanceDataLogMsg_" + System.currentTimeMillis();
+        logMessageContent = message;
+
+        // create variables
+        logMessageTempStringVarName =
+            context.createGlobalStringVariable(logMessageTempStringVarName, logMessageContent).getVariableName();
+
+        final String logMessageReqVarName = createLogRequestMsgVar(context);
+        final String planInstanceURLVar = context.getPlanInstanceURLVarName();
+
+        try {
+
+
+            Node logPOSTNode =
+                new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(planInstanceURLVar,
+                                                                                          logMessageTempStringVarName,
+                                                                                          logMessageReqVarName);
+            logPOSTNode = context.importNode(logPOSTNode);
+
+            elementToAppendTo.appendChild(logPOSTNode);
+
+        }
+        catch (final IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (final SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (final ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
     public void appendLOGMessageActivity(final BPELPlanContext context, final String message,
                                          final BPELPlanContext.Phase phase) {
         String logMessageTempStringVarName = null;

@@ -54,7 +54,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
     private final BPELInvokeOperationHandler invokeOperationhandler = new BPELInvokeOperationHandler();
     private final BPELTransferArtifactHandler transferArtifactHandler = new BPELTransferArtifactHandler();
-    private final BPELNotifyHandler notifyhandler = new BPELNotifyHandler();
+    private final BPELNotifyHandler choreohandler = new BPELNotifyHandler();
 
     public void addLogActivity(final BPELPlanContext context, final String message, final BPELPlanContext.Phase phase) {
         this.invokeOperationhandler.appendLOGMessageActivity(context, message, phase);
@@ -228,12 +228,12 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     @Override
     public boolean handleSendNotify(BPELPlanContext context) {
         
-        Map<String, PropertyVariable> propMatching = this.notifyhandler.matchOperationParamertsToProperties(context);
+        Map<String, PropertyVariable> propMatching = this.choreohandler.matchOperationParamertsToProperties(context);
         
-        Map<String,Variable> params = this.notifyhandler.mapToParamMap(propMatching.values());
+        Map<String,Variable> params = this.choreohandler.mapToParamMap(propMatching.values());
         
         try {
-            return this.notifyhandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
+            return this.choreohandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -248,12 +248,12 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     
     @Override
     public boolean handleReceiveNotify(BPELPlanContext context) {        
-        Collection<PropertyVariable> properties = this.notifyhandler.getPartnerPropertyVariables(context);
+        Collection<PropertyVariable> properties = this.choreohandler.getPartnerPropertyVariables(context);
       
-        Map<String, Variable> params = this.notifyhandler.mapToParamMap(properties);
+        Map<String, Variable> params = this.choreohandler.mapToParamMap(properties);
        
         try {
-            return this.notifyhandler.handleReceiveNotify(context, params, context.getProvisioningPhaseElement());
+            return this.choreohandler.handleReceiveNotify(context, params, context.getProvisioningPhaseElement());
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -268,12 +268,12 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     
     @Override
     public boolean canHandleSendNotify(BPELPlanContext context) {
-        return this.notifyhandler.isValidForSendNotify(context);
+        return this.choreohandler.isValidForSendNotify(context);
     }
 
     @Override
     public boolean canHandleReceiveNotify(BPELPlanContext context) {        
-        return this.notifyhandler.isValidForReceiveNotify(context);
+        return this.choreohandler.isValidForReceiveNotify(context);
     }
     
     @Override
@@ -339,6 +339,28 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     @Override
     public int getPriority() {
         return 1;
+    }
+
+    @Override
+    public boolean canHandleNotifyPartners(BPELPlanContext context) {
+        // we can do this always, basically
+        return true;
+    }
+
+    @Override
+    public boolean handleNotifyPartners(BPELPlanContext context) {
+        try {
+            return this.choreohandler.handleNotifyPartners(context);
+        }
+        catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
     }
 
    

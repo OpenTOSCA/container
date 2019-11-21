@@ -34,6 +34,9 @@ public class ChoreographyBuilder {
         Collection<Link> linksToUpdate = new HashSet<Link>();
         Collection<Link> linksToAdd = new HashSet<Link>();
         
+        
+       
+        
         // for each unmanaged node we determine whether the managed nodes are depending on it or not, in the
         // first case we add receive for instance data from a partner and in other case we send such data
         for(AbstractNodeTemplate unmanagedNode : unmanagedNodes) {
@@ -118,9 +121,15 @@ public class ChoreographyBuilder {
         
         activties.removeAll(activitiesToRemove);
         links.removeAll(linksToRemove);
+
+        // add base notify all partners activity
+        AbstractActivity notifyAllPartnersActivity = new AbstractActivity("notifyAllPartners", ActivityType.NOTIFYALLPARTNERS) {};
+        activitiesToAdd.add(notifyAllPartnersActivity);
+        
         
         activties.addAll(activitiesToAdd);
         links.addAll(linksToAdd);
+        
         
         AbstractPlan newChoregraphyPlan = new AbstractPlan(plan.getId(), plan.getType(), plan.getDefinitions(), plan.getServiceTemplate(), activties, links) {};
         

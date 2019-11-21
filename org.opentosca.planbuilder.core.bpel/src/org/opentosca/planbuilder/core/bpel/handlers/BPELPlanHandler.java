@@ -1017,6 +1017,14 @@ public class BPELPlanHandler {
                 final BPELScope newCompensationHandlerScope =
                     this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "compensation");
                 newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
+            } else {
+                newEmpty3SequenceScopeBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(activity, plan, "");
+                plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
+                abstract2bpelMap.put(activity, newEmpty3SequenceScopeBPELActivity);
+
+                final BPELScope newCompensationHandlerScope =
+                    this.bpelScopeHandler.createTemplateBuildPlan(activity, plan, "compensation");
+                newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
             }
         }
 

@@ -807,8 +807,12 @@ public class ResourceHandler {
         return "invokeOperationAsync";
     }
     
-    public String getServiceInvokerNotifyPlanMessagePart() {
-        return "notifyPlan";
+    public String getServiceInvokerNotifyPartnerMessagePart() {
+        return "notifyPartner";
+    }
+    
+    public String getServiceInvokerNotifyPartnersMessagePart() {
+        return "notifyPartners";
     }
 
     public QName getServiceInvokerAsyncRequestMessageType() {
@@ -819,12 +823,21 @@ public class ResourceHandler {
         return new QName("http://siserver.org/schema", "invokeOperationAsync");
     }
     
-    public QName getServiceInvokerNotifyPlanMessageXSDType() {
-        return new QName("http://siserver.org/wsdl", "notifyPlanMessage");
+    public QName getServiceInvokerNotifyPartnerMessageXSDType() {
+        return new QName("http://siserver.org/wsdl", "notifyPartnerMessage");
     }
+    
+    public QName getServiceInvokerNotifyPartnersMessageXSDType() {
+        return new QName("http://siserver.org/wsdl", "notifyPartnersMessage");
+    }
+    
 
     public String getServiceInvokerAsyncResponseMessagePart() {
         return "invokeResponse";
+    }
+    
+    public String getServiceInvokerReceiveNotifyMessagePart() {
+        return "receiveNotify";
     }
 
     public QName getServiceInvokerAsyncResponseMessageType() {
@@ -833,6 +846,14 @@ public class ResourceHandler {
 
     public QName getServiceInvokerAsyncResponseXSDType() {
         return new QName("http://siserver.org/schema", "invokeResponse");
+    }
+    
+    public QName getServiceInvokerReceiveNotifyMessageType() {
+        return new QName("http://siserver.org/wsdl", "receiveNotifyMessage");
+    }
+    
+    public QName getServiceInvokerReceiveNotifyXSDType() {
+        return new QName("http://siserver.org/schema", "receiveNotify");
     }
 
     public QName getServiceInvokerCallbackPortType() {

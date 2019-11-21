@@ -28,6 +28,21 @@ public class BPELPluginHandler {
     protected final PluginRegistry pluginRegistry = new PluginRegistry();
     
     
+    public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope) {
+                        
+        boolean result = false;
+        switch (bpelScope.getActivity().getType()) {           
+            case NOTIFYALLPARTNERS:
+                result = handleNotifyAllPartnersActivity(context, bpelScope);
+                break;
+            default:
+                result = false;
+                break;
+        }
+
+        return result;
+    }
+    
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractNodeTemplate nodeTemplate) {
@@ -48,7 +63,7 @@ public class BPELPluginHandler {
                 break;
             case RECEIVENODENOTIFY:
                 result = handleReceiveNotifyActivity(context, bpelScope, nodeTemplate);
-                break;
+                break;            
             default:
                 result = false;
                 break;
@@ -56,6 +71,8 @@ public class BPELPluginHandler {
 
         return result;
     }
+    
+    
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractRelationshipTemplate relationshipTemplate) {
@@ -71,6 +88,18 @@ public class BPELPluginHandler {
                 result = false;
                 break;
         }
+        return result;
+    }
+    
+    private boolean handleNotifyAllPartnersActivity(final BPELPlanContext context, final BPELScope bpelScope) {
+        boolean result = true;
+        
+        for(IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
+            if(plugin.canHandleNotifyPartners(context)) {
+                result = plugin.handleNotifyPartners(context);
+            }
+        }
+  
         return result;
     }
     

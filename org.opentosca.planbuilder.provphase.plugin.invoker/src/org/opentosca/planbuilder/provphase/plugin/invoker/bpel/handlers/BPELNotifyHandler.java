@@ -32,11 +32,132 @@ import org.xml.sax.SAXException;
  */
 public class BPELNotifyHandler extends PluginHandler {
 
+    public boolean handleNotifyPartners(BPELPlanContext context) throws SAXException, IOException {
+        
+        
+       
 
+
+        final File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
+        final File wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
+        // register wsdls and xsd
+        final QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), wsdlFile);
+        final QName invokerCallbackPortType =
+            context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), wsdlFile);
+        // atleast the xsd should be imported now in the plan
+        context.registerType(this.resHandler.getServiceInvokerNotifyPartnersMessageXSDType(), xsdFile);
+
+
+        final QName InputMessageId = context.importQName(this.resHandler.getServiceInvokerNotifyPartnersMessageXSDType());
+        final String InputMessagePartName = this.resHandler.getServiceInvokerNotifyPartnersMessagePart();
+
+        // generate partnerlink from the two porttypes
+        final String partnerLinkTypeName = invokerPortType.getLocalPart() + "PLT" + context.getIdForNames();
+
+
+
+        context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee",
+                                   invokerPortType);
+
+        final String partnerLinkName = invokerPortType.getLocalPart() + "PL" + context.getIdForNames();
+
+        context.addPartnerLinkToTemplateScope(partnerLinkName, partnerLinkTypeName, "Requester", "Requestee", true);
+
+        // register request and response message
+        final String requestVariableName =
+            invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
+        context.addVariable(requestVariableName, BPELPlan.VariableType.MESSAGE, InputMessageId);
+
+
+        // setup a correlation set for the messages
+        String correlationSetName = null;
+
+        // setup correlation property and aliases for request and response
+        final String correlationPropertyName = invokerPortType.getLocalPart() + "Property" + context.getIdForNames();
+        context.addProperty(correlationPropertyName, new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
+
+        final String query = "//*[local-name()=\"MessageID\" and namespace-uri()=\"http://siserver.org/schema\"]";
+        // "/" + InputMessageId.getPrefix() + ":" + "MessageID"
+        context.addPropertyAlias(correlationPropertyName, InputMessageId, InputMessagePartName, query);
+        // register correlationsets
+        correlationSetName = invokerPortType.getLocalPart() + "CorrelationSet" + context.getIdForNames();
+        context.addCorrelationSet(correlationSetName, correlationPropertyName);
+
+        // fetch serviceInstanceId
+
+        final String serviceInstanceIdVarName = context.getServiceInstanceURLVarName();
+
+        if (serviceInstanceIdVarName == null) {
+            return false;
+        }
+
+
+        // add request message assign to prov phase scope
+
+        Node assignNode = null;
+        // if (context.getPlanType().equals(PlanType.TERMINATE)) {
+        // TODO FIXME, right now the termination plans are able to call operations of node Instances for
+        // that the instanceID can be null at runtime e.g. when removing a DockerContainer the operation
+        // removeContainer of the DockerEngine is called for that the nodeInstanceId is not fetched at the
+        // time
+        // of removal
+        // TIP this issue theoretically happens only with the "container deployment pattern" were a hosting
+        // node has the operations needed to manage a component => different termination handling for such
+        // components is needed
+        assignNode =
+            this.resHandler.generateNotifyPlanRequestMessageInitAssignTemplate(context.getCSARFileName(),
+                                                                               context.getServiceTemplateId(),
+                                                                               String.valueOf(System.currentTimeMillis()),
+                                                                               requestVariableName,
+                                                                               InputMessagePartName,
+                                                                               new HashMap<String, Variable>());
+
+
+        assignNode = context.importNode(assignNode);
+
+        Node addressingCopyInit = this.resHandler.generateAddressingInitAsNode(requestVariableName);
+        addressingCopyInit = context.importNode(addressingCopyInit);
+        assignNode.appendChild(addressingCopyInit);
+
+        Node addressingCopyNode = this.resHandler.generateAddressingCopyAsNode(partnerLinkName, requestVariableName);
+        addressingCopyNode = context.importNode(addressingCopyNode);
+        assignNode.appendChild(addressingCopyNode);
+
+
+        Node messageIdInit =
+            this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, "notifyPartners_" + context.getServiceTemplateId().getLocalPart());
+        messageIdInit = context.importNode(messageIdInit);
+        assignNode.appendChild(messageIdInit);
+
+        context.getProvisioningPhaseElement().appendChild(assignNode);        
+
+        
+        
+        this.appendLOGMessageActivity(context, "Executing notify all partners", context.getProvisioningPhaseElement());
+
+        // invoke service invoker
+        // add invoke
+
+        Node invokeNode = this.resHandler.generateInvokeAsNode("sendNotifyPartners_" + requestVariableName, partnerLinkName,
+                                                               "notifyPartners", invokerPortType, requestVariableName);
+        BPELInvokeOperationHandler.LOG.debug("Trying to ImportNode: " + invokeNode.toString());
+        invokeNode = context.importNode(invokeNode);
+
+        Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, true);
+        correlationSetsNode = context.importNode(correlationSetsNode);
+        invokeNode.appendChild(correlationSetsNode);
+
+        context.getProvisioningPhaseElement().appendChild(invokeNode);
+
+
+        return true;
+
+    }
 
     public boolean handleReceiveNotify(final BPELPlanContext context,
                                        final Map<String, Variable> internalExternalPropsOutput,
                                        Element elementToAppendTo) throws IOException, SAXException {
+                
 
         // register wsdls and xsd
         final File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
@@ -46,10 +167,10 @@ public class BPELNotifyHandler extends PluginHandler {
             context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), wsdlFile);
 
         // atleast the xsd should be imported now in the plan
-        context.registerType(this.resHandler.getServiceInvokerAsyncResponseXSDType(), xsdFile);
+        context.registerType(this.resHandler.getServiceInvokerReceiveNotifyXSDType(), xsdFile);
 
-        final QName OutputMessageId = context.importQName(this.resHandler.getServiceInvokerAsyncResponseMessageType());
-        final String OutputMessagePartName = this.resHandler.getServiceInvokerAsyncResponseMessagePart();
+        final QName OutputMessageId = context.importQName(this.resHandler.getServiceInvokerReceiveNotifyMessageType());
+        final String OutputMessagePartName = this.resHandler.getServiceInvokerReceiveNotifyMessagePart();
 
         // generate partnerlink from the two porttypes
         final String partnerLinkTypeName = invokerCallbackPortType.getLocalPart() + "PLT" + context.getIdForNames();
@@ -113,7 +234,7 @@ public class BPELNotifyHandler extends PluginHandler {
                                                   "receiveNotify", invokerCallbackPortType, responseVariableName);
         receiveNode = context.importNode(receiveNode);
 
-        Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
+        Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, true);
         correlationSetsNode = context.importNode(correlationSetsNode);
         receiveNode.appendChild(correlationSetsNode);
 
@@ -173,11 +294,11 @@ public class BPELNotifyHandler extends PluginHandler {
         final QName invokerCallbackPortType =
             context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), wsdlFile);
         // atleast the xsd should be imported now in the plan
-        context.registerType(this.resHandler.getServiceInvokerNotifyPlanMessageXSDType(), xsdFile);
+        context.registerType(this.resHandler.getServiceInvokerNotifyPartnerMessageXSDType(), xsdFile);
 
 
-        final QName InputMessageId = context.importQName(this.resHandler.getServiceInvokerNotifyPlanMessageXSDType());
-        final String InputMessagePartName = this.resHandler.getServiceInvokerNotifyPlanMessagePart();
+        final QName InputMessageId = context.importQName(this.resHandler.getServiceInvokerNotifyPartnerMessageXSDType());
+        final String InputMessagePartName = this.resHandler.getServiceInvokerNotifyPartnerMessagePart();
 
         // generate partnerlink from the two porttypes
         final String partnerLinkTypeName = invokerPortType.getLocalPart() + "PLT" + context.getIdForNames();
@@ -275,7 +396,7 @@ public class BPELNotifyHandler extends PluginHandler {
         // add invoke
 
         Node invokeNode = this.resHandler.generateInvokeAsNode("sendNotify_" + requestVariableName, partnerLinkName,
-                                                               "notifyPlan", invokerPortType, requestVariableName);
+                                                               "notifyPartner", invokerPortType, requestVariableName);
         BPELInvokeOperationHandler.LOG.debug("Trying to ImportNode: " + invokeNode.toString());
         invokeNode = context.importNode(invokeNode);
 

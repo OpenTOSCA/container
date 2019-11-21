@@ -3,6 +3,8 @@ package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 import java.util.Collection;
 
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -56,7 +58,9 @@ public class PropertyVariableHandler {
         final Property2VariableMapping map = new Property2VariableMapping();
 
         for (BPELScope scope : buildPlan.getTemplateBuildPlans()) {
-            this.initializePropertiesAsVariables(map, scope, serviceTemplate);
+            if(scope.getActivity() instanceof NodeTemplateActivity | scope.getActivity() instanceof RelationshipTemplateActivity) {                
+                this.initializePropertiesAsVariables(map, scope, serviceTemplate);
+            }
         }
 
         return map;
