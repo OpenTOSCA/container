@@ -135,6 +135,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (!serviceTemplateInstanceID.equals(Long.MIN_VALUE)) {
 
             if (Boolean.valueOf(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK)) {
+                
+                long waitTime = System.currentTimeMillis() + 1000;
+                while(System.currentTimeMillis() < waitTime) {                
+                }
+                
                 respondViaMocking(exchange, csarID, serviceTemplateID, nodeTemplateID, neededInterface,
                                   neededOperation);
             } else {
