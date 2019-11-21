@@ -583,10 +583,9 @@ public class MBJavaApi implements IManagementBus {
         map.put(para, serviceTemplateID.toString());
       } else if (para.equalsIgnoreCase("OpenTOSCAContainerAPIServiceInstanceURL")
         & serviceTemplateInstanceId != null) {
-        String serviceTemplateInstanceUrl =
-          this.createServiceInstanceURI(csarID, serviceTemplateID, serviceTemplateInstanceId);
-        map.put(para, String.valueOf(serviceTemplateInstanceUrl));
-        LOG.debug("Found OpenTOSCAContainerAPIServiceInstanceURL element! Put in STinstanceUrl \"{}\"", String.valueOf(serviceTemplateInstanceUrl));
+        String serviceTemplateInstanceUrl = this.createServiceInstanceURI(csarID, serviceTemplateID, serviceTemplateInstanceId);
+        map.put(para, serviceTemplateInstanceUrl);
+        LOG.debug("Found OpenTOSCAContainerAPIServiceInstanceURL element! Put in STinstanceUrl \"{}\"", serviceTemplateInstanceUrl);
       } else if (para.equalsIgnoreCase("containerApiAddress")) {
         LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \""
           + Settings.CONTAINER_API_LEGACY + "\".");

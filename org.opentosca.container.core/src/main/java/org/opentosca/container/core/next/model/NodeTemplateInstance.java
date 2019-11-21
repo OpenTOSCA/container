@@ -100,7 +100,8 @@ public class NodeTemplateInstance extends PersistenceObject {
   public Map<String, String> getPropertiesAsMap() {
     final PropertyParser parser = new PropertyParser();
     final NodeTemplateInstanceProperty prop =
-      getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
+      getProperties().stream()
+        .filter(p -> p.getType().equalsIgnoreCase("xml"))
         .collect(Collectors.reducing((a, b) -> null)).orElse(null);
     if (prop != null) {
       return parser.parse(prop.getValue());
