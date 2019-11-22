@@ -22,105 +22,38 @@ public class ChoreographyBuilder {
         }
         Collection<AbstractActivity> activties = plan.getActivites();
         Collection<Link> links = plan.getLinks();
-
-        Collection<AbstractNodeTemplate> managedNodes = this.getManagedChoreographyNodes(serviceTemplate);
-        Collection<AbstractNodeTemplate> unmanagedNodes = this.getUnmanagedChoreographyNodes(serviceTemplate);
-        Collection<AbstractRelationshipTemplate> unmanagedRelations = this.getUnmanagedChoreographyRelations(serviceTemplate);
         
-        Collection<AbstractActivity> activitiesToRemove = new HashSet<AbstractActivity>();
+        Collection<AbstractNodeTemplate> managedConnectingNodes = this.getManagedConnectingChoreographyNodes(serviceTemplate);        
+        Collection<AbstractRelationshipTemplate> connectingRelations = this.getConnectingChoreographyRelations(serviceTemplate);
+        
         Collection<AbstractActivity> activitiesToAdd = new HashSet<AbstractActivity>();
         
-        Collection<Link> linksToRemove = new HashSet<Link>();
-        Collection<Link> linksToUpdate = new HashSet<Link>();
         Collection<Link> linksToAdd = new HashSet<Link>();
-        
-        
-       
-        
-        // for each unmanaged node we determine whether the managed nodes are depending on it or not, in the
-        // first case we add receive for instance data from a partner and in other case we send such data
-        for(AbstractNodeTemplate unmanagedNode : unmanagedNodes) {
-            // we always remove activities for unmanaged nodes in the original plan, as they are either not needed or replaced by a notify from partners
-            // check if this unmanaged node is connected to the managed nodes
-            activitiesToRemove.addAll(plan.findNodeTemplateActivities(unmanagedNode));
-            
-            boolean addedAsNotifyActivity = false;
-            
-            for(AbstractRelationshipTemplate relation : unmanagedNode.getOutgoingRelations()) {
-                if(managedNodes.contains(relation.getTarget())) {
-                    // in this case we have to receive a notify
-                    NodeTemplateActivity nodeActivity = new NodeTemplateActivity("sendNotify_" + unmanagedNode.getId(), ActivityType.SENDNODENOTIFY, unmanagedNode);
+              
+            for(AbstractRelationshipTemplate relation : connectingRelations) {
+                if(managedConnectingNodes.contains(relation.getTarget())) {
+                    
+                    // in this case we have to send a notify as the connecting node is depending on the managed nodes
+                    NodeTemplateActivity nodeActivity = new NodeTemplateActivity("sendNotify_" + relation.getTarget().getId(), ActivityType.SENDNODENOTIFY, relation.getTarget());
+                    activitiesToAdd.add(nodeActivity); 
+                    
+                    // send notify after all managed and connecting are finished with their activities and after the connecting relation is initalized
+                    plan.findRelationshipTemplateActivities(relation).forEach(x -> linksToAdd.add(new Link(x, nodeActivity)));
+                    managedConnectingNodes.forEach(x -> {plan.findNodeTemplateActivities(x).forEach(y -> linksToAdd.add(new Link(y, nodeActivity)));});
+                    
+                }                                
+                if(managedConnectingNodes.contains(relation.getSource())) {
+                    
+                    // this relation connects a managed node as target therefore it is depending on receiving data
+                    NodeTemplateActivity nodeActivity = new NodeTemplateActivity("receiveNotify_" + relation.getSource().getId(), ActivityType.RECEIVENODENOTIFY, relation.getSource());
                     activitiesToAdd.add(nodeActivity);
-                    addedAsNotifyActivity = true;
-                }
-                                
-            }
-            
-            for(AbstractRelationshipTemplate relation : unmanagedNode.getIngoingRelations()) {
-                if(managedNodes.contains(relation.getSource())) {
-                    // in this case we have to send a notify
-                    NodeTemplateActivity nodeActivity = new NodeTemplateActivity("receiveNotify_" + unmanagedNode.getId(), ActivityType.RECEIVENODENOTIFY, unmanagedNode);
-                    activitiesToAdd.add(nodeActivity);
-                    addedAsNotifyActivity = true;
-                }
-                
-            }
-            if(!addedAsNotifyActivity) {
-                NodeTemplateActivity nodeActivity = new NodeTemplateActivity("placeholderActivity_" + unmanagedNode.getId(), ActivityType.NONE, unmanagedNode);
-                activitiesToAdd.add(nodeActivity);
-            }
-        }
-        
-        for(AbstractRelationshipTemplate relation : unmanagedRelations) {
-            activitiesToRemove.addAll(plan.findRelationshipTemplateActivities(relation));
-        }
-        
-        
-        for(Link link : plan.getLinks()) {
-            if(activitiesToRemove.contains(link.getSrcActiv()) & activitiesToRemove.contains(link.getTrgActiv())){
-                linksToRemove.add(link);
-                continue;
-            }            
-            if(activitiesToRemove.contains(link.getTrgActiv())) {
-                linksToUpdate.add(link);
-            }            
-            if(activitiesToRemove.contains(link.getSrcActiv())) {
-                linksToUpdate.add(link);
-            }
-            
-        }
-        
-       
-        for(Link linkToUpdate : linksToUpdate) {
-            if(activitiesToRemove.contains(linkToUpdate.getTrgActiv())) {
-                for(AbstractActivity activityToAdd : activitiesToAdd) {
-                    if(activityToAdd instanceof NodeTemplateActivity & linkToUpdate.getTrgActiv() instanceof NodeTemplateActivity) {
-                        AbstractNodeTemplate newActivityNode = ((NodeTemplateActivity)activityToAdd).getNodeTemplate();
-                        AbstractNodeTemplate removedActivityNode = ((NodeTemplateActivity)linkToUpdate.getTrgActiv()).getNodeTemplate();                        
-                        if(newActivityNode.equals(removedActivityNode)) {
-                            linksToAdd.add(new Link(linkToUpdate.getSrcActiv(),activityToAdd));
-                        }
-                    }
-                }
-                
-            }
-            
-            if(activitiesToRemove.contains(linkToUpdate.getSrcActiv())) {
-                for(AbstractActivity activityToAdd : activitiesToAdd) {
-                    if(activityToAdd instanceof NodeTemplateActivity & linkToUpdate.getSrcActiv() instanceof NodeTemplateActivity) {
-                        AbstractNodeTemplate newActivityNode = ((NodeTemplateActivity)activityToAdd).getNodeTemplate();
-                        AbstractNodeTemplate removedActivityNode = ((NodeTemplateActivity)linkToUpdate.getSrcActiv()).getNodeTemplate();                        
-                        if(newActivityNode.equals(removedActivityNode)) {
-                            linksToAdd.add(new Link(activityToAdd, linkToUpdate.getTrgActiv()));
-                        }
-                    }
+                    
+                    // we receive before creating this relation but after the target of this relation
+                    plan.findRelationshipTemplateActivities(relation).forEach(x -> linksToAdd.add(new Link(nodeActivity, x)));
+                    plan.findNodeTemplateActivities(relation.getTarget()).forEach(x -> linksToAdd.add(new Link(x, nodeActivity)));
+                    
                 }
             }
-            linksToRemove.add(linkToUpdate);
-        }        
-        
-        activties.removeAll(activitiesToRemove);
-        links.removeAll(linksToRemove);
 
         // add base notify all partners activity
         AbstractActivity notifyAllPartnersActivity = new AbstractActivity("notifyAllPartners", ActivityType.NOTIFYALLPARTNERS) {};
@@ -137,20 +70,57 @@ public class ChoreographyBuilder {
         return newChoregraphyPlan;
     }
     
-    private Collection<AbstractRelationshipTemplate> getUnmanagedChoreographyRelations(final AbstractServiceTemplate serviceTemplate) {
-        Collection<AbstractNodeTemplate> unmanagedNodes = this.getUnmanagedChoreographyNodes(serviceTemplate);
-        Collection<AbstractRelationshipTemplate> unmanagedRelations = new HashSet<AbstractRelationshipTemplate>();
+    private Collection<AbstractRelationshipTemplate> getConnectingChoreographyRelations(AbstractServiceTemplate serviceTemplate) {
+        Collection<AbstractRelationshipTemplate> connectingRelations = new HashSet<AbstractRelationshipTemplate>();
         
-        for(AbstractNodeTemplate nodeTemplate : unmanagedNodes) {
-            Collection<AbstractRelationshipTemplate> relations = nodeTemplate.getIngoingRelations();
-            relations.addAll(nodeTemplate.getOutgoingRelations());
-            for(AbstractRelationshipTemplate relation : relations) {
-                if(unmanagedNodes.contains(relation.getSource()) & unmanagedNodes.contains(relation.getTarget())){
-                    unmanagedRelations.add(relation);
+        Collection<AbstractNodeTemplate> connectingNodes = new HashSet<AbstractNodeTemplate>();
+        Collection<AbstractNodeTemplate> managedConNodes = this.getManagedConnectingChoreographyNodes(serviceTemplate);
+        Collection<AbstractNodeTemplate> unmanAbstractNodeTemplates = this.getUnmanagedChoreographyNodes(serviceTemplate);
+        
+        connectingNodes.addAll(managedConNodes);
+        connectingNodes.addAll(unmanAbstractNodeTemplates);
+        
+        for(AbstractNodeTemplate connectingNode : connectingNodes) {
+            
+        for(AbstractRelationshipTemplate relation : connectingNode.getOutgoingRelations()) {
+            if(managedConNodes.contains(relation.getTarget())) {
+                connectingRelations.add(relation);
+            }                                
+        }
+        
+        for(AbstractRelationshipTemplate relation : connectingNode.getIngoingRelations()) {
+            if(managedConNodes.contains(relation.getSource())) {
+                connectingRelations.add(relation);
+            }
+        }
+            
+        }                        
+        
+        return connectingRelations;
+    }
+
+    private Collection<AbstractNodeTemplate> getConnectingChoreographyNodes(AbstractServiceTemplate serviceTemplate, Collection<AbstractNodeTemplate> nodes) {        
+        Collection<AbstractNodeTemplate>  connectingChoregraphyNodes = new HashSet<AbstractNodeTemplate>();
+        
+        for(AbstractNodeTemplate unmanagedNode : nodes) {
+            for(AbstractRelationshipTemplate relation : unmanagedNode.getIngoingRelations()) {
+                if(!nodes.contains(relation.getSource())) {
+                    connectingChoregraphyNodes.add(unmanagedNode);
+                }
+            }
+            for(AbstractRelationshipTemplate relation : unmanagedNode.getOutgoingRelations()) {
+                if(!nodes.contains(relation.getTarget())) {
+                    connectingChoregraphyNodes.add(unmanagedNode);
                 }
             }
         }
-        return unmanagedRelations;
+        
+        return connectingChoregraphyNodes;
+
+    }
+    
+    private Collection<AbstractNodeTemplate> getManagedConnectingChoreographyNodes(AbstractServiceTemplate serviceTemplate) {
+        return this.getConnectingChoreographyNodes(serviceTemplate, this.getManagedChoreographyNodes(serviceTemplate));
     }
 
 
