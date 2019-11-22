@@ -1,6 +1,9 @@
 package org.opentosca.planbuilder.model.tosca;
 
 import java.util.List;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 /**
  * <p>
@@ -131,6 +134,11 @@ public abstract class AbstractNodeTemplate {
         } else {
             return false;
         }
+    }
+
+    public Map<QName, String> getOtherAttributes() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

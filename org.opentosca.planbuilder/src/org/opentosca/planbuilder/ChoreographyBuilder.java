@@ -34,7 +34,7 @@ public class ChoreographyBuilder {
                 if(managedConnectingNodes.contains(relation.getTarget())) {
                     
                     // in this case we have to send a notify as the connecting node is depending on the managed nodes
-                    NodeTemplateActivity nodeActivity = new NodeTemplateActivity("sendNotify_" + relation.getTarget().getId(), ActivityType.SENDNODENOTIFY, relation.getTarget());
+                    NodeTemplateActivity nodeActivity = new NodeTemplateActivity("sendNotify_" + relation.getSource().getId(), ActivityType.SENDNODENOTIFY, relation.getSource());
                     activitiesToAdd.add(nodeActivity); 
                     
                     // send notify after all managed and connecting are finished with their activities and after the connecting relation is initalized

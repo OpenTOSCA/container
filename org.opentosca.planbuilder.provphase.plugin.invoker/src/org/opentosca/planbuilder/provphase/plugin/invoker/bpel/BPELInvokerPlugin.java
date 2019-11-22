@@ -241,10 +241,15 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         Map<String, PropertyVariable> propMatching = this.choreohandler.matchOperationParamertsToProperties(context);
 
         Collection<PropertyVariable> propertiesToSend = new HashSet<PropertyVariable>();
-
         context.getNodeTemplates().forEach(x -> propertiesToSend.addAll(context.getPropertyVariables(x)));
-
         Map<String, Variable> params = this.choreohandler.mapToParamMap(propertiesToSend);
+        
+        String partner = this.getPartnerLocation(context);
+        
+        if(partner != null) {
+            Variable partnerIdVar =context.createGlobalStringVariable("partner_" + partner + "_IDVar_" + context.getIdForNames(), partner);
+            params.put("Partner", partnerIdVar);
+        }
 
         try {
             return this.choreohandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
@@ -258,6 +263,15 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             e.printStackTrace();
             return false;
         }
+    }
+    
+    private String getPartnerLocation(BPELPlanContext context) {
+       for(QName qName: context.getNodeTemplate().getOtherAttributes().keySet()) {
+           if(qName.getLocalPart().equals("location")) {
+               return context.getNodeTemplate().getOtherAttributes().get(qName);
+           }
+       }
+       return null;
     }
 
     @Override
