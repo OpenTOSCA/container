@@ -2,8 +2,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ns="http://siserver.org/schema" attributeFormDefault="qualified"
 	elementFormDefault="qualified" targetNamespace="http://siserver.org/schema">
-	
-	
 	<xs:element name="notifyPartner" type="ns:notifyPartnerType" />
 	<xs:element name="notifyPartners" type="ns:notifyPartnerType" />
 	<xs:element name="receiveNotify" type="ns:notifyPartnerType" />
