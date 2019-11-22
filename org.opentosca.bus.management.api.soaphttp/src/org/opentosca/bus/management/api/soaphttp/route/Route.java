@@ -64,12 +64,16 @@ public class Route extends RouteBuilder {
             "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
         final String MANAGEMENT_BUS_PLAN =
             "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
+        final String MANAGEMENT_BUS_NOTIFY_PARTNER =
+            "bean:org.opentosca.bus.management.service.IManagementBusService?method=notifyPartner";
+        final String MANAGEMENT_BUS_NOTIFY_PARTNERS =
+            "bean:org.opentosca.bus.management.service.IManagementBusService?method=notifyPartners";
 
-        // Checks if invoking a IA
+        // Check required operation
         final Predicate INVOKE_IA = header(CxfConstants.OPERATION_NAME).isEqualTo("invokeIA");
-
-        // Checks if invoking a Plan
         final Predicate INVOKE_PLAN = header(CxfConstants.OPERATION_NAME).isEqualTo("invokePlan");
+        final Predicate NOTIFY_PARTNER = header(CxfConstants.OPERATION_NAME).isEqualTo("notifyPartner");
+        final Predicate NOTIFY_PARTNERS = header(CxfConstants.OPERATION_NAME).isEqualTo("notifyPartners");
 
         // Checks if invoke is sync or async
         final Predicate MESSAGEID = header("MessageID").isNotNull();
@@ -87,7 +91,8 @@ public class Route extends RouteBuilder {
         final Processor responseProcessor = new ResponseProcessor();
 
         this.from(INVOKE_ENDPOINT).unmarshal(requestJaxb).process(requestProcessor).choice().when(INVOKE_IA)
-            .to(MANAGEMENT_BUS_IA).when(INVOKE_PLAN).to(MANAGEMENT_BUS_PLAN).end();
+            .to(MANAGEMENT_BUS_IA).when(INVOKE_PLAN).to(MANAGEMENT_BUS_PLAN).when(NOTIFY_PARTNER)
+            .to(MANAGEMENT_BUS_NOTIFY_PARTNER).when(NOTIFY_PARTNERS).to(MANAGEMENT_BUS_NOTIFY_PARTNERS).end();
 
         this.from("direct-vm:" + Activator.apiID).process(responseProcessor).marshal(responseJaxb).choice().when(ASYNC)
             .recipientList(this.simple(CALLBACK_ENDPOINT)).end();

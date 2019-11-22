@@ -135,11 +135,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (!serviceTemplateInstanceID.equals(Long.MIN_VALUE)) {
 
             if (Boolean.valueOf(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK)) {
-                
-                long waitTime = System.currentTimeMillis() + 1000;
-                while(System.currentTimeMillis() < waitTime) {                
+
+                final long waitTime = System.currentTimeMillis() + 1000;
+                while (System.currentTimeMillis() < waitTime) {
                 }
-                
+
                 respondViaMocking(exchange, csarID, serviceTemplateID, nodeTemplateID, neededInterface,
                                   neededOperation);
             } else {
@@ -956,5 +956,33 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 LOG.debug("Invocation was InOnly. No response message will be sent to the caller.");
             }
         }
+    }
+
+    @Override
+    public void notifyPartner(final Exchange exchange) {
+
+        final Message message = exchange.getIn();
+        final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+        final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
+        final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
+
+        LOG.debug("Notifying partner for connectsTo with ID {} for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
+                  "TODO", correlationID, csarID, serviceTemplateID); // TODO
+
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void notifyPartners(final Exchange exchange) {
+
+        final Message message = exchange.getIn();
+        final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+        final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
+        final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
+
+        LOG.debug("Notifying partners to start their plans for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
+                  correlationID, csarID, serviceTemplateID);
+
+        // TODO Auto-generated method stub
     }
 }
