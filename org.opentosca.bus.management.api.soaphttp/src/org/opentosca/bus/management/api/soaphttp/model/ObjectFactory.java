@@ -32,6 +32,7 @@ public class ObjectFactory {
         new QName("http://siserver.org/schema", "invokeOperationAsync");
     private final static QName _NotifyPartner_QNAME = new QName("http://siserver.org/schema", "notifyPartner");
     private final static QName _NotifyPartners_QNAME = new QName("http://siserver.org/schema", "notifyPartners");
+    private final static QName _ReceiveNotify_QNAME = new QName("http://siserver.org/schema", "receiveNotify");
     private final static QName _InvokePlan_QNAME = new QName("http://siserver.org/schema", "invokePlan");
     private final static QName _InvokeResponse_QNAME = new QName("http://siserver.org/schema", "invokeResponse");
     private final static QName _InvokeOperation_QNAME = new QName("http://siserver.org/schema", "invokeOperation");
@@ -59,6 +60,14 @@ public class ObjectFactory {
      */
     public NotifyPartners createNotifyPartners() {
         return new NotifyPartners();
+    }
+
+    /**
+     * Create an instance of {@link NotifyPartners }
+     *
+     */
+    public ReceiveNotify createReceiveNotify() {
+        return new ReceiveNotify();
     }
 
     /**
@@ -127,12 +136,21 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link NotifyPartner }{@code >}}
+     * Create an instance of {@link JAXBElement }{@code <}{@link NotifyPartners }{@code >}}
      *
      */
     @XmlElementDecl(namespace = "http://siserver.org/schema", name = "notifyPartners")
     public JAXBElement<NotifyPartners> createNotifyPartners(final NotifyPartners value) {
         return new JAXBElement<>(_NotifyPartners_QNAME, NotifyPartners.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ReceiveNotify }{@code >}}
+     *
+     */
+    @XmlElementDecl(namespace = "http://siserver.org/schema", name = "receiveNotify")
+    public JAXBElement<ReceiveNotify> createReceiveNotify(final ReceiveNotify value) {
+        return new JAXBElement<>(_ReceiveNotify_QNAME, ReceiveNotify.class, null, value);
     }
 
     /**

@@ -970,9 +970,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
 
         LOG.debug("Notifying partner for connectsTo with ID {} for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
-                  "TODO", correlationID, csarID, serviceTemplateID); // TODO
+                  "TODO", correlationID, csarID, serviceTemplateID);
+        // TODO: retrieve RelationshipTemplate ID from input; has to be added by the plan
 
-        // TODO Auto-generated method stub
+        // TODO: check which partner needs the notification and forward it with the parameters
     }
 
     @Override
@@ -1021,7 +1022,22 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
             message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_OPERATION);
 
+            // create message body
+            final HashMap<String, String> input = new HashMap<>();
+            input.put(Constants.PLAN_CORRELATION_PARAM, correlationID);
+            input.put(Constants.CSARID_PARAM, csarID.toString());
+            input.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
+            input.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
+            input.put(Constants.MESSAGE_ID_PARAM, "TEST"); // TODO: generate message ID
+            message.setBody(input);
+
             PluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
         }
+    }
+
+    @Override
+    public void receiveNotify(final Exchange exchange) {
+        LOG.debug("Received notification from partner ... TODO");
+        // TODO Auto-generated method stub
     }
 }

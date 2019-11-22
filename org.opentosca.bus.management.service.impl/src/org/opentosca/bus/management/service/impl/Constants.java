@@ -53,6 +53,15 @@ public class Constants {
      */
     public final static String RECEIVE_NOTIFY_OPERATION = "receiveNotify";
 
+    /**
+     * Parameters for the Notify operation of the SOAP API
+     */
+    public final static String SERVICE_TEMPLATE_NAMESPACE_PARAM = "ServiceTemplateIDNamespaceURI";
+    public final static String SERVICE_TEMPLATE_LOCAL_PARAM = "ServiceTemplateIDLocalPart";
+    public final static String PLAN_CORRELATION_PARAM = "PlanCorrelationID";
+    public final static String CSARID_PARAM = "CsarID";
+    public final static String MESSAGE_ID_PARAM = "MessageID";
+
     // endregion
 
     // region General

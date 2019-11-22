@@ -57,4 +57,11 @@ public interface IManagementBusService {
      * @param exchange contains all needed information.
      */
     public void notifyPartners(Exchange exchange);
+
+    /**
+     * Receive the notification from another partner in the choreography.
+     *
+     * @param exchange contains all needed information.
+     */
+    public void receiveNotify(Exchange exchange);
 }
