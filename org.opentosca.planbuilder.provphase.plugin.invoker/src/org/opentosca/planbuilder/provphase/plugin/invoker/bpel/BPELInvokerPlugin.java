@@ -6,6 +6,7 @@ package org.opentosca.planbuilder.provphase.plugin.invoker.bpel;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -37,7 +38,8 @@ import org.xml.sax.SAXException;
  *
  */
 public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<BPELPlanContext>,
-                               IPlanBuilderProvPhaseParamOperationPlugin<BPELPlanContext>, IPlanBuilderChoreographyPlugin<BPELPlanContext> {
+                               IPlanBuilderProvPhaseParamOperationPlugin<BPELPlanContext>,
+                               IPlanBuilderChoreographyPlugin<BPELPlanContext> {
 
     private static final String PLUGIN_ID = "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
 
@@ -78,8 +80,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                         Element elementToAppendTo) {
+                          final Map<AbstractParameter, Variable> param2propertyMapping, Element elementToAppendTo) {
         String templateId = "";
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
@@ -96,8 +97,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         }
 
         try {
-            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       inputParams, new HashMap<String, Variable>(),  elementToAppendTo);
+            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate,
+                                                                     operation.getName(), ia.getInterfaceName(),
+                                                                     inputParams, new HashMap<String, Variable>(),
+                                                                     elementToAppendTo);
         }
         catch (final Exception e) {
             e.printStackTrace();
@@ -125,8 +128,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         }
 
         try {
-            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       inputParams, new HashMap<String, Variable>(), context.getProvisioningPhaseElement());
+            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate,
+                                                                     operation.getName(), ia.getInterfaceName(),
+                                                                     inputParams, new HashMap<String, Variable>(),
+                                                                     context.getProvisioningPhaseElement());
         }
         catch (final Exception e) {
             e.printStackTrace();
@@ -152,10 +157,11 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
-                          final Map<String, Variable> internalExternalPropsOutput,  Element elementToAppendTo) {
+                          final Map<String, Variable> internalExternalPropsOutput, Element elementToAppendTo) {
         try {
-            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate, operationName, interfaceName,
-                                       internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
+            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate, operationName,
+                                                                     interfaceName, internalExternalPropsInput,
+                                                                     internalExternalPropsOutput, elementToAppendTo);
         }
         catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
@@ -184,8 +190,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput) {
         try {
-            return this.invokeOperationhandler.handleInvokeOperation(context, operationName, interfaceName, callbackAddressVarName,
-                                       internalExternalPropsInput, internalExternalPropsOutput, context.getProvisioningPhaseElement());
+            return this.invokeOperationhandler.handleInvokeOperation(context, operationName, interfaceName,
+                                                                     callbackAddressVarName, internalExternalPropsInput,
+                                                                     internalExternalPropsOutput,
+                                                                     context.getProvisioningPhaseElement());
         }
         catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
@@ -216,22 +224,28 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                                                  final PropertyVariable sshUser, final PropertyVariable sshKey,
                                                  final AbstractNodeTemplate infraTemplate, Element elementToAppendTo) {
         try {
-            return this.transferArtifactHandler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
-                                                              infraTemplate, elementToAppendTo);
+            return this.transferArtifactHandler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser,
+                                                                              sshKey, infraTemplate, elementToAppendTo);
         }
         catch (final Exception e) {
             LOG.error("Couldn't load internal files", e);
             return false;
         }
     }
-    
+
     @Override
     public boolean handleSendNotify(BPELPlanContext context) {
-        
+
+        // Currently stuff like storeSaveEndpoint for freezing is breaking the matching of all possible
+        // operations here, therefore we send all available properties -> TODO/FIXME
         Map<String, PropertyVariable> propMatching = this.choreohandler.matchOperationParamertsToProperties(context);
-        
-        Map<String,Variable> params = this.choreohandler.mapToParamMap(propMatching.values());
-        
+
+        Collection<PropertyVariable> propertiesToSend = new HashSet<PropertyVariable>();
+
+        context.getNodeTemplates().forEach(x -> propertiesToSend.addAll(context.getPropertyVariables(x)));
+
+        Map<String, Variable> params = this.choreohandler.mapToParamMap(propertiesToSend);
+
         try {
             return this.choreohandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
         }
@@ -243,15 +257,15 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
-        }                
+        }
     }
-    
+
     @Override
-    public boolean handleReceiveNotify(BPELPlanContext context) {        
+    public boolean handleReceiveNotify(BPELPlanContext context) {
         Collection<PropertyVariable> properties = this.choreohandler.getPartnerPropertyVariables(context);
-      
+
         Map<String, Variable> params = this.choreohandler.mapToParamMap(properties);
-       
+
         try {
             return this.choreohandler.handleReceiveNotify(context, params, context.getProvisioningPhaseElement());
         }
@@ -263,19 +277,19 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
-        } 
+        }
     }
-    
+
     @Override
     public boolean canHandleSendNotify(BPELPlanContext context) {
         return this.choreohandler.isValidForSendNotify(context);
     }
 
     @Override
-    public boolean canHandleReceiveNotify(BPELPlanContext context) {        
+    public boolean canHandleReceiveNotify(BPELPlanContext context) {
         return this.choreohandler.isValidForReceiveNotify(context);
     }
-    
+
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
@@ -301,8 +315,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         }
 
         try {
-            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       inputParams, outputParams, context.getProvisioningPhaseElement());
+            return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate,
+                                                                     operation.getName(), ia.getInterfaceName(),
+                                                                     inputParams, outputParams,
+                                                                     context.getProvisioningPhaseElement());
         }
         catch (final IOException e) {
             e.printStackTrace();
@@ -314,7 +330,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
                           final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo) {
+                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
+                          Element elementToAppendTo) {
         final Map<String, Variable> inputParams = new HashMap<>();
         final Map<String, Variable> outputParams = new HashMap<>();
 
@@ -326,8 +343,9 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         }
 
         try {
-            return this.invokeOperationhandler.handleInvokeOperation(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
-                                       outputParams, elementToAppendTo);
+            return this.invokeOperationhandler.handleInvokeOperation(context, operation.getName(),
+                                                                     ia.getInterfaceName(), null, inputParams,
+                                                                     outputParams, elementToAppendTo);
         }
         catch (final Exception e) {
             // TODO Auto-generated catch block
@@ -363,6 +381,6 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         return false;
     }
 
-   
+
 
 }

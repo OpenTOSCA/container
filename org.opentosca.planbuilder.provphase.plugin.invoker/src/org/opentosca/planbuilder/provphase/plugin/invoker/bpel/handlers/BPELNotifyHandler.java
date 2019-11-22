@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -33,9 +34,7 @@ import org.xml.sax.SAXException;
 public class BPELNotifyHandler extends PluginHandler {
 
     public boolean handleNotifyPartners(BPELPlanContext context) throws SAXException, IOException {
-        
-        
-       
+
 
 
         final File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
@@ -48,7 +47,8 @@ public class BPELNotifyHandler extends PluginHandler {
         context.registerType(this.resHandler.getServiceInvokerNotifyPartnersMessageXSDType(), xsdFile);
 
 
-        final QName InputMessageId = context.importQName(this.resHandler.getServiceInvokerNotifyPartnersMessageXSDType());
+        final QName InputMessageId =
+            context.importQName(this.resHandler.getServiceInvokerNotifyPartnersMessageXSDType());
         final String InputMessagePartName = this.resHandler.getServiceInvokerNotifyPartnersMessagePart();
 
         // generate partnerlink from the two porttypes
@@ -125,21 +125,23 @@ public class BPELNotifyHandler extends PluginHandler {
 
 
         Node messageIdInit =
-            this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, "notifyPartners_" + context.getServiceTemplateId().getLocalPart());
+            this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, "notifyPartners_"
+                + context.getServiceTemplateId().getLocalPart());
         messageIdInit = context.importNode(messageIdInit);
         assignNode.appendChild(messageIdInit);
 
-        context.getProvisioningPhaseElement().appendChild(assignNode);        
+        context.getProvisioningPhaseElement().appendChild(assignNode);
 
-        
-        
+
+
         this.appendLOGMessageActivity(context, "Executing notify all partners", context.getProvisioningPhaseElement());
 
         // invoke service invoker
         // add invoke
 
-        Node invokeNode = this.resHandler.generateInvokeAsNode("sendNotifyPartners_" + requestVariableName, partnerLinkName,
-                                                               "notifyPartners", invokerPortType, requestVariableName);
+        Node invokeNode =
+            this.resHandler.generateInvokeAsNode("sendNotifyPartners_" + requestVariableName, partnerLinkName,
+                                                 "notifyPartners", invokerPortType, requestVariableName);
         BPELInvokeOperationHandler.LOG.debug("Trying to ImportNode: " + invokeNode.toString());
         invokeNode = context.importNode(invokeNode);
 
@@ -157,7 +159,7 @@ public class BPELNotifyHandler extends PluginHandler {
     public boolean handleReceiveNotify(final BPELPlanContext context,
                                        final Map<String, Variable> internalExternalPropsOutput,
                                        Element elementToAppendTo) throws IOException, SAXException {
-                
+
 
         // register wsdls and xsd
         final File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
@@ -175,8 +177,8 @@ public class BPELNotifyHandler extends PluginHandler {
         // generate partnerlink from the two porttypes
         final String partnerLinkTypeName = invokerCallbackPortType.getLocalPart() + "PLT" + context.getIdForNames();
 
-        
-        
+
+
         context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee",
                                    invokerPortType);
 
@@ -297,7 +299,8 @@ public class BPELNotifyHandler extends PluginHandler {
         context.registerType(this.resHandler.getServiceInvokerNotifyPartnerMessageXSDType(), xsdFile);
 
 
-        final QName InputMessageId = context.importQName(this.resHandler.getServiceInvokerNotifyPartnerMessageXSDType());
+        final QName InputMessageId =
+            context.importQName(this.resHandler.getServiceInvokerNotifyPartnerMessageXSDType());
         final String InputMessagePartName = this.resHandler.getServiceInvokerNotifyPartnerMessagePart();
 
         // generate partnerlink from the two porttypes
@@ -429,11 +432,11 @@ public class BPELNotifyHandler extends PluginHandler {
         Collection<PropertyVariable> props = new HashSet<PropertyVariable>();
 
         ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
-        
+
         for (AbstractNodeTemplate infraNode : nodes) {
-            for(PropertyVariable propVar : context.getPropertyVariables(infraNode)) {
+            for (PropertyVariable propVar : context.getPropertyVariables(infraNode)) {
                 // TODO/FIXME this shouldn't be necessary here..
-                if(!propVar.getPropertyName().equals("State")) {                    
+                if (!propVar.getPropertyName().equals("State")) {
                     props.add(propVar);
                 }
             }
@@ -453,9 +456,15 @@ public class BPELNotifyHandler extends PluginHandler {
 
 
     public boolean isValidForSendNotify(BPELPlanContext context) {
-        Collection<AbstractParameter> parameters = this.getAllOperationParameters(context);
-        Map<String, PropertyVariable> paramMacthing = this.matchOperationParamertsToProperties(context);
-        return parameters.size() == paramMacthing.size();
+
+        if (!context.getActivity().getType().equals(ActivityType.SENDNODENOTIFY)) {
+            return false;
+        }
+        // for now we'll just return all parameters
+        // Collection<AbstractParameter> parameters = this.getAllOperationParameters(context);
+        // Map<String, PropertyVariable> paramMacthing = this.matchOperationParamertsToProperties(context);
+        // return parameters.size() == paramMacthing.size();
+        return true;
     }
 
 
@@ -463,7 +472,7 @@ public class BPELNotifyHandler extends PluginHandler {
         Map<String, Variable> params = new HashMap<String, Variable>();
 
         for (PropertyVariable propVar : propertyVariables) {
-            if (propVar.isNodeTemplatePropertyVariable()) {
+            if (propVar != null & propVar.isNodeTemplatePropertyVariable()) {
                 params.put(propVar.getNodeTemplate().getId() + "_" + propVar.getPropertyName(), propVar);
             }
         }

@@ -105,6 +105,9 @@ public class BPELPlanContext extends PlanContext {
 
     }
 
+    public AbstractActivity getActivity() {
+        return this.templateBuildPlan.getActivity();
+    }
 
     // TODO Refactor methods up to the BPEL specific methods
 
