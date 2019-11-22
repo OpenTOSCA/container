@@ -75,7 +75,6 @@ public class ContainerProxy {
       + nodeInstanceID + " nodeTemplateID: " + nodeTemplateID);
     if (nodeInstanceID == null) {
       final String namespace = getServiceInstance(serviceInstanceID).getServiceTemplateID().getNamespaceURI();
-      final QName nodeTemplateQName = new QName(namespace, nodeTemplateID);
       URI serviceInstanceUri;
       try {
         serviceInstanceUri = new URI(serviceInstanceID.toString());
@@ -83,7 +82,7 @@ public class ContainerProxy {
         LOG.warn("No matching NodeInstance found.", e);
         return null;
       }
-      List<NodeInstance> nodeInstances = instanceDataService.getNodeInstances(null, nodeTemplateQName, null,
+      List<NodeInstance> nodeInstances = instanceDataService.getNodeInstances(null, nodeTemplateID, null,
         serviceInstanceUri);
       if (nodeInstances.size() > 0) {
         return nodeInstances.get(0);
@@ -471,20 +470,20 @@ public class ContainerProxy {
    * NodeTemplate.
    *
    * @param serviceInstanceID
-   * @param nodeTemplateQName
+   * @param nodeTemplateID
    * @return IP property
    */
   @Nullable
-  public URL getIpFromInstanceDataProperties(final URI serviceInstanceID, final QName nodeTemplateQName) {
+  public URL getIpFromInstanceDataProperties(final URI serviceInstanceID, final String nodeTemplateID) {
 
-    LOG.debug("Getting IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateQName + " of ServiceInstanceID: " + serviceInstanceID + ".");
+    LOG.debug("Getting IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateID + " of ServiceInstanceID: " + serviceInstanceID + ".");
 
-    final List<NodeInstance> nodeInstances = instanceDataService.getNodeInstances(null, nodeTemplateQName, null, serviceInstanceID);
+    final List<NodeInstance> nodeInstances = instanceDataService.getNodeInstances(null, nodeTemplateID, null, serviceInstanceID);
     for (final NodeInstance nodeInstance : nodeInstances) {
       final Document props = nodeInstance.getProperties();
       final String ip = getIpProperty(props);
       if (ip != null) {
-        LOG.debug("IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateQName + " ServiceInstanceID: " + serviceInstanceID + " found: " + ip);
+        LOG.debug("IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateID + " ServiceInstanceID: " + serviceInstanceID + " found: " + ip);
         try {
           return new URL(ip);
         } catch (final MalformedURLException e) {
@@ -492,7 +491,7 @@ public class ContainerProxy {
         }
       }
     }
-    LOG.debug("No IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateQName + " ServiceInstanceID: " + serviceInstanceID + " found.");
+    LOG.debug("No IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateID + " ServiceInstanceID: " + serviceInstanceID + " found.");
     return null;
   }
 

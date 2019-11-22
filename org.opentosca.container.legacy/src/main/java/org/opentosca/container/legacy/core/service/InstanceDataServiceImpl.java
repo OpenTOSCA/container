@@ -125,7 +125,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   }
 
   @Override
-  public List<NodeInstance> getNodeInstances(final URI nodeInstanceID, final QName nodeTemplateID,
+  public List<NodeInstance> getNodeInstances(final URI nodeInstanceID, final String nodeTemplateID,
                                              final String nodeTemplateName, final URI serviceInstanceID) {
     LOG.info("getNodeInstances(): {}", nodeInstanceID);
     LOG.info("getNodeInstances(): {}", nodeTemplateID);

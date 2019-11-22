@@ -112,8 +112,7 @@ public class InvocationRequestProcessor implements Processor {
     }
 
     // get the Namespace from the serviceTemplate
-    final QName hostedOnNodeTemplateQName = new QName(serviceTemplateID.getNamespaceURI(), hostedOnNodeTemplateID);
-    final URL hostedOnNodeURL = containerProxy.getIpFromInstanceDataProperties(serviceInstance.getServiceInstanceID(), hostedOnNodeTemplateQName);
+    final URL hostedOnNodeURL = containerProxy.getIpFromInstanceDataProperties(serviceInstance.getServiceInstanceID(), hostedOnNodeTemplateID);
     if (hostedOnNodeURL == null) {
       throw new ApplicationBusInternalException("Could not find node URL in instanceDataProperties");
     }

@@ -42,7 +42,7 @@ public interface IInstanceDataService {
    * @param serviceInstanceID
    * @return all matching nodeInstances
    */
-  public List<NodeInstance> getNodeInstances(URI nodeInstanceID, QName nodeTemplateID, String nodeTemplateName,
+  public List<NodeInstance> getNodeInstances(URI nodeInstanceID, String nodeTemplateID, String nodeTemplateName,
                                              URI serviceInstanceID);
 
   /**

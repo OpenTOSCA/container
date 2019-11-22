@@ -119,7 +119,8 @@ public class NodeInstanceDAO {
     }
   }
 
-  public List<NodeInstance> getNodeInstances(final URI serviceInstanceID, final QName nodeTemplateID,
+  @Deprecated
+  public List<NodeInstance> getNodeInstances(final URI serviceInstanceID, final String nodeTemplateID,
                                              final String nodeTemplateName, final URI nodeInstanceID) {
     logger.info("Not Implemented: Node instances cannot be queried");
     return new ArrayList<>();
