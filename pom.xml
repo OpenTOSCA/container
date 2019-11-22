@@ -13,7 +13,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-    <winery.version>2.0.0-SNAPSHOT</winery.version>
+    <winery.version>ustutt-SNAPSHOT</winery.version>
 
     <apache.cxf.version>3.1.10</apache.cxf.version>
     <camel.version>2.18.3</camel.version>
@@ -35,13 +35,10 @@
       <id>spring-plugins</id>
       <url>http://repo.spring.io/plugins-release/</url>
     </repository>
+    <!-- pulling latest winery as just-in-time build -->
     <repository>
-      <id>opentosca-mvn-repo</id>
-      <url>https://raw.github.com/OpenTOSCA/mvn-repo/ustutt/</url>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
+      <id>jitpack</id>
+      <url>https://jitpack.io</url>
     </repository>
   </repositories>
 
@@ -150,22 +147,22 @@
       </dependency>
 
       <dependency>
-        <groupId>org.eclipse.winery</groupId>
+        <groupId>com.github.OpenTOSCA.winery</groupId>
         <artifactId>org.eclipse.winery.model.tosca</artifactId>
         <version>${winery.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.eclipse.winery</groupId>
+        <groupId>com.github.OpenTOSCA.winery</groupId>
         <artifactId>org.eclipse.winery.model.selfservice</artifactId>
         <version>${winery.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.eclipse.winery</groupId>
+        <groupId>com.github.OpenTOSCA.winery</groupId>
         <artifactId>org.eclipse.winery.accountability</artifactId>
         <version>${winery.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.eclipse.winery</groupId>
+        <groupId>com.github.OpenTOSCA.winery</groupId>
         <artifactId>org.eclipse.winery.repository</artifactId>
         <version>${winery.version}</version>
       </dependency>
