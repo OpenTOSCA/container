@@ -43,6 +43,9 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
+import org.opentosca.container.core.tosca.model.TNodeTemplate;
+import org.opentosca.container.core.tosca.model.TServiceTemplate;
+import org.opentosca.container.core.tosca.model.TTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -983,6 +986,42 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Notifying partners to start their plans for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
                   correlationID, csarID, serviceTemplateID);
 
-        // TODO Auto-generated method stub
+        // retrieve ServiceTemplate related to the notification request
+        final TServiceTemplate serviceTemplate =
+            (TServiceTemplate) ServiceHandler.toscaReferenceMapper.getJAXBReference(csarID, serviceTemplateID);
+        if (Objects.isNull(serviceTemplate)) {
+            LOG.error("Unable to retrieve ServiceTemplate for the notification request.");
+            return;
+        }
+
+        // get the tags containing the enpoints of the partners
+        if (Objects.isNull(serviceTemplate.getTags())) {
+            LOG.error("Unable to retrieve tags for ServiceTemplate with ID {}.", serviceTemplate.getId());
+            return;
+        }
+        final List<TTag> tags = serviceTemplate.getTags().getTag();
+
+        // get the provider names defined in the NodeTemplates to check which tag names specify a partner
+        // endpoint
+        final List<String> partnerNames =
+            serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
+                           .filter(entity -> entity instanceof TNodeTemplate).map(entity -> entity.getOtherAttributes())
+                           .map(attributes -> attributes.get(Constants.LOCATION_ATTRIBUTE)).distinct()
+                           .collect(Collectors.toList());
+
+        // remove tags that do not specify a partner endpoint and get endpoints
+        tags.removeIf(tag -> !partnerNames.contains(tag.getName()));
+        final List<String> partnerEndpoints = tags.stream().map(tag -> tag.getValue()).collect(Collectors.toList());
+
+        // notify all partners
+        for (final String endpoint : partnerEndpoints) {
+            LOG.debug("Notifying partner on endpoint: {}", endpoint);
+
+            message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
+            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+            message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_OPERATION);
+
+            PluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+        }
     }
 }
