@@ -23,8 +23,8 @@ public interface IManagementBusService {
      * Handles the invoke-request of an implementation artifact. This includes the deployment of the
      * implementation artifact on a suited infrastructure if needed.
      *
-     * @param exchange contains all needed information like csarID, ServiceTemplateID,... to
-     *        determine the implementation artifact and the data to be transferred to it.
+     * @param exchange contains all needed information like csarID, ServiceTemplateID,... to determine
+     *        the implementation artifact and the data to be transferred to it.
      *
      * @return the response of the invoked implementation artifact as body of the exchange message.
      *
@@ -34,11 +34,34 @@ public interface IManagementBusService {
     /**
      * Handles the invoke-request of a plan.
      *
-     * @param exchange contains all needed information like csarID, PlanID,... to get the endpoint
-     *        of the specified plan and the data to be transferred to it.
+     * @param exchange contains all needed information like csarID, PlanID,... to get the endpoint of
+     *        the specified plan and the data to be transferred to it.
      *
      * @return the response of the invoked plan as body of the exchange message.
      *
      */
     public void invokePlan(Exchange exchange);
+
+    /**
+     * Notifies a connected partner about the possibility to start handling the connectsTo between him
+     * and the partner hosting this OpenTOSCA Container. Additionally, passes the input parameters
+     * required for the connectsTo to the partner.
+     *
+     * @param exchange contains all needed information.
+     */
+    public void notifyPartner(Exchange exchange);
+
+    /**
+     * Handles the initial notification of all partners for a choreography.
+     *
+     * @param exchange contains all needed information.
+     */
+    public void notifyPartners(Exchange exchange);
+
+    /**
+     * Receive the notification from another partner in the choreography.
+     *
+     * @param exchange contains all needed information.
+     */
+    public void receiveNotify(Exchange exchange);
 }

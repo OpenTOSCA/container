@@ -1,5 +1,7 @@
 package org.opentosca.bus.management.service.impl;
 
+import javax.xml.namespace.QName;
+
 import org.opentosca.container.core.common.Settings;
 
 /**
@@ -38,6 +40,27 @@ public class Constants {
      * are supported by all other invocation and deployment plug-ins.
      */
     public final static String REMOTE_TYPE = "remote";
+
+    /**
+     * QName of the location attribute utilized to assign NodeTemplates to partners for choreographies.
+     */
+    public final static QName LOCATION_ATTRIBUTE =
+        QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}location");
+
+    /**
+     * Operation name of the management bus SOAP API to receive notifications from other management
+     * busses.
+     */
+    public final static String RECEIVE_NOTIFY_OPERATION = "receiveNotify";
+
+    /**
+     * Parameters for the Notify operation of the SOAP API
+     */
+    public final static String SERVICE_TEMPLATE_NAMESPACE_PARAM = "ServiceTemplateIDNamespaceURI";
+    public final static String SERVICE_TEMPLATE_LOCAL_PARAM = "ServiceTemplateIDLocalPart";
+    public final static String PLAN_CORRELATION_PARAM = "PlanCorrelationID";
+    public final static String CSARID_PARAM = "CsarID";
+    public final static String MESSAGE_ID_PARAM = "MessageID";
 
     // endregion
 

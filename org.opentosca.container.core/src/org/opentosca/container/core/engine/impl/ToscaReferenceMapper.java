@@ -61,33 +61,34 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
     private final Logger LOG = LoggerFactory.getLogger(ToscaReferenceMapper.class);
 
     // internal data structures
-    private ReferenceMap referenceMap;
-    private DocumentMap documentMap;
-    private CSARIDToDefinitionsMap mapCSARIDToDefinitions;
-    private CSARIDToServiceTemplateIDsMap mapCSARIDToServiceTemplateIDs;
+    // FIXME: refactor class and remove maps
+    private static ReferenceMap referenceMap;
+    private static DocumentMap documentMap;
+    private static CSARIDToDefinitionsMap mapCSARIDToDefinitions;
+    private static CSARIDToServiceTemplateIDsMap mapCSARIDToServiceTemplateIDs;
     private static CsarIDToPlanTypeToPlanNameToPlan csarIDToPlanTypeToIntegerToPlan;
-    private CsarIDToWSDLDocuments csarIDToWSDLDocuments;
-    private CsarIDToServiceTemplateIDToPlanID csarIDToServiceTemplateIDToPlanID;
-    private final Map<CSARID, Map<QName, Boolean>> csarIDToPlanIDToSynchronousBoolean = new HashMap<>();
-    private final Map<CSARID, Map<QName, List<TExportedInterface>>> csarIDToExportedInterface = new HashMap<>();
-    private final CsarIDToPolicies csarIDToPolicies = new CsarIDToPolicies();
-    private final Map<CSARID, Map<QName, String>> mapDefinitionsIDToLocationString = new HashMap<>();
-    private final Map<CSARID, Map<QName, QName>> mapElementIDToDefinitionsID = new HashMap<>();
-    private final Map<CSARID, Map<QName, QName>> mapCSARIDToPlanIDToInputMessageID = new HashMap<>();
+    private static CsarIDToWSDLDocuments csarIDToWSDLDocuments;
+    private static CsarIDToServiceTemplateIDToPlanID csarIDToServiceTemplateIDToPlanID;
+    private static final Map<CSARID, Map<QName, Boolean>> csarIDToPlanIDToSynchronousBoolean = new HashMap<>();
+    private static final Map<CSARID, Map<QName, List<TExportedInterface>>> csarIDToExportedInterface = new HashMap<>();
+    private static final CsarIDToPolicies csarIDToPolicies = new CsarIDToPolicies();
+    private static final Map<CSARID, Map<QName, String>> mapDefinitionsIDToLocationString = new HashMap<>();
+    private static final Map<CSARID, Map<QName, QName>> mapElementIDToDefinitionsID = new HashMap<>();
+    private static final Map<CSARID, Map<QName, QName>> mapCSARIDToPlanIDToInputMessageID = new HashMap<>();
 
-    private final Map<CSARID, Map<QName, Map<String, Map<String, QName>>>> mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan =
+    private static final Map<CSARID, Map<QName, Map<String, Map<String, QName>>>> mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan =
         new HashMap<>();
 
-    private final Map<CSARID, Map<String, String>> mapCSARIDToPlanNameToNamespace = new HashMap<>();
+    private static final Map<CSARID, Map<String, String>> mapCSARIDToPlanNameToNamespace = new HashMap<>();
 
-    private final Map<CSARID, Map<QName, List<String>>> mapCSARIDToServiceTemplateQNameToNodeTemplateID =
+    private static final Map<CSARID, Map<QName, List<String>>> mapCSARIDToServiceTemplateQNameToNodeTemplateID =
         new HashMap<>();
 
-    private final Map<CSARID, Map<QName, List<String>>> mapCSARIDToServiceTemplateQNameToRelationshipTemplateID =
+    private static final Map<CSARID, Map<QName, List<String>>> mapCSARIDToServiceTemplateQNameToRelationshipTemplateID =
         new HashMap<>();
 
-    private final Map<CSARID, Map<QName, String>> serviceTemplatePropertiesContent = new HashMap<>();
-    private final Map<CSARID, Map<QName, PropertyMappings>> serviceTemplatePropertyMappings = new HashMap<>();
+    private static final Map<CSARID, Map<QName, String>> serviceTemplatePropertiesContent = new HashMap<>();
+    private static final Map<CSARID, Map<QName, PropertyMappings>> serviceTemplatePropertyMappings = new HashMap<>();
 
 
     public ToscaReferenceMapper() {

@@ -21,6 +21,8 @@ import org.opentosca.bus.management.api.soaphttp.model.Doc;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationAsync;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationSync;
 import org.opentosca.bus.management.api.soaphttp.model.InvokePlan;
+import org.opentosca.bus.management.api.soaphttp.model.NotifyPartner;
+import org.opentosca.bus.management.api.soaphttp.model.NotifyPartners;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMap;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMapItemType;
 import org.opentosca.bus.management.header.MBHeader;
@@ -82,6 +84,48 @@ public class RequestProcessor implements Processor {
                 elementx = (Element) header.getObject();
                 exchange.getIn().setHeader(elementx.getLocalName(), elementx.getTextContent());
             }
+        }
+
+        // retrieve information about NotifyPartners request and add to exchange headers
+        if (exchange.getIn().getBody() instanceof NotifyPartners) {
+
+            LOG.debug("Processing NotifyPartners");
+
+            final NotifyPartners notifyPartnersRequest = (NotifyPartners) exchange.getIn().getBody();
+
+            planCorrelationID = notifyPartnersRequest.getPlanCorrelationID();
+            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
+
+            final QName serviceTemplateID = new QName(notifyPartnersRequest.getServiceTemplateIDNamespaceURI(),
+                notifyPartnersRequest.getServiceTemplateIDLocalPart());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+
+            csarIDString = notifyPartnersRequest.getCsarID();
+            paramsMap = notifyPartnersRequest.getParams();
+            doc = notifyPartnersRequest.getDoc();
+
+            exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "notifyPartners");
+        }
+
+        // retrieve information about NotifyPartner request and add to exchange headers
+        if (exchange.getIn().getBody() instanceof NotifyPartner) {
+
+            LOG.debug("Processing NotifyPartner");
+
+            final NotifyPartner notifyPartnerRequest = (NotifyPartner) exchange.getIn().getBody();
+
+            planCorrelationID = notifyPartnerRequest.getPlanCorrelationID();
+            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
+
+            final QName serviceTemplateID = new QName(notifyPartnerRequest.getServiceTemplateIDNamespaceURI(),
+                notifyPartnerRequest.getServiceTemplateIDLocalPart());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+
+            csarIDString = notifyPartnerRequest.getCsarID();
+            paramsMap = notifyPartnerRequest.getParams();
+            doc = notifyPartnerRequest.getDoc();
+
+            exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "notifyPartner");
         }
 
         if (exchange.getIn().getBody() instanceof InvokeOperationAsync) {
@@ -177,7 +221,6 @@ public class RequestProcessor implements Processor {
             }
 
             exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokeIA");
-
         }
 
         if (exchange.getIn().getBody() instanceof InvokeOperationSync) {
@@ -298,6 +341,5 @@ public class RequestProcessor implements Processor {
         } else {
             exchange.getIn().setBody(null);
         }
-
     }
 }
