@@ -19,6 +19,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.PropertyVariable;
@@ -152,6 +153,38 @@ public class BPELNotifyHandler extends PluginHandler {
         context.getProvisioningPhaseElement().appendChild(invokeNode);
 
 
+        return true;
+
+    }
+    
+    public boolean addChoreographyParameters(BPELPlanContext context, Map<String,Variable> params) {
+        AbstractRelationshipTemplate connectingRelationshipTemplate =
+            (AbstractRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
+        
+        String sendingPartner = null;
+        String receivingPartner = null;
+        if (connectingRelationshipTemplate != null) {
+            sendingPartner = this.getPartnerLocation(connectingRelationshipTemplate.getTarget());
+            receivingPartner = this.getPartnerLocation(connectingRelationshipTemplate.getSource());
+            Variable connectingRelationIdVar = context.createGlobalStringVariable("connectingRelationId_" + sendingPartner
+                                                                                  + "_IDVar_" + context.getIdForNames(), connectingRelationshipTemplate.getId());
+            params.put("ConnectingRelationshipTemplate", connectingRelationIdVar);
+        } else {
+            return false;
+        }
+        
+        if (sendingPartner != null & receivingPartner != null) {
+            Variable sendingPartnerIdVar =
+                context.createGlobalStringVariable("partner_" + sendingPartner + "_IDVar_" + context.getIdForNames(), sendingPartner);
+            params.put("SendingPartner", sendingPartnerIdVar);
+            
+            Variable recevingPartnerIdVar =
+                context.createGlobalStringVariable("partner_" + receivingPartner + "_IDVar_" + context.getIdForNames(), receivingPartner);
+            params.put("ReceivingPartner", recevingPartnerIdVar);
+        } else {
+            return false;
+        }
+        
         return true;
 
     }
@@ -431,7 +464,9 @@ public class BPELNotifyHandler extends PluginHandler {
         List<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
         Collection<PropertyVariable> props = new HashSet<PropertyVariable>();
 
-        ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
+        AbstractRelationshipTemplate relationshipTemplate = (AbstractRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
+        
+        ModelUtils.getNodesFromNodeToSink(relationshipTemplate.getSource(), nodes);
 
         for (AbstractNodeTemplate infraNode : nodes) {
             for (PropertyVariable propVar : context.getPropertyVariables(infraNode)) {
@@ -479,6 +514,17 @@ public class BPELNotifyHandler extends PluginHandler {
 
         return params;
     }
+
+    public String getPartnerLocation(AbstractNodeTemplate node) {
+        for(QName qName: node.getOtherAttributes().keySet()) {
+            if(qName.getLocalPart().equals("location")) {
+                return node.getOtherAttributes().get(qName);
+            }
+        }
+        return null;
+     }
+    
+    
 
 
     public Map<String, PropertyVariable> matchOperationParamertsToProperties(BPELPlanContext context) {

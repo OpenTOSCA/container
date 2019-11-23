@@ -34,7 +34,8 @@ public class ChoreographyBuilder {
                 if(managedConnectingNodes.contains(relation.getTarget())) {
                     
                     // in this case we have to send a notify as the connecting node is depending on the managed nodes
-                    NodeTemplateActivity nodeActivity = new NodeTemplateActivity("sendNotify_" + relation.getSource().getId(), ActivityType.SENDNODENOTIFY, relation.getSource());
+                    NodeTemplateActivity nodeActivity = new NodeTemplateActivity("sendNotify_" + relation.getTarget().getId(), ActivityType.SENDNODENOTIFY, relation.getTarget());
+                    nodeActivity.addMetadata("ConnectingRelationshipTemplate", relation);
                     activitiesToAdd.add(nodeActivity); 
                     
                     // send notify after all managed and connecting are finished with their activities and after the connecting relation is initalized
@@ -46,6 +47,7 @@ public class ChoreographyBuilder {
                     
                     // this relation connects a managed node as target therefore it is depending on receiving data
                     NodeTemplateActivity nodeActivity = new NodeTemplateActivity("receiveNotify_" + relation.getSource().getId(), ActivityType.RECEIVENODENOTIFY, relation.getSource());
+                    nodeActivity.addMetadata("ConnectingRelationshipTemplate", relation);
                     activitiesToAdd.add(nodeActivity);
                     
                     // we receive before creating this relation but after the target of this relation

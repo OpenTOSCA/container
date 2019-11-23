@@ -17,6 +17,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.plugins.choreography.IPlanBuilderChoreographyPlugin;
@@ -243,13 +244,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         Collection<PropertyVariable> propertiesToSend = new HashSet<PropertyVariable>();
         context.getNodeTemplates().forEach(x -> propertiesToSend.addAll(context.getPropertyVariables(x)));
         Map<String, Variable> params = this.choreohandler.mapToParamMap(propertiesToSend);
-        
-        String partner = this.getPartnerLocation(context);
-        
-        if(partner != null) {
-            Variable partnerIdVar =context.createGlobalStringVariable("partner_" + partner + "_IDVar_" + context.getIdForNames(), partner);
-            params.put("Partner", partnerIdVar);
-        }
+
+        this.choreohandler.addChoreographyParameters(context, params);               
 
         try {
             return this.choreohandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
@@ -264,21 +260,15 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             return false;
         }
     }
-    
-    private String getPartnerLocation(BPELPlanContext context) {
-       for(QName qName: context.getNodeTemplate().getOtherAttributes().keySet()) {
-           if(qName.getLocalPart().equals("location")) {
-               return context.getNodeTemplate().getOtherAttributes().get(qName);
-           }
-       }
-       return null;
-    }
+
 
     @Override
     public boolean handleReceiveNotify(BPELPlanContext context) {
         Collection<PropertyVariable> properties = this.choreohandler.getPartnerPropertyVariables(context);
 
         Map<String, Variable> params = this.choreohandler.mapToParamMap(properties);
+        
+        this.choreohandler.addChoreographyParameters(context, params);    
 
         try {
             return this.choreohandler.handleReceiveNotify(context, params, context.getProvisioningPhaseElement());
