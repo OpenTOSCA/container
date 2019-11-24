@@ -433,7 +433,7 @@ public class InstanceService {
   }
 
   /* Relationship Template Instances */
-  public Collection<RelationshipTemplateInstance> getRelationshipTemplateInstances(final QName relationshipTemplateQName) {
+  public Collection<RelationshipTemplateInstance> getRelationshipTemplateInstances(final String relationshipTemplateQName) {
     logger.debug("Requesting instances of RelationshipTemplate \"{}\"...", relationshipTemplateQName);
     return this.relationshipTemplateInstanceRepository.findByTemplateId(relationshipTemplateQName);
   }

@@ -207,7 +207,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
     if (relationshipTemplateID != null) {
       final Collection<RelationshipTemplateInstance> result =
-        this.relationshipRepository.findByTemplateId(relationshipTemplateID);
+        this.relationshipRepository.findByTemplateId(relationshipTemplateID.getLocalPart());
       if (result != null) {
         LOG.info("Result: {}", result.size());
         return result.stream().map(Converters::convert).collect(Collectors.toList());

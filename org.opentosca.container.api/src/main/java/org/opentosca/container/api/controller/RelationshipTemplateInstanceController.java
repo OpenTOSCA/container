@@ -72,10 +72,8 @@ public class RelationshipTemplateInstanceController {
   public Response getRelationshipTemplateInstances(@QueryParam(value = "state") final List<RelationshipTemplateInstanceState> states,
                                                    @QueryParam(value = "target") final Long targetNodeInstanceId,
                                                    @QueryParam(value = "serviceInstanceId") final Long serviceInstanceId) {
-    final QName relationshipTemplateQName =
-      new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.relationshiptemplate);
     final Collection<RelationshipTemplateInstance> relationshipInstances =
-      this.instanceService.getRelationshipTemplateInstances(relationshipTemplateQName);
+      this.instanceService.getRelationshipTemplateInstances(relationshiptemplate);
     logger.debug("Found <{}> instances of RelationshipTemplate \"{}\" ", relationshipInstances.size(),
       this.relationshiptemplate);
 

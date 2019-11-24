@@ -92,7 +92,7 @@ public class BPELProcessFragments {
 
   /**
    * Create a BPEL assign that copies the NodeInstanceURL from a NodeInstances Query (See
-   * {@link #createRESTExtensionGETForNodeInstanceDataAsNode(String, String, String, String, boolean)}
+   * {@link #createRESTExtensionGETForNodeInstanceDataAsNode(String, String, String, String)}
    *
    * @param assignName the name of the assign
    * @param stringVarName the name of the xsd:string variable to write the NodeInstanceId into
@@ -252,7 +252,7 @@ public class BPELProcessFragments {
 
   /**
    * Create a BPEL assign that copies the NodeInstanceURL from a NodeInstances Query (See
-   * {@link #createRESTExtensionGETForNodeInstanceDataAsNode(String, String, String, String, boolean)}
+   * {@link #createRESTExtensionGETForNodeInstanceDataAsNode(String, String, String, String)}
    *
    * @param assignName the name of the assign
    * @param stringVarName the name of the xsd:string variable to write the NodeInstanceId into
@@ -584,10 +584,6 @@ public class BPELProcessFragments {
    * @param responseVarName the name of the variable holding the response of the request (must be
    *        xsd:anyType)
    * @param templateId the id of the template the instance belongs to
-   * @param serviceInstanceUrlVarName the name of the variable holding the id/link of the
-   *        serviceInstance
-   * @param isNodeTemplate whether the given tmeplateId belongs to a NodeTemplate or
-   *        RelationshipTemplate
    * @return a Node containing a BPEL Fragment
    * @throws IOException is thrown when reading internal files fails
    * @throws SAXException is thrown when parsing internal files fails
@@ -609,10 +605,6 @@ public class BPELProcessFragments {
    * @param responseVarName the name of the variable holding the response of the request (must be
    *        xsd:anyType)
    * @param templateId the id of the template the instance belongs to
-   * @param serviceInstanceUrlVarName the name of the variable holding the id/link of the
-   *        serviceInstance
-   * @param isNodeTemplate whether the given tmeplateId belongs to a NodeTemplate or
-   *        RelationshipTemplate
    * @return a String containing a BPEL Fragment
    * @throws IOException is thrown when reading internal files fails
    */
@@ -842,8 +834,6 @@ public class BPELProcessFragments {
    *
    * @param instanceDataAPIUrlVariableName the name of the variable holding the address to the
    *        instanceDataAPI
-   * @param csarId the name of the csar the serviceTemplate belongs to
-   * @param serviceTemplateId the id of the serviceTemplate
    * @param responseVariableName a name of an anyType variable to save the response into
    * @return a String containing a BPEL4RESTLight POST extension activity
    * @throws IOException is thrown when reading internal files fail
@@ -892,8 +882,6 @@ public class BPELProcessFragments {
    *
    * @param instanceDataAPIUrlVariableName the name of the variable holding the address to the
    *        instanceDataAPI
-   * @param csarId the name of the csar the serviceTemplate belongs to
-   * @param serviceTemplateId the id of the serviceTemplate
    * @param requestVariableName a name of an anyType variable to take the request content from
    * @param responseVariableName a name of an anyType variable to save the response into
    * @return a Node containing a BPEL4RESTLight POST extension activity
@@ -952,11 +940,9 @@ public class BPELProcessFragments {
    * Generates an Assign Acitivity that writes the content of a Strig variable into the first element
    * specified by prefix and localname
    *
-   * @param assignName the name of the assign
    * @param variableName the name of the string variable to take the value from
    * @param outputVarName the name of the output message variable
    * @param outputVarPartName the name of the part inside the message variable
-   * @param outputVarPrefix the prefix of the element inside the message part
    * @param outputVarLocalName the localName of the element inside the message part
    * @return a DOM Node containing a BPEL Assign Activity
    * @throws IOException is thrown when reading internal files fail
@@ -976,11 +962,9 @@ public class BPELProcessFragments {
    * Generates an Assign Activity that writes the content of a String variable into the first element
    * specified by prefix and localname
    *
-   * @param assignName the name of the assign
    * @param variableName the name of the string variable to take the value from
    * @param outputVarName the name of the output message variable
    * @param outputVarPartName the name of the part inside the message variable
-   * @param outputVarPrefix the prefix of the element inside the message part
    * @param outputVarLocalName the localname of the element inside the message part
    * @return a String containing a BPEL assign activitiy
    * @throws IOException is thrown when reading internal files fail
@@ -1007,8 +991,6 @@ public class BPELProcessFragments {
    * @param serviceInstanceURLVarName the varariable name to save the serviceTemplateInstance URL
    * @param serviceTemplateInstancesURLVar the variable name that holds the serviceTemplateInstances
    *        URL
-   * @param serviceInstanceIDVarName the variable name to save the serviceTemplateInstance ID in (e.g.
-   *        ID=123)
    * @param serviceTemplateURLVarName the variable name to save the serviceTemplate URL in
    * @return a DOM Node containing a BPEL assign activity
    * @throws IOException is thrown when reading internal files fail

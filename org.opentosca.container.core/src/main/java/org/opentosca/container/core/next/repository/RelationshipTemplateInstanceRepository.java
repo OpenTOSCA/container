@@ -20,11 +20,11 @@ public class RelationshipTemplateInstanceRepository extends JpaRepository<Relati
     super(RelationshipTemplateInstance.class);
   }
 
-  public Collection<RelationshipTemplateInstance> findByTemplateId(final QName templateId) {
+  public Collection<RelationshipTemplateInstance> findByTemplateId(final String templateId) {
     try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
       final CriteriaBuilder cb = em.getCriteriaBuilder();
       // Parameters
-      final ParameterExpression<QName> templateIdParameter = cb.parameter(QName.class);
+      final ParameterExpression<String> templateIdParameter = cb.parameter(String.class);
       // Build the Criteria Query
       final CriteriaQuery<RelationshipTemplateInstance> cq = cb.createQuery(RelationshipTemplateInstance.class);
       final Root<RelationshipTemplateInstance> sti = cq.from(RelationshipTemplateInstance.class);
