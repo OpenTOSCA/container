@@ -382,9 +382,7 @@ public class RequestProcessor implements Processor {
 
     private Map<String, String> createRequestBody(final CSARID csarID, final QName serviceTemplateID,
                                                   final String planCorrelationID) {
-        final HashMap<String, String> map = new HashMap<>();
 
-        // set instanceDataAPIUrl
         String str = Settings.CONTAINER_INSTANCEDATA_API.replace("{csarid}", csarID.getFileName());
         try {
             str = str.replace("{servicetemplateid}",
@@ -393,17 +391,12 @@ public class RequestProcessor implements Processor {
         catch (final UnsupportedEncodingException e) {
             LOG.error("Couldn't encode Service Template URL", e);
         }
+
+        final HashMap<String, String> map = new HashMap<>();
         map.put("instanceDataAPIUrl", str);
-
-        // set csarEntrypoint
         map.put("csarEntrypoint", Settings.CONTAINER_API_LEGACY + "/CSARs/" + csarID);
-
-        // set CorrelationID
         map.put("CorrelationID", planCorrelationID);
-
-        // set planCallbackAddress_invoker
         map.put("planCallbackAddress_invoker", "");
-
         return map;
     }
 }

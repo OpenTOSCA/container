@@ -51,7 +51,7 @@ public class Constants {
      * Operation name of the management bus SOAP API to receive notifications from other management
      * busses.
      */
-    public final static String RECEIVE_NOTIFY_OPERATION = "receiveNotifyFromBus";
+    public final static String RECEIVE_NOTIFY_OPERATION = "receiveNotifyPartners";
 
     /**
      * Parameters for the Notify operation of the SOAP API
