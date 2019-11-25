@@ -1,10 +1,13 @@
 package org.opentosca.bus.management.api.soaphttp.processor;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -124,8 +127,6 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
 
             csarIDString = notifyPartnerRequest.getCsarID();
-            paramsMap = notifyPartnerRequest.getParams();
-            doc = notifyPartnerRequest.getDoc();
 
             exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "notifyPartner");
         }
@@ -137,15 +138,10 @@ public class RequestProcessor implements Processor {
             final ReceiveNotifyFromBus receiveNotifyRequest = (ReceiveNotifyFromBus) exchange.getIn().getBody();
 
             planCorrelationID = receiveNotifyRequest.getPlanCorrelationID();
-            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
+            csarIDString = receiveNotifyRequest.getCsarID();
 
             final QName serviceTemplateID = new QName(receiveNotifyRequest.getServiceTemplateIDNamespaceURI(),
                 receiveNotifyRequest.getServiceTemplateIDLocalPart());
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
-
-            csarIDString = receiveNotifyRequest.getCsarID();
-            paramsMap = receiveNotifyRequest.getParams();
-            doc = receiveNotifyRequest.getDoc();
 
             // get plan ID from the boundary definitions
             final CSARID csar = new CSARID(csarIDString);
@@ -153,9 +149,20 @@ public class RequestProcessor implements Processor {
                 EndpointServiceHandler.toscaReferenceMapper.getBoundaryPlanOfCSARInterface(csar,
                                                                                            "OpenTOSCA-Lifecycle-Interface",
                                                                                            "initiate");
-            exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
 
+            // create plan invocation request from given parameters
+            exchange.getIn().setBody(createRequestBody(csar, serviceTemplateID, planCorrelationID));
+
+            // add required header fields for the bus
+            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            exchange.getIn().setHeader(MBHeader.CSARID.toString(), csar);
+            exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
+            exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), Activator.apiID);
+            exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), "initiate"); // TODO: change for
+                                                                                              // NotifyPartner
             exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
+            return;
         }
 
         if (exchange.getIn().getBody() instanceof InvokeOperationAsync) {
@@ -371,5 +378,33 @@ public class RequestProcessor implements Processor {
         } else {
             exchange.getIn().setBody(null);
         }
+    }
+
+
+    private Map<String, String> createRequestBody(final CSARID csarID, final QName serviceTemplateID,
+                                                  final String planCorrelationID) {
+        final HashMap<String, String> map = new HashMap<>();
+
+        // set instanceDataAPIUrl
+        String str = Settings.CONTAINER_INSTANCEDATA_API.replace("{csarid}", csarID.getFileName());
+        try {
+            str = str.replace("{servicetemplateid}",
+                              URLEncoder.encode(URLEncoder.encode(serviceTemplateID.toString(), "UTF-8"), "UTF-8"));
+        }
+        catch (final UnsupportedEncodingException e) {
+            LOG.error("Couldn't encode Service Template URL", e);
+        }
+        map.put("instanceDataAPIUrl", str);
+
+        // set csarEntrypoint
+        map.put("csarEntrypoint", Settings.CONTAINER_API_LEGACY + "/CSARs/" + csarID);
+
+        // set CorrelationID
+        map.put("CorrelationID", planCorrelationID);
+
+        // set planCallbackAddress_invoker
+        map.put("planCallbackAddress_invoker", "");
+
+        return map;
     }
 }
