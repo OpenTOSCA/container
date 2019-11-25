@@ -22,6 +22,7 @@ import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.bus.management.service.impl.collaboration.DeploymentDistributionDecisionMaker;
+import org.opentosca.bus.management.service.impl.instance.plan.CorrelationIdAlreadySetException;
 import org.opentosca.bus.management.service.impl.instance.plan.PlanInstanceHandler;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.bus.management.service.impl.util.DeploymentPluginCapabilityChecker;
@@ -584,10 +585,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // create the instance data for the plan instance to be started
-        PlanInstance plan = PlanInstanceHandler.createPlanInstance(csarID, serviceTemplateID, serviceTemplateInstanceID,
-                                                                   planID, correlationID, message.getBody());
+        PlanInstance plan = null;
+        try {
+            plan = PlanInstanceHandler.createPlanInstance(csarID, serviceTemplateID, serviceTemplateInstanceID, planID,
+                                                          correlationID, message.getBody());
+        }
+        catch (final CorrelationIdAlreadySetException e) {
+            LOG.warn(e.getMessage() + " Skipping the plan invocation!");
+            return;
+        }
 
-        if (plan != null) {
+        if (Objects.nonNull(plan)) {
             LOG.debug("Plan ID: {}", plan.getTemplateId());
             LOG.debug("Plan language: {}", plan.getLanguage().toString());
 
@@ -649,7 +657,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // update the output parameters in the plan instance
             PlanInstanceHandler.updatePlanInstanceOutput(plan, csarID, message.getBody());
         } else {
-            LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
+            LOG.warn("Unable to create plan instance for CSARID {} and Plan ID {}. Invocation aborted!", csarID,
+                     planID);
         }
 
         handleResponse(exchange);
@@ -969,9 +978,18 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
 
+        if (!(exchange.getIn().getBody() instanceof HashMap)) {
+            LOG.error("Message to notify partner with Correlation ID {}, CSARID {} and ServiceTemplate ID {} contains not parameters. Aborting!");
+            return;
+        }
+
+        @SuppressWarnings("unchecked")
+        final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
+
+        final String connectingRelationshipTemplate = params.get(Constants.RELATIONSHIP_TEMPLATE_PARAM);
+
         LOG.debug("Notifying partner for connectsTo with ID {} for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
-                  "TODO", correlationID, csarID, serviceTemplateID);
-        // TODO: retrieve RelationshipTemplate ID from input; has to be added by the plan
+                  connectingRelationshipTemplate, correlationID, csarID, serviceTemplateID);
 
         // TODO: check which partner needs the notification and forward it with the parameters
     }
@@ -1028,16 +1046,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             input.put(Constants.CSARID_PARAM, csarID.toString());
             input.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
             input.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
-            input.put(Constants.MESSAGE_ID_PARAM, "TEST"); // TODO: generate message ID
+            input.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
             message.setBody(input);
 
             PluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
         }
-    }
-
-    @Override
-    public void receiveNotify(final Exchange exchange) {
-        LOG.debug("Received notification from partner ... TODO");
-        // TODO Auto-generated method stub
     }
 }

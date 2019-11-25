@@ -20,8 +20,12 @@
 		<wsdl:part element="ns:notifyPartners" name="notifyPartners">
 		</wsdl:part>
 	</wsdl:message>
-	<wsdl:message name="receiveNotifyMessage">
+    <wsdl:message name="receiveNotifyMessage">
 		<wsdl:part element="ns:receiveNotify" name="receiveNotify">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="receiveNotifyFromBusMessage">
+		<wsdl:part element="ns:receiveNotifyFromBus" name="receiveNotifyFromBus">
 		</wsdl:part>
 	</wsdl:message>
 	
@@ -74,6 +78,10 @@
 		</wsdl:operation>
 		<wsdl:operation name="receiveNotify">
 			<wsdl:input message="tns:receiveNotifyMessage">
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="receiveNotifyFromBus">
+			<wsdl:input message="tns:receiveNotifyFromBusMessage">
 			</wsdl:input>
 		</wsdl:operation>
 	</wsdl:portType>
@@ -133,6 +141,13 @@
 		</wsdl:operation>
 		<wsdl:operation name="receiveNotify">
 		    <soap:operation soapAction="http://siserver.org/receiveNotify"
+				style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="receiveNotifyFromBus">
+		    <soap:operation soapAction="http://siserver.org/receiveNotifyFromBus"
 				style="document" />
 			<wsdl:input>
 				<soap:body use="literal" />

@@ -50,7 +50,7 @@ public class ServiceHandler {
      * @param toscaEngineService - The ToscaReferenceMapper to register.
      */
     public void bindToscaReferenceMapper(final IToscaReferenceMapper toscaReferenceMapper) {
-        if (toscaEngineService != null) {
+        if (toscaReferenceMapper != null) {
             ServiceHandler.toscaReferenceMapper = toscaReferenceMapper;
             LOG.debug("Bind IToscaReferenceMapper: {} bound.", toscaReferenceMapper.toString());
         } else {

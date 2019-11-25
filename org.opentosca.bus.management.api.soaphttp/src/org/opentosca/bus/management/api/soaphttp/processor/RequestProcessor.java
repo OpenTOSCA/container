@@ -17,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.headers.Header;
 import org.opentosca.bus.management.api.soaphttp.Activator;
+import org.opentosca.bus.management.api.soaphttp.EndpointServiceHandler;
 import org.opentosca.bus.management.api.soaphttp.model.Doc;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationAsync;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationSync;
@@ -25,6 +26,7 @@ import org.opentosca.bus.management.api.soaphttp.model.NotifyPartner;
 import org.opentosca.bus.management.api.soaphttp.model.NotifyPartners;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMap;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMapItemType;
+import org.opentosca.bus.management.api.soaphttp.model.ReceiveNotifyFromBus;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
@@ -126,6 +128,34 @@ public class RequestProcessor implements Processor {
             doc = notifyPartnerRequest.getDoc();
 
             exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "notifyPartner");
+        }
+
+        if (exchange.getIn().getBody() instanceof ReceiveNotifyFromBus) {
+
+            LOG.debug("Invoking plan after reception of ReceiveNotifyFromBus");
+
+            final ReceiveNotifyFromBus receiveNotifyRequest = (ReceiveNotifyFromBus) exchange.getIn().getBody();
+
+            planCorrelationID = receiveNotifyRequest.getPlanCorrelationID();
+            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
+
+            final QName serviceTemplateID = new QName(receiveNotifyRequest.getServiceTemplateIDNamespaceURI(),
+                receiveNotifyRequest.getServiceTemplateIDLocalPart());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+
+            csarIDString = receiveNotifyRequest.getCsarID();
+            paramsMap = receiveNotifyRequest.getParams();
+            doc = receiveNotifyRequest.getDoc();
+
+            // get plan ID from the boundary definitions
+            final CSARID csar = new CSARID(csarIDString);
+            final QName planID =
+                EndpointServiceHandler.toscaReferenceMapper.getBoundaryPlanOfCSARInterface(csar,
+                                                                                           "OpenTOSCA-Lifecycle-Interface",
+                                                                                           "initiate");
+            exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
+
+            exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
         }
 
         if (exchange.getIn().getBody() instanceof InvokeOperationAsync) {

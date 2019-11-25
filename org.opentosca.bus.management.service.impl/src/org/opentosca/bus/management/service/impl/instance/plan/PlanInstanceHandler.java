@@ -58,7 +58,13 @@ public class PlanInstanceHandler {
      */
     public static PlanInstance createPlanInstance(final CSARID csarId, final QName serviceTemplateId,
                                                   final long serviceTemplateInstanceId, final QName planId,
-                                                  final String correlationId, final Object input) {
+                                                  final String correlationId,
+                                                  final Object input) throws CorrelationIdAlreadySetException {
+
+        if (Objects.isNull(planId)) {
+            LOG.error("Plan ID is null! Unable to create PlanInstance!");
+            return null;
+        }
 
         final TPlan storedPlan = ServiceHandler.toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarId, planId);
         if (Objects.isNull(storedPlan)) {
@@ -73,6 +79,13 @@ public class PlanInstanceHandler {
         plan.setType(PlanType.fromString(storedPlan.getPlanType()));
         plan.setState(PlanInstanceState.RUNNING);
         plan.setTemplateId(planId);
+
+        // check if plan instance with that correlation ID is already present
+        if (planRepo.findAll().stream().filter(p -> p.getCorrelationId().equals(correlationId)).findFirst()
+                    .isPresent()) {
+            throw new CorrelationIdAlreadySetException(
+                "Plan instance with correlation ID " + correlationId + " is already existing.");
+        }
 
         // cast input parameters for the plan invocation
         HashMap<String, String> inputMap = new HashMap<>();

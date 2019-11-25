@@ -51,7 +51,7 @@ public class Constants {
      * Operation name of the management bus SOAP API to receive notifications from other management
      * busses.
      */
-    public final static String RECEIVE_NOTIFY_OPERATION = "receiveNotify";
+    public final static String RECEIVE_NOTIFY_OPERATION = "receiveNotifyFromBus";
 
     /**
      * Parameters for the Notify operation of the SOAP API
@@ -61,6 +61,12 @@ public class Constants {
     public final static String PLAN_CORRELATION_PARAM = "PlanCorrelationID";
     public final static String CSARID_PARAM = "CsarID";
     public final static String MESSAGE_ID_PARAM = "MessageID";
+
+    /**
+     * Parameter containing the template ID of the RelationshipTemplate to which a notify message
+     * belongs in a choreography.
+     */
+    public final static String RELATIONSHIP_TEMPLATE_PARAM = "ConnectingRelationshipTemplate";
 
     // endregion
 

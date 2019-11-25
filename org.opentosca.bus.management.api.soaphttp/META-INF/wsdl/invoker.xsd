@@ -5,6 +5,7 @@
 	<xs:element name="notifyPartner" type="ns:notifyPartnerType" />
 	<xs:element name="notifyPartners" type="ns:notifyPartnerType" />
 	<xs:element name="receiveNotify" type="ns:notifyPartnerType" />
+	<xs:element name="receiveNotifyFromBus" type="ns:notifyPartnerType" />
 	<xs:complexType name="notifyPartnerType">
 		<xs:sequence>
 		    <xs:element minOccurs="0" maxOccurs="1" name="PlanCorrelationID"
