@@ -7,7 +7,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,12 +46,12 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.tosca.model.TNodeTemplate;
 import org.opentosca.container.core.tosca.model.TServiceTemplate;
 import org.opentosca.container.core.tosca.model.TTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Engine for delegating invoke-requests of implementation artifacts or plans to matching
@@ -983,15 +985,68 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             return;
         }
 
+        // retrieve parameters defining the partner and RelationshipTemplate from the exchange body
         @SuppressWarnings("unchecked")
         final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
-
         final String connectingRelationshipTemplate = params.get(Constants.RELATIONSHIP_TEMPLATE_PARAM);
+        final String receivingPartner = params.get(Constants.RECEIVING_PARTNER_PARAM);
 
-        LOG.debug("Notifying partner for connectsTo with ID {} for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
-                  connectingRelationshipTemplate, correlationID, csarID, serviceTemplateID);
+        LOG.debug("Notifying partner {} for connectsTo with ID {} for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
+                  receivingPartner, connectingRelationshipTemplate, correlationID, csarID, serviceTemplateID);
 
-        // TODO: check which partner needs the notification and forward it with the parameters
+        // retrieve ServiceTemplate related to the notification request
+        final TServiceTemplate serviceTemplate =
+            (TServiceTemplate) ServiceHandler.toscaReferenceMapper.getJAXBReference(csarID, serviceTemplateID);
+        if (Objects.isNull(serviceTemplate)) {
+            LOG.error("Unable to retrieve ServiceTemplate for the notification request.");
+            return;
+        }
+
+        // get tag defining the endpoint of the partner
+        final Optional<TTag> endpointTagOptional =
+            Util.getPartnerEndpoints(serviceTemplate).stream().filter(tag -> tag.getName().equals(receivingPartner))
+                .findFirst();
+        if (!endpointTagOptional.isPresent()) {
+            LOG.error("No endpoint tag available for partner {}", receivingPartner);
+            return;
+        }
+
+        final String endpoint = endpointTagOptional.get().getValue();
+        LOG.debug("Notifying partner {} on endpoint: {}", receivingPartner, endpoint);
+
+        message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
+        message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+        message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_OPERATION);
+
+        // create message body
+        final HashMap<String, String> inputMap = new HashMap<>();
+        inputMap.put(Constants.PLAN_CORRELATION_PARAM, correlationID);
+        inputMap.put(Constants.CSARID_PARAM, csarID.toString());
+        inputMap.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
+        inputMap.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
+        inputMap.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
+
+        // parse to doc and add input parameters
+        final Document inputDoc =
+            MBUtils.mapToDoc(Constants.BUS_WSDL_NAMESPACE, Constants.RECEIVE_NOTIFY_OPERATION, inputMap);
+        final Element root = inputDoc.getDocumentElement();
+        final Element paramsWrapper = inputDoc.createElement(Constants.PARAMS_PARAM);
+        root.appendChild(paramsWrapper);
+        for (final Entry<String, String> entry : params.entrySet()) {
+            final Element paramElement = inputDoc.createElement("Param");
+            paramsWrapper.appendChild(paramElement);
+
+            final Element keyElement = inputDoc.createElement("key");
+            keyElement.setTextContent(entry.getKey());
+            paramElement.appendChild(keyElement);
+
+            final Element valueElement = inputDoc.createElement("value");
+            valueElement.setTextContent(entry.getValue());
+            paramElement.appendChild(valueElement);
+        }
+        message.setBody(inputDoc);
+
+        PluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
     }
 
     @Override
@@ -1013,31 +1068,19 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             return;
         }
 
-        // get the tags containing the enpoints of the partners
-        if (Objects.isNull(serviceTemplate.getTags())) {
-            LOG.error("Unable to retrieve tags for ServiceTemplate with ID {}.", serviceTemplate.getId());
+        // get the tags enpoints of the partners
+        final List<TTag> partnerTags = Util.getPartnerEndpoints(serviceTemplate);
+        if (Objects.isNull(partnerTags)) {
+            LOG.error("Unable to retrieve partners for ServiceTemplate with ID {}.", serviceTemplate.getId());
             return;
         }
-        final List<TTag> tags = serviceTemplate.getTags().getTag();
-
-        // get the provider names defined in the NodeTemplates to check which tag names specify a partner
-        // endpoint
-        final List<String> partnerNames =
-            serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
-                           .filter(entity -> entity instanceof TNodeTemplate).map(entity -> entity.getOtherAttributes())
-                           .map(attributes -> attributes.get(Constants.LOCATION_ATTRIBUTE)).distinct()
-                           .collect(Collectors.toList());
-
-        // remove tags that do not specify a partner endpoint and get endpoints
-        tags.removeIf(tag -> !partnerNames.contains(tag.getName()));
-        final List<String> partnerEndpoints = tags.stream().map(tag -> tag.getValue()).collect(Collectors.toList());
 
         // notify all partners
-        for (final String endpoint : partnerEndpoints) {
-            LOG.debug("Notifying partner on endpoint: {}", endpoint);
+        for (final TTag endpointTag : partnerTags) {
+            LOG.debug("Notifying partner {} on endpoint: {}", endpointTag.getName(), endpointTag.getValue());
 
             message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
-            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointTag.getValue());
             message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_OPERATION);
 
             // create message body

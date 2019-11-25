@@ -5,9 +5,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.bus.management.servicehandler.ServiceHandler;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -405,5 +409,45 @@ public class MBUtils {
         }
 
         return reponseMap;
+    }
+
+    /**
+     * Transfers the paramsMap into a Document.
+     *
+     * @param rootElementNamespaceURI
+     * @param rootElementName
+     * @param paramsMap
+     *
+     * @return the created Document.
+     */
+    public static Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
+                                    final HashMap<String, String> paramsMap) {
+        LOG.debug("Mapping to doc for element {} and namespace {}.", rootElementName, rootElementNamespaceURI);
+        Document document;
+
+        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder = null;
+        try {
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        }
+        catch (final ParserConfigurationException e) {
+            LOG.error("Some error occured.");
+            e.printStackTrace();
+        }
+
+        document = documentBuilder.newDocument();
+
+        final Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
+        document.appendChild(rootElement);
+
+        Element mapElement;
+        for (final Entry<String, String> entry : paramsMap.entrySet()) {
+            mapElement = document.createElement(entry.getKey());
+            mapElement.setTextContent(entry.getValue());
+            rootElement.appendChild(mapElement);
+
+        }
+
+        return document;
     }
 }

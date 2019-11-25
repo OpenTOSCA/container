@@ -5,12 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
@@ -24,7 +19,6 @@ import org.opentosca.bus.management.utils.MBUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import com.predic8.wsdl.Binding;
 import com.predic8.wsdl.BindingOperation;
@@ -173,13 +167,13 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
                                     String messageId = message.getMessageId();
                                     if (paramsMap.containsKey("CorrelationID")) {
-                                        if(paramsMap.get("CorrelationID") != null) {                                            
+                                        if (paramsMap.get("CorrelationID") != null) {
                                             messageId = paramsMap.get("CorrelationID");
                                         } else {
                                             paramsMap.put("CorrelationID", messageId);
                                         }
                                         message.setMessageId(messageId);
-                                        
+
                                     }
                                     LOG.debug("Message ID: {}", messageId);
 
@@ -220,7 +214,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 ManagementBusInvocationPluginSoapHttp.LOG.error("No invokable operation found. Invocation aborted!");
                 return null;
             }
-            document = mapToDoc(rootElementNamespaceURI, rootElementName, paramsMap);
+            document = MBUtils.mapToDoc(rootElementNamespaceURI, rootElementName, paramsMap);
         }
 
         if (params instanceof Document) {
@@ -329,8 +323,8 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
      *
      * @param endpoint of the wsdl to check.
      * @param operationName to check.
-     * @return <code>true</code> if operation returns output params. Otherwise <code>false</code>.
-     *         If operation can't be found <code>null</code> is returned.
+     * @return <code>true</code> if operation returns output params. Otherwise <code>false</code>. If
+     *         operation can't be found <code>null</code> is returned.
      */
     private Boolean hasOutputDefinedInWSDL(final String endpoint, final String operationName) {
 
@@ -420,46 +414,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             }
         }
         return null;
-    }
-
-    /**
-     * Transfers the paramsMap into a Document.
-     *
-     * @param rootElementNamespaceURI
-     * @param rootElementName
-     * @param paramsMap
-     *
-     * @return the created Document.
-     */
-    private Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
-                              final HashMap<String, String> paramsMap) {
-
-        Document document;
-
-        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = null;
-        try {
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        }
-        catch (final ParserConfigurationException e) {
-            ManagementBusInvocationPluginSoapHttp.LOG.error("Some error occured.");
-            e.printStackTrace();
-        }
-
-        document = documentBuilder.newDocument();
-
-        final Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
-        document.appendChild(rootElement);
-
-        Element mapElement;
-        for (final Entry<String, String> entry : paramsMap.entrySet()) {
-            mapElement = document.createElement(entry.getKey());
-            mapElement.setTextContent(entry.getValue());
-            rootElement.appendChild(mapElement);
-
-        }
-
-        return document;
     }
 
     /**

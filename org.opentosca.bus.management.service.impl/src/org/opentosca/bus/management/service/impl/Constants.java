@@ -61,12 +61,23 @@ public class Constants {
     public final static String PLAN_CORRELATION_PARAM = "PlanCorrelationID";
     public final static String CSARID_PARAM = "CsarID";
     public final static String MESSAGE_ID_PARAM = "MessageID";
+    public final static String PARAMS_PARAM = "Params";
 
     /**
      * Parameter containing the template ID of the RelationshipTemplate to which a notify message
      * belongs in a choreography.
      */
     public final static String RELATIONSHIP_TEMPLATE_PARAM = "ConnectingRelationshipTemplate";
+
+    /**
+     * Parameter containing the partner ID of the receiving partner for a notification.
+     */
+    public final static String RECEIVING_PARTNER_PARAM = "ReceivingPartner";
+
+    /**
+     * Namespace of the WSDL and XSD of the Management Bus SOAP API.
+     */
+    public final static String BUS_WSDL_NAMESPACE = "http://siserver.org/schema";
 
     // endregion
 
