@@ -181,7 +181,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
 
         this.invokerPlugin.handle(templateContext, ubuntuTemplateId, true, "runScript",
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
-                                  new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
+                                  new HashMap<String, Variable>(), templateContext.getProvisioningPhaseElement());
 
         return true;
     }

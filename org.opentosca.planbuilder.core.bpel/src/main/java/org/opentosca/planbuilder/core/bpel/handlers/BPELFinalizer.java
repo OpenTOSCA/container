@@ -118,7 +118,6 @@ public class BPELFinalizer {
         childElement.setPrefix("tns");
         literalElement.appendChild(childElement);
       }
-
     }
 
     buildPlan.getBpelMainSequencePropertyAssignElement().appendChild(copy);
@@ -142,100 +141,107 @@ public class BPELFinalizer {
       buildPlan.setBpelExtensionsElement(null);
     }
 
-    if (buildPlan.getBpelFaultHandlersElement().getChildNodes().getLength() == 0) {
-      buildPlan.getBpelDocument().removeChild(buildPlan.getBpelFaultHandlersElement());
-    } else {
-      buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan).appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "rethrow"));
-    }
-
     makeSequential(buildPlan);
 
     for (final BPELScope templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
-      // check if any phase of this templatebuildplan has no child
-      // elements, if it's empty, add an empty activity
-      final Element prePhaseElement = templateBuildPlan.getBpelSequencePrePhaseElement();
-      if (prePhaseElement.getChildNodes().getLength() == 0) {
-        final Element emptyElement =
-          buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
-        prePhaseElement.appendChild(emptyElement);
-      }
+      this.finalizeBPELScope(buildPlan, templateBuildPlan);
+      this.finalizeBPELScope(buildPlan, templateBuildPlan.getBpelCompensationHandlerScope());
+    }
 
-      final Element provPhaseElement = templateBuildPlan.getBpelSequenceProvisioningPhaseElement();
-      if (provPhaseElement.getChildNodes().getLength() == 0) {
-        final Element emptyElement =
-          buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
-        provPhaseElement.appendChild(emptyElement);
-      }
+    if (buildPlan.getBpelFaultHandlersElement().getChildNodes().getLength() == 0) {
+      buildPlan.getBpelDocument().removeChild(buildPlan.getBpelFaultHandlersElement());
+    } else {
+      buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan)
+        .appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "compensate"));
+      buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan)
+        .appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "rethrow"));
+    }
+  }
 
-      final Element postPhaseElement = templateBuildPlan.getBpelSequencePostPhaseElement();
-      if (postPhaseElement.getChildNodes().getLength() == 0) {
-        final Element emptyElement =
-          buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
-        postPhaseElement.appendChild(emptyElement);
-      }
 
-      // check if sources, targets, variables or partnerlinks is empty, if
-      // yes remove each of them
-      final Element targets = templateBuildPlan.getBpelTargetsElement();
-      if (targets.getChildNodes().getLength() == 0) {
-        final Node parent = targets.getParentNode();
-        parent.removeChild(targets);
-        templateBuildPlan.setBpelTargetsElement(null);
-      } else {
-        // add join conditions, where all templates which are target of
-        // a
-        // edge should be used in a conjuction
-        final NodeList targetsChildren = targets.getChildNodes();
-        final List<String> targetLinkNames = new ArrayList<>();
-        for (int index = 0; index < targetsChildren.getLength(); index++) {
-          final Node targetNode = targetsChildren.item(index);
-          if (targetNode.getLocalName().equals("target")) {
-            targetLinkNames.add(targetNode.getAttributes().getNamedItem("linkName").getTextContent());
-          }
+  private void finalizeBPELScope(final BPELPlan buildPlan, final BPELScope templateBuildPlan) {
+    // check if any phase of this templatebuildplan has no child
+    // elements, if it's empty, add an empty activity
+    final Element prePhaseElement = templateBuildPlan.getBpelSequencePrePhaseElement();
+    if (prePhaseElement.getChildNodes().getLength() == 0) {
+      final Element emptyElement =
+        buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
+      prePhaseElement.appendChild(emptyElement);
+    }
+
+    final Element provPhaseElement = templateBuildPlan.getBpelSequenceProvisioningPhaseElement();
+    if (provPhaseElement.getChildNodes().getLength() == 0) {
+      final Element emptyElement =
+        buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
+      provPhaseElement.appendChild(emptyElement);
+    }
+
+    final Element postPhaseElement = templateBuildPlan.getBpelSequencePostPhaseElement();
+    if (postPhaseElement.getChildNodes().getLength() == 0) {
+      final Element emptyElement =
+        buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
+      postPhaseElement.appendChild(emptyElement);
+    }
+
+    // check if sources, targets, variables or partnerlinks is empty, if
+    // yes remove each of them
+    final Element targets = templateBuildPlan.getBpelTargetsElement();
+    if (targets.getChildNodes().getLength() == 0) {
+      final Node parent = targets.getParentNode();
+      parent.removeChild(targets);
+      templateBuildPlan.setBpelTargetsElement(null);
+    } else {
+      // add join conditions, where all templates which are target of
+      // an edge should be used in a conjuction
+      final NodeList targetsChildren = targets.getChildNodes();
+      final List<String> targetLinkNames = new ArrayList<>();
+      for (int index = 0; index < targetsChildren.getLength(); index++) {
+        final Node targetNode = targetsChildren.item(index);
+        if (targetNode.getLocalName().equals("target")) {
+          targetLinkNames.add(targetNode.getAttributes().getNamedItem("linkName").getTextContent());
         }
-        String condition = "";
-        for (int index = 0; index < targetLinkNames.size(); index++) {
-          if (index == 0) {
-            condition += "$" + targetLinkNames.get(index);
-          } else {
-            condition += " and $" + targetLinkNames.get(index);
-          }
+      }
+      String condition = "";
+      for (int index = 0; index < targetLinkNames.size(); index++) {
+        if (index == 0) {
+          condition += "$" + targetLinkNames.get(index);
+        } else {
+          condition += " and $" + targetLinkNames.get(index);
         }
-        final Element joinCondition =
-          buildPlan.getBpelDocument()
-            .createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
-              "joinCondition");
-        joinCondition.setTextContent(condition);
-        targets.insertBefore(joinCondition, targets.getFirstChild());
       }
+      final Element joinCondition =
+        buildPlan.getBpelDocument()
+          .createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable", "joinCondition");
+      joinCondition.setTextContent(condition);
+      targets.insertBefore(joinCondition, targets.getFirstChild());
+    }
 
-      final Element sources = templateBuildPlan.getBpelSourcesElement();
-      if (sources.getChildNodes().getLength() == 0) {
-        final Node parent = sources.getParentNode();
-        parent.removeChild(sources);
-        templateBuildPlan.setBpelSourcesElement(null);
-      }
+    final Element sources = templateBuildPlan.getBpelSourcesElement();
+    if (sources.getChildNodes().getLength() == 0) {
+      final Node parent = sources.getParentNode();
+      parent.removeChild(sources);
+      templateBuildPlan.setBpelSourcesElement(null);
+    }
 
-      final Element correlationSets = templateBuildPlan.getBpelCorrelationSets();
-      if (correlationSets.getChildNodes().getLength() == 0) {
-        final Node parent = correlationSets.getParentNode();
-        parent.removeChild(correlationSets);
-        templateBuildPlan.setBpelCorrelationSets(null);
-      }
+    final Element correlationSets = templateBuildPlan.getBpelCorrelationSets();
+    if (correlationSets.getChildNodes().getLength() == 0) {
+      final Node parent = correlationSets.getParentNode();
+      parent.removeChild(correlationSets);
+      templateBuildPlan.setBpelCorrelationSets(null);
+    }
 
-      final Element variables = templateBuildPlan.getBpelVariablesElement();
-      if (variables.getChildNodes().getLength() == 0) {
-        final Node parent = variables.getParentNode();
-        parent.removeChild(variables);
-        templateBuildPlan.setBpelVariablesElement(null);
-      }
+    final Element variables = templateBuildPlan.getBpelVariablesElement();
+    if (variables.getChildNodes().getLength() == 0) {
+      final Node parent = variables.getParentNode();
+      parent.removeChild(variables);
+      templateBuildPlan.setBpelVariablesElement(null);
+    }
 
-      final Element partnerlinks = templateBuildPlan.getBpelPartnerLinksElement();
-      if (partnerlinks.getChildNodes().getLength() == 0) {
-        final Node parent = partnerlinks.getParentNode();
-        parent.removeChild(partnerlinks);
-        templateBuildPlan.setBpelPartnerLinks(null);
-      }
+    final Element partnerlinks = templateBuildPlan.getBpelPartnerLinksElement();
+    if (partnerlinks.getChildNodes().getLength() == 0) {
+      final Node parent = partnerlinks.getParentNode();
+      parent.removeChild(partnerlinks);
+      templateBuildPlan.setBpelPartnerLinks(null);
     }
   }
 

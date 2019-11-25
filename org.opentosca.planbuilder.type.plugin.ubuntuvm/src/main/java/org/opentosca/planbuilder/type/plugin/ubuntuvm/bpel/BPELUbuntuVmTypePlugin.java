@@ -312,7 +312,8 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
                                        .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
-                        return this.handler.handleTerminateWithCloudProviderInterface(templateContext, nodeTemplate);
+                        return this.handler.handleTerminateWithCloudProviderInterface(templateContext, nodeTemplate,
+                                                                                      templateContext.getProvisioningPhaseElement());
                     } else if (relation.getTarget().getType().getId().equals(Types.localHypervisor)) {
                         return this.handler.handleWithLocalCloudProviderInterface(templateContext, nodeTemplate);
                     } else {

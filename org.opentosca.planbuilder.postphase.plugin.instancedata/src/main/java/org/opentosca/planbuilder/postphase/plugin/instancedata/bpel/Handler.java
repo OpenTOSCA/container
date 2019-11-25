@@ -1136,7 +1136,7 @@ public class Handler {
     public boolean handleUpdate(final BPELPlanContext sourceContext, final BPELPlanContext targetContext,
                                 AbstractRelationshipTemplate sourceRelationshipTemplate,
                                 AbstractRelationshipTemplate targetRelationshipTemplate) {
-        
+
         final String targetServiceTemplateUrlVarName = targetContext.getServiceTemplateURLVar();
         final String targetServiceInstanceIdVarName = targetContext.getServiceInstanceIDVarName();
 
@@ -1334,7 +1334,7 @@ public class Handler {
         if(serviceInstanceIdVarName == null) {
             return false;
         }
-        
+
         /*
          * Pre Phase code
          */
@@ -1880,7 +1880,7 @@ public class Handler {
         // generate call to method
         context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT, inputParams,
-                                 outputParams, BPELScopePhaseType.PRE);
+                                 outputParams, context.getPrePhaseElement());
 
         // check result and eventually throw error
 

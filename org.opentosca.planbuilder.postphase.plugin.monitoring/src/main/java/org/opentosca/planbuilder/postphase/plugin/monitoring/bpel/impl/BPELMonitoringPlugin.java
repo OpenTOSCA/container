@@ -63,7 +63,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
         }
 
         return context.executeOperation(nodeTemplate, this.monitoringInterfaceName, this.monitoringOperationName, null,
-                                        null, BPELScopePhaseType.POST);
+                                        null, context.getPostPhaseElement());
     }
 
     @Override
@@ -131,8 +131,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
         }
 
         this.invokerPlugin.handleArtifactReferenceUpload(deplArti.getArtifactRef().getArtifactReferences().get(0),
-                                                         context, sshIpVar, sshUserVar, sshKeyVar, infraNode,
-                                                         BPELScopePhaseType.PROVISIONING);
+                                                         context, sshIpVar, sshUserVar, sshKeyVar, infraNode, context.getProvisioningPhaseElement());
     }
 
     private AbstractDeploymentArtifact fetchConfigurationArtifact(final AbstractNodeTemplate nodeTemplate) {

@@ -17,6 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
+import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,8 @@ public class ResourceHandler {
   private final DocumentBuilderFactory docFactory;
   private final DocumentBuilder docBuilder;
 
+  private final BPELProcessFragments fragments;
+
   /**
    * Constructor
    *
@@ -49,6 +52,7 @@ public class ResourceHandler {
     this.docFactory.setNamespaceAware(true);
     this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
+    this.fragments = new BPELProcessFragments();
   }
 
   public Path touchNewTempFile(final Path file, final int id) throws IOException {
@@ -60,6 +64,47 @@ public class ResourceHandler {
 
     return tempFile;
   }
+
+  /**
+   * Generates a BPEL If activity that throws the given fault when the given expr evaluates to true at
+   * runtime
+   *
+   * @param xpath1Expr a XPath 1.0 expression as String
+   * @param faultQName a QName denoting the fault to be thrown when the if evaluates to true
+   * @return a Node containing a BPEL If Activity
+   * @throws IOException is thrown when reading internal files fails
+   * @throws SAXException is thrown when parsing internal files fails
+   */
+  public Node generateBPELIfTrueThrowFaultAsNode(final String xpath1Expr, final QName faultQName,
+                                                 final String faultVariableName) throws IOException, SAXException {
+    final String templateString = generateBPELIfTrueThrowFaultAsString(xpath1Expr, faultQName, faultVariableName);
+    return this.fragments.transformStringToNode(templateString);
+  }
+
+  /**
+   * Generates a BPEL If activity that throws the given fault when the given expr evaluates to true at
+   * runtime
+   *
+   * @param xpath1Expr a XPath 1.0 expression as String
+   * @param faultQName a QName denoting the fault to be thrown when the if evaluates to true
+   * @return a String containing a BPEL If Activity
+   * @throws IOException is thrown when reading internal files fails
+   */
+  public String generateBPELIfTrueThrowFaultAsString(final String xpath1Expr,
+                                                     final QName faultQName, String faultVariableName) throws IOException {
+    // <!-- $xpath1Expr, $faultPrefix, $faultNamespace, $faultLocalName-->
+    String bpelIfString = ResourceAccess.readResourceAsString(BPELProcessFragments.class.getClassLoader().getResource("ifFaultMessageThrowFault.xml"));
+
+    bpelIfString = bpelIfString.replace("$xpath1Expr", xpath1Expr);
+
+    bpelIfString = bpelIfString.replace("$faultPrefix", faultQName.getPrefix());
+    bpelIfString = bpelIfString.replace("$faultLocalName", faultQName.getLocalPart());
+    bpelIfString = bpelIfString.replace("$faultNamespace", faultQName.getNamespaceURI());
+    bpelIfString = bpelIfString.replace("$faultVariable", faultVariableName);
+
+    return bpelIfString;
+  }
+
 
   /**
    * Generates a BPEL Copy element to use in BPEL Assigns, which sets the WS-Addressing ReplyTo

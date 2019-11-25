@@ -21,6 +21,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
+import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -980,18 +981,25 @@ public class BPELPlanHandler {
     final Map<AbstractActivity, BPELScope> abstract2bpelMap = new HashMap<>();
 
     for (final AbstractActivity activity : plan.getActivites()) {
+      BPELScope newEmpty3SequenceScopeBPELActivity = null;
       if (activity instanceof NodeTemplateActivity) {
         final NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
-        final BPELScope newEmpty3SequenceScopeBPELActivity =
-          this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan);
+        newEmpty3SequenceScopeBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "");
         plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
         abstract2bpelMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);
+
+        BPELScope newCompensationHandlerScope =
+          this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "compensation");
+        newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
       } else if (activity instanceof RelationshipTemplateActivity) {
         final RelationshipTemplateActivity rtActivity = (RelationshipTemplateActivity) activity;
-        final BPELScope newEmpty3SequenceScopeBPELActivity =
-          this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan);
+        newEmpty3SequenceScopeBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "");
         plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
         abstract2bpelMap.put(rtActivity, newEmpty3SequenceScopeBPELActivity);
+
+        BPELScope newCompensationHandlerScope =
+          this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "compensation");
+        newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
       }
     }
 
@@ -1070,9 +1078,11 @@ public class BPELPlanHandler {
     // initialize processElement and append to document
     newBuildPlan.setBpelProcessElement(newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
       "process"));
+    newBuildPlan.getBpelProcessElement().setAttribute("suppressJoinFailure", "no");
+
     newBuildPlan.getBpelDocument().appendChild(newBuildPlan.getBpelProcessElement());
 
-    // FIXME declare xml schema namespace
+    // declare xml schema namespace
     newBuildPlan.getBpelProcessElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xsd",
       "http://www.w3.org/2001/XMLSchema");
 
@@ -1093,13 +1103,10 @@ public class BPELPlanHandler {
 
     newBuildPlan.getBpelProcessElement().appendChild(newBuildPlan.getBpelFaultHandlersElement());
 
-    Element catchAll = newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
-      "catchAll");
-    Element errorScope = newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
-      "sequence");
+    Element catchAll = newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "catchAll");
+    Element errorScope = newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "sequence");
 
-    errorScope.appendChild(newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
-      "empty"));
+    errorScope.appendChild(newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty"));
     catchAll.appendChild(errorScope);
 
     newBuildPlan.getBpelFaultHandlersElement().appendChild(catchAll);
@@ -1143,6 +1150,9 @@ public class BPELPlanHandler {
     // init and append main sequence flow element to main sequence element
     newBuildPlan.setBpelMainFlowElement(newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
       "flow"));
+
+    newBuildPlan.getBpelMainFlowElement().setAttribute("suppressJoinFailure", "no");
+
     newBuildPlan.getBpelMainSequenceElement().appendChild(newBuildPlan.getBpelMainFlowElement());
 
     // init and append flow links element

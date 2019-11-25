@@ -10,6 +10,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.ansibleoperation.bpel.handler.BPELAnsibleOperationPluginHandler;
 import org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core.AnsibleOperationPlugin;
+import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -45,8 +46,7 @@ public class BPELAnsibleOperationPlugin extends AnsibleOperationPlugin<BPELPlanC
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final BPELScopePhaseType phase) {
+                          final Map<AbstractParameter, Variable> param2propertyMapping, Element elementToAppendTo) {
         // TODO Auto-generated method stub
         return false;
     }
@@ -64,8 +64,7 @@ public class BPELAnsibleOperationPlugin extends AnsibleOperationPlugin<BPELPlanC
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
                           final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          final BPELScopePhaseType phase) {
+                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo) {
         // TODO Auto-generated method stub
         return false;
     }

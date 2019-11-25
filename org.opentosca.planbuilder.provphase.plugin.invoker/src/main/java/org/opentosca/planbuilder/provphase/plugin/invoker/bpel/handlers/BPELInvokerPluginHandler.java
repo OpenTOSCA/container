@@ -38,6 +38,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -235,14 +236,14 @@ public class BPELInvokerPluginHandler {
 
 
     return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
-      internalExternalPropsInput, internalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
+      internalExternalPropsInput, internalExternalPropsOutput, context.getProvisioningPhaseElement());
   }
 
   public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
                         final String operationName, final String interfaceName,
                         final Map<String, Variable> internalExternalPropsInput,
                         final Map<String, Variable> internalExternalPropsOutput,
-                        final BPELScopePhaseType appendToPrePhase) throws IOException {
+                        Element elementToAppendTo) throws IOException {
     final Path xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
     final Path wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
     // register wsdls and xsd
@@ -364,17 +365,7 @@ public class BPELInvokerPluginHandler {
       messageIdInit = context.importNode(messageIdInit);
       assignNode.appendChild(messageIdInit);
 
-      switch (appendToPrePhase) {
-        case PRE:
-          context.getPrePhaseElement().appendChild(assignNode);
-          break;
-        case PROVISIONING:
-          context.getProvisioningPhaseElement().appendChild(assignNode);
-          break;
-        case POST:
-          context.getPostPhaseElement().appendChild(assignNode);
-          break;
-      }
+      elementToAppendTo.appendChild(assignNode);
 
     } catch (final SAXException e) {
       LOG.error("Couldn't generate DOM node for the request message assign element", e);
@@ -404,17 +395,7 @@ public class BPELInvokerPluginHandler {
       correlationSetsNode = context.importNode(correlationSetsNode);
       invokeNode.appendChild(correlationSetsNode);
 
-      switch (appendToPrePhase) {
-        case PRE:
-          context.getPrePhaseElement().appendChild(invokeNode);
-          break;
-        case PROVISIONING:
-          context.getProvisioningPhaseElement().appendChild(invokeNode);
-          break;
-        case POST:
-          context.getPostPhaseElement().appendChild(invokeNode);
-          break;
-      }
+      elementToAppendTo.appendChild(invokeNode);
     } catch (final SAXException e) {
       LOG.error("Error reading/writing XML File", e);
       return false;
@@ -434,17 +415,7 @@ public class BPELInvokerPluginHandler {
       correlationSetsNode = context.importNode(correlationSetsNode);
       receiveNode.appendChild(correlationSetsNode);
 
-      switch (appendToPrePhase) {
-        case PRE:
-          context.getPrePhaseElement().appendChild(receiveNode);
-          break;
-        case PROVISIONING:
-          context.getProvisioningPhaseElement().appendChild(receiveNode);
-          break;
-        case POST:
-          context.getPostPhaseElement().appendChild(receiveNode);
-          break;
-      }
+      elementToAppendTo.appendChild(receiveNode);
     } catch (final SAXException e1) {
       LOG.error("Error reading/writing XML File", e1);
       return false;
@@ -453,29 +424,19 @@ public class BPELInvokerPluginHandler {
       return false;
     }
 
+    Node responseAssignNode = null;
     // process response message
     // add assign for response
     try {
 
-      Node responseAssignNode =
+      responseAssignNode =
         this.resHandler.generateResponseAssignAsNode(responseVariableName, OutputMessagePartName,
           internalExternalPropsOutput,
           "assign_" + responseVariableName, OutputMessageId,
           context.getPlanResponseMessageName(), "payload");
-      LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
       responseAssignNode = context.importNode(responseAssignNode);
 
-      switch (appendToPrePhase) {
-        case PRE:
-          context.getPrePhaseElement().appendChild(responseAssignNode);
-          break;
-        case PROVISIONING:
-          context.getProvisioningPhaseElement().appendChild(responseAssignNode);
-          break;
-        case POST:
-          context.getPostPhaseElement().appendChild(responseAssignNode);
-          break;
-      }
+      elementToAppendTo.appendChild(responseAssignNode);
 
     } catch (final SAXException e) {
       LOG.error("Error reading/writing XML File", e);
@@ -485,13 +446,33 @@ public class BPELInvokerPluginHandler {
       return false;
     }
 
+    try {
+      Node checkForFault =
+        this.resHandler.generateBPELIfTrueThrowFaultAsNode("boolean($" + responseVariableName
+            + "//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\"Fault\"])",
+          new QName(
+            "http://opentosca.org/plans/invocationfault",
+            templateId + "_" + interfaceName + "_"
+              + operationName,
+            "fault" + String.valueOf(System.currentTimeMillis())), responseVariableName);
+
+      checkForFault = context.importNode(checkForFault);
+      elementToAppendTo.insertBefore(checkForFault, responseAssignNode);
+
+      //elementToAppendTo.appendChild(checkForFault);
+    }
+    catch (SAXException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
+
     return true;
   }
 
   public boolean handle(final BPELPlanContext context, final String operationName, final String interfaceName,
                         final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput,
                         final Map<String, Variable> internalExternalPropsOutput,
-                        final BPELScopePhaseType appendToPrePhase) throws Exception {
+                        final Element elementToAppendTo) throws Exception {
 
     // fetch "meta"-data for invoker message (e.g. csarid, nodetemplate id..)
     boolean isNodeTemplate = true;
@@ -503,7 +484,7 @@ public class BPELInvokerPluginHandler {
       isNodeTemplate = false;
     }
     return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
-      internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
+      internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
   }
 
   private List<String> getRunScriptParams(final AbstractNodeTemplate nodeTemplate) {
@@ -542,7 +523,7 @@ public class BPELInvokerPluginHandler {
                                                final BPELPlanContext templateContext, final PropertyVariable serverIp,
                                                final PropertyVariable sshUser, final PropertyVariable sshKey,
                                                final AbstractNodeTemplate infraTemplate,
-                                               final BPELScopePhaseType appendToPrePhase) throws Exception {
+                                               final Element elementToAppendTo) throws Exception {
     LOG.debug("Handling DA " + ref.getReference());
 
     if (Objects.isNull(serverIp)) {
@@ -578,17 +559,7 @@ public class BPELInvokerPluginHandler {
           containerAPIAbsoluteURIVar.getVariableName());
       assignNode = templateContext.importNode(assignNode);
 
-      switch (appendToPrePhase) {
-        case PRE:
-          templateContext.getPrePhaseElement().appendChild(assignNode);
-          break;
-        case PROVISIONING:
-          templateContext.getProvisioningPhaseElement().appendChild(assignNode);
-          break;
-        case POST:
-          templateContext.getPostPhaseElement().appendChild(assignNode);
-          break;
-      }
+      elementToAppendTo.appendChild(assignNode);
     } catch (final IOException e) {
       LOG.error("Couldn't read internal file", e);
       return false;
@@ -619,7 +590,7 @@ public class BPELInvokerPluginHandler {
           runScriptRequestInputParams.put(serverIp.getPropertyName(), serverIp);
         }
         this.handle(templateContext, infraTemplate.getId(), true, "runScript", "ContainerManagementInterface",
-          runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
+          runScriptRequestInputParams, new HashMap<String, Variable>(), elementToAppendTo);
 
         // transfer the file
         if (transferFileInputParams.contains(serverIp.getPropertyName())) {
@@ -628,7 +599,7 @@ public class BPELInvokerPluginHandler {
         this.handle(templateContext, infraTemplate.getId(), true,
           Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
           "ContainerManagementInterface", transferFileRequestInputParams,
-          new HashMap<String, Variable>(), appendToPrePhase);
+          new HashMap<String, Variable>(), elementToAppendTo);
         break;
       case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
       case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
@@ -644,7 +615,7 @@ public class BPELInvokerPluginHandler {
         }
         this.handle(templateContext, infraTemplate.getId(), true, "runScript",
           Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
-          new HashMap<String, Variable>(), appendToPrePhase);
+          new HashMap<String, Variable>(), elementToAppendTo);
 
         // transfer the file
         if (transferFileInputParams.contains(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)) {
@@ -659,7 +630,7 @@ public class BPELInvokerPluginHandler {
         this.handle(templateContext, infraTemplate.getId(), true,
           Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
           Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, transferFileRequestInputParams,
-          new HashMap<String, Variable>(), appendToPrePhase);
+          new HashMap<String, Variable>(), elementToAppendTo);
         break;
       default:
         return false;

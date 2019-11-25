@@ -256,10 +256,12 @@ public class BPELPlanContext extends PlanContext {
   public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType... activityType) {
     LOG.debug("Trying to create {} plan context for nodeTemplate {}", activityType, nodeTemplate);
     for (BPELScope scope : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
-      if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate) && Arrays.asList(activityType).contains(scope.getActivity().getType())) {
+      if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate)
+        && Arrays.asList(activityType).contains(scope.getActivity().getType())) {
         LOG.debug("Found scope of nodeTemplate");
-        return new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName,
-          this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.csarFileName);
+        return new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate,
+          this.serviceInstanceURLVarName, this.serviceInstanceIDVarName, this.serviceTemplateURLVarName,
+          this.csarFileName);
       }
     }
     return null;
@@ -316,8 +318,8 @@ public class BPELPlanContext extends PlanContext {
 
     // create context from this context and set the given nodeTemplate as
     // the node for the scope
-    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan,this.templateBuildPlan, this.propertyMap,
-      this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan,this.templateBuildPlan,
+      this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
       this.serviceTemplateURLVarName, this.csarFileName);
 
     context.templateBuildPlan.setNodeTemplate(nodeTemplate);
@@ -469,8 +471,8 @@ public class BPELPlanContext extends PlanContext {
     final AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
     final AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
 
-    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan,this.templateBuildPlan, this.propertyMap,
-      this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan,this.templateBuildPlan,
+      this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
       this.serviceTemplateURLVarName, this.csarFileName);
 
     context.templateBuildPlan.setNodeTemplate(null);
@@ -488,7 +490,7 @@ public class BPELPlanContext extends PlanContext {
                                   final String operationName,
                                   final Map<AbstractParameter, Variable> param2propertyMapping,
                                   final Map<AbstractParameter, Variable> param2propertyOutputMapping,
-                                  final BPELScopePhaseType phase) {
+                                  final Element elementToAppendTo) {
     final OperationChain chain = scopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
     if (chain == null) {
       return false;
@@ -507,8 +509,8 @@ public class BPELPlanContext extends PlanContext {
 
     // create context from this context and set the given nodeTemplate as
     // the node for the scope
-    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan, this.propertyMap,
-      this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
+      this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
       this.serviceTemplateURLVarName, this.csarFileName);
 
     context.templateBuildPlan.setNodeTemplate(nodeTemplate);
@@ -520,9 +522,10 @@ public class BPELPlanContext extends PlanContext {
     if (param2propertyMapping == null) {
       chain.executeOperationProvisioning(context, opNames);
     } else if (param2propertyOutputMapping == null) {
-      chain.executeOperationProvisioning(context, opNames, param2propertyMapping, phase);
+      chain.executeOperationProvisioning(context, opNames, param2propertyMapping, elementToAppendTo);
     } else {
-      chain.executeOperationProvisioning(context, opNames, param2propertyMapping, param2propertyOutputMapping, phase);
+      chain.executeOperationProvisioning(context, opNames, param2propertyMapping, param2propertyOutputMapping,
+        elementToAppendTo);
     }
 
     // re-set the orginal configuration of the templateBuildPlan
@@ -556,8 +559,8 @@ public class BPELPlanContext extends PlanContext {
 
     // create context from this context and set the given nodeTemplate as
     // the node for the scope
-    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan, this.propertyMap,
-      this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+    final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
+      this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
       this.serviceTemplateURLVarName, this.csarFileName);
 
     context.templateBuildPlan.setNodeTemplate(nodeTemplate);
@@ -617,6 +620,15 @@ public class BPELPlanContext extends PlanContext {
    */
   public Element getProvisioningPhaseElement() {
     return this.templateBuildPlan.getBpelSequenceProvisioningPhaseElement();
+  }
+
+  /**
+   * Returns the Provisioning Phase Sequence Element of the Compensation scope of this context
+   *
+   * @return an Element which is a bpel sequence
+   */
+  public Element getProvisioningCompensationPhaseElement() {
+    return this.templateBuildPlan.getBpelCompensationHandlerScope().getBpelSequenceProvisioningPhaseElement();
   }
 
   /**
@@ -688,7 +700,8 @@ public class BPELPlanContext extends PlanContext {
     boolean check = true;
 
     // here we set the qname with namespace of the plan "ba.example"
-    final QName partnerType = new QName(this.templateBuildPlan.getBuildPlan().getProcessNamespace(), partnerLinkType, "tns");
+    final QName partnerType =
+      new QName(this.templateBuildPlan.getBuildPlan().getProcessNamespace(), partnerLinkType, "tns");
     check &= addPLtoDeploy(partnerLinkName, partnerLinkType);
     check &= this.bpelTemplateHandler.addPartnerLink(partnerLinkName, partnerType, myRole, partnerRole,
       initializePartnerRole, this.templateBuildPlan);

@@ -741,6 +741,16 @@ public class NodeRelationInstanceVariablesHandler {
             templateMainScopeNode.removeChild(correlationSets);
 
         }
+        
+        if(((Element) templateMainScopeNode).getElementsByTagName("compensationHandler").getLength() != 0) {
+            final Element compensationHandler = (Element) ((Element) templateMainScopeNode).getElementsByTagName("compensationHandler").item(0);
+            
+            final Node cloneCompensationHandler = compensationHandler.cloneNode(true);
+            
+            forEachScopeElement.appendChild(cloneCompensationHandler);
+            templateMainScopeNode.removeChild(compensationHandler);
+        }
+        
         final Element sequenceElement = context.createElement(BPELPlan.bpelNamespace, "sequence");
 
         sequenceElement.appendChild(context.importNode(context.getPrePhaseElement().cloneNode(true)));

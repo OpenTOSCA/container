@@ -13,10 +13,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.w3c.dom.Element;
 
 public class ContainerPatternBasedHandler extends PatternBasedHandler {
 
-    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
 
         final AbstractNodeTemplate hostingContainer = getHostingNode(nodeTemplate);
 
@@ -25,10 +26,10 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
 
         final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
-        return invokeWithMatching(context, hostingContainer, iface, createOperation, nodesForMatching);
+        return invokeWithMatching(context, hostingContainer, iface, createOperation, nodesForMatching, elementToAppendTo);
     }
 
-    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
 
         final AbstractNodeTemplate hostingContainer = getHostingNode(nodeTemplate);
 
@@ -37,7 +38,7 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
 
         final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
-        return invokeWithMatching(context, hostingContainer, iface, terminateOperation, nodesForMatching);
+        return invokeWithMatching(context, hostingContainer, iface, terminateOperation, nodesForMatching, elementToAppendTo);
     }
 
     public boolean isProvisionableByContainerPattern(final AbstractNodeTemplate nodeTemplate) {

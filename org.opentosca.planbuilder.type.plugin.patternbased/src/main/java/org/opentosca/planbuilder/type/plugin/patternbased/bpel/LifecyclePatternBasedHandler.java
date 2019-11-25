@@ -13,10 +13,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.w3c.dom.Element;
 
 public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
-    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
 
         AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
 
@@ -29,23 +30,23 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
         if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate)) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching,elementToAppendTo);
         }
 
         if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate)) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching,elementToAppendTo);
         }
 
         if (((op = this.getLifecyclePatternStartMethod(nodeTemplate)) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching,elementToAppendTo);
         }
 
         return result;
     }
 
-    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
 
         AbstractInterface iface = this.getLifecyclePatternInterface(nodeTemplate);
 
@@ -56,12 +57,12 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
         if (((op = this.getLifecyclePatternStopMethod(nodeTemplate)) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
         }
 
         if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate)) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching);
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
         }
 
         return result;
