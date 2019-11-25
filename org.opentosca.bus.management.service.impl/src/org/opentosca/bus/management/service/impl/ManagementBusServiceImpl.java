@@ -981,7 +981,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
 
         if (!(exchange.getIn().getBody() instanceof HashMap)) {
-            LOG.error("Message to notify partner with Correlation ID {}, CSARID {} and ServiceTemplate ID {} contains not parameters. Aborting!");
+            LOG.error("Message to notify partner with Correlation ID {}, CSARID {} and ServiceTemplate ID {} contains no parameters. Aborting!",
+                      correlationID, csarID, serviceTemplateID);
             return;
         }
 

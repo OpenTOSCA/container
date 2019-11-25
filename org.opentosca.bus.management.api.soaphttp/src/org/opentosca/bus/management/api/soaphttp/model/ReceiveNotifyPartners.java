@@ -16,12 +16,12 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * Java class for ReceiveNotifyFromBus complex type.
+ * Java class for ReceiveNotifyPartners complex type.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "receiveNotifyFromBus", propOrder = {"planCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
-                                                     "serviceTemplateIDLocalPart", "messageID", "params", "doc"})
-public class ReceiveNotifyFromBus {
+@XmlType(name = "receiveNotifyPartners", propOrder = {"planCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
+                                                      "serviceTemplateIDLocalPart", "messageID", "params", "doc"})
+public class ReceiveNotifyPartners {
 
     @XmlElement(name = "PlanCorrelationID")
     protected String planCorrelation;
