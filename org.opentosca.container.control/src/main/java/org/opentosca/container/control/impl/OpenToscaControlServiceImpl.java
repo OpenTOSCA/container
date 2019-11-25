@@ -21,10 +21,8 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
-import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.DeploymentTracker;
-import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
 import org.opentosca.container.engine.plan.IPlanEngineService;
@@ -42,21 +40,16 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
   private final IPlanEngineService planEngine;
   private final IPlanInvocationEngine planInvocationEngine;
   private final CsarStorageService storage;
-  // used only for instanceIdOfCorrelation
-  private final ICSARInstanceManagementService instanceManagement;
 
   @Inject
   public OpenToscaControlServiceImpl(DeploymentTracker deploymentTracker,
                                      IPlanEngineService planEngine,
                                      IPlanInvocationEngine planInvocationEngine,
-                                     CsarStorageService storage,
-                                     ICSARInstanceManagementService instanceManagement) {
+                                     CsarStorageService storage) {
     this.deploymentTracker = deploymentTracker;
     this.planEngine = planEngine;
     this.planInvocationEngine = planInvocationEngine;
     this.storage = storage;
-
-    this.instanceManagement = instanceManagement;
   }
 
   @Override
@@ -107,9 +100,10 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
 
   @Override
   public String invokePlanInvocation(CsarId csarId, TServiceTemplate serviceTemplate, long instanceId,
-                                     TPlanDTO plan) throws UnsupportedEncodingException {
+                                     TPlanDTO plan) {
     LOGGER.info("Invoking Plan [{}]", plan.getName());
-    final String correlationId = planInvocationEngine.invokePlan(csarId, serviceTemplate, instanceId, plan);
+    final String correlationId = planInvocationEngine.createCorrelationId();
+    planInvocationEngine.invokePlan(csarId, serviceTemplate, instanceId, plan, correlationId);
     if (correlationId != null) {
       LOGGER.info("Plan Invocation was sucessful.");
     } else {
@@ -147,25 +141,6 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
   @Override
   public DeploymentProcessState currentDeploymentProcessState(CsarId csar) {
     return deploymentTracker.getDeploymentState(csar);
-  }
-
-  @Override
-  // FIXME investigate why old ControlService sometimes took long instanceIds
-  public List<String> correlationsForServiceTemplateInstance(CsarId csar, TServiceTemplate serviceTemplate,
-                                                             long instanceId) {
-    return planInvocationEngine.getActiveCorrelationsOfInstance(new ServiceTemplateInstanceID(csar, new QName(serviceTemplate.getId()), (int) instanceId));
-  }
-
-  @Override
-  public TPlanDTO getActivePlanOfInstance(CsarId csar, ServiceTemplateId serviceTemplate, long instanceId,
-                                          String correlationId) {
-    final ServiceTemplateInstanceID stInstanceId = new ServiceTemplateInstanceID(csar, serviceTemplate.getQName(), (int) instanceId);
-    return planInvocationEngine.getActivePublicPlanOfInstance(stInstanceId, correlationId);
-  }
-
-  @Override
-  public long instanceIdOfCorrelation(String correlationId) {
-    return instanceManagement.getInstanceForCorrelation(correlationId).getInstanceID();
   }
 
   @Override

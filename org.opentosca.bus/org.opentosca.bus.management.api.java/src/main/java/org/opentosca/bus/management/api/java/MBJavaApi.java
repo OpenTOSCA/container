@@ -28,7 +28,6 @@ import org.opentosca.container.core.engine.management.IManagementBus;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.next.model.*;
-import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.SituationRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.tosca.convention.Types;
@@ -88,8 +87,10 @@ public class MBJavaApi implements IManagementBus {
     LOG.info("Starting direct Java invocation API for Management Bus");
   }
 
-  private ConsumerTemplate invokePlan(String operationName, String messageID, boolean async, String serviceInstanceID,
-                                      Object message, CsarId csarId, QName planID, String planLanguage) {
+  private ConsumerTemplate invokePlan(final String operationName, final String messageID, final boolean async,
+                                      final Long serviceInstanceID, final QName serviceTemplateID,
+                                      final Object message, final CsarId csarId, final QName planID,
+                                      final String planLanguage) {
     LOG.debug("Plan invocation is asynchronous: {}", async);
 
     // create the headers for the Exchange which is send to the Management Bus
@@ -98,6 +99,7 @@ public class MBJavaApi implements IManagementBus {
     headers.put(MBHeader.PLANID_QNAME.toString(), planID);
     headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
     headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), messageID);
+    headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
     // FIXME considering that this is constant, we bind to the bean directly.
     // Is this used downstream?
     headers.put("OPERATION", ExposedManagementBusOperations.INVOKE_PLAN.getHeaderValue());
@@ -109,7 +111,7 @@ public class MBJavaApi implements IManagementBus {
       if (serviceInstanceID != null) {
         URI serviceInstanceURI;
         try {
-          serviceInstanceURI = new URI(serviceInstanceID);
+          serviceInstanceURI = new URI(serviceInstanceID.toString());
           headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
         } catch (final URISyntaxException e) {
           LOG.warn("Could not generate service instance URL: {}", e.getMessage(), e);
@@ -138,7 +140,7 @@ public class MBJavaApi implements IManagementBus {
   }
 
   @Override
-  public void invokePlan(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback) {
+  public void invokePlan(Map<String, Object> eventValues) {
     final String planLanguage = (String) eventValues.get("PLANLANGUAGE");
     if (!planLanguage.startsWith(BPMNNS) && !planLanguage.startsWith(BPELNS)) {
       LOG.warn("Unsupported plan language: {}", planLanguage);
@@ -160,38 +162,18 @@ public class MBJavaApi implements IManagementBus {
     // Should be of type Document or HashMap<String, String>. Maybe better handle them
     // with different topics.
     // final Object message = eventValues.get("BODY");
-    final Map<String, String> inputParameter = (Map<String, String>) eventValues.get("INPUTS");
+    @SuppressWarnings("unchecked")
+    Map<String, String> inputParameter = (Map<String, String>) eventValues.get("INPUTS");
+    if (inputParameter == null) {
+      inputParameter = new HashMap<>();
+    }
 
-    Map<String, String> message = createRequestBody(csarID, serviceTemplateID.toString(), serviceInstanceID, inputParameter, messageID);
+    final Map<String, String> message = createRequestBody(csarID, serviceTemplateID.toString(), serviceInstanceID, inputParameter, messageID);
 
-    ConsumerTemplate consumer = invokePlan(operationName, messageID, async, serviceInstanceID.toString(), message, csarID, planID, planLanguage);
-
-    // set up response handling
-    executor.submit(() -> {
-      final Map<String, Object> responseMap = new HashMap<>();
-      responseMap.put("MESSAGEID", messageID);
-      responseMap.put("PLANLANGUAGE", planLanguage);
-      final Object responseBody;
-      try {
-        consumer.start();
-        responseBody = consumer.receive("direct:response" + messageID).getIn().getBody();
-      } catch (Exception e) {
-        LOG.warn("Receiving management bus internal plan invocation response failed with exception", e);
-        responseMap.put("EXCEPTION", e);
-        responseMap.put("RESPONSE", null);
-        responseCallback.accept(responseMap);
-        return;
-      } finally {
-        try {
-          consumer.stop();
-        } catch (Exception e) {
-          // swallow
-        }
-      }
-      LOG.debug("Passing direct response for request with id {} to callback.", messageID);
-      responseMap.put("RESPONSE", responseBody);
-      responseCallback.accept(responseMap);
-    });
+    // there is no necessity to set up response handling for the invocation,
+    // because the ManagementBus does the updating of outputs for us through the PlanInstanceHandler
+    invokePlan(operationName, messageID, async, serviceInstanceID,
+      serviceTemplateID, message, csarID, planID, planLanguage);
   }
 
   @Override
@@ -202,27 +184,28 @@ public class MBJavaApi implements IManagementBus {
 
   @Override
   public void situationAdaption(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback) {
-    LOG.debug("Received SituationAware Adapatioan Event");
-    ServiceTemplateInstance instance = (ServiceTemplateInstance) eventValues.get("SERVICEINSTANCE");
+    LOG.debug("Received SituationAware Adapation Event");
+    final ServiceTemplateInstance instance = (ServiceTemplateInstance) eventValues.get("SERVICEINSTANCE");
 
-    Map<String, Collection<Long>> nodeIds2situationIds = (Map<String, Collection<Long>>) eventValues.get("NODE2SITUATIONS");
+    @SuppressWarnings("unchecked")
+    final Map<String, Collection<Long>> nodeIds2situationIds = (Map<String, Collection<Long>>) eventValues.get("NODE2SITUATIONS");
 
-    AbstractTopologyTemplate topology =
+    final AbstractTopologyTemplate topology =
       importer.getMainDefinitions(instance.getCsarId().toOldCsarId()).getServiceTemplates().get(0).getTopologyTemplate();
 
-    ServiceTemplateInstanceConfiguration currentConfig =
-      this.getCurrentServiceTemplateInstanceConfiguration(topology, instance);
-    ServiceTemplateInstanceConfiguration targetConfig =
-      this.getValidServiceTemplateInstanceConfiguration(topology, nodeIds2situationIds);
+    final ServiceTemplateInstanceConfiguration currentConfig =
+      getCurrentServiceTemplateInstanceConfiguration(topology, instance);
+    final ServiceTemplateInstanceConfiguration targetConfig =
+      getValidServiceTemplateInstanceConfiguration(topology, nodeIds2situationIds);
 
-    Collection<String> currentConfigNodeIds =
+    final Collection<String> currentConfigNodeIds =
       currentConfig.nodeTemplates.stream().map(x -> x.getId()).collect(Collectors.toList());
-    Collection<String> currentConfigRelationIds =
+    final Collection<String> currentConfigRelationIds =
       currentConfig.relationshipTemplates.stream().map(x -> x.getId()).collect(Collectors.toList());
 
-    Collection<String> targetConfigNodeIds =
+    final Collection<String> targetConfigNodeIds =
       targetConfig.nodeTemplates.stream().map(x -> x.getId()).collect(Collectors.toList());
-    Collection<String> targetConfigRelationIds =
+    final Collection<String> targetConfigRelationIds =
       targetConfig.relationshipTemplates.stream().map(x -> x.getId()).collect(Collectors.toList());
 
     if (currentConfigNodeIds.equals(targetConfigNodeIds)
@@ -233,9 +216,9 @@ public class MBJavaApi implements IManagementBus {
 
 
 
-    WSDLEndpoint endpoint = this.getAdaptationPlanEndpoint(currentConfigNodeIds, currentConfigRelationIds,
+    final WSDLEndpoint endpoint = getAdaptationPlanEndpoint(currentConfigNodeIds, currentConfigRelationIds,
       targetConfigNodeIds, targetConfigRelationIds);
-    String correlationID = String.valueOf(System.currentTimeMillis());
+    final String correlationID = String.valueOf(System.currentTimeMillis());
     QName planId = null;
     PlanType planType = null;
     Map<String, String> inputs = null;
@@ -244,70 +227,54 @@ public class MBJavaApi implements IManagementBus {
       planId = endpoint.getPlanId();
       planType = PlanType.fromString(endpoint.getMetadata().get("PLANTYPE"));
 
-      inputs = new HashMap<String, String>();
+      inputs = new HashMap<>();
 
-      for (String input : this.toStringCollection(endpoint.getMetadata().get("INPUTS"), ",")) {
+      for (final String input : this.toStringCollection(endpoint.getMetadata().get("INPUTS"), ",")) {
         inputs.put(input, null);
       }
 
     } else {
       try {
         // FIXME the QName conversion of the instance is probably a bad idea
-        BPELPlan adaptationPlan =
+        final BPELPlan adaptationPlan =
           (BPELPlan) importer.generateAdaptationPlan(instance.getCsarId().toOldCsarId(), QName.valueOf(instance.getTemplateId()),
             currentConfigNodeIds, currentConfigRelationIds,
             targetConfigNodeIds, targetConfigRelationIds);
 
         planType = PlanType.fromString(adaptationPlan.getType().getString());
         inputs = this.createInput(adaptationPlan);
-        Path tempFile = Files.createTempFile(adaptationPlan.getId(), ".zip");
+        final Path tempFile = Files.createTempFile(adaptationPlan.getId(), ".zip");
         exporter.exportToPlanFile(tempFile.toUri(), adaptationPlan);
 
-        Map<String, String> endpointMetadata =
-          this.toEndpointMetadata(currentConfigNodeIds, currentConfigRelationIds, targetConfigNodeIds,
+        final Map<String, String> endpointMetadata =
+          toEndpointMetadata(currentConfigNodeIds, currentConfigRelationIds, targetConfigNodeIds,
             targetConfigRelationIds);
 
         endpointMetadata.put("PLANTYPE", planType.toString());
-        endpointMetadata.put("INPUTS", this.toCSV(inputs.keySet()));
+        endpointMetadata.put("INPUTS", toCSV(inputs.keySet()));
 
         planId = new QName(tempFile.getFileName().toString());
         bpelDeployPlugin.deployPlanFile(tempFile, instance.getCsarId(), planId, endpointMetadata);
       }
-      catch (SystemException e) {
+      catch (final SystemException e) {
         LOG.error("Internal error", e);
         return;
       }
-      catch (IOException e) {
+      catch (final IOException e) {
         LOG.error("Couldn't read files", e);
         return;
       }
-      catch (JAXBException e) {
+      catch (final JAXBException e) {
         LOG.error("Couldn't parse files", e);
         return;
       }
     }
 
-    Map<String, String> requestBody = this.createRequestBody(instance.getCsarId(), instance.getTemplateId(),
+    final Map<String, String> requestBody = createRequestBody(instance.getCsarId(), instance.getTemplateId(),
       instance.getId(), inputs, correlationID);
 
-
-    // Create a new instance
-    final PlanInstanceRepository repository = new PlanInstanceRepository();
-    final PlanInstance pi = new PlanInstance();
-    pi.setCorrelationId(correlationID);
-
-    pi.setLanguage(PlanLanguage.fromString(BPELNS));
-
-    pi.setType(planType);
-    pi.setState(PlanInstanceState.RUNNING);
-    pi.setTemplateId(planId);
-    pi.setServiceTemplateInstance(instance);
-    pi.setInputs(this.toPlanInstanceInputs(inputs));
-
-    repository.add(pi);
-
-
-    ConsumerTemplate consumer = this.invokePlan("adapt", correlationID, true, String.valueOf(instance.getId()),
+    // FIXME QName natural key replacement leftover!
+    final ConsumerTemplate consumer = invokePlan("adapt", correlationID, true, instance.getId(), QName.valueOf(instance.getTemplateId()),
       requestBody, instance.getCsarId(), planId, BPELNS);
 
     // Threaded reception of response
@@ -336,22 +303,20 @@ public class MBJavaApi implements IManagementBus {
       LOG.debug("Passing management bus response to callback");
       responseCallback.accept(responseMap);
     });
-
-    // importer.generateAdaptationPlan(instance.getCsarId().getFileName(), instance.getTemplateId(),
-    // sourceNodeTemplateIds, sourceRelationshipTemplateIds, targetNodeTemplateId,
-    // targetRelationshipTemplateId)
   }
 
-  private WSDLEndpoint getAdaptationPlanEndpoint(Collection<String> sourceNodeIDs,
-                                                 Collection<String> sourceRelationIDs,
-                                                 Collection<String> targetNodeIDs,
-                                                 Collection<String> targetRelationIDs) {
-    for (WSDLEndpoint endpoint : endpointService.getWSDLEndpoints()) {
-      Collection<String> sourceNodesMetadata = toStringCollection(endpoint.getMetadata().get("SOURCENODES"), ",");
-      Collection<String> sourceRelationsMetadata =
+  private WSDLEndpoint getAdaptationPlanEndpoint(final Collection<String> sourceNodeIDs,
+                                                 final Collection<String> sourceRelationIDs,
+                                                 final Collection<String> targetNodeIDs,
+                                                 final Collection<String> targetRelationIDs) {
+    for (final WSDLEndpoint endpoint : endpointService.getWSDLEndpoints()) {
+      final Collection<String> sourceNodesMetadata =
+        toStringCollection(endpoint.getMetadata().get("SOURCENODES"), ",");
+      final Collection<String> sourceRelationsMetadata =
         toStringCollection(endpoint.getMetadata().get("SOURCERELATIONS"), ",");
-      Collection<String> targetNodesMetadata = toStringCollection(endpoint.getMetadata().get("TARGETNODES"), ",");
-      Collection<String> targetRelationsMetadata =
+      final Collection<String> targetNodesMetadata =
+        toStringCollection(endpoint.getMetadata().get("TARGETNODES"), ",");
+      final Collection<String> targetRelationsMetadata =
         toStringCollection(endpoint.getMetadata().get("TARGETRELATIONS"), ",");
 
       if (sourceNodeIDs.equals(sourceNodesMetadata) && sourceRelationIDs.equals(sourceRelationsMetadata)
@@ -363,30 +328,30 @@ public class MBJavaApi implements IManagementBus {
     return null;
   }
 
-  private Map<String, String> toEndpointMetadata(Collection<String> sourceNodeIDs,
-                                                 Collection<String> sourceRelationIDs,
-                                                 Collection<String> targetNodeIDs,
-                                                 Collection<String> targetRelationIDs) {
-    Map<String, String> result = new HashMap<String, String>();
+  private Map<String, String> toEndpointMetadata(final Collection<String> sourceNodeIDs,
+                                                 final Collection<String> sourceRelationIDs,
+                                                 final Collection<String> targetNodeIDs,
+                                                 final Collection<String> targetRelationIDs) {
+    final Map<String, String> result = new HashMap<>();
 
-    result.put("SOURCENODES", this.toCSV(sourceNodeIDs));
-    result.put("SOURCERELATIONS", this.toCSV(sourceRelationIDs));
-    result.put("TARGETNODES", this.toCSV(targetNodeIDs));
-    result.put("TARGETRELATIONS", this.toCSV(targetRelationIDs));
+    result.put("SOURCENODES", toCSV(sourceNodeIDs));
+    result.put("SOURCERELATIONS", toCSV(sourceRelationIDs));
+    result.put("TARGETNODES", toCSV(targetNodeIDs));
+    result.put("TARGETRELATIONS", toCSV(targetRelationIDs));
 
     return result;
   }
 
-  private Collection<String> toStringCollection(String data, String separator) {
-    Collection<String> result = new ArrayList<String>();
+  private Collection<String> toStringCollection(final String data, final String separator) {
+    Collection<String> result = new ArrayList<>();
 
     if (data == null || data.isEmpty()) {
       return result;
     }
 
-    String[] split = data.split(separator);
+    final String[] split = data.split(separator);
 
-    for (String part : split) {
+    for (final String part : split) {
       if (part != null && !part.equals("") && !part.isEmpty()) {
         result.add(part);
       }
@@ -395,46 +360,44 @@ public class MBJavaApi implements IManagementBus {
     return result;
   }
 
-  private String toCSV(Collection<String> strings) {
+  private String toCSV(final Collection<String> strings) {
     return strings.stream().collect(Collectors.joining(","));
   }
 
-  private Set<PlanInstanceInput> toPlanInstanceInputs(Map<String, String> inputs) {
-    Set<PlanInstanceInput> result = new HashSet<PlanInstanceInput>();
+  private Set<PlanInstanceInput> toPlanInstanceInputs(final Map<String, String> inputs) {
+    final Set<PlanInstanceInput> result = new HashSet<>();
     inputs.forEach((key, value) -> result.add(new PlanInstanceInput(key, value, "string")));
     return result;
   }
 
-  private Map<String, String> createInput(BPELPlan plan) {
-    Collection<String> inputs = plan.getWsdl().getInputMessageLocalNames();
+  private Map<String, String> createInput(final BPELPlan plan) {
+    final Collection<String> inputs = plan.getWsdl().getInputMessageLocalNames();
 
-    Map<String, String> result = new HashMap<String, String>();
+    final Map<String, String> result = new HashMap<>();
 
-    for (String input : inputs) {
+    for (final String input : inputs) {
       result.put(input, null);
     }
 
     return result;
   }
 
-  private ServiceTemplateInstanceConfiguration getCurrentServiceTemplateInstanceConfiguration(AbstractTopologyTemplate topology,
-                                                                                              ServiceTemplateInstance instance) {
+  private ServiceTemplateInstanceConfiguration getCurrentServiceTemplateInstanceConfiguration(final AbstractTopologyTemplate topology,
+                                                                                              final ServiceTemplateInstance instance) {
 
-    Collection<AbstractNodeTemplate> currentlyRunningNodes = new HashSet<AbstractNodeTemplate>();
-    Collection<AbstractRelationshipTemplate> currentlyRunningRelations =
-      new HashSet<AbstractRelationshipTemplate>();
+    final Collection<AbstractNodeTemplate> currentlyRunningNodes = new HashSet<>();
+    final Collection<AbstractRelationshipTemplate> currentlyRunningRelations = new HashSet<>();
 
-    Collection<NodeTemplateInstanceState> validNodeState = new HashSet<NodeTemplateInstanceState>();
+    final Collection<NodeTemplateInstanceState> validNodeState = new HashSet<>();
     validNodeState.add(NodeTemplateInstanceState.STARTED);
     validNodeState.add(NodeTemplateInstanceState.CREATED);
     validNodeState.add(NodeTemplateInstanceState.CONFIGURED);
 
-    Collection<RelationshipTemplateInstanceState> validRelationState =
-      new HashSet<RelationshipTemplateInstanceState>();
+    final Collection<RelationshipTemplateInstanceState> validRelationState = new HashSet<>();
     validRelationState.add(RelationshipTemplateInstanceState.CREATED);
 
-    for (AbstractNodeTemplate node : topology.getNodeTemplates()) {
-      for (NodeTemplateInstance inst : instance.getNodeTemplateInstances()) {
+    for (final AbstractNodeTemplate node : topology.getNodeTemplates()) {
+      for (final NodeTemplateInstance inst : instance.getNodeTemplateInstances()) {
         if (inst.getTemplateId().equals(node.getId())
           && validNodeState.contains(inst.getState())) {
           currentlyRunningNodes.add(node);
@@ -442,8 +405,8 @@ public class MBJavaApi implements IManagementBus {
       }
     }
 
-    for (AbstractRelationshipTemplate relation : topology.getRelationshipTemplates()) {
-      for (RelationshipTemplateInstance inst : instance.getRelationshipTemplateInstances()) {
+    for (final AbstractRelationshipTemplate relation : topology.getRelationshipTemplates()) {
+      for (final RelationshipTemplateInstance inst : instance.getRelationshipTemplateInstances()) {
         if (inst.getTemplateId().equals(relation.getId()) && validRelationState.contains(inst.getState())) {
           currentlyRunningRelations.add(relation);
         }
@@ -453,26 +416,26 @@ public class MBJavaApi implements IManagementBus {
     return new ServiceTemplateInstanceConfiguration(currentlyRunningNodes, currentlyRunningRelations);
   }
 
-  private ServiceTemplateInstanceConfiguration getValidServiceTemplateInstanceConfiguration(AbstractTopologyTemplate topology,
-                                                                                            Map<String, Collection<Long>> nodeIds2situationIds) {
+  private ServiceTemplateInstanceConfiguration getValidServiceTemplateInstanceConfiguration(final AbstractTopologyTemplate topology,
+                                                                                            final Map<String, Collection<Long>> nodeIds2situationIds) {
 
 
-    Collection<AbstractNodeTemplate> validNodes = new ArrayList<AbstractNodeTemplate>();
-    Collection<AbstractRelationshipTemplate> validRelations = new ArrayList<AbstractRelationshipTemplate>();
+    final Collection<AbstractNodeTemplate> validNodes = new ArrayList<>();
+    final Collection<AbstractRelationshipTemplate> validRelations = new ArrayList<>();
 
-    for (AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-      Collection<AbstractPolicy> policies = this.getPolicies(Types.situationPolicyType, nodeTemplate);
+    for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
+      final Collection<AbstractPolicy> policies = getPolicies(Types.situationPolicyType, nodeTemplate);
       if (policies.isEmpty()) {
         validNodes.add(nodeTemplate);
-      } else if (this.isValidUnderSituations(nodeTemplate, nodeIds2situationIds)) {
+      } else if (isValidUnderSituations(nodeTemplate, nodeIds2situationIds)) {
         validNodes.add(nodeTemplate);
       }
     }
 
     // check if node set is deployable
-    Collection<AbstractNodeTemplate> deployableAndValidNodeSet =
-      this.getDeployableSubgraph(validNodes, nodeIds2situationIds);
-    for (AbstractRelationshipTemplate relations : topology.getRelationshipTemplates()) {
+    final Collection<AbstractNodeTemplate> deployableAndValidNodeSet =
+      getDeployableSubgraph(validNodes, nodeIds2situationIds);
+    for (final AbstractRelationshipTemplate relations : topology.getRelationshipTemplates()) {
       if (deployableAndValidNodeSet.contains(relations.getSource())
         & deployableAndValidNodeSet.contains(relations.getTarget())) {
         validRelations.add(relations);
@@ -482,18 +445,18 @@ public class MBJavaApi implements IManagementBus {
     return new ServiceTemplateInstanceConfiguration(deployableAndValidNodeSet, validRelations);
   }
 
-  private Collection<AbstractNodeTemplate> getDeployableSubgraph(Collection<AbstractNodeTemplate> nodeTemplates,
-                                                                 Map<String, Collection<Long>> nodeIds2situationIds) {
-    Set<AbstractNodeTemplate> validDeploymentSubgraph = new HashSet<AbstractNodeTemplate>(nodeTemplates);
-    Collection<AbstractNodeTemplate> toRemove = new HashSet<AbstractNodeTemplate>();
+  private Collection<AbstractNodeTemplate> getDeployableSubgraph(final Collection<AbstractNodeTemplate> nodeTemplates,
+                                                                 final Map<String, Collection<Long>> nodeIds2situationIds) {
+    final Set<AbstractNodeTemplate> validDeploymentSubgraph = new HashSet<>(nodeTemplates);
+    final Collection<AbstractNodeTemplate> toRemove = new HashSet<>();
 
-    for (AbstractNodeTemplate nodeTemplate : nodeTemplates) {
-      Collection<AbstractRelationshipTemplate> hostingRelations = this.getOutgoingHostedOnRelations(nodeTemplate);
+    for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
+      final Collection<AbstractRelationshipTemplate> hostingRelations = getOutgoingHostedOnRelations(nodeTemplate);
       if (!hostingRelations.isEmpty()) {
         // if we have hostedOn relations check if it is valid under the situation and is in the set
         boolean foundValidHost = false;
-        for (AbstractRelationshipTemplate relationshipTemplate : hostingRelations) {
-          AbstractNodeTemplate hostingNode = relationshipTemplate.getTarget();
+        for (final AbstractRelationshipTemplate relationshipTemplate : hostingRelations) {
+          final AbstractNodeTemplate hostingNode = relationshipTemplate.getTarget();
           if (this.isValidUnderSituations(hostingNode, nodeIds2situationIds)
             && nodeTemplates.contains(hostingNode)) {
             foundValidHost = true;
@@ -514,8 +477,8 @@ public class MBJavaApi implements IManagementBus {
     }
   }
 
-  private boolean isValidUnderSituations(AbstractNodeTemplate nodeTemplate,
-                                         Map<String, Collection<Long>> nodeIds2situationIds) {
+  private boolean isValidUnderSituations(final AbstractNodeTemplate nodeTemplate,
+                                         final Map<String, Collection<Long>> nodeIds2situationIds) {
     // check if the situation of the policy is active
     Collection<Long> situationIds = null;
 
@@ -525,20 +488,20 @@ public class MBJavaApi implements IManagementBus {
 
 
     boolean isValid = true;
-    for (Long sitId : situationIds) {
-      isValid &= this.isSituationActive(sitId);
+    for (final Long sitId : situationIds) {
+      isValid &= isSituationActive(sitId);
     }
     return isValid;
   }
 
-  private Collection<AbstractRelationshipTemplate> getOutgoingHostedOnRelations(AbstractNodeTemplate nodeTemplate) {
+  private Collection<AbstractRelationshipTemplate> getOutgoingHostedOnRelations(final AbstractNodeTemplate nodeTemplate) {
     return nodeTemplate.getOutgoingRelations().stream().filter(x -> x.getType().equals(Types.hostedOnRelationType))
       .collect(Collectors.toList());
   }
 
 
 
-  private Collection<AbstractPolicy> getPolicies(QName policyType, AbstractNodeTemplate nodeTemplate) {
+  private Collection<AbstractPolicy> getPolicies(final QName policyType, final AbstractNodeTemplate nodeTemplate) {
     return nodeTemplate.getPolicies().stream().filter(x -> x.getType().getId().equals(policyType)).collect(Collectors.toList());
   }
 
@@ -546,15 +509,15 @@ public class MBJavaApi implements IManagementBus {
     Collection<AbstractNodeTemplate> nodeTemplates;
     Collection<AbstractRelationshipTemplate> relationshipTemplates;
 
-    public ServiceTemplateInstanceConfiguration(Collection<AbstractNodeTemplate> nodes,
-                                                Collection<AbstractRelationshipTemplate> relations) {
+    public ServiceTemplateInstanceConfiguration(final Collection<AbstractNodeTemplate> nodes,
+                                                final Collection<AbstractRelationshipTemplate> relations) {
       this.nodeTemplates = nodes;
       this.relationshipTemplates = relations;
     }
   }
 
-  private boolean isSituationActive(Long situationId) {
-    return this.getSituationRepository().find(situationId).get().isActive();
+  private boolean isSituationActive(final Long situationId) {
+    return getSituationRepository().find(situationId).get().isActive();
   }
 
   private SituationRepository getSituationRepository() {
@@ -562,7 +525,7 @@ public class MBJavaApi implements IManagementBus {
   }
 
   private Map<String, String> createRequestBody(final CsarId csarID, final String serviceTemplateID,
-                                                Long serviceTemplateInstanceId,
+                                                final Long serviceTemplateInstanceId,
                                                 final Map<String, String> inputParameter, final String correlationID) {
 
     final Map<String, String> map = new HashMap<>();
@@ -570,7 +533,7 @@ public class MBJavaApi implements IManagementBus {
 
     LOG.trace("Processing a list of {} parameters", inputParameter.size());
     for (final String para : inputParameter.keySet()) {
-      String value = inputParameter.get(para);
+      final String value = inputParameter.get(para);
       LOG.trace("Put in the parameter {} with value \"{}\".", para, value);
       if (para.equalsIgnoreCase("CorrelationID")) {
         LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
@@ -583,9 +546,8 @@ public class MBJavaApi implements IManagementBus {
         map.put(para, serviceTemplateID.toString());
       } else if (para.equalsIgnoreCase("OpenTOSCAContainerAPIServiceInstanceURL")
         & serviceTemplateInstanceId != null) {
-        String serviceTemplateInstanceUrl = this.createServiceInstanceURI(csarID, serviceTemplateID, serviceTemplateInstanceId);
+        final String serviceTemplateInstanceUrl = createServiceInstanceURI(csarID, serviceTemplateID, serviceTemplateInstanceId);
         map.put(para, serviceTemplateInstanceUrl);
-        LOG.debug("Found OpenTOSCAContainerAPIServiceInstanceURL element! Put in STinstanceUrl \"{}\"", serviceTemplateInstanceUrl);
       } else if (para.equalsIgnoreCase("containerApiAddress")) {
         LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \""
           + Settings.CONTAINER_API_LEGACY + "\".");
@@ -617,7 +579,8 @@ public class MBJavaApi implements IManagementBus {
     return map;
   }
 
-  private String createServiceInstanceURI(CsarId csarId, String serviceTemplate, Long serviceTemplateInstanceId) {
+  private String createServiceInstanceURI(final CsarId csarId, final String serviceTemplate,
+                                          final Long serviceTemplateInstanceId) {
     String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + serviceTemplateInstanceId;
     url = url.replace("{csarid}", csarId.csarName());
     url = url.replace("{servicetemplateid}",

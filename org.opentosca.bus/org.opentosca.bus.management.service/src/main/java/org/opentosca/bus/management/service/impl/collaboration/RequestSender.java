@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
 import org.opentosca.bus.management.service.impl.collaboration.model.RemoteOperations;
 import org.apache.camel.ConsumerTemplate;
@@ -42,9 +43,9 @@ public class RequestSender {
   }
 
   /**
-   * Send an operation request to a remote OpenTOSCA Container node. All information needed for
-   * the remote operation that shall be executed has to be defined as header fields of the given
-   * message or passed as CollaborationMessage.
+   * Send an operation request to a remote OpenTOSCA Container node. All information needed for the
+   * remote operation that shall be executed has to be defined as header fields of the given message
+   * or passed as CollaborationMessage.
    *
    * @param message     the message containing the headers to send to the remote Container
    * @param operation   the operation to perform on the remote Container

@@ -1,13 +1,12 @@
 package org.opentosca.container.core.service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
 
 /**
@@ -16,7 +15,7 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
  */
 public interface IPlanInvocationEngine {
 
-  public String createCorrelationId(final CsarId csarID, final QName serviceTemplateId, long serviceTemplateInstanceID, final TPlanDTO givenPlan);
+  String createCorrelationId();
 
   /**
    * Invoke a PublicPlan for a CSAR. If this PublicPlan is of Type OTHERMANAGEMENT or TERMINATION, the
@@ -28,26 +27,8 @@ public interface IPlanInvocationEngine {
    * @return boolean about success
    * @throws UnsupportedEncodingException
    */
-  public void invokePlan(CsarId csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan, String correlationID) throws UnsupportedEncodingException;
+  void invokePlan(CsarId csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan, String correlationID);
 
-  public String invokePlan(CsarId csarID, TServiceTemplate serviceTemplate, long serviceTemplateInstanceID, TPlanDTO plan) throws UnsupportedEncodingException;
+  void invokePlan(CsarId csarId, TServiceTemplate serviceTemplate, long serviceTemplateInstanceId, TPlanDTO plan, String correlationId);
 
-  public void correctCorrelationToServiceTemplateInstanceIdMapping(CsarId csarID, QName serviceTemplateId, String corrId, int correctSTInstanceId);
-
-  /**
-   * Returns a list of CorrelationIDs of activce PublicPlans of a CSARInstance.
-   *
-   * @param csarInstanceID
-   * @return list of CorrelationIDs of active PublicPlans
-   */
-  public List<String> getActiveCorrelationsOfInstance(ServiceTemplateInstanceID csarInstanceID);
-
-  /**
-   * Returns a specific active PublicPlan.
-   *
-   * @param csarInstanceID
-   * @param correlationID
-   * @return PublicPlan
-   */
-  public TPlanDTO getActivePublicPlanOfInstance(ServiceTemplateInstanceID csarInstanceID, String correlationID);
 }

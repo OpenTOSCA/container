@@ -1,13 +1,16 @@
 package org.opentosca.container.core.next.trigger;
 
 //import java.io.UnsupportedEncodingException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 //import javax.inject.Inject;
+import javax.inject.Inject;
 import javax.persistence.PostPersist;
+import javax.xml.namespace.QName;
 //import javax.xml.namespace.QName;
 
 import org.glassfish.jersey.uri.UriComponent;
@@ -15,12 +18,18 @@ import org.opentosca.container.core.common.Settings;
 //import org.opentosca.container.core.engine.IToscaEngineService;
 //import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanInstanceEvent;
+import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.SituationTriggerInstance;
 //import org.opentosca.container.core.next.model.SituationTriggerInstanceProperty;
+import org.opentosca.container.core.next.model.SituationTriggerInstanceProperty;
 import org.opentosca.container.core.next.model.SituationTriggerProperty;
+import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.SituationTriggerInstanceRepository;
 //import org.opentosca.container.core.service.IPlanInvocationEngine;
+import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
 //import org.eclipse.winery.model.tosca.TPlan;
@@ -36,7 +45,6 @@ public class SituationTriggerInstanceListener {
     final SituationTriggerInstanceObserver obs = new SituationTriggerInstanceObserver(instance);
     SituationTriggerInstanceListener.obs.add(obs);
     new Thread(obs).start();
-    ;
   }
 
   private class SituationTriggerInstanceObserver implements Runnable {
@@ -45,16 +53,18 @@ public class SituationTriggerInstanceListener {
 
     private final SituationTriggerInstanceRepository repo = new SituationTriggerInstanceRepository();
 
-//    @Inject
-//    private final IPlanInvocationEngine planInvocEngine;
+    // FIXME we can't inject into the JPA-Managed listener, so we need to perform some kind of service lookup here
+    @Inject
+    private final IPlanInvocationEngine planInvocEngine;
 
-//    @Inject
-//    private final IToscaEngineService toscaEngine;
+    private final PlanInstanceRepository planRepository = new PlanInstanceRepository();
 
     private final SituationTriggerInstance instance;
 
     public SituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
       this.instance = instance;
+      // FIXME: deal with this mess
+      this.planInvocEngine = null;
     }
 
     @Override
@@ -106,39 +116,31 @@ public class SituationTriggerInstanceListener {
           }
         }
 
-//        try {
-//          final String correlationId =
-//            this.planInvocEngine.invokePlan(servInstance.getCsarId().toOldCsarId(), servInstance.getTemplateId(),
-//              servInstance.getId(), planDTO);
+        try {
+            final String correlationId = planInvocEngine.createCorrelationId();
+            // FIXME QName natural key migration to string leftover
+            planInvocEngine.invokePlan(servInstance.getCsarId(), QName.valueOf(servInstance.getTemplateId()),
+              servInstance.getId(), planDTO, correlationId);
 
-          // now wait for finished execution
-//          final ServiceTemplateInstanceID servInstanceId = new ServiceTemplateInstanceID(
-//            servInstance.getCsarId().toOldCsarId(), servInstance.getTemplateId(), servInstance.getId().intValue());
+            // now wait for finished execution
+          PlanInstance planInstance = planRepository.findByCorrelationId(correlationId);
+          while (!(planInstance.getState() == PlanInstanceState.FINISHED)
+           || planInstance.getState() == PlanInstanceState.FAILED) {
+            Thread.sleep(10000);
+            planInstance = planRepository.findByCorrelationId(correlationId);
+          }
 
-//          TPlanDTO runningPlan =
-//            this.planInvocEngine.getActivePublicPlanOfInstance(servInstanceId, correlationId);
+          // plan finished, write output to trigger instance
+          planInstance.getOutputs()
+            .forEach(x -> instance.getOutputs()
+              .add(new SituationTriggerInstanceProperty(x.getName(), x.getValue(), x.getType())));
 
-//          while (!isPlanExecutionFinished(runningPlan, correlationId)) {
-//            this.wait(10000);
-//            runningPlan = this.planInvocEngine.getActivePublicPlanOfInstance(servInstanceId, correlationId);
-//          }
-
-          // plan finished, write output to triggerinstance
-//          runningPlan.getOutputParameters().getOutputParameter()
-//            .forEach(x -> this.instance.getOutputs().add(new SituationTriggerInstanceProperty(
-//              x.getName(), x.getValue(), x.getType())));
-//
-//          this.instance.setFinished(true);
-//          this.repo.update(this.instance);
-//        } catch (final UnsupportedEncodingException | InterruptedException e) {
-//          throw new RuntimeException(e);
-//        }
+          instance.setFinished(true);
+          repo.update(instance);
+        } catch (final InterruptedException e) {
+          throw new RuntimeException(e);
+        }
       }
-    }
-
-    private boolean isPlanExecutionFinished(final TPlanDTO plan, final String correlationId) {
-      return plan.getOutputParameters().getOutputParameter().stream()
-        .anyMatch(param -> param.getName().equalsIgnoreCase("correlationid") && param.getValue().equals(correlationId));
     }
   }
 }

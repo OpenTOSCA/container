@@ -130,19 +130,15 @@ public class PlanService {
     enhanceInputParameters(csar, serviceTemplate, serviceTemplateInstanceId, parameters);
     dto.setInputParameters(parameters);
 
-    try {
-      final String correlationId = controlService.invokePlanInvocation(csar.id(), serviceTemplate,
-        serviceTemplateInstanceId,
-        PlanDTO.Converter.convert(dto));
-      if (PlanTypes.isPlanTypeURI(plan.getPlanType()).equals(PlanTypes.BUILD)
-        && Boolean.parseBoolean(Settings.OPENTOSCA_DEPLOYMENT_TESTS)) {
-        logger.debug("Plan \"{}\" is a build plan, so we schedule deployment tests...", plan.getName());
-        this.deploymentTestService.runAfterPlan(csar.id(), correlationId);
-      }
-      return correlationId;
-    } catch (final UnsupportedEncodingException e) {
-      throw new ServerErrorException(500, e);
+    final String correlationId = controlService.invokePlanInvocation(csar.id(), serviceTemplate,
+      serviceTemplateInstanceId,
+      PlanDTO.Converter.convert(dto));
+    if (PlanTypes.isPlanTypeURI(plan.getPlanType()).equals(PlanTypes.BUILD)
+      && Boolean.parseBoolean(Settings.OPENTOSCA_DEPLOYMENT_TESTS)) {
+      logger.debug("Plan \"{}\" is a build plan, so we schedule deployment tests...", plan.getName());
+      this.deploymentTestService.runAfterPlan(csar.id(), correlationId);
     }
+    return correlationId;
   }
 
   private void enhanceInputParameters(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, List<TParameter> parameters) {

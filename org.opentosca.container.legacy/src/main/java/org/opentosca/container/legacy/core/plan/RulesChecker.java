@@ -56,13 +56,13 @@ public class RulesChecker {
       return false;
     }
 
-    return checkRules(stWhiteRuleList, "white", csar, serviceTemplate, inputParameters)
-      && checkRules(stBlackRuleList, "black", csar, serviceTemplate, inputParameters);
+    return checkRules(stWhiteRuleList, "white", serviceTemplate, inputParameters)
+      && checkRules(stBlackRuleList, "black", serviceTemplate, inputParameters);
   }
 
   private boolean checkRules(final List<TServiceTemplate> stRuleList, final String ruleType,
-                                    final Csar csar, final TServiceTemplate serviceTemplate,
-                                    final InputParameters inputParameters) {
+                             final TServiceTemplate serviceTemplate,
+                             final InputParameters inputParameters) {
 
     for (final TServiceTemplate stRule : stRuleList) {
 

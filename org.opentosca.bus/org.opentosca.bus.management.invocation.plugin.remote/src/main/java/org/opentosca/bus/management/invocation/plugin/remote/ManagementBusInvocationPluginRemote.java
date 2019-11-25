@@ -13,7 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
-import org.opentosca.bus.management.service.impl.collaboration.Constants;
+import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.RequestSender;
 import org.opentosca.bus.management.service.impl.collaboration.model.BodyType;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
@@ -140,8 +140,8 @@ public class ManagementBusInvocationPluginRemote implements IManagementBusInvoca
    * IAInvocationRequest object.
    *
    * @param body the body of the exchange containing the invocation request
-   * @return IAInvocationRequest object with given parameters in the Doc or Params element, if
-   * input parameters are given as Hash Map or as Document.
+   * @return IAInvocationRequest object with given parameters in the Doc or Params element, if input
+   *  parameters are given as Hash Map or as Document.
    */
   private IAInvocationRequest parseBodyToInvocationRequest(final Object body) {
 

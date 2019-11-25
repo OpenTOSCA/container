@@ -59,14 +59,7 @@ public interface OpenToscaControlService {
   public String invokePlanInvocation(CsarId csar, QName serviceTemplateID, int instanceId, TPlanDTO plan) throws UnsupportedEncodingException;
 
   // FIXME evaluate using winery's TPlan instead
-  public String invokePlanInvocation(CsarId csar, TServiceTemplate serviceTemplate, long instanceId, TPlanDTO plan) throws UnsupportedEncodingException;
-
-  public List<String> correlationsForServiceTemplateInstance(CsarId csar, TServiceTemplate serviceTemplate, long instanceId);
-
-  // FIXME evaluate using winery's TPlan instead
-  public TPlanDTO getActivePlanOfInstance(CsarId csar, ServiceTemplateId serviceTemplate, long instanceId, String correlationId);
-
-  long instanceIdOfCorrelation(String correlationId);
+  public String invokePlanInvocation(CsarId csar, TServiceTemplate serviceTemplate, long instanceId, TPlanDTO plan);
 
   /**
    * @deprecated {@link #invokePlanDeployment(CsarId, TServiceTemplate)}
