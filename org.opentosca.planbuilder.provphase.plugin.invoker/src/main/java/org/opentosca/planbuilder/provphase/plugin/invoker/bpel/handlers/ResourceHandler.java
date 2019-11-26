@@ -93,7 +93,7 @@ public class ResourceHandler {
   public String generateBPELIfTrueThrowFaultAsString(final String xpath1Expr,
                                                      final QName faultQName, String faultVariableName) throws IOException {
     // <!-- $xpath1Expr, $faultPrefix, $faultNamespace, $faultLocalName-->
-    String bpelIfString = ResourceAccess.readResourceAsString(BPELProcessFragments.class.getClassLoader().getResource("ifFaultMessageThrowFault.xml"));
+    String bpelIfString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("invoker-plugin/ifFaultMessageThrowFault.xml"));
 
     bpelIfString = bpelIfString.replace("$xpath1Expr", xpath1Expr);
 
