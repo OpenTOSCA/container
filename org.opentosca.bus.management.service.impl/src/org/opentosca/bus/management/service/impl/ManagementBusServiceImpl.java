@@ -577,6 +577,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final QName planID = message.getHeader(MBHeader.PLANID_QNAME.toString(), QName.class);
         LOG.debug("planID: {}", planID);
 
+        final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
+        LOG.debug("OperationName: {}", operationName);
+
+        final Boolean callbackInvocation = message.getHeader(MBHeader.CALLBACK_BOOLEAN.toString(), Boolean.class);
+        LOG.debug("CallbackInvocation: {}", callbackInvocation);
+
+
         // get the ServiceTemplateInstance ID Long from the serviceInstanceID URI
         final Long serviceTemplateInstanceID = Util.determineServiceTemplateInstanceId(serviceInstanceID);
 
@@ -590,7 +597,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         PlanInstance plan = null;
         try {
             plan = PlanInstanceHandler.createPlanInstance(csarID, serviceTemplateID, serviceTemplateInstanceID, planID,
-                                                          correlationID, message.getBody());
+                                                          operationName, correlationID, message.getBody());
         }
         catch (final CorrelationIdAlreadySetException e) {
             LOG.warn(e.getMessage() + " Skipping the plan invocation!");
@@ -603,9 +610,24 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             LOG.debug("Getting endpoint for the plan...");
             ServiceHandler.endpointService.printPlanEndpoints();
-            final WSDLEndpoint WSDLendpoint =
-                ServiceHandler.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID,
-                                                                        plan.getTemplateId());
+            final List<WSDLEndpoint> WSDLendpoints =
+                ServiceHandler.endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID,
+                                                                         plan.getTemplateId());
+
+            // choose WSDL endpoint depending on the invokation of the invoker or callback port type
+            WSDLEndpoint WSDLendpoint = null;
+            if (Objects.isNull(callbackInvocation) || !callbackInvocation) {
+                WSDLendpoint =
+                    WSDLendpoints.stream()
+                                 .filter(endpoint -> !endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+                                 .findFirst().orElse(null);
+            } else {
+                LOG.debug("Invokation using callback.");
+                WSDLendpoint =
+                    WSDLendpoints.stream()
+                                 .filter(endpoint -> endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+                                 .findFirst().orElse(null);
+            }
 
             if (WSDLendpoint != null) {
 

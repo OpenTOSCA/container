@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -150,17 +152,25 @@ public class RequestProcessor implements Processor {
                                                                                            "OpenTOSCA-Lifecycle-Interface",
                                                                                            "initiate");
 
-            // create plan invocation request from given parameters
-            // TODO: create the body
+            // create the body for the receiveNotify request that must be send to the plan
+            final JAXBContext jc = JAXBContext.newInstance(ReceiveNotifyPartner.class);
+            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder db = dbf.newDocumentBuilder();
+            final Document document = db.newDocument();
+            final Marshaller marshaller = jc.createMarshaller();
+            marshaller.marshal(receiveNotifyRequest, document);
+            document.renameNode(document.getDocumentElement(), "http://siserver.org/schema", "receiveNotify");
+            exchange.getIn().setBody(document);
 
             // add required header fields for the bus
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
                                        receiveNotifyRequest.getPlanCorrelationID());
+            exchange.getIn().setHeader(MBHeader.CALLBACK_BOOLEAN.toString(), true);
             exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
             exchange.getIn().setHeader(MBHeader.CSARID.toString(), csar);
             exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
             exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), Activator.apiID);
-            exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), "initiate");
+            exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), "receiveNotify");
             exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
             return;
         }

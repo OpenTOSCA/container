@@ -51,15 +51,15 @@ public interface ICoreInternalEndpointService {
     public List<RESTEndpoint> getRestEndpoints(URI anyURI, String triggeringContainer, CSARID csarId);
 
     /**
-     * This method queries for a WSDLEndpoint identified by the given Container, CSARID and PlanId
+     * This method queries for a List of WSDLEndpoint identified by the given Container, CSARID and
+     * PlanId
      *
      * @param triggeringContainer Container where the CSAR identified by csarId resides
      * @param csarId an id of type CSARID
      * @param planId an id of type QName
-     * @return a WSDLEndpoint representing a Plan stored in the endpoint db or null if nothing was
-     *         found
+     * @return a WSDLEndpoint representing a Plan stored in the endpoint db or null if nothing was found
      */
-    public WSDLEndpoint getWSDLEndpointForPlanId(String triggeringContainer, CSARID csarId, QName planId);
+    public List<WSDLEndpoint> getWSDLEndpointsForPlanId(String triggeringContainer, CSARID csarId, QName planId);
 
     /**
      * This method stores a given RESTEndpoint object.
@@ -71,8 +71,8 @@ public interface ICoreInternalEndpointService {
     public void storeRESTEndpoint(RESTEndpoint endpoint);
 
     /**
-     * Removes all plan endpoints associated with the CSAR identified by the given OpenTOSCA
-     * Container host name and the given CSARID
+     * Removes all plan endpoints associated with the CSAR identified by the given OpenTOSCA Container
+     * host name and the given CSARID
      *
      * @param triggeringContainer the OpenTOSCA Container where the CSAR is deployed
      * @param csarId the CSARID whose plan endpoints should be removed
@@ -100,8 +100,8 @@ public interface ICoreInternalEndpointService {
      * @param triggeringContainer OpenTOSCA Container host name where the ServiceTemplateInstance
      *        identified by serviceTemplateInstanceID resides
      * @param serviceTemplateInstanceID an ID which identifies a ServiceTemplateInstance uniquely
-     * @return List of WSDLEndpoints of the given serviceTemplateInstanceID if min. one was found
-     *         else null
+     * @return List of WSDLEndpoints of the given serviceTemplateInstanceID if min. one was found else
+     *         null
      */
     public List<WSDLEndpoint> getWSDLEndpointsForSTID(String triggeringContainer, Long serviceTemplateInstanceID);
 

@@ -242,8 +242,13 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         }
 
         // get endpoint related to the plan and extract process definition ID from URI
-        final WSDLEndpoint endpoint =
-            this.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
+        final List<WSDLEndpoint> endpoints =
+            this.endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
+        if (endpoints.isEmpty()) {
+            LOG.error("No endpoints stored for plan ID {}!", planId);
+            return false;
+        }
+        final WSDLEndpoint endpoint = endpoints.get(0);
         final String[] endpointParts = endpoint.getURI().toString().split("/");
 
         if (endpointParts.length < 2) {

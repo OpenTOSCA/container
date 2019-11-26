@@ -34,7 +34,7 @@ public interface ICoreEndpointService {
     /**
      * @see ICoreInternalEndpointService#getWSDLEndpointForPlanId
      */
-    public WSDLEndpoint getWSDLEndpointForPlanId(String triggeringContainer, CSARID csarId, QName planId);
+    public List<WSDLEndpoint> getWSDLEndpointsForPlanId(String triggeringContainer, CSARID csarId, QName planId);
 
     /**
      * @see ICoreInternalEndpointService#getWSDLEndpointsForCSARID

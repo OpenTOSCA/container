@@ -80,6 +80,11 @@ public class Constants {
      */
     public final static String BUS_WSDL_NAMESPACE = "http://siserver.org/schema";
 
+    /**
+     * PortType for callbacks on plans.
+     */
+    public final static QName CALLBACK_PORT_TYPE = QName.valueOf("{http://schemas.xmlsoap.org/wsdl/}CallbackPortType");
+
     // endregion
 
     // region General

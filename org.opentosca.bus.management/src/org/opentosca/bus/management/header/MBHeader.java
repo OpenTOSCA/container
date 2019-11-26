@@ -30,8 +30,8 @@ public enum MBHeader {
 
     /**
      * <b>TRIGGERINGCONTAINER_STRING</b> This header field contains the host name of the OpenTOSCA
-     * Container where the invoke request in this exchange was initiated. It makes all other
-     * identifying header fields unique if multiple OpenTOSCA Containers interact.
+     * Container where the invoke request in this exchange was initiated. It makes all other identifying
+     * header fields unique if multiple OpenTOSCA Containers interact.
      */
     TRIGGERINGCONTAINER_STRING,
 
@@ -59,14 +59,13 @@ public enum MBHeader {
 
     /**
      * <b>OPERATIONNAME_STRING</b> This header field specifies the interface which contains the
-     * operation that shall be executed by passing the camel exchange message to an invocation
-     * plug-in.
+     * operation that shall be executed by passing the camel exchange message to an invocation plug-in.
      */
     INTERFACENAME_STRING,
 
     /**
-     * <b>OPERATIONNAME_STRING</b> This header field specifies the operation name of the operation
-     * which shall be executed by passing the camel exchange message to an invocation plug-in.
+     * <b>OPERATIONNAME_STRING</b> This header field specifies the operation name of the operation which
+     * shall be executed by passing the camel exchange message to an invocation plug-in.
      */
     OPERATIONNAME_STRING,
 
@@ -83,8 +82,8 @@ public enum MBHeader {
     PLANCORRELATIONID_STRING,
 
     /**
-     * <b>ENDPOINT_URI</b> This header field contains the endpoint of an Implementation Artifact or
-     * a Plan.
+     * <b>ENDPOINT_URI</b> This header field contains the endpoint of an Implementation Artifact or a
+     * Plan.
      */
     ENDPOINT_URI,
 
@@ -94,25 +93,26 @@ public enum MBHeader {
 
     SYNCINVOCATION_BOOLEAN,
 
+    CALLBACK_BOOLEAN,
+
     APIID_STRING,
 
     /**
      * <b>ARTIFACTTEMPLATEID_QNAME</b> This header field contains a QName that identifies an
      * ArtifactTemplate. The ArtifactTemplate is part of the NodeTypeImplementation or
-     * RelationshipTypeImplementation that is specified by
-     * {@link MBHeader#TYPEIMPLEMENTATIONID_QNAME}.
+     * RelationshipTypeImplementation that is specified by {@link MBHeader#TYPEIMPLEMENTATIONID_QNAME}.
      */
     ARTIFACTTEMPLATEID_QNAME,
 
     /**
-     * <b>ARTIFACTTYPEID_STRING</b> This header field contains the ArtifactType of the
-     * ArtifactTemplate represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}
+     * <b>ARTIFACTTYPEID_STRING</b> This header field contains the ArtifactType of the ArtifactTemplate
+     * represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}
      */
     ARTIFACTTYPEID_STRING,
 
     /**
-     * <b>PORTTYPE_QNAME</b> This header field contains the PortType of the ArtifactTemplate
-     * represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME} if one is specified.
+     * <b>PORTTYPE_QNAME</b> This header field contains the PortType of the ArtifactTemplate represented
+     * by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME} if one is specified.
      */
     PORTTYPE_QNAME,
 
@@ -130,51 +130,50 @@ public enum MBHeader {
     ARTIFACTREFERENCES_LISTSTRING,
 
     /**
-     * <b>ARTIFACTSERVICEENDPOINT_STRING</b> This header field contains the ServiceEndpoint property
-     * of the ArtifactTemplate represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME} if it is
-     * defined and null otherwise.
+     * <b>ARTIFACTSERVICEENDPOINT_STRING</b> This header field contains the ServiceEndpoint property of
+     * the ArtifactTemplate represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME} if it is defined
+     * and null otherwise.
      */
     ARTIFACTSERVICEENDPOINT_STRING,
 
     /**
-     * <b>DEPLOYMENT_ARTIFACTS_STRING</b> TODO: What is this header used for? Only referenced once
-     * where it is added but never extracted from the headers. Used by some IAs which access the
-     * SOAP headers?
+     * <b>DEPLOYMENT_ARTIFACTS_STRING</b> TODO: What is this header used for? Only referenced once where
+     * it is added but never extracted from the headers. Used by some IAs which access the SOAP headers?
      */
     DEPLOYMENT_ARTIFACTS_STRING,
 
     /**
-     * <b>OPERATIONSTATE_BOOLEAN</b> This header field contains the state of an operation or method
-     * that is called by passing the camel exchange message to a service or plug-in. It is true if
-     * the operation was called successful and false otherwise.
+     * <b>OPERATIONSTATE_BOOLEAN</b> This header field contains the state of an operation or method that
+     * is called by passing the camel exchange message to a service or plug-in. It is true if the
+     * operation was called successful and false otherwise.
      */
     OPERATIONSTATE_BOOLEAN,
 
     /**
      * <b>DEPLOYMENTLOCATION_STRING</b> This header field contains the host name of the OpenTOSCA
-     * Container where the ArtifactTemplate identified by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}
-     * has to be deployed.
+     * Container where the ArtifactTemplate identified by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME} has
+     * to be deployed.
      */
     DEPLOYMENTLOCATION_STRING,
 
     /**
-     * <b>INVOCATIONTYPE_STRING</b> This header field contains the invocation type of the
-     * Implementation Artifact identified by {@link MBHeader#IMPLEMENTATIONARTIFACTNAME_STRING}.
+     * <b>INVOCATIONTYPE_STRING</b> This header field contains the invocation type of the Implementation
+     * Artifact identified by {@link MBHeader#IMPLEMENTATIONARTIFACTNAME_STRING}.
      */
     INVOCATIONTYPE_STRING,
 
     // ***** COLLABORATION ORIENTED HEADER FIELDS ***** //
 
     /**
-     * <b>CORRELATIONID_STRING</b> This header field contains a unique ID to identify to which
-     * request a response belongs. It is set by the requester and copied to the answer by the
-     * responding component.
+     * <b>CORRELATIONID_STRING</b> This header field contains a unique ID to identify to which request a
+     * response belongs. It is set by the requester and copied to the answer by the responding
+     * component.
      */
     CORRELATIONID_STRING,
 
     /**
-     * <b>MQTTBROKERHOSTNAME_STRING</b> This header field contains the host name of a MQTT broker
-     * which is used by the collaboration camel routes to send Exchanges to the correct destination.
+     * <b>MQTTBROKERHOSTNAME_STRING</b> This header field contains the host name of a MQTT broker which
+     * is used by the collaboration camel routes to send Exchanges to the correct destination.
      */
     MQTTBROKERHOSTNAME_STRING,
 
@@ -192,8 +191,8 @@ public enum MBHeader {
     REPLYTOTOPIC_STRING,
 
     /**
-     * <b>REMOTEOPERATION_STRING</b> This header field contains the name of the operation that shall
-     * be executed on a remote OpenTOSCA Container.
+     * <b>REMOTEOPERATION_STRING</b> This header field contains the name of the operation that shall be
+     * executed on a remote OpenTOSCA Container.
      */
     REMOTEOPERATION_STRING
 }

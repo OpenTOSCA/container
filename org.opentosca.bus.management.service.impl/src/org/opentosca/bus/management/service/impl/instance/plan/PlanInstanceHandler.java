@@ -3,6 +3,7 @@ package org.opentosca.bus.management.service.impl.instance.plan;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
@@ -51,6 +52,7 @@ public class PlanInstanceHandler {
      * @param serviceTemplateId the Id of the ServiceTemplate the plan belongs to
      * @param serviceTemplateInstanceId the Id of the ServiceTemplate instance the plan belongs to
      * @param planId the ID of the plan
+     * @param operationName the name of the operation to invoke the plan
      * @param correlationId the correlation Id that uniquely identifies the plan instance
      * @param input the input parameters of the plan instance
      *
@@ -58,7 +60,7 @@ public class PlanInstanceHandler {
      */
     public static PlanInstance createPlanInstance(final CSARID csarId, final QName serviceTemplateId,
                                                   final long serviceTemplateInstanceId, final QName planId,
-                                                  final String correlationId,
+                                                  final String operationName, final String correlationId,
                                                   final Object input) throws CorrelationIdAlreadySetException {
 
         if (Objects.isNull(planId)) {
@@ -81,10 +83,16 @@ public class PlanInstanceHandler {
         plan.setTemplateId(planId);
 
         // check if plan instance with that correlation ID is already present
-        if (planRepo.findAll().stream().filter(p -> p.getCorrelationId().equals(correlationId)).findFirst()
-                    .isPresent()) {
-            throw new CorrelationIdAlreadySetException(
-                "Plan instance with correlation ID " + correlationId + " is already existing.");
+        final Optional<PlanInstance> planOptional =
+            planRepo.findAll().stream().filter(p -> p.getCorrelationId().equals(correlationId)).findFirst();
+        if (planOptional.isPresent()) {
+            if (operationName.equals("receiveNotify")) {
+                LOG.debug("Processing receiveNotify and plan instance already exists!");
+                return planOptional.get();
+            } else {
+                throw new CorrelationIdAlreadySetException(
+                    "Plan instance with correlation ID " + correlationId + " is already existing.");
+            }
         }
 
         // cast input parameters for the plan invocation

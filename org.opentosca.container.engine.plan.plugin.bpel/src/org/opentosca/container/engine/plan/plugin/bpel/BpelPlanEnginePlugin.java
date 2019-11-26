@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
@@ -141,12 +142,13 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         return capabilities;
     }
 
-    
-    public boolean deployPlanFile(final Path filePath, final CSARID csarId, final QName planId, Map<String,String> endpointMetadata) {
+
+    public boolean deployPlanFile(final Path filePath, final CSARID csarId, final QName planId,
+                                  final Map<String, String> endpointMetadata) {
         List<File> planContents;
         File tempDir;
         File tempPlan;
-        QName portType = null;               
+        QName portType = null;
 
         if (this.fileAccessService != null) {
             // creating temporary dir for update
@@ -159,15 +161,14 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             BpelPlanEnginePlugin.LOG.error("FileAccessService is not available, can't create needed temporary space on disk");
             return false;
         }
-        
-     // changing endpoints in WSDLs
+
+        // changing endpoints in WSDLs
         ODEEndpointUpdater odeUpdater;
         try {
             odeUpdater = new ODEEndpointUpdater(SERVICESURL, ENGINE);
             portType = odeUpdater.getPortType(planContents);
             if (!odeUpdater.changeEndpoints(planContents, csarId)) {
-                BpelPlanEnginePlugin.LOG.error("Not all endpoints used by the plan {} have been changed",
-                                               filePath);
+                BpelPlanEnginePlugin.LOG.error("Not all endpoints used by the plan {} have been changed", filePath);
             }
         }
         catch (final WSDLException e) {
@@ -180,7 +181,8 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             bpelRestUpdater = new BPELRESTLightUpdater();
             if (!bpelRestUpdater.changeEndpoints(planContents, csarId)) {
                 // we don't abort deployment here
-                BpelPlanEnginePlugin.LOG.warn("Could'nt change all endpoints inside BPEL4RESTLight Elements in the given process {}", filePath);
+                BpelPlanEnginePlugin.LOG.warn("Could'nt change all endpoints inside BPEL4RESTLight Elements in the given process {}",
+                                              filePath);
             }
         }
         catch (final TransformerConfigurationException e) {
@@ -242,6 +244,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         // this will be the endpoint the container can use to instantiate the
         // BPEL Process
         URI endpoint = null;
+        URI callbackEndpoint = null;
         if (endpoints.keySet().size() == 1) {
             endpoint = (URI) endpoints.values().toArray()[0];
         } else {
@@ -249,10 +252,16 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 if (partnerLink.equals("client")) {
                     endpoint = endpoints.get(partnerLink);
                 }
+
+                // retrieve callback endpoint for the choreography execution
+                System.out.println(endpoints.get(partnerLink).toString());
+                if (endpoints.get(partnerLink).toString().contains("CallbackService")) {
+                    callbackEndpoint = endpoints.get(partnerLink);
+                }
             }
         }
 
-        if (endpoint == null) {         
+        if (endpoint == null) {
             return false;
         }
 
@@ -262,10 +271,17 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
             // save endpoint
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-            final WSDLEndpoint wsdlEndpoint =
-                new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata);   
+            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType, localContainer, localContainer,
+                csarId, null, planId, null, null, endpointMetadata);
             this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-           
+
+            System.out.println(portType);
+            if (Objects.nonNull(callbackEndpoint)) {
+                final QName callbackPortType = QName.valueOf("{http://schemas.xmlsoap.org/wsdl/}CallbackPortType");
+                LOG.debug("Storing callback endpoint: {}", callbackEndpoint.toString());
+                this.endpointService.storeWSDLEndpoint(new WSDLEndpoint(callbackEndpoint, callbackPortType,
+                    localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata));
+            }
         } else {
             BpelPlanEnginePlugin.LOG.error("Error while processing plan");
             if (processId == null) {
@@ -277,15 +293,15 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             if (portType == null) {
                 BpelPlanEnginePlugin.LOG.error("PortType of process is null");
             }
-            
-            if(this.endpointService == null) {
+
+            if (this.endpointService == null) {
                 BpelPlanEnginePlugin.LOG.error("Endpoint Service is null");
             }
             return false;
         }
         return true;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -307,7 +323,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             AbstractArtifact planReference = null;
 
             planReference = this.toscaEngine.getPlanModelReferenceAbstractArtifact(csar, planId);
-       
+
             if (planReference == null) {
                 BpelPlanEnginePlugin.LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
                                                planRef.getReference());
@@ -341,15 +357,15 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 return false;
             }
 
-            return this.deployPlanFile(fetchedPlan, csarId, planId, new HashMap<String,String>());
-            
-          
+            return deployPlanFile(fetchedPlan, csarId, planId, new HashMap<String, String>());
+
+
 
         } else {
             BpelPlanEnginePlugin.LOG.error("Can't fetch relevant files from FileService: FileService not available");
             return false;
         }
-        
+
     }
 
     /**
@@ -418,24 +434,22 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 wasUndeployed = connector.undeploy(fetchedPlan.toFile(), URL);
             }
 
-            // remove endpoint from core
-            WSDLEndpoint endpoint = null;
+            // remove endpoints from core
             if (this.endpointService != null) {
-                BpelPlanEnginePlugin.LOG.debug("Starting to remove endpoint!");
+                BpelPlanEnginePlugin.LOG.debug("Starting to remove endpoints!");
                 // this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-                endpoint = this.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId,
-                                                                         planId);
+                for (final WSDLEndpoint endpoint : this.endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                                                                                                  csarId, planId)) {
+                    if (endpoint == null) {
+                        BpelPlanEnginePlugin.LOG.warn("Couldn't remove endpoint for plan {}, because endpoint service didn't find any endpoint associated with the plan to remove",
+                                                      planRef.getReference());
+                    }
 
-                if (endpoint == null) {
-                    BpelPlanEnginePlugin.LOG.warn("Couldn't remove endpoint for plan {}, because endpoint service didn't find any endpoint associated with the plan to remove",
-                                                  planRef.getReference());
+                    if (this.endpointService.removeWSDLEndpoint(endpoint)) {
+                        BpelPlanEnginePlugin.LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
+                                                       planRef.getReference());
+                    }
                 }
-
-                if (this.endpointService.removeWSDLEndpoint(endpoint)) {
-                    BpelPlanEnginePlugin.LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
-                                                   planRef.getReference());
-                }
-
             } else {
                 BpelPlanEnginePlugin.LOG.warn("Couldn't remove endpoint for plan {}, cause endpoint service is not available",
                                               planRef.getReference());

@@ -81,9 +81,9 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
     }
 
     @Override
-    public WSDLEndpoint getWSDLEndpointForPlanId(final String triggeringContainer, final CSARID csarId,
-                                                 final QName planId) {
-        return this.endpointService.getWSDLEndpointForPlanId(triggeringContainer, csarId, planId);
+    public List<WSDLEndpoint> getWSDLEndpointsForPlanId(final String triggeringContainer, final CSARID csarId,
+                                                        final QName planId) {
+        return this.endpointService.getWSDLEndpointsForPlanId(triggeringContainer, csarId, planId);
     }
 
     @Override

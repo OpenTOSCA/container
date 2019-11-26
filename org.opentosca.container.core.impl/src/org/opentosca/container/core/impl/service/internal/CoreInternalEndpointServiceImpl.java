@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.xml.namespace.QName;
 
@@ -40,8 +39,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 
     @Override
     /**
-     * This method is called when the garbage collector destroys the class. We will then manually
-     * close the EntityManager/Factory, and pass control back.
+     * This method is called when the garbage collector destroys the class. We will then manually close
+     * the EntityManager/Factory, and pass control back.
      */
     protected void finalize() throws Throwable {
         this.em.close();
@@ -49,8 +48,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     }
 
     /**
-     * This method initializes the EntityManager/Factory in case it is not connected/setup yet. It
-     * is called by each method, to ensure that a connection exists. (Robustness!)
+     * This method initializes the EntityManager/Factory in case it is not connected/setup yet. It is
+     * called by each method, to ensure that a connection exists. (Robustness!)
      */
     private void init() {
         if (this.em == null) {
@@ -111,7 +110,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
             + endpoint.getURI().toString() + "\"");
 
         // TODO this check is a hack because of the problem with deploying of
-        // multiple deployment artifacts    
+        // multiple deployment artifacts
         if (!existsWSDLEndpoint(endpoint)) {
             if (!this.em.getTransaction().isActive()) {
                 this.em.getTransaction().begin();
@@ -244,7 +243,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     public void _endpoint_add_dummy_rest(final CommandInterpreter commandInterpreter) {
         try {
             final RESTEndpoint endpoint = new RESTEndpoint(new URI("http://www.balbla.com/xyz"), restMethod.GET, "test",
-                "test", new CSARID("mockup.example.test"), 5L, new HashMap<String,String>());
+                "test", new CSARID("mockup.example.test"), 5L, new HashMap<String, String>());
             storeRESTEndpoint(endpoint);
         }
         catch (final URISyntaxException e) {
@@ -260,7 +259,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
             // nodeTypeImplementation, String iaName
             final WSDLEndpoint endpoint = new WSDLEndpoint(new URI("http://blabla/"), new QName("somePort"), "test",
                 "test", new CSARID("mockup.example.test"), 5L, new QName("{someNamespace}someplanid"),
-                new QName("{someNamespace}someNodeTypeImplId"), "some ia name", new HashMap<String,String>());
+                new QName("{someNamespace}someNodeTypeImplId"), "some ia name", new HashMap<String, String>());
             storeWSDLEndpoint(endpoint);
         }
         catch (final URISyntaxException e) {
@@ -325,24 +324,15 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     }
 
     @Override
-    public WSDLEndpoint getWSDLEndpointForPlanId(final String triggeringContainer, final CSARID csarId,
-                                                 final QName planId) {
-        WSDLEndpoint endpoint = null;
+    public List<WSDLEndpoint> getWSDLEndpointsForPlanId(final String triggeringContainer, final CSARID csarId,
+                                                        final QName planId) {
         final Query queryWSDLEndpoint =
             this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId= :csarId and e.PlanId = :planId");
         queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
         queryWSDLEndpoint.setParameter("csarId", csarId);
         queryWSDLEndpoint.setParameter("planId", planId);
 
-        try {
-            endpoint = (WSDLEndpoint) queryWSDLEndpoint.getSingleResult();
-        }
-        catch (final NoResultException e) {
-            LOG.error("Query in database didn't return a result", e);
-            return null;
-        }
-
-        return endpoint;
+        return queryWSDLEndpoint.getResultList();
     }
 
     @Override

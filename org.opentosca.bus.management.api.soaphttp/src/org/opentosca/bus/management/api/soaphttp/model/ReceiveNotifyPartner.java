@@ -12,6 +12,7 @@ package org.opentosca.bus.management.api.soaphttp.model;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 
@@ -21,6 +22,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ReceiveNotifyPartner", propOrder = {"planCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
                                                      "serviceTemplateIDLocalPart", "messageID", "params", "doc"})
+@XmlRootElement
 public class ReceiveNotifyPartner {
 
     @XmlElement(name = "PlanCorrelationID")

@@ -391,6 +391,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                         return this.CALLBACK;
                     }
                 }
+                if (operationName.equals("receiveNotify")) {
+                    LOG.debug("ReceiveNotify is executed. Using Request_Only MP!");
+                    return this.REQUEST_ONLY;
+                }
             }
 
             // Operation of IA should be invoked
