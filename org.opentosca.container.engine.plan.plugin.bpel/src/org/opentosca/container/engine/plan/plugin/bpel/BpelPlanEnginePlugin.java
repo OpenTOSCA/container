@@ -254,7 +254,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 }
 
                 // retrieve callback endpoint for the choreography execution
-                System.out.println(endpoints.get(partnerLink).toString());
                 if (endpoints.get(partnerLink).toString().contains("CallbackService")) {
                     callbackEndpoint = endpoints.get(partnerLink);
                 }
@@ -275,7 +274,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 csarId, null, planId, null, null, endpointMetadata);
             this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
 
-            System.out.println(portType);
             if (Objects.nonNull(callbackEndpoint)) {
                 final QName callbackPortType = QName.valueOf("{http://schemas.xmlsoap.org/wsdl/}CallbackPortType");
                 LOG.debug("Storing callback endpoint: {}", callbackEndpoint.toString());
