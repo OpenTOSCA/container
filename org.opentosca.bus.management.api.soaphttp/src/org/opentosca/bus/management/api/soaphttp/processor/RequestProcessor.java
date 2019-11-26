@@ -150,7 +150,8 @@ public class RequestProcessor implements Processor {
                                                                                            "initiate");
 
             // create plan invocation request from given parameters
-            exchange.getIn().setBody(createRequestBody(csar, serviceTemplateID, planCorrelationID));
+            exchange.getIn()
+                    .setBody(createRequestBody(csar, serviceTemplateID, receiveNotifyRequest.getPlanCorrelationID()));
 
             // add required header fields for the bus
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),

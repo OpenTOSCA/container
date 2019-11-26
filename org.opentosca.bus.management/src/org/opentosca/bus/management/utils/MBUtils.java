@@ -445,7 +445,6 @@ public class MBUtils {
             mapElement = document.createElement(entry.getKey());
             mapElement.setTextContent(entry.getValue());
             rootElement.appendChild(mapElement);
-
         }
 
         return document;
