@@ -177,6 +177,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
   }
 
   private void respondViaMocking(final TOperation.@Nullable OutputParameters outputParameters, final Exchange exchange) {
+
+    long waitTime = System.currentTimeMillis() + 1000;
+    while (System.currentTimeMillis() > waitTime) {
+      // busy waiting here...
+    }
+
     if (outputParameters == null || outputParameters.getOutputParameter().isEmpty()) {
       return;
     }

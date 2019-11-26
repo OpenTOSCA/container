@@ -99,7 +99,7 @@ public class Route extends RouteBuilder {
       + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
     final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL.toString()
       + "&headerFilterStrategy=#dropAllMessageHeadersStrategy"
-      + "&serviceName={http://siserver.org/wsdl}InvokerService&portName={http://siserver.org/wsdl}CallbackPort"
+      + "&serviceName={http://siserver.org/wsdl}CallbackService&portName={http://siserver.org/wsdl}CallbackPort"
       + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
     // Checks if invoke is sync or async
