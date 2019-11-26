@@ -32,6 +32,8 @@ public class ObjectFactory {
         new QName("http://siserver.org/schema", "invokeOperationAsync");
     private final static QName _NotifyPartner_QNAME = new QName("http://siserver.org/schema", "notifyPartner");
     private final static QName _NotifyPartners_QNAME = new QName("http://siserver.org/schema", "notifyPartners");
+    private final static QName _ReceiveNotifyPartner_QNAME =
+        new QName("http://siserver.org/schema", "receiveNotifyPartner");
     private final static QName _ReceiveNotifyPartners_QNAME =
         new QName("http://siserver.org/schema", "receiveNotifyPartners");
     private final static QName _InvokePlan_QNAME = new QName("http://siserver.org/schema", "invokePlan");
@@ -64,10 +66,18 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link NotifyPartners }
+     * Create an instance of {@link ReceiveNotifyPartner }
      *
      */
-    public ReceiveNotifyPartners createReceiveNotify() {
+    public ReceiveNotifyPartner createReceiveNotifyPartner() {
+        return new ReceiveNotifyPartner();
+    }
+
+    /**
+     * Create an instance of {@link ReceiveNotifyPartners }
+     *
+     */
+    public ReceiveNotifyPartners createReceiveNotifyPartners() {
         return new ReceiveNotifyPartners();
     }
 
@@ -146,11 +156,20 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ReceiveNotifyPartner }{@code >}}
+     *
+     */
+    @XmlElementDecl(namespace = "http://siserver.org/schema", name = "receiveNotifyPartner")
+    public JAXBElement<ReceiveNotifyPartner> createReceiveNotifyPartner(final ReceiveNotifyPartner value) {
+        return new JAXBElement<>(_ReceiveNotifyPartner_QNAME, ReceiveNotifyPartner.class, null, value);
+    }
+
+    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ReceiveNotifyPartners }{@code >}}
      *
      */
     @XmlElementDecl(namespace = "http://siserver.org/schema", name = "receiveNotifyPartners")
-    public JAXBElement<ReceiveNotifyPartners> createReceiveNotify(final ReceiveNotifyPartners value) {
+    public JAXBElement<ReceiveNotifyPartners> createReceiveNotifyPartners(final ReceiveNotifyPartners value) {
         return new JAXBElement<>(_ReceiveNotifyPartners_QNAME, ReceiveNotifyPartners.class, null, value);
     }
 

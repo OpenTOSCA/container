@@ -5,6 +5,7 @@
 	<xs:element name="notifyPartner" type="ns:notifyPartnerType" />
 	<xs:element name="notifyPartners" type="ns:notifyPartnerType" />
 	<xs:element name="receiveNotify" type="ns:notifyPartnerType" />
+	<xs:element name="receiveNotifyPartner" type="ns:notifyPartnerType" />
 	<xs:element name="receiveNotifyPartners" type="ns:notifyPartnerType" />
 	<xs:complexType name="notifyPartnerType">
 		<xs:sequence>

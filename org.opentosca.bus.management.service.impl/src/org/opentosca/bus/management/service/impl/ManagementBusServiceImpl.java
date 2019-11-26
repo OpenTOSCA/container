@@ -1017,7 +1017,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
         message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
-        message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_OPERATION);
+        message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_PARTNER_OPERATION);
 
         // create message body
         final HashMap<String, String> inputMap = new HashMap<>();
@@ -1029,7 +1029,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // parse to doc and add input parameters
         final Document inputDoc =
-            MBUtils.mapToDoc(Constants.BUS_WSDL_NAMESPACE, Constants.RECEIVE_NOTIFY_OPERATION, inputMap);
+            MBUtils.mapToDoc(Constants.BUS_WSDL_NAMESPACE, Constants.RECEIVE_NOTIFY_PARTNER_OPERATION, inputMap);
+
         final Element root = inputDoc.getDocumentElement();
         final Element paramsWrapper = inputDoc.createElement(Constants.PARAMS_PARAM);
         root.appendChild(paramsWrapper);
@@ -1082,7 +1083,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
             message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointTag.getValue());
-            message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_OPERATION);
+            message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_PARTNERS_OPERATION);
 
             // create message body
             final HashMap<String, String> input = new HashMap<>();

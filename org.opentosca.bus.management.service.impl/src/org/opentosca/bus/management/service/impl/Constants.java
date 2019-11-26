@@ -48,10 +48,11 @@ public class Constants {
         QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}location");
 
     /**
-     * Operation name of the management bus SOAP API to receive notifications from other management
+     * Operation names of the management bus SOAP API to receive notifications from other management
      * busses.
      */
-    public final static String RECEIVE_NOTIFY_OPERATION = "receiveNotifyPartners";
+    public final static String RECEIVE_NOTIFY_PARTNER_OPERATION = "receiveNotifyPartner";
+    public final static String RECEIVE_NOTIFY_PARTNERS_OPERATION = "receiveNotifyPartners";
 
     /**
      * Parameters for the Notify operation of the SOAP API
