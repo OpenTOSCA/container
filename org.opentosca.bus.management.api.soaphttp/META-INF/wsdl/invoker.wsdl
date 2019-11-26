@@ -24,7 +24,7 @@
 		<wsdl:part element="ns:receiveNotify" name="receiveNotify">
 		</wsdl:part>
 	</wsdl:message>
-	<wsdl:message name="receiveNotifyPartner">
+	<wsdl:message name="receiveNotifyPartnerMessage">
 		<wsdl:part element="ns:receiveNotifyPartner" name="receiveNotifyPartner">
 		</wsdl:part>
 	</wsdl:message>
