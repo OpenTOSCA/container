@@ -51,6 +51,12 @@ public class SituationTriggerDTO extends ResourceSupport {
   @XmlElementWrapper(name = "InputParameters")
   private Collection<SituationTriggerInputDTO> inputParams;
 
+  @XmlElement(name = "EventProbability", required = false)
+  private float eventProbability = -1.0f;
+
+  @XmlElement(name = "EventTime", required = false)
+  private String eventTime;
+
   public Long getId() {
     return this.id;
   }
@@ -121,6 +127,22 @@ public class SituationTriggerDTO extends ResourceSupport {
 
   public void setInputParams(final Collection<SituationTriggerInputDTO> inputParams) {
     this.inputParams = inputParams;
+  }
+
+  public float getEventProbability() {
+    return eventProbability;
+  }
+
+  public void setEventProbability(float eventProbability) {
+    this.eventProbability = eventProbability;
+  }
+
+  public String getEventTime() {
+    return eventTime;
+  }
+
+  public void setEventTime(String eventTime) {
+    this.eventTime = eventTime;
   }
 
   public static final class Converter {

@@ -54,6 +54,12 @@ public class SituationTrigger extends PersistenceObject {
   @OneToMany(mappedBy = "situationTrigger", cascade = {CascadeType.ALL})
   private Set<SituationTriggerProperty> inputs = Sets.newHashSet();
 
+  @Column(nullable = true)
+  private float eventProbability;
+
+  @Column(nullable = true)
+  private String eventTime;
+
   public Collection<Situation> getSituations() {
     return this.situations;
   }
@@ -126,4 +132,19 @@ public class SituationTrigger extends PersistenceObject {
     this.situationTriggerInstances = situationTriggerInstances;
   }
 
+  public float getEventProbability() {
+    return eventProbability;
+  }
+
+  public void setEventProbability(float eventProbability) {
+    this.eventProbability = eventProbability;
+  }
+
+  public String getEventTime() {
+    return eventTime;
+  }
+
+  public void setEventTime(String eventTime) {
+    this.eventTime = eventTime;
+  }
 }

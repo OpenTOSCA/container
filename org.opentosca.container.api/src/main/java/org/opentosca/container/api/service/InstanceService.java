@@ -595,12 +595,15 @@ public class InstanceService {
   }
 
   /* Situations */
-  public Situation createNewSituation(final String thingId, final String situationTemplateId) {
+  public Situation createNewSituation(final String thingId, final String situationTemplateId, final boolean active,
+                                      final float eventProbability, final String eventTime) {
     final Situation newInstance = new Situation();
 
     newInstance.setSituationTemplateId(situationTemplateId);
     newInstance.setThingId(thingId);
-    newInstance.setActive(false);
+    newInstance.setActive(active);
+    newInstance.setEventProbability(eventProbability);
+    newInstance.setEventTime(eventTime);
 
     this.sitRepo.add(newInstance);
 
@@ -633,7 +636,8 @@ public class InstanceService {
                                                     final ServiceTemplateInstance serviceInstance,
                                                     final NodeTemplateInstance nodeInstance,
                                                     final String interfaceName, final String operationName,
-                                                    final Set<SituationTriggerProperty> inputs) {
+                                                    final Set<SituationTriggerProperty> inputs,
+                                                    final float eventProbability, final String eventTime) {
     final SituationTrigger newInstance = new SituationTrigger();
 
     newInstance.setSituations(situations);
@@ -646,6 +650,14 @@ public class InstanceService {
       newInstance.setNodeInstance(nodeInstance);
     }
     newInstance.setInputs(inputs);
+
+    if (eventProbability != -1.0f) {
+      newInstance.setEventProbability(eventProbability);
+    }
+
+    if (eventTime != null) {
+      newInstance.setEventTime(eventTime);
+    }
 
     this.sitTrig.add(newInstance);
 

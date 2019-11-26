@@ -6,6 +6,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.Table;
 
 import org.opentosca.container.core.next.trigger.SituationListener;
+import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
@@ -26,6 +27,12 @@ public class Situation extends PersistenceObject {
 
   @Column(nullable = false)
   private String situationTemplateId;
+
+  @Column(nullable = true)
+  private float eventProbability = -1.0f;
+
+  @Column(nullable = true)
+  private String eventTime;
 
   public boolean isActive() {
     return this.active;
@@ -49,6 +56,22 @@ public class Situation extends PersistenceObject {
 
   public void setSituationTemplateId(final String situationTemplateId) {
     this.situationTemplateId = situationTemplateId;
+  }
+
+  public float getEventProbability() {
+    return eventProbability;
+  }
+
+  public void setEventProbability(float eventProbability) {
+    this.eventProbability = eventProbability;
+  }
+
+  public String getEventTime() {
+    return eventTime;
+  }
+
+  public void setEventTime(String eventTime) {
+    this.eventTime = eventTime;
   }
 
   @Override

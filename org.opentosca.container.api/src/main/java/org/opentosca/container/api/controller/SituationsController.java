@@ -58,7 +58,6 @@ public class SituationsController {
   public Response getSituations() {
     final SituationListDTO dto = new SituationListDTO();
     this.instanceService.getSituations().forEach(x -> dto.add(SituationDTO.Converter.convert(x)));
-    ;
     return Response.ok(dto).build();
   }
 
@@ -69,6 +68,8 @@ public class SituationsController {
     final Situation sit = this.instanceService.getSituation(situation.getId());
 
     sit.setActive(situation.getActive());
+    sit.setEventProbability(situation.getEventProbability());
+    sit.setEventTime(situation.getEventTime());
 
     this.instanceService.updateSituation(sit);
 
@@ -105,8 +106,9 @@ public class SituationsController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Path("/situations")
   public Response createSituation(final SituationDTO situation) {
-    final Situation sit =
-      this.instanceService.createNewSituation(situation.getThingId(), situation.getSituationTemplateId());
+    final Situation sit = this.instanceService.createNewSituation(situation.getThingId(),
+      situation.getSituationTemplateId(), situation.getActive(), situation.getEventProbability(),
+      situation.getEventTime());
 
     final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sit.getId().toString(), false);
 
@@ -160,14 +162,22 @@ public class SituationsController {
 
     final Set<SituationTriggerProperty> inputs = Sets.newHashSet();
 
+    float eventProbability = -1.0f;
+    if (Float.compare(situationTrigger.getEventProbability(), eventProbability) != 0) {
+      eventProbability = situationTrigger.getEventProbability();
+    }
+
+    String eventTime = null;
+    if (situationTrigger.getEventTime() != null) {
+      eventTime = situationTrigger.getEventTime();
+    }
+
     situationTrigger.getInputParams()
       .forEach(x -> inputs.add(new SituationTriggerProperty(x.getName(), x.getValue(), x.getType())));
 
-    final SituationTrigger sitTrig =
-      this.instanceService.createNewSituationTrigger(sits, situationTrigger.isOnActivation(),
-        situationTrigger.isSingleInstance(), serviceInstance,
-        nodeInstance, situationTrigger.getInterfaceName(),
-        situationTrigger.getOperationName(), inputs);
+    final SituationTrigger sitTrig = this.instanceService.createNewSituationTrigger(sits,
+      situationTrigger.isOnActivation(), situationTrigger.isSingleInstance(), serviceInstance, nodeInstance,
+      situationTrigger.getInterfaceName(), situationTrigger.getOperationName(), inputs, eventProbability, eventTime);
 
     final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);
     return Response.ok(instanceURI).build();
@@ -177,7 +187,8 @@ public class SituationsController {
   @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Path("/triggers/{situationtrigger}")
   public Response getSituationTrigger(@PathParam("situationtrigger") final Long situationTriggerId) {
-    return Response.ok(SituationTriggerDTO.Converter.convert(this.instanceService.getSituationTrigger(situationTriggerId)))
+    return Response
+      .ok(SituationTriggerDTO.Converter.convert(this.instanceService.getSituationTrigger(situationTriggerId)))
       .build();
   }
 
@@ -186,11 +197,8 @@ public class SituationsController {
   @Path("/triggers/{situationtrigger}/{situationtriggerinstance}")
   public Response getSituationTriggerInstance(@PathParam("situationtrigger") final Long situationTriggerId,
                                               @PathParam("situationtriggerinstance") final Long situationTriggerInstanceId) {
-    return Response.ok(SituationTriggerInstanceDTO.Converter.convert(this.instanceService.getSituationTriggerInstance(situationTriggerInstanceId)))
+    return Response
+      .ok(SituationTriggerInstanceDTO.Converter.convert(this.instanceService.getSituationTriggerInstance(situationTriggerInstanceId)))
       .build();
-  }
-
-  public void setInstanceService(final InstanceService instanceService) {
-    this.instanceService = instanceService;
   }
 }
