@@ -57,14 +57,26 @@ public class ChoreographyBuilder {
                 }
             }
 
+        
+        
+        
+        
+        
         // add base notify all partners activity
         AbstractActivity notifyAllPartnersActivity = new AbstractActivity("notifyAllPartners", ActivityType.NOTIFYALLPARTNERS) {};
+        
+        for(AbstractActivity activ : activitiesToAdd) {
+            linksToAdd.add(new Link(notifyAllPartnersActivity, activ));
+        }
+        
         activitiesToAdd.add(notifyAllPartnersActivity);
         
+        // connect the notifyAll to be the activity which has to be started before all else
         
         activties.addAll(activitiesToAdd);
-        links.addAll(linksToAdd);
         
+        
+        links.addAll(linksToAdd);
         
         AbstractPlan newChoregraphyPlan = new AbstractPlan(plan.getId(), plan.getType(), plan.getDefinitions(), plan.getServiceTemplate(), activties, links) {};
         

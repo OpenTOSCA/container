@@ -687,9 +687,17 @@ public class BPELPlanContext extends PlanContext {
      * @param propertyName the property to use inside the correlationSet
      * @return true if adding the correlation set was successful, else false
      */
-    public boolean addCorrelationSet(final String correlationSetName, final String propertyName) {
+    public boolean addCorrelationSet(final String correlationSetName, final String propertyName) {        
         return this.bpelScopeHandler.addCorrelationSet(correlationSetName, propertyName, this.templateBuildPlan);
     }
+    
+    public boolean addGlobalCorrelationSet(final String correlationSetName, final String propertyName) {
+        return this.bpelPlanHandler.addCorrelationSet(correlationSetName, propertyName, this.templateBuildPlan.getBuildPlan());
+    }
+    
+    public Collection<String> getGlobalCorrelationSetNames() {
+        return this.bpelPlanHandler.getCorrelationSetNames(this.templateBuildPlan.getBuildPlan());
+     }
 
     public boolean addGlobalVariable(final String name, final BPELPlan.VariableType variableType, QName declarationId) {
         declarationId = importNamespace(declarationId);
@@ -837,6 +845,10 @@ public class BPELPlanContext extends PlanContext {
         final QName importedQName = importNamespace(propertyType);
         this.templateBuildPlan.getBuildPlan().getWsdl().addProperty(propertyName, importedQName);
         return importedQName;
+    }
+    
+    public List<String> getCorrelationProperties(){
+        return this.templateBuildPlan.getBuildPlan().getWsdl().getProperties();
     }
 
     /**

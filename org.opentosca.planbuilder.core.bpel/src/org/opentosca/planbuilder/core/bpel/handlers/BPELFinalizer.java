@@ -155,8 +155,12 @@ public class BPELFinalizer {
             this.finalizeBPELScope(buildPlan, templateBuildPlan.getBpelCompensationHandlerScope());
         }
 
+        if (buildPlan.getBpelCorrelationSetsElement().getChildNodes().getLength() == 0) {
+            buildPlan.getBpelProcessElement().removeChild(buildPlan.getBpelCorrelationSetsElement());
+        } 
+        
         if (buildPlan.getBpelFaultHandlersElement().getChildNodes().getLength() == 0) {
-            buildPlan.getBpelDocument().removeChild(buildPlan.getBpelFaultHandlersElement());
+            buildPlan.getBpelProcessElement().removeChild(buildPlan.getBpelFaultHandlersElement());
         } else {
              this.buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan).appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
              "compensate"));

@@ -241,10 +241,18 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal data fails
      */
     public Node generateCorrelationSetsAsNode(final String correlationSetName,
-                                              final boolean initiate) throws SAXException, IOException {
+                                              final Boolean initiate) throws SAXException, IOException {
+        String initiateText = "";
+        
+        if(initiate == null) {
+            initiateText = "join";
+        } else {
+            initiateText = (initiate ? "yes" : "no");
+        }
+        
         final String correlationSetsString =
             "<bpel:correlations xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\"><bpel:correlation set=\""
-                + correlationSetName + "\" initiate=\"" + (initiate ? "yes" : "no") + "\"/></bpel:correlations>";
+                + correlationSetName + "\" initiate=\"" + initiateText + "\"/></bpel:correlations>";
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(correlationSetsString));
         final Document doc = this.docBuilder.parse(is);
@@ -519,6 +527,34 @@ public class ResourceHandler {
         return doc.getFirstChild();
     }
 
+    
+    public Node generaceOnMessagePickAsNode(final String pickName, final String partnerLinkName,
+                                            final String operationName, final QName portType,
+                                            final String variableName) throws SAXException, IOException {
+ 
+        final String receiveString =
+            "<bpel:pick xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" ><bpel:onMessage partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName
+                + "\" portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\" variable=\""
+                + variableName + "\" /></bpel:pick>";
+        /*
+         * <bpel:receive name="ReceiveCreateEC2Instance" operation="createEC2InstanceCallback"
+         * partnerLink="ec2VmPl1" portType="ns0:EC2VMIAAsyncServiceCallback"
+         * variable="createEc2Response3"> <bpel:correlations> <bpel:correlation initiate="no"
+         * set="createEc2CorrelationSet8"/> </bpel:correlations> </bpel:receive>
+         */
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(receiveString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
+        
+    }
+    
+    public Node generateReceiveAsNode(final String receiveName, final String partnerLinkName,
+                                      final String operationName, final QName portType,
+                                      final String variableName) throws SAXException, IOException {
+        return this.generateReceiveAsNode(receiveName, partnerLinkName, operationName, portType, variableName, null);
+    }
+    
     /**
      * Generates a BPEL Receive Element
      *
@@ -533,12 +569,19 @@ public class ResourceHandler {
      */
     public Node generateReceiveAsNode(final String receiveName, final String partnerLinkName,
                                       final String operationName, final QName portType,
-                                      final String variableName) throws SAXException, IOException {
+                                      final String variableName, final String messageExchange) throws SAXException, IOException {
+        
+        String messageExchangeString = "";
+        
+        if(messageExchange != null) {
+            messageExchangeString = "messageExchange=\""+messageExchange+"\"";
+        }
+        
         final String receiveString =
             "<bpel:receive xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\""
                 + receiveName + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName
                 + "\" portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\" variable=\""
-                + variableName + "\"/>";
+                + variableName + "\" " + messageExchangeString + "/>";
         /*
          * <bpel:receive name="ReceiveCreateEC2Instance" operation="createEC2InstanceCallback"
          * partnerLink="ec2VmPl1" portType="ns0:EC2VMIAAsyncServiceCallback"

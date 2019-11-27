@@ -33,6 +33,48 @@ import org.xml.sax.SAXException;
  *
  */
 public class BPELNotifyHandler extends PluginHandler {
+    
+    private static final String correlationSetPrefix = "NotificationCorrelation";
+    private static final String correlationPropertyPrefix ="notifcationProperty";
+
+    private String getGloblaNotifyCorrelationSetName(BPELPlanContext context) {
+        for (String name : context.getGlobalCorrelationSetNames()) {
+            if (name.startsWith(correlationSetPrefix)) {
+                return name;
+            }
+        }
+        return null;
+    }
+    
+    private String getNotifcationProperty(BPELPlanContext context) {
+        for(String propName : context.getCorrelationProperties()) {
+            if(propName.startsWith(correlationPropertyPrefix)) {
+                return propName;
+            }
+        }
+        return null;
+    }
+    
+    private String addNotifyCorrelationProperty(BPELPlanContext context) {
+        // setup correlation property and aliases for request and response
+           String correlationPropertyName =
+               correlationPropertyPrefix + context.getIdForNames();
+           context.addProperty(correlationPropertyName,
+                               new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
+           return correlationPropertyName;
+       }
+
+    
+    private String addNotifyCorrelationSet(BPELPlanContext context, String correlationPropertyName) {    
+        String correlationSetName = correlationSetPrefix + context.getIdForNames();
+        context.addGlobalCorrelationSet(correlationSetName, correlationPropertyName);
+        return correlationSetName;
+    }
+    
+    private boolean isNotifcationCorrelationSet(BPELPlanContext context) {
+        return this.getGloblaNotifyCorrelationSetName(context) != null & this.getNotifcationProperty(context) != null;
+    }
+    
 
     public boolean handleNotifyPartners(BPELPlanContext context) throws SAXException, IOException {
 
@@ -72,18 +114,26 @@ public class BPELNotifyHandler extends PluginHandler {
 
         // setup a correlation set for the messages
         String correlationSetName = null;
+        String correlationPropertyName = null;
+        
+        if(this.isNotifcationCorrelationSet(context)) {
+            correlationPropertyName = this.getNotifcationProperty(context);
+            correlationSetName = this.getGloblaNotifyCorrelationSetName(context);
+            
+        } else {
+            correlationPropertyName = this.addNotifyCorrelationProperty(context);
+            correlationSetName = this.addNotifyCorrelationSet(context, correlationPropertyName);
+        }
+        
+        
 
-        // setup correlation property and aliases for request and response
-        final String correlationPropertyName = invokerPortType.getLocalPart() + "Property" + context.getIdForNames();
-        context.addProperty(correlationPropertyName, new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-
-        final String query = "//*[local-name()=\"MessageID\" and namespace-uri()=\"http://siserver.org/schema\"]";
+        final String query = "//*[local-name()=\"PlanCorrelationID\" and namespace-uri()=\"http://siserver.org/schema\"]";
         // "/" + InputMessageId.getPrefix() + ":" + "MessageID"
         context.addPropertyAlias(correlationPropertyName, InputMessageId, InputMessagePartName, query);
-        // register correlationsets
-        correlationSetName = invokerPortType.getLocalPart() + "CorrelationSet" + context.getIdForNames();
-        context.addCorrelationSet(correlationSetName, correlationPropertyName);
+        // register correlationsets                
 
+     
+        
         // fetch serviceInstanceId
 
         final String serviceInstanceIdVarName = context.getServiceInstanceURLVarName();
@@ -225,22 +275,29 @@ public class BPELNotifyHandler extends PluginHandler {
             + "Response" + context.getIdForNames();
         context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageId);
 
+        
+        
+        
         // setup a correlation set for the messages
         String correlationSetName = null;
+        String correlationPropertyName = null;
+        
+        
+        
+        if(this.isNotifcationCorrelationSet(context)) {
+            correlationPropertyName = this.getNotifcationProperty(context);
+            correlationSetName = this.getGloblaNotifyCorrelationSetName(context);
+        } else {
+            correlationPropertyName = this.addNotifyCorrelationProperty(context);
+            correlationSetName = this.addNotifyCorrelationSet(context, correlationPropertyName);
+        }
+        
 
-        // setup correlation property and aliases for request and response
-        final String correlationPropertyName =
-            invokerCallbackPortType.getLocalPart() + "Property" + context.getIdForNames();
-        context.addProperty(correlationPropertyName, new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-
-        final String query = "//*[local-name()=\"MessageID\" and namespace-uri()=\"http://siserver.org/schema\"]";
+        final String query = "//*[local-name()=\"PlanCorrelationID\" and namespace-uri()=\"http://siserver.org/schema\"]";
         // "/" + InputMessageId.getPrefix() + ":" + "MessageID" ageId, InputMessagePartName, query);
-        context.addPropertyAlias(correlationPropertyName, OutputMessageId, OutputMessagePartName, query);
-        // register correlationsets
-        correlationSetName = invokerCallbackPortType.getLocalPart() + "CorrelationSet" + context.getIdForNames();
-        context.addCorrelationSet(correlationSetName, correlationPropertyName);
-
-
+        context.addPropertyAlias(correlationPropertyName, OutputMessageId, OutputMessagePartName, query);           
+        
+        
         // fetch serviceInstanceId
 
         final String serviceInstanceIdVarName = context.getServiceInstanceURLVarName();
@@ -269,7 +326,7 @@ public class BPELNotifyHandler extends PluginHandler {
                                                   "receiveNotify", invokerCallbackPortType, responseVariableName);
         receiveNode = context.importNode(receiveNode);
 
-        Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, true);
+        Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
         correlationSetsNode = context.importNode(correlationSetsNode);
         receiveNode.appendChild(correlationSetsNode);
 
@@ -466,7 +523,7 @@ public class BPELNotifyHandler extends PluginHandler {
 
         AbstractRelationshipTemplate relationshipTemplate = (AbstractRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
         
-        ModelUtils.getNodesFromNodeToSink(relationshipTemplate.getSource(), nodes);
+        ModelUtils.getNodesFromNodeToSink(relationshipTemplate.getTarget(), nodes);
 
         for (AbstractNodeTemplate infraNode : nodes) {
             for (PropertyVariable propVar : context.getPropertyVariables(infraNode)) {
@@ -508,7 +565,7 @@ public class BPELNotifyHandler extends PluginHandler {
 
         for (PropertyVariable propVar : propertyVariables) {
             if (propVar != null & propVar.isNodeTemplatePropertyVariable()) {
-                params.put(propVar.getNodeTemplate().getId() + "_" + propVar.getPropertyName(), propVar);
+                params.put(propVar.getPropertyName(), propVar);
             }
         }
 
