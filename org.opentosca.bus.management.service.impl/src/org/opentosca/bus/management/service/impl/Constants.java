@@ -79,6 +79,11 @@ public class Constants {
      * Namespace of the WSDL and XSD of the Management Bus SOAP API.
      */
     public final static String BUS_WSDL_NAMESPACE = "http://siserver.org/schema";
+    
+    /**
+     * Namespace for SOAPActions
+     */
+    public final static String BUS_NAMESPACE = "http://siserver.org/";
 
     /**
      * PortType for callbacks on plans.

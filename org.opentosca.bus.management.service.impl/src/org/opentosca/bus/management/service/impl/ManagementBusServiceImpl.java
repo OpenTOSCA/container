@@ -1040,6 +1040,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
         message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
         message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_PARTNER_OPERATION);
+        message.setHeader(Exchange.SOAP_ACTION, Constants.BUS_NAMESPACE + Constants.RECEIVE_NOTIFY_PARTNER_OPERATION);
 
         // create message body
         final HashMap<String, String> inputMap = new HashMap<>();
@@ -1106,6 +1107,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
             message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointTag.getValue());
             message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_PARTNERS_OPERATION);
+            message.setHeader(Exchange.SOAP_ACTION, Constants.BUS_NAMESPACE + Constants.RECEIVE_NOTIFY_PARTNERS_OPERATION);
 
             // create message body
             final HashMap<String, String> input = new HashMap<>();

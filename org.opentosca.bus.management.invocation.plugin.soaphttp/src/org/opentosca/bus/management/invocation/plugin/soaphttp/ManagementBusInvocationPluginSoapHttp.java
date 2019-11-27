@@ -84,9 +84,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             }
         }
 
-        if (Objects.nonNull(message.getHeader("SOAPAction"))) {
-            headers.put("SOAPAction", message.getHeader("SOAPAction"));
-        }
+  
 
         headers.put("endpoint", endpoint.replace("?wsdl", ""));
 
@@ -95,11 +93,11 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
         ManagementBusInvocationPluginSoapHttp.LOG.info("Creating invocation message.");
 
+        String rootElementNamespaceURI = null;
         if (params instanceof HashMap) {
 
             message.setHeader("ParamsMode", "HashMap");
 
-            String rootElementNamespaceURI = null;
             String rootElementName = null;
 
             @SuppressWarnings("unchecked")
@@ -225,10 +223,16 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         if (params instanceof Document) {
 
             document = (Document) params;
-
-
+            rootElementNamespaceURI = document.getNamespaceURI();
+            
             messagingPattern = determineMP(message, operationName, hasOutputParams, endpoint);
         }
+        
+//        if (Objects.nonNull(message.getHeader(Exchange.SOAP_ACTION))) {
+//            headers.put(Exchange.SOAP_ACTION, message.getHeader(Exchange.SOAP_ACTION));
+//        } else {
+//            headers.put(Exchange.SOAP_ACTION, ((rootElementNamespaceURI.endsWith("/")) ? rootElementNamespaceURI : rootElementNamespaceURI + "/") + operationName);
+//        }
 
         if (messagingPattern == null) {
             ManagementBusInvocationPluginSoapHttp.LOG.error("Can't determine which kind of invocation is needed. Invocation aborted.");
