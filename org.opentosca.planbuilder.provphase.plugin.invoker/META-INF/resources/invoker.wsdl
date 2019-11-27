@@ -20,8 +20,16 @@
 		<wsdl:part element="ns:notifyPartners" name="notifyPartners">
 		</wsdl:part>
 	</wsdl:message>
-	<wsdl:message name="receiveNotifyMessage">
+    <wsdl:message name="receiveNotifyMessage">
 		<wsdl:part element="ns:receiveNotify" name="receiveNotify">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="receiveNotifyPartnerMessage">
+		<wsdl:part element="ns:receiveNotifyPartner" name="receiveNotifyPartner">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="receiveNotifyPartnersMessage">
+		<wsdl:part element="ns:receiveNotifyPartners" name="receiveNotifyPartners">
 		</wsdl:part>
 	</wsdl:message>
 	
@@ -72,13 +80,21 @@
 			<wsdl:input message="tns:notifyPartnersMessage">
 			</wsdl:input>
 		</wsdl:operation>
+		<wsdl:operation name="receiveNotifyPartner">
+			<wsdl:input message="tns:receiveNotifyPartnerMessage">
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="receiveNotifyPartners">
+			<wsdl:input message="tns:receiveNotifyPartnersMessage">
+			</wsdl:input>
+		</wsdl:operation>
 	</wsdl:portType>
 	<wsdl:portType name="CallbackPortType">
 		<wsdl:operation name="callback">
 			<wsdl:input message="tns:invokeResponse">
 			</wsdl:input>
 		</wsdl:operation>
-		<wsdl:operation name="receiveNotify">
+			<wsdl:operation name="receiveNotify">
 			<wsdl:input message="tns:receiveNotifyMessage">
 			</wsdl:input>
 		</wsdl:operation>
@@ -130,6 +146,20 @@
 			<wsdl:input>
 				<soap:body use="literal" />
 			</wsdl:input>
+		</wsdl:operation>	
+		<wsdl:operation name="receiveNotifyPartner">
+		    <soap:operation soapAction="http://siserver.org/receiveNotifyPartner"
+				style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="receiveNotifyPartners">
+		    <soap:operation soapAction="http://siserver.org/receiveNotifyPartners"
+				style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
 		</wsdl:operation>
 	</wsdl:binding>
 	<wsdl:binding name="CallbackBinding" type="tns:CallbackPortType">
@@ -141,6 +171,8 @@
 			</wsdl:input>
 		</wsdl:operation>
 		<wsdl:operation name="receiveNotify">
+		    <soap:operation soapAction="http://siserver.org/receiveNotify"
+				style="document" />
 			<wsdl:input>
 				<soap:body use="literal" />
 			</wsdl:input>

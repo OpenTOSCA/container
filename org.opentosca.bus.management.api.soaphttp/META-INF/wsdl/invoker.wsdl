@@ -80,10 +80,6 @@
 			<wsdl:input message="tns:notifyPartnersMessage">
 			</wsdl:input>
 		</wsdl:operation>
-		<wsdl:operation name="receiveNotify">
-			<wsdl:input message="tns:receiveNotifyMessage">
-			</wsdl:input>
-		</wsdl:operation>
 		<wsdl:operation name="receiveNotifyPartner">
 			<wsdl:input message="tns:receiveNotifyPartnerMessage">
 			</wsdl:input>
@@ -96,6 +92,10 @@
 	<wsdl:portType name="CallbackPortType">
 		<wsdl:operation name="callback">
 			<wsdl:input message="tns:invokeResponse">
+			</wsdl:input>
+		</wsdl:operation>
+			<wsdl:operation name="receiveNotify">
+			<wsdl:input message="tns:receiveNotifyMessage">
 			</wsdl:input>
 		</wsdl:operation>
 	</wsdl:portType>
@@ -146,14 +146,7 @@
 			<wsdl:input>
 				<soap:body use="literal" />
 			</wsdl:input>
-		</wsdl:operation>
-		<wsdl:operation name="receiveNotify">
-		    <soap:operation soapAction="http://siserver.org/receiveNotify"
-				style="document" />
-			<wsdl:input>
-				<soap:body use="literal" />
-			</wsdl:input>
-		</wsdl:operation>
+		</wsdl:operation>	
 		<wsdl:operation name="receiveNotifyPartner">
 		    <soap:operation soapAction="http://siserver.org/receiveNotifyPartner"
 				style="document" />
@@ -173,6 +166,13 @@
 		<soap:binding style="document"
 			transport="http://schemas.xmlsoap.org/soap/http" />
 		<wsdl:operation name="callback">
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="receiveNotify">
+		    <soap:operation soapAction="http://siserver.org/receiveNotify"
+				style="document" />
 			<wsdl:input>
 				<soap:body use="literal" />
 			</wsdl:input>

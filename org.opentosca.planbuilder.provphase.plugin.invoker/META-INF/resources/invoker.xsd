@@ -2,11 +2,11 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ns="http://siserver.org/schema" attributeFormDefault="qualified"
 	elementFormDefault="qualified" targetNamespace="http://siserver.org/schema">
-	
-	
 	<xs:element name="notifyPartner" type="ns:notifyPartnerType" />
 	<xs:element name="notifyPartners" type="ns:notifyPartnerType" />
 	<xs:element name="receiveNotify" type="ns:notifyPartnerType" />
+	<xs:element name="receiveNotifyPartner" type="ns:notifyPartnerType" />
+	<xs:element name="receiveNotifyPartners" type="ns:notifyPartnerType" />
 	<xs:complexType name="notifyPartnerType">
 		<xs:sequence>
 		    <xs:element minOccurs="0" maxOccurs="1" name="PlanCorrelationID"
