@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.camel.ConsumerTemplate;
@@ -81,6 +82,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             if (message.getHeader(header.name()) != null) {
                 headers.put(header.name(), message.getHeader(header.name()));
             }
+        }
+
+        if (Objects.nonNull(message.getHeader("SOAPAction"))) {
+            headers.put("SOAPAction", message.getHeader("SOAPAction"));
         }
 
         headers.put("endpoint", endpoint.replace("?wsdl", ""));
