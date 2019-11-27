@@ -172,6 +172,7 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), Activator.apiID);
             exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), "receiveNotify");
             exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
+            exchange.getIn().setHeader("SOAPAction", new URI("http://siserver.org/receiveNotify"));
             return;
         }
 
