@@ -20,19 +20,19 @@ public class RelationshipTemplateInstanceTest {
     final NodeTemplateInstance source = new NodeTemplateInstance();
     source.setId(1L);
     source.setState(NodeTemplateInstanceState.CONFIGURED);
-    source.setTemplateId(QName.valueOf("Source"));
+    source.setTemplateId("Source");
     source.setTemplateType(QName.valueOf("TestType"));
 
     final NodeTemplateInstance target = new NodeTemplateInstance();
     target.setId(2L);
     target.setState(NodeTemplateInstanceState.CONFIGURED);
-    target.setTemplateId(QName.valueOf("Source"));
+    target.setTemplateId("Source");
     target.setTemplateType(QName.valueOf("TestNodeType"));
 
     final RelationshipTemplateInstance relation = new RelationshipTemplateInstance();
     relation.setId(1L);
     relation.setState(RelationshipTemplateInstanceState.CREATED);
-    relation.setTemplateId(QName.valueOf("HostedOn"));
+    relation.setTemplateId("HostedOn");
     relation.setTemplateType(QName.valueOf("TestRelationType"));
 
     /*

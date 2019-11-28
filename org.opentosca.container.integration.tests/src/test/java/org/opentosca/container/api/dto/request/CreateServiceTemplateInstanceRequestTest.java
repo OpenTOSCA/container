@@ -25,7 +25,7 @@ public class CreateServiceTemplateInstanceRequestTest {
   @Test
   public void testUnmarshalling() throws Exception {
     final String xml =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><correlationID>123456789</correlationID>";
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><correlationID xmlns=\"http://opentosca.org/api\">123456789</correlationID>";
     final Unmarshaller o = this.context.createUnmarshaller();
     final CreateServiceTemplateInstanceRequest result =
       (CreateServiceTemplateInstanceRequest) o.unmarshal(new StringReader(xml));
@@ -35,7 +35,7 @@ public class CreateServiceTemplateInstanceRequestTest {
   @Test
   public void testMarshalling() throws Exception {
     final String xml =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><correlationID>123456789</correlationID>";
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><correlationID xmlns=\"http://opentosca.org/api\">123456789</correlationID>";
     final CreateServiceTemplateInstanceRequest test = new CreateServiceTemplateInstanceRequest();
     test.setCorrelationId("123456789");
     final StringWriter writer = new StringWriter();
