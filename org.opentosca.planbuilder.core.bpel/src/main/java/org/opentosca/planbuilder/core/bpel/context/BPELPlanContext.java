@@ -759,8 +759,8 @@ public class BPELPlanContext extends PlanContext {
     for (final Path wsdlFile : wsdlFiles) {
       try {
         // TODO: in both if blocks we make huge assumptions with the
-        // get(0)'s, as a wsdl file can have multiple services with
-        // given portTypes
+        //  get(0)'s, as a wsdl file can have multiple services with
+        //  given portTypes
 
         // if we only have one portType in the partnerLink, we just add
         // a invoke

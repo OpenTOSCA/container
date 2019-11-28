@@ -694,9 +694,10 @@ public class BPELPlanHandler {
     // add import for the process wsdl
     addImports(processNamespace, buildPlan.getWsdl().getFileName(), BPELPlan.ImportType.WSDL, buildPlan);
 
-    // add partnerlink to the process. note/FIXME?: the partnerlinktype of
-    // the process itself is alread initialized with setting the name of the
-    // process wsdl
+    // add partnerlink to the process.
+    // FIXME/NOTE?: the partnerlinktype of
+    //  the process itself is alread initialized with setting the name of the
+    //  process wsdl
     //
     // e.g.<bpel:partnerLink name="client"
     // partnerLinkType="tns:bamoodlebuildplan"
@@ -1112,8 +1113,8 @@ public class BPELPlanHandler {
     newBuildPlan.getBpelFaultHandlersElement().appendChild(catchAll);
 
     // TODO this is here to not to forget that the imports elements aren't
-    // attached, cause there are none and import elements aren't nested in a
-    // list element
+    //  attached, cause there are none and import elements aren't nested in a
+    //  list element
     //
     // this.bpelImportsElement = this.bpelProcessDocument.createElementNS(
     // BuildPlan.bpelNamespace, "imports");

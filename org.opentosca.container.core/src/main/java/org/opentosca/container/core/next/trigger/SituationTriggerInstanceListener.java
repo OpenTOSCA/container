@@ -91,7 +91,7 @@ public class SituationTriggerInstanceListener {
         //        final TPlan plan = this.toscaEngine.getToscaReferenceMapper()
         //          .getPlanForCSARIDAndPlanID(servInstance.getCsarId().toOldCsarId(), planId);
 
-        // FIXME
+        // FIXME reinstate actual plan invocation by getting managed planEngine instance
         final TPlanDTO planDTO = new TPlanDTO();// new TPlanDTO(plan, planId.getNamespaceURI());
 
         for (final TParameterDTO param : planDTO.getInputParameters().getInputParameter()) {

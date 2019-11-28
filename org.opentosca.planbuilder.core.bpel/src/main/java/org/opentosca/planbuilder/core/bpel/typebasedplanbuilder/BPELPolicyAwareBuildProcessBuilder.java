@@ -418,8 +418,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
     return false;
   }
 
-  // TODO delete this method, or add to utils. is pretty much copied from the
-  // net
+  // TODO delete this method, or add to utils. is pretty much copied from the net
 
   /**
    * <p>

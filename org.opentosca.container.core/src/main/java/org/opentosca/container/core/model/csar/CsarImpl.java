@@ -184,8 +184,6 @@ public class CsarImpl implements Csar {
     // Do not check hashes and do not store immutably => don't put anything into the export configuration
     try (OutputStream out = Files.newOutputStream(targetPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
       try {
-        // FIXME CsarExporter.addManifest throws NoClassDefFoundError for Environment's initialization.
-        // Winery OSGI export configuration is probably broken
         exporter.writeCsar(wineryRepo, entryServiceTemplate.get(), out, exportConfiguration);
       } catch (RepositoryCorruptException | InterruptedException | AccountabilityException | ExecutionException e) {
         LOGGER.warn("Exporting the csar failed with an exception", e);

@@ -183,7 +183,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
       }
     }
     // FIXME: this is clearly an error in definitions, but no mechanism to
-    // handle this right now, e.g. NoRelationshipTypeFoundException
+    //  handle this right now, e.g. NoRelationshipTypeFoundException
     return null;
   }
 

@@ -116,7 +116,7 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
   }
 
   // FIXME do not return IADeploymentInfo. Attempts are only used internally.
-  // Instead return the DeploymentState of a compound key encapsulating CsarId and RelPath
+  //  Instead return the DeploymentState of a compound key encapsulating CsarId and RelPath
   @Override
   public synchronized IADeploymentInfo getIADeploymentInfo(CsarId csar, String iaRelPath) {
     LOGGER.trace("Retrieving IA Deployment info for IA [{}] in Csar {}", iaRelPath, csar.csarName());

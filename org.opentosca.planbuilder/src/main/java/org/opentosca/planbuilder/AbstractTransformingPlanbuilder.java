@@ -461,8 +461,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
 
   // TODO FIXME this is a really naive implementation until we can integrate a
-  // proper(i.e. efficient) subgraph calculation
-  // based on https://stackoverflow.com/a/14644158
+  //  proper(i.e. efficient) subgraph calculation based on https://stackoverflow.com/a/14644158
   private Set<AbstractNodeTemplate> getMaxCommonSubgraph(Set<AbstractNodeTemplate> vertices,
                                                          Set<AbstractNodeTemplate> graph1,
                                                          Set<AbstractNodeTemplate> graph2,

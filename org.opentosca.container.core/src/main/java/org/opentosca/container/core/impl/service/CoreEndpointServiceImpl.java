@@ -78,8 +78,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
    */
   public void storeWSDLEndpoint(final WSDLEndpoint endpoint) {
 
-    // TODO this check is a hack because of the problem with deploying of
-    // multiple deployment artifacts
+    // TODO this check is a hack because of the problem with deploying of multiple deployment artifacts
     if (!existsWSDLEndpoint(endpoint)) {
       if (!this.em.getTransaction().isActive()) {
         this.em.getTransaction().begin();

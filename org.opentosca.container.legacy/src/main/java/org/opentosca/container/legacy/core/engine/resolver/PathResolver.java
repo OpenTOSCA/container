@@ -18,7 +18,7 @@ public class PathResolver {
    * relative path is absolute, the relative path is returned. If there is an error, null is returned.
    * <p>
    * TODO to avoid legacy problems this method handles absolute pathes in the parameter relativePath.
-   * This is not specification compliant!
+   *   This is not specification compliant!
    *
    * @param locationPath
    * @param relativePath

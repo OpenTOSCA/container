@@ -302,11 +302,10 @@ public class ODEEndpointUpdater {
 
         for (final Object obj : wsdlDef.getPortTypes().values()) {
           final PortType portTypeInWsdl = (PortType) obj;
-          // TODO when axis1 service port and porttype have the same
-          // name,
-          // still don't know what the problem will be if it happens,
-          // cause i check only portTypes here
-          // please send me an email with the problem
+          // TODO when axis1 service port and porttype have the same name,
+          //  still don't know what the problem will be if it happens,
+          //  cause i check only portTypes here
+          //  please send me an email with the problem
           if (portTypeInWsdl.getQName().toString().equals(portType.toString())) {
             // this wsdl file contains the porttype
             filesContainingPortType.add(wsdlFile);
@@ -596,7 +595,7 @@ public class ODEEndpointUpdater {
    */
   private boolean changeAddress(final ExtensibilityElement element, final WSDLEndpoint endpoint) {
     // TODO check if we could generalize this, we did once, but after
-    // looking at it again it seems not right enough
+    //  looking at it again it seems not right enough
     if (element.getElementType().equals(SOAPConstants.Q_ELEM_SOAP_ADDRESS)) {
       LOG.debug("Changing the SOAP-Address Element inside for porttype {} ",
         endpoint.getPortType().toString());

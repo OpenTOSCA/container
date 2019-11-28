@@ -13,7 +13,7 @@ public class CsarId implements Comparable<CsarId> {
     this.name = name;
   }
 
-  // FOR LEGACY ADAPTERING!! GET THIS REMOVED!
+  // TODO FOR LEGACY ADAPTERING!! GET THIS REMOVED!
   @Deprecated
   public CsarId(CSARID storeCSAR) {
     name = storeCSAR.getFileName();

@@ -47,7 +47,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // a double check basically
         // FIXME somehow the canHandle method should already include the planType but not with context
-        // object itself as it allows to manipulate the plan already
+        //  object itself as it allows to manipulate the plan already
         if (!this.canHandleCreate(nodeTemplate)) {
             return false;
         }

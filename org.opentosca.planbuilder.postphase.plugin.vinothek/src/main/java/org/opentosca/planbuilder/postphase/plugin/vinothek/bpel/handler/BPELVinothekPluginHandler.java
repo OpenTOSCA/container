@@ -134,10 +134,9 @@ public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlan
 
   private boolean handleBPELApp(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
                                 final AbstractNodeTypeImplementation nodeImpl) {
-    // FIXME: this will be working under many assumptions (bpel-engine: wso2
-    // bps.., no port reconfigs,..)
-    // we try to construct an endpoint of the form
-    // ServerIP:9763/services/BPELStack_buildPlanService/
+    // FIXME: this will be working under many assumptions (bpel-engine: wso2 bps.., no port reconfigs,..)
+    //  we try to construct an endpoint of the form
+    //  ServerIP:9763/services/BPELStack_buildPlanService/
 
     final List<AbstractDeploymentArtifact> das = new ArrayList<>();
 

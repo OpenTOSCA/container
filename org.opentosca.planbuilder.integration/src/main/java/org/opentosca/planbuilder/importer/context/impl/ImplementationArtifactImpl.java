@@ -90,7 +90,7 @@ public class ImplementationArtifactImpl extends AbstractImplementationArtifact {
   @Override
   public String getName() {
     // TODO there is a bug in the schema, there is no name attribute defined
-    // "name" is now interfacename_operationname
+    //  "name" is now interfacename_operationname
     return this.artifact.getInterfaceName() + "_" + this.artifact.getOperationName();
   }
 

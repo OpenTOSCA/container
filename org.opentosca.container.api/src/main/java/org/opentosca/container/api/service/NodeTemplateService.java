@@ -138,7 +138,7 @@ public class NodeTemplateService {
   }
 
   // TODO Careful! this method assumes that the namespace of a node template is the same namespace
-  // as its parent service template!
+  //  as its parent service template!
 
   /**
    * Creates a new instance of the NodeTemplateDTO class. It fetches the qualified name of node

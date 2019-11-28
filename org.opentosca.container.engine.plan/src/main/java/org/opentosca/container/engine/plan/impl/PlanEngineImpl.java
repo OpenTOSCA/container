@@ -175,8 +175,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 
     for (final TPlan plan : p) {
       // FIXME plans.getTargetNamespace can be null, then the
-      // targetNamespace has to be taken of the Service Template or
-      // Definitions
+      //  targetNamespace has to be taken of the Service Template or Definitions
       if (!this.undeployPlan(plan, namespace, csarId)) {
         nonUndeployedPlans.add(plan);
       }

@@ -480,8 +480,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       // https://stackoverflow.com/questions/3005963/how-can-i-have-a-newline-in-a-string-in-sh
       // https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
       // we have to escape single quotes in the parameter values and properly pipe newlines
-      // TODO(?) There is still the issue if you use commands in scipt which don't interpret
-      // backslashes
+      // TODO(?) There is still the issue if you use commands in scipt which don't interpret backslashes
       paramsString += param.getKey() + "=$'" + escapeSpecialCharacters(param.getValue()) + "' ";
     }
 

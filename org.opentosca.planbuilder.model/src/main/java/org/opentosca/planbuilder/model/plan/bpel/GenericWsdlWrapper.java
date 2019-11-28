@@ -290,8 +290,7 @@ public class GenericWsdlWrapper {
    */
   public boolean addImportElement(final String importType, final String namespace, final String prefix,
                                   final String location) {
-    // TODO we assume the location is absolute for packaging later this has
-    // to be fixed
+    // TODO we assume the location is absolute for packaging later this has to be fixed
     if (this.absoluteLocations.contains(location)) {
       return false;
     }

@@ -324,10 +324,9 @@ public class BPELInvokerPluginHandler {
       Node assignNode = null;
       // if (context.getPlanType().equals(PlanType.TERMINATE)) {
       // TODO FIXME, right now the termination plans are able to call operations of node Instances for
-      // that the instanceID can be null at runtime e.g. when removing a DockerContainer the operation
-      // removeContainer of the DockerEngine is called for that the nodeInstanceId is not fetched at the
-      // time
-      // of removal
+      //  that the instanceID can be null at runtime e.g. when removing a DockerContainer the operation
+      //  removeContainer of the DockerEngine is called for that the nodeInstanceId is not fetched at the
+      //  time of removal
       // TIP this issue theoretically happens only with the "container deployment pattern" were a hosting
       // node has the operations needed to manage a component => different termination handling for such
       // components is needed

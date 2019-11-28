@@ -293,7 +293,7 @@ public final class ToscaEngine {
       return Collections.emptyList();
     }
     // FIXME this is a bit weird, because it resolves the implementations of the whole type hierarchy,
-    // but that matches the previous implementation, soo ...
+    //  but that matches the previous implementation, soo ...
     return csar.nodeTypeImplementations().stream()
       .filter(impl -> {
         try {

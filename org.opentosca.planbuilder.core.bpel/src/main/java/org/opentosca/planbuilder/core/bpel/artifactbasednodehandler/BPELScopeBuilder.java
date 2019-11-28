@@ -469,10 +469,9 @@ public class BPELScopeBuilder {
   }
 
   private void selectProvisioning(final OperationChain chain, final List<String> operationNames) {
-    // TODO just select the first ia candidate, da candidate and prov
-    // candidate for now
-    // Selection should determine a minimal provisioning. Minimal=
-    // min{|IACandidates| + |DACandidates| +|ProvPhaseOperations|}
+    // TODO just select the first ia candidate, da candidate and prov candidate for now
+    //  Selection should determine a minimal provisioning.
+    //  Minimal= min{|IACandidates| + |DACandidates| + |ProvPhaseOperations|}
 
     // select first candidate set where the provisioning candidate uses the given operations
 

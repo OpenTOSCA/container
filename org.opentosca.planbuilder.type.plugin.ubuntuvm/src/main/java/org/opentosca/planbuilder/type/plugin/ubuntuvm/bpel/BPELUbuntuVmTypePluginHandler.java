@@ -130,11 +130,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             minorVers = Integer.parseInt(rightDashSplit[0]);
             minorVersString = String.valueOf(minorVers).trim();
 
-            // TODO: this quick fix handles issues when minorVersion becomes a
-            // single digit and the amiID string will be e.g. 14.4 instead of
-            // 14.04
-            // Maybe fix this by using some external resource for correct image
-            // versions
+            // TODO: this quick fix handles issues when minorVersion becomes a single digit and the
+            //  amiID string will be e.g. 14.4 instead of 14.04
+            //  Maybe fix this by using some external resource for correct image versions
             if (minorVersString.length() != 2) {
                 minorVersString = "0" + minorVersString;
             }
@@ -391,7 +389,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // needed as BPS 2.1.2 fails at returning addresses appropiate for
         // callback
         // TODO maybe do a check with BPS Connector for BPS version, because
-        // since vers. 3 retrieving the address of the plan works
+        //  since vers. 3 retrieving the address of the plan works
         context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
         // we'll add the logic to VM Nodes Prov phase, as we need proper updates
@@ -664,7 +662,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // needed as BPS 2.1.2 fails at returning addresses appropiate for
         // callback
         // TODO maybe do a check with BPS Connector for BPS version, because
-        // since vers. 3 retrieving the address of the plan works
+        //  since vers. 3 retrieving the address of the plan works
         context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
         // we'll add the logic to VM Nodes Prov phase, as we need proper updates
@@ -1182,7 +1180,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // needed as BPS 2.1.2 fails at returning addresses appropiate for
         // callback
         // TODO maybe do a check with BPS Connector for BPS version, because
-        // since vers. 3 retrieving the address of the plan works
+        //  since vers. 3 retrieving the address of the plan works
         context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
         // we'll add the logic to VM Nodes Prov phase, as we need proper updates

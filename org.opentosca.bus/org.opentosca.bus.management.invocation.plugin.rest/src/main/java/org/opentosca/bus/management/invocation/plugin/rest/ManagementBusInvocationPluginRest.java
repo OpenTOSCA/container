@@ -387,7 +387,7 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
    * @param isDoc
    * @return exchange with response of the invokes service as body.
    * @TODO: Response handling is a bit hacky. Should be updated sometime to determine the response
-   * type with content-type header.
+   *   type with content-type header.
    */
   private Exchange createResponseExchange(final Exchange exchange, final String responseString,
                                           final String operationName, final boolean isDoc) {
