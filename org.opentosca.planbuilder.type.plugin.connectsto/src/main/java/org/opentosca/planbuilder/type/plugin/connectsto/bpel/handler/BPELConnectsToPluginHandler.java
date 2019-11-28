@@ -12,7 +12,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -25,7 +25,6 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -353,10 +352,9 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     public String loadAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query,
                                                                   final String stringVarName) throws IOException {
         // <!-- {AssignName},{xpath2query}, {stringVarName} -->
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-                                     .getResource("connectsto-plugin/assignStringVarWithXpath2Query.xml");
-        final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
-        String template = FileUtils.readFileToString(bpelFragmentFile);
+        final URL url = getClass().getClassLoader()
+          .getResource("connectsto-plugin/assignStringVarWithXpath2Query.xml");
+        String template = ResourceAccess.readResourceAsString(url);
         template = template.replace("{AssignName}", assignName);
         template = template.replace("{xpath2query}", xpath2Query);
         template = template.replace("{stringVarName}", stringVarName);

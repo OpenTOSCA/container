@@ -26,9 +26,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.convention.Properties;
@@ -42,7 +42,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.bpel.BPELVinothekPlugin;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.core.handler.VinothekPluginHandler;
-import org.osgi.framework.FrameworkUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -75,13 +74,10 @@ public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlan
   private Node createSelfserviceApplicationUrlAssign(final String serverIpVarName, final String applicationName,
                                                      final String outputVarName, final String outputVarPartName,
                                                      final String outputVarPrefix) throws IOException, SAXException {
-    // <!--{serverIpVarName} {appName} {outputVarName} {outputVarPartName}
-    // {outputVarPrefix} -->
-
-    final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+    // <!--{serverIpVarName} {appName} {outputVarName} {outputVarPartName} {outputVarPrefix} -->
+    final URL url = getClass().getClassLoader()
       .getResource("vinothek-plugin/assignSelfserviceApplicationUrl.xml");
-    final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
-    String template = FileUtils.readFileToString(bpelfragmentfile);
+    String template = ResourceAccess.readResourceAsString(url);
     template = template.replace("{serverIpVarName}", serverIpVarName);
     template = template.replace("{appName}", applicationName);
     template = template.replace("{outputVarName}", outputVarName);
