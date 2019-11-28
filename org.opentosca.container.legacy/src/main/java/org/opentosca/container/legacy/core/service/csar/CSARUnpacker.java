@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.opentosca.container.core.common.SystemException;
@@ -13,7 +12,6 @@ import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.container.core.impl.service.internal.file.visitors.DirectoryDeleteVisitor;
 import org.opentosca.container.core.impl.service.internal.file.visitors.DirectoryVisitor;
-import org.opentosca.container.core.service.IFileAccessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,15 +48,14 @@ public class CSARUnpacker {
   }
 
   /**
-   * Unpacks the CSAR file to a Temp directory from {@link IFileAccessService#getTemp()} and gets all
-   * files and directories in the unpack directory.<br />
+   * Unpacks the CSAR file to a temporary directory and gets all files and directories in the unpack directory.<br />
    * <br />
    * Note: If unpacking or getting files and directories in unpacking directory failed, deleting
-   * unpack directory will be tried.
+   * unpack directory will be attempted.
    *
    * @throws SystemException if unpacking or getting files and directories in unpack directory failed.
    */
-  public void unpackAndVisitUnpackDir() throws UserException, SystemException, IOException {
+  public void unpackAndVisitUnpackDir() throws UserException, SystemException {
     LOG.debug("Unpacking CSAR located at \"{}\"...", this.csarFile);
 
     try {
@@ -73,7 +70,7 @@ public class CSARUnpacker {
 
       LOG.debug("Unpacking CSAR located at \"{}\" and getting its files and directories completed.", this.csarFile);
 
-    } catch (IOException | UserException | SystemException exc) {
+    } catch (UserException | SystemException exc) {
       this.deleteUnpackDir();
       throw exc;
     }

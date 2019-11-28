@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import static java.nio.file.FileVisitResult.CONTINUE;
 
 @NonNullByDefault
 public class FileSystem {
@@ -25,18 +28,25 @@ public class FileSystem {
   /**
    * Creates a ready-to-use directory that previously did not exist.
    *
-   * @return A {@link Path} pointing towards a folder within the system-designated temporary directory as indicated by the {@literal java.io.tmpdir} system property.
-   * @throws IOException Thrown iif the folder could not be created
+   * @return A {@link Path} pointing towards a folder within the system-designated temporary directory as
+   *  indicated by the {@literal java.io.tmpdir} system property.
    */
   // synchronized to avoid race-conditions, TODO investigate an internal mutex?
-  public static synchronized Path getTemporaryFolder() throws IOException {
+  public static synchronized Path getTemporaryFolder() {
     Path candidate = FS_TEMP.resolve(String.valueOf(System.nanoTime()));
     while (Files.exists(candidate)) {
       candidate = FS_TEMP.resolve(String.valueOf(System.nanoTime()));
     }
     // create the directory
-    Files.createDirectories(candidate);
-    return candidate;
+    while (true) {
+      try {
+        Files.createDirectories(candidate);
+      } catch (IOException e) {
+        LOG.warn("Could not create temporary directory {}", candidate, e);
+        continue;
+      }
+      return candidate;
+    }
   }
 
   public static Path unpackToTemp(Path zipFile) throws IOException {
@@ -120,5 +130,27 @@ public class FileSystem {
     } finally {
       zipFs.close();
     }
+  }
+
+  public static void copyDirectory(Path source, Path target) throws IOException {
+    Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+      @Override
+      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes basicFileAttributes) throws IOException {
+        Path targetdir = target.resolve(source.relativize(dir));
+        try {
+          Files.copy(dir, targetdir);
+        } catch (FileAlreadyExistsException e) {
+          if (!Files.isDirectory(targetdir))
+            throw e;
+        }
+        return CONTINUE;
+      }
+
+      @Override
+      public FileVisitResult visitFile(Path path, BasicFileAttributes basicFileAttributes) throws IOException {
+        Files.copy(source, target.resolve(source.relativize(source)));
+        return CONTINUE;
+      }
+    });
   }
 }

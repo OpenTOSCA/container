@@ -5,7 +5,6 @@ import java.net.URL;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
-import org.opentosca.container.core.service.IFileAccessService;
 import org.eclipse.winery.model.tosca.Definitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -81,11 +81,7 @@ public class CoreFileServiceImpl implements ICoreFileService {
       }
 
       csarUnpacker = new CSARUnpacker(csarFile);
-      try {
-        csarUnpacker.unpackAndVisitUnpackDir();
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
+      csarUnpacker.unpackAndVisitUnpackDir();
 
       final Path csarUnpackDir = csarUnpacker.getUnpackDirectory();
       final DirectoryVisitor csarVisitor = csarUnpacker.getFilesAndDirectories();
@@ -103,26 +99,7 @@ public class CoreFileServiceImpl implements ICoreFileService {
 
       Path persistentStorageLocation = baseDirectory.resolve(csarID.getFileName());
       try {
-        Files.createDirectories(persistentStorageLocation);
-        Files.walkFileTree(csarUnpackDir, new SimpleFileVisitor<Path>() {
-          @Override
-          public FileVisitResult preVisitDirectory(Path directory, BasicFileAttributes basicFileAttributes) throws IOException {
-            Path targetdir = persistentStorageLocation.resolve(csarUnpackDir.relativize(directory));
-            try {
-              Files.copy(directory, targetdir);
-            } catch (FileAlreadyExistsException e) {
-              if (!Files.isDirectory(targetdir))
-                throw e;
-            }
-            return CONTINUE;
-          }
-
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes basicFileAttributes) throws IOException {
-            Files.copy(file, persistentStorageLocation.resolve(csarUnpackDir.relativize(file)));
-            return CONTINUE;
-          }
-        });
+        FileSystem.copyDirectory(csarUnpackDir, persistentStorageLocation);
       } catch (IOException e) {
         throw new SystemException("Creating the permanent storage for the CSAR failed", e);
       }

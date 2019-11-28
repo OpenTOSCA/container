@@ -3,9 +3,11 @@ package org.opentosca.container.engine.plan.plugin.bpel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.wsdl.WSDLException;
@@ -23,6 +25,7 @@ import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
@@ -30,7 +33,6 @@ import org.opentosca.container.core.model.csar.backwards.ArtifactResolver;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
 import org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightUpdater;
 import org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater;
@@ -53,13 +55,12 @@ import org.xml.sax.SAXException;
  * </p>
  * <p>
  * The actual deployment is done on the endpoint given in the properties.
- * The plugin uses {@link BpsConnector} or {@link OdeConnector} class to deploy the updated plan
- * unto the WSO2 BPS or Apache ODE behind the endpoint, respectively.
+ * The plugin uses the {@link OdeConnector} class to deploy the updated plan
+ * unto the Apache ODE behind the endpoint.
  * </p>
  *
  * @see BPELRESTLightUpdater
  * @see ODEEndpointUpdater
- * @see BpsConnector
  * @see OdeConnector
  * @see ICoreEndpointService
  */
@@ -82,14 +83,12 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
   private final String url;
   private final String servicesUrl;
 
-  private final IFileAccessService fileAccessService;
   private final ICoreEndpointService endpointService;
   private final CsarStorageService storage;
 
   @Inject
   // FIXME inject a Spring Environment to read the messages.properties and use these instead of the core settings
-  public BpelPlanEnginePlugin(IFileAccessService fileAccessService, ICoreEndpointService endpointService, CsarStorageService storage) {
-    this.fileAccessService = fileAccessService;
+  public BpelPlanEnginePlugin(ICoreEndpointService endpointService, CsarStorageService storage) {
     this.endpointService = endpointService;
     this.storage = storage;
 
@@ -121,18 +120,21 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
   }
 
   public boolean deployPlanFile(final Path planLocation, final CsarId csarId, final QName planId, Map<String, String> endpointMetadata) {
-    IFileAccessService localCopy = this.fileAccessService;
-    if (localCopy == null) {
-      LOG.error("FileAccessService is not available, can't create needed temporary space on disk");
+    final List<File> planContents;
+    Path tempDir = null;
+    try {
+      // creating temporary dir for update
+      tempDir = FileSystem.getTemporaryFolder();
+      LOG.debug("Unzipping Plan '{}' to '{}'.", planLocation.getFileName().toString(), tempDir.toAbsolutePath().toString());
+      planContents = FileSystem.unzip(planLocation, tempDir).parallelStream()
+        .map(Path::toFile)
+        .collect(Collectors.toList());
+    } catch (IOException e) {
+      LOG.warn("Could not unzip plan from {} to {} due to an exception", planLocation.toString(), tempDir, e);
       return false;
     }
 
-    // creating temporary dir for update
-    File tempDir = localCopy.getTemp();
-    File tempPlan = new File(tempDir, planLocation.getFileName().toString());
-    LOG.debug("Unzipping Plan '{}' to '{}'.", planLocation.getFileName().toString(), tempDir.getAbsolutePath());
-    List<File> planContents = localCopy.unzip(planLocation.toFile(), tempDir);
-
+    Path tempPlan = tempDir.resolve(planLocation.getFileName());
     // changing endpoints in WSDLs
     ODEEndpointUpdater odeUpdater;
     // variable for the (inbound) portType of the process, if this is null
@@ -175,25 +177,19 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     // package process
     LOG.info("Prepare deployment of PlanModelReference");
 
-    if (this.fileAccessService != null) {
       try {
-        if (tempPlan.createNewFile()) {
-          // package the updated files
-          LOG.debug("Packaging plan to {} ", tempPlan.getAbsolutePath());
-          tempPlan = this.fileAccessService.zip(tempDir, tempPlan);
-        } else {
-          LOG.error("Can't package temporary plan for deployment");
-          return false;
-        }
+        Files.createFile(tempPlan);
+        // package the updated files
+        LOG.debug("Packaging plan to {} ", tempPlan.toAbsolutePath().toString());
+        FileSystem.zip(tempDir, tempPlan);
       }
       catch (final IOException e) {
         LOG.error("Can't package temporary plan for deployment", e);
         return false;
       }
-    }
 
     // deploy process
-    LOG.info("Deploying Plan: {}", tempPlan.getName());
+    LOG.info("Deploying Plan: {}", tempPlan.getFileName().toString());
     String processId = "";
     Map<String, URI> endpoints = Collections.emptyMap();
     try {
@@ -201,7 +197,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         LOG.error("BPS ENGINE IS NO LONGER SUPPORTED!!");
       } else {
         final OdeConnector connector = new OdeConnector();
-        processId = connector.deploy(tempPlan, url);
+        processId = connector.deploy(tempPlan.toFile(), url);
         endpoints = connector.getEndpointsForPID(processId, url);
       }
     }
@@ -244,7 +240,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
       return false;
     }
     LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
-    LOG.info("Deployment of Plan was successfull: {}", tempPlan.getName());
+    LOG.info("Deployment of Plan was successfull: {}", tempPlan.getFileName().toString());
 
     // save endpoint
     final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;

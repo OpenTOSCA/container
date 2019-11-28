@@ -1,40 +1,21 @@
 package org.opentosca.container.api.planbuilder;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
-import org.apache.http.NameValuePair;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.eclipse.winery.model.selfservice.ApplicationOption;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.impl.service.FileAccessServiceImpl;
 import org.opentosca.container.core.impl.service.FileSystem;
-import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.export.VinothekKnownParameters;
-import org.opentosca.planbuilder.importer.Importer;
-import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
@@ -87,7 +68,7 @@ public class Util {
    * @return a File denoting the export location
    */
   public static File writePlan2TmpFolder(final BPELPlan buildPlan) {
-    final Exporter planBuilderExporter = new Exporter(new FileAccessServiceImpl());
+    final Exporter planBuilderExporter = new Exporter();
 
     try {
       final File tmpDir = FileSystem.getTemporaryFolder().toFile();

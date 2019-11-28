@@ -22,7 +22,6 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.selfservice.ApplicationOption;
@@ -40,9 +39,9 @@ import org.oasis_open.docs.tosca.ns._2011._12.TPlans;
 import org.oasis_open.docs.tosca.ns._2011._12.TServiceTemplate;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.container.legacy.core.model.CSARContent;
 import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.export.exporters.SimpleFileExporter;
@@ -74,17 +73,14 @@ public class Exporter extends AbstractExporter {
   private final ObjectFactory toscaFactory = new ObjectFactory();
   private final CSARHandler handler = new CSARHandler();
 
-  private final IFileAccessService fileAccessService;
-
   /**
    * Constructor
    *
    * @param service
    */
   @Inject
-  public Exporter(IFileAccessService fileAccessService) {
-    this.fileAccessService = fileAccessService;
-  }
+  public Exporter() { }
+
 
   /**
    * Exports the given BuildPlan to the given URI
@@ -125,9 +121,9 @@ public class Exporter extends AbstractExporter {
 
     final String csarName = csarId.getFileName();
 
-    final File tempDir = fileAccessService.getTemp();
-    final File pathToRepackagedCsar = fileAccessService.getTemp();
-    final File repackagedCsar = new File(pathToRepackagedCsar, csarName);
+    final Path tempDir = FileSystem.getTemporaryFolder();
+    final Path pathToRepackagedCsar = FileSystem.getTemporaryFolder();
+    final Path repackagedCsar = pathToRepackagedCsar.resolve(csarName);
 
     try {
       final Set<AbstractFile> files = csarContent.getFilesRecursively();
@@ -208,24 +204,24 @@ public class Exporter extends AbstractExporter {
 
       final Path csarRoot = Paths.get(csarContent.getDirectory(".").getPath()).getParent();
       for (final AbstractFile file : files) {
-        if (file.getFile().toFile().toString().equals(rootDefFile.toString())) {
+        if (file.getFile().toString().equals(rootDefFile.toString())) {
           continue;
         }
 
         final Path filePath = Paths.get(file.getPath());
         final Path relativeToRoot = csarRoot.relativize(filePath);
-        final File newLocation = tempDir.toPath().resolve(relativeToRoot).toFile();
-        LOG.debug("Exporting {} to {}", file.getFile(), newLocation.getAbsolutePath());
-        if (newLocation.isDirectory()) {
-          FileUtils.copyDirectory(file.getFile().toFile(), newLocation);
+        final Path newLocation = tempDir.resolve(relativeToRoot);
+        LOG.debug("Exporting {} to {}", file.getFile(), newLocation.toAbsolutePath().toString());
+        if (Files.isDirectory(newLocation)) {
+          FileSystem.copyDirectory(file.getFile(), newLocation);
         } else {
-          FileUtils.copyFile(file.getFile().toFile(), newLocation);
+          Files.copy(file.getFile(), newLocation);
         }
       }
 
       // write new defs file
 
-      final File newDefsFile = tempDir.toPath().resolve(csarRoot.relativize(Paths.get(mainDefFile.getPath()))).toFile();
+      final File newDefsFile = tempDir.resolve(csarRoot.relativize(Paths.get(mainDefFile.getPath()))).toFile();
       Files.createDirectories(newDefsFile.toPath().getParent());
       newDefsFile.createNewFile();
 
@@ -243,21 +239,21 @@ public class Exporter extends AbstractExporter {
 
       // write plans
       for (final BPELPlan plan : plansToExport) {
-        final File planPath = new File(tempDir, generateRelativePlanPath(plan));
+        final Path planPath = tempDir.resolve(generateRelativePlanPath(plan));
         Exporter.LOG.debug(planPath.toString());
-        planPath.getParentFile().mkdirs();
-        planPath.createNewFile();
-        this.simpleExporter.export(planPath.toURI(), plan);
+        Files.createDirectories(planPath.getParent());
+        Files.createFile(planPath);
+        this.simpleExporter.export(planPath.toUri(), plan);
       }
 
       // Check if selfservice is already available
-      final File selfServiceDir = new File(tempDir, "SELFSERVICE-Metadata");
-      final File selfServiceDataXml = new File(selfServiceDir, "data.xml");
+      final Path selfServiceDir = tempDir.resolve("SELFSERVICE-Metadata");
+      final Path selfServiceDataXml = selfServiceDir.resolve("data.xml");
       final JAXBContext jaxbContextWineryApplication = JAXBContext.newInstance(Application.class);
 
-      if (selfServiceDir.exists() && selfServiceDataXml.exists()) {
+      if (Files.exists(selfServiceDir) && Files.exists(selfServiceDataXml)) {
         final Unmarshaller u = jaxbContextWineryApplication.createUnmarshaller();
-        final Application appDesc = (Application) u.unmarshal(selfServiceDataXml);
+        final Application appDesc = (Application) u.unmarshal(selfServiceDataXml.toFile());
 
         if (appDesc.getOptions() != null) {
           // check if planInput etc. is set properly
@@ -266,13 +262,10 @@ public class Exporter extends AbstractExporter {
             for (final BPELPlan plan : plansToExport) {
               if (option.getPlanServiceName()
                 .equals(getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart())) {
-                if (!new File(selfServiceDir, option.getPlanInputMessageUrl()).exists()) {
-                  // the planinput file is defined in the xml,
-                  // but
-                  // no file exists in the csar -> write one
-                  final File planInputFile =
-                    new File(selfServiceDir, option.getPlanInputMessageUrl());
-                  writePlanInputMessageInstance(plan, planInputFile);
+                  final Path planInputFile = selfServiceDir.resolve(option.getPlanInputMessageUrl());
+                if (!Files.exists(planInputFile)) {
+                  // the planinput file is defined in the xml, but no file exists in the csar -> write one
+                  writePlanInputMessageInstance(plan, planInputFile.toFile());
                   exportedPlans.add(plan);
                 }
               }
@@ -288,15 +281,15 @@ public class Exporter extends AbstractExporter {
               }
 
               final ApplicationOption option = createApplicationOption(plan, optionCounter);
-              writePlanInputMessageInstance(plan, new File(selfServiceDir,
-                "plan.input.default." + optionCounter + ".xml"));
+              writePlanInputMessageInstance(plan,
+                selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
 
               appDesc.getOptions().getOption().add(option);
               optionCounter++;
             }
 
             final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
-            wineryAppMarshaller.marshal(appDesc, selfServiceDataXml);
+            wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
           }
 
         } else {
@@ -305,44 +298,48 @@ public class Exporter extends AbstractExporter {
 
           for (final BPELPlan plan : plansToExport) {
             final ApplicationOption option = createApplicationOption(plan, optionCounter);
-            writePlanInputMessageInstance(plan, new File(selfServiceDir,
-              "plan.input.default." + optionCounter + ".xml"));
+            writePlanInputMessageInstance(plan,
+              selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
             optionCounter++;
             options.getOption().add(option);
           }
           appDesc.setOptions(options);
 
           final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
-          wineryAppMarshaller.marshal(appDesc, selfServiceDataXml);
+          wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
         }
 
       } else {
         // write SELFSERVICE-Metadata folder and files
-        if (selfServiceDir.mkdirs() && selfServiceDataXml.createNewFile()) {
-          final Application appDesc = new Application();
-
-          appDesc.setDisplayName(csarName);
-          appDesc.setDescription("No description available. This application was partially generated");
-          appDesc.setIconUrl("");
-          appDesc.setImageUrl("");
-
-          int optionCounter = 1;
-          final Application.Options options = new Application.Options();
-
-          for (final BPELPlan plan : plansToExport) {
-            final ApplicationOption option = createApplicationOption(plan, optionCounter);
-            writePlanInputMessageInstance(plan, new File(selfServiceDir,
-              "plan.input.default." + optionCounter + ".xml"));
-            optionCounter++;
-            options.getOption().add(option);
-          }
-          appDesc.setOptions(options);
-
-          final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
-          wineryAppMarshaller.marshal(appDesc, selfServiceDataXml);
+        Files.createDirectories(selfServiceDir);
+        // safeguard against an exception by checking whether the thing exists before trying to create it
+        if (!Files.exists(selfServiceDataXml)) {
+          Files.createFile(selfServiceDataXml);
         }
+        final Application appDesc = new Application();
+
+        appDesc.setDisplayName(csarName);
+        appDesc.setDescription("No description available. This application was partially generated");
+        appDesc.setIconUrl("");
+        appDesc.setImageUrl("");
+
+        int optionCounter = 1;
+        final Application.Options options = new Application.Options();
+
+        for (final BPELPlan plan : plansToExport) {
+          final ApplicationOption option = createApplicationOption(plan, optionCounter);
+          writePlanInputMessageInstance(plan,
+            selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
+          optionCounter++;
+          options.getOption().add(option);
+        }
+        appDesc.setOptions(options);
+
+        final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
+        wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
       }
 
+      FileSystem.zip(tempDir, repackagedCsar);
     } catch (final IOException e) {
       Exporter.LOG.error("Some IO Exception occured", e);
     } catch (final JAXBException e) {
@@ -350,9 +347,8 @@ public class Exporter extends AbstractExporter {
     } catch (final SystemException e) {
       Exporter.LOG.error("Some error in the openTOSCA Core", e);
     }
-    fileAccessService.zip(tempDir, repackagedCsar);
     LOG.debug(repackagedCsar.toString());
-    return repackagedCsar;
+    return repackagedCsar.toFile();
   }
 
   private ApplicationOption createApplicationOption(final BPELPlan plan, final int optionCounter) {

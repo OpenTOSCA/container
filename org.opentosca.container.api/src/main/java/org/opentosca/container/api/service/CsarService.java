@@ -3,7 +3,6 @@ package org.opentosca.container.api.service;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.impl.service.FileAccessServiceImpl;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;

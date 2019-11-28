@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.service.IFileAccessService;
 
 /**
  * Abstract class of a file. Provides methods to fetch the file and get it's meta data.
@@ -25,7 +24,7 @@ public abstract class AbstractFile {
   }
 
   /**
-   * Retrieves this file to a Temp directory from {@link IFileAccessService#getTemp()}.
+   * Retrieves this file to a temporary directory.
    *
    * @return {@link Path} of this file.
    * @throws SystemException if an error occurred during retrieving.
