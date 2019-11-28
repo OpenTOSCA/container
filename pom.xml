@@ -168,12 +168,6 @@
         <version>${winery.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.core</artifactId>
-        <version>4.3.1</version>
-      </dependency>
-
       <!--
         pin jaxb-core and jaxb-impl version to avoid NoSuchFieldError: REFLECTION
         as suggested in https://stackoverflow.com/a/30220824/

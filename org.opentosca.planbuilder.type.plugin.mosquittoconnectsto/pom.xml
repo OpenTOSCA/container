@@ -12,10 +12,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.planbuilder.model</artifactId>
       <version>${project.version}</version>

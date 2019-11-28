@@ -27,10 +27,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.planbuilder.provphase.plugin.invoker</artifactId>
       <version>${project.version}</version>

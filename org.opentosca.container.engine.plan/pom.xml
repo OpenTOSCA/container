@@ -13,10 +13,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.github.OpenTOSCA.winery</groupId>
       <artifactId>org.eclipse.winery.model.tosca</artifactId>
     </dependency>

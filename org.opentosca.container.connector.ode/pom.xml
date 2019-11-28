@@ -34,10 +34,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>wsdl4j</groupId>
       <artifactId>wsdl4j</artifactId>
     </dependency>

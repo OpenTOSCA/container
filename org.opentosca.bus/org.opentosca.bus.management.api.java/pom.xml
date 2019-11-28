@@ -21,12 +21,7 @@
       <artifactId>camel-stream</artifactId>
       <version>${camel.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core-osgi</artifactId>
-      <version>${camel.version}</version>
-    </dependency>
-    
+
     <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.bus.management</artifactId>
