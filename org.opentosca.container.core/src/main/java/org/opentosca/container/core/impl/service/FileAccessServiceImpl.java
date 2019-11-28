@@ -3,12 +3,10 @@ package org.opentosca.container.core.impl.service;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
-import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +29,15 @@ public class FileAccessServiceImpl implements IFileAccessService {
   private File getResource(final String relFilePath) {
 
     URL bundleResURL = null;
-    URL fileResURL = null;
+    Path nioPath = null;
     File fileRes = null;
 
     try {
       bundleResURL = this.getClass().getResource(relFilePath);
       // convert bundle resource URL to file URL
-      fileResURL = FileLocator.toFileURL(bundleResURL);
-      fileRes = new File(fileResURL.toURI());
+      nioPath = ResourceAccess.resolveUrl(bundleResURL);
+      // FIXME can not return nioPath.toFile, because the URI most likely points
+      //  to something inside a JAR file
     } catch (final Exception e) {
       LOG.error("", e);
     }

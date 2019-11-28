@@ -4,19 +4,17 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Properties;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.common.Settings;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.opentosca.container.core.common.file.ResourceAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
 
 import io.moquette.server.Server;
-
 
 /**
  * This bundle is used to start a local MQTT broker for the OpenTOSCA ecosystem. The broker is
@@ -31,7 +29,8 @@ import io.moquette.server.Server;
  *
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
  */
-public class Activator implements BundleActivator {
+// FIXME reinstate this functionality
+public class Activator {
 
   final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
 
@@ -40,8 +39,7 @@ public class Activator implements BundleActivator {
 
   private Server mqttBroker;
 
-  @Override
-  public void start(final BundleContext bundleContext) throws Exception {
+  public void start() throws Exception {
     Activator.LOG.info("Starting local MQTT broker at port: {}", Settings.OPENTOSCA_BROKER_MQTT_PORT);
 
     File credentialsFile = null;
@@ -49,9 +47,10 @@ public class Activator implements BundleActivator {
     // try to create a credentials file
     try {
       // get META-INF folder as File
-      final URL bundleResURL = bundleContext.getBundle().getEntry(METAINF_FOLDER);
-      final URL fileResURL = FileLocator.toFileURL(bundleResURL);
-      final File metainfFolder = new File(fileResURL.getPath());
+      final URL bundleResURL = getClass().getResource(METAINF_FOLDER);
+      final Path fileResURL = ResourceAccess.resolveUrl(bundleResURL);
+      // FIXME this will never work
+      final File metainfFolder = fileResURL.toFile();
 
       // create a password file
       credentialsFile = new File(metainfFolder.getPath() + CONFIGFILE_PATH);
@@ -97,8 +96,7 @@ public class Activator implements BundleActivator {
     Activator.LOG.info("MQTT broker started");
   }
 
-  @Override
-  public void stop(final BundleContext arg0) throws Exception {
+  public void stop() throws Exception {
     Activator.LOG.info("Stopping MQTT borker");
 
     this.mqttBroker.stopServer();
