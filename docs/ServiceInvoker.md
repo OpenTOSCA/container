@@ -150,50 +150,50 @@ Goal of the invocation is to invoke the implementation artifact, specified in ro
 The specification of ReplyTo in row 19 tells the service invocation interface at which address the callback with the response should be sent.
 The MessageID is sent back to the plan from the service invocation interface, because it is required by the workflow engine to be able to assign the query response as well as the correct plan instance.
 
-```
-01 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.
-02 									org/soap/envelope/" xmlns:
-03 									sch="http://siserver.
-04 									org/schema">
-05 		<soapenv:Header/>
-06 		<soapenv:Body>
-07 			<sch:invokeOperation>
-08 			<CsarID>DBCsar</CsarID>
-09 			<!--Optional:-->
-10 			<ServiceInstanceID>Instance5</ServiceInstanceID>
-11 			<ServiceTemplateIDNamespaceURI>
-12 				http://CsarDBCreator.org/DB/
-13 			</ServiceTemplateIDNamespaceURI>
-14 			<ServiceTemplateIDLocalPart>
-15 				DBCreator\_ServiceTemplate
-16 			</ServiceTemplateIDLocalPart>
-17 			<NodeTemplateID>DB\_NodeTemplate</NodeTemplateID>
-18 			<OperationName>createDB</OperationName>
-19 			<ReplyTo>http://localhost:1337/callback</ReplyTo>
-20 			<MessageID>A7ZD70AH</MessageID>
-21 			<!--Optional:-->
-22 			<Params>
-23 				<!--1 or more repetitions:-->
-24 				<Param>
-25 					<key>Size</key>
-26 					<value>5</value>
-27 				</Param>
-28 				<Param>
-29 					<key>Host</key>
-30 					<value>Azure</value>
-31 				</Param>
-32 				<Param>
-33 					<key>User</key>
-34 					<value>admin</value>
-35 				</Param>
-36 				<Param>
-37 					<key>Password</key>
-38 					<value>p8ilR6N9</value>
-39 				</Param>
-40 			</Params>
-41 		</sch:invokeOperation>
-42 	</soapenv:Body>
-43 </soapenv:Envelope> 
+```xml
+ <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.
+ 									org/soap/envelope/" xmlns:
+ 									sch="http://siserver.
+ 									org/schema">
+ 		<soapenv:Header/>
+ 		<soapenv:Body>
+ 			<sch:invokeOperation>
+ 			<CsarID>DBCsar</CsarID>
+ 			<!--Optional:-->
+ 			<ServiceInstanceID>Instance5</ServiceInstanceID>
+ 			<ServiceTemplateIDNamespaceURI>
+ 				http://CsarDBCreator.org/DB/
+ 			</ServiceTemplateIDNamespaceURI>
+ 			<ServiceTemplateIDLocalPart>
+ 				DBCreator\_ServiceTemplate
+ 			</ServiceTemplateIDLocalPart>
+ 			<NodeTemplateID>DB\_NodeTemplate</NodeTemplateID>
+ 			<OperationName>createDB</OperationName>
+ 			<ReplyTo>http://localhost:1337/callback</ReplyTo>
+ 			<MessageID>A7ZD70AH</MessageID>
+ 			<!--Optional:-->
+ 			<Params>
+ 				<!--1 or more repetitions:-->
+ 				<Param>
+ 					<key>Size</key>
+ 					<value>5</value>
+ 				</Param>
+ 				<Param>
+ 					<key>Host</key>
+ 					<value>Azure</value>
+ 				</Param>
+ 				<Param>
+ 					<key>User</key>
+ 					<value>admin</value>
+ 				</Param>
+ 				<Param>
+ 					<key>Password</key>
+ 					<value>p8ilR6N9</value>
+ 				</Param>
+ 			</Params>
+ 		</sch:invokeOperation>
+ 	</soapenv:Body>
+ </soapenv:Envelope> 
 ```
 Listing 3: SOAP message of a plan to the service invocation interface to create a database
 
@@ -248,19 +248,19 @@ What happens afterwards with this data and how the actual invocation of the impl
 In the case of the SOAP/HTTP plugin for example further information is read from the WSDL belonging to the implementation artifact, a SOAP message corresponding to the WSDL is created and this is sent to the implementation artifact.
 From the response, in the case of a SOAP message this would be the body, the output parameters are extracted and those are put into the body of the message object which gets returned to the SI engine.
 
-```
-01 <soap:Envelope
-02 xmlns:soap="http://www.w3.org/2001/12/soap-envelope"
-03 soap:encodingStyle="http://www.w3.org/2001/12/soap-encoding">
-04 	<soap:Body xmlns:m="http://www.DBIA.org/DBCreator">
-05 		<m:CreateDBRequest>
-06 		<m:Size>5</m:Size>
-07 		<m:Host>AWS</m:Host>
-08 		<m:User>admin</m:User>
-09 		<m:Password>p8ilR6N9</m:Password>
-10 		</m:CreateDBRequest>
-11 	</soap:Body>
-12 </soap:Envelope>
+```xml
+ <soap:Envelope
+ xmlns:soap="http://www.w3.org/2001/12/soap-envelope"
+ soap:encodingStyle="http://www.w3.org/2001/12/soap-encoding">
+ 	<soap:Body xmlns:m="http://www.DBIA.org/DBCreator">
+ 		<m:CreateDBRequest>
+ 		<m:Size>5</m:Size>
+ 		<m:Host>AWS</m:Host>
+ 		<m:User>admin</m:User>
+ 		<m:Password>p8ilR6N9</m:Password>
+ 		</m:CreateDBRequest>
+ 	</soap:Body>
+ </soap:Envelope>
 ```
 
 Listing 4: SOAP message created with the SOAP/HTTP plugin
@@ -268,16 +268,16 @@ Listing 4: SOAP message created with the SOAP/HTTP plugin
 Listing 5 shows the answer of the implementation artifact.
 In this example on the query to create a database the address of the database is returned as response.
 
-```
-01 <soap:Envelope
-02 xmlns:soap="http://www.w3.org/2001/12/soap-envelope"
-03 soap:encodingStyle="http://www.w3.org/2001/12/soap-encoding">
-04 	<soap:Body>
-05 		<CreateDBResponse>
-06 			<URL>http://s3.amazonaws.com/my-5GB-DB</URL>
-07 		</CreateDBResponse>
-08 	</soap:Body>
-09 </soap:Envelope>
+```xml
+ <soap:Envelope
+ xmlns:soap="http://www.w3.org/2001/12/soap-envelope"
+ soap:encodingStyle="http://www.w3.org/2001/12/soap-encoding">
+ 	<soap:Body>
+ 		<CreateDBResponse>
+ 			<URL>http://s3.amazonaws.com/my-5GB-DB</URL>
+ 		</CreateDBResponse>
+ 	</soap:Body>
+ </soap:Envelope>
 ```
 Listing 5: Response of the implementation artifact
 
@@ -298,22 +298,22 @@ A plan to invoke an implementation artifact only requires the information specif
 
 Finally the created SOAP message that was passed in the beginning from the plan to the service invocation interface is sent to the address (ReplyTo) in the header.
 
-```
-01 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.
-02 									org/soap/envelope/" xmlns:
-03 									sch="http://siserver.
-04 									org/schema">
-05 	<soapenv:Header/>
-06 	<soapenv:Body>
-07 		<sch:invokeResponse>
-08 			<MessageID>A7ZD70AH</MessageID>
-09 			<Params>
-10 				<Key>URL</Key>
-11 				<Value>http://s3.amazonaws.com/my-5GB-DB</Value>
-12 			</Params>
-13		</sch:invokeResponse>
-14 	</soapenv:Body>
-15 </soapenv:Envelope>
+```xml
+ <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.
+ 									org/soap/envelope/" xmlns:
+ 									sch="http://siserver.
+ 									org/schema">
+ 	<soapenv:Header/>
+ 	<soapenv:Body>
+ 		<sch:invokeResponse>
+ 			<MessageID>A7ZD70AH</MessageID>
+ 			<Params>
+ 				<Key>URL</Key>
+ 				<Value>http://s3.amazonaws.com/my-5GB-DB</Value>
+ 			</Params>
+		</sch:invokeResponse>
+ 	</soapenv:Body>
+ </soapenv:Envelope>
 ```
 Listing 6: Message from the SOAP API back to the invoker
 
@@ -336,14 +336,14 @@ Based on the implemented interface and the so specified service the OSGi SI plug
 The endpoint of the implementation artifact in this case has to be the ID of the respective OSGi service.
 Listing 7 shows the methods set by the interface.
 
-```
-01 public void invoke(String operationName, HashMap<String,
-02 					  String> params);
-03
-04 public Object invoke(String operationName, HashMap<String,
-05						String> params);
-06
-07 public getID();
+```java
+ public void invoke(String operationName, HashMap<String,
+ 					  String> params);
+
+ public Object invoke(String operationName, HashMap<String,
+						String> params);
+
+ public getID();
 ```
 Listing 7: Methods of the OSGi implementation artifact interface
 
@@ -391,7 +391,7 @@ If the operation name is not unique within a node type the name of the interface
 This is done with the INTERFACENAME_STRING.
 PLANID_QNAME is used if a plan is to be invoked and serves to identify the plan.
 
-```
+```java
 public enum SIEnum {
 CSARID, SERVICEINSTANCEID_STRING, NODEINSTANCEID_STRING, SERVICETEMPLATEID_QNAME, NODETEMPLATEID_STRING,
 INTERFACENAME_STRING, OPERATIONNAME_STRING, PLANID_QNAME, ENDPOINT_URI, SPECIFICCONTENT_DOCUMENT
@@ -418,32 +418,32 @@ With it a SOAP web services is started on http://localhost:8081/invoker per CXF 
 The invoker.wsdl serves as WSDL of the web service.
 The service and port are defined by the WSDL.
 
-```
-01 String INVOKE = "cxf:http://localhost:
-02                  8081/invoker?wsdlURL=META-INF/invoker.
-03                  wsdl&serviceName={http://siserver.org/wsdl}
-04                  SIServerInvokeService&portName={http:
-05                  //siserver.org/wsdl}
-06                  SIServerInvokePort";
+```java
+ String INVOKE = "cxf:http://localhost:
+                  8081/invoker?wsdlURL=META-INF/invoker.
+                  wsdl&serviceName={http://siserver.org/wsdl}
+                  SIServerInvokeService&portName={http:
+                  //siserver.org/wsdl}
+                  SIServerInvokePort";
 
-07 String CALLBACK = "cxf:${header[ReplyTo]}?wsdlURL=META-
-08                  INF/invoker.wsdl&serviceName={http:
-09                  //siserver.org/wsdl}
-10                   SIServerCallback&portName={http://siserver.
-11                  org/wsdl}CallbackPort";
+ String CALLBACK = "cxf:${header[ReplyTo]}?wsdlURL=META-
+                  INF/invoker.wsdl&serviceName={http:
+                  //siserver.org/wsdl}
+                   SIServerCallback&portName={http://siserver.
+                  org/wsdl}CallbackPort";
 
-12 String ENGINE_IA = "bean:siengineinterface.
-13                  SIEngineInterface?method=invokeOperation";
+ String ENGINE_IA = "bean:siengineinterface.
+                  SIEngineInterface?method=invokeOperation";
 
-14 String ENGINE_PLAN = "bean:siengineinterface.
-15                  SIEngineInterface?method=invokePlan";
+ String ENGINE_PLAN = "bean:siengineinterface.
+                  SIEngineInterface?method=invokePlan";
 
-16 from(INVOKE).unmarshal(requestJaxb).process(requestProcessor)
-17       .choice().when(this.header(CxfConstants.OPERATION_NAME).
-18      isEqualTo("invokeOperation")).to(ENGINE_IA).when(this.header(
-19      CxfConstants.OPERATION_NAME).isEqualTo("invokePlan")).
-20      to(ENGINE_PLAN).end().process(responseProcessor).
-21      marshal(responseJaxb).recipientList(this.simple(CALLBACK));
+ from(INVOKE).unmarshal(requestJaxb).process(requestProcessor)
+       .choice().when(this.header(CxfConstants.OPERATION_NAME).
+      isEqualTo("invokeOperation")).to(ENGINE_IA).when(this.header(
+      CxfConstants.OPERATION_NAME).isEqualTo("invokePlan")).
+      to(ENGINE_PLAN).end().process(responseProcessor).
+      marshal(responseJaxb).recipientList(this.simple(CALLBACK));
 ```
 
 Listing 9: Route of the Service Invocation SOAP API
@@ -501,25 +501,25 @@ The class has to implement the interface EventHandler and the corresponding meth
 The names of the lists (event.topics) the component is subscribed to have to be specified.
 In this example this is the list org_opentosca_plans/request which is used for example by the plan invocation engine to send query for the invocation of plans.
 
-```
-01 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.
-02 							0" immediate="false" name="org.
-03							opentosca.siengine.api.osgievent.
-04							SIEventHandler">
-05 	<implementation class="org.opentosca.siengine.api.
-06 						 osgievent.SIEventHandler"/>
-07 	<reference bind="bindEventAdmin" cardinality="1..1"
-08 					interface="org.osgi.service.event.
-09 					EventAdmin" name="EventAdmin"
-10 					policy="static"
-11 					unbind="unbindEventAdmin"/>
-12 	<service>
-13 		<provide interface="org.osgi.service.event.
-14 							EventHandler"/>
-15 	</service>
-16 	<property name="event.topics" type="String"
-17 					value="org_opentosca_plans/requests"/>
-18 </scr:component>
+```xml
+ <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.
+ 							0" immediate="false" name="org.
+							opentosca.siengine.api.osgievent.
+							SIEventHandler">
+ 	<implementation class="org.opentosca.siengine.api.
+ 						 osgievent.SIEventHandler"/>
+ 	<reference bind="bindEventAdmin" cardinality="1..1"
+ 					interface="org.osgi.service.event.
+ 					EventAdmin" name="EventAdmin"
+ 					policy="static"
+ 					unbind="unbindEventAdmin"/>
+ 	<service>
+ 		<provide interface="org.osgi.service.event.
+ 							EventHandler"/>
+ 	</service>
+ 	<property name="event.topics" type="String"
+ 					value="org_opentosca_plans/requests"/>
+ </scr:component>
 ```
 
 Listing 10: Usage of the OSGi event service
@@ -563,24 +563,24 @@ With the InvocationType element the invocation type of the implementation artifa
 In this case SOAP/HTTP.
 The SI engine would then forward this request for the invocation of this implementation artifact to a plugin that can handle SOAP/HTTP.
 
-```
-01 	<p:ArtifactTemplate id="EC2VMService" type="toscatypes:
-02 						WAR">
-03 		<p:Properties>
-04 			<opentosca:WSProperties>
-05 				<opentosca:ServiceEndpoint>
-06 						/services/EC2VMIAService
-07 				</opentosca:ServiceEndpoint>
-08 				<opentosca:InvocationType>
-09 						SOAP/HTTP
-10 				</opentosca:InvocationType>
-11 			</opentosca:WSProperties>
-12 		</p:Properties>
-13 		<p:ArtifactReferences>
-14 			<p:ArtifactReference reference=
-15 					"IAs/EC2VMService/EC2-VM-Service.war" />
-16 		</p:ArtifactReferences>
-17 	</p:ArtifactTemplate>
+```xml
+<p:ArtifactTemplate id="EC2VMService" type="toscatypes:
+                    WAR">
+    <p:Properties>
+        <opentosca:WSProperties>
+            <opentosca:ServiceEndpoint>
+                    /services/EC2VMIAService
+            </opentosca:ServiceEndpoint>
+            <opentosca:InvocationType>
+                    SOAP/HTTP
+            </opentosca:InvocationType>
+        </opentosca:WSProperties>
+    </p:Properties>
+    <p:ArtifactReferences>
+        <p:ArtifactReference reference=
+                "IAs/EC2VMService/EC2-VM-Service.war" />
+    </p:ArtifactReferences>
+</p:ArtifactTemplate>
 ```
 
 Listing 11: Example ArtifactTemplate with invocation type specification
@@ -596,25 +596,25 @@ The plugin system is realized with declarative services.
 The SI plugins implement the specified interface SIPluginInterface (see [SI Plugin Interface](#service-invocation-plugin-interface)) and respectively provide the service ISIEnginePluginService.
 This is shown in rows four and five in Listing 12.
 
-```
-01 <scr:component ...>
-02 	<implementation class= .../>
-03 	<service>
-04 		<provide interface="org.opentosca.siengine.plugins.
-05 							service.ISIEnginePluginService"/>
-06 	</service>
-07 </scr:component>
+```xml
+ <scr:component ...>
+ 	<implementation class= .../>
+ 	<service>
+ 		<provide interface="org.opentosca.siengine.plugins.
+ 							service.ISIEnginePluginService"/>
+ 	</service>
+ </scr:component>
 ```
 Listing 12: Providing a service per OSGi XML configuration file
-```
-01 <scr:component ...>
-02 	<implementation class= .../>
-03 	<reference bind="bindPluginService" cardinality="0..n"
-04 					interface="org.opentosca.siengine.plugins.
-05 					service.ISIEnginePluginService"
-06 					name="SIPluginInterface" policy="dynamic"
-07 					unbind="unbindPluginService"/>
-08 </scr:component>
+```xml
+ <scr:component ...>
+ 	<implementation class= .../>
+ 	<reference bind="bindPluginService" cardinality="0..n"
+ 					interface="org.opentosca.siengine.plugins.
+ 					service.ISIEnginePluginService"
+ 					name="SIPluginInterface" policy="dynamic"
+ 					unbind="unbindPluginService"/>
+ </scr:component>
 ```
 Listing 13: Binding a service per OSGi XML configuration file
 
@@ -628,21 +628,21 @@ The key is the invocation type and the value is the plugin.
 During the stopping of a plugin the unbind method is executed and the plugin is removed from the map (row 8 to eleven).
 Because of this system the SI engine always has a current list of available SI plugins and can choose a suitable plugin based on the invocation type of the implementation artifact.
 
-```
-01 Map<String, ISIEnginePluginService> pluginServicesMap = Collections.
-02 synchronizedMap(new HashMap<String, ISIEnginePluginService >());
+```java
+ Map<String, ISIEnginePluginService> pluginServicesMap = Collections.
+ synchronizedMap(new HashMap<String, ISIEnginePluginService >());
 
-. . .
+// . . .
 
-03 public void bindPluginService(ISIEnginePluginService plugin) {
-04
-05 		pluginServicesMap.put(plugin.getType(), plugin);
-06 }
-07
-08 public void unbindPluginService(ISIEnginePluginService plugin) {
-09
-10 		pluginServicesMap.remove(plugin.getType());
-11 }
+ public void bindPluginService(ISIEnginePluginService plugin) {
+
+ 		pluginServicesMap.put(plugin.getType(), plugin);
+ }
+
+ public void unbindPluginService(ISIEnginePluginService plugin) {
+
+ 		pluginServicesMap.remove(plugin.getType());
+ }
 ```
 
 Listing 14: Implementation of the plugin system
@@ -652,14 +652,14 @@ Listing 14: Implementation of the plugin system
 This chapter presents the interface for the SI plugins.
 As mentioned earlier all plugins usable by the service invocation interface have to implement this interface and provide the service ISIEnginePluginService.
 
-```
-01 public interface ISIEnginePluginService {
-02
-03 	public Exchange invoke(Exchange exchange);
-04
-05 	public String getType();
-06
-07 }
+```java
+ public interface ISIEnginePluginService {
+
+ 	public Exchange invoke(Exchange exchange);
+
+ 	public String getType();
+
+ }
 ```
 Listing 15: Interface of the SI plugins
 
@@ -698,13 +698,13 @@ Listing 16: One-Way Operation
 **Request-Response (In-Out)**:  The client (the plugin) sends a SOAP message to the service and waits for the response message.
 An example of a request response operation is in shown in Listing 17.
 
-```
-01 	<wsdl:operation name="request-responseOperation">
-02 		<wsdl:input message="tns:requestMessage">
-03 		</wsdl:input>
-04 		<wsdl:output message="tns:responseMessage">
-05 		</wsdl:output>
-06 	</wsdl:operation>
+```xml
+<wsdl:operation name="request-responseOperation">
+    <wsdl:input message="tns:requestMessage">
+    </wsdl:input>
+    <wsdl:output message="tns:responseMessage">
+    </wsdl:output>
+</wsdl:operation>
 ```
 
 Listing 17: Request-Response operation
@@ -734,18 +734,18 @@ To enable the plugin to create the message according to the implementation of th
 This information is determined in the SI engine with the TOSCA engine and passed to the plugin.
 Listing 18 shows the schema to describe mapping information, which have to be defined inside the implementation artifact (as artifact specific content).
 
-```
-01 <DataAssign>
-02 		<Operations>
-03 			<Operation name="String" ?
-04 						interfaceName="String" ?
-05 						endpoint="no | yes" ?
-06 						params="queryString | payload" ?
-07 						contentType="urlencoded | xml" ?
-08 						method="POST | GET" ? >
-09 			</Operation> +
-10 		</Operations>
-11 </DataAssign>
+```xml
+<DataAssign>
+    <Operations>
+        <Operation name="String" ?
+                    interfaceName="String" ?
+                    endpoint="no | yes" ?
+                    params="queryString | payload" ?
+                    contentType="urlencoded | xml" ?
+                    method="POST | GET" ? >
+        </Operation> +
+    </Operations>
+</DataAssign>
 ```
 
 Listing 18: Schema to describe the parameter mapping

@@ -488,31 +488,30 @@ To realized the API the Camel *Restlet* component is used and the API operates o
 To invoke an operation of a different application the parameters have to be formatted as content type application/json and sent as HTTP-POST method, to */OATBService/v1/appInvoker*. 
 
 ```java
-1   String ENDPOINT = "restlet:http://0.0.0.0:8083/OTABService/v1/appInvoker";
+String ENDPOINT = "restlet:http://0.0.0.0:8083/OTABService/v1/appInvoker";
 
-2   from(ENDPOINT + "?restletMethods=post")
-3     .process(invocationRequestProcessor)
-4     .to(TO_APP_BUS_ENDPOINT)
-5     .process(exceptionProcessor);
+from(ENDPOINT + "?restletMethods=post")
+  .process(invocationRequestProcessor)
+  .to(TO_APP_BUS_ENDPOINT)
+  .process(exceptionProcessor);
 
-6   from(ENDPOINT + "/activeRequests/{id}?restletMethods=get")
-7     .process(isFinishedRequestProcessor)
-8     .to(TO_APP_BUS_ENDPOINT)
-9     .process(isFinishedResponseProcessor);
+from(ENDPOINT + "/activeRequests/{id}?restletMethods=get")
+  .process(isFinishedRequestProcessor)
+  .to(TO_APP_BUS_ENDPOINT)
+  .process(isFinishedResponseProcessor);
 
-10  from(ENDPOINT + "/activeRequests/{id}/response?restletMethods=get")
-11    .process(getResultRequestProcessor)
-12    .to(TO_APP_BUS_ENDPOINT)
-13    .process(getResultResponseProcessor);
+from(ENDPOINT + "/activeRequests/{id}/response?restletMethods=get")
+  .process(getResultRequestProcessor)
+  .to(TO_APP_BUS_ENDPOINT)
+  .process(getResultResponseProcessor);
 
-14  from(TO_APP_BUS_ENDPOINT)
-15    .choice().when(APP_BUS_ENDPOINT_EXISTS)
-16    .recipientList(APP_BUS_ENDPOINT)
-17    .endChoice().otherwise().to("direct:handleException");
+from(TO_APP_BUS_ENDPOINT)
+  .choice().when(APP_BUS_ENDPOINT_EXISTS)
+   .recipientList(APP_BUS_ENDPOINT)
+   .endChoice().otherwise().to("direct:handleException");
 
-18  from("direct:handleException").throwException(
-19   new ApplicationBusInternalException("The Application Bus is not running."));
-
+from("direct:handleException").throwException(
+ new ApplicationBusInternalException("The Application Bus is not running."));
 ```
 
 **Routes of the Application Bus JSON/HTTP API**
@@ -525,18 +524,17 @@ If the processing has finished an answer with the HTTP status code 303 (see othe
 If not an answer with the HTTP status code 200 (ok) and content *{\"status\": \"PENDING\"}* is returned. 
 
 ```json
-1   {
-2       "invocation-information": {
-3          "serviceInstanceID": 12, 
-4           "nodeTemplateID": "TempSensorsAppTemplate", 
-5           "interface": "TempSensors", 
-6           "operation": "getTemp"
-7       }, 
-8       "params": {
-9           "sensorID": "HouseFront"
-10      }
-11   }
-
+{
+    "invocation-information": {
+       "serviceInstanceID": 12, 
+        "nodeTemplateID": "TempSensorsAppTemplate", 
+        "interface": "TempSensors", 
+        "operation": "getTemp"
+    }, 
+    "params": {
+        "sensorID": "HouseFront"
+    }
+}
 ```
 
 **Request to the Application Bus JSON/HTTP API to invoke an operation**
@@ -567,8 +565,7 @@ POST
 /TempSensors/Operations/getTemp
 {  
      "sensorID" : "HouseFront"
- }
-
+}
 ```
 
 **Request to the Application Bus REST/HTTP API to invoke an operation with specification of the ServiceInstanceID**
@@ -580,8 +577,7 @@ POST
 /NodeInstances/42/ApplicationInterfaces/TempSensors/Operations/getTemp
 {  
      "sensorID" : "HouseFront"
- }
-
+}
 ```
 
 **Request to the Application Bus REST/HTTP API to invoke an operation with a specified NodeInstanceID**
@@ -640,20 +636,18 @@ An important requirement is the adding of plugins to expand the standards and pr
 This is done with the following plugin system. 
 
 ```java
-1    public interface IApplicationBusPluginService {
-2
-3	    /**
-4	     * @return supported InvocationTypes of this plugin.
-5	     */
-6	    public List<String> getSupportedInvocationTypes();
-7
-8	    /**
-9	     * @return the routing endpoint of this plugin.
-10	     */
-11	    public String getRoutingEndpoint();
-12
-13   }
+public interface IApplicationBusPluginService {
 
+    /**
+     * @return supported InvocationTypes of this plugin.
+     */
+    public List<String> getSupportedInvocationTypes();
+
+    /**
+     * @return the routing endpoint of this plugin.
+     */
+    public String getRoutingEndpoint();
+}
 ```
 
 **Application Bus Plugin Interface**
@@ -693,28 +687,27 @@ The correct endpoint is read from the previously set header.
 If the answer contains the intended status code (202) the polling address transmitted by the location header is set as the new endpoint and forwarded to the polling sub route. 
 Otherwise the exception handling comes into effect. 
 
-```json
-1   from(ENDPOINT)
-2     .process(requestProcessor)
-3     .setHeader(Exchange.HTTP_METHOD, constant("POST"))
-4     .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-5     .setHeader(Exchange.HTTP_URI, INVOKE_ENDPOINT).to("http://dummyhost")
-6     .choice()
-7     .when(header(Exchange.HTTP_RESPONSE_CODE).isEqualTo(202))
-8     .setHeader(Exchange.HTTP_URI, simple("${header.Location}"))
-9     .to("direct:polling")
-10    .endChoice()
-11    .otherwise().to("direct:handleException");
+```java
+from(ENDPOINT)
+  .process(requestProcessor)
+  .setHeader(Exchange.HTTP_METHOD, constant("POST"))
+  .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+  .setHeader(Exchange.HTTP_URI, INVOKE_ENDPOINT).to("http://dummyhost")
+  .choice()
+  .when(header(Exchange.HTTP_RESPONSE_CODE).isEqualTo(202))
+  .setHeader(Exchange.HTTP_URI, simple("${header.Location}"))
+  .to("direct:polling")
+  .endChoice()
+  .otherwise().to("direct:handleException");
 
-12  from("direct:polling")
-13    .setHeader(Exchange.HTTP_METHOD, constant("GET")).to("http://dummyhost")
-14    .choice()
-15    .when(PENDING).delay(5000).to("direct:polling")
-16    .endChoice()
-17    .when(RESULT_RECEIVED).process(responseProcessor)
-18    .endChoice()
-19    .otherwise().to("direct:handleException");
-
+from("direct:polling")
+  .setHeader(Exchange.HTTP_METHOD, constant("GET")).to("http://dummyhost")
+  .choice()
+  .when(PENDING).delay(5000).to("direct:polling")
+  .endChoice()
+  .when(RESULT_RECEIVED).process(responseProcessor)
+  .endChoice()
+  .otherwise().to("direct:handleException");
 ```
 
 ** Route of the Application Bus JSON/HTTP Plugin **

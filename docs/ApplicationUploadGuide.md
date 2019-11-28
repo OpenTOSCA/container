@@ -1,6 +1,6 @@
 ## How to upload an application
 
-- Go to [opentosca2](localhost:8088/#/applications)
+- Go to [opentosca2](http://localhost:8088/#/applications)
 - Click on **Upload New Application**
 
 ![Start](graphics/Start.png "Start")

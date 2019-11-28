@@ -26,10 +26,9 @@ import org.springframework.stereotype.Service;
 /**
  * This class implements the interface {@link IPlanEngineService} and provides functionality for deployment/undeployment of plans.
  * <p>
- * The implementation uses the OSGi Framework to look for plugins which implement the interfaces
- * {@link org.opentosca.container.engine.plan.plugin.IPlanEnginePlanModelPluginService} and
- * {@link org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService} . The plans
- * (of class TPlan) are delegated to the compatible plugin for deployment/undeployment.
+ * Plugins which implement the interfaces {@link org.opentosca.container.engine.plan.plugin.IPlanEnginePlanModelPluginService} and
+ * {@link org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService} are discovered and injected through Spring.
+ * The plans (of class TPlan) are delegated to the compatible plugin for deployment/undeployment.
  * <p>
  * Where the plans are deployed is business of the respective plugins. There should always be only
  * one plugin for plans written in the same language.
