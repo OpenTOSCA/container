@@ -1,7 +1,6 @@
 package org.opentosca.bus.management.service.impl.util;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,18 +19,13 @@ import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
-import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Utility class which contains methods to handle input parameters for operation invocations by the

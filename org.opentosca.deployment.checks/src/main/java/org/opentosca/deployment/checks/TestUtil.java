@@ -12,7 +12,6 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.tosca.convention.Types;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 import org.opentosca.container.core.tosca.convention.Utils;

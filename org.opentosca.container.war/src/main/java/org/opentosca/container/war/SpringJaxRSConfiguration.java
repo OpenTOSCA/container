@@ -4,7 +4,6 @@ import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.opentosca.container.api.config.*;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ApplicationPath;

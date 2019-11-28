@@ -1,6 +1,6 @@
 package org.opentosca.container.core.next.repository;
 
-import java.util.Collection;import java.util.stream.Collectors;
+import java.util.Collection;
 
 import org.hibernate.Hibernate;
 import org.opentosca.container.core.next.model.SituationsMonitor;

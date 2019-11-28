@@ -1,7 +1,6 @@
 package org.opentosca.container.api.dto.situations;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -12,7 +11,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opentosca.container.api.dto.ResourceSupport;
-import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationsMonitor;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

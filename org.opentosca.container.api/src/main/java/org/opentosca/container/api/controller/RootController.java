@@ -30,7 +30,6 @@ import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @SwaggerDefinition(info = @Info(title = "Public API for OpenTOSCA Container",
   description = "API access to query entities and manipulate them using plans",

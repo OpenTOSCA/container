@@ -2,7 +2,6 @@ package org.opentosca.container.war;
 
 import org.opentosca.container.api.config.*;
 import org.opentosca.container.api.controller.*;
-import org.opentosca.container.api.controller.PlanbuilderController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

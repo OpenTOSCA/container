@@ -1,7 +1,6 @@
 package org.opentosca.container.core.next.trigger;
 
 //import java.io.UnsupportedEncodingException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,6 @@ import org.opentosca.container.core.common.Settings;
 //import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
-import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.SituationTriggerInstance;

@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.opentosca.container.core.common.jpa.DocumentConverter;
-import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.instance.NodeInstance;
 import org.opentosca.container.core.model.instance.RelationInstance;
 import org.opentosca.container.core.model.instance.ServiceInstance;

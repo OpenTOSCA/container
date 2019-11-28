@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -13,7 +12,6 @@ import org.eclipse.winery.model.tosca.*;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;

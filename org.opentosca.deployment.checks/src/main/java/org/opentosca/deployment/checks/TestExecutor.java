@@ -30,7 +30,6 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import javax.inject.Inject;
-import javax.xml.namespace.QName;
 
 public class TestExecutor {
 

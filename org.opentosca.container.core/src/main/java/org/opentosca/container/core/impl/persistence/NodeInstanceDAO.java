@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.xml.namespace.QName;
-
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.model.instance.NodeInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;

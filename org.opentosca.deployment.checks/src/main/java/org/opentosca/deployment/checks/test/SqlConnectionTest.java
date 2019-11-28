@@ -7,8 +7,6 @@ import org.eclipse.winery.model.tosca.TPolicyTemplate;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.deployment.checks.TestContext;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

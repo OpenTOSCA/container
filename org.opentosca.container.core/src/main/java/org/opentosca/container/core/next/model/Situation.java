@@ -6,7 +6,6 @@ import javax.persistence.EntityListeners;
 import javax.persistence.Table;
 
 import org.opentosca.container.core.next.trigger.SituationListener;
-import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 

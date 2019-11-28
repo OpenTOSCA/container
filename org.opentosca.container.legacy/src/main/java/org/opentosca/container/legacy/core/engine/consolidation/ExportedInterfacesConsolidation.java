@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-import javax.xml.xpath.*;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;

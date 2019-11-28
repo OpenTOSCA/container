@@ -1,8 +1,5 @@
 package org.opentosca.bus.management.invocation.plugin.soaphttp;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +20,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.camel.*;
 import org.apache.camel.Message;
-import org.apache.cxf.endpoint.ManagedEndpoint;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.soaphttp.route.AsyncRoute;

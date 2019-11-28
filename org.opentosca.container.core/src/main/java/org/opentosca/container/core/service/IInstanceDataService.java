@@ -5,12 +5,10 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.common.ReferenceNotFoundException;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.instance.NodeInstance;
 import org.opentosca.container.core.model.instance.RelationInstance;
 import org.opentosca.container.core.model.instance.ServiceInstance;
-import org.w3c.dom.Document;
 
 /**
  * Interface of the InstanceDataService. The interface specifies methods to manage instances of

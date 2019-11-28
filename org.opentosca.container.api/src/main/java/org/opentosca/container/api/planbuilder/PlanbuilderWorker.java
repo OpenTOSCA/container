@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import com.google.gson.JsonArray;
@@ -42,7 +41,6 @@ import org.opentosca.container.api.planbuilder.model.PlanGenerationState;
 import org.opentosca.container.api.planbuilder.model.PlanGenerationState.PlanGenerationStates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 /**
  * The worker process instance for one single plan generation.

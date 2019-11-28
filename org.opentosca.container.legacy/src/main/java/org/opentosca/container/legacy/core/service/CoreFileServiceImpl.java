@@ -1,9 +1,7 @@
 package org.opentosca.container.legacy.core.service;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
@@ -24,8 +22,6 @@ import org.opentosca.container.legacy.core.service.csar.CSARValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import static java.nio.file.FileVisitResult.CONTINUE;
 
 /**
  * Provides a store and management functionality for CSAR files.

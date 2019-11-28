@@ -23,11 +23,6 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.utils.Types;
 import org.opentosca.deployment.checks.TestContext;
 import org.opentosca.deployment.checks.TestUtil;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

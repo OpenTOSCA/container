@@ -32,7 +32,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
 
 @Path("/csars/{csar}/servicetemplates")
 @Api("/")

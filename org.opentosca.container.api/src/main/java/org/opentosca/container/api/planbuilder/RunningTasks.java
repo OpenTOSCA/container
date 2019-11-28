@@ -3,7 +3,6 @@
  */
 package org.opentosca.container.api.planbuilder;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

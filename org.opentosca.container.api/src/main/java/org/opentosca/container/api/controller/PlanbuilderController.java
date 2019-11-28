@@ -1,11 +1,8 @@
 package org.opentosca.container.api.controller;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,7 +18,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.api.planbuilder.RunningTasks;
 import org.opentosca.container.api.planbuilder.PlanbuilderWorker;
@@ -35,7 +31,6 @@ import org.opentosca.planbuilder.importer.Importer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>

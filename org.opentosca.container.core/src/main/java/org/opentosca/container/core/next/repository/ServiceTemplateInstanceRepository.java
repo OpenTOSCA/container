@@ -1,20 +1,17 @@
 package org.opentosca.container.core.next.repository;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
-import javax.xml.namespace.QName;
 
 import org.hibernate.Hibernate;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
-import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 
 public class ServiceTemplateInstanceRepository extends JpaRepository<ServiceTemplateInstance> {

@@ -1,6 +1,5 @@
 package org.opentosca.container.core.engine.xml;
 
-import java.io.File;
 import java.net.URL;
 
 public interface IXMLSerializerFactory {

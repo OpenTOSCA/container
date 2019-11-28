@@ -7,7 +7,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
-import javax.xml.namespace.QName;
 
 import org.hibernate.Hibernate;
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;

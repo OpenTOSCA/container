@@ -13,7 +13,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 
-import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 /**

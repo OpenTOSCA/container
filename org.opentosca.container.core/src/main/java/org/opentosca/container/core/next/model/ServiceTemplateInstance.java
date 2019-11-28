@@ -9,11 +9,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
-import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.common.jpa.CsarIdConverter;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
-import org.opentosca.container.core.common.jpa.QNameConverter;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.xml.PropertyParser;
 

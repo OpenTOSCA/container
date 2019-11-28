@@ -38,7 +38,6 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.impl.service.FileSystem;
-import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;

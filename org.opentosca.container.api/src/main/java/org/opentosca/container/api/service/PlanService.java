@@ -1,7 +1,5 @@
 package org.opentosca.container.api.service;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -9,17 +7,14 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServerErrorException;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.model.tosca.TBoolean;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.glassfish.jersey.uri.UriComponent;
+
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;

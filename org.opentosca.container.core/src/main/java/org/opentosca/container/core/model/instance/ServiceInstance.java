@@ -14,7 +14,6 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.common.jpa.QNameConverter;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.w3c.dom.Document;
 
 /**
