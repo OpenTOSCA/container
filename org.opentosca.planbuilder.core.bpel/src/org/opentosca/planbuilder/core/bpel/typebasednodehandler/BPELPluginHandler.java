@@ -237,14 +237,20 @@ public class BPELPluginHandler {
                                                final AbstractRelationshipTemplate relationshipTemplate) {
         boolean result = true;
 
-        if (this.pluginRegistry.canTypePluginHandleCreate(relationshipTemplate)) {
-            final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
-            LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
-            result &= this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);
-        } else {
-            LOG.debug("Couldn't handle RelationshipTemplate {}", relationshipTemplate.getId());
-        }
+        if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
 
+            if (this.pluginRegistry.canTypePluginHandleCreate(relationshipTemplate)) {
+                final IPlanBuilderTypePlugin plugin =
+                    this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
+                LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
+                result &= this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);
+            } else {
+                LOG.debug("Couldn't handle RelationshipTemplate {}", relationshipTemplate.getId());
+            }
+        } else {
+            LOG.info("Ignoring NodeTemplate {} with activityType {}", relationshipTemplate.getId(),
+                     bpelScope.getActivity().getType());
+        }
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             if (postPhasePlugin.canHandleCreate(bpelScope.getRelationshipTemplate())) {
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getRelationshipTemplate());

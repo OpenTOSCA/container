@@ -51,7 +51,7 @@ public class ChoreographyBuilder {
                 // send notify after all managed and connecting are finished with their activities and after the
                 // connecting relation is initalized
                 plan.findRelationshipTemplateActivities(relation)
-                    .forEach(x -> linksToAdd.add(new Link(x, nodeActivity)));
+                    .forEach(x -> {linksToAdd.add(new Link(x, nodeActivity)); x.addMetadata("ignoreProvisioning", true);});
                 managedConnectingNodes.forEach(x -> {
                     plan.findNodeTemplateActivities(x).forEach(y -> linksToAdd.add(new Link(y, nodeActivity)));
                 });
@@ -73,6 +73,8 @@ public class ChoreographyBuilder {
                     .forEach(x -> linksToAdd.add(new Link(x, nodeActivity)));
 
             }
+            
+            
         }
 
 
