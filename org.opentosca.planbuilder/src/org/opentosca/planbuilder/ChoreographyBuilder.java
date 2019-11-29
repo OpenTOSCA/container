@@ -21,6 +21,13 @@ public class ChoreographyBuilder {
             return plan;
         }
         final Collection<AbstractActivity> activties = plan.getActivites();
+
+        for (final AbstractNodeTemplate unmanagedNode : getUnmanagedChoreographyNodes(serviceTemplate)) {
+            for (final AbstractActivity activity : plan.findNodeTemplateActivities(unmanagedNode)) {
+                activity.addMetadata("ignoreProvisioning", true);
+            }
+        }
+
         final Collection<Link> links = plan.getLinks();
 
         final Collection<AbstractNodeTemplate> managedConnectingNodes =
@@ -95,8 +102,7 @@ public class ChoreographyBuilder {
     }
 
     private Collection<AbstractRelationshipTemplate> getConnectingChoreographyRelations(final AbstractServiceTemplate serviceTemplate) {
-        final Collection<AbstractRelationshipTemplate> connectingRelations =
-            new HashSet<>();
+        final Collection<AbstractRelationshipTemplate> connectingRelations = new HashSet<>();
 
         final Collection<AbstractNodeTemplate> connectingNodes = new HashSet<>();
         final Collection<AbstractNodeTemplate> managedConNodes = getManagedConnectingChoreographyNodes(serviceTemplate);

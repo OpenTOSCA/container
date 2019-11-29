@@ -26,12 +26,12 @@ public class BPELPluginHandler {
 
     final static Logger LOG = LoggerFactory.getLogger(BPELPluginHandler.class);
     protected final PluginRegistry pluginRegistry = new PluginRegistry();
-    
-    
+
+
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope) {
-                        
+
         boolean result = false;
-        switch (bpelScope.getActivity().getType()) {           
+        switch (bpelScope.getActivity().getType()) {
             case NOTIFYALLPARTNERS:
                 result = handleNotifyAllPartnersActivity(context, bpelScope);
                 break;
@@ -42,11 +42,11 @@ public class BPELPluginHandler {
 
         return result;
     }
-    
+
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractNodeTemplate nodeTemplate) {
-                        
+
         boolean result = false;
         switch (bpelScope.getActivity().getType()) {
             case PROVISIONING:
@@ -63,7 +63,7 @@ public class BPELPluginHandler {
                 break;
             case RECEIVENODENOTIFY:
                 result = handleReceiveNotifyActivity(context, bpelScope, nodeTemplate);
-                break;            
+                break;
             default:
                 result = false;
                 break;
@@ -71,8 +71,8 @@ public class BPELPluginHandler {
 
         return result;
     }
-    
-    
+
+
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractRelationshipTemplate relationshipTemplate) {
@@ -90,52 +90,54 @@ public class BPELPluginHandler {
         }
         return result;
     }
-    
+
     private boolean handleNotifyAllPartnersActivity(final BPELPlanContext context, final BPELScope bpelScope) {
         boolean result = true;
-        
-        for(IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
-            if(plugin.canHandleNotifyPartners(context)) {
+
+        for (final IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
+            if (plugin.canHandleNotifyPartners(context)) {
                 result = plugin.handleNotifyPartners(context);
             }
         }
-  
+
         return result;
     }
-    
-    private boolean handleSendNotifyActivity(BPELPlanContext context, final BPELScope bpelScope, final AbstractNodeTemplate nodeTemplate) {
+
+    private boolean handleSendNotifyActivity(final BPELPlanContext context, final BPELScope bpelScope,
+                                             final AbstractNodeTemplate nodeTemplate) {
         boolean result = true;
-        
-        for(IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
-            if(plugin.canHandleSendNotify(context)) {
+
+        for (final IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
+            if (plugin.canHandleSendNotify(context)) {
                 result = plugin.handleSendNotify(context);
             }
         }
-        
+
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
                 result &= postPhasePlugin.handleCreate(context, nodeTemplate);
             }
         }
-        
+
         return result;
     }
-    
-    private boolean handleReceiveNotifyActivity(BPELPlanContext context, final BPELScope scope, final AbstractNodeTemplate nodeTemplate) {
- boolean result = true;
-        
-        for(IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
-            if(plugin.canHandleReceiveNotify(context)) {
+
+    private boolean handleReceiveNotifyActivity(final BPELPlanContext context, final BPELScope scope,
+                                                final AbstractNodeTemplate nodeTemplate) {
+        boolean result = true;
+
+        for (final IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
+            if (plugin.canHandleReceiveNotify(context)) {
                 result = plugin.handleReceiveNotify(context);
             }
         }
-        
+
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
                 result &= postPhasePlugin.handleCreate(context, nodeTemplate);
             }
         }
-        
+
         return result;
     }
 
@@ -203,14 +205,22 @@ public class BPELPluginHandler {
             }
         }
 
-        // generate code for the provisioning, e.g., call install, start or create
-        // methods
-        final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
-        if (plugin != null) {
-            LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
-            result &= plugin.handleCreate(context, nodeTemplate);
-        } else {         
-            LOG.info("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
+
+        if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
+
+
+            // generate code for the provisioning, e.g., call install, start or create
+            // methods
+            final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
+            if (plugin != null) {
+                LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
+                result &= plugin.handleCreate(context, nodeTemplate);
+            } else {
+                LOG.info("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
+            }
+        } else {
+            LOG.info("Ignoring NodeTemplate {} with activityType {}", nodeTemplate.getId(),
+                     bpelScope.getActivity().getType());
         }
 
         // generate code the post handling, e.g., update instance data, logs etc.
