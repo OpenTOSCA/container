@@ -28,6 +28,14 @@ public class ChoreographyBuilder {
             }
         }
 
+        for (final AbstractRelationshipTemplate unmanagedRelation : getUnmanagedRelation(serviceTemplate)) {
+            for (final AbstractActivity act : plan.findRelationshipTemplateActivities(unmanagedRelation)) {
+                act.addMetadata("ignoreProvisioning", true);
+            }
+        }
+
+
+
         final Collection<Link> links = plan.getLinks();
 
         final Collection<AbstractNodeTemplate> managedConnectingNodes =
@@ -78,14 +86,6 @@ public class ChoreographyBuilder {
 
             }
 
-            if (!managedConnectingNodes.contains(relation.getTarget())
-                & !managedConnectingNodes.contains(relation.getSource())) {
-                for (final AbstractActivity act : plan.findRelationshipTemplateActivities(relation)) {
-                    act.addMetadata("ignoreProvisioning", true);
-                }
-            }
-
-
         }
 
 
@@ -112,6 +112,27 @@ public class ChoreographyBuilder {
 
 
         return newChoregraphyPlan;
+    }
+
+    private Collection<AbstractRelationshipTemplate> getUnmanagedRelation(final AbstractServiceTemplate serviceTemplate) {
+        final Collection<AbstractRelationshipTemplate> unmanagedRelations = new HashSet<>();
+
+
+        final Collection<AbstractNodeTemplate> unmanAbstractNodeTemplates =
+            getUnmanagedChoreographyNodes(serviceTemplate);
+
+        for (final AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate()
+                                                                          .getRelationshipTemplates()) {
+
+            if (unmanAbstractNodeTemplates.contains(relation.getTarget())
+                & unmanAbstractNodeTemplates.contains(relation.getSource())) {
+                unmanagedRelations.add(relation);
+            }
+        }
+
+
+
+        return unmanagedRelations;
     }
 
     private Collection<AbstractRelationshipTemplate> getConnectingChoreographyRelations(final AbstractServiceTemplate serviceTemplate) {
