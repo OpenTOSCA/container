@@ -44,24 +44,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * EventHandler of the Management Bus-OSGi-Event-API.<br>
- * <br>
  * <p>
+ * Exposes the ManagementBus to the container as a java bean
+ * </p>
+ *
  * Copyright 2013 IAAS University of Stuttgart <br>
- * <br>
- * <p>
- * Handles the events (receive and sent) of the Management Bus-OSGi-Event-API.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
  * @author Kálmán Képes - kepes@iaas.uni-stuttgart.de
+ * @author Clemens Lieb - liebcs@fius.informatik.uni-stuttgart.de
  */
 @Component
 @Singleton
 public class MBJavaApi implements IManagementBus {
-
-  public static final String PLAN_REQUEST_TOPIC = "org_opentosca_plans/requests";
-  public static final String IA_INVOKE_TOPIC = "org_opentosca_ia/requests";
 
   private static final String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
   private static final String BPELNS = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
@@ -87,11 +83,10 @@ public class MBJavaApi implements IManagementBus {
     LOG.info("Starting direct Java invocation API for Management Bus");
   }
 
-  private ConsumerTemplate invokePlan(final String operationName, final String messageID, final boolean async,
+  private ConsumerTemplate invokePlan(final String operationName, final String messageID,
                                       final Long serviceInstanceID, final QName serviceTemplateID,
                                       final Object message, final CsarId csarId, final QName planID,
                                       final String planLanguage) {
-    LOG.debug("Plan invocation is asynchronous: {}", async);
 
     // create the headers for the Exchange which is send to the Management Bus
     final Map<String, Object> headers = new HashMap<>();
@@ -152,7 +147,6 @@ public class MBJavaApi implements IManagementBus {
     final QName planID = (QName) eventValues.get("PLANID");
     final String operationName = (String) eventValues.get("OPERATIONNAME");
     final String messageID = (String) eventValues.get("MESSAGEID");
-    final boolean async = (boolean) eventValues.get("ASYNC");
 
     // Optional parameter if message is of type HashMap. Not needed for Document.
     final Long serviceInstanceID = (Long) eventValues.get("SERVICEINSTANCEID");
@@ -172,7 +166,7 @@ public class MBJavaApi implements IManagementBus {
 
     // there is no necessity to set up response handling for the invocation,
     // because the ManagementBus does the updating of outputs for us through the PlanInstanceHandler
-    invokePlan(operationName, messageID, async, serviceInstanceID,
+    invokePlan(operationName, messageID, serviceInstanceID,
       serviceTemplateID, message, csarID, planID, planLanguage);
   }
 
@@ -274,7 +268,7 @@ public class MBJavaApi implements IManagementBus {
       instance.getId(), inputs, correlationID);
 
     // FIXME QName natural key replacement leftover!
-    final ConsumerTemplate consumer = invokePlan("adapt", correlationID, true, instance.getId(), QName.valueOf(instance.getTemplateId()),
+    final ConsumerTemplate consumer = invokePlan("adapt", correlationID, instance.getId(), QName.valueOf(instance.getTemplateId()),
       requestBody, instance.getCsarId(), planId, BPELNS);
 
     // Threaded reception of response

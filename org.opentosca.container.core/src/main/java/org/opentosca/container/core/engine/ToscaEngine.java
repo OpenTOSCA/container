@@ -408,6 +408,11 @@ public final class ToscaEngine {
 
   @Nullable
   public static TExportedOperation getReferencingOperationWithin(TServiceTemplate serviceTemplate, TPlan plan) {
+    return getReferencingOperationWithin(serviceTemplate, plan.getId());
+  }
+
+  @Nullable
+  public static TExportedOperation getReferencingOperationWithin(TServiceTemplate serviceTemplate, String planReference) {
     return Optional.of(serviceTemplate)
       .map(TServiceTemplate::getBoundaryDefinitions)
       .map(TBoundaryDefinitions::getInterfaces)
@@ -416,7 +421,7 @@ public final class ToscaEngine {
       .stream()
       .map(TExportedInterface::getOperation)
       .flatMap(Collection::stream)
-      .filter(operation -> operation.getPlan().getPlanRef().equals(plan))
+      .filter(operation -> operation.getPlan().getPlanRef().equals(planReference))
       .findFirst()
       .orElse(null);
   }

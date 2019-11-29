@@ -122,17 +122,12 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     eventValues.put("PLANID", givenPlan.getId());
     eventValues.put("PLANLANGUAGE", givenPlan.getPlanLanguage());
     eventValues.put("SERVICEINSTANCEID", serviceTemplateInstanceID);
-    eventValues.put("OPERATIONNAME", toscaReferenceMapper.getOperationNameOfPlan(csar.id().toOldCsarId(), givenPlan.getId()));
+    // the planRef is an xsd:IDREF as per Tosca-v1.0.xsd, and therefore an unqualified name
+    // FIXME adapt TPlanDTO to match Tosca XSD
+    TExportedOperation operation = ToscaEngine.getReferencingOperationWithin(serviceTemplate, givenPlan.getId().getLocalPart());
+    eventValues.put("OPERATIONNAME", operation.getName());
     eventValues.put("INPUTS", input);
 
-    if (null == toscaReferenceMapper.isPlanAsynchronous(csarID.toOldCsarId(), givenPlan.getId())) {
-      LOG.warn(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
-      eventValues.put("ASYNC", true);
-    } else if (toscaReferenceMapper.isPlanAsynchronous(csarID.toOldCsarId(), givenPlan.getId())) {
-      eventValues.put("ASYNC", true);
-    } else {
-      eventValues.put("ASYNC", false);
-    }
     // no callback, because plan output updates are handled in management bus
     managementBus.invokePlan(eventValues);
   }
