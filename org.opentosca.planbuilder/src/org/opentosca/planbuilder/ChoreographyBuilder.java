@@ -40,7 +40,8 @@ public class ChoreographyBuilder {
         final Collection<Link> linksToAdd = new HashSet<>();
 
         for (final AbstractRelationshipTemplate relation : connectingRelations) {
-            if (managedConnectingNodes.contains(relation.getTarget())) {
+            if (managedConnectingNodes.contains(relation.getTarget())
+                & !managedConnectingNodes.contains(relation.getSource())) {
 
                 // in this case we have to send a notify as the connecting node is depending on the managed nodes
                 final NodeTemplateActivity nodeActivity = new NodeTemplateActivity(
@@ -50,14 +51,17 @@ public class ChoreographyBuilder {
 
                 // send notify after all managed and connecting are finished with their activities and after the
                 // connecting relation is initalized
-                plan.findRelationshipTemplateActivities(relation)
-                    .forEach(x -> {linksToAdd.add(new Link(x, nodeActivity)); x.addMetadata("ignoreProvisioning", true);});
+                plan.findRelationshipTemplateActivities(relation).forEach(x -> {
+                    linksToAdd.add(new Link(x, nodeActivity));
+                    x.addMetadata("ignoreProvisioning", true);
+                });
                 managedConnectingNodes.forEach(x -> {
                     plan.findNodeTemplateActivities(x).forEach(y -> linksToAdd.add(new Link(y, nodeActivity)));
                 });
 
             }
-            if (managedConnectingNodes.contains(relation.getSource())) {
+            if (managedConnectingNodes.contains(relation.getSource())
+                & !managedConnectingNodes.contains(relation.getTarget())) {
 
                 // this relation connects a managed node as target therefore it is depending on receiving data
                 final NodeTemplateActivity nodeActivity =
@@ -73,8 +77,15 @@ public class ChoreographyBuilder {
                     .forEach(x -> linksToAdd.add(new Link(x, nodeActivity)));
 
             }
-            
-            
+
+            if (!managedConnectingNodes.contains(relation.getTarget())
+                & !managedConnectingNodes.contains(relation.getSource())) {
+                for (final AbstractActivity act : plan.findRelationshipTemplateActivities(relation)) {
+                    act.addMetadata("ignoreProvisioning", true);
+                }
+            }
+
+
         }
 
 
