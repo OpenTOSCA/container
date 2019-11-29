@@ -54,6 +54,12 @@ public class Interfaces {
         "http://opentosca.org/interfaces/pattern/container";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE = "create";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_TERMINATE = "terminate";
+    
+    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_REMOTEMANAGERPATTERN =
+        "http://opentosca.org/interfaces/pattern/remotemanager";
+    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_REMOTEMANAGERPATTERN_INSTALL = "install";
+    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_REMOTEMANAGERPATTERN_UNINSTALL = "uninstall";
+    
 
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE =
         "http://opentosca.org/interfaces/connections/nonInterruptive";
