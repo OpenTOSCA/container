@@ -6,15 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
@@ -28,14 +23,14 @@ import org.xml.sax.SAXException;
 
 public class BPELInvokeOperationHandler extends PluginHandler {
 
-    public final static Logger LOG = LoggerFactory.getLogger(BPELInvokeOperationHandler.class);    
+    public final static Logger LOG = LoggerFactory.getLogger(BPELInvokeOperationHandler.class);
 
     public BPELInvokeOperationHandler() {
         super();
     }
 
     public boolean handleInvokeOperation(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia) throws IOException {
+                                         final AbstractImplementationArtifact ia) throws IOException {
 
         boolean isNodeTemplate = true;
         String templateId = "";
@@ -81,16 +76,17 @@ public class BPELInvokeOperationHandler extends PluginHandler {
 
 
         return this.handleInvokeOperation(context, templateId, isNodeTemplate, operationName, interfaceName,
-                           internalExternalPropsInput, internalExternalPropsOutput,
-                           context.getProvisioningPhaseElement());
+                                          internalExternalPropsInput, internalExternalPropsOutput,
+                                          context.getProvisioningPhaseElement());
     }
 
-   
 
-    public boolean handleInvokeOperation(final BPELPlanContext context, final String operationName, final String interfaceName,
-                          final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput,
-                          final Map<String, Variable> internalExternalPropsOutput,
-                          Element elementToAppendTo) throws Exception {
+
+    public boolean handleInvokeOperation(final BPELPlanContext context, final String operationName,
+                                         final String interfaceName, final String callbackAddressVarName,
+                                         final Map<String, Variable> internalExternalPropsInput,
+                                         final Map<String, Variable> internalExternalPropsOutput,
+                                         final Element elementToAppendTo) throws Exception {
 
         // fetch "meta"-data for invoker message (e.g. csarid, nodetemplate
         // id..)
@@ -103,14 +99,15 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             isNodeTemplate = false;
         }
         return this.handleInvokeOperation(context, templateId, isNodeTemplate, operationName, interfaceName,
-                           internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
+                                          internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
     }
-    
-    public boolean handleInvokeOperation(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
-                          final String operationName, final String interfaceName,
-                          final Map<String, Variable> internalExternalPropsInput,
-                          final Map<String, Variable> internalExternalPropsOutput,
-                          Element elementToAppendTo) throws IOException {
+
+    public boolean handleInvokeOperation(final BPELPlanContext context, final String templateId,
+                                         final boolean isNodeTemplate, final String operationName,
+                                         final String interfaceName,
+                                         final Map<String, Variable> internalExternalPropsInput,
+                                         final Map<String, Variable> internalExternalPropsOutput,
+                                         final Element elementToAppendTo) throws IOException {
         final File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
         final File wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
         // register wsdls and xsd
@@ -159,18 +156,6 @@ public class BPELInvokeOperationHandler extends PluginHandler {
         context.addCorrelationSet(correlationSetName, correlationPropertyName);
 
         // add external props to plan input message
-        for (final String paraName : internalExternalPropsInput.keySet()) {
-            if (internalExternalPropsInput.get(paraName) == null) {
-                context.addStringValueToPlanRequest(paraName);
-            }
-        }
-
-        // add external props to plan output message
-        for (final String paraName : internalExternalPropsOutput.keySet()) {
-            if (internalExternalPropsOutput.get(paraName) == null) {
-                context.addStringValueToPlanResponse(paraName);
-            }
-        }
 
         // fetch serviceInstanceId
 
@@ -241,7 +226,8 @@ public class BPELInvokeOperationHandler extends PluginHandler {
 
         }
         catch (final SAXException e) {
-            BPELInvokeOperationHandler.LOG.error("Couldn't generate DOM node for the request message assign element", e);
+            BPELInvokeOperationHandler.LOG.error("Couldn't generate DOM node for the request message assign element",
+                                                 e);
             return false;
         }
 
@@ -330,7 +316,7 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             return false;
         }
 
-        
+
         try {
             Node checkForFault =
                 this.resHandler.generateBPELIfTrueThrowFaultAsNode("boolean($" + responseVariableName
@@ -339,18 +325,20 @@ public class BPELInvokeOperationHandler extends PluginHandler {
                                                                        "http://opentosca.org/plans/invocationfault",
                                                                        templateId + "_" + interfaceName + "_"
                                                                            + operationName,
-                                                                       "fault" + String.valueOf(System.currentTimeMillis())), responseVariableName);
+                                                                       "fault"
+                                                                           + String.valueOf(System.currentTimeMillis())),
+                                                                   responseVariableName);
 
             checkForFault = context.importNode(checkForFault);
             elementToAppendTo.insertBefore(checkForFault, responseAssignNode);
-            
-            //elementToAppendTo.appendChild(checkForFault);
+
+            // elementToAppendTo.appendChild(checkForFault);
         }
-        catch (SAXException e1) {
+        catch (final SAXException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        
+
         return true;
     }
 }

@@ -3,10 +3,7 @@ package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 import java.util.Collection;
 
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
@@ -55,32 +52,33 @@ public class PropertyVariableHandler {
      */
     public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan buildPlan,
                                                                     final AbstractServiceTemplate serviceTemplate) {
-        final Property2VariableMapping map = new Property2VariableMapping();
 
-        this.initializePropertiesAsVariables(buildPlan, serviceTemplate, serviceTemplate.getTopologyTemplate().getNodeTemplates(), serviceTemplate.getTopologyTemplate().getRelationshipTemplates());
 
-        return map;
+        return this.initializePropertiesAsVariables(buildPlan, serviceTemplate,
+                                                    serviceTemplate.getTopologyTemplate().getNodeTemplates(),
+                                                    serviceTemplate.getTopologyTemplate().getRelationshipTemplates());
+
     }
 
 
-    public Property2VariableMapping initializePropertiesAsVariables(BPELPlan plan,
-                                                                    AbstractServiceTemplate serviceTemplate,
-                                                                    Collection<AbstractNodeTemplate> nodes,
-                                                                    Collection<AbstractRelationshipTemplate> relations) {
+    public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan plan,
+                                                                    final AbstractServiceTemplate serviceTemplate,
+                                                                    final Collection<AbstractNodeTemplate> nodes,
+                                                                    final Collection<AbstractRelationshipTemplate> relations) {
 
         final Property2VariableMapping map = new Property2VariableMapping();
 
-        
-        
-        
+
+
         for (final AbstractNodeTemplate nodeTemplate : nodes) {
 
-            this.initializePropertiesAsVariables(map, serviceTemplate, plan,null, nodeTemplate);
-            
+            initPropsAsVarsInNode(map, plan, serviceTemplate, nodeTemplate);
+
+
         }
 
         for (final AbstractRelationshipTemplate relationshipTemplate : relations) {
-            this.initializePropertiesAsVariables(map, serviceTemplate, plan,relationshipTemplate, null);
+            initPropsAsVarsInRelationship(map, plan, serviceTemplate, relationshipTemplate);
         }
 
 
@@ -95,11 +93,13 @@ public class PropertyVariableHandler {
      * @param map a PropertyMap to save the mappings to
      * @param templatePlan the TemplateBuildPlan to initialize its properties
      */
-    public void initializePropertiesAsVariables(final Property2VariableMapping map, 
-                                                final AbstractServiceTemplate serviceTemplate, BPELPlan plan, AbstractRelationshipTemplate relationshipTemplate, AbstractNodeTemplate nodeTemplate) {
+    public void initializePropertiesAsVariables(final Property2VariableMapping map,
+                                                final AbstractServiceTemplate serviceTemplate, final BPELPlan plan,
+                                                final AbstractRelationshipTemplate relationshipTemplate,
+                                                final AbstractNodeTemplate nodeTemplate) {
         if (relationshipTemplate != null) {
             // template corresponds to a relationshiptemplate
-            
+
             initPropsAsVarsInRelationship(map, plan, serviceTemplate, relationshipTemplate);
         } else {
             initPropsAsVarsInNode(map, plan, serviceTemplate, nodeTemplate);
@@ -113,9 +113,10 @@ public class PropertyVariableHandler {
      * @param map the PropertyMap to save the result to
      * @param templatePlan a TemplateBuildPlan which handles a RelationshipTemplate
      */
-    private void initPropsAsVarsInRelationship(final Property2VariableMapping map, BPELPlan plan,
-                                               final AbstractServiceTemplate serviceTemplate, final AbstractRelationshipTemplate relationshipTemplate) {
-        
+    private void initPropsAsVarsInRelationship(final Property2VariableMapping map, final BPELPlan plan,
+                                               final AbstractServiceTemplate serviceTemplate,
+                                               final AbstractRelationshipTemplate relationshipTemplate) {
+
         if (relationshipTemplate.getProperties() != null) {
             final Element propertyElement = relationshipTemplate.getProperties().getDOMElement();
             for (int i = 0; i < propertyElement.getChildNodes().getLength(); i++) {
@@ -181,7 +182,8 @@ public class PropertyVariableHandler {
      * @param templatePlan a TemplateBuildPlan which handles a NodeTemplate
      */
     private void initPropsAsVarsInNode(final Property2VariableMapping map, final BPELPlan templatePlan,
-                                       final AbstractServiceTemplate serviceTemplate, AbstractNodeTemplate nodeTemplate) {        
+                                       final AbstractServiceTemplate serviceTemplate,
+                                       final AbstractNodeTemplate nodeTemplate) {
         if (nodeTemplate.getProperties() != null) {
             final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
             for (int i = 0; i < propertyElement.getChildNodes().getLength(); i++) {
