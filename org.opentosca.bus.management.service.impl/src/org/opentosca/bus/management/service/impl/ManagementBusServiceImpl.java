@@ -19,6 +19,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultExchange;
+import org.opentosca.bus.management.api.soaphttp.processor.RequestProcessor;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
@@ -1017,6 +1018,24 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Notifying partner {} for connectsTo with ID {} for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
                   receivingPartner, connectingRelationshipTemplate, correlationID, csarID, serviceTemplateID);
 
+        // wait until other partner is ready to receive notify
+        while (!RequestProcessor.isPartnerAvailable(correlationID, receivingPartner)) {
+            LOG.debug("Waiting for partner: {}", receivingPartner);
+            try {
+                Thread.sleep(10000);
+            }
+            catch (final InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            Thread.sleep(10000);
+        }
+        catch (final InterruptedException e) {
+            e.printStackTrace();
+        }
+
         // retrieve ServiceTemplate related to the notification request
         final TServiceTemplate serviceTemplate =
             (TServiceTemplate) ServiceHandler.toscaReferenceMapper.getJAXBReference(csarID, serviceTemplateID);
@@ -1100,6 +1119,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             return;
         }
 
+        @SuppressWarnings("unchecked")
+        final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
+
         // notify all partners
         for (final TTag endpointTag : partnerTags) {
             LOG.debug("Notifying partner {} on endpoint: {}", endpointTag.getName(), endpointTag.getValue());
@@ -1115,7 +1137,27 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             input.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
             input.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
             input.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
-            message.setBody(input);
+
+            // parse to doc and add input parameters
+            final Document inputDoc =
+                MBUtils.mapToDoc(Constants.BUS_WSDL_NAMESPACE, Constants.RECEIVE_NOTIFY_PARTNERS_OPERATION, input);
+
+            final Element root = inputDoc.getDocumentElement();
+            final Element paramsWrapper = inputDoc.createElement(Constants.PARAMS_PARAM);
+            root.appendChild(paramsWrapper);
+            for (final Entry<String, String> entry : params.entrySet()) {
+                final Element paramElement = inputDoc.createElement("Param");
+                paramsWrapper.appendChild(paramElement);
+
+                final Element keyElement = inputDoc.createElement("key");
+                keyElement.setTextContent(entry.getKey());
+                paramElement.appendChild(keyElement);
+
+                final Element valueElement = inputDoc.createElement("value");
+                valueElement.setTextContent(entry.getValue());
+                paramElement.appendChild(valueElement);
+            }
+            message.setBody(inputDoc);
 
             PluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
         }

@@ -3,7 +3,6 @@ package org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,50 +32,48 @@ import org.xml.sax.SAXException;
  *
  */
 public class BPELNotifyHandler extends PluginHandler {
-    
-    private static final String correlationSetPrefix = "NotificationCorrelation";
-    private static final String correlationPropertyPrefix ="notifcationProperty";
 
-    private String getGloblaNotifyCorrelationSetName(BPELPlanContext context) {
-        for (String name : context.getGlobalCorrelationSetNames()) {
+    private static final String correlationSetPrefix = "NotificationCorrelation";
+    private static final String correlationPropertyPrefix = "notifcationProperty";
+
+    private String getGloblaNotifyCorrelationSetName(final BPELPlanContext context) {
+        for (final String name : context.getGlobalCorrelationSetNames()) {
             if (name.startsWith(correlationSetPrefix)) {
                 return name;
             }
         }
         return null;
     }
-    
-    private String getNotifcationProperty(BPELPlanContext context) {
-        for(String propName : context.getCorrelationProperties()) {
-            if(propName.startsWith(correlationPropertyPrefix)) {
+
+    private String getNotifcationProperty(final BPELPlanContext context) {
+        for (final String propName : context.getCorrelationProperties()) {
+            if (propName.startsWith(correlationPropertyPrefix)) {
                 return propName;
             }
         }
         return null;
     }
-    
-    private String addNotifyCorrelationProperty(BPELPlanContext context) {
-        // setup correlation property and aliases for request and response
-           String correlationPropertyName =
-               correlationPropertyPrefix + context.getIdForNames();
-           context.addProperty(correlationPropertyName,
-                               new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-           return correlationPropertyName;
-       }
 
-    
-    private String addNotifyCorrelationSet(BPELPlanContext context, String correlationPropertyName) {    
-        String correlationSetName = correlationSetPrefix + context.getIdForNames();
+    private String addNotifyCorrelationProperty(final BPELPlanContext context) {
+        // setup correlation property and aliases for request and response
+        final String correlationPropertyName = correlationPropertyPrefix + context.getIdForNames();
+        context.addProperty(correlationPropertyName, new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
+        return correlationPropertyName;
+    }
+
+
+    private String addNotifyCorrelationSet(final BPELPlanContext context, final String correlationPropertyName) {
+        final String correlationSetName = correlationSetPrefix + context.getIdForNames();
         context.addGlobalCorrelationSet(correlationSetName, correlationPropertyName);
         return correlationSetName;
     }
-    
-    private boolean isNotifcationCorrelationSet(BPELPlanContext context) {
-        return this.getGloblaNotifyCorrelationSetName(context) != null & this.getNotifcationProperty(context) != null;
-    }
-    
 
-    public boolean handleNotifyPartners(BPELPlanContext context) throws SAXException, IOException {
+    private boolean isNotifcationCorrelationSet(final BPELPlanContext context) {
+        return getGloblaNotifyCorrelationSetName(context) != null & getNotifcationProperty(context) != null;
+    }
+
+
+    public boolean handleNotifyPartners(final BPELPlanContext context) throws SAXException, IOException {
 
 
 
@@ -106,6 +103,12 @@ public class BPELNotifyHandler extends PluginHandler {
 
         context.addPartnerLinkToTemplateScope(partnerLinkName, partnerLinkTypeName, "Requester", "Requestee", true);
 
+        final Map<String, Variable> params = new HashMap<>();
+
+        final String myPartnerId = getMyPartnerId(context);
+        final Variable myPartnerIdVar = context.createGlobalStringVariable("myPartnerId", myPartnerId);
+        params.put("SendingPartner", myPartnerIdVar);
+
         // register request and response message
         final String requestVariableName =
             invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
@@ -115,25 +118,26 @@ public class BPELNotifyHandler extends PluginHandler {
         // setup a correlation set for the messages
         String correlationSetName = null;
         String correlationPropertyName = null;
-        
-        if(this.isNotifcationCorrelationSet(context)) {
-            correlationPropertyName = this.getNotifcationProperty(context);
-            correlationSetName = this.getGloblaNotifyCorrelationSetName(context);
-            
-        } else {
-            correlationPropertyName = this.addNotifyCorrelationProperty(context);
-            correlationSetName = this.addNotifyCorrelationSet(context, correlationPropertyName);
-        }
-        
-        
 
-        final String query = "//*[local-name()=\"PlanCorrelationID\" and namespace-uri()=\"http://siserver.org/schema\"]";
+        if (isNotifcationCorrelationSet(context)) {
+            correlationPropertyName = getNotifcationProperty(context);
+            correlationSetName = getGloblaNotifyCorrelationSetName(context);
+
+        } else {
+            correlationPropertyName = addNotifyCorrelationProperty(context);
+            correlationSetName = addNotifyCorrelationSet(context, correlationPropertyName);
+        }
+
+
+
+        final String query =
+            "//*[local-name()=\"PlanCorrelationID\" and namespace-uri()=\"http://siserver.org/schema\"]";
         // "/" + InputMessageId.getPrefix() + ":" + "MessageID"
         context.addPropertyAlias(correlationPropertyName, InputMessageId, InputMessagePartName, query);
-        // register correlationsets                
+        // register correlationsets
 
-     
-        
+
+
         // fetch serviceInstanceId
 
         final String serviceInstanceIdVarName = context.getServiceInstanceURLVarName();
@@ -160,8 +164,7 @@ public class BPELNotifyHandler extends PluginHandler {
                                                                                context.getServiceTemplateId(),
                                                                                String.valueOf(System.currentTimeMillis()),
                                                                                requestVariableName,
-                                                                               InputMessagePartName,
-                                                                               new HashMap<String, Variable>());
+                                                                               InputMessagePartName, params);
 
 
         assignNode = context.importNode(assignNode);
@@ -206,42 +209,49 @@ public class BPELNotifyHandler extends PluginHandler {
         return true;
 
     }
-    
-    public boolean addChoreographyParameters(BPELPlanContext context, Map<String,Variable> params) {
-        AbstractRelationshipTemplate connectingRelationshipTemplate =
+
+    private String getMyPartnerId(final BPELPlanContext context) {
+        return context.getServiceTemplate().getTags().get("participant");
+    }
+
+
+
+    public boolean addChoreographyParameters(final BPELPlanContext context, final Map<String, Variable> params) {
+        final AbstractRelationshipTemplate connectingRelationshipTemplate =
             (AbstractRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
-        
+
         String sendingPartner = null;
         String receivingPartner = null;
         if (connectingRelationshipTemplate != null) {
-            sendingPartner = this.getPartnerLocation(connectingRelationshipTemplate.getTarget());
-            receivingPartner = this.getPartnerLocation(connectingRelationshipTemplate.getSource());
-            Variable connectingRelationIdVar = context.createGlobalStringVariable("connectingRelationId_" + sendingPartner
-                                                                                  + "_IDVar_" + context.getIdForNames(), connectingRelationshipTemplate.getId());
+            sendingPartner = getMyPartnerId(context);
+            receivingPartner = getPartnerLocation(connectingRelationshipTemplate.getSource());
+            final Variable connectingRelationIdVar = context.createGlobalStringVariable("connectingRelationId_"
+                + sendingPartner + "_IDVar_" + context.getIdForNames(), connectingRelationshipTemplate.getId());
             params.put("ConnectingRelationshipTemplate", connectingRelationIdVar);
         } else {
             return false;
         }
-        
+
         if (sendingPartner != null & receivingPartner != null) {
-            Variable sendingPartnerIdVar =
-                context.createGlobalStringVariable("partner_" + sendingPartner + "_IDVar_" + context.getIdForNames(), sendingPartner);
+            final Variable sendingPartnerIdVar =
+                context.createGlobalStringVariable("partner_" + sendingPartner + "_IDVar_" + context.getIdForNames(),
+                                                   sendingPartner);
             params.put("SendingPartner", sendingPartnerIdVar);
-            
-            Variable recevingPartnerIdVar =
-                context.createGlobalStringVariable("partner_" + receivingPartner + "_IDVar_" + context.getIdForNames(), receivingPartner);
+
+            final Variable recevingPartnerIdVar =
+                context.createGlobalStringVariable("partner_" + receivingPartner + "_IDVar_" + context.getIdForNames(),
+                                                   receivingPartner);
             params.put("ReceivingPartner", recevingPartnerIdVar);
         } else {
             return false;
         }
-        
-        return true;
 
+        return true;
     }
 
     public boolean handleReceiveNotify(final BPELPlanContext context,
                                        final Map<String, Variable> internalExternalPropsOutput,
-                                       Element elementToAppendTo) throws IOException, SAXException {
+                                       final Element elementToAppendTo) throws IOException, SAXException {
 
 
         // register wsdls and xsd
@@ -275,29 +285,29 @@ public class BPELNotifyHandler extends PluginHandler {
             + "Response" + context.getIdForNames();
         context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageId);
 
-        
-        
-        
+
+
         // setup a correlation set for the messages
         String correlationSetName = null;
         String correlationPropertyName = null;
-        
-        
-        
-        if(this.isNotifcationCorrelationSet(context)) {
-            correlationPropertyName = this.getNotifcationProperty(context);
-            correlationSetName = this.getGloblaNotifyCorrelationSetName(context);
-        } else {
-            correlationPropertyName = this.addNotifyCorrelationProperty(context);
-            correlationSetName = this.addNotifyCorrelationSet(context, correlationPropertyName);
-        }
-        
 
-        final String query = "//*[local-name()=\"PlanCorrelationID\" and namespace-uri()=\"http://siserver.org/schema\"]";
+
+
+        if (isNotifcationCorrelationSet(context)) {
+            correlationPropertyName = getNotifcationProperty(context);
+            correlationSetName = getGloblaNotifyCorrelationSetName(context);
+        } else {
+            correlationPropertyName = addNotifyCorrelationProperty(context);
+            correlationSetName = addNotifyCorrelationSet(context, correlationPropertyName);
+        }
+
+
+        final String query =
+            "//*[local-name()=\"PlanCorrelationID\" and namespace-uri()=\"http://siserver.org/schema\"]";
         // "/" + InputMessageId.getPrefix() + ":" + "MessageID" ageId, InputMessagePartName, query);
-        context.addPropertyAlias(correlationPropertyName, OutputMessageId, OutputMessagePartName, query);           
-        
-        
+        context.addPropertyAlias(correlationPropertyName, OutputMessageId, OutputMessagePartName, query);
+
+
         // fetch serviceInstanceId
 
         final String serviceInstanceIdVarName = context.getServiceInstanceURLVarName();
@@ -373,9 +383,9 @@ public class BPELNotifyHandler extends PluginHandler {
 
     public boolean handleSendNotify(final BPELPlanContext context,
                                     final Map<String, Variable> internalExternalPropsInput,
-                                    Element elementToAppendTo) throws IOException, SAXException {
-        boolean isNodeTemplate = context.isNodeTemplate();
-        String templateId =
+                                    final Element elementToAppendTo) throws IOException, SAXException {
+        final boolean isNodeTemplate = context.isNodeTemplate();
+        final String templateId =
             isNodeTemplate ? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId();
 
 
@@ -504,11 +514,11 @@ public class BPELNotifyHandler extends PluginHandler {
     }
 
 
-    public Collection<AbstractParameter> getAllOperationParameters(BPELPlanContext context) {
-        Collection<AbstractParameter> parameters = new HashSet<AbstractParameter>();
+    public Collection<AbstractParameter> getAllOperationParameters(final BPELPlanContext context) {
+        final Collection<AbstractParameter> parameters = new HashSet<>();
         if (context.isNodeTemplate()) {
-            for (AbstractInterface iface : context.getNodeTemplate().getType().getInterfaces()) {
-                for (AbstractOperation op : iface.getOperations()) {
+            for (final AbstractInterface iface : context.getNodeTemplate().getType().getInterfaces()) {
+                for (final AbstractOperation op : iface.getOperations()) {
                     parameters.addAll(op.getInputParameters());
                 }
             }
@@ -517,16 +527,17 @@ public class BPELNotifyHandler extends PluginHandler {
     }
 
 
-    public Collection<PropertyVariable> getPartnerPropertyVariables(BPELPlanContext context) {
-        List<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
-        Collection<PropertyVariable> props = new HashSet<PropertyVariable>();
+    public Collection<PropertyVariable> getPartnerPropertyVariables(final BPELPlanContext context) {
+        final List<AbstractNodeTemplate> nodes = new ArrayList<>();
+        final Collection<PropertyVariable> props = new HashSet<>();
 
-        AbstractRelationshipTemplate relationshipTemplate = (AbstractRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
-        
+        final AbstractRelationshipTemplate relationshipTemplate =
+            (AbstractRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
+
         ModelUtils.getNodesFromNodeToSink(relationshipTemplate.getTarget(), nodes);
 
-        for (AbstractNodeTemplate infraNode : nodes) {
-            for (PropertyVariable propVar : context.getPropertyVariables(infraNode)) {
+        for (final AbstractNodeTemplate infraNode : nodes) {
+            for (final PropertyVariable propVar : context.getPropertyVariables(infraNode)) {
                 // TODO/FIXME this shouldn't be necessary here..
                 if (!propVar.getPropertyName().equals("State")) {
                     props.add(propVar);
@@ -537,7 +548,7 @@ public class BPELNotifyHandler extends PluginHandler {
     }
 
 
-    public boolean isValidForReceiveNotify(BPELPlanContext context) {
+    public boolean isValidForReceiveNotify(final BPELPlanContext context) {
         // basically we are always valid for receives as we only expect the properties of the partner's
         // nodes
         if (!context.isNodeTemplate()) {
@@ -547,7 +558,7 @@ public class BPELNotifyHandler extends PluginHandler {
     }
 
 
-    public boolean isValidForSendNotify(BPELPlanContext context) {
+    public boolean isValidForSendNotify(final BPELPlanContext context) {
 
         if (!context.getActivity().getType().equals(ActivityType.SENDNODENOTIFY)) {
             return false;
@@ -560,10 +571,10 @@ public class BPELNotifyHandler extends PluginHandler {
     }
 
 
-    public Map<String, Variable> mapToParamMap(Collection<PropertyVariable> propertyVariables) {
-        Map<String, Variable> params = new HashMap<String, Variable>();
+    public Map<String, Variable> mapToParamMap(final Collection<PropertyVariable> propertyVariables) {
+        final Map<String, Variable> params = new HashMap<>();
 
-        for (PropertyVariable propVar : propertyVariables) {
+        for (final PropertyVariable propVar : propertyVariables) {
             if (propVar != null & propVar.isNodeTemplatePropertyVariable()) {
                 params.put(propVar.getPropertyName(), propVar);
             }
@@ -572,28 +583,27 @@ public class BPELNotifyHandler extends PluginHandler {
         return params;
     }
 
-    public String getPartnerLocation(AbstractNodeTemplate node) {
-        for(QName qName: node.getOtherAttributes().keySet()) {
-            if(qName.getLocalPart().equals("location")) {
+    public String getPartnerLocation(final AbstractNodeTemplate node) {
+        for (final QName qName : node.getOtherAttributes().keySet()) {
+            if (qName.getLocalPart().equals("location")) {
                 return node.getOtherAttributes().get(qName);
             }
         }
         return null;
-     }
-    
-    
+    }
 
 
-    public Map<String, PropertyVariable> matchOperationParamertsToProperties(BPELPlanContext context) {
-        Map<String, PropertyVariable> params = new HashMap<String, PropertyVariable>();
+
+    public Map<String, PropertyVariable> matchOperationParamertsToProperties(final BPELPlanContext context) {
+        final Map<String, PropertyVariable> params = new HashMap<>();
 
         // TODO/FIXME right now we match all operation params against the available properties and send them
         // over, maybe too much ?
-        Collection<AbstractParameter> parameters = this.getAllOperationParameters(context);
+        final Collection<AbstractParameter> parameters = getAllOperationParameters(context);
 
         // try to match param against a property and add it to the input of the notify call
-        for (AbstractParameter param : parameters) {
-            PropertyVariable propVar = context.getPropertyVariable(param.getName());
+        for (final AbstractParameter param : parameters) {
+            final PropertyVariable propVar = context.getPropertyVariable(param.getName());
             if (propVar != null) {
                 params.put(propVar.getNodeTemplate().getId() + "_" + propVar.getPropertyName(), propVar);
             }

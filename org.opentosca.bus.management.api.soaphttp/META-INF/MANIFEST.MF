@@ -25,3 +25,4 @@ Service-Component: OSGI-INF/EndpointServiceHandler - component.xml
 Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.bus.management;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
+Export-Package: org.opentosca.bus.management.api.soaphttp.processor

@@ -6,8 +6,11 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -68,6 +71,19 @@ public class RequestProcessor implements Processor {
 
     final private static Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
 
+    private static ConcurrentHashMap<String, List<String>> activePartners = new ConcurrentHashMap<>();
+
+    public static synchronized void addPartnerToReadyList(final String correlationID, final String partnerID) {
+        activePartners.putIfAbsent(correlationID, new LinkedList<String>());
+        activePartners.get(correlationID).add(partnerID);
+    }
+
+    public static synchronized boolean isPartnerAvailable(final String correlationID, final String partnerID) {
+        if (Objects.nonNull(activePartners.get(correlationID))) {
+            return activePartners.get(correlationID).contains(partnerID);
+        }
+        return false;
+    }
 
     @Override
     public void process(final Exchange exchange) throws Exception {
@@ -204,6 +220,12 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), Activator.apiID);
             exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), "initiate");
             exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
+
+            final String partner = receiveNotifyRequest.getParams().getParam().stream()
+                                                       .filter(param -> param.getKey().equals("SendingPartner"))
+                                                       .findFirst().map(param -> param.getValue()).orElse(null);
+            LOG.debug("Adding partner: {}", partner);
+            addPartnerToReadyList(receiveNotifyRequest.getPlanCorrelationID(), partner);
             return;
         }
 

@@ -17,7 +17,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.plugins.choreography.IPlanBuilderChoreographyPlugin;
@@ -81,7 +80,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping, Element elementToAppendTo) {
+                          final Map<AbstractParameter, Variable> param2propertyMapping,
+                          final Element elementToAppendTo) {
         String templateId = "";
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
@@ -158,7 +158,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
-                          final Map<String, Variable> internalExternalPropsOutput, Element elementToAppendTo) {
+                          final Map<String, Variable> internalExternalPropsOutput, final Element elementToAppendTo) {
         try {
             return this.invokeOperationhandler.handleInvokeOperation(context, templateId, isNodeTemplate, operationName,
                                                                      interfaceName, internalExternalPropsInput,
@@ -223,7 +223,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public boolean handleArtifactReferenceUpload(final AbstractArtifactReference ref,
                                                  final BPELPlanContext templateContext, final PropertyVariable serverIp,
                                                  final PropertyVariable sshUser, final PropertyVariable sshKey,
-                                                 final AbstractNodeTemplate infraTemplate, Element elementToAppendTo) {
+                                                 final AbstractNodeTemplate infraTemplate,
+                                                 final Element elementToAppendTo) {
         try {
             return this.transferArtifactHandler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser,
                                                                               sshKey, infraTemplate, elementToAppendTo);
@@ -235,26 +236,27 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     }
 
     @Override
-    public boolean handleSendNotify(BPELPlanContext context) {
+    public boolean handleSendNotify(final BPELPlanContext context) {
 
         // Currently stuff like storeSaveEndpoint for freezing is breaking the matching of all possible
         // operations here, therefore we send all available properties -> TODO/FIXME
-        Map<String, PropertyVariable> propMatching = this.choreohandler.matchOperationParamertsToProperties(context);
+        final Map<String, PropertyVariable> propMatching =
+            this.choreohandler.matchOperationParamertsToProperties(context);
 
-        Collection<PropertyVariable> propertiesToSend = new HashSet<PropertyVariable>();
+        final Collection<PropertyVariable> propertiesToSend = new HashSet<>();
         context.getNodeTemplates().forEach(x -> propertiesToSend.addAll(context.getPropertyVariables(x)));
-        Map<String, Variable> params = this.choreohandler.mapToParamMap(propertiesToSend);
+        final Map<String, Variable> params = this.choreohandler.mapToParamMap(propertiesToSend);
 
-        this.choreohandler.addChoreographyParameters(context, params);               
+        this.choreohandler.addChoreographyParameters(context, params);
 
         try {
             return this.choreohandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
         }
-        catch (IOException e) {
+        catch (final IOException e) {
             e.printStackTrace();
             return false;
         }
-        catch (SAXException e) {
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
@@ -263,21 +265,21 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
 
     @Override
-    public boolean handleReceiveNotify(BPELPlanContext context) {
-        Collection<PropertyVariable> properties = this.choreohandler.getPartnerPropertyVariables(context);
+    public boolean handleReceiveNotify(final BPELPlanContext context) {
+        final Collection<PropertyVariable> properties = this.choreohandler.getPartnerPropertyVariables(context);
 
-        Map<String, Variable> params = this.choreohandler.mapToParamMap(properties);
-        
-        this.choreohandler.addChoreographyParameters(context, params);    
+        final Map<String, Variable> params = this.choreohandler.mapToParamMap(properties);
+
+        this.choreohandler.addChoreographyParameters(context, params);
 
         try {
             return this.choreohandler.handleReceiveNotify(context, params, context.getProvisioningPhaseElement());
         }
-        catch (IOException e) {
+        catch (final IOException e) {
             e.printStackTrace();
             return false;
         }
-        catch (SAXException e) {
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
@@ -285,12 +287,12 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     }
 
     @Override
-    public boolean canHandleSendNotify(BPELPlanContext context) {
+    public boolean canHandleSendNotify(final BPELPlanContext context) {
         return this.choreohandler.isValidForSendNotify(context);
     }
 
     @Override
-    public boolean canHandleReceiveNotify(BPELPlanContext context) {
+    public boolean canHandleReceiveNotify(final BPELPlanContext context) {
         return this.choreohandler.isValidForReceiveNotify(context);
     }
 
@@ -335,7 +337,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final AbstractImplementationArtifact ia,
                           final Map<AbstractParameter, Variable> param2propertyMapping,
                           final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          Element elementToAppendTo) {
+                          final Element elementToAppendTo) {
         final Map<String, Variable> inputParams = new HashMap<>();
         final Map<String, Variable> outputParams = new HashMap<>();
 
@@ -364,21 +366,22 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     }
 
     @Override
-    public boolean canHandleNotifyPartners(BPELPlanContext context) {
+    public boolean canHandleNotifyPartners(final BPELPlanContext context) {
         // we can do this always, basically
         return true;
     }
 
     @Override
-    public boolean handleNotifyPartners(BPELPlanContext context) {
+    public boolean handleNotifyPartners(final BPELPlanContext context) {
+
         try {
             return this.choreohandler.handleNotifyPartners(context);
         }
-        catch (SAXException e) {
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        catch (IOException e) {
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
