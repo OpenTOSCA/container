@@ -57,11 +57,7 @@ public class PropertyVariableHandler {
                                                                     final AbstractServiceTemplate serviceTemplate) {
         final Property2VariableMapping map = new Property2VariableMapping();
 
-        for (BPELScope scope : buildPlan.getTemplateBuildPlans()) {
-            if(scope.getActivity() instanceof NodeTemplateActivity | scope.getActivity() instanceof RelationshipTemplateActivity) {                
-                this.initializePropertiesAsVariables(map, scope, serviceTemplate);
-            }
-        }
+        this.initializePropertiesAsVariables(buildPlan, serviceTemplate, serviceTemplate.getTopologyTemplate().getNodeTemplates(), serviceTemplate.getTopologyTemplate().getRelationshipTemplates());
 
         return map;
     }
@@ -74,13 +70,17 @@ public class PropertyVariableHandler {
 
         final Property2VariableMapping map = new Property2VariableMapping();
 
+        
+        
+        
         for (final AbstractNodeTemplate nodeTemplate : nodes) {
 
-            this.initializePropertiesAsVariables(map, plan.getTemplateBuildPlan(nodeTemplate), serviceTemplate);
+            this.initializePropertiesAsVariables(map, serviceTemplate, plan,null, nodeTemplate);
+            
         }
 
         for (final AbstractRelationshipTemplate relationshipTemplate : relations) {
-            this.initializePropertiesAsVariables(map, plan.getTemplateBuildPlan(relationshipTemplate), serviceTemplate);
+            this.initializePropertiesAsVariables(map, serviceTemplate, plan,relationshipTemplate, null);
         }
 
 
@@ -95,13 +95,14 @@ public class PropertyVariableHandler {
      * @param map a PropertyMap to save the mappings to
      * @param templatePlan the TemplateBuildPlan to initialize its properties
      */
-    public void initializePropertiesAsVariables(final Property2VariableMapping map, final BPELScope templatePlan,
-                                                final AbstractServiceTemplate serviceTemplate) {
-        if (templatePlan.getRelationshipTemplate() != null) {
+    public void initializePropertiesAsVariables(final Property2VariableMapping map, 
+                                                final AbstractServiceTemplate serviceTemplate, BPELPlan plan, AbstractRelationshipTemplate relationshipTemplate, AbstractNodeTemplate nodeTemplate) {
+        if (relationshipTemplate != null) {
             // template corresponds to a relationshiptemplate
-            initPropsAsVarsInRelationship(map, templatePlan, serviceTemplate);
+            
+            initPropsAsVarsInRelationship(map, plan, serviceTemplate, relationshipTemplate);
         } else {
-            initPropsAsVarsInNode(map, templatePlan, serviceTemplate);
+            initPropsAsVarsInNode(map, plan, serviceTemplate, nodeTemplate);
         }
     }
 
@@ -112,9 +113,9 @@ public class PropertyVariableHandler {
      * @param map the PropertyMap to save the result to
      * @param templatePlan a TemplateBuildPlan which handles a RelationshipTemplate
      */
-    private void initPropsAsVarsInRelationship(final Property2VariableMapping map, final BPELScope templatePlan,
-                                               final AbstractServiceTemplate serviceTemplate) {
-        final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
+    private void initPropsAsVarsInRelationship(final Property2VariableMapping map, BPELPlan plan,
+                                               final AbstractServiceTemplate serviceTemplate, final AbstractRelationshipTemplate relationshipTemplate) {
+        
         if (relationshipTemplate.getProperties() != null) {
             final Element propertyElement = relationshipTemplate.getProperties().getDOMElement();
             for (int i = 0; i < propertyElement.getChildNodes().getLength(); i++) {
@@ -126,7 +127,7 @@ public class PropertyVariableHandler {
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
                 String propVarName = this.createPropertyVariableName(serviceTemplate, relationshipTemplate, propName);
 
-                while (!this.planHandler.addStringVariable(propVarName, templatePlan.getBuildPlan())) {
+                while (!this.planHandler.addStringVariable(propVarName, plan)) {
                     propVarName = this.createPropertyVariableName(serviceTemplate, relationshipTemplate, propName);
                 }
 
@@ -149,9 +150,9 @@ public class PropertyVariableHandler {
 
                 if (!value.trim().isEmpty() && !value.trim().equals("")) {
                     // init the variable with the node value
-                    this.planHandler.assignInitValueToVariable(propVarName, value, templatePlan.getBuildPlan());
+                    this.planHandler.assignInitValueToVariable(propVarName, value, plan);
                 } else {
-                    this.planHandler.assignInitValueToVariable(propVarName, "", templatePlan.getBuildPlan());
+                    this.planHandler.assignInitValueToVariable(propVarName, "", plan);
                 }
 
             }
@@ -179,9 +180,8 @@ public class PropertyVariableHandler {
      * @param map a PropertyMap to save the result/mappings to
      * @param templatePlan a TemplateBuildPlan which handles a NodeTemplate
      */
-    private void initPropsAsVarsInNode(final Property2VariableMapping map, final BPELScope templatePlan,
-                                       final AbstractServiceTemplate serviceTemplate) {
-        final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+    private void initPropsAsVarsInNode(final Property2VariableMapping map, final BPELPlan templatePlan,
+                                       final AbstractServiceTemplate serviceTemplate, AbstractNodeTemplate nodeTemplate) {        
         if (nodeTemplate.getProperties() != null) {
             final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
             for (int i = 0; i < propertyElement.getChildNodes().getLength(); i++) {
@@ -194,7 +194,7 @@ public class PropertyVariableHandler {
                 String propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);
 
 
-                while (!this.planHandler.addStringVariable(propVarName, templatePlan.getBuildPlan())) {
+                while (!this.planHandler.addStringVariable(propVarName, templatePlan)) {
                     propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);
                 }
 
@@ -213,7 +213,7 @@ public class PropertyVariableHandler {
                 PropertyVariableHandler.LOG.debug("with value: " + value);
 
                 // init the variable with the node value
-                this.planHandler.assignInitValueToVariable(propVarName, value, templatePlan.getBuildPlan());
+                this.planHandler.assignInitValueToVariable(propVarName, value, templatePlan);
             }
         }
     }
