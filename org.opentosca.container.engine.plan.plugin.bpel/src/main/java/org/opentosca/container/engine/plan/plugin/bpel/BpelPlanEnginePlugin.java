@@ -181,7 +181,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         Files.createFile(tempPlan);
         // package the updated files
         LOG.debug("Packaging plan to {} ", tempPlan.toAbsolutePath().toString());
-        FileSystem.zip(tempDir, tempPlan);
+        FileSystem.zip(tempPlan, tempDir);
       }
       catch (final IOException e) {
         LOG.error("Can't package temporary plan for deployment", e);

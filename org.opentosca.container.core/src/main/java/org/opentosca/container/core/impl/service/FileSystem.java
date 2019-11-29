@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 
@@ -64,30 +65,31 @@ public class FileSystem {
         throw inner;
       }
       zip(targetFile, inputs);
+      return;
     }
     // the root to relativize paths against for the name-resolution of the Zip entries
     final Path root = Files.isDirectory(inputFiles[0]) ? inputFiles[0] : inputFiles[0].getParent();
-    // ensure parent file is a thing
+    // ensure parent directory exists
     Files.createDirectories(targetFile.getParent());
-    // ensure target file is empty and exists
-    Files.deleteIfExists(targetFile);
-    Files.createFile(targetFile);
-    // create a filesystem for the zipfile
-    java.nio.file.FileSystem zipFs = FileSystems.newFileSystem(targetFile, FileSystem.class.getClassLoader());
-    try {
+
+    try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(targetFile,
+        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))) {
       for (Path externalFile : inputFiles) {
-        final Path relative = root.relativize(externalFile);
-        final Path zipInternal = zipFs.getPath(relative.toString());
-        if (Files.isDirectory(externalFile)) {
-          Files.createDirectories(zipInternal);
-        } else {
-          // ensure parent directory exists
-          Files.createDirectories(zipInternal.getParent());
-          Files.copy(externalFile, zipInternal, StandardCopyOption.REPLACE_EXISTING);
+        // skip root
+        if (externalFile.equals(root)) {
+          continue;
         }
+        // only copy the content of regular files
+        if (!Files.isRegularFile(externalFile)) {
+          continue;
+        }
+        final Path relative = root.relativize(externalFile);
+        ZipEntry entry = new ZipEntry(relative.toString());
+        zos.putNextEntry(entry);
+        Files.copy(externalFile, zos);
+        zos.closeEntry();
       }
-    } finally {
-      zipFs.close();
+      zos.finish();
     }
   }
 
@@ -145,8 +147,8 @@ public class FileSystem {
       }
 
       @Override
-      public FileVisitResult visitFile(Path path, BasicFileAttributes basicFileAttributes) throws IOException {
-        Files.copy(source, target.resolve(source.relativize(source)));
+      public FileVisitResult visitFile(Path file, BasicFileAttributes basicFileAttributes) throws IOException {
+        Files.copy(file, target.resolve(source.relativize(file)));
         return CONTINUE;
       }
     });

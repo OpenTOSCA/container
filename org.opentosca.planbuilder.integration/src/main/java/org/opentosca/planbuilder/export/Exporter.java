@@ -212,11 +212,9 @@ public class Exporter extends AbstractExporter {
         final Path relativeToRoot = csarRoot.relativize(filePath);
         final Path newLocation = tempDir.resolve(relativeToRoot);
         LOG.debug("Exporting {} to {}", file.getFile(), newLocation.toAbsolutePath().toString());
-        if (Files.isDirectory(newLocation)) {
-          FileSystem.copyDirectory(file.getFile(), newLocation);
-        } else {
-          Files.copy(file.getFile(), newLocation);
-        }
+        // must ensure that the directory we want to copy the file to exists.
+        Files.createDirectories(newLocation.getParent());
+        Files.copy(file.getFile(), newLocation);
       }
 
       // write new defs file
@@ -339,7 +337,7 @@ public class Exporter extends AbstractExporter {
         wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
       }
 
-      FileSystem.zip(tempDir, repackagedCsar);
+      FileSystem.zip(repackagedCsar, tempDir);
     } catch (final IOException e) {
       Exporter.LOG.error("Some IO Exception occured", e);
     } catch (final JAXBException e) {
