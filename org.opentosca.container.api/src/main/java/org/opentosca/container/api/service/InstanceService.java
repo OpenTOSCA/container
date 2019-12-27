@@ -403,7 +403,7 @@ public class InstanceService {
     // State
     newInstance.setState(NodeTemplateInstanceState.INITIAL);
     // Template
-    newInstance.setTemplateId(nodeTemplate.getName());
+    newInstance.setTemplateId(nodeTemplate.getIdFromIdOrNameField());
     // Type
     newInstance.setTemplateType(QName.valueOf(dto.getNodeType()));
     // ServiceTemplateInstance
