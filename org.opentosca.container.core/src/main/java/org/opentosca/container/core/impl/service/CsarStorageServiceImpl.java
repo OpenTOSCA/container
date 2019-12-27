@@ -1,4 +1,4 @@
-package org.opentosca.container.core.service.impl;
+package org.opentosca.container.core.impl.service;
 
 import java.io.IOException;
 import java.io.InputStream;

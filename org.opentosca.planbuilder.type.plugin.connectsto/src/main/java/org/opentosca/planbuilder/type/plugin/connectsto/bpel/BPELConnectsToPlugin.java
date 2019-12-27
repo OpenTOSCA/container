@@ -1,6 +1,9 @@
 
 package org.opentosca.planbuilder.type.plugin.connectsto.bpel;
 
+import javax.inject.Inject;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -22,9 +25,21 @@ import org.opentosca.planbuilder.type.plugin.connectsto.core.ConnectsToPlugin;
  */
 public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
 
-  private BPELConnectsToPluginHandler handler;
+  private final BPELConnectsToPluginHandler handler;
 
-    /*
+  public BPELConnectsToPlugin() {
+    BPELConnectsToPluginHandler safeCreatedHandler;
+    try {
+       safeCreatedHandler = new BPELConnectsToPluginHandler();
+    } catch (ParserConfigurationException e) {
+      // Wow this is bad
+      e.printStackTrace();
+      safeCreatedHandler = null;
+    }
+    handler = safeCreatedHandler;
+  }
+
+  /*
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#handle(org.

@@ -65,12 +65,10 @@ public class RESTEndpoint extends AbstractEndpoint {
 
   @Column(name = "RequestHeaders")
   @ElementCollection
-  @Embedded
   private final List<RequestHeader> headers = new ArrayList<>();
 
   @Column(name = "Parameters")
   @ElementCollection
-  @Embedded
   private final List<Parameter> params = new ArrayList<>();
 
 

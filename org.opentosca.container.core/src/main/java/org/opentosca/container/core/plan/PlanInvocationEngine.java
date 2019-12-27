@@ -1,4 +1,4 @@
-package org.opentosca.container.legacy.core.plan;
+package org.opentosca.container.core.plan;
 
 import java.util.*;
 
@@ -18,7 +18,6 @@ import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
-import org.opentosca.container.legacy.core.engine.IToscaReferenceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -38,19 +37,14 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
   private static final Logger LOG = LoggerFactory.getLogger(PlanInvocationEngine.class);
   private static final PlanInstanceRepository planRepo = new PlanInstanceRepository();
 
-  @Deprecated
-  // this is the dependency keeping PlanInvocationEngine in legacy.
-  private final IToscaReferenceMapper toscaReferenceMapper;
   private final IManagementBus managementBus;
   private final CsarStorageService csarStorage;
   private final RulesChecker rulesChecker;
 
   @Inject
-  public PlanInvocationEngine(IToscaReferenceMapper toscaReferenceMapper,
-                              IManagementBus managementBus,
+  public PlanInvocationEngine(IManagementBus managementBus,
                               CsarStorageService csarStorage,
                               RulesChecker rulesChecker) {
-    this.toscaReferenceMapper = toscaReferenceMapper;
     this.managementBus = managementBus;
     this.csarStorage = csarStorage;
     this.rulesChecker = rulesChecker;
@@ -92,8 +86,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
                            final TPlanDTO givenPlan, String correlationId) {
 
     final Csar csar = csarStorage.findById(csarID);
-    // refill information that might not be sent
-    LOG.info("Invoke the Plan \"" + givenPlan.getId() + "\" of type \"" + givenPlan.getPlanType() + "\" of CSAR \"" + csarID.csarName() + "\".");
 
     if (rulesChecker.areRulesContained(csar)) {
       if (rulesChecker.check(csar, serviceTemplate, givenPlan.getInputParameters())) {
@@ -122,6 +114,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     eventValues.put("PLANID", givenPlan.getId());
     eventValues.put("PLANLANGUAGE", givenPlan.getPlanLanguage());
     eventValues.put("SERVICEINSTANCEID", serviceTemplateInstanceID);
+    eventValues.put("MESSAGEID", correlationId);
     // the planRef is an xsd:IDREF as per Tosca-v1.0.xsd, and therefore an unqualified name
     // FIXME adapt TPlanDTO to match Tosca XSD
     TExportedOperation operation = ToscaEngine.getReferencingOperationWithin(serviceTemplate, givenPlan.getId().getLocalPart());

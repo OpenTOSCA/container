@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
@@ -25,7 +26,7 @@ public class SituationTriggerInstance extends PersistenceObject {
 
   private static final long serialVersionUID = 6063594837058853771L;
 
-  @OneToOne()
+  @ManyToOne
   @JoinColumn(name = "SITUATION_TRIGGER_ID")
   private SituationTrigger situationTrigger;
 

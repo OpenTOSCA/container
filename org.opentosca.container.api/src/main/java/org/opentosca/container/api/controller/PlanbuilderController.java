@@ -26,7 +26,7 @@ import org.opentosca.container.api.planbuilder.model.PlanGenerationState;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.IHTTPService;
-import org.opentosca.container.core.service.impl.CsarStorageServiceImpl;
+import org.opentosca.container.core.impl.service.CsarStorageServiceImpl;
 import org.opentosca.planbuilder.importer.Importer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

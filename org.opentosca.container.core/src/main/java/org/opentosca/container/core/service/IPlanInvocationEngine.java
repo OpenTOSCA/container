@@ -1,7 +1,5 @@
 package org.opentosca.container.core.service;
 
-import java.io.UnsupportedEncodingException;
-
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -20,12 +18,6 @@ public interface IPlanInvocationEngine {
   /**
    * Invoke a PublicPlan for a CSAR. If this PublicPlan is of Type OTHERMANAGEMENT or TERMINATION, the
    * information about the CSARInstance is stored inside the PublicPlan.
-   *
-   * @param csarID
-   * @param instance   ID of a CSAR instance
-   * @param publicPlan
-   * @return boolean about success
-   * @throws UnsupportedEncodingException
    */
   void invokePlan(CsarId csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan, String correlationID);
 

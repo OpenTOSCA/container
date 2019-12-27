@@ -88,7 +88,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
   private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
 
-  private static Map<String, Object> locks = new HashMap<>();
+  private final static Map<String, Object> locks = new HashMap<>();
 
   private final DeploymentDistributionDecisionMaker decisionMaker;
   private final CollaborationContext collaborationContext;

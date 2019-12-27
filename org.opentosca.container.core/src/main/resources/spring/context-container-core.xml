@@ -12,9 +12,8 @@
 
   <context:annotation-config />
 
-  <context:component-scan base-package="org.opentosca.container.core.impl.plan" />
   <context:component-scan base-package="org.opentosca.container.core.impl.service" />
-  <context:component-scan base-package="org.opentosca.container.core.service.impl" />
+  <context:component-scan base-package="org.opentosca.container.core.plan" />
   <!-- xml serializer service -->
   <context:component-scan base-package="org.opentosca.container.core.engine.xml.impl" />
   <context:component-scan base-package="org.opentosca.container.core.engine.next" />

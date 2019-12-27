@@ -1,4 +1,4 @@
-package org.opentosca.container.legacy.core.plan;
+package org.opentosca.container.core.plan;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
