@@ -406,13 +406,7 @@ public final class ToscaEngine {
       .orElse(null);
   }
 
-  @Nullable
-  public static TExportedOperation getReferencingOperationWithin(TServiceTemplate serviceTemplate, TPlan plan) {
-    return getReferencingOperationWithin(serviceTemplate, plan.getId());
-  }
-
-  @Nullable
-  public static TExportedOperation getReferencingOperationWithin(TServiceTemplate serviceTemplate, String planReference) {
+  private static Stream<TExportedOperation> listOperations(TServiceTemplate serviceTemplate) {
     return Optional.of(serviceTemplate)
       .map(TServiceTemplate::getBoundaryDefinitions)
       .map(TBoundaryDefinitions::getInterfaces)
@@ -420,10 +414,41 @@ public final class ToscaEngine {
       .orElse(Collections.emptyList())
       .stream()
       .map(TExportedInterface::getOperation)
-      .flatMap(Collection::stream)
-      .filter(operation -> operation.getPlan().getPlanRef().equals(planReference))
+      .flatMap(Collection::stream);
+  }
+
+  @Nullable
+  public static TExportedOperation getReferencingOperationWithin(TServiceTemplate serviceTemplate, TPlan plan) {
+    return listOperations(serviceTemplate)
+      // winery automatically fills the PlanRef with the TPlan instance
+      .filter(operation -> operation.getPlan().getPlanRef().equals(plan))
       .findFirst()
       .orElse(null);
+  }
+
+  @Nullable
+  public static TExportedOperation getReferencingOperationWithin(TServiceTemplate serviceTemplate, String planReference) {
+    return listOperations(serviceTemplate)
+      .filter(operation -> ((TPlan)operation.getPlan().getPlanRef()).getId().equals(planReference))
+      .findFirst()
+      .orElse(null);
+  }
+
+  public static TExportedOperation resolveBoundaryDefinitionOperation(TServiceTemplate serviceTemplate, String interfaceName, String operationName) throws NotFoundException {
+    return Optional.of(serviceTemplate)
+      .map(TServiceTemplate::getBoundaryDefinitions)
+      .map(TBoundaryDefinitions::getInterfaces)
+      .map(TBoundaryDefinitions.Interfaces::getInterface)
+      .orElse(Collections.emptyList())
+      .stream()
+      .filter(iface -> iface.getName().equals(interfaceName))
+      .findFirst()
+      .map(TExportedInterface::getOperation)
+      .orElse(Collections.emptyList())
+      .stream()
+      .filter(op -> op.getName().equals(operationName))
+      .findFirst()
+      .orElseThrow(() -> new NotFoundException(String.format("Could not resolve operation [%s] in interface [%s]", operationName, interfaceName)));
   }
 
   @Nullable

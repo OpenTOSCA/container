@@ -73,6 +73,12 @@
       <artifactId>spring-context</artifactId>
       <version>${spring.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>${spring.version}</version>
+      <scope>compile</scope>
+    </dependency>
     <!-- FIXME deal with UriUtil being used in weird places -->
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
