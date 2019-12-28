@@ -2,8 +2,10 @@ package org.opentosca.container.war;
 
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.opentosca.container.core.common.Settings;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ApplicationPath;
@@ -12,9 +14,9 @@ import javax.ws.rs.ApplicationPath;
 public class SpringJaxRSConfiguration extends ResourceConfig {
 
   public SpringJaxRSConfiguration() {
-//    configureSwagger();
     registerControllers();
     registerFilters();
+    configureSwagger();
     logReadyMessage();
   }
 
@@ -29,11 +31,16 @@ public class SpringJaxRSConfiguration extends ResourceConfig {
 
 
   private void configureSwagger() {
-    BeanConfig swaggerConfig = new BeanConfig();
-    swaggerConfig.setResourcePackage("org.opentosca.container.api.controller");
-    swaggerConfig.setPrettyPrint(true);
-    swaggerConfig.setScan(true);
     register(ApiListingResource.class);
+    register(SwaggerSerializers.class);
+
+    BeanConfig swaggerConfig = new BeanConfig();
+    swaggerConfig.setVersion("1.0.0");
+    swaggerConfig.setSchemes(new String[]{"http"});
+    swaggerConfig.setBasePath("/container");
+    swaggerConfig.setHost(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+    swaggerConfig.setResourcePackage("org.opentosca.container.api.controller");
+//    swaggerConfig.setScan(true);
   }
 
   private void logReadyMessage() {

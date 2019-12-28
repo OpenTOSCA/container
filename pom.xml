@@ -21,6 +21,7 @@
     <jaxb.version>2.2.11</jaxb.version>
     <jersey.version>2.29</jersey.version>
     <spring.version>4.3.18.RELEASE</spring.version>
+    <swagger.version>1.5.24</swagger.version>
   </properties>
 
   <repositories>

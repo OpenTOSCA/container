@@ -41,8 +41,9 @@
     <description>Spring Controller injection listener</description>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
-  
-  <!-- LOG a ready message when servlet context is loaded and one when it's shutting down-->
+
+  <!-- LOG a ready message when servlet context is loaded and one when it's shutting down -->
+  <!-- this listener is also currently co-opted to deal with mqtt broker startup -->
   <listener>
     <description>Context startup listener for opentosca container configuration purposes</description>
     <listener-class>org.opentosca.container.war.Config</listener-class>

@@ -93,9 +93,8 @@ public class SituationTriggerInstanceListener {
         LOG.warn("Could not resolve operation for situation trigger", e);
         return;
       }
-      final TPlan plan = (TPlan)operation.getPlan().getPlanRef();
 
-      // FIXME reinstate actual plan invocation by getting managed planEngine instance
+      final TPlan plan = (TPlan)operation.getPlan().getPlanRef();
       final TPlanDTO planDTO = new TPlanDTO(plan, serviceTemplate.getTargetNamespace());
 
       final Set<SituationTriggerProperty> inputs = this.instance.getSituationTrigger().getInputs();
@@ -122,10 +121,10 @@ public class SituationTriggerInstanceListener {
       }
 
       try {
-          final String correlationId = planInvocEngine.createCorrelationId();
-          // FIXME QName natural key migration to string leftover
-          planInvocEngine.invokePlan(servInstance.getCsarId(), QName.valueOf(servInstance.getTemplateId()),
-            servInstance.getId(), planDTO, correlationId);
+        final String correlationId = planInvocEngine.createCorrelationId();
+        // FIXME QName natural key migration to string leftover
+        planInvocEngine.invokePlan(servInstance.getCsarId(), QName.valueOf(servInstance.getTemplateId()),
+          servInstance.getId(), planDTO, correlationId);
 
           // now wait for finished execution
         PlanInstance planInstance = planRepository.findByCorrelationId(correlationId);
