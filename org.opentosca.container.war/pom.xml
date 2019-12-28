@@ -320,6 +320,11 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.broker.mqtt</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
 
     <dependency>

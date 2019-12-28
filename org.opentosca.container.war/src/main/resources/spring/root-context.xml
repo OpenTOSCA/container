@@ -37,4 +37,5 @@
   <import resource="classpath:/spring/context-control.xml" />
   <import resource="classpath:/spring/context-bus-management-service.xml" />
   <import resource="classpath:/spring/context-bus-application-service.xml" />
+  <import resource="classpath:/spring/context-mqtt-broker.xml" />
 </beans>
