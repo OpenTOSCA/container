@@ -33,14 +33,6 @@ public class SpringJaxRSConfiguration extends ResourceConfig {
   private void configureSwagger() {
     register(ApiListingResource.class);
     register(SwaggerSerializers.class);
-
-    BeanConfig swaggerConfig = new BeanConfig();
-    swaggerConfig.setVersion("1.0.0");
-    swaggerConfig.setSchemes(new String[]{"http"});
-    swaggerConfig.setBasePath("/container");
-    swaggerConfig.setHost(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-    swaggerConfig.setResourcePackage("org.opentosca.container.api.controller");
-//    swaggerConfig.setScan(true);
   }
 
   private void logReadyMessage() {
