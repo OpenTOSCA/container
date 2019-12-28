@@ -75,7 +75,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     try {
       for (@NonNull Path csarId : Files.newDirectoryStream(basePath, Files::isDirectory)) {
         // FIXME make CsarId a name and put the path somewhere else
-        csars.add(new CsarImpl(new CsarId(csarId), csarId));
+        csars.add(new CsarImpl(new CsarId(csarId.getFileName().toString()), csarId));
       }
     } catch (IOException e) {
       LOGGER.error("Error when traversing '{}' for CSARs", basePath);
@@ -176,7 +176,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
       return candidateId;
     }
     // FIXME don't store this in the winery repo location. Use some database for this!
-    try (OutputStream os = Files.newOutputStream(permanentLocation.resolve("EntryServiceTemplate"), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)) {
+    try (OutputStream os = Files.newOutputStream(permanentLocation.resolve(CsarImpl.ENTRY_SERVICE_TEMPLATE_LOCATION), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)) {
       os.write(entryServiceTemplate.getQName().toString().getBytes(StandardCharsets.UTF_8));
     } catch (IOException e) {
       // well... we failed to keep track of the entryServiceTemplate

@@ -1,14 +1,11 @@
 package org.opentosca.container.core.model.csar;
 
-import java.nio.file.Path;
-
 import org.opentosca.container.core.model.csar.id.CSARID;
 
 public class CsarId implements Comparable<CsarId> {
 
   private String name;
 
-  // TODO: should we expose this?
   public CsarId(String name) {
     this.name = name;
   }
@@ -17,11 +14,6 @@ public class CsarId implements Comparable<CsarId> {
   @Deprecated
   public CsarId(CSARID storeCSAR) {
     name = storeCSAR.getFileName();
-  }
-
-  @Deprecated
-  public CsarId(Path backwards) {
-    this(backwards.getFileName().toString());
   }
 
   public String csarName() {

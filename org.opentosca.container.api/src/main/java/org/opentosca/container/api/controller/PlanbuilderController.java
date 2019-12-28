@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.api.planbuilder.RunningTasks;
 import org.opentosca.container.api.planbuilder.PlanbuilderWorker;
@@ -43,6 +44,7 @@ import org.springframework.stereotype.Component;
  */
 @Path("planbuilder")
 @Component
+@NonNullByDefault
 public class PlanbuilderController {
 
   private static final ExecutorService backgroundWorker = Executors.newCachedThreadPool(r -> new Thread(r, "planbuilder-api-worker"));
@@ -51,19 +53,15 @@ public class PlanbuilderController {
   @Context
   UriInfo uriInfo;
 
-  // FIXME make sure that this is actually injected
-  @Inject
-  IHTTPService httpService;
-
-  @Nullable
-  final CsarStorageService csarStorage;
-  private Importer importer;
+  private final CsarStorageService csarStorage;
+  private final Importer importer;
+  private final IHTTPService httpService;
 
   @Inject
-  public PlanbuilderController(Importer importer) {
+  public PlanbuilderController(Importer importer, IHTTPService httpService) {
+    this.httpService = httpService;
     this.importer = importer;
     csarStorage = new CsarStorageServiceImpl(Settings.CONTAINER_STORAGE_BASEPATH.resolveSibling("planbuilder-application"));
-    this.importer = importer;
   }
 
   @GET
@@ -80,7 +78,7 @@ public class PlanbuilderController {
     if (RunningTasks.exists(taskId)) {
       return Response.ok(RunningTasks.get(taskId)).build();
     } else {
-      return null;
+      return Response.status(Status.NOT_FOUND).build();
     }
   }
 
@@ -89,8 +87,8 @@ public class PlanbuilderController {
   @Produces("application/xml")
   @Path("async")
   public Response generateBuildPlanAsync(final GeneratePlanForTopology generatePlanForTopology) {
-    URL csarURL = null;
-    URL planPostURL = null;
+    final URL csarURL;
+    final URL planPostURL;
     try {
       csarURL = new URL(generatePlanForTopology.CSARURL);
       planPostURL = new URL(generatePlanForTopology.PLANPOSTURL);
@@ -123,8 +121,8 @@ public class PlanbuilderController {
   @Produces("application/xml")
   @Path("sync")
   public Response generateBuildPlanSync(final GeneratePlanForTopology generatePlanForTopology) {
-    URL csarURL = null;
-    URL planPostURL = null;
+    final URL csarURL;
+    final URL planPostURL;
     try {
       csarURL = new URL(generatePlanForTopology.CSARURL);
       planPostURL = new URL(generatePlanForTopology.PLANPOSTURL);
@@ -143,9 +141,7 @@ public class PlanbuilderController {
     // if the worker doWork is finished, we're either in a failed state or everything worked
     switch (worker.getState().currentState) {
       case CSARDOWNLOADFAILED:
-        return Response.status(Status.INTERNAL_SERVER_ERROR).entity(worker.getState()).build();
       case PLANGENERATIONFAILED:
-        return Response.status(Status.INTERNAL_SERVER_ERROR).entity(worker.getState()).build();
       case PLANSENDINGFAILED:
         return Response.status(Status.INTERNAL_SERVER_ERROR).entity(worker.getState()).build();
       default:

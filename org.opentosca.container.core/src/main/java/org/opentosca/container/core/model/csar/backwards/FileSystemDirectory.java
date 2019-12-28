@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,7 +16,6 @@ import org.opentosca.container.core.model.AbstractDirectory;
 import org.opentosca.container.core.model.AbstractFile;
 
 // we want to remove the idea of directories
-// TODO consider implementing equals and hashcode for JPA equality checks
 @Deprecated
 public class FileSystemDirectory extends AbstractDirectory {
 
@@ -111,4 +111,16 @@ public class FileSystemDirectory extends AbstractDirectory {
     return representedPath.getFileName().toString();
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    FileSystemDirectory that = (FileSystemDirectory) o;
+    return Objects.equals(representedPath, that.representedPath);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(representedPath);
+  }
 }

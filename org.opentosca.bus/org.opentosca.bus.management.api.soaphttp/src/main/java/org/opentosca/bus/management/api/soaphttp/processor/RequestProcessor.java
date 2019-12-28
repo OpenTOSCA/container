@@ -60,7 +60,7 @@ public class RequestProcessor implements Processor {
   private final CsarStorageService csarStorage;
   private final ContainerEngine containerEngine;
 
-  // FIXME we're manually instantiating this. Probably better not to do that...
+  // manually instantiated from within the Route definition. Therefore no @Inject annotation
   public RequestProcessor(CsarStorageService csarStorage, ContainerEngine containerEngine) {
     this.csarStorage = csarStorage;
     this.containerEngine = containerEngine;

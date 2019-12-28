@@ -259,7 +259,12 @@ public class CsarController {
       logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
       if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
         logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-        // FIXME do a rollback!
+        // do a rollback
+        try {
+          storage.deleteCSAR(csarId);
+        } catch (Exception log) {
+          logger.warn("Failed to delete CSAR [{}] with failed plan deployment on import", csarId.csarName(), log);
+        }
         return Response.serverError().build();
       }
     }

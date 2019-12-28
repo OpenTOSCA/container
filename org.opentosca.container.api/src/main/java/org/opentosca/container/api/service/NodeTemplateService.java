@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 
-// TODO it is assumed that the name of the node template is the same as its id.
-
 /**
  * Provides data access functionality to retrieve node templates based on a service template.
  * Throughout the class, it is assumed that the passed service template id belongs to the passed
@@ -39,10 +37,10 @@ import org.w3c.dom.Document;
  *
  * @author Ghareeb Falazi
  */
+// TODO it is assumed that the name of the node template is the same as its id.
+//  That assumption is not accurate
 @Service
 public class NodeTemplateService {
-  // TODO add some trace logging
-  private static Logger LOGGER = LoggerFactory.getLogger(NodeTemplateService.class);
 
   private final CsarStorageService storage;
 

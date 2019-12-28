@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class CsarImpl implements Csar {
 
+  public static final String ENTRY_SERVICE_TEMPLATE_LOCATION = "EntryServiceTemplate";
   private static final Logger LOGGER = LoggerFactory.getLogger(CsarImpl.class);
 
   @NonNull
@@ -55,8 +56,7 @@ public class CsarImpl implements Csar {
   private Optional<ServiceTemplateId> readEntryServiceTemplate(Path csarLocation) {
     String qname = null;
     try {
-      // FIXME magic string constant
-      qname = new String(Files.readAllBytes(csarLocation.resolve("EntryServiceTemplate")), StandardCharsets.UTF_8);
+      qname = new String(Files.readAllBytes(csarLocation.resolve(ENTRY_SERVICE_TEMPLATE_LOCATION)), StandardCharsets.UTF_8);
     } catch (IOException e) {
       // Swallow, no helping this
     }

@@ -17,8 +17,6 @@ import org.opentosca.container.core.model.instance.ServiceInstance;
  */
 public interface IInstanceDataService {
 
-  // TODO: remove deprecated methods!
-
   /**
    * Queries for all ServiceInstances identified by the given parameters. It then returns a List of
    * the matching serviceInstances.

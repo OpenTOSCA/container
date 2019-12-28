@@ -43,6 +43,7 @@ public class SituationTriggerInstanceListener {
   @PostPersist
   public void startSituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
     final SituationTriggerInstanceObserver obs = new SituationTriggerInstanceObserver(instance);
+    // this performs service injection for us
     SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(obs);
 
     SituationTriggerInstanceListener.obs.add(obs);
@@ -55,14 +56,12 @@ public class SituationTriggerInstanceListener {
 
     private final SituationTriggerInstanceRepository repo = new SituationTriggerInstanceRepository();
 
-    // FIXME we can't inject into the JPA-Managed listener, so we need to perform some kind of service lookup here
     @Autowired
     private IPlanInvocationEngine planInvocEngine;
     @Autowired
     private CsarStorageService storage;
 
     private final PlanInstanceRepository planRepository = new PlanInstanceRepository();
-
     private final SituationTriggerInstance instance;
 
     public SituationTriggerInstanceObserver(final SituationTriggerInstance instance) {

@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * @author kalmankepes
@@ -29,18 +31,21 @@ public class SituationListener {
 
   final private static Logger LOG = LoggerFactory.getLogger(SituationListener.class);
 
+  // injection crutch to enable managementBus adaption
+  @Autowired
+  private IManagementBus managementBus;
+
   final SituationRepository sitRepo = new SituationRepository();
-
   final SituationTriggerRepository sitTrigRepo = new SituationTriggerRepository();
-
   final SituationTriggerInstanceRepository sitTrigInstRepo = new SituationTriggerInstanceRepository();
-
   final SituationsMonitorRepository sitMonRepo = new SituationsMonitorRepository();
 
   @PostUpdate
   void situationAfterUpdate(final Situation situation) {
     Collection<SituationsMonitor> monis = sitMonRepo.findSituationMonitorsBySituationId(situation.getId());
 
+    // this SHOULD inject the managementBus dependency when we use it
+    SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     for (SituationsMonitor moni : monis) {
       sendServiceInstanceAdaptionEvent(moni);
     }
@@ -150,8 +155,6 @@ public class SituationListener {
     eventProperties.put("SERVICEINSTANCE", monitor.getServiceInstance());
     eventProperties.put("NODE2SITUATIONS", monitor.getNode2Situations());
 
-    // FIXME OMFG THIS BREAKS EVERYTHING!!
-    IManagementBus managementBus = null;
     managementBus.situationAdaption(eventProperties, (e) -> {});
   }
 
