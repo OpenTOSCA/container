@@ -17,7 +17,7 @@ import org.opentosca.container.core.model.csar.Csar;
 
 public class ArtifactResolver {
 
-  public static Function<TServiceTemplate, Path> resolveServiceTemplate = (st) -> Paths.get("servicetemplates", UriUtil.encodePathSegment(st.getTargetNamespace()), st.getName());
+  public static Function<TServiceTemplate, Path> resolveServiceTemplate = (st) -> Paths.get("servicetemplates", UriUtil.encodePathSegment(st.getTargetNamespace()), st.getIdFromIdOrNameField());
   public static BiFunction<TServiceTemplate, TPlan, Path> resolvePlan = (st, plan) -> resolveServiceTemplate.apply(st).resolve("plans").resolve(plan.getId());
 
   public static AbstractArtifact resolveArtifact(Csar csar, Path... pathFragments) {

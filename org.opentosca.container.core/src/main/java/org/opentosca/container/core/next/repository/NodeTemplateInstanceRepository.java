@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.repository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.TypedQuery;
@@ -24,7 +25,7 @@ public class NodeTemplateInstanceRepository extends JpaRepository<NodeTemplateIn
   }
 
 
-  public NodeTemplateInstance find(final ServiceTemplateInstance sti, String nodeTemplateId, Set<NodeTemplateInstanceState> acceptableStates) {
+  public List<NodeTemplateInstance> find(final ServiceTemplateInstance sti, String nodeTemplateId) {
     try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
       final CriteriaBuilder cb = em.getCriteriaBuilder();
 
@@ -33,20 +34,17 @@ public class NodeTemplateInstanceRepository extends JpaRepository<NodeTemplateIn
 
       final CriteriaQuery<NodeTemplateInstance> query = cb.createQuery(NodeTemplateInstance.class);
       final Root<NodeTemplateInstance> nti = query.from(NodeTemplateInstance.class);
-      final CriteriaBuilder.In<NodeTemplateInstanceState> stateCheck = cb.in(nti.get("state"));
-      acceptableStates.forEach(stateCheck::value);
 
       query.select(nti).where(
         cb.equal(nti.get("serviceTemplateInstance"), owner)
-        , cb.equal(nti.get("templateId"), templateId)
-        , stateCheck);
+        , cb.equal(nti.get("templateId"), templateId));
 
       final TypedQuery<NodeTemplateInstance> q = em.createQuery(query);
       q.setParameter(owner, sti);
       q.setParameter(templateId, nodeTemplateId);
 
-      final NodeTemplateInstance result = q.getSingleResult();
-      initializeInstance(result);
+      final List<NodeTemplateInstance> result = q.getResultList();
+      result.forEach(this::initializeInstance);
       return result;
     }
   }

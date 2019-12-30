@@ -252,17 +252,17 @@ public class InstanceService {
   }
 
   private Document createServiceInstanceInitialPropertiesFromServiceTemplate(final CsarId csarId,
-                                                                             final String serviceTemplateName) {
+                                                                             final String serviceTemplateId) {
 
     final Document existingProperties =
-      this.serviceTemplateService.getPropertiesOfServiceTemplate(csarId, serviceTemplateName);
+      this.serviceTemplateService.getPropertiesOfServiceTemplate(csarId, serviceTemplateId);
 
     if (existingProperties != null) {
       return existingProperties;
     }
 
     logger.debug("No Properties found in BoundaryDefinitions for ST {} thus creating blank ones",
-      serviceTemplateName);
+      serviceTemplateId);
     final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     dbf.setNamespaceAware(true);
     DocumentBuilder db;
@@ -409,9 +409,9 @@ public class InstanceService {
     // ServiceTemplateInstance
     final ServiceTemplateInstance serviceTemplateInstance = getServiceTemplateInstance(serviceTemplateInstanceId, false);
 
-    // only compare the names, because ServiceTemplateInstance does not keep the
+    // only compare the local Id, because ServiceTemplateInstance does not keep the
     // fully namespaced QName as the parent Id (which sucks, but it is what it is for now)
-    if (!serviceTemplateInstance.getTemplateId().equals(serviceTemplate.getName())) {
+    if (!serviceTemplateInstance.getTemplateId().equals(serviceTemplate.getIdFromIdOrNameField())) {
       final String msg =
         String.format("Service template instance id <%s> does not belong to service template: %s",
           serviceTemplateInstanceId, serviceTemplate.getName());

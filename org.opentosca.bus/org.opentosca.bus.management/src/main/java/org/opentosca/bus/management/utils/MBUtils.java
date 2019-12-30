@@ -255,9 +255,9 @@ public class MBUtils {
     final Optional<ServiceTemplateInstance> serviceTemplateInstance = serviceTemplateInstanceRepository.find(serviceTemplateInstanceID);
 
     if (serviceTemplateInstance.isPresent()) {
-      return nodeTemplateInstanceRepository.find(serviceTemplateInstance.get(), nodeTemplateID,
-        Stream.of(NodeTemplateInstanceState.CREATED, NodeTemplateInstanceState.STARTED)
-          .collect(Collectors.toSet()));
+      return nodeTemplateInstanceRepository.find(serviceTemplateInstance.get(), nodeTemplateID)
+        .stream().filter(nti -> nti.getState() == NodeTemplateInstanceState.CREATED || nti.getState() == NodeTemplateInstanceState.STARTED)
+        .findFirst().orElse(null);
     } else {
       LOG.warn("Unable to find ServiceTemplateInstance!");
       return null;
