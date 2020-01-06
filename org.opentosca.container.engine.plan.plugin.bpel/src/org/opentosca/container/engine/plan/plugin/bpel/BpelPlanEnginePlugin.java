@@ -183,20 +183,31 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                             docToParse.getDocumentElement().normalize();
 
                             final XPath xPath = XPathFactory.newInstance().newXPath();
-                            final String expression = "//*[local-name()='OperationName']";
-                            final NodeList nodeList =
-                                (NodeList) xPath.compile(expression).evaluate(docToParse, XPathConstants.NODESET);
+                            final String expressionOperationName = "//*[local-name()='OperationName']";
+                            final NodeList nodeListOperationNames =
+                                (NodeList) xPath.compile(expressionOperationName).evaluate(docToParse, XPathConstants.NODESET);
+                            
+                            final String expressionNodeTemplateID = "//*[local-name()='NodeTemplateID']";
+                            final NodeList nodeListNodeTemplateIDs =
+                                (NodeList) xPath.compile(expressionNodeTemplateID).evaluate(docToParse, XPathConstants.NODESET);
+                            
+                            
 
                             final List<String> operationNames = new ArrayList<>();
 
-                            for (int j = 0; j < nodeList.getLength(); j++) {
-                                if (nodeList.item(j).getNodeType() == Node.ELEMENT_NODE) {
-                                    final Element currElement = (Element) nodeList.item(j);
-                                    final String thisOperation = currElement.getChildNodes().item(0).getTextContent();
-                                    operationNames.add(thisOperation);
+                            for (int j = 0; j < nodeListOperationNames.getLength(); j++) {
+                                if (nodeListOperationNames.item(j).getNodeType() == Node.ELEMENT_NODE) {
+                                    final Element operationNameElement = (Element) nodeListOperationNames.item(j);
+                                    final String opNameOperation = operationNameElement.getChildNodes().item(0).getTextContent();
+                                    
+                                    final Element nodeTemplateElement = (Element) nodeListNodeTemplateIDs.item(j);
+                                    final String nodeTemplateOperation = nodeTemplateElement.getChildNodes().item(0).getTextContent();
+                                    
+                                    operationNames.add(nodeTemplateOperation+opNameOperation);
                                 }
-
                             }
+                    
+                            
                             this.planToOperationMap.put(planId.getLocalPart(), operationNames);
                             final SituationTriggerInstanceListener triggerListener =
                                 new SituationTriggerInstanceListener();
