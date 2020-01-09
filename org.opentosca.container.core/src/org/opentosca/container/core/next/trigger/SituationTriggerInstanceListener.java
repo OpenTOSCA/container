@@ -71,9 +71,10 @@ public class SituationTriggerInstanceListener {
         public void run() {
 
             this.instance.setStarted(true);
-            this.repo.update(this.instance);
+            this.repo.update(this.instance);            
 
             this.LOG.debug("Started SituationTriggerInstance " + this.instance.getId());
+            
 
             final String interfaceName = this.instance.getSituationTrigger().getInterfaceName();
             final String operationName = this.instance.getSituationTrigger().getOperationName();
@@ -85,15 +86,15 @@ public class SituationTriggerInstanceListener {
             if (nodeInstance == null) {
                 // plan invocation
                 final QName planId = this.toscaEngine.getToscaReferenceMapper()
-                                                     .getBoundaryPlanOfCSARInterface(servInstance.getCsarId(),
+                                                     .getBoundaryPlanOfCSARInterface(this.instance.getSituationTrigger().getCsarId(),
                                                                                      interfaceName, operationName);
                 final TPlan plan = this.toscaEngine.getToscaReferenceMapper()
-                                                   .getPlanForCSARIDAndPlanID(servInstance.getCsarId(), planId);
+                                                   .getPlanForCSARIDAndPlanID(this.instance.getSituationTrigger().getCsarId(), planId);
 
                 final TPlanDTO planDTO = new TPlanDTO(plan, planId.getNamespaceURI());
 
                 for (final TParameterDTO param : planDTO.getInputParameters().getInputParameter()) {
-                    if (param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
+                    if (servInstance != null && param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
                         String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + servInstance.getId();
                         url = url.replace("{csarid}", servInstance.getCsarId().getFileName());
                         url = url.replace("{servicetemplateid}",
@@ -116,8 +117,14 @@ public class SituationTriggerInstanceListener {
                 try {
 
                     final String correlationId = this.planInvocEngine.createCorrelationId();
-                    this.planInvocEngine.invokePlan(servInstance.getCsarId(), servInstance.getTemplateId(),
-                                                    servInstance.getId(), planDTO, correlationId);
+                    if(servInstance != null) {                        
+                        this.planInvocEngine.invokePlan(servInstance.getCsarId(), servInstance.getTemplateId(),
+                                                        servInstance.getId(), planDTO, correlationId);
+                    } else {                        
+                        this.planInvocEngine.invokePlan(this.instance.getSituationTrigger().getCsarId(), this.toscaEngine.getServiceTemplatesInCSAR(this.instance.getSituationTrigger().getCsarId()).get(0),
+                                                        -1, planDTO, correlationId);
+                    }
+                    
 
                     // now wait for finished execution
                     PlanInstance planInstance = this.planRepository.findByCorrelationId(correlationId);
