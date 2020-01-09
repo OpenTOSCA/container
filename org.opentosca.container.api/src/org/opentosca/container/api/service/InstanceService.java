@@ -674,7 +674,7 @@ public class InstanceService {
         return this.sitTrig.findSituationTriggersBySituationId(situation.getId());
     }
 
-    public SituationTrigger createNewSituationTrigger(final Collection<Situation> situations,
+    public SituationTrigger createNewSituationTrigger(final Collection<Situation> situations, final CSARID csarId,
                                                       final boolean triggerOnActivation, final boolean isSingleInstance,
                                                       final ServiceTemplateInstance serviceInstance,
                                                       final NodeTemplateInstance nodeInstance,
@@ -684,6 +684,7 @@ public class InstanceService {
         final SituationTrigger newInstance = new SituationTrigger();
 
         newInstance.setSituations(situations);
+        newInstance.setCsarId(csarId);
         newInstance.setTriggerOnActivation(triggerOnActivation);
         newInstance.setSingleInstance(isSingleInstance);
         newInstance.setServiceInstance(serviceInstance);

@@ -12,6 +12,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import org.eclipse.persistence.annotations.Convert;
+import org.opentosca.container.core.model.csar.id.CSARID;
+
 import com.google.common.collect.Sets;
 
 @Entity
@@ -31,6 +34,10 @@ public class SituationTrigger extends PersistenceObject {
 
     @Column(nullable = false)
     private boolean isSingleInstance;
+    
+    @Convert("CSARIDConverter")
+    @Column(name = "CSAR_ID", nullable = false)
+    private CSARID csarId;
 
     @OneToOne
     @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID", nullable = true)
@@ -82,8 +89,17 @@ public class SituationTrigger extends PersistenceObject {
     }
 
     public void setTriggerOnActivation(final boolean triggerOnActivation) {
-        this.triggerOnActivation = triggerOnActivation;
+        this.triggerOnActivation = triggerOnActivation;                
     }
+    
+    public CSARID getCsarId() {
+        return this.csarId;
+    }
+
+    public void setCsarId(final CSARID csarId) {
+        this.csarId = csarId;
+    }
+
 
     public ServiceTemplateInstance getServiceInstance() {
         return this.serviceInstance;

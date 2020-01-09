@@ -17,6 +17,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "SituationTrigger")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -28,6 +30,10 @@ public class SituationTriggerDTO extends ResourceSupport {
     @XmlElement(name = "SituationId")
     @XmlElementWrapper(name = "Situations")
     private Collection<Long> situationIds;
+    
+    @XmlElement(name = "CsarId")
+    @ApiModelProperty(name = "csar_id")
+    private String csarId;
 
     @XmlElement(name = "onActivation")
     private boolean onActivation;
@@ -57,7 +63,6 @@ public class SituationTriggerDTO extends ResourceSupport {
     @XmlElement(name = "EventTime", required = false)
     private String eventTime;
   
-  
     public Long getId() {
         return this.id;
     }
@@ -74,6 +79,14 @@ public class SituationTriggerDTO extends ResourceSupport {
         this.situationIds = situationIds;
     }
 
+    public String getCsarId() {
+        return this.csarId;
+    }
+
+    public void setCsarId(final String csarId) {
+        this.csarId = csarId;
+    }
+    
     public boolean isOnActivation() {
         return this.onActivation;
     }

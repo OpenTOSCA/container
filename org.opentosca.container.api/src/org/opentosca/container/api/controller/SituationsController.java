@@ -22,6 +22,7 @@ import org.opentosca.container.api.dto.situations.SituationListDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerInstanceDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerListDTO;
+import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -40,6 +41,7 @@ public class SituationsController {
 	UriInfo uriInfo;
 
 	private InstanceService instanceService;
+	private CsarService csarService;
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -165,7 +167,8 @@ public class SituationsController {
 		situationTrigger.getInputParams()
 				.forEach(x -> inputs.add(new SituationTriggerProperty(x.getName(), x.getValue(), x.getType())));
 
-		final SituationTrigger sitTrig = this.instanceService.createNewSituationTrigger(sits,
+		
+		final SituationTrigger sitTrig = this.instanceService.createNewSituationTrigger(sits, this.csarService.findById(situationTrigger.getCsarId()).getCSARID(),
 				situationTrigger.isOnActivation(), situationTrigger.isSingleInstance(), serviceInstance, nodeInstance,
 				situationTrigger.getInterfaceName(), situationTrigger.getOperationName(), inputs, eventProbability,
 				eventTime);
@@ -194,5 +197,9 @@ public class SituationsController {
 
 	public void setInstanceService(final InstanceService instanceService) {
 		this.instanceService = instanceService;
+	}
+	
+	public void setCsarService(final CsarService csarService) {
+	    this.csarService = csarService;
 	}
 }
