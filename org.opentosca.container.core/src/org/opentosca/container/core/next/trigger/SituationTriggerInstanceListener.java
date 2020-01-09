@@ -226,17 +226,18 @@ public class SituationTriggerInstanceListener {
     public long calculateWCETForPlan(final TPlan plan) {
         long calculatedTimeFromPreviousExecutions = 0;
 
-        // contains mapping of Planname to its contained operations
+        // contains mapping of PlanName to its contained operations
         final Map<String, List<String>> planNameToOperationsMap = getPlanToOperationMap();
         // map of longest execution times for each operation
         final Map<String, Long> longestDurationMap = new HashMap<>();
         // find all operations contained in current plan
         final List<String> allOperationsInPlan = planNameToOperationsMap.get(plan.getId());
 
-        // get all previously completed operations from DB
+        // get all previously completed PlanInstances from DB
         final PlanInstanceRepository planRepo = new PlanInstanceRepository();
         final Collection<PlanInstance> allOccurences = planRepo.findAll();
 
+        // iterate all instances until match is found
         if (allOperationsInPlan != null) {
             for (final PlanInstance currInstance : allOccurences) {
                 if (currInstance.getTemplateId().getLocalPart().equals(plan.getId())) {
@@ -252,7 +253,8 @@ public class SituationTriggerInstanceListener {
     }
 
     /**
-     * iterate through all InstanceEvents searching for execution times of previous events of same Plan
+     * iterate through all PlanInstanceEvents of a PlanInstance and compare with matching operation from
+     * current Plan
      *
      * @param longestDurationMap
      * @param allOperationsInPlan
@@ -261,11 +263,14 @@ public class SituationTriggerInstanceListener {
     private void iterateInstanceEventsForExecutionTimes(final Map<String, Long> longestDurationMap,
                                                         final List<String> allOperationsInPlan,
                                                         final PlanInstance currInstance) {
+        // iterate all operations from current plan
         for (final String oneOperationFromPlan : allOperationsInPlan) {
+            // iterate all events from current PlanInstance
             for (final PlanInstanceEvent aEvent : currInstance.getEvents()) {
-                if (Objects.nonNull(aEvent.getOperationName()) && Objects.nonNull(aEvent.getExecutionDuration()) && Objects.nonNull(aEvent.getNodeTemplateID())) {
-                    if(oneOperationFromPlan.equals(aEvent.getNodeTemplateID()+aEvent.getOperationName())) {
-                    	checkIfCurrentOperationExecutionTimeIsLonger(longestDurationMap, aEvent);
+                if (Objects.nonNull(aEvent.getOperationName()) && Objects.nonNull(aEvent.getExecutionDuration())
+                    && Objects.nonNull(aEvent.getNodeTemplateID())) {
+                    if (oneOperationFromPlan.equals(aEvent.getNodeTemplateID() + aEvent.getOperationName())) {
+                        checkIfCurrentOperationExecutionTimeIsLonger(longestDurationMap, aEvent);
                     }
                 }
             }
@@ -282,12 +287,15 @@ public class SituationTriggerInstanceListener {
     private void checkIfCurrentOperationExecutionTimeIsLonger(final Map<String, Long> longestDurationMap,
                                                               final PlanInstanceEvent aEvent) {
         // key already exists in map
-        if (longestDurationMap.containsKey(aEvent.getNodeTemplateID()+aEvent.getOperationName())) {
-            if (longestDurationMap.get(aEvent.getNodeTemplateID()+aEvent.getOperationName()) < aEvent.getExecutionDuration()) {
-                longestDurationMap.put(aEvent.getNodeTemplateID()+aEvent.getOperationName(), aEvent.getExecutionDuration());
+        if (longestDurationMap.containsKey(aEvent.getNodeTemplateID() + aEvent.getOperationName())) {
+            if (longestDurationMap.get(aEvent.getNodeTemplateID()
+                + aEvent.getOperationName()) < aEvent.getExecutionDuration()) {
+                longestDurationMap.put(aEvent.getNodeTemplateID() + aEvent.getOperationName(),
+                                       aEvent.getExecutionDuration());
             }
         } else {
-            longestDurationMap.put(aEvent.getNodeTemplateID()+aEvent.getOperationName(), aEvent.getExecutionDuration());
+            longestDurationMap.put(aEvent.getNodeTemplateID() + aEvent.getOperationName(),
+                                   aEvent.getExecutionDuration());
         }
     }
 

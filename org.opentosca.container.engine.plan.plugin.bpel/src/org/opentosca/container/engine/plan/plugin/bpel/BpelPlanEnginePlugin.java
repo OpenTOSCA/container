@@ -170,8 +170,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             BpelPlanEnginePlugin.LOG.debug("Unzipping Plan '{}' to '{}'.", filePath.getFileName().toString(),
                                            tempDir.getAbsolutePath());
             planContents = this.fileAccessService.unzip(filePath.toFile(), tempDir);
-            // currently assuming all operations are contained in the single existing bpel file. Hopefully there
-            // are not multiple bpel files in some cases
+
             for (final File plan : planContents) {
                 final int i = plan.getName().lastIndexOf('.');
                 if (i > 0) {
@@ -185,29 +184,33 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                             final XPath xPath = XPathFactory.newInstance().newXPath();
                             final String expressionOperationName = "//*[local-name()='OperationName']";
                             final NodeList nodeListOperationNames =
-                                (NodeList) xPath.compile(expressionOperationName).evaluate(docToParse, XPathConstants.NODESET);
-                            
+                                (NodeList) xPath.compile(expressionOperationName).evaluate(docToParse,
+                                                                                           XPathConstants.NODESET);
+
                             final String expressionNodeTemplateID = "//*[local-name()='NodeTemplateID']";
                             final NodeList nodeListNodeTemplateIDs =
-                                (NodeList) xPath.compile(expressionNodeTemplateID).evaluate(docToParse, XPathConstants.NODESET);
-                            
-                            
+                                (NodeList) xPath.compile(expressionNodeTemplateID).evaluate(docToParse,
+                                                                                            XPathConstants.NODESET);
+
+
 
                             final List<String> operationNames = new ArrayList<>();
 
                             for (int j = 0; j < nodeListOperationNames.getLength(); j++) {
                                 if (nodeListOperationNames.item(j).getNodeType() == Node.ELEMENT_NODE) {
                                     final Element operationNameElement = (Element) nodeListOperationNames.item(j);
-                                    final String opNameOperation = operationNameElement.getChildNodes().item(0).getTextContent();
-                                    
+                                    final String opNameOperation =
+                                        operationNameElement.getChildNodes().item(0).getTextContent();
+
                                     final Element nodeTemplateElement = (Element) nodeListNodeTemplateIDs.item(j);
-                                    final String nodeTemplateOperation = nodeTemplateElement.getChildNodes().item(0).getTextContent();
-                                    
-                                    operationNames.add(nodeTemplateOperation+opNameOperation);
+                                    final String nodeTemplateOperation =
+                                        nodeTemplateElement.getChildNodes().item(0).getTextContent();
+
+                                    operationNames.add(nodeTemplateOperation + opNameOperation);
                                 }
                             }
-                    
-                            
+
+
                             this.planToOperationMap.put(planId.getLocalPart(), operationNames);
                             final SituationTriggerInstanceListener triggerListener =
                                 new SituationTriggerInstanceListener();

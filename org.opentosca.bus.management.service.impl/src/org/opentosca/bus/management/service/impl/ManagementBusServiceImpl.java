@@ -624,8 +624,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                 final SituationTriggerInstanceListener instanceListener = new SituationTriggerInstanceListener();
                 final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan);
+                // if total duration larger than calculatedWCET, use duration
                 if (calculatedWCET > 0 && calculatedWCET < duration) {
                     currentPlan.setCalculatedWCET(duration);
+                }
+                // if newly calculated WCET is larger than previous WCET, update
+                if (calculatedWCET > currentPlan.getCalculatedWCET()) {
+                    currentPlan.setCalculatedWCET(calculatedWCET);
                 }
 
                 // update plan in repository with new log event
