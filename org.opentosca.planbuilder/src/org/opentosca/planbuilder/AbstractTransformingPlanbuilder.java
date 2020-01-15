@@ -407,7 +407,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
         for (AbstractNodeTemplate node : graph) {
 
-            if (this.isRunning(node)) {
+            if (this.isRunning(node) && this.hasNoHostingNodes(node)) {
                 continue;
             }
 
@@ -433,6 +433,16 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             validDeploymentSubgraph.removeAll(toRemove);
             return getDeployableSubgraph(validDeploymentSubgraph);
         }
+    }
+    
+    private boolean hasNoHostingNodes(AbstractNodeTemplate nodeTemplate) {
+        for(AbstractRelationshipTemplate rel :nodeTemplate.getOutgoingRelations()) {
+            if(rel.getType().equals(Types.hostedOnRelationType) | rel.getType().equals(Types.dependsOnRelationType)) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     private boolean contains(Collection<AbstractNodeTemplate> subgraph1, Collection<AbstractNodeTemplate> subgraph2) {

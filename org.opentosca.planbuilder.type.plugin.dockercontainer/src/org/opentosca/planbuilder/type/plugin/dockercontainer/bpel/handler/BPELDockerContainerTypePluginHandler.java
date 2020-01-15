@@ -28,6 +28,7 @@ import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContaine
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.handler.DockerContainerTypePluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -60,21 +61,41 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             e.printStackTrace();
         }
     }
-
-    public boolean handleTerminate(final BPELPlanContext context) {
+    
+    private boolean handleTerminate(final BPELPlanContext context, Element elementToAppendTo) {
         final List<AbstractNodeTemplate> nodes = new ArrayList<>();
         ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
-
-        for (final AbstractNodeTemplate node : nodes) {
+        
+        
+        
+        for(AbstractNodeTemplate node : nodes) {
             if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
-                                                                                                        .getId())) {
-                return context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
-                                                null);
+                                                                                                    .getId())) {
+                
+                final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
+                final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
 
+                final Variable dockerEngineUrlVar = context.getPropertyVariable(node, "DockerEngineURL");
+                final Variable dockerContainerIds = context.getPropertyVariable(context.getNodeTemplate(), "ContainerID");
+                
+                createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
+                createDEInternalExternalPropsInput.put("ContainerID", dockerContainerIds);
+
+                
+                return this.invokerPlugin.handle(context, node.getId(), true,
+                                          Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
+                                          Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
+                                          createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
+                                          elementToAppendTo);
+                
             }
         }
+        
         return false;
+    }
+
+    public boolean handleTerminate(final BPELPlanContext context) {        
+        return this.handleTerminate(context, context.getProvisioningPhaseElement());
     }
 
     @Override
@@ -483,13 +504,17 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             createDEInternalExternalPropsOutput.put("ContainerID", containerIdVar);
         }
 
-        this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
+        boolean check = true;
+        
+        check &= this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
                                   createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
-                                  BPELScopePhaseType.PROVISIONING);
+                                   context.getProvisioningPhaseElement());
+        
+        check &= this.handleTerminate(context, context.getProvisioningCompensationPhaseElement());
 
-        return true;
+        return check;
     }
 
     protected boolean handleWithImageId(final BPELPlanContext context, final AbstractNodeTemplate dockerEngineNode,
@@ -538,13 +563,17 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             createDEInternalExternalPropsInput.put("ContainerMountPath", containerMountPath);
         }
 
-        this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
+        boolean check = true;
+        
+        check &= this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
                                   createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
-                                  BPELScopePhaseType.PROVISIONING);
+                                   context.getProvisioningPhaseElement());
 
-        return true;
+        check &= this.handleTerminate(context, context.getProvisioningCompensationPhaseElement());
+        
+        return check;
     }
 
     public static AbstractDeploymentArtifact fetchFirstDockerContainerDA(final AbstractNodeTemplate nodeTemplate) {

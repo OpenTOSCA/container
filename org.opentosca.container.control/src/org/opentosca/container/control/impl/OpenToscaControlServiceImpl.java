@@ -17,8 +17,6 @@ import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
-import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
-import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.core.service.ICoreDeploymentTrackerService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.ICoreFileService;
@@ -50,7 +48,6 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     protected static ICoreFileService coreFileService = null;
     protected static ICoreEndpointService endpointService = null;
     protected static IPlanInvocationEngine planInvocationEngine = null;
-    protected static ICSARInstanceManagementService instanceManagement = null;
 
     private final Logger LOG = LoggerFactory.getLogger(OpenToscaControlServiceImpl.class);
 
@@ -125,7 +122,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
             for (final TPlan plan : plans.getPlan()) {
 
-            	if (!OpenToscaControlServiceImpl.planEngine.deployPlan(plan, namespace, csarID)) {
+                if (!OpenToscaControlServiceImpl.planEngine.deployPlan(plan, namespace, csarID)) {
                     listOfUndeployedPlans.add(plan);
                 }
             }
@@ -166,9 +163,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
         this.LOG.info("Invoke Plan Invocation!");
 
-        final String correlationID =
-            OpenToscaControlServiceImpl.planInvocationEngine.createCorrelationId(csarID, serviceTemplateId,
-                                                                                 csarInstanceID, plan);
+        final String correlationID = OpenToscaControlServiceImpl.planInvocationEngine.createCorrelationId();
 
         if (null != correlationID) {
             this.LOG.info("The Plan Invocation was successfull!!!");
@@ -265,7 +260,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
                 break;
         }
 
-        for (final QName serviceTemplateID : this.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
+        for (final QName serviceTemplateID : OpenToscaControlServiceImpl.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
 
             this.LOG.info("Invoke the PlanEngine for processing the Plans.");
             if (OpenToscaControlServiceImpl.planEngine != null) {
@@ -308,29 +303,6 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
             }
         }
         return true;
-    }
-
-    @Override
-    public int getCSARInstanceIDForCorrelationID(final String correlationID) {
-        return OpenToscaControlServiceImpl.instanceManagement.getInstanceForCorrelation(correlationID).getInstanceID();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<String> getCorrelationsOfServiceTemplateInstance(final ServiceTemplateInstanceID csarInstanceID) {
-        return OpenToscaControlServiceImpl.planInvocationEngine.getActiveCorrelationsOfInstance(csarInstanceID);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TPlanDTO getActivePlanOfInstance(final ServiceTemplateInstanceID csarInstanceID,
-                                            final String correlationID) {
-        return OpenToscaControlServiceImpl.planInvocationEngine.getActivePublicPlanOfInstance(csarInstanceID,
-                                                                                              correlationID);
     }
 
     /**
@@ -509,19 +481,5 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     protected void unbindPlanInvocationEngine(final IPlanInvocationEngine service) {
         this.LOG.debug("Unbind of the planInvocationEngine.");
         OpenToscaControlServiceImpl.planInvocationEngine = null;
-    }
-
-    protected void bindICSARInstanceManagementService(final ICSARInstanceManagementService service) {
-        if (service == null) {
-            this.LOG.error("Service ICSARInstanceManagementService is null.");
-        } else {
-            this.LOG.debug("Bind of the ICSARInstanceManagementService.");
-            OpenToscaControlServiceImpl.instanceManagement = service;
-        }
-    }
-
-    protected void unbindICSARInstanceManagementService(final ICSARInstanceManagementService service) {
-        this.LOG.debug("Unbind of the ICSARInstanceManagementService.");
-        OpenToscaControlServiceImpl.instanceManagement = null;
     }
 }

@@ -56,7 +56,7 @@ public class Route extends RouteBuilder {
             + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT.toString()
             + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
         final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL.toString()
-            + "&serviceName={http://siserver.org/wsdl}InvokerService&portName={http://siserver.org/wsdl}CallbackPort&dataFormat=PAYLOAD&loggingFeatureEnabled=true&headerFilterStrategy=#"
+            + "&serviceName={http://siserver.org/wsdl}CallbackService&portName={http://siserver.org/wsdl}CallbackPort&dataFormat=PAYLOAD&loggingFeatureEnabled=true&headerFilterStrategy=#"
             + CxfHeaderFilterStrategy.class.getName();
 
         // Management Bus Endpoints

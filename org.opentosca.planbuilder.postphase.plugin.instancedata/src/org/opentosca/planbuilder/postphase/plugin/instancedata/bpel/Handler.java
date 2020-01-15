@@ -1887,7 +1887,7 @@ public class Handler {
         // generate call to method
         context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT, inputParams,
-                                 outputParams, BPELScopePhaseType.PRE);
+                                 outputParams, BPELScopePhaseType.PRE, context.getPrePhaseElement());
 
         // check result and eventually throw error
 

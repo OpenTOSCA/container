@@ -6,7 +6,7 @@ import org.apache.camel.Exchange;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.script.ManagementBusInvocationPluginScript;
-import org.opentosca.bus.management.service.impl.collaboration.Constants;
+import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -28,8 +28,8 @@ public class PluginHandler {
     private final static Logger LOG = LoggerFactory.getLogger(PluginHandler.class);
 
     /**
-     * Calls the invocation plug-in that supports the specific invocation-type and redirects
-     * invocations on remote OpenTOSCA Containers to the 'remote' plug-in.
+     * Calls the invocation plug-in that supports the specific invocation-type and redirects invocations
+     * on remote OpenTOSCA Containers to the 'remote' plug-in.
      *
      * @param exchange the exchange that has to be passed to the plug-in.
      * @param invocationType the invocation type for the IA/Plan invocation
@@ -70,8 +70,8 @@ public class PluginHandler {
     }
 
     /**
-     * Calls the deployment plug-in that supports the specific deployment type and redirects
-     * deployments on remote OpenTOSCA Containers to the 'remote' plug-in.
+     * Calls the deployment plug-in that supports the specific deployment type and redirects deployments
+     * on remote OpenTOSCA Containers to the 'remote' plug-in.
      *
      * @param exchange the exchange that has to be passed to the plug-in.
      * @param deploymentType the deployment type of the IA that shall be deployed
@@ -106,8 +106,8 @@ public class PluginHandler {
     }
 
     /**
-     * Checks if an deployment plug-in is available that supports the specified artifact and returns
-     * the deployment type.
+     * Checks if an deployment plug-in is available that supports the specified artifact and returns the
+     * deployment type.
      *
      * @param artifactType to check if supported.
      * @return the deployment type or otherwise <tt>null</tt>.
@@ -127,8 +127,8 @@ public class PluginHandler {
     }
 
     /**
-     * Checks if an invocation plug-in is available that supports the specified artifact and returns
-     * the invocation type.
+     * Checks if an invocation plug-in is available that supports the specified artifact and returns the
+     * invocation type.
      *
      * @param artifactType to check if supported.
      * @param csarID to get properties to check for InvocationType.

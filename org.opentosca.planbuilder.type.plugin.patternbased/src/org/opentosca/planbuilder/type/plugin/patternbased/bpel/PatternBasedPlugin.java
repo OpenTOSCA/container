@@ -45,15 +45,34 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     @Override
     public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
+        boolean check = true;
         if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate)) {
             LOG.debug("Handling by container pattern");
-            return containerPatternHandler.handleCreate(templateContext, nodeTemplate);
+            check &= containerPatternHandler.handleCreate(templateContext, nodeTemplate,
+                                                          templateContext.getProvisioningPhaseElement());
+
+            if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
+                LOG.debug("Adding container pattern compensation logic");
+                check &=
+                    containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
+                                                            templateContext.getProvisioningCompensationPhaseElement());
+            }
         } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
             LOG.debug("Handling by lifecycle pattern");
-            return lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate);
+
+            check &= lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
+                                                          templateContext.getProvisioningPhaseElement());
+
+            if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
+                LOG.debug("Adding lifecycle pattern compensation logic");
+                check &=
+                    lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
+                                                            templateContext.getProvisioningCompensationPhaseElement());
+            }
         } else {
             return false;
         }
+        return check;
     }
 
     @Override
@@ -125,15 +144,33 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     @Override
     public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
+        boolean check = true;
         if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
             LOG.debug("Handling by container pattern");
-            return containerPatternHandler.handleTerminate(templateContext, nodeTemplate);
+            check &= containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
+                                                             templateContext.getProvisioningPhaseElement());
+
+            if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate)) {
+                LOG.debug("Adding container pattern compensation logic");
+                check &=
+                    containerPatternHandler.handleCreate(templateContext, nodeTemplate,
+                                                         templateContext.getProvisioningCompensationPhaseElement());
+            }
+
         } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
             LOG.debug("Handling by lifecycle pattern");
-            return lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate);
+            check &= lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
+                                                             templateContext.getProvisioningPhaseElement());
+            if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
+                LOG.debug("Adding lifecycle pattern compensation logic");
+                check &=
+                    lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
+                                                         templateContext.getProvisioningCompensationPhaseElement());
+            }
         } else {
             return false;
         }
+        return check;
     }
 
     @Override
@@ -164,7 +201,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     }
 
     @Override
-    public int getPriority() {        
+    public int getPriority() {
         return 1;
     }
 
