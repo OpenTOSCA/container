@@ -13,7 +13,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-    <winery.version>ustutt-SNAPSHOT</winery.version>
+    <winery.version>master-SNAPSHOT</winery.version>
 
     <apache.cxf.version>3.1.10</apache.cxf.version>
     <camel.version>2.18.3</camel.version>
@@ -28,13 +28,13 @@
     <repository>
       <name>Central</name>
       <id>central</id>
-      <url>http://repo1.maven.org/maven2/</url>
+      <url>https://repo1.maven.org/maven2/</url>
     </repository>
     <!-- for resthttp management bus api -->
     <repository>
       <name>Spring Plugins Public Repository</name>
       <id>spring-plugins</id>
-      <url>http://repo.spring.io/plugins-release/</url>
+      <url>https://repo.spring.io/plugins-release/</url>
     </repository>
     <!-- pulling latest winery as just-in-time build -->
     <repository>
