@@ -1,8 +1,6 @@
 package org.opentosca.container.api.dto;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -11,10 +9,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -26,10 +22,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
 
     @XmlAttribute(name = "id")
     private Long id;
-
-    @JsonIgnore
-    @XmlElement(name = "_links")
-    private List links;
 
     @XmlElement(name = "NodeTemplateId")
     private String nodeTemplateId;
@@ -52,23 +44,12 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
     @XmlElement(name = "ServiceTemplateId")
     private String serviceTemplateId;
 
-    private Collection<NodeTemplateInstanceProperty> properties;
-
     public Long getId() {
         return this.id;
     }
 
     public void setId(final Long id) {
         this.id = id;
-    }
-
-    @ApiModelProperty(name = "properties")
-    public Collection<NodeTemplateInstanceProperty> getProperties() {
-        return this.properties;
-    }
-
-    public void setProperties(final Collection<NodeTemplateInstanceProperty> properties) {
-        this.properties = properties;
     }
 
     @ApiModelProperty(name = "created_at")
@@ -146,7 +127,16 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
             dto.setServiceTemplateId(object.getServiceTemplateInstance().getTemplateId().toString());
             dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
             dto.setCsarId(object.getServiceTemplateInstance().getCsarId().toString());
-            dto.setProperties(object.getProperties());
+            return dto;
+        }
+
+        public static PlacementNodeTemplateInstance convertForPlacement(final NodeTemplateInstance object) {
+            final PlacementNodeTemplateInstance dto = new PlacementNodeTemplateInstance();
+
+            dto.setNodeTemplateInstanceId(object.getId());
+            dto.setNodeTemplateId(object.getTemplateId().getLocalPart());
+            dto.setServiceTemplateId(object.getServiceTemplateInstance().getTemplateId().toString());
+            dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
             return dto;
         }
     }

@@ -1,10 +1,10 @@
 package org.opentosca.container.api.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Lists;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlacementNodeTemplate {
@@ -19,7 +19,7 @@ public class PlacementNodeTemplate {
     private String nodeType;
 
     @JsonProperty("valid_node_template_instances")
-    private final List<NodeTemplateInstanceDTO> validNodeTemplateInstances = Lists.newArrayList();
+    private final List<PlacementNodeTemplateInstance> validNodeTemplateInstances = new ArrayList<>();
 
     public String getId() {
         return this.id;
@@ -46,11 +46,11 @@ public class PlacementNodeTemplate {
     }
 
 
-    public void addNodeTemplateInstance(final NodeTemplateInstanceDTO validNodeTemplateInstance) {
+    public void addNodeTemplateInstance(final PlacementNodeTemplateInstance validNodeTemplateInstance) {
         this.validNodeTemplateInstances.add(validNodeTemplateInstance);
     }
 
-    public List<NodeTemplateInstanceDTO> getValidNodeTemplateInstances() {
+    public List<PlacementNodeTemplateInstance> getValidNodeTemplateInstances() {
         return this.validNodeTemplateInstances;
     }
 }

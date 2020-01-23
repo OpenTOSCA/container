@@ -16,6 +16,7 @@ import javax.ws.rs.core.UriInfo;
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.PlacementModel;
 import org.opentosca.container.api.dto.PlacementNodeTemplate;
+import org.opentosca.container.api.dto.PlacementNodeTemplateInstance;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.tosca.convention.Utils;
@@ -58,7 +59,6 @@ public class PlacementController {
     public Response getInstances(@ApiParam("node template list need to be placed") final PlacementModel request) throws InstantiationException,
                                                                                                                  IllegalAccessException,
                                                                                                                  IllegalArgumentException {
-
         // all node templates that need to be placed
         final List<PlacementNodeTemplate> nodeTemplatesToBePlaced = request.getNeedToBePlaced();
         // all running node template instances
@@ -66,14 +66,13 @@ public class PlacementController {
             this.instanceService.getAllNodeTemplateInstances();
         // loop over all node templates that need to be placed
         for (int i = 0; i < nodeTemplatesToBePlaced.size(); i++) {
-
             // search for valid running node template instances where node template can be placed
             for (final NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstanceList) {
                 // check if node type of instance is supported os node type
                 if (Utils.isSupportedVMNodeType(nodeTemplateInstance.getTemplateType())) {
                     // yay, we found an option, add to list
-                    final NodeTemplateInstanceDTO foundInstance =
-                        NodeTemplateInstanceDTO.Converter.convert(nodeTemplateInstance);
+                    final PlacementNodeTemplateInstance foundInstance =
+                        NodeTemplateInstanceDTO.Converter.convertForPlacement(nodeTemplateInstance);
                     nodeTemplatesToBePlaced.get(i).getValidNodeTemplateInstances().add(foundInstance);
                 }
             }
