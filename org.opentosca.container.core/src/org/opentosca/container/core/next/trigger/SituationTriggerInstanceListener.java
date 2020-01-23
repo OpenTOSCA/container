@@ -11,12 +11,14 @@ import javax.xml.namespace.QName;
 import org.glassfish.jersey.uri.UriComponent;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
-import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.SituationTriggerInstance;
 import org.opentosca.container.core.next.model.SituationTriggerInstanceProperty;
 import org.opentosca.container.core.next.model.SituationTriggerProperty;
+import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.SituationTriggerInstanceRepository;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
@@ -50,26 +52,29 @@ public class SituationTriggerInstanceListener {
 
         private final IToscaEngineService toscaEngine;
 
+        private final PlanInstanceRepository planRepository = new PlanInstanceRepository();
+
         private final SituationTriggerInstance instance;
 
         public SituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
             this.instance = instance;
             final BundleContext ctx = org.opentosca.container.core.Activator.getContext();
+
             ServiceReference<?> ref = ctx.getServiceReference(IPlanInvocationEngine.class.getName());
             this.planInvocEngine = (IPlanInvocationEngine) ctx.getService(ref);
+
             ref = ctx.getServiceReference(IToscaEngineService.class.getName());
-
             this.toscaEngine = (IToscaEngineService) ctx.getService(ref);
-
         }
 
         @Override
         public void run() {
 
             this.instance.setStarted(true);
-            this.repo.update(this.instance);
+            this.repo.update(this.instance);            
 
             this.LOG.debug("Started SituationTriggerInstance " + this.instance.getId());
+            
 
             final String interfaceName = this.instance.getSituationTrigger().getInterfaceName();
             final String operationName = this.instance.getSituationTrigger().getOperationName();
@@ -78,20 +83,18 @@ public class SituationTriggerInstanceListener {
             final ServiceTemplateInstance servInstance = this.instance.getSituationTrigger().getServiceInstance();
             final NodeTemplateInstance nodeInstance = this.instance.getSituationTrigger().getNodeInstance();
 
-
-
             if (nodeInstance == null) {
                 // plan invocation
                 final QName planId = this.toscaEngine.getToscaReferenceMapper()
-                                                     .getBoundaryPlanOfCSARInterface(servInstance.getCsarId(),
+                                                     .getBoundaryPlanOfCSARInterface(this.instance.getSituationTrigger().getCsarId(),
                                                                                      interfaceName, operationName);
                 final TPlan plan = this.toscaEngine.getToscaReferenceMapper()
-                                                   .getPlanForCSARIDAndPlanID(servInstance.getCsarId(), planId);
+                                                   .getPlanForCSARIDAndPlanID(this.instance.getSituationTrigger().getCsarId(), planId);
 
                 final TPlanDTO planDTO = new TPlanDTO(plan, planId.getNamespaceURI());
 
                 for (final TParameterDTO param : planDTO.getInputParameters().getInputParameter()) {
-                    if (param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
+                    if (servInstance != null && param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
                         String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + servInstance.getId();
                         url = url.replace("{csarid}", servInstance.getCsarId().getFileName());
                         url = url.replace("{servicetemplateid}",
@@ -100,8 +103,6 @@ public class SituationTriggerInstanceListener {
 
                         final URI uri = URI.create(UriComponent.encode(url, UriComponent.Type.PATH));
                         param.setValue(uri.toString());
-
-
                     }
 
                     if (param.getValue() == null) {
@@ -110,39 +111,35 @@ public class SituationTriggerInstanceListener {
                                 param.setValue(val.getValue());
                             }
                         }
-
                     }
                 }
 
                 try {
-                    final String correlationId =
+
+                    final String correlationId = this.planInvocEngine.createCorrelationId();
+                    if(servInstance != null) {                        
                         this.planInvocEngine.invokePlan(servInstance.getCsarId(), servInstance.getTemplateId(),
-                                                        servInstance.getId(), planDTO);
+                                                        servInstance.getId(), planDTO, correlationId);
+                    } else {                        
+                        this.planInvocEngine.invokePlan(this.instance.getSituationTrigger().getCsarId(), this.toscaEngine.getServiceTemplatesInCSAR(this.instance.getSituationTrigger().getCsarId()).get(0),
+                                                        -1, planDTO, correlationId);
+                    }
+                    
 
                     // now wait for finished execution
-
-
-                    final ServiceTemplateInstanceID servInstanceId = new ServiceTemplateInstanceID(
-                        servInstance.getCsarId(), servInstance.getTemplateId(), servInstance.getId().intValue());
-
-                    TPlanDTO runningPlan =
-                        this.planInvocEngine.getActivePublicPlanOfInstance(servInstanceId, correlationId);
-
-                    while (!isPlanExecutionFinished(runningPlan, correlationId)) {
+                    PlanInstance planInstance = this.planRepository.findByCorrelationId(correlationId);
+                    while (!(planInstance.getState().equals(PlanInstanceState.FINISHED)
+                        || planInstance.getState().equals(PlanInstanceState.FAILED))) {
                         Thread.sleep(10000);
-                        runningPlan = this.planInvocEngine.getActivePublicPlanOfInstance(servInstanceId, correlationId);
+                        planInstance = this.planRepository.findByCorrelationId(correlationId);
                     }
 
-
-                    // plan finished, write output to triggerinstance
-
-                    runningPlan.getOutputParameters().getOutputParameter()
-                               .forEach(x -> this.instance.getOutputs().add(new SituationTriggerInstanceProperty(
-                                   x.getName(), x.getValue(), x.getType())));
+                    // plan finished, write output to trigger instance
+                    planInstance.getOutputs()
+                                .forEach(x -> this.instance.getOutputs().add(new SituationTriggerInstanceProperty(
+                                    x.getName(), x.getValue(), x.getType())));
 
                     this.instance.setFinished(true);
-
-
                     this.repo.update(this.instance);
                 }
 
@@ -155,20 +152,6 @@ public class SituationTriggerInstanceListener {
             } else {
                 // IA invocation
             }
-
         }
-
-        private boolean isPlanExecutionFinished(final TPlanDTO plan, final String correlationId) {
-
-            for (final TParameterDTO param : plan.getOutputParameters().getOutputParameter()) {
-                if (param.getName().equalsIgnoreCase("correlationid") && param.getValue() != null && param.getValue().equals(correlationId)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
     }
-
 }

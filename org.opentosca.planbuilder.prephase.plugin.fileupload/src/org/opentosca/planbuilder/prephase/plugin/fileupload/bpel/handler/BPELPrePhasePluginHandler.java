@@ -149,7 +149,7 @@ public class BPELPrePhasePluginHandler {
         for (final AbstractArtifactReference ref : refs) {
             // upload da ref and unzip it
             this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable,
-                                                             sshKeyVariable, infraTemplate, BPELScopePhaseType.PRE);
+                                                             sshKeyVariable, infraTemplate, templateContext.getPrePhaseElement());
         }
 
         return true;
