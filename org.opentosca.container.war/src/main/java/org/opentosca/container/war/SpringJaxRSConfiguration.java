@@ -1,11 +1,9 @@
 package org.opentosca.container.war;
 
-import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.opentosca.container.core.common.Settings;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ApplicationPath;
