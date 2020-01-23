@@ -888,6 +888,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     final String caller = exchange.getIn().getHeader(MBHeader.APIID_STRING.toString(), String.class);
 
     if (caller == null) {
+      // notably the Java API does not set the APIID, because it never uses the information returned.
       LOG.debug("Invocation was InOnly. No response message will be sent to the caller.");
       return;
     }

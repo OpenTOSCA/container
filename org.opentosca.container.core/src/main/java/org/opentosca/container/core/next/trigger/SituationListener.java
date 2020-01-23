@@ -155,7 +155,7 @@ public class SituationListener {
     eventProperties.put("SERVICEINSTANCE", monitor.getServiceInstance());
     eventProperties.put("NODE2SITUATIONS", monitor.getNode2Situations());
 
-    managementBus.situationAdaption(eventProperties, (e) -> {});
+    managementBus.situationAdaption(eventProperties);
   }
 
 }

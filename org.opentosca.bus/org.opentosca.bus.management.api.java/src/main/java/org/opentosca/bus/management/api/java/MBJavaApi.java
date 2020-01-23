@@ -64,8 +64,6 @@ public class MBJavaApi implements IManagementBus {
 
   private static Logger LOG = LoggerFactory.getLogger(MBJavaApi.class);
 
-  private final ExecutorService executor = Executors.newFixedThreadPool(5);
-
   private final CamelContext camelContext;
   private final Importer importer;
   private final Exporter exporter;
@@ -83,7 +81,7 @@ public class MBJavaApi implements IManagementBus {
     LOG.info("Starting direct Java invocation API for Management Bus");
   }
 
-  private ConsumerTemplate invokePlan(final String operationName, final String messageID,
+  private void invokePlan(final String operationName, final String messageID,
                                       final Long serviceInstanceID, final QName serviceTemplateID,
                                       final Object message, final CsarId csarId, final QName planID,
                                       final String planLanguage) {
@@ -129,9 +127,8 @@ public class MBJavaApi implements IManagementBus {
     final Exchange requestExchange = new DefaultExchange(camelContext);
     requestExchange.getIn().setBody(message);
     requestExchange.getIn().setHeaders(headers);
+    // because the JavaAPI never uses any return values from the management bus, we discard the ConsumerTemplate
     template.asyncSend("direct:invoke", requestExchange);
-
-    return consumer;
   }
 
   @Override
@@ -171,13 +168,14 @@ public class MBJavaApi implements IManagementBus {
   }
 
   @Override
-  public void invokeIA(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback) {
+  public void invokeIA(Map<String, Object> eventValues) {
     // TODO when needed.
     // Adapt 'MBJavaApi - component.xml' to receive messages from this topic too...
   }
 
+
   @Override
-  public void situationAdaption(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback) {
+  public void situationAdaption(Map<String, Object> eventValues) {
     LOG.debug("Received SituationAware Adapation Event");
     final ServiceTemplateInstance instance = (ServiceTemplateInstance) eventValues.get("SERVICEINSTANCE");
 
@@ -268,35 +266,8 @@ public class MBJavaApi implements IManagementBus {
       instance.getId(), inputs, correlationID);
 
     // FIXME QName natural key replacement leftover!
-    final ConsumerTemplate consumer = invokePlan("adapt", correlationID, instance.getId(), QName.valueOf(instance.getTemplateId()),
+    invokePlan("adapt", correlationID, instance.getId(), QName.valueOf(instance.getTemplateId()),
       requestBody, instance.getCsarId(), planId, BPELNS);
-
-    // Threaded reception of response
-    this.executor.submit(() -> {
-
-      Object response = null;
-
-      try {
-        consumer.start();
-        final Exchange exchange = consumer.receive("direct:response" + correlationID);
-        response = exchange.getIn().getBody();
-        consumer.stop();
-      }
-      catch (final Exception e) {
-        LOG.error("Error occured: {}", e.getMessage(), e);
-        return;
-      }
-
-      LOG.debug("Received response for request with id {}.", correlationID);
-
-      final Map<String, Object> responseMap = new HashMap<>();
-      responseMap.put("RESPONSE", response);
-      responseMap.put("MESSAGEID", correlationID);
-      responseMap.put("PLANLANGUAGE", BPELNS);
-
-      LOG.debug("Passing management bus response to callback");
-      responseCallback.accept(responseMap);
-    });
   }
 
   private WSDLEndpoint getAdaptationPlanEndpoint(final Collection<String> sourceNodeIDs,

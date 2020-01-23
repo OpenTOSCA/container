@@ -19,7 +19,6 @@ import org.opentosca.bus.management.service.IManagementBusService;
  */
 public class Route extends RouteBuilder {
 
-  public static final String MB_API_ID = "org.opentosca.bus.management.api.java";
   private final IManagementBusService managementBusService;
 
   public Route(IManagementBusService managementBusService) {
@@ -29,7 +28,6 @@ public class Route extends RouteBuilder {
   @Override
   public void configure() throws Exception {
     this.from("direct:invoke").to("stream:out").process(exchange -> {
-      exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), MB_API_ID);
       final String messageID =
         exchange.getIn().getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
       if (messageID != null) {
@@ -48,9 +46,6 @@ public class Route extends RouteBuilder {
 
     this.from("direct:invokeIA").to("stream:out").bean(managementBusService, "invokeIA").end();
     this.from("direct:invokePlan").to("stream:out").bean(managementBusService, "invokePlan").end();
-
-    this.from("direct-vm:" + MB_API_ID).recipientList(this.simple("direct:response${id}")).end();
-
   }
 
 }

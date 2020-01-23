@@ -15,14 +15,12 @@ public interface IManagementBus {
   /**
    * Invokes an IA on the management bus with the given event values
    * @param eventValues A Map containing the event values required to invoke the artifact
-   * @param responseCallback A Consumer implementation handling the response by the management bus
    */
-  void invokeIA(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback);
+  void invokeIA(Map<String, Object> eventValues);
 
   /**
    * Invokes situation adaption on the management bus with the given event values
    * @param eventValues A Map containing the event values required to adapt the artifact
-   * @param responseCallback A Consumer implementation handling the response by the management bus
    */
-  void situationAdaption(Map<String, Object> eventValues, Consumer<Map<String, Object>> responseCallback);
+  void situationAdaption(Map<String, Object> eventValues);
 }

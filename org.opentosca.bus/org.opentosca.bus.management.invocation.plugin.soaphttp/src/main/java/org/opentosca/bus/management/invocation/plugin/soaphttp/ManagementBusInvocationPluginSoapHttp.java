@@ -54,7 +54,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
   // Supported types defined in messages.properties.
   private static final String TYPES = "SOAP/HTTP";
 
-  private static enum MessagingPattern {
+  private enum MessagingPattern {
     CALLBACK, REQUEST_RESPONSE, REQUEST_ONLY
   }
 
