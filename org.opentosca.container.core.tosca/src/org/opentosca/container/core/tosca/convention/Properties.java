@@ -19,4 +19,6 @@ public class Properties {
 
     public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_CONTAINERIP = "ContainerIP";
     public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_DOCKERENGINEURL = "DockerEngineURL";
+
+    public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF = "instanceRef";
 }

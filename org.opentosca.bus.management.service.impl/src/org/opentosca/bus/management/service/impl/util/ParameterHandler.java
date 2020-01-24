@@ -16,6 +16,7 @@ import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
+import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
@@ -133,7 +134,7 @@ public class ParameterHandler {
                 if (Objects.nonNull(propMap)) {
                     for (final String key : propMap.keySet()) {
                         // if node templ instance is of OS node type + prop is instanceRef, check for selected instance
-                        if (key.equals("instanceRef")) {
+                        if (key.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF)) {
                             final String value = propMap.get(key);
                             /*
                              * values are sent from frontend delimited by "," in following format:
