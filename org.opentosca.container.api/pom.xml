@@ -56,20 +56,6 @@
     <dependency>
       <groupId>com.github.OpenTOSCA.winery</groupId>
       <artifactId>org.eclipse.winery.repository</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.web3j</groupId>
-          <artifactId>core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.ws.rs</groupId>
-          <artifactId>jsr311-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.sun.xml.bind</groupId>
-          <artifactId>jaxb-impl</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.github.OpenTOSCA.winery</groupId>
