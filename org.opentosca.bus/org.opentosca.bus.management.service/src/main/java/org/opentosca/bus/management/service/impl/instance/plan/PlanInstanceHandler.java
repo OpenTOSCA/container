@@ -7,6 +7,8 @@ import java.util.Objects;
 import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
 
+import org.glassfish.jersey.client.JerseyClientBuilder;
+import org.glassfish.jersey.client.JerseyWebTarget;
 import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
@@ -29,9 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
+import org.glassfish.jersey.client.JerseyClient;
 
 /**
  * Utility class which handles the creation and updating of plan instance data.<br>
@@ -158,14 +158,13 @@ public class PlanInstanceHandler {
       LOG.debug("Instance ID of the plan in Camunda: {}", planInstanceID);
 
       // create web resource to retrieve the current state of the process instance
-      final Client client = Client.create();
-      WebResource webResource =
-        Client.create()
-          .resource(Settings.ENGINE_PLAN_BPMN_URL + Constants.PROCESS_INSTANCE_PATH + planInstanceID);
+      final JerseyClient client = JerseyClientBuilder.createClient();
+      JerseyWebTarget webResource =
+        client.target(Settings.ENGINE_PLAN_BPMN_URL + Constants.PROCESS_INSTANCE_PATH + planInstanceID);
 
       // wait until the process instance terminates
       while (true) {
-        final String resp = webResource.get(ClientResponse.class).getEntity(String.class);
+        final String resp = webResource.request().get().readEntity(String.class);
         LOG.debug("Active process instance response: " + resp);
 
         try {
@@ -186,11 +185,11 @@ public class PlanInstanceHandler {
         final String path = Settings.ENGINE_PLAN_BPMN_URL + Constants.HISTORY_PATH;
 
         // get variable instances of the process instance with the param name
-        webResource = client.resource(path);
+        webResource = client.target(path);
         webResource = webResource.queryParam("processInstanceId", planInstanceID);
         webResource = webResource.queryParam("activityInstanceIdIn", planInstanceID);
         webResource = webResource.queryParam("variableName", param.getName());
-        final String responseStr = webResource.get(ClientResponse.class).getEntity(String.class);
+        final String responseStr = webResource.request().get().readEntity(String.class);
 
         if (responseStr.equals("[]")) {
           LOG.warn("Unable to find variable instance for output parameter: {}", param.getName());
