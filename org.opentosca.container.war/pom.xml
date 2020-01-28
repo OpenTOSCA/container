@@ -388,13 +388,6 @@
       <version>3.1.0</version>
       <scope>provided</scope>
     </dependency>
-    <!-- provided by jersey-->
-    <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <version>2.1.1</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-jaxrs</artifactId>
