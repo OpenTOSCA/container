@@ -19,4 +19,4 @@ Follow winery project standard, using ["MADR 2.1.0"][MADR]
 
  [MADR]: https://adr.github.io/madr/
  [winery-adr]: https://github.com/eclipse/winery/tree/master/docs/adr/0000-use-architectural-decision-records.md
- 
+

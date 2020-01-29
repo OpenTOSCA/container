@@ -382,10 +382,17 @@
     </dependency>
 
     <!-- provided by tomcat -->
+    <!--
+     We're using 3.0.1 as opposed to 3.0 (which is what the web.xml requires)
+     because that is the only spec version available from maven-central that's not marked as prerelease.
+     Enforcing 3.1 would put us onto tomcat8
+     Enforcing 4.0 would put us onto tomcat9
+     Compare also https://tomcat.apache.org/whichversion.html
+    -->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
-      <version>3.1.0</version>
+      <version>3.0.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
