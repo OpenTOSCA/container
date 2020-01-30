@@ -19,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.*;
 import org.opentosca.container.api.dto.NodeOperationDTO;
@@ -70,7 +69,7 @@ public class BoundaryDefinitionController {
     final Csar csar = this.storage.findById(new CsarId(csarId));
     final TServiceTemplate serviceTemplate;
     try {
-      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, QName.valueOf(servicetemplate));
+      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, servicetemplate);
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       throw new NotFoundException(e);
     }
@@ -102,7 +101,7 @@ public class BoundaryDefinitionController {
     final Csar csar = this.storage.findById(new CsarId(csarId));
     final TServiceTemplate serviceTemplate;
     try {
-      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, QName.valueOf(servicetemplate));
+      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, servicetemplate);
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       throw new NotFoundException(e);
     }
@@ -115,7 +114,7 @@ public class BoundaryDefinitionController {
         .orElse(Collections.emptyList());
     final PropertiesDTO dto = new PropertiesDTO();
     final Object xmlFragment = new Object();
-    // FIXME referenceMapper.getServiceTemplateBoundsPropertiesXMLFragment(csarId, QName.valueOf(servicetemplate));
+    // FIXME referenceMapper.getServiceTemplateBoundsPropertiesXMLFragment(csarId, servicetemplate);
     dto.setXmlFragment(xmlFragment); // we're not really exposing these in the winery-model
     if (propertyMappings != null) {
       logger.debug("Found <{}> property mappings", propertyMappings.size());
@@ -151,7 +150,7 @@ public class BoundaryDefinitionController {
     final Csar csar = this.storage.findById(new CsarId(csarId));
     final TServiceTemplate serviceTemplate;
     try {
-      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, QName.valueOf(servicetemplate));
+      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, servicetemplate);
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       throw new NotFoundException(e);
     }
@@ -187,7 +186,7 @@ public class BoundaryDefinitionController {
     final Csar csar = this.storage.findById(new CsarId(csarId));
     final TServiceTemplate serviceTemplate;
     try {
-      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, QName.valueOf(servicetemplate));
+      serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, servicetemplate);
     } catch (org.opentosca.container.core.common.NotFoundException e) {
       throw new NotFoundException(e);
     }

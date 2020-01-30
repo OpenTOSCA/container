@@ -76,7 +76,9 @@ public class FileSystem {
         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))) {
       for (Path externalFile : inputFiles) {
         // skip root
-        if (externalFile.equals(root)) {
+        if (externalFile.equals(root)
+            // skip the target file if it's within the resolved input files
+            || externalFile.endsWith(targetFile) || targetFile.endsWith(externalFile)) {
           continue;
         }
         // only copy the content of regular files
