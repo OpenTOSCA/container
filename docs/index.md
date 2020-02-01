@@ -5,8 +5,6 @@
 
 ## Description of components
 
-
-
 - [ApplicationBus](ApplicationBus.md) - describes the architecture and implementation of the application bus
 - [PlanBuilder](PlanBuilder.md) - OpenTOSCA Container (OpenTOSCA Runtime) enables management of TOSCA Topologies either by executing build plans directly or by generated these based on an application topology. This describes the generation.
 - [ServiceInvoker](ServiceInvoker.md) - Overview on the service invocation concept
