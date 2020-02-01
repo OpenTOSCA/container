@@ -38,7 +38,7 @@ Which is why the Application Bus engine is connected to the necessary components
 The Instance Data Service is used to query for and save instance data.
 IP addresses of deployed application components can be stored there, this makes them available to other OpenTOSCA components, for example the Application Bus.
 
-![ApplicationBusArchitektur](graphics/ApplicationBusArchitektur.png)
+![ApplicationBusArchitektur](graphics/ApplicationBus/ApplicationBusArchitektur.png)
 
 **Application Bus Architecture**
 
@@ -55,7 +55,7 @@ This is however not obligatory.
 The API utilized to use the Application Bus does not have to be identical with the plugin used to invoke the operation of an application.
 One Application can call on the Application Bus with REST API, while the invocation of an operation from a different application can be via SOAP plugin. 
 
-![KommunikationsdiagrammApplicationBus](graphics/KommunikationsdiagrammApplicationBus.png)
+![KommunikationsdiagrammApplicationBus](graphics/ApplicationBus/KommunikationsdiagrammApplicationBus.png)
 
 **Communication diagram of the Application Bus**
 
@@ -63,7 +63,7 @@ Pictured here is the Application Buses structure with a communication diagram.
 Shown is the central character of the Application Bus engine, as it is needed to communicate with the necessary components of the OpenTOSCA container as well as its role as link between different APIs and plugins.
 An example usage of the Application Bus by an application (A), as well as the invocation of an application (B) through the Application Bus plugin is also depicted.
 
-![OpenTOSCAArchitekturApplicationBus](graphics/OpenTOSCAArchitekturApplicationBus.png)
+![OpenTOSCAArchitekturApplicationBus](graphics/ApplicationBus/OpenTOSCAArchitekturApplicationBus.png)
 
 **OpenTOSCA Architecture with Application Bus**
 
@@ -79,7 +79,7 @@ This entails taking a closer look at the steps necessary to implement an applica
 This scenario uses a [Application Bus SOAP/HTTP API](#application-bus-soaphttp-api) and a [Application Bus JSON/HTTP Plugin](#application-bus-jsonhttp-plugin) as examples for an Application Bus API and plugin.
 The procedure stays comparable with the usage of different APIs and plugins.
 
-![Beispielszenario](graphics/Beispielszenario.png)
+![Beispielszenario](graphics/ApplicationBus/Beispielszenario.png)
 
 **Example scenario**
 This depicts the scenario used to explain the usage and functionality of the Application Bus.
@@ -104,7 +104,7 @@ Prior to deploying an application with the OpenTOSCA container it has to be impl
 The [Application Bus Stub Generator](#application-bus-stub-generator) can generate the code skeletons of associated methods for an application that was modeled with TOSCA.
 The generation of TOSCA elements from an existing application has been planed for but is not yet implemented.  
 
-![GenerierungCodeSkelett](graphics/GenerierungCodeSkelett.png)
+![GenerierungCodeSkelett](graphics/ApplicationBus/GenerierungCodeSkelett.png)
 
 **Generating a code skeleton from TOSCA**
 This is an example of modeling the application *TempSensors* with TOSCA.
@@ -197,7 +197,7 @@ An operational stub of the operation can be generated from the TOSCA definition 
 This stub is already programmed against the Application Bus API. 
 Now the operation getTemp can be used within the application HausSteuerung as if it were available locally and the communication with the Application Bus is hidden with a separate communication layer. 
 
-![StubsKommunikationApplicationBus](graphics/StubsKommunkationApplicationBus.png)
+![StubsKommunikationApplicationBus](graphics/ApplicationBus/StubsKommunkationApplicationBus.png)
 
 ** Usage of a generated stub to communicate with the Application Bus**
 This shows a generated stub.
@@ -234,7 +234,7 @@ The ID can be either in the form of the *NodeInstanceID* or the *ServiceInstance
 This makes the definite identification by the Application Bus possible.
 For a more in depth look into the usage of instance IDs by the Application Bus see below. 
 
-![SetupApplicationBusAnwendung](graphics/SetupApplicationBusAnwendung.png)
+![SetupApplicationBusAnwendung](graphics/ApplicationBus/SetupApplicationBusAnwendung.png)
 
 **Setup of an application that uses the Application Bus**
 
@@ -242,7 +242,7 @@ For a more in depth look into the usage of instance IDs by the Application Bus s
 The example of the HausSteuerung application and the Application Bus SOAP/HTTP API is used to demonstrate communication between application and Application Bus. 
 Because a unified protocol is used for communication, the process is comparable between different Application Bus APIs.
 
-![KommunikationAnwendungApplicationBus](graphics/KommunikationAnwendungApplicationBus.png)
+![KommunikationAnwendungApplicationBus](graphics/ApplicationBus/KommunikationAnwendungApplicationBus.png)
 
 **Communication of an application with the Application Bus**
 After an application has been deployed with OpenTOSCA and configured it can communicate with the Application Bus.
@@ -373,7 +373,7 @@ This is what a result request looks like.
 
 How does the Application Bus communicate with a to be invoked application exemplified with the use of the TempSensors application from the example scenario.
 The Plugin matching the Application Bus Proxy that is used is the Application Bus JSON/HTTP Plugin.
-![KommunikationApplicationBusAnwendung](graphics/KommunikationApplicationBusAnwendung.png)
+![KommunikationApplicationBusAnwendung](graphics/ApplicationBus/KommunikationApplicationBusAnwendung.png)
 
 **Communication between Application Bus and application**
 
@@ -601,7 +601,7 @@ There the process for the transmitted *RequestID* is checked for completion and 
 If the result of an invocation is requested the exchange message is routed to the *getResultProcessor*.
 There the result filed for the specified RequestID, or in case of an error an exception is returned. 
 
-![RoutingApplicationBusEngine](graphics/RoutingApplicationBusEngine.png)
+![RoutingApplicationBusEngine](graphics/ApplicationBus/RoutingApplicationBusEngine.png)
 
 **Routing within the Application Bus Engine**
 The invocation of a method from an another application is much more complex.
@@ -619,7 +619,7 @@ After all information required for the invocation has been gathered the endpoint
 More on the processing within the Application Bus Plugin later. 
 Once the plugin has completed the method invocation and returned a result, the result is stored together with the RequestID and the processing status in the polling queue is set to *true*. 
 
-![BearbeitungsablaufInvokeProcessor](graphics/BearbeitungsablaufInvokeProcessor.png)
+![BearbeitungsablaufInvokeProcessor](graphics/ApplicationBus/BearbeitungsablaufInvokeProcessor.png)
 
 **Processing sequence within the Invoke-Processor**
 After the information has been read from the headers of the exchange message the instance data service is used to determine the specified *NodeInstance* and corresponding *NodeType*.
@@ -729,7 +729,7 @@ The RequestID can then be used to request the result.
 Shown here is the functionality of the Application Bus Proxy as communication partner of the Application Bus as well as the usage of the transferred information to determine the method to be called with reflection. 
 How the polling and requesting of results works in the interface has been covered above. 
 
-![FunktionsweiseApplicationBusProxy](graphics/FunktionsweiseApplicationBusProxy.png)
+![FunktionsweiseApplicationBusProxy](graphics/ApplicationBus/FunktionsweiseApplicationBusProxy.png)
 
 **Functionality of the Application Bus Proxys**
 
@@ -747,6 +747,6 @@ The compiler component compiles the generated .java classes.
 As a last step all classes of a NodeTemplate are combined as a .jar and stored at the previously established location. 
 The name of the NodeTemplate is used as the .jar name.
 
-![WorkflowApplicationBusStubGenerators](graphics/WorkflowApplicationBusStubGenerators.png)
+![WorkflowApplicationBusStubGenerators](graphics/ApplicationBus/WorkflowApplicationBusStubGenerators.png)
 
 **Workflow of the Application Bus Stub Generators**

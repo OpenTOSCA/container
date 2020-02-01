@@ -11,13 +11,13 @@ The abstract control flow is then transformed into a language-dependent Skeleton
 After the creation of a skeleton, its placeholders are then replaced by executable code from the appropriate plugins, that either can understand a Node Type or Relationship Type and generate the needed code (See Type Plugins in Overview figure) or the types implement the expected Lifecycle operations, such as install, start and stop (See Lifecycle Plugins in Overview figure).
 When the creation of code and replacement of placeholder activities is finished, the now executable plan is injected into the original CSAR for further processing and usage.
 
-![Plan Builder Overview](graphics/overview.png)
+![Plan Builder Overview](graphics/PlanBuilder/overview.png)
 
 ## Build Plans
 A Build Plan is a Plan that is able to install, deploy and provision the modelled Node- and Relationship Templates of a given Topology Template (See Figure Build Plan Generation).
 The Plan Builder is able to generate these like described in the following:
 
-![Build Plan Generation](graphics/buildplans.png)
+![Build Plan Generation](graphics/PlanBuilder/buildplans.png)
 
 ##### 1. Build Plan Abstract Control Flow Generation
 The abstract control flow of a Build Plan contains for each Node Template and Relationship Template an abstract provisioning activity (See Abstract Control Flow).
@@ -39,7 +39,7 @@ On the other hand, a lifecycle plugin doesn't understand the Node- or Relationsh
  A Termination Plan is a Plan that is able to deinstall, undeploy and deprovisioning the modelled Node- and Relationship Template of a given Topology Template (See Figure Termination Plan Generation).
  The Plan Builder is able to generate these like described in the following:
 
-![Termination Plan Generation](graphics/terminationplans.png)
+![Termination Plan Generation](graphics/PlanBuilder/terminationplans.png)
 
 ##### 1. Termination Plan Abstract Control Flow Generation
 The abstract control flow of a Termination Plan contains for each Node- and Relationship Template and abstract termination activity. The order of these activities is based on the Relationship Template's type between the Node Template, but in reverse order of a Build Plan (See Build Plans section). For example, the DBMS is remove before the VM is stopped as the DBMS is **hostedOn** the VM.
@@ -56,7 +56,7 @@ E.g., in the Scale-Out Plan figure the goal is to create a new instance of the A
 The application is a member of a region and the Nodes that are connected to such a region must be annotated with a so-called Selection Strategy, that specifies with which algorithm an instance selection shall occur.
 The Plan Builder is able to generate Scale-Out Plans from Topology Templates with these regions as described in the following:
 
-![Scale-Out Plan Generation](graphics/scaleoutplans.png)
+![Scale-Out Plan Generation](graphics/PlanBuilder/PlanBuilder/scaleoutplans.png)
 
 ##### 1. Scale-Out Plan Abstract Control Flow Generation
 The Abstract Control Flow of Scale-Out Plan is generated based on the Topology Templates structure and the defined region.

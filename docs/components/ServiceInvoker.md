@@ -7,7 +7,7 @@
 - [Implementation](#implementation)
   * [Service Invocation Enum](#service-invocation-enum)
   * [Service Invocation SOAP API](#service-invocation-soap-api)
-  * [Service Invocation OSGi event API](#service-invocation-osgi-event-api)
+  * [Service Invocation Java API](#service-invocation-osgi-event-api)
   * [Service Invocation Engine](#service-invocation-engine)
   * [Service Invocation Plugin Interface](#service-invocation-plugin-interface)
   * [Service Invocation SOAP/HTTP plugin](#service-invocation-soaphttp-plugin)
@@ -24,7 +24,7 @@ The main component of the service invocation interface is the SI Engine (see [SI
 It forms the central unit of the service invocation interface with its connection to the other  important components within the OpenTOSCA container.
 Furthermore the Service Invocation APIs (see [SI SOAP API](#service-invocation-soap-api) and [SI OSGi event API](#service-invocation-osgi-event-api)) are an important part of the service invocation interface.
 
-![Architektur des OpenTOSCA Containers mit Service Invocation Schnittstelle](graphics/ArchitectureOpentoscaContainerWithServiceInvocationInterface.png)
+![Architektur des OpenTOSCA Containers mit Service Invocation Schnittstelle](graphics/ServiceInvoker/ArchitectureOpentoscaContainerWithServiceInvocationInterface.png)
 
 Figure 1: Architecture of the OpenTOSCA container with service invocation interface
 
@@ -48,7 +48,7 @@ The exact processing process is explained in more detail in the following chapte
 
 In this chapter the concept of the service invocation interface and the options of the concept are explained.
 
-![Konzeptioneller Aufbau der Komponenten](graphics/ConceptualStructureOfComponents.png)
+![Konzeptioneller Aufbau der Komponenten](graphics/ServiceInvoker/ConceptualStructureOfComponents.png)
 
 Figure 2: Conceptual structure of the components
 
@@ -56,7 +56,7 @@ Figure 2 shows that the SI engine constitutes the central component within the s
 It enables the communication with existing and required components of the OpenTOSCA container (TOSCA engine, endpoint service, instance data service) and provides the connection between the service invocation API and the different SI plugins, it therefore takes on the routing of messages within the service invocation interface.
 Figure 3 illustrates this with a layer diagram.
 
-![Service Invocation Schnittstelle als Schichtendiagramm](graphics/ServiceInvocationInterfaceAsLayerdiagram.png)
+![Service Invocation Schnittstelle als Schichtendiagramm](graphics/ServiceInvoker/ServiceInvocationInterfaceAsLayerdiagram.png)
 
 Figure 3: Service invocation interface as layer diagram
 
@@ -75,7 +75,7 @@ But the solution with the enum, which determines the keys for the required param
 
 Figure 4 shows the sequence of an exemplary processing sequence inside the service invocation interface beginning with the invocation trough a plan, processing of the query in the SI engine and the invocation of the implementation artifact, and the response back to the plan.
 
-![Bearbeitungsablauf zum Aufruf eines Services](graphics/WorkflowServiceInvocation.png)
+![Bearbeitungsablauf zum Aufruf eines Services](graphics/ServiceInvoker/WorkflowServiceInvocation.png)
 
 Figure 4: Processing sequence to invoke a service
 
@@ -137,7 +137,7 @@ Naturally other invocation scenarios are possible.
 For example the invocation of an implementation artifact implemented as a RESTful web service of an OSGi service.
 Furthermore there is the possibility to invoke a plan, initiated with the plan invocation engine or another plan.
 
-![Beispielhafte Nachrichten / Aufrufe](graphics/ExamplaryMessagesInvocations.png)
+![Beispielhafte Nachrichten / Aufrufe](graphics/ServiceInvoker/ExamplaryMessagesInvocations.png)
 
 Figure 5: Exemplary messages / invocations
 
@@ -212,13 +212,13 @@ This is however optional and only happens for ServiceInstanceIDs specified by th
 Subsequently the input parameters in the message body are replaced with the values from the instance database and updated.
 Like this IP addresses of a previously setup virtual machine can be used for example.
 
-![Von der Service Invocation SOAP API an die SI-Engine gesendete Message](graphics/MessageFromInvocationApiToSiEngine.png)
+![Von der Service Invocation SOAP API an die SI-Engine gesendete Message](graphics/ServiceInvoker/MessageFromInvocationApiToSiEngine.png)
 
 Figure 6: Message from the service invocation SOAP API to the SI engine
 
 Finally after the invocation type of the implementation artifact has been determined with the TOSCA engine a fitting plugin is chosen and the exchange message supplied with all necessary information is forwarded to it.
 
-![Sequenzdiagramm SI-Engine](graphics/SequencediagramSiEngine.png)
+![Sequenzdiagramm SI-Engine](graphics/ServiceInvoker/SequencediagramSiEngine.png)
 
 Figure 7: Sequence diagram of the SI engine
 
@@ -239,7 +239,7 @@ The endpoint of the implementation artifact was determined and added as header, 
 In this example the implementation artifact is told to create a database at Amazon Web Services (AWS) instead of at Microsoft Azure.
 A previously executed plan could have this saved and after checking that the prices for databases at AWS are better then at Azure.
 
-![Durch die SI-Engine angereicherte und an ein SI-Plug-in gerichtete Message](graphics/ExpandendMessageFromSiEnginToSiPlugin.png)
+![Durch die SI-Engine angereicherte und an ein SI-Plug-in gerichtete Message](graphics/ServiceInvoker/ExpandendMessageFromSiEnginToSiPlugin.png)
 
 Figure 8: A message directed to a SI plugin enriched from the SI engine
 
@@ -286,7 +286,7 @@ The body contains the information received from the implementation artifact whic
 To do this in the incoming SOAP message the name of the element is assigned as key and the content of the element as value.
 It is assumed that the names of the elements returned by the implementation artifact is identical to the return values specified by the TOSCA definition.
 
-![R𣫧abe des SI-Plug-ins mit enthaltenen Informationen des Implementation Artifacts](graphics/ReturnFromSiPlugin.png)
+![R𣫧abe des SI-Plug-ins mit enthaltenen Informationen des Implementation Artifacts](graphics/ServiceInvoker/ReturnFromSiPlugin.png)
 
 Figure 9: Return of the SI plugin with the received information of the implementation artifact
 
@@ -325,7 +325,7 @@ This plugin enables the invocation of implementation artifacts implemented as OS
 It should be noted that the OpenTOSCA container currently, because a suitable IA plugin is as of yet missing, is not yet able to deploy OSGi implementation artifacts, those are therefore not yet supported by the container.
 The service invocation interface was implemented with further implementation of artifact types in mind and has concepts in store to deal with those.
 
-![Beispiel f𲠤ie Umsetzungsm򧬩chkeit eines weiteren Plug-in Types](graphics/UsecaseOtherPluginType.png)
+![Beispiel f𲠤ie Umsetzungsm򧬩chkeit eines weiteren Plug-in Types](graphics/ServiceInvoker/UsecaseOtherPluginType.png)
 
 Figure 10: Example for the possibilities of more plugin types
 
@@ -358,7 +358,7 @@ The addition of further service invocation APIs can, equivalent to the plugins, 
 Figure 11 shows the service invocation interface exemplary running on service invocation SOAP as well as service invocation REST API.
 As the names of the APIs suggest, this makes it possible to invoke the service invocation interface and therefore the invocation of implementation artifacts and plans with SOAP and REST at the same time.
 
-![Beispiel f𲠥ine weitere Service Invocation API](graphics/MoreServiceInvocationApi.png)
+![Beispiel f𲠥ine weitere Service Invocation API](graphics/ServiceInvoker/MoreServiceInvocationApi.png)
 
 Figure 11: Example of a further service invocation API
 
@@ -488,7 +488,7 @@ Subsequently the exchange message is passed to the SI engine to be processed fur
 After the response from the SI engine returns, the service invocation OSGi event API sends the response message to more lists (Response Topic).
 The plan invocation engine is subscribed to this list and can so receive the response messages and process them.
 
-![Aufruf eines Plans initiiert durch Plan Invocation Engine](graphics/PlanInvocationWithPlanInvocationEngine.png)
+![Aufruf eines Plans initiiert durch Plan Invocation Engine](graphics/ServiceInvoker/PlanInvocationWithPlanInvocationEngine.png)
 
 Figure 12: Invocation of a plan initiated with the plan invocation engine
 
@@ -549,7 +549,7 @@ This enables implementation artifacts to determine current values from the insta
 Independently of the two methods the respective endpoint of the implementation artifact or plan is determined with the endpoint service.
 For the invocation of implantation artifacts the invocation type of a suitable plugin is determined with the properties queried earlier.
 
-![Flussdiagramme der beiden SI-Engine Methoden invokeOperation und invokePlan](graphics/FlowchartInvokeoperationInvokeplan.png)
+![Flussdiagramme der beiden SI-Engine Methoden invokeOperation und invokePlan](graphics/ServiceInvoker/FlowchartInvokeoperationInvokeplan.png)
 
 Figure 13: Workflow diagram of both SI engine methods invokeOperation and invokePlan
 
@@ -720,7 +720,7 @@ To finally determine the information gotten from the WSDL additional MEPs from t
 Accordingly an In-Only operation (from the TOSCA definition) and an In-Only operation (from the WSDL definition) make a One-Way SOAP message (without response message) to the service.
 In contrast an In-Out operation (from the TOSCA definition) and an In-Only operation (from the WSDL definition) make a message exchange through request callbacks.
 
-![Darstellung der drei von dem SOAP/HTTP-Plug-in unterst𴺴en MEPs](graphics/SupportedMeps.png)
+![Darstellung der drei von dem SOAP/HTTP-Plug-in unterst𴺴en MEPs](graphics/ServiceInvoker/SupportedMeps.png)
 
 Figure 14: Presentation of the three MEPs supported by the SOAP/HTTP plugin
 
