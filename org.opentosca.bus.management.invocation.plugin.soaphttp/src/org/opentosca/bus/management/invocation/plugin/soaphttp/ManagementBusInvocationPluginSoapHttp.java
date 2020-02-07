@@ -21,8 +21,6 @@ import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPl
 import org.opentosca.bus.management.invocation.plugin.soaphttp.route.AsyncRoute;
 import org.opentosca.bus.management.invocation.plugin.soaphttp.util.Messages;
 import org.opentosca.bus.management.utils.MBUtils;
-import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.container.core.tosca.convention.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -107,36 +105,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
             @SuppressWarnings("unchecked")
             final HashMap<String, String> paramsMap = (HashMap<String, String>) params;
-
-            for (final String key : paramsMap.keySet()) {
-                // if node templ instance is of OS node type + prop is instanceRef, check for selected instance
-                if (key.contains(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF)) {
-                    final String value = paramsMap.get(key);
-                    /*
-                     * values are sent from frontend delimited by "," in following format:
-                     * service-template-instance-id,node-template-id
-                     */
-                    final String[] setOfValues = value.split(",");
-                    // get selected service template instance id
-                    final Long serviceTemplateInstanceId = Long.parseLong(setOfValues[0]);
-                    // get selected node template id
-                    final String nodeTemplateId = setOfValues[1];
-
-                    // replace OS node template instance by selected node template instance
-                    final NodeTemplateInstance vmInstance =
-                        MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplateId);
-                    for (final String key_now : paramsMap.keySet()) {
-                        if (paramsMap.get(key_now).equals(value)
-                            && key_now.contains(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)) {
-                            vmInstance.getPropertiesAsMap().keySet().stream()
-                                      .filter(property -> property.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP))
-                                      .findFirst()
-                                      .ifPresent(prop -> paramsMap.replace(key_now,
-                                                                           vmInstance.getPropertiesAsMap().get(prop)));
-                        }
-                    }
-                }
-            }
 
             final WSDLParser parser = new WSDLParser();
 

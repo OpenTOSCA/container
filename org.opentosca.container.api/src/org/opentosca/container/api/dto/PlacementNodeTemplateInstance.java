@@ -1,5 +1,7 @@
 package org.opentosca.container.api.dto;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PlacementNodeTemplateInstance {
@@ -14,6 +16,18 @@ public class PlacementNodeTemplateInstance {
 
     @JsonProperty("service_template_id")
     private String serviceTemplateId;
+
+    @JsonProperty("properties")
+    private Map<String, String> properties;
+
+
+    public void setProperties(final Map<String, String> properties) {
+        this.properties = properties;
+    }
+
+    public Map<String, String> getProperties() {
+        return this.properties;
+    }
 
     public String getServiceTemplateId() {
         return this.serviceTemplateId;

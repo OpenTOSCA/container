@@ -134,6 +134,7 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
             final PlacementNodeTemplateInstance dto = new PlacementNodeTemplateInstance();
 
             dto.setNodeTemplateInstanceId(object.getId());
+            dto.setProperties(object.getPropertiesAsMap());
             dto.setNodeTemplateId(object.getTemplateId().getLocalPart());
             dto.setServiceTemplateId(object.getServiceTemplateInstance().getTemplateId().toString());
             dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
