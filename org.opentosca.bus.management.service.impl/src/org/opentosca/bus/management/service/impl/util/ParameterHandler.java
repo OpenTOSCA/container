@@ -16,7 +16,6 @@ import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
-import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
@@ -130,29 +129,7 @@ public class ParameterHandler {
         // search for parameters downwards in the topology until all are set
         while (!unsetParameters.isEmpty()) {
             if (nodeTemplateInstance.getTemplateType().equals(Types.abstractOperatingSystemNodeType)) {
-                final Map<String, String> propMap = nodeTemplateInstance.getPropertiesAsMap();
-                if (Objects.nonNull(propMap)) {
-                    for (final String key : propMap.keySet()) {
-                        // if node templ instance is of OS node type + prop is instanceRef, check for selected instance
-                        if (key.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF)) {
-                            final String value = propMap.get(key);
-                            /*
-                             * values are sent from frontend delimited by "," in following format:
-                             * service-template-instance-id,node-template-id
-                             */
-                            final String[] setOfValues = value.split(",");
-                            // get selected service template instance id
-                            final Long serviceTemplateInstanceId = Long.parseLong(setOfValues[0]);
-                            // get selected node template id
-                            final String nodeTemplateId = setOfValues[1];
-                            LOG.debug("Found instanceRef Property: " + key + " with value: " + propMap.get(key));
-
-                            // replace OS node template instance by selected node template instance
-                            nodeTemplateInstance =
-                                MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplateId);
-                        }
-                    }
-                }
+                nodeTemplateInstance = MBUtils.getAbstractOSReplacementInstance(nodeTemplateInstance);
             }
 
             // retrieve stored instance data for current node
