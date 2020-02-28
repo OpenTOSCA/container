@@ -591,11 +591,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         if (!(this.mappingEquals(rel1.getSource(), rel2.getSource())
             && this.mappingEquals(rel1.getTarget(), rel2.getTarget()))) {
             return false;
-        }
-        
-        if(!rel1.getId().equals(rel2.getId())) {
-            return false;
-        }
+        }                      
 
         return true;
     }
