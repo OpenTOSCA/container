@@ -68,11 +68,6 @@ public class PlanDTO extends ResourceSupport {
         this.planLanguage = plan.getPlanLanguage();
         this.inputParameters.addAll(plan.getInputParameters().getInputParameter().stream().map(p -> new TParameter(p))
                                         .collect(Collectors.toList()));
-        final TParameter timeAvailableParam = new TParameter();
-        timeAvailableParam.setName("AvailableTimeForExecution");
-        timeAvailableParam.setRequired(TBoolean.NO);
-        timeAvailableParam.setType("String");
-        this.inputParameters.add(timeAvailableParam);
         this.outputParameters.addAll(plan.getOutputParameters().getOutputParameter().stream()
                                          .map(p -> new TParameter(p)).collect(Collectors.toList()));
         this.planModelReference = plan.getPlanModelReference().getReference();
