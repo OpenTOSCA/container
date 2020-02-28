@@ -640,12 +640,14 @@ public class InstanceService {
     }
 
     /* Situations */
-    public Situation createNewSituation(final String thingId, final String situationTemplateId) {
+    public Situation createNewSituation(final String thingId, final String situationTemplateId, final boolean active, float eventProbability, String eventTime) {
         final Situation newInstance = new Situation();
 
         newInstance.setSituationTemplateId(situationTemplateId);
         newInstance.setThingId(thingId);
-        newInstance.setActive(false);
+        newInstance.setActive(active);
+        newInstance.setEventProbability(eventProbability);
+        newInstance.setEventTime(eventTime);
 
         this.sitRepo.add(newInstance);
 
@@ -673,16 +675,18 @@ public class InstanceService {
         return this.sitTrig.findSituationTriggersBySituationId(situation.getId());
     }
 
-    public SituationTrigger createNewSituationTrigger(final Collection<Situation> situations,
+    public SituationTrigger createNewSituationTrigger(final Collection<Situation> situations, final CSARID csarId,
                                                       final boolean triggerOnActivation, final boolean isSingleInstance,
                                                       final ServiceTemplateInstance serviceInstance,
                                                       final NodeTemplateInstance nodeInstance,
                                                       final String interfaceName, final String operationName,
-                                                      final long timeAvailableInSeconds,
-                                                      final Set<SituationTriggerProperty> inputs) {
+                                                      final long timeAvailableInSeconds,                                                     
+                                                      final Set<SituationTriggerProperty> inputs,
+                                                      final float eventProbability, final String eventTime) {
         final SituationTrigger newInstance = new SituationTrigger();
 
         newInstance.setSituations(situations);
+        newInstance.setCsarId(csarId);
         newInstance.setTriggerOnActivation(triggerOnActivation);
         newInstance.setSingleInstance(isSingleInstance);
         newInstance.setServiceInstance(serviceInstance);
@@ -693,6 +697,13 @@ public class InstanceService {
             newInstance.setNodeInstance(nodeInstance);
         }
         newInstance.setInputs(inputs);
+        
+        if (eventProbability != -1.0f) {
+            newInstance.setEventProbability(eventProbability);
+        }
+        if (eventTime != null) {
+            newInstance.setEventTime(eventTime);
+        }
 
         this.sitTrig.add(newInstance);
 

@@ -26,6 +26,7 @@ ENV ENGINE_PLAN_BPMN_ROOT_URL http://localhost:8092/engine-rest
 ENV COLLABORATION_MODE false
 ENV COLLABORATION_HOSTNAMES ""
 ENV COLLABORATION_PORTS ""
+ENV CONTAINER_BUS_MANAGEMENT_MOCK false
 
 RUN rm /dev/random && ln -s /dev/urandom /dev/random \
     && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \

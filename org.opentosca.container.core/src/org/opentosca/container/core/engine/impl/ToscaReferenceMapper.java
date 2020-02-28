@@ -65,7 +65,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
     private DocumentMap documentMap;
     private CSARIDToDefinitionsMap mapCSARIDToDefinitions;
     private CSARIDToServiceTemplateIDsMap mapCSARIDToServiceTemplateIDs;
-    private CsarIDToPlanTypeToPlanNameToPlan csarIDToPlanTypeToIntegerToPlan;
+    private static CsarIDToPlanTypeToPlanNameToPlan csarIDToPlanTypeToIntegerToPlan;
     private CsarIDToWSDLDocuments csarIDToWSDLDocuments;
     private CsarIDToServiceTemplateIDToPlanID csarIDToServiceTemplateIDToPlanID;
     private final Map<CSARID, Map<QName, Boolean>> csarIDToPlanIDToSynchronousBoolean = new HashMap<>();
@@ -75,12 +75,6 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
     private final Map<CSARID, Map<QName, QName>> mapElementIDToDefinitionsID = new HashMap<>();
     private final Map<CSARID, Map<QName, QName>> mapCSARIDToPlanIDToInputMessageID = new HashMap<>();
 
-    // private Map<CSARID, Map<QName, Map<QName, String>>>
-    // mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName = new HashMap<CSARID,
-    // Map<QName, Map<QName, String>>>();
-    // private Map<CSARID, Map<QName, Map<QName, String>>>
-    // mapCSARIDToServiceTemplateIdToPlanIDToOperationName = new HashMap<CSARID,
-    // Map<QName, Map<QName, String>>>();
     private final Map<CSARID, Map<QName, Map<String, Map<String, QName>>>> mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan =
         new HashMap<>();
 
@@ -115,7 +109,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
         this.documentMap.remove(csarID);
         this.mapCSARIDToDefinitions.remove(csarID);
         this.mapCSARIDToServiceTemplateIDs.remove(csarID);
-        this.csarIDToPlanTypeToIntegerToPlan.remove(csarID);
+        ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.remove(csarID);
         this.csarIDToWSDLDocuments.remove(csarID);
         this.csarIDToServiceTemplateIDToPlanID.remove(csarID);
         this.csarIDToPlanIDToSynchronousBoolean.remove(csarID);
@@ -177,7 +171,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
             this.LOG.trace("Inside of the mapCSARIDToServiceTemplateIDs are informations stored");
             found = true;
         }
-        if (this.csarIDToPlanTypeToIntegerToPlan.containsKey(csarID)) {
+        if (ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.containsKey(csarID)) {
             this.LOG.trace("Inside of the csarIDToPlanTypeToIntegerToPublicPlan are informations stored");
             found = true;
         }
@@ -221,23 +215,25 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
     @Override
     public Map<PlanTypes, LinkedHashMap<QName, TPlan>> getCSARIDToPlans(final CSARID csarID) {
 
-        if (null == this.csarIDToPlanTypeToIntegerToPlan) {
+        if (null == ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan) {
             this.LOG.error("The variable is null.");
         }
-        if (!this.csarIDToPlanTypeToIntegerToPlan.containsKey(csarID)) {
-            this.csarIDToPlanTypeToIntegerToPlan.put(csarID, new HashMap<PlanTypes, LinkedHashMap<QName, TPlan>>());
+        if (!ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.containsKey(csarID)) {
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.put(csarID,
+                                                                     new HashMap<PlanTypes, LinkedHashMap<QName, TPlan>>());
         }
-        if (!this.csarIDToPlanTypeToIntegerToPlan.get(csarID).containsKey(PlanTypes.BUILD)) {
-            this.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.BUILD, new LinkedHashMap<QName, TPlan>());
-            this.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.TERMINATION,
-                                                                 new LinkedHashMap<QName, TPlan>());
-            this.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.OTHERMANAGEMENT,
-                                                                 new LinkedHashMap<QName, TPlan>());
-            this.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.APPLICATION,
-                                                                 new LinkedHashMap<QName, TPlan>());
+        if (!ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).containsKey(PlanTypes.BUILD)) {
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.BUILD,
+                                                                                 new LinkedHashMap<QName, TPlan>());
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.TERMINATION,
+                                                                                 new LinkedHashMap<QName, TPlan>());
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.OTHERMANAGEMENT,
+                                                                                 new LinkedHashMap<QName, TPlan>());
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.APPLICATION,
+                                                                                 new LinkedHashMap<QName, TPlan>());
         }
 
-        return this.csarIDToPlanTypeToIntegerToPlan.get(csarID);
+        return ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID);
     }
 
     /**
@@ -408,22 +404,26 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
     @Override
     public TPlan getPlanForCSARIDAndPlanID(final CSARID csarID, final QName planID) {
 
-        if (!this.csarIDToPlanTypeToIntegerToPlan.containsKey(csarID)) {
-            this.csarIDToPlanTypeToIntegerToPlan.put(csarID, new HashMap<PlanTypes, LinkedHashMap<QName, TPlan>>());
+        if (!ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.containsKey(csarID)) {
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.put(csarID,
+                                                                     new HashMap<PlanTypes, LinkedHashMap<QName, TPlan>>());
         }
-        if (!this.csarIDToPlanTypeToIntegerToPlan.get(csarID).containsKey(PlanTypes.BUILD)) {
-            this.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.BUILD, new LinkedHashMap<QName, TPlan>());
-            this.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.TERMINATION,
-                                                                 new LinkedHashMap<QName, TPlan>());
-            this.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.OTHERMANAGEMENT,
-                                                                 new LinkedHashMap<QName, TPlan>());
-            this.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.APPLICATION,
-                                                                 new LinkedHashMap<QName, TPlan>());
+        if (!ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).containsKey(PlanTypes.BUILD)) {
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.BUILD,
+                                                                                 new LinkedHashMap<QName, TPlan>());
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.TERMINATION,
+                                                                                 new LinkedHashMap<QName, TPlan>());
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.OTHERMANAGEMENT,
+                                                                                 new LinkedHashMap<QName, TPlan>());
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.APPLICATION,
+                                                                                 new LinkedHashMap<QName, TPlan>());
         }
 
-        for (final PlanTypes type : this.csarIDToPlanTypeToIntegerToPlan.get(csarID).keySet()) {
-            for (final QName planName : this.csarIDToPlanTypeToIntegerToPlan.get(csarID).get(type).keySet()) {
-                final TPlan plan = this.csarIDToPlanTypeToIntegerToPlan.get(csarID).get(type).get(planName);
+        for (final PlanTypes type : ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).keySet()) {
+            for (final QName planName : ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).get(type)
+                                                                                            .keySet()) {
+                final TPlan plan =
+                    ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).get(type).get(planName);
                 if (plan.getId().equals(planID.getLocalPart())) {
                     return plan;
                 }
@@ -510,10 +510,12 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
             }
 
             builder.append(ls + "Print all due the BoundaryDefinitions defined PublicPlans" + ls);
-            for (final PlanTypes type : this.csarIDToPlanTypeToIntegerToPlan.get(csarID).keySet()) {
+            for (final PlanTypes type : ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).keySet()) {
                 builder.append("   type: " + type + ls);
-                for (final QName planID : this.csarIDToPlanTypeToIntegerToPlan.get(csarID).get(type).keySet()) {
-                    final TPlan pp = this.csarIDToPlanTypeToIntegerToPlan.get(csarID).get(type).get(planID);
+                for (final QName planID : ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).get(type)
+                                                                                              .keySet()) {
+                    final TPlan pp =
+                        ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan.get(csarID).get(type).get(planID);
                     builder.append("      name: " + planID + " PublicPlan QName: " + pp.getId() + ls);
                 }
             }
@@ -624,8 +626,8 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
         if (this.mapCSARIDToServiceTemplateIDs == null) {
             this.mapCSARIDToServiceTemplateIDs = new CSARIDToServiceTemplateIDsMap();
         }
-        if (null == this.csarIDToPlanTypeToIntegerToPlan) {
-            this.csarIDToPlanTypeToIntegerToPlan = new CsarIDToPlanTypeToPlanNameToPlan();
+        if (null == ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan) {
+            ToscaReferenceMapper.csarIDToPlanTypeToIntegerToPlan = new CsarIDToPlanTypeToPlanNameToPlan();
         }
         if (null == this.csarIDToWSDLDocuments) {
             this.csarIDToWSDLDocuments = new CsarIDToWSDLDocuments();

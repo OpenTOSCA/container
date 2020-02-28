@@ -411,13 +411,13 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu",
                                     startRequestInputParams, new HashMap<String, Variable>(),
-                                    BPELScopePhaseType.PROVISIONING);
+                                    context.getProvisioningPhaseElement());
 
         return true;
     }
 
     public boolean handleTerminateWithCloudProviderInterface(final BPELPlanContext context,
-                                                             final AbstractNodeTemplate nodeTemplate) {
+                                                             final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
         final List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
         for (final AbstractNodeTemplate infraNode : infraNodes) {
             if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(infraNode.getType()
@@ -425,10 +425,30 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 // append logic to call terminateVM method on the
                 // node
 
-                return context.executeOperation(infraNode,
-                                                org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
-                                                org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
-                                                null);
+                AbstractNodeTemplate ubuntuNode = context.getNodeTemplate();
+                AbstractNodeTemplate hypervisorNode = infraNode;
+
+                final Map<String, Variable> inputs = new HashMap<>();
+                final Map<String, Variable> outputs = new HashMap<>();
+
+                Variable hypervisorTenant = context.getPropertyVariable(hypervisorNode, "HypervisorTenantID");
+                Variable hypervisorEndpoint = context.getPropertyVariable(hypervisorNode, "HypervisorEndpoint");
+                Variable VMInstanceID = context.getPropertyVariable(ubuntuNode, "VMInstanceID");
+                Variable hypervisorUserName = context.getPropertyVariable(hypervisorNode, "HypervisorUserName");
+                Variable hypervisorUserPassword = context.getPropertyVariable(hypervisorNode, "HypervisorUserPassword");
+
+                inputs.put("HypervisorTenantID", hypervisorTenant);
+                inputs.put("HypervisorEndpoint", hypervisorEndpoint);
+                inputs.put("VMInstanceID", VMInstanceID);
+                inputs.put("HypervisorUserName", hypervisorUserName);
+                inputs.put("HypervisorUserPassword", hypervisorUserPassword);
+
+
+                return this.invokerOpPlugin.handle(context, hypervisorNode.getId(),true,
+                                                   org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
+                                                   org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+                                                   inputs, outputs, elementToAppendTo);
+
 
             }
         }
@@ -654,7 +674,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
                                     createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
-                                    BPELScopePhaseType.PROVISIONING);
+                                    context.getProvisioningPhaseElement());
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -673,7 +693,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
+                                    startRequestOutputParams, context.getProvisioningPhaseElement());
+        
+        this.handleTerminateWithCloudProviderInterface(context, ubuntuNodeTemplate, context.getProvisioningCompensationPhaseElement());
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
             if (policy.getType().getId().equals(this.onlyModeledPortsPolicyType)) {
@@ -744,7 +766,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
+                                    startRequestOutputParams, context.getProvisioningPhaseElement());
     }
 
     private List<Variable> fetchModeledPortsOfInfrastructure(final PlanContext context,
@@ -943,7 +965,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
                                     createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
-                                    BPELScopePhaseType.PROVISIONING);
+                                    context.getProvisioningPhaseElement());
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -961,7 +983,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
+                                    startRequestOutputParams, context.getProvisioningPhaseElement());
 
         return true;
     }
@@ -1170,7 +1192,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
                                     createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
-                                    BPELScopePhaseType.PROVISIONING);
+                                    context.getProvisioningPhaseElement());
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -1188,7 +1210,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, BPELScopePhaseType.PROVISIONING);
+                                    startRequestOutputParams, context.getProvisioningPhaseElement());
 
         return true;
     }

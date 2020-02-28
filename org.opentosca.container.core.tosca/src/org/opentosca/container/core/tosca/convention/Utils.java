@@ -65,12 +65,13 @@ public class Utils {
      */
     public static boolean isSupportedVirtualMachineIPProperty(final String name) {
         return name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP)
-            | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)
-            | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP);
+            || name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)
+            || name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_CONTAINERIP)
+            || name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP);
     }
 
     /**
-     * Checks whether the given property name represents a speciial case property: the instanceId
+     * Checks whether the given property name represents a special case property: the instanceId
      * property of an virtual machine
      *
      * @param name a String containing some property name
@@ -78,7 +79,7 @@ public class Utils {
      */
     public static boolean isSupportedVirtualMachineInstanceIdProperty(final String name) {
         return name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID)
-            | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID);
+            || name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID);
     }
 
     /**
@@ -226,6 +227,6 @@ public class Utils {
      * @return a boolean. True if the given nodeType is a docker engine nodeType
      */
     public static boolean isSupportedDockerEngineNodeType(final QName nodeType) {
-        return nodeType.equals(Types.dockerEngineNodeType) | nodeType.equals(Types.dockerEngineNodeTypeAlt);
+        return nodeType.equals(Types.dockerEngineNodeType) || nodeType.equals(Types.dockerEngineNodeTypeAlt);
     }
 }

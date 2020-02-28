@@ -22,6 +22,7 @@ import org.opentosca.container.api.dto.situations.SituationListDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerInstanceDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerListDTO;
+import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -40,6 +41,7 @@ public class SituationsController {
     UriInfo uriInfo;
 
     private InstanceService instanceService;
+    private CsarService csarService;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -96,8 +98,7 @@ public class SituationsController {
     @Path("/situations")
     public Response createSituation(final SituationDTO situation) {
         final Situation sit =
-            this.instanceService.createNewSituation(situation.getThingId(), situation.getSituationTemplateId());
-
+            this.instanceService.createNewSituation(situation.getThingId(), situation.getSituationTemplateId(), situation.getActive(), situation.getEventProbability(), situation.getEventTime());       
         final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sit.getId().toString(), false);
 
         return Response.ok(instanceURI).build();
@@ -126,49 +127,6 @@ public class SituationsController {
         return Response.ok(dto).build();
     }
 
-    @POST
-    @Path("/triggers")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response createSituationTrigger(final SituationTriggerDTO situationTrigger) {
-        final Collection<Situation> sits = Lists.newArrayList();
-
-        for (final Long situationId : situationTrigger.getSituationIds()) {
-            final Situation situation = this.instanceService.getSituation(situationId);
-            sits.add(situation);
-        }
-
-        ServiceTemplateInstance serviceInstance;
-        try {
-            serviceInstance =
-                this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId(), false);
-        }
-        catch (final NotFoundException e) {
-            serviceInstance = null;
-        }
-        NodeTemplateInstance nodeInstance = null;
-        if (situationTrigger.getNodeInstanceId() != null) {
-            nodeInstance = this.instanceService.getNodeTemplateInstance(situationTrigger.getNodeInstanceId());
-        }
-
-        final Set<SituationTriggerProperty> inputs = Sets.newHashSet();
-
-
-        situationTrigger.getInputParams()
-                        .forEach(x -> inputs.add(new SituationTriggerProperty(x.getName(), x.getValue(), x.getType())));
-
-
-        final SituationTrigger sitTrig =
-            this.instanceService.createNewSituationTrigger(sits, situationTrigger.isOnActivation(),
-                                                           situationTrigger.isSingleInstance(), serviceInstance,
-                                                           nodeInstance, situationTrigger.getInterfaceName(),
-                                                           situationTrigger.getOperationName(),
-                                                           situationTrigger.getTimeAvailableInSeconds(), inputs);
-
-        final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);
-        return Response.ok(instanceURI).build();
-    }
-
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/triggers/{situationtrigger}")
@@ -189,4 +147,60 @@ public class SituationsController {
     public void setInstanceService(final InstanceService instanceService) {
         this.instanceService = instanceService;
     }
+
+	
+
+    public void setCsarService(final CsarService csarService) {
+        this.csarService = csarService;
+    }
+
+
+	@POST
+	@Path("/triggers")
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public Response createSituationTrigger(final SituationTriggerDTO situationTrigger) {
+		final Collection<Situation> sits = Lists.newArrayList();
+
+		for (final Long situationId : situationTrigger.getSituationIds()) {
+			final Situation situation = this.instanceService.getSituation(situationId);
+			sits.add(situation);
+		}
+
+		ServiceTemplateInstance serviceInstance;
+		try {
+			serviceInstance = this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId(),
+					false);
+		} catch (final NotFoundException e) {
+			serviceInstance = null;
+		}
+		NodeTemplateInstance nodeInstance = null;
+		if (situationTrigger.getNodeInstanceId() != null) {
+			nodeInstance = this.instanceService.getNodeTemplateInstance(situationTrigger.getNodeInstanceId());
+		}
+
+		final Set<SituationTriggerProperty> inputs = Sets.newHashSet();
+
+		float eventProbability = -1.0f;
+		if (Float.compare(situationTrigger.getEventProbability(), eventProbability) != 0) {
+			eventProbability = situationTrigger.getEventProbability();
+		}
+
+		String eventTime = null;
+		if (situationTrigger.getEventTime() != null) {
+			eventTime = situationTrigger.getEventTime();
+		}
+
+		situationTrigger.getInputParams()
+				.forEach(x -> inputs.add(new SituationTriggerProperty(x.getName(), x.getValue(), x.getType())));
+
+		
+		
+		final SituationTrigger sitTrig = this.instanceService.createNewSituationTrigger(sits, this.csarService.findById(situationTrigger.getCsarId()).getCSARID(), situationTrigger.isOnActivation(), situationTrigger.isSingleInstance(),serviceInstance, nodeInstance, situationTrigger.getInterfaceName(), situationTrigger.getOperationName(), situationTrigger.getTimeAvailableInSeconds(), inputs, eventProbability, eventTime);
+		final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);
+		return Response.ok(instanceURI).build();
+	}
+
+
+
 }

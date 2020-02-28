@@ -9,7 +9,6 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
-import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
 
 /**
@@ -59,8 +58,8 @@ public interface IOpenToscaControlService {
      * This method returns a list of the QNames contained in a specific CSAR.
      *
      * @param csarID the ID of the specific CSAR.
-     * @return A list of the QName of ServiceTemplates if there are some contained in the given
-     *         CSAR. An empty list of none are contained. Null if there is an error.
+     * @return A list of the QName of ServiceTemplates if there are some contained in the given CSAR. An
+     *         empty list of none are contained. Null if there is an error.
      */
     public List<QName> getAllContainedServiceTemplates(CSARID csarID);
 
@@ -101,24 +100,4 @@ public interface IOpenToscaControlService {
      */
     public String invokePlanInvocation(CSARID csarID, QName serviceTemplateId, long serviceTemplateInstanceID,
                                        TPlanDTO plan) throws UnsupportedEncodingException;
-
-    /**
-     * Returns a list of Strings for active PublicPlans of a CSARInstance.
-     *
-     * @param csarInstanceID
-     * @return list of active PublicPlans
-     */
-    public List<String> getCorrelationsOfServiceTemplateInstance(ServiceTemplateInstanceID csarInstanceID);
-
-    /**
-     * Returns a specific active PublicPlan of a CSARInstance
-     *
-     * @param csarInstanceID
-     * @param correlationID
-     * @return the Plan
-     */
-    public TPlanDTO getActivePlanOfInstance(ServiceTemplateInstanceID csarInstanceID, String correlationID);
-
-    int getCSARInstanceIDForCorrelationID(String correlationID);
-
 }

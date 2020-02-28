@@ -11,5 +11,4 @@
    <reference bind="bindDeploymentTrackerService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreDeploymentTrackerService" name="ICoreDeploymentTrackerService" policy="static" unbind="unbindDeploymentTrackerService"/>
    <reference bind="bindEndpointService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreEndpointService" name="ICoreEndpointService" policy="dynamic" unbind="unbindEndpointService"/>
    <reference bind="bindPlanInvocationEngine" cardinality="1..1" interface="org.opentosca.container.core.service.IPlanInvocationEngine" name="IPlanInvocationEngine" policy="static" unbind="unbindPlanInvocationEngine"/>
-   <reference bind="bindICSARInstanceManagementService" cardinality="1..1" interface="org.opentosca.container.core.service.ICSARInstanceManagementService" name="ICSARInstanceManagementService" policy="static" unbind="unbindICSARInstanceManagementService"/>
 </scr:component>

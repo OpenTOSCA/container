@@ -46,10 +46,18 @@ public class BPELScope{
     private Element bpelMainSequenceElement;
     private Element bpelSequencePrePhaseElement;
     private Element bpelSequenceProvisioningPhaseElement;
-    private Element bpelSequencePostPhaseElement;
+    private Element bpelSequencePostPhaseElement;    
+
+
+    private BPELScope bpelCompensationScope;
 
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
+    
+    @Override
+    public String toString() {
+        return "BPELScope Plan: " + buildPlan.getId() + " Activity: " + this.act + ((this.getNodeTemplate() != null) ? " Node: " +this.nodeTemplate.getId() : " Relation: " + this.relationshipTemplate.getId());
+    }
 
     public static enum BPELScopePhaseType {
         PRE, PROVISIONING, POST
@@ -247,6 +255,29 @@ public class BPELScope{
     public void setBpelSequencePostPhaseElement(final Element bpelSequencePostPhaseElement) {
         this.bpelSequencePostPhaseElement = bpelSequencePostPhaseElement;
     }
+    
+
+
+    /**
+     * Returns the scope containing the compensation activities of this scope
+     * @return a DOM Element
+     */
+    public BPELScope getBpelCompensationHandlerScope() {
+        return bpelCompensationScope;
+    }
+
+    /**
+     * Sets the scope as the compensation handler of this scope 
+     * @param bpelCompensationScope a BPEL DOM Element with a compensation handler
+     */
+    public void setBpelCompensationHandlerScope(BPELScope bpelCompensationScope) {
+        this.bpelCompensationScope = bpelCompensationScope;        
+        Element compensationHandlerElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "compensationHandler");                
+        compensationHandlerElement.appendChild(this.bpelCompensationScope.getBpelScopeElement());        
+        this.bpelScopeElement.insertBefore(compensationHandlerElement, this.bpelMainSequenceElement);        
+    }
+
+    
 
     /**
      * Gets the NodeTemplate this TemplateBuildPlan belongs to
