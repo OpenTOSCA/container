@@ -72,7 +72,7 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     @Override
     public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate) {
         Collection<AbstractNodeTemplate> deps = this.getDependecies(nodeTemplate);
-        if (this.isSupportedType(nodeTemplate) & !deps.isEmpty()) {
+        if (this.isSupportedType(nodeTemplate)) {
             // if we can support this type we return an empty set for dependencies, because they are already
             // running
             return deps;
@@ -119,11 +119,11 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     @Override
     public int getPriority() {
         return 1;
-    }
+    }       
 
     private boolean isSupportedType(AbstractNodeTemplate nodeTemplate) {
         QName type = nodeTemplate.getType().getId();
-        return Utils.isSupportedHardwareNodeType(type);        
+        return Utils.isSupportedHardwareNodeType(type) | Utils.isSupportedDeviceNodeType(type);        
     }
     
     private Collection<AbstractNodeTemplate> getDependecies(AbstractNodeTemplate nodeTemplate){
