@@ -291,4 +291,5 @@ public class SituationTriggerInstanceListener {
                                    aEvent.getExecutionDuration());
         }
     }
+
 }

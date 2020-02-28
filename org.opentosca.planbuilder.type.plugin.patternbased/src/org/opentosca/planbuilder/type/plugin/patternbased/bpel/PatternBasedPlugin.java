@@ -36,6 +36,8 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     private static final ContainerPatternBasedHandler containerPatternHandler = new ContainerPatternBasedHandler();
 
     private static final LifecyclePatternBasedHandler lifecyclePatternHandler = new LifecyclePatternBasedHandler();
+    
+    private static final RemoteManagerPatternBasedHandler remoteMgrHandler = new RemoteManagerPatternBasedHandler();
 
     @Override
     public String getID() {
@@ -69,6 +71,10 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
                     lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
                                                             templateContext.getProvisioningCompensationPhaseElement());
             }
+        } else if(remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
+          LOG.debug("Handling by remote manager pattern");
+          check &= remoteMgrHandler.handleCreate(templateContext, nodeTemplate, templateContext.getPrePhaseElement());
+
         } else {
             return false;
         }
@@ -83,6 +89,9 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             return true;
         } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
             LOG.debug("Can be handled by lifecycle pattern");
+            return true;
+        } else if(remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
+            LOG.debug("Can be handled by remote mgr pattern");
             return true;
         } else {
             LOG.debug("Can't be handled by pattern plugin");
@@ -114,6 +123,9 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             LOG.debug("Can be handled by lifecycle pattern");
             deps.addAll(lifecyclePatternHandler.getMatchedNodesForProvisioning(nodeTemplate));
             LOG.debug("Adding matched nodes to handle by lifecycle pattern");
+            return deps;
+        } else if(remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
+            deps.addAll(remoteMgrHandler.getNodeDependencies(nodeTemplate));
             return deps;
         } else {
             LOG.debug("Can't be handled by pattern plugin");

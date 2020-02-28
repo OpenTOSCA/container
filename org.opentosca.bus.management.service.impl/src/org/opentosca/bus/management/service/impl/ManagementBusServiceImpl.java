@@ -99,9 +99,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     private static Map<String, Object> locks = new HashMap<>();
 
-    private final static String placeholderStart = "/PLACEHOLDER_";
-    private final static String placeholderEnd = "_PLACEHOLDER/";
-
     @Override
     public void invokeIA(final Exchange exchange) {
         LOG.debug("Starting Management Bus: InvokeIA");
@@ -572,20 +569,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
         LOG.debug("Correlation ID: {}", correlationID);
 
+        
         final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
         LOG.debug("CSARID: " + csarID.toString());
 
+        if (correlationID != null) {
+         
         final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
         LOG.debug("csarInstanceID: {}", serviceInstanceID);
 
-
-
-
-        if (correlationID != null) {
-
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
         LOG.debug("serviceTemplateID: {}", serviceTemplateID);
-
 
         final QName planID = message.getHeader(MBHeader.PLANID_QNAME.toString(), QName.class);
         LOG.debug("planID: {}", planID);
@@ -631,13 +625,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                           Settings.OPENTOSCA_CONTAINER_HOSTNAME);
                 }
 
-                // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
-                // was executed.
-                if (plan.getType().equals(PlanType.TERMINATION)) {
-                    LOG.debug("Executed plan was a termination plan. Removing endpoints...");
-
-
-                // write WCET back to Plan
+                
+                
+             // write WCET back to Plan
                 final TPlan currentPlan =
                     ServiceHandler.toscaEngineService.getToscaReferenceMapper()
                                                      .getPlanForCSARIDAndPlanID(csarID, plan.getTemplateId());
@@ -659,10 +649,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 if (calculatedWCET > currentPlan.getCalculatedWCET()) {
                     currentPlan.setCalculatedWCET(calculatedWCET);
                 }
+                
+                
+                // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
+                // was executed.
+                if (plan.getType().equals(PlanType.TERMINATION)) {
+                    LOG.debug("Executed plan was a termination plan. Removing endpoints...");
 
-
-
-            final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
+                    final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
 
                     if (serviceInstance != null) {
                         deleteEndpointsForServiceInstance(csarID, serviceInstance);
@@ -670,12 +664,18 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
                     }
                 }
-
             } else {
                 LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!",
                          plan.getTemplateId(), csarID);
             }
 
+            // add end timestamp and log message with duration
+            event.setEndTimestamp(new Date());
+            final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
+            event.setMessage("Finished plan execution with correlation id " + correlationID + " after " + duration
+                + "ms");
+            LOG.info("Plan execution duration: {}ms", duration);
+            
             
 
             // update plan in repository with new log event
@@ -690,8 +690,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
         }
         }
+
         handleResponse(exchange);
     }
+    
 
     /**
      * Checks if the defined IA provides the needed interface/operation.
@@ -920,6 +922,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     /**
 <<<<<<< HEAD
+<<<<<<< HEAD
      * Checks if a certain property was specified in the Tosca.xml of the ArtifactTemplate and returns
      * it if so.
      *
@@ -977,6 +980,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     /**
 =======
 >>>>>>> master
+=======
+>>>>>>> feature/hardware
      * Replaces placeholder with a matching instance data value. Placeholder is defined like
      * "/PLACEHOLDER_VMIP_IP_PLACEHOLDER/"
      *

@@ -53,21 +53,6 @@ public class SituationsController {
     }
 
     @PUT
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/situations/{situation}")
-    public Response updateSituation(@PathParam("situation") final Long situationId, final SituationDTO situation) {
-        final Situation sit = this.instanceService.getSituation(situation.getId());
-
-        sit.setActive(situation.getActive());
-
-        this.instanceService.updateSituation(sit);
-
-        final URI instanceURI = UriUtil.generateSelfURI(this.uriInfo);
-
-        return Response.ok(instanceURI).build();
-    }
-
-    @PUT
     @Consumes({MediaType.TEXT_PLAIN})
     @Path("/situations/{situation}/active")
     public Response updateSituationActivity(@PathParam("situation") final Long situationId, final String body) {
@@ -144,15 +129,24 @@ public class SituationsController {
                        .build();
     }
 
-    public void setInstanceService(final InstanceService instanceService) {
-        this.instanceService = instanceService;
-    }
 
-	
+	@PUT
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/situations/{situation}")
+	public Response updateSituation(@PathParam("situation") final Long situationId, final SituationDTO situation) {
+		final Situation sit = this.instanceService.getSituation(situation.getId());
 
-    public void setCsarService(final CsarService csarService) {
-        this.csarService = csarService;
-    }
+		sit.setActive(situation.getActive());
+		sit.setEventProbability(situation.getEventProbability());
+		sit.setEventTime(situation.getEventTime());		
+
+		this.instanceService.updateSituation(sit);
+
+		final URI instanceURI = UriUtil.generateSelfURI(this.uriInfo);
+
+		return Response.ok(instanceURI).build();
+	}
+
 
 
 	@POST
@@ -195,12 +189,17 @@ public class SituationsController {
 				.forEach(x -> inputs.add(new SituationTriggerProperty(x.getName(), x.getValue(), x.getType())));
 
 		
-		
 		final SituationTrigger sitTrig = this.instanceService.createNewSituationTrigger(sits, this.csarService.findById(situationTrigger.getCsarId()).getCSARID(), situationTrigger.isOnActivation(), situationTrigger.isSingleInstance(),serviceInstance, nodeInstance, situationTrigger.getInterfaceName(), situationTrigger.getOperationName(), situationTrigger.getTimeAvailableInSeconds(), inputs, eventProbability, eventTime);
 		final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);
 		return Response.ok(instanceURI).build();
 	}
 
-
+	public void setInstanceService(final InstanceService instanceService) {
+		this.instanceService = instanceService;
+	}
+	
+	public void setCsarService(final CsarService csarService) {
+	    this.csarService = csarService;
+	}
 
 }

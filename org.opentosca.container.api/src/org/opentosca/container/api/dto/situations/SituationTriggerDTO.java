@@ -161,7 +161,6 @@ public class SituationTriggerDTO extends ResourceSupport {
     public void setEventProbability(final float eventProbability) {
         this.eventProbability = eventProbability;
     }
-
     public String getEventTime() {
         return this.eventTime;
     }

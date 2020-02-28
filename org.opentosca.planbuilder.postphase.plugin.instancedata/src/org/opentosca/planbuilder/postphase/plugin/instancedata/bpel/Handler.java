@@ -1226,6 +1226,8 @@ public class Handler {
             targetContext.findInstanceURLVar(targetRelationshipTemplate.getId(), false);
         final String oldRelationInstanceUrl =
             sourceContext.findInstanceURLVar(sourceRelationshipTemplate.getId(), false);
+        
+        
 
         try {
             // save relationInstance url from response
@@ -1273,7 +1275,7 @@ public class Handler {
             // and send
             // first build a mapping from property variable names to dom element
             final Map<String, Node> propertyVarNameToDOMMapping =
-                buildMappingsFromVarNameToDomElement(targetContext, sourceRelationshipTemplate);
+                buildMappingsFromVarNameToDomElement(sourceContext, sourceRelationshipTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
                 // values into the instance data db.
