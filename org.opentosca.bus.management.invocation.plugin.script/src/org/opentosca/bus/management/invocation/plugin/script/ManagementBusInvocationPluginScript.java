@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
 
@@ -71,7 +72,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
         ManagementBusInvocationPluginScript.LOG.debug("Management Bus Script Plugin getting information...");
 
-        CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
+        final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
         ManagementBusInvocationPluginScript.LOG.debug("CsarID: {}", csarID);
         final QName artifactTemplateID = message.getHeader(MBHeader.ARTIFACTTEMPLATEID_QNAME.toString(), QName.class);
         ManagementBusInvocationPluginScript.LOG.debug("ArtifactTemplateID: {}", artifactTemplateID);
@@ -80,7 +81,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
         final String relationshipTemplateID =
             message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), String.class);
         ManagementBusInvocationPluginScript.LOG.debug("RelationshipTemplateID: {}", relationshipTemplateID);
-        QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
+        final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
         ManagementBusInvocationPluginScript.LOG.debug("ServiceTemplateID: {}", serviceTemplateID);
         final String interfaceName = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
         ManagementBusInvocationPluginScript.LOG.debug("InterfaceName: {}", interfaceName);
@@ -90,6 +91,10 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
         ManagementBusInvocationPluginScript.LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
         final String nodeInstanceID = message.getHeader(MBHeader.NODEINSTANCEID_STRING.toString(), String.class);
         ManagementBusInvocationPluginScript.LOG.debug("NodeInstanceID: {}", nodeInstanceID);
+
+        CSARID tempCsarID = null;
+        String tempNodeTemplateID = null;
+        QName tempServiceTemplateID = null;
 
         if (nodeTemplateID == null && relationshipTemplateID != null) {
 
@@ -158,7 +163,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
             // target machine
             final Long serviceTemplateInstanceID =
                 Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
-            String osNodeTemplateID =
+            final String osNodeTemplateID =
                 MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID, true,
                                                          serviceTemplateInstanceID);
             if (osNodeTemplateID != null) {
@@ -179,16 +184,22 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                                                                                                             .getTemplateId(),
                                                                                         nodeTemplateInstance.getTemplateId()
                                                                                                             .getLocalPart());
-                        osNodeTemplateID = nodeTemplateInstance.getTemplateId().getLocalPart();
-                        csarID = nodeTemplateInstance.getServiceTemplateInstance().getCsarId();
-                        serviceTemplateID = nodeTemplateInstance.getServiceTemplateInstance().getTemplateId();
+                        tempNodeTemplateID = nodeTemplateInstance.getTemplateId().getLocalPart();
+                        tempCsarID = nodeTemplateInstance.getServiceTemplateInstance().getCsarId();
+                        tempServiceTemplateID = nodeTemplateInstance.getServiceTemplateInstance().getTemplateId();
 
                     }
                 }
                 if (osNodeTypeID != null) {
+                    String osIAName = null;
                     ManagementBusInvocationPluginScript.LOG.debug("OperatingSystem-NodeType found: {}", osNodeTypeID);
-                    final String osIAName = MBUtils.getOperatingSystemIA(csarID, serviceTemplateID, osNodeTemplateID);
-
+                    final boolean abstractOSExists =
+                        Stream.of(tempNodeTemplateID, tempCsarID, tempServiceTemplateID).allMatch(x -> x != null);
+                    if (abstractOSExists) {
+                        osIAName = MBUtils.getOperatingSystemIA(tempCsarID, tempServiceTemplateID, tempNodeTemplateID);
+                    } else {
+                        osIAName = MBUtils.getOperatingSystemIA(csarID, serviceTemplateID, osNodeTemplateID);
+                    }
                     if (osIAName != null) {
 
                         final Object params = message.getBody();
@@ -199,8 +210,13 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                         headers.put(MBHeader.CSARID.toString(), csarID);
                         headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
                         headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), osNodeTemplateID);
-                        headers.put(MBHeader.INTERFACENAME_STRING.toString(),
-                                    MBUtils.getInterfaceForOperatingSystemNodeType(csarID, osNodeTypeID));
+                        if (abstractOSExists) {
+                            headers.put(MBHeader.INTERFACENAME_STRING.toString(),
+                                        MBUtils.getInterfaceForOperatingSystemNodeType(tempCsarID, osNodeTypeID));
+                        } else {
+                            headers.put(MBHeader.INTERFACENAME_STRING.toString(),
+                                        MBUtils.getInterfaceForOperatingSystemNodeType(csarID, osNodeTypeID));
+                        }
                         headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceID);
                         headers.put(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
 
