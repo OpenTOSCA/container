@@ -224,14 +224,6 @@ public class TPlanDTO {
         this.calculatedWCET = calculatedWCET;
     }
 
-    public long getTimeAvailable() {
-        return this.timeAvailable;
-    }
-
-    public void setTimeAvailable(final long timeAvailable) {
-        this.timeAvailable = timeAvailable;
-    }
-
 
 
     /**

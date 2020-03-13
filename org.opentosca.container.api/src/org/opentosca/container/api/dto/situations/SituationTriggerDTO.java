@@ -70,14 +70,6 @@ public class SituationTriggerDTO extends ResourceSupport {
         return this.id;
     }
 
-    public Long getTimeAvailableInSeconds() {
-        return this.timeAvailableInSeconds;
-    }
-
-    public void setTimeAvailableInSeconds(final Long timeAvailableInSeconds) {
-        this.timeAvailableInSeconds = timeAvailableInSeconds;
-    }
-
     public void setId(final Long id) {
         this.id = id;
     }
@@ -192,7 +184,6 @@ public class SituationTriggerDTO extends ResourceSupport {
             }
             dto.setInterfaceName(object.getInterfaceName());
             dto.setOperationName(object.getOperationName());
-            dto.setTimeAvailableInSeconds(object.getTimeAvailableInSeconds());
             final Collection<SituationTriggerInputDTO> inputs = Sets.newHashSet();
             object.getInputs().forEach(x -> inputs.add(SituationTriggerInputDTO.Converter.convert(x)));
             dto.setInputParams(inputs);

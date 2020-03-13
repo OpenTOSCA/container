@@ -679,8 +679,7 @@ public class InstanceService {
                                                       final boolean triggerOnActivation, final boolean isSingleInstance,
                                                       final ServiceTemplateInstance serviceInstance,
                                                       final NodeTemplateInstance nodeInstance,
-                                                      final String interfaceName, final String operationName,
-                                                      final long timeAvailableInSeconds,                                                     
+                                                      final String interfaceName, final String operationName,                                                                                                      
                                                       final Set<SituationTriggerProperty> inputs,
                                                       final float eventProbability, final String eventTime) {
         final SituationTrigger newInstance = new SituationTrigger();
@@ -692,7 +691,6 @@ public class InstanceService {
         newInstance.setServiceInstance(serviceInstance);
         newInstance.setInterfaceName(interfaceName);
         newInstance.setOperationName(operationName);
-        newInstance.setTimeAvailableInSeconds(timeAvailableInSeconds);
         if (nodeInstance != null) {
             newInstance.setNodeInstance(nodeInstance);
         }

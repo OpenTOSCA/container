@@ -2,6 +2,7 @@ package org.opentosca.container.core.next.trigger;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.sql.Date;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.PostPersist;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
 import javax.xml.namespace.QName;
 
 import org.glassfish.jersey.uri.UriComponent;
@@ -20,6 +23,7 @@ import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTriggerInstance;
 import org.opentosca.container.core.next.model.SituationTriggerInstanceProperty;
 import org.opentosca.container.core.next.model.SituationTriggerProperty;
@@ -87,7 +91,16 @@ public class SituationTriggerInstanceListener {
             final String interfaceName = this.instance.getSituationTrigger().getInterfaceName();
             final String operationName = this.instance.getSituationTrigger().getOperationName();
             final Set<SituationTriggerProperty> inputs = this.instance.getSituationTrigger().getInputs();
-            final Long timeAvailableInSeconds = this.instance.getSituationTrigger().getTimeAvailableInSeconds();
+            
+            long timeAvailableInSeconds = Long.MAX_VALUE;
+
+            for (Situation sit : this.instance.getSituationTrigger().getSituations()) {
+                long duration = Long.parseLong(sit.getEventTime());
+                if(duration < timeAvailableInSeconds) {
+                    timeAvailableInSeconds = duration;
+                }
+            }
+            
 
             final ServiceTemplateInstance servInstance = this.instance.getSituationTrigger().getServiceInstance();
             final NodeTemplateInstance nodeInstance = this.instance.getSituationTrigger().getNodeInstance();
@@ -110,12 +123,12 @@ public class SituationTriggerInstanceListener {
 
                 if (calculatedTimeFromPreviousExecutions > 0) {
                     // check if time is shorter than timeAvailable
-                    if (calculatedTimeFromPreviousExecutions > timeAvailableInSeconds * 1000) {
-                        this.LOG.debug("Update (WCET = %d ms) not completable in timeframe of %d ms. Aborting.",
+                    if (calculatedTimeFromPreviousExecutions > timeAvailableInSeconds) {
+                        this.LOG.info("Update (WCET = %d ms) not completable in timeframe of %d ms. Aborting.",
                                        calculatedTimeFromPreviousExecutions, timeAvailableInSeconds);
                         return;
                     } else {
-                        this.LOG.debug("Update (WCET = %d ms) is completable in timeframe of %d ms. Executing.",
+                        this.LOG.info("Update (WCET = %d ms) is completable in timeframe of %d ms. Executing.",
                                        calculatedTimeFromPreviousExecutions, timeAvailableInSeconds);
                     }
                 }
@@ -160,7 +173,7 @@ public class SituationTriggerInstanceListener {
 
                     // now wait for finished execution
                     PlanInstance planInstance = this.planRepository.findByCorrelationId(correlationId);
-                    while (!(planInstance.getState().equals(PlanInstanceState.FINISHED)
+                    while (planInstance == null || !(planInstance.getState().equals(PlanInstanceState.FINISHED)
                         || planInstance.getState().equals(PlanInstanceState.FAILED))) {
                         Thread.sleep(10000);
                         planInstance = this.planRepository.findByCorrelationId(correlationId);

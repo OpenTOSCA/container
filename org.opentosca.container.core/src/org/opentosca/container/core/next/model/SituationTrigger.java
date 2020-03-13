@@ -136,14 +136,6 @@ public class SituationTrigger extends PersistenceObject {
         this.operationName = operationName;
     }
 
-    public long getTimeAvailableInSeconds() {
-        return this.timeAvailableInSeconds;
-    }
-
-    public void setTimeAvailableInSeconds(final long timeAvailableInSeconds) {
-        this.timeAvailableInSeconds = timeAvailableInSeconds;
-    }
-
     public Set<SituationTriggerProperty> getInputs() {
         return this.inputs;
     }

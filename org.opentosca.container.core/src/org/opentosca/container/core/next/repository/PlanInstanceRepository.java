@@ -1,5 +1,6 @@
 package org.opentosca.container.core.next.repository;
 
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -29,7 +30,10 @@ public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
             final TypedQuery<PlanInstance> q = em.createQuery(cq);
             q.setParameter(correlationIdParameter, correlationId);
             // Execute
+            
             return q.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         }
     }
 }

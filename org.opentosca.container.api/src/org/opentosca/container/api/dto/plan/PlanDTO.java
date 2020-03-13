@@ -51,11 +51,8 @@ public class PlanDTO extends ResourceSupport {
     @XmlElement(name = "PlanModelReference")
     private String planModelReference;
 
-    @XmlElement(name = "PlanModelReference")
+    @XmlElement(name = "CalculatedWCET")
     private long calculatedWCET;
-
-    @XmlElement(name = "PlanModelReference")
-    private long timeAvailable;
 
     public PlanDTO() {
 
@@ -144,16 +141,6 @@ public class PlanDTO extends ResourceSupport {
         this.calculatedWCET = calculatedWCET;
     }
 
-    @ApiModelProperty(name = "time_available")
-    public long getTimeAvailable() {
-        return this.timeAvailable;
-    }
-
-    public void setTimeAvailable(final long timeAvailable) {
-        this.timeAvailable = timeAvailable;
-    }
-
-
     public static final class Converter {
 
         public static TPlanDTO convert(final PlanDTO object) {
@@ -163,8 +150,7 @@ public class PlanDTO extends ResourceSupport {
             plan.setName(object.getName());
             plan.setPlanLanguage(object.getPlanLanguage());
             plan.setPlanType(object.getPlanType());
-            plan.setCalculatedWCET(object.getCalculatedWCET());
-            plan.setTimeAvailable(object.getTimeAvailable());
+            plan.setCalculatedWCET(object.getCalculatedWCET());            
 
             final TPlanDTO.InputParameters inputParameters = new TPlanDTO.InputParameters();
             for (final TParameter param : object.getInputParameters()) {
@@ -189,7 +175,6 @@ public class PlanDTO extends ResourceSupport {
             plan.setPlanLanguage(object.getPlanLanguage());
             plan.setPlanType(object.getPlanType());
             plan.setCalculatedWCET(object.getCalculatedWCET());
-            plan.setTimeAvailable(object.getTimeAvailable());
 
             final List<TParameter> inputParameters = object.getInputParameters().getInputParameter().stream().map(p -> {
                 final TParameter parameter = new TParameter();
