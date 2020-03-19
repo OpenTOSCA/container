@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.patternbased.bpel;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -84,6 +85,18 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
     
+    private AbstractOperation getRemoteManagerResetOperation(AbstractNodeTemplate node) {
+        AbstractInterface iface = this.getRemoteManagerInterface(node);        
+        if(iface != null) {
+            for(AbstractOperation op : iface.getOperations()) {
+                if(op.getName().equals("reset")) {
+                    return op;
+                }
+            }
+        }        
+        return null;
+    }
+    
     private AbstractInterface getRemoteManagerInterface(AbstractNodeTemplate node) {        
         for(AbstractInterface iface : node.getType().getInterfaces()) {
             if( iface.getName().equals("http://opentosca.org/interfaces/pattern/remotemanager")) {
@@ -91,5 +104,29 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
             }
         }        
         return null;
+    }
+
+    public boolean isDeprovisionableByRemoteManagerPattern(AbstractNodeTemplate nodeTemplate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public Collection<? extends AbstractNodeTemplate> getMatchedNodesForDeprovisioning(AbstractNodeTemplate nodeTemplate) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate,
+                                   Element provisioningPhaseElement) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public AbstractOperation getRemoteManagerPatternResetMethod(AbstractNodeTemplate nodeTemplate) {
+        return this.getRemoteManagerResetOperation(nodeTemplate);
+    }
+
+    public AbstractOperation getRemoteManagerPatternInstallMethod(AbstractNodeTemplate nodeTemplate) {
+        return this.getRemoteManagerInstallOperation(nodeTemplate);
     }
 }

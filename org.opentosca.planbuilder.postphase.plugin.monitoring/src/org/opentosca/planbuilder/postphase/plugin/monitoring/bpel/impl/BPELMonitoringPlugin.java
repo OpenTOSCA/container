@@ -49,7 +49,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
         // a double check basically
         // FIXME somehow the canHandle method should already include the planType but not with context
         // object itself as it allows to manipulate the plan already
-        if (!this.canHandleCreate(nodeTemplate)) {
+        if (!this.canHandleCreate(context, nodeTemplate)) {
             return false;
         }
 
@@ -75,7 +75,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // what we are basically looking for:
         // <Interface name="Monitor">
         // <Operation name="deployAgent"/>
@@ -93,7 +93,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
@@ -160,13 +160,13 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean canHandleTerminate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
         // TODO Auto-generated method stub
         return false;
     }

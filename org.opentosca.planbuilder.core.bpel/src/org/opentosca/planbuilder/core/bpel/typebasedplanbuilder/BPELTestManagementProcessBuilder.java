@@ -251,7 +251,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
                             LOG.debug("Name of result variable: " + resultVarName);
 
-                            outputMapping.put(resultParam, BPELPlanContext.getVariable(resultVarName));
+                            outputMapping.put(resultParam, context.getVariable(resultVarName));
 
                             // add result to the plan output message
                             final String outputName =

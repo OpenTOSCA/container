@@ -41,8 +41,7 @@ public class ResourceHandler {
     private final static Logger LOG = LoggerFactory.getLogger(ResourceHandler.class);
 
     private final DocumentBuilderFactory docFactory;
-    private final DocumentBuilder docBuilder;
-    
+    private final DocumentBuilder docBuilder;  
     private final BPELProcessFragments fragments;
 
     /**
@@ -82,7 +81,15 @@ public class ResourceHandler {
     public Node generateBPELIfTrueThrowFaultAsNode(final String xpath1Expr, final QName faultQName, final String faultVariableName) throws IOException,
                                                                                                     SAXException {
         final String templateString = generateBPELIfTrueThrowFaultAsString(xpath1Expr, faultQName, faultVariableName);
-        return this.fragments.transformStringToNode(templateString);
+        return this.transformStringToNode(templateString);
+    }
+    
+
+    public Node transformStringToNode(String xmlString) throws SAXException, IOException {
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(xmlString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
     }
 
     /**

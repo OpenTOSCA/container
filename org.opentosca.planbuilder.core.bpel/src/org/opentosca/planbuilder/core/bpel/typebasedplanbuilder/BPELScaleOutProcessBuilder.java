@@ -698,7 +698,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+            if (postPhasePlugin.canHandleCreate(context, nodeTemplate)) {
                 postPhasePlugin.handleCreate(context, nodeTemplate);
             }
         }
@@ -727,7 +727,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleCreate(relationshipTemplate)) {
+            if (postPhasePlugin.canHandleCreate(context, relationshipTemplate)) {
                 postPhasePlugin.handleCreate(context, relationshipTemplate);
             }
         }

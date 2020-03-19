@@ -228,7 +228,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                     ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
                                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE);
                 if (Objects.nonNull(freezeOp)) {
-                    final Variable saveStateUrlVar = BPELPlanContext.getVariable(saveStateUrlVarName);
+                    final Variable saveStateUrlVar = context.getVariable(saveStateUrlVarName);
 
                     final Map<AbstractParameter, Variable> inputs = new HashMap<>();
 

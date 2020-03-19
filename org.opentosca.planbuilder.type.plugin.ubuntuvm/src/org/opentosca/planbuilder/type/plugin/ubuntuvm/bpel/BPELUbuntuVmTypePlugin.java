@@ -2,10 +2,13 @@ package org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwareTypePlugin;
@@ -209,6 +212,9 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
             return true;
         }
 
+        
+        boolean check = false;
+        AbstractNodeTemplate providerNode = null;
         // when infrastructure node arrives start handling
         if (Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
             // check if this node is connected to a cloud provider node type, if
@@ -224,17 +230,25 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
                                        .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
-                        return this.handler.handleCreateWithCloudProviderInterface(templateContext, nodeTemplate);
+                        providerNode = relation.getTarget();
+
+                        check = this.handler.handleCreateWithCloudProviderInterface(templateContext, nodeTemplate);
                     } else if (relation.getTarget().getType().getId().equals(Types.localHypervisor)) {
-                        return this.handler.handleWithLocalCloudProviderInterface(templateContext, nodeTemplate);
+                        providerNode = relation.getTarget();
+                        check = this.handler.handleWithLocalCloudProviderInterface(templateContext, nodeTemplate);
                     } else {
-                        return this.handler.handle(templateContext, nodeTemplate);
+                        providerNode = relation.getTarget();
+                        check = this.handler.handle(templateContext, nodeTemplate);
                     }
                 }
-            }
-            return true;
+            }            
         }
-        return false;
+        
+        if(check) {
+            templateContext.addUsedOperation(this.getCreateVMOperation(providerNode), this.getTerminateVMOperation(providerNode));
+        }
+        
+        return check;
     }
 
     @Override
@@ -300,12 +314,15 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
             return true;
         }
 
+        boolean check = false;
+        AbstractNodeTemplate providerNode = null;
         // when infrastructure node arrives start handling
         if (Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
             // check if this node is connected to a cloud provider node type, if
             // true -> append code
             for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
                 if (Utils.isSupportedCloudProviderNodeType(relation.getTarget().getType().getId())) {
+                    
                     final QName nodeType = relation.getTarget().getType().getId();
                     if (nodeType.equals(Types.openStackLiberty12NodeType)
                         || nodeType.equals(Types.vmWareVsphere55NodeType) || nodeType.equals(Types.amazonEc2NodeType)
@@ -315,19 +332,50 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
                                        .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
-                        return this.handler.handleTerminateWithCloudProviderInterface(templateContext, nodeTemplate,
+                        providerNode = relation.getTarget();
+                        check =  this.handler.handleTerminateWithCloudProviderInterface(templateContext, nodeTemplate,
                                                                                       templateContext.getProvisioningPhaseElement());
                     } else if (relation.getTarget().getType().getId().equals(Types.localHypervisor)) {
-                        return this.handler.handleWithLocalCloudProviderInterface(templateContext, nodeTemplate);
+                        providerNode = relation.getTarget();
+                        check = this.handler.handleWithLocalCloudProviderInterface(templateContext, nodeTemplate);
                     } else {
-                        return this.handler.handle(templateContext, nodeTemplate);
+                        providerNode = relation.getTarget();
+                        check = this.handler.handle(templateContext, nodeTemplate);
                     }
                 }
             }
-            return true;
+            
         }
-        return false;
+        
+        if(check) {
+            templateContext.addUsedOperation(this.getTerminateVMOperation(providerNode), this.getCreateVMOperation(providerNode));
+        }
+        
+        return check;
 
+    }
+    
+    private AbstractOperation getCreateVMOperation(AbstractNodeTemplate provider) {
+   
+        for(AbstractInterface iface : provider.getType().getInterfaces()) {
+            for(AbstractOperation op : iface.getOperations()) {
+                if(op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM)) {
+                    return op;
+                }
+            }
+        }
+        return null;
+    }
+    
+    private AbstractOperation getTerminateVMOperation(AbstractNodeTemplate provider) {
+        for(AbstractInterface iface : provider.getType().getInterfaces()) {
+            for(AbstractOperation op : iface.getOperations()) {
+                if(op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM)) {
+                    return op;
+                }
+            }
+        }
+        return null;
     }
 
     @Override

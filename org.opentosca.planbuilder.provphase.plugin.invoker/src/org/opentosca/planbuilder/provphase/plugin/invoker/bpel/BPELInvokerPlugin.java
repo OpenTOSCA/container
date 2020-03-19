@@ -59,8 +59,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia) {
-        try {
-            return this.handler.handle(context, operation, ia);
+        try {              
+            return this.handler.handle(context, operation, ia);             
         }
         catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
@@ -93,7 +93,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       inputParams, new HashMap<String, Variable>(),  elementToAppendTo);
+                                       inputParams, new HashMap<String, Variable>(),  elementToAppendTo);             
         }
         catch (final Exception e) {
             e.printStackTrace();
@@ -122,7 +122,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       inputParams, new HashMap<String, Variable>(), context.getProvisioningPhaseElement());
+                                       inputParams, new HashMap<String, Variable>(), context.getProvisioningPhaseElement()); 
         }
         catch (final Exception e) {
             e.printStackTrace();
@@ -149,9 +149,9 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput,  Element elementToAppendTo) {
-        try {
+        try {  
             return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
-                                       internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
+                                       internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);            
         }
         catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
@@ -245,7 +245,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             outputParams.put(key.getName(), param2PropertyOutputMapping.get(key));
         }
 
-        try {
+        try {         
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
                                        inputParams, outputParams, context.getProvisioningPhaseElement());
         }
@@ -270,7 +270,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             outputParams.put(key.getName(), param2PropertyOutputMapping.get(key));
         }
 
-        try {
+        try {         
             return this.handler.handle(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
                                        outputParams, elementToAppendTo);
         }

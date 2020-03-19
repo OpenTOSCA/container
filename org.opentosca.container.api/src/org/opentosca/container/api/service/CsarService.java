@@ -18,6 +18,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.winery.model.selfservice.Application;
+import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
@@ -159,47 +160,52 @@ public class CsarService {
      *
      * @param csarId the {@link CSARID} to generate build plans
      * @return the new {@link CSARID} for the repackaged CSAR or null if an error occurred
+     * @throws UserException
+     * @throws SystemException
      */
-    public CSARID generatePlans(final CSARID csarId) {
+    public CSARID generatePlans(final CSARID csarId) throws SystemException, UserException {
 
         final Importer planBuilderImporter = new Importer();
         final Exporter planBuilderExporter = new Exporter();
 
-        final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csarId);
-
-        if (buildPlans.isEmpty()) {
-            return csarId;
-        }
-
-        final File file = planBuilderExporter.exportToCSAR(buildPlans, csarId);
 
         try {
+            final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csarId);
+
+            if (buildPlans.isEmpty()) {
+                return csarId;
+            }
+
+            final File file = planBuilderExporter.exportToCSAR(buildPlans, csarId);
+
             this.fileService.deleteCSAR(csarId);
             return this.fileService.storeCSAR(file.toPath());
         }
         catch (final Exception e) {
-            logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
-        }
+            logger.error("Could not generate Plans: {}", e.getMessage(), e);
+            this.fileService.deleteCSAR(csarId);
+        }        
 
         return null;
     }
-    
-    public CSARID generateTransformationPlans(final CSARID sourceCsarId, final CSARID targetCsarId) {
-    	
-    	final Importer planBuilderImporter = new Importer();
-    	final Exporter planBuilderExporter = new Exporter();
-    	
-    	//planBuilderImporter.buildTransformationPlans(sourceCsarId.getFileName(), sourceDefinitions, targetCsarId.getFileName(), targetDefinitions)
-    	List<AbstractPlan> plans = planBuilderImporter.generateTransformationPlans(sourceCsarId, targetCsarId);
 
-    	if (plans.isEmpty()) {
+    public CSARID generateTransformationPlans(final CSARID sourceCsarId, final CSARID targetCsarId) {
+
+        final Importer planBuilderImporter = new Importer();
+        final Exporter planBuilderExporter = new Exporter();
+
+        // planBuilderImporter.buildTransformationPlans(sourceCsarId.getFileName(), sourceDefinitions,
+        // targetCsarId.getFileName(), targetDefinitions)
+        List<AbstractPlan> plans = planBuilderImporter.generateTransformationPlans(sourceCsarId, targetCsarId);
+
+        if (plans.isEmpty()) {
             return sourceCsarId;
         }
 
         final File file = planBuilderExporter.exportToCSAR(plans, sourceCsarId);
 
         try {
-        	this.engineService.clearCSARContent(sourceCsarId);
+            this.engineService.clearCSARContent(sourceCsarId);
             this.fileService.deleteCSAR(sourceCsarId);
             return this.fileService.storeCSAR(file.toPath());
         }

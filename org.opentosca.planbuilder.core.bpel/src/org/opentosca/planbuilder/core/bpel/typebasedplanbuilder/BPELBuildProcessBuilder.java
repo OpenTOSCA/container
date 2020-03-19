@@ -138,7 +138,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             LOG.debug(buildPlan.toString());
 
             final BPELPlan newBuildPlan =
-                this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, "initiate");
+                this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, "initiate");                      
 
             newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
             newBuildPlan.setTOSCAOperationname("initiate");
@@ -262,7 +262,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                     BPELBuildProcessBuilder.LOG.debug("Skipping the provisioning of NodeTemplate "
                         + bpelScope.getNodeTemplate().getId() + "  beacuse state=running is set.");
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandleCreate(bpelScope.getNodeTemplate())) {
+                        if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
                             postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
                         }
                     }
