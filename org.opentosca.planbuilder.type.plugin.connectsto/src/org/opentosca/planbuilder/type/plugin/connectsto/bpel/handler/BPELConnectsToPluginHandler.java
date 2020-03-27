@@ -87,7 +87,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                                                                 targetParameterNode);
 
                     if (param2propertyMapping.size() != op.getInputParameters().size()) {
-                        BPELConnectsToPluginHandler.LOG.debug("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
+                        BPELConnectsToPluginHandler.LOG.info("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
                     } else {
                         // executable operation found
                         connectsToIface = iface;
