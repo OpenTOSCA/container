@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.container.api.dto.ResourceSupport;
+import org.opentosca.planbuilder.service.resources.RootResource;
 
 import io.swagger.annotations.Contact;
 import io.swagger.annotations.Info;
@@ -51,10 +52,9 @@ public class RootController {
         links.add(Link.fromResource(CsarController.class).rel("csars").baseUri(this.uriInfo.getBaseUri()).build());
         links.add(Link.fromResource(SituationsController.class).rel("situationsapi").baseUri(this.uriInfo.getBaseUri())
                       .build());
+        // somehow using the style of creating the link like the above creates duplicate paths, e.g., host:1337/planbuilder/planbuilder        
+        links.add(Link.fromUriBuilder(this.uriInfo.getBaseUriBuilder().path(RootResource.class).path("planbuilder")).rel("planbuilder").build());
 
-        // Link to plan builder resources
-        links.add(Link.fromUriBuilder(this.uriInfo.getBaseUriBuilder().path("containerapi").path("planbuilder"))
-                      .rel("planbuilder").baseUri(this.uriInfo.getBaseUri()).build());
 
         return Response.ok(links).build();
     }
