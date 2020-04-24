@@ -60,14 +60,12 @@ public class NodeTemplateService {
                                                                  final String serviceTemplateQName) {
     final Csar csar = storage.findById(new CsarId(csarId));
 
-    List<TNodeTemplate> nodeTemplates;
-    try {
-      nodeTemplates = ToscaEngine.resolveServiceTemplate(csar, new QName(serviceTemplateQName))
+    List<TNodeTemplate> nodeTemplates= csar.serviceTemplates().stream()
+        .filter(st -> st.getName().equals(serviceTemplateQName))
+        .findFirst()
+        .get()
         .getTopologyTemplate()
         .getNodeTemplates();
-    } catch (NotFoundException e) {
-      return Collections.emptyList();
-    }
 
     return nodeTemplates.stream()
       .map(toscaNodeTemplate -> createNodeTemplate(toscaNodeTemplate, csar))

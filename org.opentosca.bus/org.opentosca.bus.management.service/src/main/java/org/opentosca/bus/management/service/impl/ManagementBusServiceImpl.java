@@ -404,24 +404,25 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // get ArtifactTemplate and ArtifactType of the IA
-        TArtifactTemplate artifactTemplate = (TArtifactTemplate) csar.queryRepository(new ArtifactTemplateId(ia.getArtifactRef()));
+        ArtifactTemplateId artifactTemplateId = new ArtifactTemplateId(ia.getArtifactRef());
+        TArtifactTemplate artifactTemplate = (TArtifactTemplate) csar.queryRepository(artifactTemplateId);
         LOG.debug("ArtifactTemplate: {}", artifactTemplate.toString());
 
-        final QName artifactType = ia.getArtifactType();
-        LOG.debug("ArtifactType: {}", artifactType);
+        final QName artifactTypeQName = ia.getArtifactType();
+        LOG.debug("ArtifactType: {}", artifactTypeQName);
 
         // retrieve deployment type for the IA
-        final String deploymentType = pluginHandler.getSupportedDeploymentType(artifactType);
+        final String deploymentType = pluginHandler.getSupportedDeploymentType(artifactTypeQName);
         if (Objects.isNull(deploymentType)) {
-            LOG.debug("No deployment plug-in found which supports the deployment of ArtifactType {}", artifactType);
+            LOG.debug("No deployment plug-in found which supports the deployment of ArtifactType {}", artifactTypeQName);
             return false;
         }
 
         // retrieve invocation type for the IA
-        final String invocationType = pluginHandler.getSupportedInvocationType(artifactType, artifactTemplate);
+        final String invocationType = pluginHandler.getSupportedInvocationType(artifactTypeQName, artifactTemplate);
         if (Objects.isNull(invocationType)) {
             LOG.debug("No invocation plug-in found which supports the invocation of ArtifactType {} and ArtifactTemplate {}",
-                artifactType, artifactTemplate.getId());
+                artifactTypeQName, artifactTemplate.getId());
             return false;
         }
 
@@ -439,11 +440,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // set needed header fields for the invocation/deployment plug-ins
         message.setHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
-        message.setHeader(MBHeader.PORTTYPE_QNAME.toString(), portType);
+        message.setHeader(MBHeader.PORT_TYPE_QNAME.toString(), portType);
         message.setHeader(MBHeader.INVOCATIONTYPE_STRING.toString(), invocationType);
-        message.setHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), ia.getName());
-        message.setHeader(MBHeader.ARTIFACTTEMPLATEID_QNAME.toString(), new QName(artifactTemplate.getId()));
-        message.setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactType);
+        message.setHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), ia.getName());
+        message.setHeader(MBHeader.ARTIFACTTEMPLATEID_QNAME.toString(), artifactTemplateId.getQName());
+        message.setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactTypeQName);
 
         // Prevent two threads from trying to deploy the same IA concurrently and avoid the deletion
         // of an IA after successful checking that an IA is already deployed.
@@ -778,7 +779,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         exchange.getIn().setHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
                         exchange.getIn().setHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), triggeringContainer);
                         exchange.getIn().setHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), typeImpl.toString());
-                        exchange.getIn().setHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), iaName);
+                        exchange.getIn().setHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), iaName);
                         exchange.getIn().setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactType);
                     }
 

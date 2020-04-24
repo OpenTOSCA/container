@@ -176,10 +176,10 @@ public class RequestReceiver {
     // retrieve needed data from the headers
     final String triggeringContainer = message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
     final QName typeImplementationID = message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
-    final String implementationArtifactName = message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
+    final String implementationArtifactName = message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), String.class);
     final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
     final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
-    final QName portType = message.getHeader(MBHeader.PORTTYPE_QNAME.toString(), QName.class);
+    final QName portType = message.getHeader(MBHeader.PORT_TYPE_QNAME.toString(), QName.class);
     final String artifactType = message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), String.class);
     final Long serviceTemplateInstanceID = Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
 
@@ -277,7 +277,7 @@ public class RequestReceiver {
     // retrieve needed data from the headers
     final String triggeringContainer = message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
     final QName typeImplementationID = message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
-    final String implementationArtifactName = message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
+    final String implementationArtifactName = message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), String.class);
     final String artifactType = message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), String.class);
     final String deploymentLocation = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
 
@@ -516,7 +516,7 @@ public class RequestReceiver {
     final QName typeImplementationID =
       message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
     final String implementationArtifactName =
-      message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
+      message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), String.class);
     final String serviceInstanceURI =
       message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), String.class);
     final String serviceInstanceId = serviceInstanceURI.substring(serviceInstanceURI.lastIndexOf("/"));

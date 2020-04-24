@@ -109,13 +109,13 @@ public enum MBHeader {
    * <b>PORTTYPE_QNAME</b> This header field contains the PortType of the ArtifactTemplate
    * represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME} if one is specified.
    */
-  PORTTYPE_QNAME,
+  PORT_TYPE_QNAME,
 
   /**
-   * <b>IMPLEMENTATIONARTIFACTNAME_STRING</b> This header field contains the name of the
+   * <b>IMPLEMENTATION_ARTIFACT_NAME_STRING</b> This header field contains the name of the
    * Implementation Artifact which shall be invoked by the camel exchange.
    */
-  IMPLEMENTATIONARTIFACTNAME_STRING,
+  IMPLEMENTATION_ARTIFACT_NAME_STRING,
 
   /**
    * <b>ARTIFACTREFERENCES_LISTURL</b> This header field contains a list of Strings. Each String
@@ -155,7 +155,7 @@ public enum MBHeader {
 
   /**
    * <b>INVOCATIONTYPE_STRING</b> This header field contains the invocation type of the
-   * Implementation Artifact identified by {@link MBHeader#IMPLEMENTATIONARTIFACTNAME_STRING}.
+   * Implementation Artifact identified by {@link MBHeader#IMPLEMENTATION_ARTIFACT_NAME_STRING}.
    */
   INVOCATIONTYPE_STRING,
 
