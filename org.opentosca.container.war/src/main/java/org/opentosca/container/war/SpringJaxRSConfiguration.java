@@ -34,9 +34,10 @@ public class SpringJaxRSConfiguration extends ResourceConfig {
   }
 
   private void logReadyMessage() {
-    final String readyMessage = "===================================================\n" +
-      "OPENTOSCA CONTAINER IS READY TO USE!\n" +
-      "===================================================";
+    final String readyMessage = "\n" +
+      "======================================================================================================\n" +
+      "                              OpenTOSCA CONTAINER is ready to use!\n" +
+      "======================================================================================================";
     LoggerFactory.getLogger("org.opentosca.container.api.ContainerApplication").info(readyMessage);
   }
 }
