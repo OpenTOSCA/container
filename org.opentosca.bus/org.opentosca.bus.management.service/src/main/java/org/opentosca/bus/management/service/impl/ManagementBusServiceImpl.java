@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -354,7 +355,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             final List<? extends TImplementationArtifact> ias = Optional.ofNullable(implementation.getImplementationArtifacts())
                 .map(TImplementationArtifacts::getImplementationArtifact)
                 .orElse(Collections.emptyList());
-            LOG.debug("List of Implementation Artifacts: {}", ias.toString());
+            LOG.debug("List of Implementation Artifacts: {}", ias.stream().map(ia -> {
+                return String.format("{%s, %s %s}", ia.getIdFromIdOrNameField(), ia.getOperationName(), ia.getArtifactRef());
+            }).collect(Collectors.joining(", ")));
 
             for (final TImplementationArtifact ia : ias) {
                 // try to invoke the operation on the current IA

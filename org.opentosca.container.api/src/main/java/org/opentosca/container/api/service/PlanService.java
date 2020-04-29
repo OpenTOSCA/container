@@ -49,13 +49,13 @@ public class PlanService {
 
   public List<PlanInstance> getPlanInstances(final Csar csar, final TServiceTemplate serviceTemplate, String planName, final PlanTypes... planTypes) {
     TPlan plan = csar.plans().stream()
-      .filter(tplan -> Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString()))
-        && planName.equals(tplan.getName()))
+      .filter(tplan -> (planName.equals(tplan.getName()) || planName.equals(tplan.getId()))
+          && Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
       .findFirst()
       .orElseThrow(NotFoundException::new);
 
     final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
-    final Collection<ServiceTemplateInstance> serviceInstances = repo.findByCsarId(csar.id().toOldCsarId());
+    final Collection<ServiceTemplateInstance> serviceInstances = repo.findByCsarId(csar.id());
     return serviceInstances.stream()
       .flatMap(sti -> sti.getPlanInstances().stream())
       .filter(p -> {

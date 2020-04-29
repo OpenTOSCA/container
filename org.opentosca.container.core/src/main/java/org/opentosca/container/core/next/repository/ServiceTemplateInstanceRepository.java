@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.repository;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -9,7 +10,7 @@ import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Hibernate;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
@@ -43,15 +44,17 @@ public class ServiceTemplateInstanceRepository extends JpaRepository<ServiceTemp
       final TypedQuery<ServiceTemplateInstance> q = em.createQuery(cq);
       q.setParameter(templateIdParameter, templateId);
       // Execute
-      return q.getResultList();
+      List<ServiceTemplateInstance> results = q.getResultList();
+      results.forEach(this::initializeInstance);
+      return results;
     }
   }
 
-  public Collection<ServiceTemplateInstance> findByCsarId(final CSARID csarId) {
+  public Collection<ServiceTemplateInstance> findByCsarId(final CsarId csarId) {
     try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
       final CriteriaBuilder cb = em.getCriteriaBuilder();
       // Parameters
-      final ParameterExpression<CSARID> csarIdParameter = cb.parameter(CSARID.class);
+      final ParameterExpression<CsarId> csarIdParameter = cb.parameter(CsarId.class);
       // Build the Criteria Query
       final CriteriaQuery<ServiceTemplateInstance> cq = cb.createQuery(ServiceTemplateInstance.class);
       final Root<ServiceTemplateInstance> sti = cq.from(ServiceTemplateInstance.class);
@@ -60,7 +63,9 @@ public class ServiceTemplateInstanceRepository extends JpaRepository<ServiceTemp
       final TypedQuery<ServiceTemplateInstance> q = em.createQuery(cq);
       q.setParameter(csarIdParameter, csarId);
       // Execute
-      return q.getResultList();
+      List<ServiceTemplateInstance> results = q.getResultList();
+      results.forEach(this::initializeInstance);
+      return results;
     }
   }
 }

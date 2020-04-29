@@ -1,7 +1,7 @@
 package org.opentosca.container.war;
 
-import io.swagger.jaxrs.listing.ApiListingResource;
-import io.swagger.jaxrs.listing.SwaggerSerializers;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.LoggerFactory;
@@ -29,8 +29,7 @@ public class SpringJaxRSConfiguration extends ResourceConfig {
 
 
   private void configureSwagger() {
-    register(ApiListingResource.class);
-    register(SwaggerSerializers.class);
+      register(OpenApiResource.class);
   }
 
   private void logReadyMessage() {
