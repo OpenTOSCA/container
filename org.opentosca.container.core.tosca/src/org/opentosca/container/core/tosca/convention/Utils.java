@@ -93,8 +93,11 @@ public class Utils {
         return nodeType.equals(Types.amazonEc2NodeType) || nodeType.equals(Types.openStackNodeType)
             || nodeType.equals(Types.openStackLiberty12NodeType) || nodeType.equals(Types.vmWareVsphere55NodeType)
             || nodeType.equals(Types.localHypervisor) || nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE)
+            || nodeType.equals(Types.openStackTrainNodeType)
             || nodeType.getNamespaceURI().equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
-                && nodeType.getLocalPart().startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart());
+                && (nodeType.getLocalPart().startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
+                		|| nodeType.getLocalPart()
+						.startsWith(Types.openStackTrainNodeType.getLocalPart()));
     }
 
     /**
