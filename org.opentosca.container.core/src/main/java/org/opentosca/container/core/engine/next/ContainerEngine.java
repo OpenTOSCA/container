@@ -64,6 +64,7 @@ public final class ContainerEngine {
     // assumption: there is artifactSpecificContent OR an artifactTemplateRef
     if (da.getArtifactRef() != null) {
       result.setArtifactSpecificContent(readArtifactSpecificContent(da));
+      result.setReferences(Collections.emptyList());
       return result;
     }
 
