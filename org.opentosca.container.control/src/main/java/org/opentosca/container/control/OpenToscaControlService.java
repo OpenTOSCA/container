@@ -30,7 +30,7 @@ public interface OpenToscaControlService {
    * @param csar the CSAR to process
    * @return true for success, false for one or more errors.
    */
-  public boolean invokeToscaProcessing(CsarId csar);
+  boolean invokeToscaProcessing(CsarId csar);
 
   /**
    * Registers the plans for a given ServiceTemplate of a given CSAR
@@ -39,37 +39,35 @@ public interface OpenToscaControlService {
    * @param serviceTemplate the ServiceTemplate to deploy
    * @return true for success, false for one or more errors.
    */
-  public boolean generatePlans(CsarId csar, ServiceTemplateId serviceTemplate);
+  boolean generatePlans(CsarId csar, ServiceTemplateId serviceTemplate);
 
-  //    public Set<CsarId> storedCsars();
-  public List<String> deleteCsar(CsarId csar);
+  List<String> deleteCsar(CsarId csar);
 
-  //    public List<ServiceTemplateId> serviceTemplatesOf(CsarId csar);
-  public Set<DeploymentProcessOperation> executableDeploymentProcessOperations(CsarId csar);
+  Set<DeploymentProcessOperation> executableDeploymentProcessOperations(CsarId csar);
 
-  public boolean declareStored(CsarId csar);
+  boolean declareStored(CsarId csar);
 
-  public DeploymentProcessState currentDeploymentProcessState(CsarId csar);
+  DeploymentProcessState currentDeploymentProcessState(CsarId csar);
 
   /**
    * @throws UnsupportedEncodingException
    * @deprecated {@link #invokePlanInvocation(CsarId, TServiceTemplate, int, TPlanDTO)}
    */
   @Deprecated
-  public String invokePlanInvocation(CsarId csar, QName serviceTemplateID, int instanceId, TPlanDTO plan) throws UnsupportedEncodingException;
+  String invokePlanInvocation(CsarId csar, QName serviceTemplateID, int instanceId, TPlanDTO plan) throws UnsupportedEncodingException;
 
   // FIXME evaluate using winery's TPlan instead
-  public String invokePlanInvocation(CsarId csar, TServiceTemplate serviceTemplate, long instanceId, TPlanDTO plan);
+  String invokePlanInvocation(CsarId csar, TServiceTemplate serviceTemplate, long instanceId, TPlanDTO plan);
 
   /**
    * @deprecated {@link #invokePlanDeployment(CsarId, TServiceTemplate)}
    */
   @Deprecated
-  public boolean invokePlanDeployment(CsarId csarId, QName serviceTemplateId);
+  boolean invokePlanDeployment(CsarId csarId, QName serviceTemplateId);
 
   boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate);
 
   @Deprecated
-  public List<QName> getAllContainedServiceTemplates(CsarId csarid);
+  List<QName> getAllContainedServiceTemplates(CsarId csarid);
 
 }

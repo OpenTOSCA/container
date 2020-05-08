@@ -211,7 +211,7 @@ public class RelationshipTemplateInstanceController {
   @PUT
   @Path("/{id}/properties")
   @Consumes( {MediaType.APPLICATION_XML})
-  @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
   @ApiOperation(hidden = true, value = "")
   public Response updateRelationshipTemplateInstanceProperties(@PathParam("id") final Long id,
                                                                final Document request) {

@@ -46,7 +46,7 @@ public final class ContainerEngine {
   public List<ResolvedArtifacts.ResolvedDeploymentArtifact> resolvedDeploymentArtifactsForNodeTemplate(Csar context, TNodeTemplate nodeTemplate) {
     LOG.debug("Trying to fetch DAs of NodeTemplate {}", nodeTemplate.getName());
     if (nodeTemplate.getDeploymentArtifacts() == null
-      || nodeTemplate.getDeploymentArtifacts().getDeploymentArtifact() == null) {
+      || nodeTemplate.getDeploymentArtifacts().getDeploymentArtifact().isEmpty()) {
       LOG.info("NodeTemplate {} has no deployment artifacts", nodeTemplate.getName());
       return Collections.emptyList();
     }

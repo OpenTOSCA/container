@@ -238,7 +238,8 @@ public class CsarController {
     Csar storedCsar = storage.findById(csarId);
     try {
       if (!this.csarService.generatePlans(storedCsar)) {
-        logger.warn("Planning the CSAR failed");
+        logger.info("Planning the CSAR failed. Deleting the failed import");
+        this.storage.deleteCSAR(csarId);
         return Response.serverError().build();
       }
     } catch (Exception e) {
