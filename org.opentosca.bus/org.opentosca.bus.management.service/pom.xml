@@ -31,11 +31,6 @@
       <artifactId>org.opentosca.bus.management.invocation.plugin</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.bus.management.invocation.plugin.script</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>

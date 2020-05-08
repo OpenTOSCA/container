@@ -511,8 +511,9 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                                            final Map<String, Object> headers) {
     LOG.debug("Invoking the Management Bus...");
 
+
     final ProducerTemplate template = camelContext.createProducerTemplate();
-    final Object response = template.requestBodyAndHeaders("bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA", paramsMap, headers);
+    final Object response = template.requestBodyAndHeaders("bean:managementBusService?method=invokeIA", paramsMap, headers);
     LOG.debug("Invocation finished: {}", response);
     return response;
   }

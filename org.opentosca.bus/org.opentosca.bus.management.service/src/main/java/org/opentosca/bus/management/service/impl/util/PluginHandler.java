@@ -4,14 +4,15 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
+
 import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.service.impl.PluginRegistry;
 import org.apache.camel.Exchange;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
-import org.opentosca.bus.management.invocation.plugin.script.ManagementBusInvocationPluginScript;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -52,16 +53,14 @@ public class PluginHandler {
     LOG.debug("Searching a matching invocation plug-in for InvocationType {} and deployment location {}",
       invocationType, deploymentLocation);
 
-    // redirect invocation call to 'remote' plug-in if deployment location is not the local Container
+    IManagementBusInvocationPluginService invocationPlugin = pluginRegistry.getInvocationPluginServices().get(invocationType);
+    // redirect invocation call to 'remote' plug-in if deployment location is not the local Container and we're invoking the Script plugin
     if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
-      // FIXME: find better solution to avoid forwarding of script calls to the remote Container
-      if (!(pluginRegistry.getInvocationPluginServices().get(invocationType) instanceof ManagementBusInvocationPluginScript)) {
-        LOG.debug("Deployment location is remote. Redirecting invocation to remote plug-in.");
-        invocationType = Constants.REMOTE_TYPE;
-      }
+        if (invocationPlugin.getSupportedTypes().contains(Types.scriptArtifactType.toString())) {
+            LOG.debug("Deployment location is remote. Redirecting invocation to remote plug-in.");
+            invocationPlugin = pluginRegistry.getInvocationPluginServices().get(Constants.REMOTE_TYPE);
+        }
     }
-
-    final IManagementBusInvocationPluginService invocationPlugin = pluginRegistry.getInvocationPluginServices().get(invocationType);
     if (invocationPlugin != null) {
       exchange = invocationPlugin.invoke(exchange);
     } else {

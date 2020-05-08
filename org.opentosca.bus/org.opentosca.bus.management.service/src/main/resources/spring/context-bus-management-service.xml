@@ -9,9 +9,8 @@
 
   <context:annotation-config />
 
-  <bean class="org.opentosca.bus.management.service.impl.ManagementBusServiceImpl" />
-  <bean class="org.opentosca.bus.management.service.impl.PluginRegistry" />
-
+  <!-- use context:component-scan to apply annotation configurations on the discovered beans -->
+  <context:component-scan base-package="org.opentosca.bus.management.service.impl" />
   <context:component-scan base-package="org.opentosca.bus.management.service.impl.collaboration" />
   <context:component-scan base-package="org.opentosca.bus.management.service.impl.util" />
 
