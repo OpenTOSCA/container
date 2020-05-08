@@ -118,7 +118,6 @@ public class RequestProcessor implements Processor {
       // Support new Deployment Artifact Header
       final List<ResolvedDeploymentArtifact> resolvedDAs = new ArrayList<>();
       if (nodeTemplateID != null) {
-        final QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
         final Csar csar = csarStorage.findById(new CsarId(csarIDString));
         final TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(csar, serviceTemplateID, nodeTemplateID);
 

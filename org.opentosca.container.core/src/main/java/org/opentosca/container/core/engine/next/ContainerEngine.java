@@ -19,6 +19,7 @@ import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -62,7 +63,7 @@ public final class ContainerEngine {
     result.setName(da.getName());
     result.setType(da.getArtifactType());
     // assumption: there is artifactSpecificContent OR an artifactTemplateRef
-    if (da.getArtifactRef() != null) {
+    if (Objects.isNull(da.getArtifactRef())) {
       result.setArtifactSpecificContent(readArtifactSpecificContent(da));
       result.setReferences(Collections.emptyList());
       return result;
