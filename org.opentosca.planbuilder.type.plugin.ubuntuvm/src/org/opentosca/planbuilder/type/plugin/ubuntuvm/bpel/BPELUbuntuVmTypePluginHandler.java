@@ -86,11 +86,11 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             || nodeType.equals(Types.ubuntu1404ServerVmNodeType3)) {
             return "ubuntu-14.04-trusty-server-cloudimg";
         } else if (nodeType.equals(Types.ubuntu1604ServerVmNodeType)) {
-            return "ubuntu-16.04-server-cloudimg-amd64";
+            return "ubuntu-16.04";
         } else if (nodeType.equals(Types.ubuntu1804ServerVmNodeType)
             || nodeType.getNamespaceURI().equals(Types.ubuntu1804ServerVmNodeTypeGenerated.getNamespaceURI())
                 && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart())) {
-                    return "ubuntu-18.04-server-cloudimg-amd64";
+                    return "ubuntu-18.04";
                 }
 
         final String localName = nodeType.getLocalPart();
