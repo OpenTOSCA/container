@@ -76,7 +76,7 @@ public class MBUtils {
                 // skip templates we already traversed
                 continue;
             }
-            final TNodeType currentNodeType = ToscaEngine.resolveNodeType(csar, nodeTemplate);
+            final TNodeType currentNodeType = ToscaEngine.resolveNodeType(csar, current);
             if (isOperatingSystemNodeType(currentNodeType)) {
                 // just return the first result if we don't need to check for a node instance
                 if (!mustHaveNodeInstance) {

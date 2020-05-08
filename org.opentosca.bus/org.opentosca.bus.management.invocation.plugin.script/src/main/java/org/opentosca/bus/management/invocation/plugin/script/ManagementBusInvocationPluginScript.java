@@ -106,7 +106,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
   }
 
   private Exchange handleExchangeInternal(Exchange exchange, Message message, CsarId csarID, QName serviceTemplateID, Csar csar, TServiceTemplate serviceTemplate, TArtifactTemplate artifactTemplate, TArtifactType artifactType, TNodeTemplate nodeTemplate, TNodeType nodeType, TOperation operation) throws NotFoundException {
-    LOG.debug("ArtifactType of ArtifactTemplate {} : {}", artifactTemplate.getId(), artifactType);
+    LOG.debug("ArtifactType of ArtifactTemplate {} : {}", artifactTemplate.getId(), artifactType.getQName());
     if (artifactType == null || nodeTemplate == null) {
       LOG.warn("Could not determine ArtifactType of ArtifactTemplate: {}!", artifactTemplate.getId());
       return exchange;
@@ -127,7 +127,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       LOG.warn("No OperatingSystem-NodeType found!");
       return exchange;
     }
-    LOG.debug("OperatingSystem-NodeType found: {}", osNodeType);
+    LOG.debug("OperatingSystem-NodeType found: {}", osNodeType.getQName());
     final TImplementationArtifact osIA = MBUtils.getOperatingSystemIA(csar, serviceTemplate, osNodeType);
 
     if (osIA == null) {
