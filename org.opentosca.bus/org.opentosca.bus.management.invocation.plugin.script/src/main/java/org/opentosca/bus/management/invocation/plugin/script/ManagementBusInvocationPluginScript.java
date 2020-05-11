@@ -106,11 +106,11 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
   }
 
   private Exchange handleExchangeInternal(Exchange exchange, Message message, CsarId csarID, QName serviceTemplateID, Csar csar, TServiceTemplate serviceTemplate, TArtifactTemplate artifactTemplate, TArtifactType artifactType, TNodeTemplate nodeTemplate, TNodeType nodeType, TOperation operation) throws NotFoundException {
-    LOG.debug("ArtifactType of ArtifactTemplate {} : {}", artifactTemplate.getId(), artifactType.getQName());
     if (artifactType == null || nodeTemplate == null) {
       LOG.warn("Could not determine ArtifactType of ArtifactTemplate: {}!", artifactTemplate.getId());
       return exchange;
     }
+    LOG.debug("ArtifactType of ArtifactTemplate {} : {}", artifactTemplate.getId(), artifactType.getQName());
     final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
     LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
     // search operating system IA to upload files and run scripts on target machine
@@ -122,11 +122,6 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       return exchange;
     }
     final TNodeType osNodeType = ToscaEngine.resolveNodeTypeReference(csar, osNodeTemplate.getType());
-    if (osNodeType == null) {
-      // This shouldn't ever happen
-      LOG.warn("No OperatingSystem-NodeType found!");
-      return exchange;
-    }
     LOG.debug("OperatingSystem-NodeType found: {}", osNodeType.getQName());
     final TImplementationArtifact osIA = MBUtils.getOperatingSystemIA(csar, serviceTemplate, osNodeType);
 

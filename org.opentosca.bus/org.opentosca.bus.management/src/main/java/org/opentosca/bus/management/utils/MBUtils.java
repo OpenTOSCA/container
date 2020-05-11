@@ -137,6 +137,7 @@ public class MBUtils {
      * @param nodeType The Node Type to check
      * @return a String containing the name of the OS interface, or if the given Node Type is not an OS Node Type null
      */
+    @Nullable
     public static String getInterfaceForOperatingSystemNodeType(final TNodeType nodeType) {
         if (doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
             && doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
@@ -156,6 +157,7 @@ public class MBUtils {
      * @param osNodeType
      * @return name of the OperatingSystem ImplementationArtifact.
      */
+    @Nullable
     public static TImplementationArtifact getOperatingSystemIA(final Csar csar, final TServiceTemplate serviceTemplate, final TNodeType osNodeType) {
         LOG.debug("Searching the OperatingSystem-IA of OS-NodeType: {}, ServiceTemplate: {} & CSAR: {} ...", osNodeType, serviceTemplate, csar);
 
@@ -180,11 +182,13 @@ public class MBUtils {
      * @param property             the name of the property that is searched
      * @return instance data value of searched property if found, <tt>null</tt> otherwise.
      */
+    @Nullable
     public static String searchProperty(NodeTemplateInstance nodeTemplateInstance, final String property) {
 
         LOG.debug("Searching the Property: {} in or under the NodeTemplateInstance ID: {} ...", property, nodeTemplateInstance.getId());
 
         // check if property is already defined at this NodeTemplateInstance
+        @Nullable
         String propertyValue = getInstanceDataPropertyValue(nodeTemplateInstance, property);
 
         // search until property is found or no new NodeTemplateInstance is found
@@ -233,6 +237,7 @@ public class MBUtils {
      * @param property             the name of the property
      * @return the value of the property if found, <tt>null</tt> otherwise.
      */
+    @Nullable
     public static String getInstanceDataPropertyValue(final NodeTemplateInstance nodeTemplateInstance,
                                                       final String property) {
         final Map<String, String> propertiesMap = nodeTemplateInstance.getPropertiesAsMap();
@@ -244,6 +249,7 @@ public class MBUtils {
         }
     }
 
+    @Nullable
     public static NodeTemplateInstance getNodeTemplateInstance(final Long serviceTemplateInstanceId, final TNodeTemplate nodeTemplate) {
         return getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplate.getId());
     }
@@ -256,6 +262,7 @@ public class MBUtils {
      * @param nodeTemplateID            the template ID to identify the correct instance
      * @return the found NodeTemplateInstance or <tt>null</tt> if no instance was found that matches the parameters
      */
+    @Nullable
     public static NodeTemplateInstance getNodeTemplateInstance(final Long serviceTemplateInstanceID,
                                                                final String nodeTemplateID) {
         LOG.debug("Trying to retrieve NodeTemplateInstance for ServiceTemplateInstance ID {} and NodeTemplate ID {} ...",
@@ -320,6 +327,7 @@ public class MBUtils {
      * @return the found RelationshipTemplateInstance or <tt>null</tt> if no instance was found that matches the
      * parameters
      */
+    @Nullable
     public static RelationshipTemplateInstance getRelationshipTemplateInstance(final Long serviceTemplateInstanceID,
                                                                                final String relationshipTemplateName) {
         LOG.debug("Trying to retrieve RelationshipTemplateInstance for ServiceTemplateInstance ID {} and RelationshipTemplate ID {} ...",
