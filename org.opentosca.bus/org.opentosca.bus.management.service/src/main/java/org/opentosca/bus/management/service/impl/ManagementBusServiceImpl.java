@@ -256,6 +256,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 typeID = relTemplate.get().getType();
             }
         }
+        if (typeID == null) {
+            LOG.error(String.format("Could not resolve a type for the given nodeTemplateId/relationshipTemplateId [%s/%s]",
+                arguments.nodeTemplateId, arguments.relationshipTemplateId));
+            handleResponse(exchange);
+            event.setEndTimestamp(new Date());
+            return event;
+        }
 
         // invocation is only possible with retrieved type which contains the operation
         TEntityType type;

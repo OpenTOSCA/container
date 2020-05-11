@@ -145,7 +145,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
     headers.put(MBHeader.CSARID.toString(), csarID);
     headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
-    headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), osNodeTemplate);
+    headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), osNodeTemplate.getIdFromIdOrNameField());
     headers.put(MBHeader.INTERFACENAME_STRING.toString(), MBUtils.getInterfaceForOperatingSystemNodeType(osNodeType));
     headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceID);
     headers.put(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
