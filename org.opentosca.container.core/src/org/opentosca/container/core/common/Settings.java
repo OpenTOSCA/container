@@ -46,6 +46,9 @@ public class Settings {
     
     public final static String OPENTOSCA_BUS_MANAGEMENT_MOCK =
         System.getProperty("org.opentosca.bus.management.mocking", "false");
+    
+    public final static String OPENTOSCA_ENGINE_IA_KEEPFILES =
+        System.getProperty("org.opentosca.engine.ia.keepfiles", "false");
 
     public final static String OPENTOSCA_COLLABORATION_MODE =
         System.getProperty("org.opentosca.container.collaboration.mode", "false");
