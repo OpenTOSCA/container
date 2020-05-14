@@ -933,7 +933,7 @@ public class Handler {
     
     private void appendFailedStateToCompensationHandler(BPELPlanContext context, String nodeInstanceURLVarName) {
         String stateVarName = this.createStateVar(context, context.getTemplateId());
-        this.appendStateUpdateAsChild(context, nodeInstanceURLVarName, stateVarName, "FAILED", context.getProvisioningCompensationPhaseElement());                
+        this.appendStateUpdateAsChild(context, nodeInstanceURLVarName, stateVarName, "FAILED", context.getProvisioningFaultHandlerPhaseElement());                
     }
 
     private void appendStateUpdateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName,

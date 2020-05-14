@@ -1,8 +1,11 @@
 package org.opentosca.planbuilder.model.plan.bpel;
 
+import java.util.Map;
+
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,6 +53,10 @@ public class BPELScope{
 
 
     private BPELScope bpelCompensationScope;
+    private BPELScope bpelFaultScope;
+    
+    private Map<AbstractOperation, AbstractOperation> usedOperations;
+
 
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
@@ -178,7 +185,7 @@ public class BPELScope{
     /**
      * Sets the BPEL PartnerLinks element of this TemplateBuildPlan
      *
-     * @param bpelPartnerLinks a DOM Element
+     * @param bpelPartnerLinks a DOM Element 
      */
     public void setBpelPartnerLinks(final Element bpelPartnerLinks) {
         this.bpelPartnerLinks = bpelPartnerLinks;
@@ -277,6 +284,24 @@ public class BPELScope{
         this.bpelScopeElement.insertBefore(compensationHandlerElement, this.bpelMainSequenceElement);        
     }
 
+    /**
+     * Returns the scope containing the faul handling activities of this scope
+     * @return
+     */
+    public BPELScope getBpelFaultHandlerScope() {
+        return this.bpelFaultScope;
+    }
+    
+    /**
+     * Sets the scope as the fault handler of this scope 
+     * @param bpelFaultScope a BPEL DOM Element with fault handler
+     */
+    public void setBpelFaultHandlerScope(BPELScope bpelFaultScope) {
+        this.bpelFaultScope = bpelFaultScope;        
+        Element compensationHandlerElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "faultHandler");                
+        compensationHandlerElement.appendChild(this.bpelFaultScope.getBpelScopeElement());        
+        this.bpelScopeElement.insertBefore(compensationHandlerElement, this.bpelMainSequenceElement);        
+    }
     
 
     /**
