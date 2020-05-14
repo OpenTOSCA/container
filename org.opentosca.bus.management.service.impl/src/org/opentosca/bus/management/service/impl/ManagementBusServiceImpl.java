@@ -139,20 +139,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 long waitTime = System.currentTimeMillis() + 1000;
                 while (System.currentTimeMillis() < waitTime) {
                 }
-
-                // if some param has fault as a value we generate a fault response
-                final Object params = message.getBody();
-                if (params != null && params instanceof HashMap && ((HashMap) params).values().contains("fault")) {                    
-                    respondViaFault(exchange, csarID, serviceTemplateID, nodeTemplateID, neededInterface,
-                                    neededOperation);
-
-                } else {
-                    // else responde via some mock values
-                    respondViaMocking(exchange, csarID, serviceTemplateID, nodeTemplateID, neededInterface,
-                                      neededOperation);
-                }
-
-
+                         
+                respondViaMocking(exchange, message,  csarID, serviceTemplateID, nodeTemplateID, neededInterface,
+                                      neededOperation);               
 
             } else {
                 this.invokeIA(exchange, csarID, serviceTemplateID, serviceTemplateInstanceID, nodeTemplateID,
@@ -181,9 +170,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
     }
 
-    private void respondViaFault(final Exchange exchange, final CSARID csarID, final QName serviceTemplateID,
-                                 final String nodeTemplateID, final String neededInterface,
-                                 final String neededOperation) {
+    private void respondViaMocking(final Exchange exchange,Message message,  final CSARID csarID, final QName serviceTemplateID,
+                                   final String nodeTemplateID, final String neededInterface,
+                                   final String neededOperation) {
+        
+        
 
         final List<String> outputParams =
             ServiceHandler.toscaEngineService.getOutputParametersOfTypeOperation(csarID,
@@ -197,28 +188,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         for (final String outputParam : outputParams) {
             responseMap.put(outputParam, "managementBusMockValue");
         }
-        responseMap.put("Fault", "managementBusMockFaultValue");
-
-        exchange.getIn().setBody(responseMap);
-
-        handleResponse(exchange);
-    }
-
-    private void respondViaMocking(final Exchange exchange, final CSARID csarID, final QName serviceTemplateID,
-                                   final String nodeTemplateID, final String neededInterface,
-                                   final String neededOperation) {
-
-        final List<String> outputParams =
-            ServiceHandler.toscaEngineService.getOutputParametersOfTypeOperation(csarID,
-                                                                                 ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID,
-                                                                                                                                             serviceTemplateID,
-                                                                                                                                             nodeTemplateID),
-                                                                                 neededInterface, neededOperation);
-
-        final HashMap<String, String> responseMap = new HashMap<>();
-
-        for (final String outputParam : outputParams) {
-            responseMap.put(outputParam, "managementBusMockValue");
+        
+        final Object params = message.getBody();
+        if (params != null && params instanceof HashMap && ((HashMap) params).values().contains("fault")) {                    
+            responseMap.put("Fault", "managementBusMockFaultValue");
         }
 
         exchange.getIn().setBody(responseMap);

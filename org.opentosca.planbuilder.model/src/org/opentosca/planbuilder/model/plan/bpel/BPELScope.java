@@ -298,9 +298,11 @@ public class BPELScope{
      */
     public void setBpelFaultHandlerScope(BPELScope bpelFaultScope) {
         this.bpelFaultScope = bpelFaultScope;        
-        Element compensationHandlerElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "faultHandler");                
-        compensationHandlerElement.appendChild(this.bpelFaultScope.getBpelScopeElement());        
-        this.bpelScopeElement.insertBefore(compensationHandlerElement, this.bpelMainSequenceElement);        
+        Element faultHandlersElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "faultHandlers");
+        Element catchAllElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "catchAll");
+        catchAllElement.appendChild(this.bpelFaultScope.getBpelScopeElement());
+        faultHandlersElement.appendChild(catchAllElement);
+        this.bpelScopeElement.insertBefore(faultHandlersElement, this.bpelMainSequenceElement);        
     }
     
 
