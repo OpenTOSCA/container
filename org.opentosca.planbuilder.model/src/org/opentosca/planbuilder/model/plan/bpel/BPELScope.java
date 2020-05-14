@@ -297,11 +297,13 @@ public class BPELScope{
      * @param bpelFaultScope a BPEL DOM Element with fault handler
      */
     public void setBpelFaultHandlerScope(BPELScope bpelFaultScope) {
-        this.bpelFaultScope = bpelFaultScope;        
+        this.bpelFaultScope = bpelFaultScope;
+        Element rethrowElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "rethrow");
+        bpelFaultScope.getBpelSequencePostPhaseElement().appendChild(rethrowElement);
         Element faultHandlersElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "faultHandlers");
         Element catchAllElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "catchAll");
         catchAllElement.appendChild(this.bpelFaultScope.getBpelScopeElement());
-        faultHandlersElement.appendChild(catchAllElement);
+        faultHandlersElement.appendChild(catchAllElement);                
         this.bpelScopeElement.insertBefore(faultHandlersElement, this.bpelMainSequenceElement);        
     }
     
