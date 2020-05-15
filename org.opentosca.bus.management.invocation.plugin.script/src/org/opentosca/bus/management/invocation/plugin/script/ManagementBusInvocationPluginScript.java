@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
 
@@ -25,7 +26,9 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -89,6 +92,10 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
         final String nodeInstanceID = message.getHeader(MBHeader.NODEINSTANCEID_STRING.toString(), String.class);
         ManagementBusInvocationPluginScript.LOG.debug("NodeInstanceID: {}", nodeInstanceID);
 
+        CSARID tempCsarID = null;
+        String tempNodeTemplateID = null;
+        QName tempServiceTemplateID = null;
+
         if (nodeTemplateID == null && relationshipTemplateID != null) {
 
             final QName relationshipTypeID =
@@ -97,7 +104,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
             final boolean isBoundToSourceNode =
                 ServiceHandler.toscaEngineService.isOperationOfRelationshipBoundToSourceNode(csarID, relationshipTypeID,
-                                                                                             interfaceName, operationName);
+                                                                                             interfaceName,
+                                                                                             operationName);
 
             if (isBoundToSourceNode) {
                 nodeTemplateID =
@@ -153,17 +161,45 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
             // search operating system IA to upload files and run scripts on
             // target machine
+            final Long serviceTemplateInstanceID =
+                Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
             final String osNodeTemplateID =
-                MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID, true, Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/")));
+                MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID, true,
+                                                         serviceTemplateInstanceID);
             if (osNodeTemplateID != null) {
-                final QName osNodeTypeID =
+                QName osNodeTypeID =
                     ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
                                                                                 osNodeTemplateID);
 
-                if (osNodeTypeID != null) {
-                    ManagementBusInvocationPluginScript.LOG.debug("OperatingSystem-NodeType found: {}", osNodeTypeID);
-                    final String osIAName = MBUtils.getOperatingSystemIA(csarID, serviceTemplateID, osNodeTemplateID);
+                if (osNodeTypeID.equals(Types.abstractOperatingSystemNodeType)) {
+                    final NodeTemplateInstance abstractOSInstance =
+                        MBUtils.getNodeTemplateInstance(serviceTemplateInstanceID, osNodeTemplateID);
+                    final NodeTemplateInstance nodeTemplateInstance =
+                        MBUtils.getAbstractOSReplacementInstance(abstractOSInstance);
+                    if (nodeTemplateInstance != null) {
+                        osNodeTypeID =
+                            ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(nodeTemplateInstance.getServiceTemplateInstance()
+                                                                                                            .getCsarId(),
+                                                                                        nodeTemplateInstance.getServiceTemplateInstance()
+                                                                                                            .getTemplateId(),
+                                                                                        nodeTemplateInstance.getTemplateId()
+                                                                                                            .getLocalPart());
+                        tempNodeTemplateID = nodeTemplateInstance.getTemplateId().getLocalPart();
+                        tempCsarID = nodeTemplateInstance.getServiceTemplateInstance().getCsarId();
+                        tempServiceTemplateID = nodeTemplateInstance.getServiceTemplateInstance().getTemplateId();
 
+                    }
+                }
+                if (osNodeTypeID != null) {
+                    String osIAName = null;
+                    ManagementBusInvocationPluginScript.LOG.debug("OperatingSystem-NodeType found: {}", osNodeTypeID);
+                    final boolean abstractOSExists =
+                        Stream.of(tempNodeTemplateID, tempCsarID, tempServiceTemplateID).allMatch(x -> x != null);
+                    if (abstractOSExists) {
+                        osIAName = MBUtils.getOperatingSystemIA(tempCsarID, tempServiceTemplateID, tempNodeTemplateID);
+                    } else {
+                        osIAName = MBUtils.getOperatingSystemIA(csarID, serviceTemplateID, osNodeTemplateID);
+                    }
                     if (osIAName != null) {
 
                         final Object params = message.getBody();
@@ -174,8 +210,13 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                         headers.put(MBHeader.CSARID.toString(), csarID);
                         headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
                         headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), osNodeTemplateID);
-                        headers.put(MBHeader.INTERFACENAME_STRING.toString(),
-                                    MBUtils.getInterfaceForOperatingSystemNodeType(csarID, osNodeTypeID));
+                        if (abstractOSExists) {
+                            headers.put(MBHeader.INTERFACENAME_STRING.toString(),
+                                        MBUtils.getInterfaceForOperatingSystemNodeType(tempCsarID, osNodeTypeID));
+                        } else {
+                            headers.put(MBHeader.INTERFACENAME_STRING.toString(),
+                                        MBUtils.getInterfaceForOperatingSystemNodeType(csarID, osNodeTypeID));
+                        }
                         headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceID);
                         headers.put(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
 
@@ -249,7 +290,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                             artifactTypeSpecificCommand =
                                 artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_NAME_PATH_MAP,
                                                                     createDANamePathMapEnvVar(csarID, serviceTemplateID,
-                                                                                              nodeTypeID, nodeTemplateID)
+                                                                                              nodeTypeID,
+                                                                                              nodeTemplateID)
                                                                         + " CSAR='" + csarID + "' NodeInstanceID='"
                                                                         + nodeInstanceID + "' ServiceInstanceID='"
                                                                         + serviceInstanceID + "' ");
@@ -422,7 +464,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
             for (final String daName : daNames) {
                 final QName daArtifactTemplate =
                     ServiceHandler.toscaEngineService.getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                        nodeTypeImpl, daName);
+                                                                                                                        nodeTypeImpl,
+                                                                                                                        daName);
 
                 daArtifactReferences =
                     ServiceHandler.toscaEngineService.getArtifactReferenceWithinArtifactTemplate(csarID,
@@ -476,8 +519,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
     /**
      *
-     * Installs required and specified packages of the specified ArtifactType. Required packages are
-     * in defined the corresponding *.xml file.
+     * Installs required and specified packages of the specified ArtifactType. Required packages are in
+     * defined the corresponding *.xml file.
      *
      * @param artifactType
      * @param headers
@@ -581,8 +624,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
     /**
      *
-     * Creates ArtifactType specific commands that should be executed on the target machine.
-     * Commands to be executed are defined in the corresponding *.xml file.
+     * Creates ArtifactType specific commands that should be executed on the target machine. Commands to
+     * be executed are defined in the corresponding *.xml file.
      *
      * @param csarID
      * @param artifactType
@@ -680,14 +723,16 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     }
 
     /**
-     * Escapes special charactes inside the given string conforming to bash argument values. 
+     * Escapes special charactes inside the given string conforming to bash argument values.
      *
-     * @see e.g. https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
+     * @see e.g.
+     *      https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
      *
      * @return a String with escaped singles quotes
      */
     private String escapeSpecialCharacters(final String unenscapedString) {
-        return unenscapedString.replace("'", "'\"'\"'").replace("\n", "'\"\\n\"'").replace("\t", "'\"\\t\"'").replace(" ", "'\" \"'");
+        return unenscapedString.replace("'", "'\"'\"'").replace("\n", "'\"\\n\"'").replace("\t", "'\"\\t\"'")
+                               .replace(" ", "'\" \"'");
     }
 
     /**

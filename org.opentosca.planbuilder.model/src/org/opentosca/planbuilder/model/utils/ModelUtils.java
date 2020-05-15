@@ -264,7 +264,7 @@ public class ModelUtils {
      * Calculates all Infrastructure Nodes of all Infrastructure Paths originating from the given
      * NodeTemplate
      *
-     * @param nodeTemplate AbstractNodeTemplate from where the search for Infrstructure Nodes begin
+     * @param nodeTemplate AbstractNodeTemplate from where the search for Infrastructure Nodes begin
      * @param infrastructureNodes a List of AbstractNodeTemplates which represent Infrastructure Nodes
      *        of the given NodeTemplate (including itself when applicable as an infrastructure node)
      * @Info the infrastructureNodes List must be empty
