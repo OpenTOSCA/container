@@ -32,12 +32,16 @@ import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
+import org.opentosca.container.api.dto.request.CsarTransformRequest;
+import org.opentosca.container.api.dto.request.ServiceTransformRequest;
 import org.opentosca.container.api.dto.situations.SituationsMonitorDTO;
 import org.opentosca.container.api.dto.situations.SituationsMonitorListDTO;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.control.IOpenToscaControlService;
+import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -87,6 +91,7 @@ public class ServiceTemplateInstanceController {
     private final PlanService planService;
 
     private final CsarService csarService;
+        
 
     private final DeploymentTestService deploymentTestService;
 
@@ -99,7 +104,7 @@ public class ServiceTemplateInstanceController {
                                              final IToscaReferenceMapper referenceMapper) {
         this.instanceService = instanceService;
         this.planService = planService;
-        this.csarService = csarService;
+        this.csarService = csarService;        
         this.deploymentTestService = deploymentTestService;
         this.referenceMapper = referenceMapper;
     }
@@ -538,4 +543,6 @@ public class ServiceTemplateInstanceController {
         final URI location = this.uriInfo.getAbsolutePathBuilder().path(String.valueOf(result.getId())).build();
         return Response.created(UriUtil.encode(location)).build();
     }
+    
+    
 }

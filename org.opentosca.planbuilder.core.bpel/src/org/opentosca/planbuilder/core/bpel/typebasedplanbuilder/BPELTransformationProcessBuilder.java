@@ -105,10 +105,11 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                               csarName, definitions, serviceTemplate, targetNodeTemplates, targetRelationshipTemplates);
 
 
-
+        Long id = System.currentTimeMillis();
+        
         // transform to bpel skeleton
         final String processName =
-            ModelUtils.makeValidNCName(serviceTemplate.getId() + "_adaptationPlan_" + System.currentTimeMillis());
+            ModelUtils.makeValidNCName(serviceTemplate.getId() + "_adaptationPlan_" + id);
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_adaptiationPlan";
 
         BPELPlan transformationBPELPlan =
@@ -117,7 +118,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
 
         transformationBPELPlan.setTOSCAInterfaceName("OpenTOSCA-Transformation-Interface");
-        transformationBPELPlan.setTOSCAOperationname("adapt");
+        transformationBPELPlan.setTOSCAOperationname("adapt" + id);
 
         this.planHandler.initializeBPELSkeleton(transformationBPELPlan, csarName);
         // instanceDataAPI handling is done solely trough this extension
