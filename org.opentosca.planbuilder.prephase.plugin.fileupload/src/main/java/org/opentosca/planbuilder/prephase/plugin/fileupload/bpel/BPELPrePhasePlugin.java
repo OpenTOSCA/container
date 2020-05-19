@@ -22,8 +22,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * This class is a PrePhase Plugin for IAs of type {http://docs.oasis-open.org/tosca
- * /ns/2011/12/ToscaBaseTypes}ScriptArtifact,{http ://www.example.com/ToscaTypes}WAR and DAs of type
+ * This class is a PrePhase Plugin for IAs of type
+ * {http://docs.oasis-open.org/tosca
+ * /ns/2011/12/ToscaBaseTypes}ScriptArtifact,{http
+ * ://www.example.com/ToscaTypes}WAR and DAs of type
  * {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ArchiveArtifact
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
@@ -33,8 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanContext>,
-                                IPlanBuilderPrePhaseIAPlugin<BPELPlanContext>,
-                                IPlanBuilderPrePhaseDAPlugin<BPELPlanContext> {
+    IPlanBuilderPrePhaseIAPlugin<BPELPlanContext>, IPlanBuilderPrePhaseDAPlugin<BPELPlanContext> {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELPrePhasePlugin.class);
 
@@ -79,7 +80,6 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
 
         return this.handler.handle(context, da, nodeTemplate);
     }
-
     /**
      * {@inheritDoc}
      */
@@ -116,7 +116,9 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
             for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(infrastructureNodeType)) {
                 BPELPrePhasePlugin.LOG.debug("Checking if type: " + artType.toString()
                     + " and infrastructure nodeType: " + nodeType.toString() + " can be handled");
-                return isSupportedDeploymentPair(artType, nodeType, false);
+                if (isSupportedDeploymentPair(artType, nodeType, false)) {
+                    return true;
+                }
             }
         }
 
@@ -132,13 +134,16 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     }
 
     /**
-     * Checks whether this Plugin can handle deploying artifacts of the given artfiactType to a given
-     * InfrastructureNode of the given infrastructureNodeType
+     * Checks whether this Plugin can handle deploying artifacts of the given
+     * artifactType to a given InfrastructureNode of the given
+     * infrastructureNodeType
      *
-     * @param scriptArtifactType a QName denoting an scriptArtifactType
+     * @param artifactType           a QName denoting an scriptArtifactType
      * @param infrastructureNodeType a QName denoting an infrastructureNodeType
-     * @param isDA indicates whether this check is on an IA or DA with the given artifactType
-     * @return a Boolean. True if given pair of QName's denotes a pair which this plugin can handle
+     * @param isDA                   indicates whether this check is on an IA or DA
+     *                               with the given artifactType
+     * @return a Boolean. True if given pair of QName's denotes a pair which this
+     *         plugin can handle
      */
     private boolean isSupportedDeploymentPair(final QName artifactType, final QName infrastructureNodeType,
                                               final boolean isDA) {
@@ -149,16 +154,17 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
 
         if (!isDA
             && (BPELPrePhasePlugin.warArtifactType.equals(artifactType)
-                || BPELPrePhasePlugin.warArtifactTypeOld.equals(artifactType))
-            && infrastructureNodeType.equals(new QName("http://opentosca.org/nodetypes",
-                "TOSCAManagmentInfrastructure"))) {
+            || BPELPrePhasePlugin.warArtifactTypeOld.equals(artifactType))
+            && infrastructureNodeType
+            .equals(new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure"))) {
             // WARs are deployed as environment-centric artifacts -> doesn't
             // need to be deployed on a node inside the topology, instead we
             // install it inside the management infrastructure
             return true;
         }
 
-        if (!org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
+        if (!org.opentosca.container.core.tosca.convention.Utils
+            .isSupportedInfrastructureNodeType(infrastructureNodeType)) {
             return false;
         }
 
@@ -282,5 +288,4 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     public int getPriority() {
         return 1;
     }
-
 }
