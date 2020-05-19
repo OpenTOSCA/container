@@ -155,6 +155,20 @@ public class ServiceTemplateController {
     return child;
   }
 
+  @Path("/{servicetemplate}/placement")
+  public PlacementController startPlacement(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
+                                            @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
+      final Csar csar = storage.findById(new CsarId(csarId));
+      final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
+          .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
+          .findFirst().orElseThrow(NotFoundException::new);
+
+      // init placement controller if placement is started
+      final PlacementController child = new PlacementController(instanceService, nodeTemplateService);
+      resourceContext.initResource(child);
+      return child;
+  }
+
   @Path("/{servicetemplate}/instances")
   public ServiceTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
                                                         @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {

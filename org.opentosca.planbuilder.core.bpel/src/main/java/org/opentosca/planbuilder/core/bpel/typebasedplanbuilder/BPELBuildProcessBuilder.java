@@ -6,6 +6,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -232,12 +233,13 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
    * First there will be checked if any generic plugin can handle a template of the TopologyTemplate
    * </p>
    *
-   * @param buildPlan a BuildPlan which is alread initialized
+   * @param buildPlan a BuildPlan which is already initialized
    * @param map       a PropertyMap which contains mappings from Template to Property and to variable name
-   *                  of inside the BuidlPlan
+   *                  of inside the BuildPlan
    */
-  private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map, String serviceInstanceUrl,
-                          String serviceInstanceID, String serviceTemplateUrl, String csarFileName) {
+  private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map,
+                          final String serviceInstanceUrl, final String serviceInstanceID,
+                          final String serviceTemplateUrl, final String csarFileName) {
     for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
       final BPELPlanContext context = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope, map, buildPlan.getServiceTemplate(),
         serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarFileName);
@@ -247,8 +249,10 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
         // if this nodeTemplate has the label running (Property: State=Running), skip
         // provisioning and just generate instance data handling
-        if (this.isRunning(nodeTemplate)) {
-          LOG.debug("Skipping the proWvisioning of NodeTemplate "
+        // extended check for OperatingSystem node type
+        if (isRunning(nodeTemplate)
+            || nodeTemplate.getType().getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())) {
+          LOG.debug("Skipping the provisioning of NodeTemplate "
             + bpelScope.getNodeTemplate().getId() + "  beacuse state=running is set.");
           for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             if (postPhasePlugin.canHandleCreate(bpelScope.getNodeTemplate())) {

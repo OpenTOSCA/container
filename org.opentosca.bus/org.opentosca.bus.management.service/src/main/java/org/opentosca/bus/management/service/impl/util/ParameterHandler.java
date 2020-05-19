@@ -22,6 +22,7 @@ import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +48,9 @@ public class ParameterHandler {
   }
 
   /**
-   * Updates missing input parameters for a operation on a NodeTemplate or RelationshipTemplate
-   * with instance data. The provided input parameters have priority, which means if one parameter
-   * is provided and found in the instance data, then the provided parameter is used. <br>
+   * Updates missing input parameters for a operation on a NodeTemplate or RelationshipTemplate with
+   * instance data. The provided input parameters have priority, which means if one parameter is
+   * provided and found in the instance data, then the provided parameter is used. <br>
    * <br>
    * <p>
    * If nodeTemplateInstance and relationshipTemplateInstance are provided, the update will be
@@ -57,9 +58,9 @@ public class ParameterHandler {
    * other one is used to perform the update. If both are <tt>null</tt> an update is not possible.
    *
    * @param inputParams                  the set of provided input parameters
-   * @param csarID                       of the CSAR containing the NodeTemplate/RelationshipTemplate
-   * @param nodeTemplateInstance         the NodeTemplateInstance object which is used as entry point to
-   *                                     the stored instance data. If it does not contain all needed parameters the search is
+   * @param csar                         containing the NodeTemplate/RelationshipTemplate
+   * @param nodeTemplateInstance         the NodeTemplateInstance object which is used as entry point to the stored
+   *                                     instance data. If it does not contain all needed parameters the search is
    *                                     continued downwards in the topology
    * @param relationshipTemplateInstance the RelationshipTemplateInstance object which is used as
    *                                     entry point to the stored instance data. The update is performed based on the
@@ -90,7 +91,7 @@ public class ParameterHandler {
    * in the instance data, then the provided parameter is used.
    *
    * @param inputParams          the set of provided input parameters
-   * @param csarID               of the CSAR containing the NodeTemplate
+   * @param csar                 containing the NodeTemplate
    * @param nodeTemplateInstance the NodeTemplate instance object
    * @param neededInterface      the interface of the operation for which the update is performed
    * @param neededOperation      the operation for which the update is performed
@@ -126,6 +127,9 @@ public class ParameterHandler {
 
     // search for parameters downwards in the topology until all are set
     while (!unsetParameters.isEmpty()) {
+      if (nodeTemplateInstance.getTemplateType().equals(Types.abstractOperatingSystemNodeType)) {
+        nodeTemplateInstance = MBUtils.getAbstractOSReplacementInstance(nodeTemplateInstance);
+      }
 
       // retrieve stored instance data for current node
       final Map<String, String> propertiesMap = nodeTemplateInstance.getPropertiesAsMap();
@@ -202,7 +206,7 @@ public class ParameterHandler {
    * target of the RelationshipTemplate.
    *
    * @param inputParams                  the set of provided input parameters
-   * @param csarID                       of the CSAR containing the RelationshipTemplate
+   * @param csar                         containing the RelationshipTemplate
    * @param relationshipTemplateInstance the RelationshipTemplate instance object
    * @param neededInterface              the interface of the operation for which the update is performed
    * @param neededOperation              the operation for which the update is performed

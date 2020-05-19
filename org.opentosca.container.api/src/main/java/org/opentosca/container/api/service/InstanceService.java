@@ -290,6 +290,11 @@ public class InstanceService {
     return this.nodeTemplateInstanceRepository.findByTemplateId(nodeTemplateName);
   }
 
+  public Collection<NodeTemplateInstance> getAllNodeTemplateInstances() {
+      logger.debug("Requesting all NodeTemplate instances");
+      return this.nodeTemplateInstanceRepository.findAll();
+  }
+
   public NodeTemplateInstance resolveNodeTemplateInstance(final String serviceTemplateName,
                                                           final String nodeTemplateId, final Long id) {
     // We only need to check that the instance belongs to the template, the rest is
@@ -712,7 +717,8 @@ public class InstanceService {
 
   public Collection<SituationsMonitor> getSituationsMonitors(final Long serviceInstanceID) {
     return this.getSituationsMonitors().stream()
-      .filter(monitor -> monitor.getServiceInstance() != null && monitor.getServiceInstance().getId().equals(serviceInstanceID))
+      .filter(monitor -> monitor.getServiceInstance() != null
+          && monitor.getServiceInstance().getId().equals(serviceInstanceID))
       .collect(Collectors.toList());
   }
 }

@@ -65,6 +65,7 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -200,7 +201,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     private void respondViaMocking(final TOperation.@Nullable OutputParameters outputParameters, final Exchange exchange) {
 
-        long waitTime = System.currentTimeMillis() + 1000;
+        final long waitTime = System.currentTimeMillis() + 1000;
         while (System.currentTimeMillis() > waitTime) {
             // busy waiting here...
         }
@@ -280,7 +281,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // get NodeTemplateInstance object for the deployment distribution decision
-        final NodeTemplateInstance nodeInstance;
+        NodeTemplateInstance nodeInstance;
         final RelationshipTemplateInstance relationshipInstance;
         if (Objects.nonNull(arguments.nodeTemplateId)) {
             nodeInstance = MBUtils.getNodeTemplateInstance(arguments.serviceTemplateInstanceId, arguments.nodeTemplateId);
@@ -301,18 +302,39 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             nodeInstance = null;
         }
 
+        Csar replacementCsar = null;
+        if (typeID.equals(Types.abstractOperatingSystemNodeType)) {
+            // replace abstract operating system node instance
+            nodeInstance = MBUtils.getAbstractOSReplacementInstance(nodeInstance);
+            assert(nodeInstance != null); // if not, we're fucked anyways
+            final ServiceTemplateInstance replacementSTI = nodeInstance.getServiceTemplateInstance();
+            replacementCsar = storage.findById(replacementSTI.getCsarId());
+            try {
+                final TServiceTemplate replacementST = ToscaEngine.resolveServiceTemplate(replacementCsar, replacementSTI.getTemplateId());
+                final TNodeTemplate replacementTemplate = ToscaEngine.resolveNodeTemplate(replacementST, nodeInstance.getTemplateId());
+                type = ToscaEngine.resolveNodeType(replacementCsar, replacementTemplate);
+            } catch (NotFoundException e) {
+                LOG.error("Could not compute replacing type for abstract Operating System Node replacement. Aborting IA invocation.", e);
+                handleResponse(exchange);
+                event.setEndTimestamp(new Date());
+                return event;
+            }
+        }
+
+
         // update input parameters for the operation call
         if (message.getBody() instanceof HashMap) {
             @SuppressWarnings("unchecked")
             Map<String, String> inputParams = (Map<String, String>) message.getBody();
 
-            inputParams = parameterHandler.updateInputParams(inputParams, csar, nodeInstance, relationshipInstance, arguments.interfaceName, arguments.operationName);
+            inputParams = parameterHandler.updateInputParams(inputParams, replacementCsar == null ? csar : replacementCsar,
+                nodeInstance, relationshipInstance, arguments.interfaceName, arguments.operationName);
             message.setBody(inputParams);
         } else {
             LOG.warn("There are no input parameters specified.");
         }
 
-        internalInvokeIA(exchange, csar, arguments.serviceTemplateInstanceId, type, nodeInstance, arguments.interfaceName, arguments.operationName);
+        internalInvokeIA(exchange, replacementCsar != null ? replacementCsar : csar, arguments.serviceTemplateInstanceId, type, nodeInstance, arguments.interfaceName, arguments.operationName);
         event.setEndTimestamp(new Date());
         return event;
     }

@@ -122,6 +122,10 @@ public class Utils {
    */
   public static boolean isSupportedInfrastructureNodeType(final QName nodeType) {
 
+    if (nodeType.equals(Types.abstractOperatingSystemNodeType)) {
+      return true;
+    }
+
     if (nodeType.equals(Types.ubuntuNodeType)) {
       return true;
     }

@@ -25,8 +25,10 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -114,12 +116,24 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
     LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
     // search operating system IA to upload files and run scripts on target machine
-    final TNodeTemplate osNodeTemplate = MBUtils.getOperatingSystemNodeTemplate(csar, serviceTemplate, nodeTemplate, true,
-      Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/")));
+    final long serviceTemplateInstanceId = Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
+    TNodeTemplate osNodeTemplate = MBUtils.getOperatingSystemNodeTemplate(csar, serviceTemplate, nodeTemplate, true,
+        serviceTemplateInstanceId);
 
     if (osNodeTemplate == null) {
       LOG.warn("No OperatingSystem-NodeTemplate found!");
       return exchange;
+    }
+
+    if (osNodeTemplate.getType().equals(Types.abstractOperatingSystemNodeType)) {
+        final NodeTemplateInstance abstractOSInstance = MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, osNodeTemplate);
+        final NodeTemplateInstance replacementInstance = MBUtils.getAbstractOSReplacementInstance(abstractOSInstance);
+        if (replacementInstance != null) {
+            // overwrite computed intermediate result based on replacement
+            csar = storage.findById(replacementInstance.getServiceTemplateInstance().getCsarId());
+            serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, replacementInstance.getServiceTemplateInstance().getTemplateId());
+            osNodeTemplate = ToscaEngine.resolveNodeTemplate(serviceTemplate, replacementInstance.getTemplateId());
+        }
     }
     final TNodeType osNodeType = ToscaEngine.resolveNodeTypeReference(csar, osNodeTemplate.getType());
     LOG.debug("OperatingSystem-NodeType found: {}", osNodeType.getQName());
@@ -241,10 +255,9 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
    * Check if the output parameters for this script service operation are returned in the script
    * result and add them to the result map.
    *
-   * @param resultMap        The result map which is returned for the invocation of the script service
-   *                         operation
-   * @param result           The returned result of the run script operation
-   * @param outputParameters The output parameters that are expected for the operation
+   * @param resultMap The result map which is returned for the invocation of the script service operation
+   * @param result    The returned result of the run script operation
+   * @param operation The script service operation to check
    */
   private void addOutputParametersToResultMap(final Map<String, String> resultMap, final Object result, final TOperation operation) {
     final boolean hasOutputParams = operation.getOutputParameters() != null;

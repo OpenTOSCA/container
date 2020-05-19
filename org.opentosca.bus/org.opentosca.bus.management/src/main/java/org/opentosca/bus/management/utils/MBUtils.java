@@ -31,6 +31,7 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +100,35 @@ public class MBUtils {
             }
         }
         return null;
+    }
+
+    @Nullable // contaminated by MBUtils#getNodeTemplateInstances
+    public static NodeTemplateInstance getAbstractOSReplacementInstance(NodeTemplateInstance nodeTemplateInstance) {
+        final Map<String, String> propMap = nodeTemplateInstance.getPropertiesAsMap();
+        if (propMap == null) {
+            // return original node template instance
+            return nodeTemplateInstance;
+        }
+        if (!propMap.containsKey(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF)) {
+            // no instance reference stored in the node template instance, so no replacement available
+            return nodeTemplateInstance;
+        }
+        LOG.debug("Found instanceRef Property with value: {}", propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF));
+        /*
+         * values are sent from fontend delimited by "," in the following format:
+         * service-template-instance-id,node-template-id
+         */
+        final String[] values = propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF).split(",");
+        if (values.length != 2) {
+            LOG.warn("input format for instanceref was incorrect. Received value {}", values);
+            // to avoid messing this up
+            return nodeTemplateInstance;
+        }
+        final Long serviceTemplateInstanceId = Long.parseLong(values[0]);
+        final String nodeTemplateId = values[1];
+
+        // return the actual replacement
+        return MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplateId);
     }
 
     /**
