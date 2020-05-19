@@ -190,9 +190,11 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
         createDANamePathMapEnvVar(csar, nodeType, nodeTemplate) + " CSAR='" + csarID + "' NodeInstanceID='" + nodeInstanceID + "' ServiceInstanceID='" + serviceInstanceID + "' ");
       artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_INPUT_PARAMETER, createParamsString(params));
 
-      // delete the uploaded file on the remote site to save resources
-      final String deleteFileCommand = "; rm -f " + targetFilePath;
-      artifactTypeSpecificCommand = artifactTypeSpecificCommand + deleteFileCommand;
+      if (!Boolean.valueOf(Settings.OPENTOSCA_ENGINE_IA_KEEPFILES)) {
+          // delete the uploaded file on the remote site to save resources
+          final String deleteFileCommand = "; rm -f " + targetFilePath;
+          artifactTypeSpecificCommand = artifactTypeSpecificCommand + deleteFileCommand;
+      }
 
       LOG.debug("Final command for the script execution: {}", artifactTypeSpecificCommand);
       final Object result = runScript(artifactTypeSpecificCommand, headers);
@@ -203,10 +205,12 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
       addOutputParametersToResultMap(resultMap, result, operation);
     }
 
-    // remove the created directories
-    LOG.debug("Deleting directories...");
-    final String deleteDirsCommand = "find " + targetBasePath + " -empty -type d -delete";
-    runScript(deleteDirsCommand, headers);
+    if (!Boolean.valueOf(Settings.OPENTOSCA_ENGINE_IA_KEEPFILES)) {
+        // remove the created directories
+        LOG.debug("Deleting directories...");
+        final String deleteDirsCommand = "find " + targetBasePath + " -empty -type d -delete";
+        runScript(deleteDirsCommand, headers);
+    }
 
     LOG.debug("All artifacts are executed. Returning result to the Management Bus...");
 
