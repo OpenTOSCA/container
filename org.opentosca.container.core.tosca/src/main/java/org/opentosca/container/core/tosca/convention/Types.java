@@ -22,6 +22,8 @@ public class Types {
   // cloud provider nodeTypes
   public final static QName openStackLiberty12NodeType =
     new QName("http://opentosca.org/nodetypes", "OpenStack-Liberty-12");
+  public final static QName openStackTrainNodeType =
+      new QName("http://opentosca.org/nodetypes", "OpenStack_Train-w1");
   public final static QName vmWareVsphere55NodeType = new QName("http://opentosca.org/nodetypes", "VSphere_5.5");
 
   public final static QName amazonEc2NodeType = new QName("http://opentosca.org/NodeTypes", "AmazonEC2");

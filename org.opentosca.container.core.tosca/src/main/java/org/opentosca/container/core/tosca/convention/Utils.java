@@ -96,7 +96,10 @@ public class Utils {
       || nodeType.equals(Types.vmWareVsphere55NodeType)
       || nodeType.equals(Types.localHypervisor)
       || nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE)
-      || nodeType.equals(Types.openStackLiberty12NodeTypeGenerated);
+      || nodeType.equals(Types.openStackTrainNodeType)
+      || nodeType.getNamespaceURI().equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
+         && (nodeType.getLocalPart().startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
+            || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()));
   }
 
   /**

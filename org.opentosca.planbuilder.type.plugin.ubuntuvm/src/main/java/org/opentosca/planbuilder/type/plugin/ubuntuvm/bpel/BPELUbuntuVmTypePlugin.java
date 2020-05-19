@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * This class represents a generic plugin containing bpel logic to start a virtual machine instance
- * with the OpenTOSCA Container Invoker Service
+ * This class represents a generic plugin containing bpel logic to start a
+ * virtual machine instance with the OpenTOSCA Container Invoker Service
  * </p>
  * Copyright 2016 IAAS University of Stuttgart <br>
  * <br>
@@ -26,9 +26,12 @@ import org.slf4j.LoggerFactory;
  */
 public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
                                     IPlanBuilderPolicyAwareTypePlugin<BPELPlanContext> {
-    public static final QName noPublicAccessPolicyType = new QName("http://opentosca.org/policytypes", "NoPublicAccessPolicy");
-    public static final QName publicAccessPolicyType = new QName("http://opentosca.org/policytypes", "PublicAccessPolicy");
-    public static final QName onlyModeledPortsPolicyType = new QName("http://opentosca.org/policytypes", "OnlyModeledPortsPolicyType");
+    public static final QName noPublicAccessPolicyType = new QName("http://opentosca.org/policytypes",
+        "NoPublicAccessPolicy");
+    public static final QName publicAccessPolicyType = new QName("http://opentosca.org/policytypes",
+        "PublicAccessPolicy");
+    public static final QName onlyModeledPortsPolicyType = new QName("http://opentosca.org/policytypes",
+        "OnlyModeledPortsPolicyType");
 
     private static final Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePlugin.class);
     private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder VM and Cloud Provider Declarative Type Plugin";
@@ -216,11 +219,14 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
                 if (Utils.isSupportedCloudProviderNodeType(relation.getTarget().getType().getId())) {
                     final QName nodeType = relation.getTarget().getType().getId();
                     if (nodeType.equals(Types.openStackLiberty12NodeType)
-                        || nodeType.equals(Types.vmWareVsphere55NodeType) || nodeType.equals(Types.amazonEc2NodeType)
+                        || nodeType.equals(Types.openStackTrainNodeType)
+                        || nodeType.equals(Types.vmWareVsphere55NodeType)
+                        || nodeType.equals(Types.amazonEc2NodeType)
                         || nodeType.getNamespaceURI()
                                    .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
-                            && nodeType.getLocalPart()
-                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())) {
+                            && (nodeType.getLocalPart()
+                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
+                                || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()))) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
                         return this.handler.handleCreateWithCloudProviderInterface(templateContext, nodeTemplate);
@@ -263,11 +269,14 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
                 if (Utils.isSupportedCloudProviderNodeType(relation.getTarget().getType().getId())) {
                     final QName nodeType = relation.getTarget().getType().getId();
                     if (nodeType.equals(Types.openStackLiberty12NodeType)
-                        || nodeType.equals(Types.vmWareVsphere55NodeType) || nodeType.equals(Types.amazonEc2NodeType)
+                        || nodeType.equals(Types.openStackTrainNodeType)
+                        || nodeType.equals(Types.vmWareVsphere55NodeType)
+                        || nodeType.equals(Types.amazonEc2NodeType)
                         || nodeType.getNamespaceURI()
                                    .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
-                            && nodeType.getLocalPart()
-                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())) {
+                            && (nodeType.getLocalPart()
+                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
+                                || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()))) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
                         return this.handler.handleCreateWithCloudProviderInterface(templateContext, nodeTemplate);
@@ -305,11 +314,14 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
                 if (Utils.isSupportedCloudProviderNodeType(relation.getTarget().getType().getId())) {
                     final QName nodeType = relation.getTarget().getType().getId();
                     if (nodeType.equals(Types.openStackLiberty12NodeType)
-                        || nodeType.equals(Types.vmWareVsphere55NodeType) || nodeType.equals(Types.amazonEc2NodeType)
+                        || nodeType.equals(Types.openStackTrainNodeType)
+                        || nodeType.equals(Types.vmWareVsphere55NodeType)
+                        || nodeType.equals(Types.amazonEc2NodeType)
                         || nodeType.getNamespaceURI()
                                    .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
-                            && nodeType.getLocalPart()
-                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())) {
+                            && (nodeType.getLocalPart()
+                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
+                                || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()))) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
                         return this.handler.handleTerminateWithCloudProviderInterface(templateContext, nodeTemplate,
