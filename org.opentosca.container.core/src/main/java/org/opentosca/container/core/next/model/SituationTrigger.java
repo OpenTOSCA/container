@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
@@ -13,6 +14,8 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import com.google.common.collect.Sets;
+import org.opentosca.container.core.common.jpa.CsarIdConverter;
+import org.opentosca.container.core.model.csar.CsarId;
 
 @Entity
 @Table(name = SituationTrigger.TABLE_NAME)
@@ -31,6 +34,10 @@ public class SituationTrigger extends PersistenceObject {
 
   @Column(nullable = false)
   private boolean isSingleInstance;
+
+  @Convert(converter = CsarIdConverter.class)
+  @Column(name = "CSAR_ID", nullable = false)
+  private CsarId csarId;
 
   @OneToOne
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID", nullable = true)
@@ -84,7 +91,15 @@ public class SituationTrigger extends PersistenceObject {
     this.triggerOnActivation = triggerOnActivation;
   }
 
-  public ServiceTemplateInstance getServiceInstance() {
+    public CsarId getCsarId() {
+        return csarId;
+    }
+
+    public void setCsarId(CsarId csarId) {
+        this.csarId = csarId;
+    }
+
+    public ServiceTemplateInstance getServiceInstance() {
     return this.serviceInstance;
   }
 

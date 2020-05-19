@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
@@ -28,6 +29,10 @@ public class SituationTriggerDTO extends ResourceSupport {
   @XmlElement(name = "SituationId")
   @XmlElementWrapper(name = "Situations")
   private Collection<Long> situationIds;
+
+  @XmlElement(name = "CsarId")
+  @ApiModelProperty(name = "csar_id")
+  private String csarId;
 
   @XmlElement(name = "onActivation")
   private boolean onActivation;
@@ -71,6 +76,14 @@ public class SituationTriggerDTO extends ResourceSupport {
 
   public void setSituationIds(final Collection<Long> situationIds) {
     this.situationIds = situationIds;
+  }
+
+  public String getCsarId() {
+    return csarId;
+  }
+
+  public void setCsarId(String csarId) {
+    this.csarId = csarId;
   }
 
   public boolean isOnActivation() {

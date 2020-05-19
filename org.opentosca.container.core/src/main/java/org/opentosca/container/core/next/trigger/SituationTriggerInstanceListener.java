@@ -98,7 +98,7 @@ public class SituationTriggerInstanceListener {
 
       final Set<SituationTriggerProperty> inputs = this.instance.getSituationTrigger().getInputs();
       for (final TParameterDTO param : planDTO.getInputParameters().getInputParameter()) {
-        if (param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
+        if (servInstance != null && param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
           String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + servInstance.getId();
           url = url.replace("{csarid}", servInstance.getCsarId().toOldCsarId().getFileName());
           url = url.replace("{servicetemplateid}",
@@ -122,8 +122,13 @@ public class SituationTriggerInstanceListener {
       try {
         final String correlationId = planInvocEngine.createCorrelationId();
         // FIXME QName natural key migration to string leftover
-        planInvocEngine.invokePlan(servInstance.getCsarId(), QName.valueOf(servInstance.getTemplateId()),
-          servInstance.getId(), planDTO, correlationId);
+          if (servInstance != null) {
+              planInvocEngine.invokePlan(servInstance.getCsarId(), QName.valueOf(servInstance.getTemplateId()),
+                  servInstance.getId(), planDTO, correlationId);
+          } else {
+              planInvocEngine.invokePlan(instance.getSituationTrigger().getCsarId(), serviceTemplate,
+                  -1, planDTO, correlationId);
+          }
 
           // now wait for finished execution
         PlanInstance planInstance = planRepository.findByCorrelationId(correlationId);

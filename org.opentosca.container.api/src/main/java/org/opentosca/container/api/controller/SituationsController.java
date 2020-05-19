@@ -25,6 +25,7 @@ import org.opentosca.container.api.dto.situations.SituationTriggerInstanceDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerListDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.core.common.uri.UriUtil;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.Situation;
@@ -33,6 +34,7 @@ import org.opentosca.container.core.next.model.SituationTriggerProperty;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.springframework.stereotype.Component;
 
 @Path("/situationsapi")
@@ -44,6 +46,8 @@ public class SituationsController {
 
   @Inject
   private InstanceService instanceService;
+  @Inject
+  private CsarStorageService csarService;
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
@@ -174,7 +178,7 @@ public class SituationsController {
     situationTrigger.getInputParams()
       .forEach(x -> inputs.add(new SituationTriggerProperty(x.getName(), x.getValue(), x.getType())));
 
-    final SituationTrigger sitTrig = this.instanceService.createNewSituationTrigger(sits,
+    final SituationTrigger sitTrig = this.instanceService.createNewSituationTrigger(sits, csarService.findById(new CsarId(situationTrigger.getCsarId())).id(),
       situationTrigger.isOnActivation(), situationTrigger.isSingleInstance(), serviceInstance, nodeInstance,
       situationTrigger.getInterfaceName(), situationTrigger.getOperationName(), inputs, eventProbability, eventTime);
 
