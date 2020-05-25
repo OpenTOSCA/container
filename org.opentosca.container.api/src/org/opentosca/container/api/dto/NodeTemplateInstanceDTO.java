@@ -44,7 +44,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
     @XmlElement(name = "ServiceTemplateId")
     private String serviceTemplateId;
 
-
     public Long getId() {
         return this.id;
     }

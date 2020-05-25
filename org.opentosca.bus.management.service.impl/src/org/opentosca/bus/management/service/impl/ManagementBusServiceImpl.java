@@ -43,6 +43,7 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -142,7 +143,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                          
                 respondViaMocking(exchange, message,  csarID, serviceTemplateID, nodeTemplateID, neededInterface,
                                       neededOperation);               
-
             } else {
                 this.invokeIA(exchange, csarID, serviceTemplateID, serviceTemplateInstanceID, nodeTemplateID,
                               relationship, neededInterface, neededOperation);
@@ -220,7 +220,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (Objects.nonNull(nodeTemplateID)) {
             typeID =
                 ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
-        } else if (Objects.nonNull(nodeTemplateID)) {
+        } else if (Objects.nonNull(relationship)) {
             typeID =
                 ServiceHandler.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarID, serviceTemplateID,
                                                                                             relationship);
@@ -285,9 +285,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @param neededInterface the interface of the searched operation
      * @param neededOperation the searched operation
      */
-    private void invokeIA(final Exchange exchange, final CSARID csarID, final Long serviceTemplateInstanceID,
-                          final QName typeID, final NodeTemplateInstance nodeTemplateInstance,
-                          final String neededInterface, final String neededOperation) {
+    private void invokeIA(final Exchange exchange, CSARID csarID, final Long serviceTemplateInstanceID, QName typeID,
+                          NodeTemplateInstance nodeTemplateInstance, final String neededInterface,
+                          final String neededOperation) {
 
         final Message message = exchange.getIn();
 
@@ -299,9 +299,22 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                                        neededOperation);
         message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), hasOutputParams);
 
+        if (typeID.equals(Types.abstractOperatingSystemNodeType)) {
+            nodeTemplateInstance = MBUtils.getAbstractOSReplacementInstance(nodeTemplateInstance);
+            typeID =
+                ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(nodeTemplateInstance.getServiceTemplateInstance()
+                                                                                                .getCsarId(),
+                                                                            nodeTemplateInstance.getServiceTemplateInstance()
+                                                                                                .getTemplateId(),
+                                                                            nodeTemplateInstance.getTemplateId()
+                                                                                                .getLocalPart());
+            csarID = nodeTemplateInstance.getServiceTemplateInstance().getCsarId();
+        }
+
         final List<QName> typeImplementationIDs =
             ServiceHandler.toscaEngineService.getTypeImplementationsOfType(csarID, typeID);
         LOG.debug("List of Node/RelationshipTypeImplementations: {}", typeImplementationIDs.toString());
+
 
         // Search for an IA that implements the right operation and which is deployable and
         // invokable by available plug-ins

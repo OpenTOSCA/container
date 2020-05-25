@@ -319,6 +319,11 @@ public class InstanceService {
         return this.nodeTemplateInstanceRepository.findByTemplateId(nodeTemplateQName);
     }
 
+    public Collection<NodeTemplateInstance> getAllNodeTemplateInstances() {
+        logger.debug("Requesting all NodeTemplate instances");
+        return this.nodeTemplateInstanceRepository.findAll();
+    }
+
     public NodeTemplateInstance resolveNodeTemplateInstance(final String serviceTemplateQName,
                                                             final String nodeTemplateId, final Long id) {
         // We only need to check that the instance belongs to the template, the rest is
@@ -619,8 +624,9 @@ public class InstanceService {
         // Source node instance
         newInstance.setSource(getNodeTemplateInstance(request.getSourceNodeTemplateInstanceId()));
         // Target node instance
-        newInstance.setTarget(getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));        
-        newInstance.setServiceTemplateInstance(this.serviceTemplateInstanceRepository.find(request.getServiceInstanceId()).get());
+        newInstance.setTarget(getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));
+        newInstance.setServiceTemplateInstance(this.serviceTemplateInstanceRepository.find(request.getServiceInstanceId())
+                                                                                     .get());
 
         this.relationshipTemplateInstanceRepository.add(newInstance);
 
@@ -744,12 +750,12 @@ public class InstanceService {
     }
 
     public SituationsMonitor createNewSituationsMonitor(final ServiceTemplateInstance instance,
-                                                        final Map<String,Collection<Long>> situations) {
+                                                        final Map<String, Collection<Long>> situations) {
         final SituationsMonitor monitor = new SituationsMonitor();
 
-        monitor.setServiceInstance(instance);                
-      
-        monitor.setNode2Situations(situations);        
+        monitor.setServiceInstance(instance);
+
+        monitor.setNode2Situations(situations);
 
         this.situationsMonitorRepo.add(monitor);
         return monitor;
@@ -760,7 +766,8 @@ public class InstanceService {
     }
 
     public Collection<SituationsMonitor> getSituationsMonitors(final Long serviceInstanceId) {
-        return this.getSituationsMonitors().stream().filter(monitor -> monitor.getServiceInstance() != null && monitor.getServiceInstance().getId().equals(serviceInstanceId)).collect(Collectors.toList());
+        return this.getSituationsMonitors().stream().filter(monitor -> monitor.getServiceInstance() != null
+            && monitor.getServiceInstance().getId().equals(serviceInstanceId)).collect(Collectors.toList());
     }
 
     /* Service Injection */
