@@ -113,7 +113,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_adaptiationPlan";
 
         BPELPlan transformationBPELPlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, adaptationPlan, "adapt");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, adaptationPlan, "adapt" + id);
 
 
 
