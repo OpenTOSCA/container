@@ -698,7 +698,12 @@ public class InstanceService {
         newInstance.setOperationName(operationName);
         if (nodeInstance != null) {
             newInstance.setNodeInstance(nodeInstance);
+        }        
+        
+        for (SituationTriggerProperty input : inputs) {
+            input.setSituationTrigger(newInstance);
         }
+        
         newInstance.setInputs(inputs);
         
         if (eventProbability != -1.0f) {
