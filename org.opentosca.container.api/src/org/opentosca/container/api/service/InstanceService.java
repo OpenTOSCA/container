@@ -319,6 +319,11 @@ public class InstanceService {
         return this.nodeTemplateInstanceRepository.findByTemplateId(nodeTemplateQName);
     }
 
+    public Collection<NodeTemplateInstance> getAllNodeTemplateInstances() {
+        logger.debug("Requesting all NodeTemplate instances");
+        return this.nodeTemplateInstanceRepository.findAll();
+    }
+
     public NodeTemplateInstance resolveNodeTemplateInstance(final String serviceTemplateQName,
                                                             final String nodeTemplateId, final Long id) {
         // We only need to check that the instance belongs to the template, the rest is

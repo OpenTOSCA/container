@@ -1605,7 +1605,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         // if there are DeploymentArtifacts
         if (nodeTypeImplementation != null && nodeTypeImplementation.getDeploymentArtifacts() != null) {
 
-            nodeTypeImplementation.getDeploymentArtifacts().getDeploymentArtifact().stream()
+            return nodeTypeImplementation.getDeploymentArtifacts().getDeploymentArtifact().stream()
                                   .filter(da -> da.getName().equals(deploymentArtifactName)).findFirst()
                                   .map(da -> da.getArtifactRef()).orElse(null);
         }
@@ -1924,6 +1924,8 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     private Optional<TImplementationArtifact> getImplementationArtifactForName(final CSARID csarID,
                                                                                final QName typeImplementationID,
                                                                                final String implementationArtifactName) {
+        
+        LOG.warn("Searching IA " + implementationArtifactName);
 
         return getIAsOfType(csarID, typeImplementationID).stream()
                                                          .filter((ia) -> ia.getName()
@@ -1954,7 +1956,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                                                .filter(impl -> impl != null
                                                                                    && impl.getImplementationArtifacts() != null
                                                                                    && impl.getImplementationArtifacts()
-                                                                                          .getImplementationArtifact() != null)
+                                                                                          .getImplementationArtifact() != null && impl.getName() != null)
                                                                                .flatMap(impl -> impl.getImplementationArtifacts()
                                                                                                     .getImplementationArtifact()
                                                                                                     .stream())

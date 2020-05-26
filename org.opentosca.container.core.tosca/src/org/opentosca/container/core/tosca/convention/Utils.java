@@ -93,8 +93,11 @@ public class Utils {
         return nodeType.equals(Types.amazonEc2NodeType) || nodeType.equals(Types.openStackNodeType)
             || nodeType.equals(Types.openStackLiberty12NodeType) || nodeType.equals(Types.vmWareVsphere55NodeType)
             || nodeType.equals(Types.localHypervisor) || nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE)
+            || nodeType.equals(Types.openStackTrainNodeType)
             || nodeType.getNamespaceURI().equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
-                && nodeType.getLocalPart().startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart());
+                && (nodeType.getLocalPart().startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
+                		|| nodeType.getLocalPart()
+						.startsWith(Types.openStackTrainNodeType.getLocalPart()));
     }
 
     /**
@@ -116,6 +119,10 @@ public class Utils {
      * @return a boolean. True if the given nodeType is an infrastructure nodeType
      */
     public static boolean isSupportedInfrastructureNodeType(final QName nodeType) {
+
+        if (nodeType.equals(Types.abstractOperatingSystemNodeType)) {
+            return true;
+        }
 
         if (nodeType.equals(Types.ubuntuNodeType)) {
             return true;

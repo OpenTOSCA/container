@@ -22,6 +22,8 @@ public class Types {
     // cloud provider nodeTypes
     public final static QName openStackLiberty12NodeType =
         new QName("http://opentosca.org/nodetypes", "OpenStack-Liberty-12");
+    public final static QName openStackTrainNodeType =
+            new QName("http://opentosca.org/nodetypes", "OpenStack_Train-w1");
     public final static QName vmWareVsphere55NodeType = new QName("http://opentosca.org/nodetypes", "VSphere_5.5");
 
     public final static QName amazonEc2NodeType = new QName("http://opentosca.org/NodeTypes", "AmazonEC2");
@@ -33,6 +35,10 @@ public class Types {
 
     // docker nodeTypes (old)
     public final static QName dockerEngineNodeTypeAlt = new QName("http://opentosca.org/NodeTypes", "DockerEngine");
+
+    // abstract operating system node type
+    public final static QName abstractOperatingSystemNodeType =
+        new QName("http://opentosca.org/nodetypes", "OperatingSystem");
 
     // virtual machine nodeTypes
     public final static QName ubuntu1404ServerVmNodeType =
@@ -102,4 +108,5 @@ public class Types {
     // Policy Types
     public static final QName situationPolicyType =
         new QName("http://opentosca.org/servicetemplates/policytypes", "SituationPolicy_w1-wip1");
+
 }
