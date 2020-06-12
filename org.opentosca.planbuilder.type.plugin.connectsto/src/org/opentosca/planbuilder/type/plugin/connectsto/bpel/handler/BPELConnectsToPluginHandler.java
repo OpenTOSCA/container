@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -86,7 +87,9 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                     param2propertyMapping = findInputParameters(templateContext, op, connectToNode, sourceParameterNode,
                                                                 targetParameterNode);
 
-                    if (param2propertyMapping.size() != op.getInputParameters().size()) {
+                    // check if all input params (or at least all required input params) can be matched with properties
+                    if (param2propertyMapping.size() != op.getInputParameters().size()
+                        && !allRequiredParamsAreMatched(op.getInputParameters(), param2propertyMapping)) {
                         BPELConnectsToPluginHandler.LOG.info("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
                     } else {
                         // executable operation found
@@ -115,6 +118,23 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
 
         return true;
 
+    }
+
+    /**
+     * Checks if all required input params have a matching property
+     *
+     * @param inputParameters of the connectsTo operation
+     * @param param2propertyMapping mapping between inputParameters and matched properties
+     * @return true, if all required input params have a matching property. Otherwise, false.
+     */
+    private boolean allRequiredParamsAreMatched(final List<AbstractParameter> inputParameters,
+                                                final Map<AbstractParameter, Variable> param2propertyMapping) {
+        for (final AbstractParameter inputParam : inputParameters) {
+            if (inputParam.isRequired() && !param2propertyMapping.containsKey(inputParam)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
