@@ -113,7 +113,7 @@ public class BuildPlanController {
                 if (pi.getServiceTemplateInstance() != null) {
                     final URI uri = uriInfo.getBaseUriBuilder()
                         .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-                        .build(csar.id().csarName(), serviceTemplate.toString(), pi.getServiceTemplateInstance().getId());
+                        .build(csar.id().csarName(), serviceTemplate.getId(), pi.getServiceTemplateInstance().getId());
                     dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
                 }
                 dto.add(UriUtil.generateSubResourceLink(uriInfo, pi.getCorrelationId(), false, "self"));
@@ -155,7 +155,7 @@ public class BuildPlanController {
         if (pi.getServiceTemplateInstance() != null) {
             final URI uri = uriInfo.getBaseUriBuilder()
                 .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-                .build(csar.id().csarName(), serviceTemplate.toString(),
+                .build(csar.id().csarName(), serviceTemplate.getId(),
                     String.valueOf(pi.getServiceTemplateInstance().getId()));
             dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
         }
