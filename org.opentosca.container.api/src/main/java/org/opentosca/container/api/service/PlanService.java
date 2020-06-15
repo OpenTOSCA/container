@@ -18,11 +18,11 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PlanService {
 
-    private static final PlanTypes[] ALL_PLAN_TYPES = PlanTypes.values();
+    private static final PlanType[] ALL_PLAN_TYPES = PlanType.values();
     private static Logger logger = LoggerFactory.getLogger(PlanService.class);
     private final OpenToscaControlService controlService;
     private final DeploymentTestService deploymentTestService;
@@ -44,19 +44,13 @@ public class PlanService {
         this.deploymentTestService = deploymentTestService;
     }
 
-    public List<PlanInstance> getPlanInstances(final Csar csar, final TServiceTemplate serviceTemplate, String planName, final PlanTypes... planTypes) {
-        TPlan plan = csar.plans().stream()
-            .filter(tplan -> (planName.equals(tplan.getName()) || planName.equals(tplan.getId()))
-                && Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
-            .findFirst()
-            .orElseThrow(NotFoundException::new);
-
+    public List<PlanInstance> getPlanInstances(final Csar csar, final PlanType... planTypes) {
         final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
         final Collection<ServiceTemplateInstance> serviceInstances = repo.findByCsarId(csar.id());
         return serviceInstances.stream()
             .flatMap(sti -> sti.getPlanInstances().stream())
             .filter(p -> {
-                final PlanTypes currentType = PlanTypes.isPlanTypeURI(p.getType().toString());
+                final PlanType currentType = PlanType.fromString(p.getType().toString());
                 return Arrays.stream(planTypes).anyMatch(pt -> pt.equals(currentType));
             })
             .collect(Collectors.toList());
@@ -65,13 +59,13 @@ public class PlanService {
     /**
      * Get DTO for the plan with the given Id in the given Csar
      *
-     * @param csar the Csar containing the plan
+     * @param csar      the Csar containing the plan
      * @param planTypes an array with possible types of the plan
-     * @param planId the Id of the plan
+     * @param planId    the Id of the plan
      * @return the PlanDto if found or
-     * @exception NotFoundException is thrown if the plan can not be found
+     * @throws NotFoundException is thrown if the plan can not be found
      */
-    public PlanDTO getPlanDto(Csar csar, PlanTypes[] planTypes, String planId) throws NotFoundException {
+    public PlanDTO getPlanDto(Csar csar, PlanType[] planTypes, String planId) throws NotFoundException {
         return csar.plans().stream()
             .filter(tplan -> Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
             .filter(tplan -> tplan.getId() != null && tplan.getId().equals(planId))
@@ -84,7 +78,7 @@ public class PlanService {
         return planInstanceRepository.findByCorrelationId(correlationId);
     }
 
-    public PlanInstance resolvePlanInstance(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, String planInstanceId, PlanTypes... planTypes) {
+    public PlanInstance resolvePlanInstance(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, String planInstanceId, PlanType... planTypes) {
         TPlan plan = csar.plans().stream()
             .filter(tplan -> tplan.getId().equals(planId) && Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
             .findFirst()
@@ -126,7 +120,7 @@ public class PlanService {
         planInstanceRepository.update(instance);
     }
 
-    public String invokePlan(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, List<TParameter> parameters, PlanTypes... planTypes) {
+    public String invokePlan(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, List<TParameter> parameters, PlanType... planTypes) {
         TPlan plan = csar.plans().stream()
             .filter(tplan -> tplan.getId().equals(planId)
                 && Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
@@ -143,7 +137,7 @@ public class PlanService {
         final String correlationId = controlService.invokePlanInvocation(csar.id(), serviceTemplate,
             serviceTemplateInstanceId,
             PlanDTO.Converter.convert(dto));
-        if (PlanTypes.isPlanTypeURI(plan.getPlanType()).equals(PlanTypes.BUILD)
+        if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD)
             && Boolean.parseBoolean(Settings.OPENTOSCA_DEPLOYMENT_TESTS)) {
             logger.debug("Plan \"{}\" is a build plan, so we schedule deployment tests...", plan.getName());
             this.deploymentTestService.runAfterPlan(csar.id(), correlationId);

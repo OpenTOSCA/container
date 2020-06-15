@@ -11,6 +11,7 @@ import java.util.Objects;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.AbstractManagementFeaturePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -23,7 +24,6 @@ import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVa
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
@@ -43,33 +43,27 @@ import org.xml.sax.SAXException;
 
 /**
  * <p>
- * This process builder creates a backup management plan if one of the NodeTemplates in the topology
- * is of a type that defines the freeze interface.
+ * This process builder creates a backup management plan if one of the NodeTemplates in the topology is of a type that
+ * defines the freeze interface.
  * </p>
- *
+ * <p>
  * Copyright 2019 IAAS University of Stuttgart <br>
  * <br>
  */
 public class BPELBackupManagementProcessBuilder extends AbstractManagementFeaturePlanBuilder {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELBackupManagementProcessBuilder.class);
-
-    // handler for abstract buildplan operations
-    public BPELPlanHandler planHandler;
-
     // class for initializing properties inside the build plan
     private final PropertyVariableHandler propertyInitializer;
-
-    // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceVarsHandler;
-
-    // adds nodeInstanceIDs to each templatePlan
-    private NodeRelationInstanceVariablesHandler instanceVarsHandler;
-
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
-
+    // handler for abstract buildplan operations
+    public BPELPlanHandler planHandler;
+    // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceVarsHandler;
+    // adds nodeInstanceIDs to each templatePlan
+    private NodeRelationInstanceVariablesHandler instanceVarsHandler;
     private BPELProcessFragments bpelFragments;
 
     private CorrelationIDInitializer correlationHandler;
@@ -80,15 +74,14 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
      * </p>
      */
     public BPELBackupManagementProcessBuilder(PluginRegistry pluginRegistry) {
-      super(pluginRegistry);
-      try {
+        super(pluginRegistry);
+        try {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceVarsHandler = new SimplePlanBuilderServiceInstanceHandler();
             this.instanceVarsHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
             this.bpelFragments = new BPELProcessFragments();
             this.correlationHandler = new CorrelationIDInitializer();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             LOG.error("Error while initializing BuildPlanHandler", e);
         }
         this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
@@ -116,12 +109,12 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
 
         final AbstractPlan abstractBackupPlan =
             generateMOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, ActivityType.BACKUP, true);
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, ActivityType.BACKUP, true);
 
         LOG.debug("Generated the following abstract backup plan: ");
         LOG.debug(abstractBackupPlan.toString());
 
-        abstractBackupPlan.setType(PlanType.MANAGE);
+        abstractBackupPlan.setType(PlanType.MANAGEMENT);
         final BPELPlan newBackupPlan =
             this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractBackupPlan, "backup");
 
@@ -138,30 +131,28 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
 
         // initialize instanceData handling
         this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
-                                           newBackupPlan);
+            newBackupPlan);
         this.serviceInstanceVarsHandler.addServiceInstanceHandlingFromInput(newBackupPlan);
 
         final String serviceTemplateURLVarName =
             this.serviceInstanceVarsHandler.getServiceTemplateURLVariableName(newBackupPlan);
-        
+
         this.serviceInstanceVarsHandler.appendInitPropertyVariablesFromServiceInstanceData(newBackupPlan, propMap,
-                                                                                           serviceTemplateURLVarName,
-                                                                                           serviceTemplate, null);
+            serviceTemplateURLVarName,
+            serviceTemplate, null);
 
         // fetch all node instances that are running
         this.instanceVarsHandler.addNodeInstanceFindLogic(newBackupPlan,
-                                                          "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
-                                                          serviceTemplate);
+            "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
+            serviceTemplate);
         this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newBackupPlan, propMap,
-                                                                                serviceTemplate);
+            serviceTemplate);
 
         try {
             appendGenerateStatefulServiceTemplateLogic(newBackupPlan);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -170,13 +161,13 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         this.correlationHandler.addCorrellationID(newBackupPlan);
 
         this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newBackupPlan,
-                                                                             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBackupPlan),
-                                                                             "ERROR",
-                                                                             this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(newBackupPlan));
+            this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBackupPlan),
+            "ERROR",
+            this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(newBackupPlan));
         this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newBackupPlan,
-                                                                             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBackupPlan),
-                                                                             "FAILED",
-                                                                             this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newBackupPlan));
+            this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBackupPlan),
+            "FAILED",
+            this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newBackupPlan));
 
         this.finalizer.finalize(newBackupPlan);
 
@@ -194,7 +185,6 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         final String serviceInstanceId = this.serviceInstanceVarsHandler.findServiceInstanceIdVarName(plan);
         final String serviceTemplateUrl = this.serviceInstanceVarsHandler.findServiceTemplateUrlVariableName(plan);
 
-
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), plan, templatePlan, propMap, plan.getServiceTemplate(),
                 serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, csarName);
@@ -203,7 +193,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
             final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
             if (Objects.nonNull(nodeTemplate)
                 && Objects.nonNull(ModelUtils.getInterfaceOfNode(nodeTemplate,
-                                                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE))) {
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE))) {
                 LOG.debug("Adding backup logic for NodeTemplate {}", nodeTemplate.getName());
 
                 final String saveStateUrlVarName =
@@ -214,22 +204,20 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                 try {
                     Node assignSaveStateURL =
                         this.bpelFragments.createAssignVarToVarWithXpathQueryAsNode("assignNodeTemplate"
-                            + nodeTemplate.getId() + "state" + System.currentTimeMillis(),
-                                                                                    statefulServiceTemplateUrlVarName,
-                                                                                    saveStateUrlVarName, xpathQuery);
+                                + nodeTemplate.getId() + "state" + System.currentTimeMillis(),
+                            statefulServiceTemplateUrlVarName,
+                            saveStateUrlVarName, xpathQuery);
                     assignSaveStateURL = context.importNode(assignSaveStateURL);
                     context.getPrePhaseElement().appendChild(assignSaveStateURL);
-                }
-                catch (final IOException e) {
+                } catch (final IOException e) {
                     e.printStackTrace();
-                }
-                catch (final SAXException e) {
+                } catch (final SAXException e) {
                     e.printStackTrace();
                 }
 
                 final AbstractOperation freezeOp =
                     ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
-                                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE);
+                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE);
                 if (Objects.nonNull(freezeOp)) {
                     final Variable saveStateUrlVar = BPELPlanContext.getVariable(saveStateUrlVarName);
 
@@ -240,10 +228,11 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                     ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching);
 
                     LOG.debug("Backup on NodeTemplate {} needs the following input parameters:",
-                              nodeTemplate.getName());
+                        nodeTemplate.getName());
                     for (final AbstractParameter param : freezeOp.getInputParameters()) {
                         LOG.debug("Input param: {}", param.getName());
-                        found: for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+                        found:
+                        for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
                             for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                                 if (param.getName().equals(propName)) {
                                     inputs.put(param, context.getPropertyVariable(nodeForMatching, propName));
@@ -259,7 +248,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                     LOG.debug("Found {} of {} input parameters.", inputs.size(), freezeOp.getInputParameters().size());
 
                     context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
-                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
+                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
                 }
             }
         }
@@ -273,7 +262,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
 
             if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE)) {
                 LOG.debug("ServiceTemplate {} contains NodeTypes with defined backup interface.",
-                          serviceTemplate.getName());
+                    serviceTemplate.getName());
                 final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplate);
                 if (Objects.nonNull(newBuildPlan)) {
                     LOG.debug("Created Backup Management Plan "
@@ -291,7 +280,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         final QName serviceTemplateId = plan.getServiceTemplate().getQName();
 
         this.planHandler.addStringElementToPlanRequest(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT,
-                                                       plan);
+            plan);
 
         // var to save serviceTemplate url on storage service
         final String statefulServiceTemplateVarName =
@@ -301,19 +290,19 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         // assign variable with the original service template url
         Node assignStatefuleServiceTemplateStorageVar =
             this.bpelFragments.createAssignVarToVarWithXpathQueryAsNode("assignServiceTemplateStorageUrl"
-                + System.currentTimeMillis(), "input", statefulServiceTemplateVarName,
-                                                                        "concat(//*[local-name()='"
-                                                                            + Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT
-                                                                            + "']/text(),'/servicetemplates/"
-                                                                            + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI(),
-                                                                                                                  "UTF-8"),
-                                                                                                "UTF-8")
-                                                                            + "','/" + serviceTemplateId.getLocalPart()
-                                                                            + "','/createnewstatefulversion')");
+                    + System.currentTimeMillis(), "input", statefulServiceTemplateVarName,
+                "concat(//*[local-name()='"
+                    + Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT
+                    + "']/text(),'/servicetemplates/"
+                    + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI(),
+                    "UTF-8"),
+                    "UTF-8")
+                    + "','/" + serviceTemplateId.getLocalPart()
+                    + "','/createnewstatefulversion')");
         assignStatefuleServiceTemplateStorageVar =
             plan.getBpelDocument().importNode(assignStatefuleServiceTemplateStorageVar, true);
         plan.getBpelMainSequenceElement().insertBefore(assignStatefuleServiceTemplateStorageVar,
-                                                       plan.getBpelMainSequencePropertyAssignElement());
+            plan.getBpelMainSequencePropertyAssignElement());
 
         // create append POST for creating a stateful service template version
         Node createStatefulServiceTemplatePOST =
@@ -322,7 +311,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         createStatefulServiceTemplatePOST = plan.getBpelDocument().importNode(createStatefulServiceTemplatePOST, true);
 
         plan.getBpelMainSequenceElement().insertBefore(createStatefulServiceTemplatePOST,
-                                                       plan.getBpelMainSequencePropertyAssignElement());
+            plan.getBpelMainSequencePropertyAssignElement());
 
         // read response and assign url of created stateful service template query the localname from the
         // response
@@ -334,28 +323,28 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         final String xpathQuery2 = "string($" + statefulServiceTemplateVarName + ")";
         Node assignCreatedStatefulServiceTemplate =
             this.bpelFragments.createAssignVarToVarWithXpathQueriesAsNode("assignCreatedStatefuleServiceTemplateUrl",
-                                                                          responseVarName, null,
-                                                                          statefulServiceTemplateVarName, null,
-                                                                          xpathQuery1, xpathQuery2,
-                                                                          "change the url from original service template to stateful",
-                                                                          null);
+                responseVarName, null,
+                statefulServiceTemplateVarName, null,
+                xpathQuery1, xpathQuery2,
+                "change the url from original service template to stateful",
+                null);
 
         assignCreatedStatefulServiceTemplate =
             plan.getBpelDocument().importNode(assignCreatedStatefulServiceTemplate, true);
         plan.getBpelMainSequenceElement().insertBefore(assignCreatedStatefulServiceTemplate,
-                                                       plan.getBpelMainSequencePropertyAssignElement());
+            plan.getBpelMainSequencePropertyAssignElement());
     }
 
     private String findStatefulServiceTemplateUrlVar(final BPELPlan plan) {
         return this.planHandler.getMainVariableNames(plan).stream()
-                               .filter(varName -> varName.contains("statefulServiceTemplateUrl")).findFirst()
-                               .orElse(null);
+            .filter(varName -> varName.contains("statefulServiceTemplateUrl")).findFirst()
+            .orElse(null);
     }
 
     private AbstractParameter getSaveStateParameter(final AbstractOperation op) {
         return op.getInputParameters().stream()
-                 .filter(param -> param.getName()
-                                       .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT))
-                 .findFirst().orElse(null);
+            .filter(param -> param.getName()
+                .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT))
+            .findFirst().orElse(null);
     }
 }

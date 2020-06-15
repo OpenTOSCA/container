@@ -10,14 +10,14 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.tosca.convention.Types;
-import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
-import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.ActivityType;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
@@ -32,12 +32,7 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
     static QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
 
     public AbstractDefrostPlanBuilder(PluginRegistry pluginRegistry) {
-      super(pluginRegistry);
-    }
-
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.BUILD;
+        super(pluginRegistry);
     }
 
     public static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
@@ -49,12 +44,10 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
         final Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
         final Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<>();
         generateDOGActivitesAndLinks(activities, links, nodeMapping, nodeTemplates, relationMapping,
-                                     relationshipTemplates);
-
-        // this.cleanLooseEdges(links);
+            relationshipTemplates);
 
         final AbstractPlan plan =
-            new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities, links) {
+            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
 
             };
         return plan;
@@ -71,10 +64,10 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
         final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
         generateDOGActivitesAndLinks(activities, links, nodeMapping, topology.getNodeTemplates(), relationMapping,
-                                     topology.getRelationshipTemplates());
+            topology.getRelationshipTemplates());
 
         final AbstractPlan plan =
-            new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities, links) {
+            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
 
             };
         return plan;
@@ -95,20 +88,17 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
                     new NodeTemplateActivity(nodeTemplate.getId() + "_no_activity", ActivityType.NONE, nodeTemplate);
                 activities.add(activity);
                 nodeActivityMapping.put(nodeTemplate, activity);
-
             } else if (AbstractDefrostPlanBuilder.hasFreezeableComponentPolicy(nodeTemplate)) {
                 final AbstractActivity activity = new NodeTemplateActivity(nodeTemplate.getId() + "_defrost_activity",
                     ActivityType.DEFROST, nodeTemplate);
                 activities.add(activity);
                 nodeActivityMapping.put(nodeTemplate, activity);
-
             } else {
                 final AbstractActivity activity = new NodeTemplateActivity(
                     nodeTemplate.getId() + "_provisioning_activity", ActivityType.PROVISIONING, nodeTemplate);
                 activities.add(activity);
                 nodeActivityMapping.put(nodeTemplate, activity);
             }
-
         }
 
         for (final AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
@@ -130,7 +120,6 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
                 links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
                 links.add(new Link(activity, nodeActivityMapping.get(relationshipTemplate.getSource())));
             }
-
         }
     }
 
@@ -158,5 +147,10 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
             }
         }
         return false;
+    }
+
+    @Override
+    public PlanType createdPlanType() {
+        return PlanType.BUILD;
     }
 }

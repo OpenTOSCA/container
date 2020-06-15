@@ -9,11 +9,11 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
-import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
@@ -31,12 +31,12 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
     QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
 
     public AbstractFreezePlanBuilder(PluginRegistry pluginRegistry) {
-      super(pluginRegistry);
+        super(pluginRegistry);
     }
 
     @Override
     public PlanType createdPlanType() {
-        return PlanType.TERMINATE;
+        return PlanType.TERMINATION;
     }
 
     protected AbstractPlan generateFOG(final String id, final AbstractDefinitions definitions,
@@ -80,14 +80,14 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
                 links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
             } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
                 | baseType.equals(Types.deployedOnRelationType)) {
-                    links.add(new Link(mapping.get(relationshipTemplate.getSource()), activity));
-                    links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
-                }
-
+                links.add(new Link(mapping.get(relationshipTemplate.getSource()), activity));
+                links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
+            }
         }
 
         final AbstractPlan abstractTerminationPlan =
-            new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions, serviceTemplate, activities, links) { };
+            new AbstractPlan(id, PlanType.TERMINATION, definitions, serviceTemplate, activities, links) {
+            };
 
         return abstractTerminationPlan;
     }
@@ -102,6 +102,6 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
 
     private boolean hasPolicy(final AbstractNodeTemplate nodeTemplate, final QName policyType) {
         return nodeTemplate.getPolicies().stream().filter(policy -> policy.getType().getId().equals(policyType))
-                           .findFirst().isPresent();
+            .findFirst().isPresent();
     }
 }

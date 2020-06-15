@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.model.plan;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -15,26 +16,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  */
 public abstract class AbstractPlan {
-
-  // general categories
-  public enum PlanType {
-    BUILD, MANAGE, TERMINATE, TRANSFORM;
-
-    public String getString() {
-      switch (this) {
-        case BUILD:
-          return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan";
-        case TERMINATE:
-          return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan";
-        case TRANSFORM:
-          return "http://opentosca.org/plantypes/TransformationPlan";
-        // everything else is a management plan
-        default:
-        case MANAGE:
-          return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan";
-      }
-    }
-  }
 
   public static class Link {
     private final AbstractActivity srcActiv;

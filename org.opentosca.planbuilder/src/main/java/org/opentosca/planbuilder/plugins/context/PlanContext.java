@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -67,7 +68,7 @@ public abstract class PlanContext {
      *
      * @return a TOSCAPlan.PlanType
      */
-    public BPELPlan.PlanType getPlanType() {
+    public PlanType getPlanType() {
         return this.plan.getType();
     }
 

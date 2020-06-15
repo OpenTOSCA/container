@@ -35,7 +35,7 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
-import org.opentosca.container.core.tosca.extension.PlanTypes;
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +52,12 @@ public class ManagementPlanController {
     private final Csar csar;
     private final TServiceTemplate serviceTemplate;
     private final Long serviceTemplateInstanceId;
-    // supports TERMINATION and  OTHERMANAGEMENT
-    private final PlanTypes[] planTypes;
+    // supports TERMINATION and  MANAGEMENT
+    private final PlanType[] planTypes;
 
     public ManagementPlanController(final Csar csar, final TServiceTemplate serviceTemplate,
                                     final Long serviceTemplateInstanceId, final PlanService planService,
-                                    final PlanTypes... types) {
+                                    final PlanType... types) {
         this.csar = csar;
         this.serviceTemplate = serviceTemplate;
         this.serviceTemplateInstanceId = serviceTemplateInstanceId;
@@ -108,7 +108,7 @@ public class ManagementPlanController {
     @ApiOperation(value = "Get instances of a management plan", response = PlanInstanceListDTO.class)
     public Response getManagementPlanInstances(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                                @Context final UriInfo uriInfo) {
-        List<PlanInstance> planInstances = planService.getPlanInstances(csar, serviceTemplate, plan, planTypes);
+        List<PlanInstance> planInstances = planService.getPlanInstances(csar, planTypes);
 
         final PlanInstanceListDTO list = new PlanInstanceListDTO();
         planInstances.stream()

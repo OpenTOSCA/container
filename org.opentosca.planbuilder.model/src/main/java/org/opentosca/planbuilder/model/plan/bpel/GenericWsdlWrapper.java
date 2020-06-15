@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
+import org.opentosca.container.core.next.model.PlanType;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -165,7 +166,7 @@ public class GenericWsdlWrapper {
    *
    * @throws IOException is thrown when reading the internal file fails
    */
-  public GenericWsdlWrapper(final BPELPlan.PlanType planType, final String inputOperationName) throws IOException {
+  public GenericWsdlWrapper(final PlanType planType, final String inputOperationName) throws IOException {
     final URL url = getClass().getClassLoader().getResource("genericProcessWsdl.wsdl");
     try {
       this.genericWsdlFileAsString = ResourceAccess.readResourceAsString(url);

@@ -10,6 +10,7 @@ import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.AbstractManagementFeaturePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -22,7 +23,6 @@ import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandle
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
@@ -43,38 +43,30 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * This process builder creates a test management plan if one of the NodeTemplates in the topology
- * is of a type that defines the test interface.
+ * This process builder creates a test management plan if one of the NodeTemplates in the topology is of a type that
+ * defines the test interface.
  * </p>
- *
+ * <p>
  * Copyright 2019 IAAS University of Stuttgart <br>
  * <br>
  */
 public class BPELTestManagementProcessBuilder extends AbstractManagementFeaturePlanBuilder {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELTestManagementProcessBuilder.class);
-
-    // handler for abstract buildplan operations
-    public BPELPlanHandler planHandler;
-
-    // adds nodeInstanceIDs to each templatePlan
-    private NodeRelationInstanceVariablesHandler instanceVarsHandler;
-
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
-
-    // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceVarsHandler;
-
     // class for initializing properties inside the build plan
     private final PropertyVariableHandler propertyInitializer;
-
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
-
-    private CorrelationIDInitializer correlationHandler;
-
     private final BPELPluginHandler bpelPluginHandler;
+    // handler for abstract buildplan operations
+    public BPELPlanHandler planHandler;
+    // adds nodeInstanceIDs to each templatePlan
+    private NodeRelationInstanceVariablesHandler instanceVarsHandler;
+    // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceVarsHandler;
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
+    private CorrelationIDInitializer correlationHandler;
 
     /**
      * <p>
@@ -82,16 +74,15 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
      * </p>
      */
     public BPELTestManagementProcessBuilder(PluginRegistry pluginRegistry) {
-      super(pluginRegistry);
-      bpelPluginHandler = new BPELPluginHandler(pluginRegistry);
+        super(pluginRegistry);
+        bpelPluginHandler = new BPELPluginHandler(pluginRegistry);
         try {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
             this.instanceVarsHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
             this.serviceInstanceVarsHandler = new SimplePlanBuilderServiceInstanceHandler();
             this.correlationHandler = new CorrelationIDInitializer();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             LOG.error("Error while initializing TestPlanHandler", e);
         }
         this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
@@ -114,12 +105,12 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
         final AbstractPlan abstractTestPlan =
             generateMOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, ActivityType.TEST, false);
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, ActivityType.TEST, false);
 
         LOG.debug("Generated the following abstract test plan: ");
         LOG.debug(abstractTestPlan.toString());
 
-        abstractTestPlan.setType(PlanType.MANAGE);
+        abstractTestPlan.setType(PlanType.MANAGEMENT);
         final BPELPlan newTestPlan =
             this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractTestPlan, "test");
 
@@ -136,13 +127,13 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
         // initialize instanceData handling
         this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
-                                           newTestPlan);
+            newTestPlan);
         this.serviceInstanceVarsHandler.addServiceInstanceHandlingFromInput(newTestPlan);
         final String serviceTemplateURLVarName =
             this.serviceInstanceVarsHandler.getServiceTemplateURLVariableName(newTestPlan);
         this.serviceInstanceVarsHandler.appendInitPropertyVariablesFromServiceInstanceData(newTestPlan, propMap,
-                                                                                           serviceTemplateURLVarName,
-                                                                                           serviceTemplate, null);
+            serviceTemplateURLVarName,
+            serviceTemplate, null);
 
         final String serviceInstanceUrl =
             this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(newTestPlan);
@@ -151,22 +142,22 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
             this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newTestPlan);
 
         this.instanceVarsHandler.addNodeInstanceFindLogic(newTestPlan,
-                                                          "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
-                                                          serviceTemplate);
+            "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
+            serviceTemplate);
         this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTestPlan, propMap, serviceTemplate);
 
         runPlugins(newTestPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarName);
 
         this.correlationHandler.addCorrellationID(newTestPlan);
-        
+
         this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newTestPlan,
-                                                                         this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTestPlan),
-                                                                         "ERROR", serviceInstanceUrl);
+            this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTestPlan),
+            "ERROR", serviceInstanceUrl);
         this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newTestPlan,
-                                                                         this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTestPlan),
-                                                                         "FAILED",
-                                                                         this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newTestPlan));
-        
+            this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTestPlan),
+            "FAILED",
+            this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newTestPlan));
+
         this.finalizer.finalize(newTestPlan);
 
         LOG.debug("Created Plan:");
@@ -183,7 +174,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
             if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST)) {
                 LOG.debug("ServiceTemplate {} contains NodeTypes with defined test interface.",
-                          serviceTemplate.getName());
+                    serviceTemplate.getName());
                 final BPELPlan newTestPlan = buildPlan(csarName, definitions, serviceTemplate);
                 if (Objects.nonNull(newTestPlan)) {
                     LOG.debug("Created Test Management Plan "
@@ -218,7 +209,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                     ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching);
 
                     LOG.debug("NodeTemplate {} has {} test operations defined.", nodeTemplate.getName(),
-                              testInterface.getOperations().size());
+                        testInterface.getOperations().size());
                     for (final AbstractOperation testOperation : testInterface.getOperations()) {
 
                         final Map<AbstractParameter, Variable> inputMapping = new HashMap<>();
@@ -226,10 +217,11 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
                         // search for input parameters in the topology stack
                         LOG.debug("Test {} on NodeTemplate {} needs the following input parameters:",
-                                  testOperation.getName(), nodeTemplate.getName());
+                            testOperation.getName(), nodeTemplate.getName());
                         for (final AbstractParameter param : testOperation.getInputParameters()) {
                             LOG.debug("Input param: {}", param.getName());
-                            found: for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+                            found:
+                            for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
                                 for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                                     if (param.getName().equals(propName)) {
                                         inputMapping.put(param, context.getPropertyVariable(nodeForMatching, propName));
@@ -242,7 +234,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                         // create output variable if 'Result' is defined as output parameter
                         final Optional<AbstractParameter> optional =
                             testOperation.getOutputParameters().stream()
-                                         .filter(param -> param.getName().equals("Result")).findFirst();
+                                .filter(param -> param.getName().equals("Result")).findFirst();
                         if (optional.isPresent()) {
                             final AbstractParameter resultParam = optional.get();
 
@@ -251,7 +243,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                             final String resultVarName = nodeTemplate.getName() + "-" + testOperation.getName()
                                 + "-result" + System.currentTimeMillis();
                             context.addGlobalVariable(resultVarName, VariableType.TYPE,
-                                                      new QName(xsdNamespace, "anyType", xsdPrefix));
+                                new QName(xsdNamespace, "anyType", xsdPrefix));
 
                             LOG.debug("Name of result variable: " + resultVarName);
 
@@ -268,7 +260,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
                         // execute the test
                         context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST,
-                                                 testOperation.getName(), inputMapping, outputMapping);
+                            testOperation.getName(), inputMapping, outputMapping);
                     }
                 } else {
                     LOG.error("Unable to find test interface for NodeTemplate {}", nodeTemplate.getName());

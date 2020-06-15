@@ -6,9 +6,9 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -21,14 +21,13 @@ import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin
 
 /**
  * <p>
- * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to
- * the OpenTOSCA Container InstanceData API
+ * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to the OpenTOSCA
+ * Container InstanceData API
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPlanContext> {
 
@@ -51,7 +50,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
             return false;
         }
 
-        if (context.getPlanType().equals(PlanType.TERMINATE)) {
+        if (context.getPlanType().equals(PlanType.TERMINATION)) {
             return false;
         }
 
@@ -62,7 +61,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
         }
 
         return context.executeOperation(nodeTemplate, this.monitoringInterfaceName, this.monitoringOperationName, null,
-                                        null, context.getPostPhaseElement());
+            null, context.getPostPhaseElement());
     }
 
     @Override
@@ -130,7 +129,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
         }
 
         this.invokerPlugin.handleArtifactReferenceUpload(deplArti.getArtifactRef().getArtifactReferences().get(0),
-                                                         context, sshIpVar, sshUserVar, sshKeyVar, infraNode, context.getProvisioningPhaseElement());
+            context, sshIpVar, sshUserVar, sshKeyVar, infraNode, context.getProvisioningPhaseElement());
     }
 
     private AbstractDeploymentArtifact fetchConfigurationArtifact(final AbstractNodeTemplate nodeTemplate) {
@@ -197,5 +196,4 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
                                    final AbstractRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
-
 }

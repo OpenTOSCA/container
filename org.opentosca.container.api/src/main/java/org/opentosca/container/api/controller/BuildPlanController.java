@@ -34,7 +34,7 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
-import org.opentosca.container.core.tosca.extension.PlanTypes;
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +46,8 @@ public class BuildPlanController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildPlanController.class);
 
-    private static final PlanTypes PLAN_TYPE = PlanTypes.BUILD;
-    private static final PlanTypes[] ALL_PLAN_TYPES = PlanTypes.values();
+    private static final PlanType PLAN_TYPE = PlanType.BUILD;
+    private static final PlanType[] ALL_PLAN_TYPES = PlanType.values();
 
     private final PlanService planService;
     private final Csar csar;
@@ -104,7 +104,7 @@ public class BuildPlanController {
     public Response getBuildPlanInstances(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                           @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstances");
-        List<PlanInstance> planInstances = planService.getPlanInstances(csar, serviceTemplate, plan, PLAN_TYPE);
+        List<PlanInstance> planInstances = planService.getPlanInstances(csar, PLAN_TYPE);
 
         final PlanInstanceListDTO list = new PlanInstanceListDTO();
         planInstances.stream()
