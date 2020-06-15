@@ -87,7 +87,7 @@ public class MBUtils {
                 continue;
             }
             // nodeType was not an OS node type, therefore traverse the Graph "downwards"
-            ToscaEngine.getRelatedNodeTemplates(serviceTemplate, nodeTemplate,
+            ToscaEngine.getRelatedNodeTemplates(serviceTemplate, current,
                 Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType)
                 // avoid cycles in the graph
                 .filter(t -> !traversedTemplates.contains(t))
