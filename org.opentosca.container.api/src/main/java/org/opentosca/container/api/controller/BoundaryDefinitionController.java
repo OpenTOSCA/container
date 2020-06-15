@@ -1,6 +1,7 @@
 package org.opentosca.container.api.controller;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,8 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +58,7 @@ public class BoundaryDefinitionController {
 
     private final Logger logger = LoggerFactory.getLogger(BoundaryDefinitionController.class);
     private final CsarStorageService storage;
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
     @Context
     private UriInfo uriInfo;
     @Context
@@ -207,6 +211,8 @@ public class BoundaryDefinitionController {
         logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
             operations.size(), name, servicetemplate, csar.id().csarName());
 
+        Collection<ServiceTemplateInstance> serviceInstances = serviceTemplateInstanceRepository.findByTemplateId(servicetemplate);
+
         final Map<String, OperationDTO> ops = operations.stream().map(o -> {
             final OperationDTO op = new OperationDTO();
 
@@ -231,12 +237,14 @@ public class BoundaryDefinitionController {
                     op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
                 } else {
                     // ... else we assume it's a management plan
-                    planUrl =
-                        this.uriInfo.getBaseUriBuilder()
-                            .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{serviceinstance}/managementplans/{managementplan}")
-                            .build(csar.id().csarName(), servicetemplate, ":id", plan.getId());
-                    op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
-                    plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
+                    for (ServiceTemplateInstance serviceInstance : serviceInstances) {
+                        planUrl =
+                            this.uriInfo.getBaseUriBuilder()
+                                .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{serviceinstance}/managementplans/{managementplan}")
+                                .build(csar.id().csarName(), servicetemplate, serviceInstance.getId(), plan.getId());
+                        op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
+                        plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
+                    }
                 }
             }
             return op;
