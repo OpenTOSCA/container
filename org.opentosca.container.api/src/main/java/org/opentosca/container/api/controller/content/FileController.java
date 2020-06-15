@@ -7,10 +7,16 @@ import java.util.Objects;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FilenameUtils;
+import org.opentosca.container.api.dto.ResourceSupport;
+import org.opentosca.container.core.common.uri.UriUtil;
+import org.opentosca.container.core.model.AbstractDirectory;
 import org.opentosca.container.core.model.AbstractFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +40,17 @@ public class FileController {
     Objects.nonNull(file);
     this.file = file;
     logger.debug("File path: {}", file.getPath());
+  }
+  
+  @GET
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public Response getLinks(@Context final UriInfo uriInfo) {
+      logger.debug("Get link for file controller on file: {}", file.getPath());
+      final ResourceSupport dto = new ResourceSupport();
+     
+
+      dto.add(UriUtil.generateSelfLink(uriInfo));
+      return Response.ok(dto).build();
   }
 
   @GET
