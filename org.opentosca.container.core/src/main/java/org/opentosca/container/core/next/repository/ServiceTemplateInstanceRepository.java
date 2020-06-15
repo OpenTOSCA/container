@@ -29,6 +29,7 @@ public class ServiceTemplateInstanceRepository extends JpaRepository<ServiceTemp
         Hibernate.initialize(instance.getProperties());
         Hibernate.initialize(instance.getRelationshipTemplateInstances());
         Hibernate.initialize(instance.getPlanInstances());
+        instance.getPlanInstances().forEach(pi -> {Hibernate.initialize(pi.getInputs());Hibernate.initialize(pi.getOutputs()); Hibernate.initialize(pi.getEvents());});
         instance.getNodeTemplateInstances().forEach(nti -> Hibernate.initialize(nti.getProperties()));
     }
 
