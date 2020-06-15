@@ -260,7 +260,7 @@ public class ServiceTemplateInstanceController {
     } catch (final ReflectiveOperationException e) {
       return Response.serverError().build();
     }
-    return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
+    return Response.ok(this.uriInfo.getAbsolutePath()).build();
   }
 
   @GET

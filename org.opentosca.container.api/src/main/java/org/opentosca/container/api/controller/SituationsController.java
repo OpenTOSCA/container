@@ -76,7 +76,7 @@ public class SituationsController {
 
     this.instanceService.updateSituation(sit);
 
-    final URI instanceURI = UriUtil.generateSelfURI(this.uriInfo);
+    final URI instanceURI = this.uriInfo.getAbsolutePath();
 
     return Response.ok(instanceURI).build();
   }
@@ -99,7 +99,7 @@ public class SituationsController {
 
     this.instanceService.updateSituation(sit);
 
-    final URI instanceURI = UriUtil.generateSelfURI(this.uriInfo);
+    final URI instanceURI = this.uriInfo.getAbsolutePath();
 
     return Response.ok(instanceURI).build();
   }

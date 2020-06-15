@@ -7,178 +7,154 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract class of a directory. Provides methods for browsing the directory and getting their meta
- * data.
+ * Abstract class of a directory. Provides methods for browsing the directory and getting their meta data.
  */
 @Deprecated
 public abstract class AbstractDirectory implements IBrowseable {
 
-  private final static Logger LOG = LoggerFactory.getLogger(AbstractDirectory.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AbstractDirectory.class);
 
-  /**
-   * Reference that points to this directory.
-   */
-  private final String DIRECTORY_REFERENCE;
+    /**
+     * Reference that points to this directory.
+     */
+    private final String DIRECTORY_REFERENCE;
 
-  private final Set<String> INCLUDE_PATTERNS;
-  private final Set<String> EXCLUDE_PATTERNS;
+    private final Set<String> INCLUDE_PATTERNS;
+    private final Set<String> EXCLUDE_PATTERNS;
 
-  /**
-   * @see #isFileArtifact()
-   */
-  private final boolean FILE_ARTIFACT;
+    /**
+     * Creates a directory.
+     *
+     * @param directoryReference that points to this directory.
+     * @param includePatterns    to include only certain files in this directory.
+     * @param excludePatterns    to exclude certain files from this directory.
+     * @param fileArtifact       - {@code true} if this directory represents a file artifact (directory contains only
+     *                           the file at the artifact reference), otherwise {@code false}.
+     */
+    public AbstractDirectory(final String directoryReference, final Set<String> includePatterns,
+                             final Set<String> excludePatterns, final boolean fileArtifact) {
+        this.DIRECTORY_REFERENCE = directoryReference;
+        this.INCLUDE_PATTERNS = includePatterns;
+        this.EXCLUDE_PATTERNS = excludePatterns;
+    }
 
+    /**
+     * @return {@inheritDoc}<br /> Also {@code null} if {@code relPathOfFile} not matches patterns (if any were given).
+     */
+    @Override
+    public AbstractFile getFile(final String relPathOfFile) {
 
-  /**
-   * Creates a directory.
-   *
-   * @param directoryReference that points to this directory.
-   * @param includePatterns    to include only certain files in this directory.
-   * @param excludePatterns    to exclude certain files from this directory.
-   * @param fileArtifact       - {@code true} if this directory represents a file artifact (directory
-   *                           contains only the file at the artifact reference), otherwise {@code false}.
-   */
-  public AbstractDirectory(final String directoryReference, final Set<String> includePatterns,
-                           final Set<String> excludePatterns, final boolean fileArtifact) {
-    this.DIRECTORY_REFERENCE = directoryReference;
-    this.INCLUDE_PATTERNS = includePatterns;
-    this.EXCLUDE_PATTERNS = excludePatterns;
-    this.FILE_ARTIFACT = fileArtifact;
-  }
+        final AbstractFile file = this.getFileNotConsiderPatterns(relPathOfFile);
 
-  /**
-   * @return {@inheritDoc}<br />
-   * Also {@code null} if {@code relPathOfFile} not matches patterns (if any were given).
-   */
-  @Override
-  public AbstractFile getFile(final String relPathOfFile) {
+        if (file != null) {
 
-    final AbstractFile file = this.getFileNotConsiderPatterns(relPathOfFile);
+            // no patterns were given => we not doing pattern matching
+            if (this.getIncludePatterns().isEmpty() && this.getExcludePatterns().isEmpty()) {
+                AbstractDirectory.LOG.debug("File \"{}\" relative to \"{}\" was found.", relPathOfFile, this.getPath());
+                return file;
+            } else {
 
-    if (file != null) {
+                final boolean matchesPatterns =
+                    PatternMatcher.isFileMatchesPatterns(file, this.getIncludePatterns(), this.getExcludePatterns());
 
-      // no patterns were given => we not doing pattern matching
-      if (this.getIncludePatterns().isEmpty() && this.getExcludePatterns().isEmpty()) {
-        AbstractDirectory.LOG.debug("File \"{}\" relative to \"{}\" was found.", relPathOfFile, this.getPath());
-        return file;
-      } else {
-
-        final boolean matchesPatterns =
-          PatternMatcher.isFileMatchesPatterns(file, this.getIncludePatterns(), this.getExcludePatterns());
-
-        if (matchesPatterns) {
-          AbstractDirectory.LOG.debug("File \"{}\" relative to \"{}\" was found and matches pattern(s).",
-            relPathOfFile, this.getPath());
-          return file;
+                if (matchesPatterns) {
+                    AbstractDirectory.LOG.debug("File \"{}\" relative to \"{}\" was found and matches pattern(s).",
+                        relPathOfFile, this.getPath());
+                    return file;
+                }
+            }
         }
 
-      }
+        AbstractDirectory.LOG.warn("File \"{}\" relative to \"{}\" was not found.", relPathOfFile, this.getPath());
 
+        return null;
     }
 
-    AbstractDirectory.LOG.warn("File \"{}\" relative to \"{}\" was not found.", relPathOfFile, this.getPath());
+    /**
+     * This method should not consider any given patterns.
+     *
+     * @see AbstractDirectory#getFile(String)
+     */
+    protected abstract AbstractFile getFileNotConsiderPatterns(String relPathOfFile);
 
-    return null;
-  }
+    /**
+     * @return {@inheritDoc}<br /> If patterns were given only files will be returned that matches these patterns.
+     */
+    @Override
+    public Set<AbstractFile> getFiles() {
 
-  /**
-   * This method should not consider any given patterns.
-   *
-   * @see AbstractDirectory#getFile(String)
-   */
-  protected abstract AbstractFile getFileNotConsiderPatterns(String relPathOfFile);
+        Set<AbstractFile> files;
 
-  /**
-   * @return {@inheritDoc}<br />
-   * If patterns were given only files will be returned that matches these patterns.
-   */
-  @Override
-  public Set<AbstractFile> getFiles() {
-
-    Set<AbstractFile> files;
-
-    // no patterns were given => we not doing pattern matching
-    if (this.getIncludePatterns().isEmpty() && this.getExcludePatterns().isEmpty()) {
-      files = this.getFilesNotConsiderPatterns();
-    } else {
-      files = PatternMatcher.findFilesMatchesPatterns(this.getFilesNotConsiderPatterns(),
-        this.getIncludePatterns(), this.getExcludePatterns());
-    }
-    return files;
-
-  }
-
-  /**
-   * This method should not consider any given patterns.
-   *
-   * @see AbstractDirectory#getFiles()
-   */
-  protected abstract Set<AbstractFile> getFilesNotConsiderPatterns();
-
-  /**
-   * @return {@inheritDoc}<br />
-   * If patterns were given only files will be returned that matches these patterns.
-   */
-  @Override
-  public Set<AbstractFile> getFilesRecursively() {
-    final Set<AbstractFile> files = new HashSet<>();
-    this.walkFileTree(this, files);
-    return files;
-  }
-
-  /**
-   * Recursively adds all files in {@code directory} and it's sub directories to {@code files}.
-   *
-   * @param directory
-   * @param files
-   */
-  private void walkFileTree(final AbstractDirectory directory, final Set<AbstractFile> files) {
-
-    files.addAll(directory.getFiles());
-
-    final Set<AbstractDirectory> subDirectories = directory.getDirectories();
-
-    for (final AbstractDirectory subDirectory : subDirectories) {
-      this.walkFileTree(subDirectory, files);
+        // no patterns were given => we not doing pattern matching
+        if (this.getIncludePatterns().isEmpty() && this.getExcludePatterns().isEmpty()) {
+            files = this.getFilesNotConsiderPatterns();
+        } else {
+            files = PatternMatcher.findFilesMatchesPatterns(this.getFilesNotConsiderPatterns(),
+                this.getIncludePatterns(), this.getExcludePatterns());
+        }
+        return files;
     }
 
-  }
+    /**
+     * This method should not consider any given patterns.
+     *
+     * @see AbstractDirectory#getFiles()
+     */
+    protected abstract Set<AbstractFile> getFilesNotConsiderPatterns();
 
-  @Override
-  public abstract AbstractDirectory getDirectory(String relPathOfDirectory);
+    /**
+     * @return {@inheritDoc}<br /> If patterns were given only files will be returned that matches these patterns.
+     */
+    @Override
+    public Set<AbstractFile> getFilesRecursively() {
+        final Set<AbstractFile> files = new HashSet<>();
+        this.walkFileTree(this, files);
+        return files;
+    }
 
-  /**
-   * @return Name of this directory.
-   */
-  public abstract String getName();
+    /**
+     * Recursively adds all files in {@code directory} and it's sub directories to {@code files}.
+     *
+     * @param directory
+     * @param files
+     */
+    private void walkFileTree(final AbstractDirectory directory, final Set<AbstractFile> files) {
 
-  /**
-   * @return Reference that points to this directory.
-   */
-  public String getPath() {
-    return this.DIRECTORY_REFERENCE;
-  }
+        files.addAll(directory.getFiles());
 
-  /**
-   * @return Patterns to include only certain files in this directory.
-   */
-  protected Set<String> getIncludePatterns() {
-    return this.INCLUDE_PATTERNS;
-  }
+        final Set<AbstractDirectory> subDirectories = directory.getDirectories();
 
-  /**
-   * @return Patterns to exclude certain files from this directory.
-   */
-  protected Set<String> getExcludePatterns() {
-    return this.EXCLUDE_PATTERNS;
-  }
+        for (final AbstractDirectory subDirectory : subDirectories) {
+            this.walkFileTree(subDirectory, files);
+        }
+    }
 
-  /**
-   * @return {@code true} if this directory represents a file artifact, otherwise {@code false}. A
-   * file artifact is referenced by an URI that points on a file.<br />
-   * If {@code true} this directory only contains the file at the reference.
-   */
-  protected boolean isFileArtifact() {
-    return this.FILE_ARTIFACT;
-  }
+    @Override
+    public abstract AbstractDirectory getDirectory(String relPathOfDirectory);
+
+    /**
+     * @return Name of this directory.
+     */
+    public abstract String getName();
+
+    /**
+     * @return Reference that points to this directory.
+     */
+    public String getPath() {
+        return this.DIRECTORY_REFERENCE;
+    }
+
+    /**
+     * @return Patterns to include only certain files in this directory.
+     */
+    protected Set<String> getIncludePatterns() {
+        return this.INCLUDE_PATTERNS;
+    }
+
+    /**
+     * @return Patterns to exclude certain files from this directory.
+     */
+    protected Set<String> getExcludePatterns() {
+        return this.EXCLUDE_PATTERNS;
+    }
 }

@@ -78,7 +78,7 @@ public class ServiceTemplateController {
     for (final TServiceTemplate template : csar.serviceTemplates()) {
       final String templateId = template.getIdFromIdOrNameField();
       final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO(templateId);
-      serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, templateId, true, "self"));
+      serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, templateId, false, "self"));
       list.add(serviceTemplate);
     }
 

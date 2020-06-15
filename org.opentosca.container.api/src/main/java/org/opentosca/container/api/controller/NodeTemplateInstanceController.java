@@ -248,7 +248,7 @@ public class NodeTemplateInstanceController {
       return Response.serverError().build();
     }
 
-    return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
+    return Response.ok(uriInfo.getAbsolutePath()).build();
   }
 
   @PUT
@@ -276,6 +276,6 @@ public class NodeTemplateInstanceController {
       return Response.serverError().build();
     }
 
-    return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
+    return Response.ok(this.uriInfo.getAbsolutePath()).build();
   }
 }

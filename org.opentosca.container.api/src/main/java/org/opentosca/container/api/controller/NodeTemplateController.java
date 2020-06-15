@@ -69,7 +69,7 @@ public class NodeTemplateController {
     final NodeTemplateListDTO list = new NodeTemplateListDTO();
 
     for (final NodeTemplateDTO nodeTemplate : nodeTemplateIds) {
-      nodeTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, nodeTemplate.getId(), true, "self"));
+      nodeTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, nodeTemplate.getId(), false, "self"));
 
       nodeTemplate.getInterfaces().add(UriUtil.generateSelfLink(this.uriInfo));
 

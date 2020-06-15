@@ -116,7 +116,7 @@ public class BuildPlanController {
                         .build(csar.id().csarName(), serviceTemplate.toString(), pi.getServiceTemplateInstance().getId());
                     dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
                 }
-                dto.add(UriUtil.generateSubResourceLink(uriInfo, pi.getCorrelationId(), true, "self"));
+                dto.add(UriUtil.generateSubResourceLink(uriInfo, pi.getCorrelationId(), false, "self"));
                 return dto;
             })
             .forEach(list::add);
@@ -231,7 +231,7 @@ public class BuildPlanController {
         final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
         planService.addLogToPlanInstance(pi, event);
 
-        final URI resourceUri = UriUtil.generateSelfURI(uriInfo);
+        final URI resourceUri = uriInfo.getAbsolutePath();
         return Response.ok(resourceUri).build();
     }
 }
