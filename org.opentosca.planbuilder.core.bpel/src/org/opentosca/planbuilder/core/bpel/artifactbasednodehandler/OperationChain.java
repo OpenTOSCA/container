@@ -9,6 +9,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
@@ -247,26 +248,7 @@ public class OperationChain {
                             checkCount++;
                         }
                     } else {
-                        final AbstractOperation dummyOp = new AbstractOperation() {
-
-                            private final String operationName = opName;
-                            private final InterfaceDummy iface = (InterfaceDummy) op;
-
-                            @Override
-                            public List<AbstractParameter> getOutputParameters() {
-                                return this.iface.getOperation(this.operationName).getOutputParameters();
-                            }
-
-                            @Override
-                            public String getName() {
-                                return this.operationName;
-                            }
-
-                            @Override
-                            public List<AbstractParameter> getInputParameters() {
-                                return this.iface.getOperation(this.operationName).getInputParameters();
-                            }
-                        };
+                        final AbstractOperation dummyOp = this.createDummyOperation(opName, op);
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping)) {
                             checkCount++;
                         }
@@ -338,26 +320,7 @@ public class OperationChain {
                             checkCount++;
                         }
                     } else {
-                        final AbstractOperation dummyOp = new AbstractOperation() {
-
-                            private final String operationName = opName;
-                            private final InterfaceDummy iface = (InterfaceDummy) op;
-
-                            @Override
-                            public List<AbstractParameter> getOutputParameters() {
-                                return this.iface.getOperation(this.operationName).getOutputParameters();
-                            }
-
-                            @Override
-                            public String getName() {
-                                return this.operationName;
-                            }
-
-                            @Override
-                            public List<AbstractParameter> getInputParameters() {
-                                return this.iface.getOperation(this.operationName).getInputParameters();
-                            }
-                        };
+                        final AbstractOperation dummyOp = this.createDummyOperation(opName, op);
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping,
                                                param2propertyOutputMapping)) {
                             checkCount++;
@@ -433,26 +396,7 @@ public class OperationChain {
                             checkCount++;
                         }
                     } else {
-                        final AbstractOperation dummyOp = new AbstractOperation() {
-
-                            private final String operationName = opName;
-                            private final InterfaceDummy iface = (InterfaceDummy) op;
-
-                            @Override
-                            public List<AbstractParameter> getOutputParameters() {
-                                return this.iface.getOperation(this.operationName).getOutputParameters();
-                            }
-
-                            @Override
-                            public String getName() {
-                                return this.operationName;
-                            }
-
-                            @Override
-                            public List<AbstractParameter> getInputParameters() {
-                                return this.iface.getOperation(this.operationName).getInputParameters();
-                            }
-                        };
+                        final AbstractOperation dummyOp = this.createDummyOperation(opName, op);
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, param2propertyOutputMapping,
                                                elementToAppendTo)) {
                             checkCount++;
@@ -504,26 +448,7 @@ public class OperationChain {
                             checkCount++;
                         }
                     } else {
-                        final AbstractOperation dummyOp = new AbstractOperation() {
-
-                            private final String operationName = opName;
-                            private final InterfaceDummy iface = (InterfaceDummy) op;
-
-                            @Override
-                            public List<AbstractParameter> getOutputParameters() {
-                                return this.iface.getOperation(this.operationName).getOutputParameters();
-                            }
-
-                            @Override
-                            public String getName() {
-                                return this.operationName;
-                            }
-
-                            @Override
-                            public List<AbstractParameter> getInputParameters() {
-                                return this.iface.getOperation(this.operationName).getInputParameters();
-                            }
-                        };
+                        final AbstractOperation dummyOp = this.createDummyOperation(opName, op);
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, elementToAppendTo)) {
                             checkCount++;
                         }
@@ -534,5 +459,33 @@ public class OperationChain {
         }
         return checkCount == operationNames.size();
 
+    }
+    
+    private AbstractOperation createDummyOperation(String opName, AbstractOperation op) {
+       return new AbstractOperation() {
+
+            private final String operationName = opName;
+            private final InterfaceDummy iface = (InterfaceDummy) op;
+
+            @Override
+            public List<AbstractParameter> getOutputParameters() {
+                return this.iface.getOperation(this.operationName).getOutputParameters();
+            }
+
+            @Override
+            public String getName() {
+                return this.operationName;
+            }
+
+            @Override
+            public List<AbstractParameter> getInputParameters() {
+                return this.iface.getOperation(this.operationName).getInputParameters();
+            }
+
+            @Override
+            public AbstractInterface getInterface() {
+                return iface.getInterface();
+            }
+        };
     }
 }

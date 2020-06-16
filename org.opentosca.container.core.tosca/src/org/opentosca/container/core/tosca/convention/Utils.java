@@ -152,6 +152,10 @@ public class Utils {
         if (nodeType.equals(Types.KVM_QEMU_VM_TYPE)) {
             return true;
         }
+        
+        if(nodeType.equals(Types.raspbianJessieOSNodeType)) {
+            return true;
+        }
 
 
         return false;
@@ -219,11 +223,11 @@ public class Utils {
     }
 
     public static boolean isSupportedDeviceNodeType(final QName nodeType) {
-        return nodeType.equals(Types.raspberryPi3);
+        return nodeType.equals(Types.raspberryPi3) | nodeType.equals(Types.mCore) | nodeType.equals(Types.mBot);
     }
 
     public static boolean isSupportedHardwareNodeType(final QName nodeType) {
-        return nodeType.equals(Types.fs20Adapater);
+        return nodeType.equals(Types.fs20Adapater) | nodeType.equals(Types.lineFollowerSensor) | nodeType.equals(Types.motor) | nodeType.equals(Types.ultrasonicSensor);
     }
 
     /**

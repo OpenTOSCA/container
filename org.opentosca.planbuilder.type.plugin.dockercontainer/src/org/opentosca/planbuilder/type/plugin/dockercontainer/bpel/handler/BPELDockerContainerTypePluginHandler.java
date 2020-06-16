@@ -196,12 +196,12 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         }
 
 
-
+        boolean check = false;
         if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
             // handle with DA -> construct URL to the DockerImage .zip
 
             final AbstractDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate);
-            return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
+            check = handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
                                 containerIpVar, containerIdVar,
                                 fetchEnvironmentVariables(templateContext, nodeTemplate), null, null,
                                 containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
@@ -209,12 +209,14 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
         } else {
             // handle with imageId
-            return handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar,
+            check =handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar,
                                      dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar,
                                      fetchEnvironmentVariables(templateContext, nodeTemplate), containerMountPath,
                                      remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
                                      vmPrivateKeyVariable);
-        }
+        }               
+        
+        return check;
     }
 
     private AbstractNodeTemplate findInfrastructureTemplate(final PlanContext context,

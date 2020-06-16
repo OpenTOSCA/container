@@ -83,7 +83,7 @@ public class BPELPluginHandler {
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleTerminate(relationshipTemplate)) {
+            if (postPhasePlugin.canHandleTerminate(context, relationshipTemplate)) {
                 result &= postPhasePlugin.handleTerminate(context, relationshipTemplate);
             }
         }
@@ -109,7 +109,7 @@ public class BPELPluginHandler {
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleTerminate(nodeTemplate)) {
+            if (postPhasePlugin.canHandleTerminate(context, nodeTemplate)) {
                 result &= postPhasePlugin.handleTerminate(context, nodeTemplate);
             }
         }
@@ -140,7 +140,7 @@ public class BPELPluginHandler {
 
         // generate code the post handling, e.g., update instance data, logs etc.
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleCreate(bpelScope.getNodeTemplate())) {
+            if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
                 LOG.info("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
             }
@@ -161,7 +161,7 @@ public class BPELPluginHandler {
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleCreate(bpelScope.getRelationshipTemplate())) {
+            if (postPhasePlugin.canHandleCreate(context, bpelScope.getRelationshipTemplate())) {
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getRelationshipTemplate());
             }
         }
@@ -213,7 +213,7 @@ public class BPELPluginHandler {
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             LOG.info("Checking if post plugin {} is suited for handling {}", postPhasePlugin.getID(),
                      nodeTemplate.getName());
-            if (postPhasePlugin.canHandleCreate(bpelScope.getNodeTemplate())) {
+            if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
                 LOG.info("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
             }

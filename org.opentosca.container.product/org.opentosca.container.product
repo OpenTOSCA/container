@@ -4,6 +4,7 @@
 <product name="OpenTOSCA Container" uid="org.opentosca.container.product" id="org.opentosca.container.application.opentoscacontainer" application="org.opentosca.container.application.application" version="2.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
+      <win32>/org.opentosca.container.product/config.ini</win32>
    </configIni>
 
    <launcherArgs>
@@ -212,6 +213,7 @@
       <plugin id="org.opentosca.planbuilder.model" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.instancedata" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.monitoring" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.postphase.plugin.situations" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.vinothek" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.prephase.plugin.fileupload" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.ansibleoperation" autoStart="true" startLevel="0" />
@@ -222,6 +224,7 @@
       <plugin id="org.opentosca.planbuilder.service" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.connectsto" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.dockercontainer" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.hardware" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.mosquittoconnectsto" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.patternbased" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.ubuntuvm" autoStart="true" startLevel="0" />
@@ -234,19 +237,19 @@
       <plugin id="osgi.enterprise" autoStart="true" startLevel="2" />
       <plugin id="stax2-api" autoStart="true" startLevel="0" />
       <plugin id="woodstox-core-asl" autoStart="true" startLevel="0" />
-      <property name="org.opentosca.container.connector.winery.url" value="http://localhost:8080/winery" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.url" value="http://localhost:9763/ode" />
+      <property name="org.opentosca.container.port" value="1337" />
       <property name="org.opentosca.container.engine.ia.hostname" value="localhost" />
-      <property name="org.opentosca.container.engine.ia.plugin.tomcat.password" value="admin" />
-      <property name="org.opentosca.container.engine.ia.plugin.tomcat.url" value="http://localhost:8090" />
-      <property name="org.opentosca.container.engine.ia.plugin.tomcat.username" value="admin" />
-      <property name="org.opentosca.container.engine.ia.port" value="8090" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpel.engine" value="ODE" />
       <property name="org.opentosca.container.engine.plan.plugin.bpel.password" value="" />
       <property name="org.opentosca.container.engine.plan.plugin.bpel.services.url" value="http://localhost:9763/ode/processes" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpel.url" value="http://localhost:9763/ode" />
+      <property name="org.opentosca.container.engine.ia.plugin.tomcat.url" value="http://localhost:8090" />
+      <property name="org.opentosca.container.engine.ia.plugin.tomcat.password" value="admin" />
+      <property name="org.opentosca.container.engine.ia.port" value="8090" />
       <property name="org.opentosca.container.engine.plan.plugin.bpel.username" value="" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.engine" value="ODE" />
       <property name="org.opentosca.container.hostname" value="localhost" />
-      <property name="org.opentosca.container.port" value="1337" />
+      <property name="org.opentosca.container.connector.winery.url" value="http://localhost:8080/winery" />
+      <property name="org.opentosca.container.engine.ia.plugin.tomcat.username" value="admin" />
    </configurations>
 
    <preferencesInfo>

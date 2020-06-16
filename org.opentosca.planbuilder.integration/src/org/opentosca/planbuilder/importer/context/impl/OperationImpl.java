@@ -3,8 +3,10 @@ package org.opentosca.planbuilder.importer.context.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.oasis_open.docs.tosca.ns._2011._12.TInterface;
 import org.oasis_open.docs.tosca.ns._2011._12.TOperation;
 import org.oasis_open.docs.tosca.ns._2011._12.TParameter;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 
@@ -21,7 +23,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 public class OperationImpl extends AbstractOperation {
 
     private final DefinitionsImpl defs;
-    private final TOperation operation;
+    private final InterfaceImpl iface;
+    private final TOperation operation;    
     private final List<AbstractParameter> inputParameters;
     private final List<AbstractParameter> outputParameters;
 
@@ -32,9 +35,10 @@ public class OperationImpl extends AbstractOperation {
      * @param defs a DefinitionsImpl
      * @param operation a JAXB TOperation
      */
-    public OperationImpl(final DefinitionsImpl defs, final TOperation operation) {
+    public OperationImpl(final DefinitionsImpl defs, final InterfaceImpl iface, final TOperation operation) {
         this.defs = defs;
-        this.operation = operation;
+        this.iface = iface;
+        this.operation = operation;        
         this.inputParameters = new ArrayList<>();
         this.outputParameters = new ArrayList<>();
         this.setUp();
@@ -132,6 +136,11 @@ public class OperationImpl extends AbstractOperation {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public AbstractInterface getInterface() {
+        return this.iface;
     }
 
 }

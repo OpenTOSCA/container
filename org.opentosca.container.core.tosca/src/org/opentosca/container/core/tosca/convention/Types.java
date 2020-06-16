@@ -99,6 +99,11 @@ public class Types {
     // hardware, such as sensors, actuators and devices
     public static final QName raspberryPi3 = new QName("http://opentosca.org/nodetypes", "RaspberryPI3");
     public static final QName fs20Adapater = new QName("http://opentosca.org/nodetypes", "FS20_USBDongle");
+    public static final QName lineFollowerSensor = new QName("http://opentosca.org/nodetypes","LineFollowerSensor_1-w1-wip1");
+    public static final QName mCore = new QName("http://opentosca.org/nodetypes","mCore_1-w1-wip1");
+    public static final QName mBot = new QName("http://opentosca.org/nodetypes","mBot_1-w1-wip1");
+    public static final QName ultrasonicSensor = new QName("http://opentosca.org/nodetypes","UltrasonicSensor_1-w1-wip1");
+    public static final QName motor = new QName("http://opentosca.org/nodetypes","Motor_1-w1-wip1");
 
     // Policy Types
     public static final QName situationPolicyType =

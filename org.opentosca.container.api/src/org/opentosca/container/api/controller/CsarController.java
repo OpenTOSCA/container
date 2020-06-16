@@ -40,6 +40,8 @@ import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.common.EntityExistsException;
+import org.opentosca.container.core.common.SystemException;
+import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -162,7 +164,18 @@ public class CsarController {
 
         logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
 
-        return handleCsarUpload(file.getFileName(), is, applyEnrichment);
+        try {
+            return handleCsarUpload(file.getFileName(), is, applyEnrichment);
+        }
+        catch (SystemException e) {
+            e.printStackTrace();
+            return Response.serverError().entity(e).build();
+        }
+        catch (UserException e) {
+
+            e.printStackTrace();
+            return Response.serverError().entity(e).build();
+        }
 
     }
 
@@ -197,7 +210,8 @@ public class CsarController {
     }
 
 
-    private Response handleCsarUpload(final String filename, final InputStream is, final String applyEnrichment) {
+    private Response handleCsarUpload(final String filename, final InputStream is,
+                                      final String applyEnrichment) throws SystemException, UserException {
 
         final File file = this.csarService.storeTemporaryFile(filename, is);
 

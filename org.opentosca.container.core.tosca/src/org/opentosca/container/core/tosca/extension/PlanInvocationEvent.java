@@ -45,6 +45,11 @@ public class PlanInvocationEvent {
     @XmlAttribute(name = "PlanLanguage", required = true)
     @XmlSchemaType(name = "anyURI")
     protected String planLanguage;
+
+    @XmlAttribute(name = "CalculatedWCET")
+    @XmlSchemaType(name = "anyURI")
+    protected long calculatedWCET;
+
     @XmlAttribute(name = "isActive", required = true)
     protected boolean isActive;
     @XmlAttribute(name = "hasFailed", required = true)
@@ -71,6 +76,7 @@ public class PlanInvocationEvent {
         this.inputMessageID = inputMessageID;
         this.outputMessageID = outputMessageID;
         this.planLanguage = dto.getPlanLanguage();
+        this.calculatedWCET = dto.getCalculatedWCET();
         this.isActive = active;
         this.hasFailed = failed;
     }
@@ -311,6 +317,15 @@ public class PlanInvocationEvent {
      */
     public String getPlanLanguage() {
         return this.planLanguage;
+    }
+
+
+    public long getCalculatedWCET() {
+        return this.calculatedWCET;
+    }
+
+    public void setCalculatedWCET(final long calculatedWCET) {
+        this.calculatedWCET = calculatedWCET;
     }
 
     /**
