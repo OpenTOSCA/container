@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.provphase.plugin.ansibleoperation.bpel.handler;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -12,7 +11,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.tosca.convention.Interfaces;
