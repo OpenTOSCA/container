@@ -107,7 +107,7 @@ public class SituationsController {
 		return Response.ok(instanceURI).build();
 	}
 	
-	@DELETE
+    @DELETE
     @Consumes({ MediaType.TEXT_PLAIN })
     @Path("/situations/{situation}")
 	public Response deleteSituation(@PathParam("situation") final Long situationId) {
@@ -117,7 +117,7 @@ public class SituationsController {
 	    if(removed){	        
 	        return Response.ok().build();
 	    } else {
-	        return Response.status(403).build();
+	        return Response.status(410).build();
 	    }
 	}
 
