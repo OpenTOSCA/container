@@ -671,6 +671,14 @@ public class InstanceService {
     public Collection<Situation> getSituations() {
         return this.sitRepo.findAll();
     }
+    
+    public boolean removeSituation(final Long situationId) {        
+        if(this.sitTrig.findSituationTriggersBySituationId(situationId).isEmpty()) {            
+            this.sitRepo.find(situationId).ifPresent(x -> this.sitRepo.remove(x));
+            return true;
+        }
+        return false;
+    }
 
     public Collection<SituationTrigger> getSituationTriggers() {
         return this.sitTrig.findAll();
@@ -698,7 +706,12 @@ public class InstanceService {
         newInstance.setOperationName(operationName);
         if (nodeInstance != null) {
             newInstance.setNodeInstance(nodeInstance);
+        }        
+        
+        for (SituationTriggerProperty input : inputs) {
+            input.setSituationTrigger(newInstance);
         }
+        
         newInstance.setInputs(inputs);
         
         if (eventProbability != -1.0f) {
@@ -721,6 +734,10 @@ public class InstanceService {
         }
 
         throw new NotFoundException("SituationTrigger <" + id + "> not found.");
+    }
+    
+    public void removeSituationTrigger(Long situationTriggerId) {
+        this.sitTrig.find(situationTriggerId).ifPresent(x -> this.sitTrig.remove(x));
     }
 
     public Collection<SituationTriggerInstance> geSituationTriggerInstances(final SituationTrigger trigger) {
