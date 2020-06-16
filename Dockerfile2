@@ -1,15 +1,7 @@
-FROM maven:3-jdk-8 as builder
 
-RUN rm /dev/random && ln -s /dev/urandom /dev/random
 
-WORKDIR /tmp/opentosca/container
-COPY . /tmp/opentosca/container
+FROM maven:3-jdk-8
 
-RUN mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B \
-    && mkdir /tmp/build \
-    && unzip /tmp/opentosca/container/org.opentosca.container.war/target/OpenTOSCA-container.war -d /tmp/build/container
-
-FROM tomcat:9-jdk8
 LABEL maintainer = "Benjamin Weder <weder@iaas.uni-stuttgart.de>, Lukas Harzenetter <lharzenetter@gmx.de>, Michael Wurster <miwurster@gmail.com>"
 
 ARG DOCKERIZE_VERSION=v0.6.1
@@ -53,18 +45,19 @@ ENV COLLABORATION_MODE false
 ENV COLLABORATION_HOSTNAMES ""
 ENV COLLABORATION_PORTS ""
 
-RUN rm /dev/random && ln -s /dev/urandom /dev/random \
+RUN rm /dev/random && ln -s /dev/urandom /dev/random
+
+WORKDIR /tmp/opentosca/container
+COPY . /tmp/opentosca/container
+
+RUN mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B \
     && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
-RUN rm -rf ${CATALINA_HOME}/webapps/*
-COPY --from=builder /tmp/build/container ${CATALINA_HOME}/webapps/ROOT
 
 ADD .docker/application.properties.tpl /tmp/opentosca/container/application.properties.tpl
 
 EXPOSE 1337
 
-CMD dockerize -template /tmp/opentosca/container/application.properties.tpl:${CATALINA_HOME}/webapps/ROOT/WEB-INF/classes/application.properties \
-    && export spring_config_location=${CATALINA_HOME}/webapps/ROOT/WEB-INF/classes/application.properties \
-    && ${CATALINA_HOME}/bin/catalina.sh run
+CMD dockerize -template /tmp/opentosca/container/application.properties.tpl:/tmp/opentosca/container/org.opentosca.container.core/target/classes/application.properties \
+    && mvn tomcat7:start
