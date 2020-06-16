@@ -23,44 +23,48 @@ import org.springframework.stereotype.Component;
 @Component
 public class IsFinishedResponseProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(IsFinishedResponseProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(IsFinishedResponseProcessor.class);
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void process(final Exchange exchange) throws Exception {
+  @SuppressWarnings("unchecked")
+  @Override
+  public void process(final Exchange exchange) throws Exception {
 
-        IsFinishedResponseProcessor.LOG.debug("Processing IsFinished response....");
+    IsFinishedResponseProcessor.LOG.debug("Processing IsFinished response....");
 
-        final String requestID = exchange.getIn().getHeader(InvocationRoute.ID, String.class);
+    final String requestID = exchange.getIn().getHeader(InvocationRoute.ID, String.class);
 
-        IsFinishedResponseProcessor.LOG.debug("RequestID: {}", requestID);
+    IsFinishedResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+    final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
 
-        if (exchange.getIn().getBody() instanceof Exception) {
+    if (exchange.getIn().getBody() instanceof Exception) {
 
-            response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-            response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
-        } else {
+      response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+      response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
 
-            final Boolean isFinished = exchange.getIn().getBody(Boolean.class);
+    } else {
 
-            if (isFinished) {
-                IsFinishedResponseProcessor.LOG.debug("Invocation has finished, send location of result.");
+      final Boolean isFinished = exchange.getIn().getBody(Boolean.class);
 
-                response.setStatus(Status.REDIRECTION_SEE_OTHER);
-                response.setLocationRef(InvocationRoute.GET_RESULT_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER,
-                    requestID));
-            } else {
-                IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
+      if (isFinished) {
+        IsFinishedResponseProcessor.LOG.debug("Invocation has finished, send location of result.");
 
-                final JSONObject obj = new JSONObject();
-                obj.put("status", "PENDING");
+        response.setStatus(Status.REDIRECTION_SEE_OTHER);
+        response.setLocationRef(InvocationRoute.GET_RESULT_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER,
+          requestID));
 
-                response.setStatus(Status.SUCCESS_OK);
-                response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
-            }
-            exchange.getOut().setBody(response);
-        }
+      } else {
+        IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
+
+        final JSONObject obj = new JSONObject();
+        obj.put("status", "PENDING");
+
+        response.setStatus(Status.SUCCESS_OK);
+        response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
+
+      }
+      exchange.getOut().setBody(response);
     }
+  }
+
 }

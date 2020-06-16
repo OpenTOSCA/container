@@ -114,6 +114,9 @@ public abstract class AbstractDirectory implements IBrowseable {
 
     /**
      * Recursively adds all files in {@code directory} and it's sub directories to {@code files}.
+     *
+     * @param directory
+     * @param files
      */
     private void walkFileTree(final AbstractDirectory directory, final Set<AbstractFile> files) {
 

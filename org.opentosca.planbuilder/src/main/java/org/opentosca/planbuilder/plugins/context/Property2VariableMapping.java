@@ -15,10 +15,12 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public class Property2VariableMapping {
 
     private final Collection<PropertyVariable> propertyVariables;
+
 
     /**
      * Constructor
@@ -87,4 +89,5 @@ public class Property2VariableMapping {
 
         return toReturn;
     }
+
 }

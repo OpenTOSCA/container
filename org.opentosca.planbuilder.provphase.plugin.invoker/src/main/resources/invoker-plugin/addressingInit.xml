@@ -1,12 +1,11 @@
 <bpel:copy xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
-    <bpel:from>
-        <bpel:literal>
-            <wsa:ReplyTo xmlns:wsa="http://www.w3.org/2005/08/addressing"
-            >
-                <wsa:Address>http://localhost:9763/services/SIServerCallback</wsa:Address>
-            </wsa:ReplyTo>
-        </bpel:literal>
-    </bpel:from>
-    <bpel:to variable="{requestVarName}" header="ReplyTo">
-    </bpel:to>
-</bpel:copy>
+  	<bpel:from>
+   					<bpel:literal>
+     					<wsa:ReplyTo xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        					<wsa:Address>http://localhost:9763/services/SIServerCallback</wsa:Address>
+     					</wsa:ReplyTo>
+   					</bpel:literal>
+ 				</bpel:from>
+ 				<bpel:to variable="{requestVarName}" header="ReplyTo">
+ 				</bpel:to>
+			</bpel:copy>

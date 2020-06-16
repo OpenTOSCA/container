@@ -15,16 +15,17 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * This class represents a generic plugin containing bpel logic to start a virtual machine instance with the OpenTOSCA
- * Container Invoker Service
+ * This class represents a generic plugin containing bpel logic to start a
+ * virtual machine instance with the OpenTOSCA Container Invoker Service
  * </p>
  * Copyright 2016 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
+ *
  */
 public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
-    IPlanBuilderPolicyAwareTypePlugin<BPELPlanContext> {
+                                    IPlanBuilderPolicyAwareTypePlugin<BPELPlanContext> {
     public static final QName noPublicAccessPolicyType = new QName("http://opentosca.org/policytypes",
         "NoPublicAccessPolicy");
     public static final QName publicAccessPolicyType = new QName("http://opentosca.org/policytypes",
@@ -96,6 +97,7 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
                 // so we check only for a cloud provider
                 return checkIfConnectedToCloudProvider(nodeTemplate);
             }
+
         } else {
             return false;
         }
@@ -127,6 +129,7 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
         }
 
         return canHandle;
+
     }
 
     /**
@@ -146,7 +149,8 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
 
     /**
      * <p>
-     * Checks whether the given NodeTemplate is connected to another node of some Cloud Provider NodeType
+     * Checks whether the given NodeTemplate is connected to another node of some Cloud Provider
+     * NodeType
      * </p>
      *
      * @param nodeTemplate any AbstractNodeTemplate
@@ -163,13 +167,16 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
 
     /**
      * <p>
-     * Checks whether there is a path from the given NodeTemplate of length 3 with the following nodes:<br> The
-     * NodeTemplate itself<br> A NodeTemplate of type {http://opentosca.org/types/declarative}VM <br> A NodeTemplate of
-     * type {http://opentosca.org/types/declarative}EC2 or OpenStack
+     * Checks whether there is a path from the given NodeTemplate of length 3 with the following
+     * nodes:<br>
+     * The NodeTemplate itself<br>
+     * A NodeTemplate of type {http://opentosca.org/types/declarative}VM <br>
+     * A NodeTemplate of type {http://opentosca.org/types/declarative}EC2 or OpenStack
      * </p>
      *
      * @param nodeTemplate any AbstractNodeTemplate
-     * @return true if the there exists a path from the given NodeTemplate to a Cloud Provider node, else false
+     * @return true if the there exists a path from the given NodeTemplate to a Cloud Provider node,
+     *         else false
      */
     private boolean checkIfConnectedToVMandCloudProvider(final AbstractNodeTemplate nodeTemplate) {
         for (final AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
@@ -216,10 +223,10 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
                         || nodeType.equals(Types.vmWareVsphere55NodeType)
                         || nodeType.equals(Types.amazonEc2NodeType)
                         || nodeType.getNamespaceURI()
-                        .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
-                        && (nodeType.getLocalPart()
-                        .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
-                        || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()))) {
+                                   .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
+                            && (nodeType.getLocalPart()
+                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
+                                || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()))) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
                         return this.handler.handleCreateWithCloudProviderInterface(templateContext, nodeTemplate);
@@ -266,10 +273,10 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
                         || nodeType.equals(Types.vmWareVsphere55NodeType)
                         || nodeType.equals(Types.amazonEc2NodeType)
                         || nodeType.getNamespaceURI()
-                        .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
-                        && (nodeType.getLocalPart()
-                        .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
-                        || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()))) {
+                                   .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
+                            && (nodeType.getLocalPart()
+                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
+                                || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()))) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
                         return this.handler.handleCreateWithCloudProviderInterface(templateContext, nodeTemplate);
@@ -311,14 +318,14 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
                         || nodeType.equals(Types.vmWareVsphere55NodeType)
                         || nodeType.equals(Types.amazonEc2NodeType)
                         || nodeType.getNamespaceURI()
-                        .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
-                        && (nodeType.getLocalPart()
-                        .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
-                        || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()))) {
+                                   .equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
+                            && (nodeType.getLocalPart()
+                                       .startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
+                                || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()))) {
                         // bit hacky now, but until the nodeType cleanup is
                         // finished this should be enough right now
                         return this.handler.handleTerminateWithCloudProviderInterface(templateContext, nodeTemplate,
-                            templateContext.getProvisioningPhaseElement());
+                                                                                      templateContext.getProvisioningPhaseElement());
                     } else if (relation.getTarget().getType().getId().equals(Types.localHypervisor)) {
                         return this.handler.handleWithLocalCloudProviderInterface(templateContext, nodeTemplate);
                     } else {
@@ -329,6 +336,7 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
             return true;
         }
         return false;
+
     }
 
     @Override

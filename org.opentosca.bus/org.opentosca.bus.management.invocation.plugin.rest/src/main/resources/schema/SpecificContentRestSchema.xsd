@@ -1,64 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.siengine.restplugin.org/SpecificContentRestSchema"
-           xmlns:tns="http://www.siengine.restplugin.org/SpecificContentRestSchema"
-           elementFormDefault="qualified">
+	targetNamespace="http://www.siengine.restplugin.org/SpecificContentRestSchema"
+	xmlns:tns="http://www.siengine.restplugin.org/SpecificContentRestSchema"
+	elementFormDefault="qualified">
 
-    <xs:element name="DataAssign">
-        <xs:complexType>
+  <xs:element name="DataAssign">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Operations">
+          <xs:complexType>
             <xs:sequence>
-                <xs:element name="Operations">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="Operation" maxOccurs="unbounded" minOccurs="1">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element type="tns:EndpointType" name="Endpoint" minOccurs="0"
-                                                    maxOccurs="1"/>
-                                        <xs:element type="tns:ParamsType" name="Params" minOccurs="0" maxOccurs="1"/>
-                                        <xs:element type="tns:ContentType" name="ContentType" minOccurs="0"
-                                                    maxOccurs="1"/>
-                                        <xs:element type="tns:MethodeType" name="Methode" minOccurs="0" maxOccurs="1"/>
-                                    </xs:sequence>
-                                    <xs:attribute type="xs:string" name="name" use="optional"/>
-                                    <xs:attribute type="xs:string" name="interfaceName" use="optional"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
+              <xs:element name="Operation" maxOccurs="unbounded" minOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="tns:EndpointType" name="Endpoint" minOccurs="0" maxOccurs="1"/>
+                    <xs:element type="tns:ParamsType" name="Params" minOccurs="0" maxOccurs="1"/>
+                    <xs:element type="tns:ContentType" name="ContentType" minOccurs="0" maxOccurs="1"/>
+                    <xs:element type="tns:MethodeType" name="Methode" minOccurs="0" maxOccurs="1"/>
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="name" use="optional"/>
+                  <xs:attribute type="xs:string" name="interfaceName" use="optional"/>
+                </xs:complexType>
+              </xs:element>
             </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
-    <xs:simpleType name="EndpointType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="no"/>
-            <xs:enumeration value="yes"/>
-        </xs:restriction>
-    </xs:simpleType>
+		<xs:simpleType name="EndpointType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="no" />
+			<xs:enumeration value="yes" />
+		</xs:restriction>
+	</xs:simpleType>
 
-    <xs:simpleType name="ParamsType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="queryString"/>
-            <xs:enumeration value="payload"/>
-        </xs:restriction>
-    </xs:simpleType>
+	<xs:simpleType name="ParamsType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="queryString" />
+			<xs:enumeration value="payload" />
+		</xs:restriction>
+	</xs:simpleType>
 
-    <xs:simpleType name="ContentType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="urlencoded"/>
-            <xs:enumeration value="xml"/>
-        </xs:restriction>
-    </xs:simpleType>
+	<xs:simpleType name="ContentType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="urlencoded" />
+			<xs:enumeration value="xml" />
+		</xs:restriction>
+	</xs:simpleType>
 
-    <xs:simpleType name="MethodeType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="POST"/>
-            <xs:enumeration value="GET"/>
-        </xs:restriction>
-    </xs:simpleType>
+	<xs:simpleType name="MethodeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="POST" />
+			<xs:enumeration value="GET" />
+		</xs:restriction>
+	</xs:simpleType>
 
 </xs:schema>
-
+		
 

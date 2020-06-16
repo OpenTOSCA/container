@@ -6,12 +6,14 @@
 // Generated on: 2012.05.16 at 05:29:02 PM MESZ
 //
 
+
 package org.apache.ode.schemas.dd._2007._03;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -34,24 +36,25 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tScopeEvents")
 public class TScopeEvents extends TEnableEventList {
 
-    @XmlAttribute(required = true)
-    protected String name;
+  @XmlAttribute(required = true)
+  protected String name;
 
-    /**
-     * Gets the value of the name property.
-     *
-     * @return possible object is {@link String }
-     */
-    public String getName() {
-        return this.name;
-    }
+  /**
+   * Gets the value of the name property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getName() {
+    return this.name;
+  }
 
-    /**
-     * Sets the value of the name property.
-     *
-     * @param value allowed object is {@link String }
-     */
-    public void setName(final String value) {
-        this.name = value;
-    }
+  /**
+   * Sets the value of the name property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setName(final String value) {
+    this.name = value;
+  }
+
 }

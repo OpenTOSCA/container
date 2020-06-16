@@ -22,30 +22,34 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExceptionProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(ExceptionProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(ExceptionProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) throws Exception {
+  @Override
+  public void process(final Exchange exchange) throws Exception {
 
-        ExceptionProcessor.LOG.debug("Exception handling...");
+    ExceptionProcessor.LOG.debug("Exception handling...");
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+    final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
 
-        if (exchange.getIn().getBody() instanceof ParseException) {
-            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            final String body = exchange.getIn().getBody(String.class);
-            response.setEntity("JSON is not valid: " + body, MediaType.TEXT_ALL);
-            ExceptionProcessor.LOG.warn("JSON is not valid: {}", body);
-        } else if (exchange.getIn().getBody() instanceof NullPointerException) {
-            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            response.setEntity("Needed information not specified.", MediaType.TEXT_ALL);
-            ExceptionProcessor.LOG.warn("Needed information not specified.");
-        } else if (exchange.getIn().getBody() instanceof Exception) {
-            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            response.setEntity("Invocation failed! " + exchange.getIn().getBody().toString(), MediaType.TEXT_ALL);
-            ExceptionProcessor.LOG.warn("Invocation failed! " + exchange.getIn().getBody().toString());
-        }
+    if (exchange.getIn().getBody() instanceof ParseException) {
+      response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+      final String body = exchange.getIn().getBody(String.class);
+      response.setEntity("JSON is not valid: " + body, MediaType.TEXT_ALL);
+      ExceptionProcessor.LOG.warn("JSON is not valid: {}", body);
+    } else if (exchange.getIn().getBody() instanceof NullPointerException) {
+      response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+      response.setEntity("Needed information not specified.", MediaType.TEXT_ALL);
+      ExceptionProcessor.LOG.warn("Needed information not specified.");
 
-        exchange.getOut().setBody(response);
+    } else if (exchange.getIn().getBody() instanceof Exception) {
+      response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+      response.setEntity("Invocation failed! " + exchange.getIn().getBody().toString(), MediaType.TEXT_ALL);
+      ExceptionProcessor.LOG.warn("Invocation failed! " + exchange.getIn().getBody().toString());
+
     }
+
+    exchange.getOut().setBody(response);
+
+  }
+
 }

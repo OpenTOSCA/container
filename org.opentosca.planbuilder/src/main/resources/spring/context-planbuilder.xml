@@ -6,17 +6,17 @@
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
-    <description>
-        Configuration for Spring-Bean service discovery across planbuilder
-    </description>
+  <description>
+    Configuration for Spring-Bean service discovery across planbuilder
+  </description>
 
-    <context:annotation-config/>
+  <context:annotation-config />
 
-    <bean class="org.opentosca.planbuilder.plugins.registry.PluginRegistry"/>
+  <bean class="org.opentosca.planbuilder.plugins.registry.PluginRegistry" />
 
-    <import resource="classpath:/spring/context-planbuilder-bpel.xml"/>
-    <import resource="classpath:/spring/context-planbuilder-model.xml"/>
-    <import resource="classpath:/spring/context-planbuilder-integration.xml"/>
-    <import resource="classpath*:/spring/context-planbuilder-plugin.xml"/>
+  <import resource="classpath:/spring/context-planbuilder-bpel.xml" />
+  <import resource="classpath:/spring/context-planbuilder-model.xml" />
+  <import resource="classpath:/spring/context-planbuilder-integration.xml" />
+  <import resource="classpath*:/spring/context-planbuilder-plugin.xml" />
 
 </beans>

@@ -32,55 +32,55 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "BodyType", propOrder = {"instanceDataMatchingRequest", "iaInvocationRequest"})
 public class BodyType {
 
-    @XmlElement(name = "InstanceDataMatchingRequest")
-    protected InstanceDataMatchingRequest instanceDataMatchingRequest;
-    @XmlElement(name = "IAInvocationRequest")
-    protected IAInvocationRequest iaInvocationRequest;
+  @XmlElement(name = "InstanceDataMatchingRequest")
+  protected InstanceDataMatchingRequest instanceDataMatchingRequest;
+  @XmlElement(name = "IAInvocationRequest")
+  protected IAInvocationRequest iaInvocationRequest;
 
-    public BodyType() {
-    }
+  public BodyType() {
+  }
 
-    public BodyType(final IAInvocationRequest iaInvocationRequest) {
-        this.iaInvocationRequest = iaInvocationRequest;
-    }
+  public BodyType(final IAInvocationRequest iaInvocationRequest) {
+    this.iaInvocationRequest = iaInvocationRequest;
+  }
 
-    public BodyType(final InstanceDataMatchingRequest instanceDataMatchingRequest) {
-        this.instanceDataMatchingRequest = instanceDataMatchingRequest;
-    }
+  public BodyType(final InstanceDataMatchingRequest instanceDataMatchingRequest) {
+    this.instanceDataMatchingRequest = instanceDataMatchingRequest;
+  }
 
-    /**
-     * Gets the value of the instanceDataMatchingRequest property.
-     *
-     * @return possible object is {@link InstanceDataMatchingRequest }
-     */
-    public InstanceDataMatchingRequest getInstanceDataMatchingRequest() {
-        return this.instanceDataMatchingRequest;
-    }
+  /**
+   * Gets the value of the instanceDataMatchingRequest property.
+   *
+   * @return possible object is {@link InstanceDataMatchingRequest }
+   */
+  public InstanceDataMatchingRequest getInstanceDataMatchingRequest() {
+    return this.instanceDataMatchingRequest;
+  }
 
-    /**
-     * Sets the value of the instanceDataMatchingRequest property.
-     *
-     * @param value allowed object is {@link InstanceDataMatchingRequest }
-     */
-    public void setInstanceDataMatchingRequest(final InstanceDataMatchingRequest value) {
-        this.instanceDataMatchingRequest = value;
-    }
+  /**
+   * Sets the value of the instanceDataMatchingRequest property.
+   *
+   * @param value allowed object is {@link InstanceDataMatchingRequest }
+   */
+  public void setInstanceDataMatchingRequest(final InstanceDataMatchingRequest value) {
+    this.instanceDataMatchingRequest = value;
+  }
 
-    /**
-     * Gets the value of the iaInvocationRequest property.
-     *
-     * @return possible object is {@link IAInvocationRequest }
-     */
-    public IAInvocationRequest getIAInvocationRequest() {
-        return this.iaInvocationRequest;
-    }
+  /**
+   * Gets the value of the iaInvocationRequest property.
+   *
+   * @return possible object is {@link IAInvocationRequest }
+   */
+  public IAInvocationRequest getIAInvocationRequest() {
+    return this.iaInvocationRequest;
+  }
 
-    /**
-     * Sets the value of the iaInvocationRequest property.
-     *
-     * @param value allowed object is {@link IAInvocationRequest }
-     */
-    public void setIAInvocationRequest(final IAInvocationRequest value) {
-        this.iaInvocationRequest = value;
-    }
+  /**
+   * Sets the value of the iaInvocationRequest property.
+   *
+   * @param value allowed object is {@link IAInvocationRequest }
+   */
+  public void setIAInvocationRequest(final IAInvocationRequest value) {
+    this.iaInvocationRequest = value;
+  }
 }

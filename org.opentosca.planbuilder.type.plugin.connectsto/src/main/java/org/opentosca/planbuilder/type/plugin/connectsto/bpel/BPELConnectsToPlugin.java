@@ -1,5 +1,7 @@
+
 package org.opentosca.planbuilder.type.plugin.connectsto.bpel;
 
+import javax.inject.Inject;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -13,30 +15,31 @@ import org.opentosca.planbuilder.type.plugin.connectsto.core.ConnectsToPlugin;
  * <br>
  *
  * <p>
- * This class implements a PlanBuilder Type Plugin for the RelationshipType ConnectsTo. This plugin searches for a
- * connection interface on the source node, which implements a connectsTo operation with any kind of parameter. These
- * parameters will be wired against properties of the stack connected to as target to this relation.
+ * This class implements a PlanBuilder Type Plugin for the RelationshipType ConnectsTo. This plugin
+ * searches for a connection interface on the source node, which implements a connectsTo operation
+ * with any kind of parameter. These parameters will be wired against properties of the stack
+ * connected to as target to this relation.
  * </p>
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  */
 public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
 
-    private final BPELConnectsToPluginHandler handler;
+  private final BPELConnectsToPluginHandler handler;
 
-    public BPELConnectsToPlugin() {
-        BPELConnectsToPluginHandler safeCreatedHandler;
-        try {
-            safeCreatedHandler = new BPELConnectsToPluginHandler();
-        } catch (ParserConfigurationException e) {
-            // Wow this is bad
-            e.printStackTrace();
-            safeCreatedHandler = null;
-        }
-        handler = safeCreatedHandler;
+  public BPELConnectsToPlugin() {
+    BPELConnectsToPluginHandler safeCreatedHandler;
+    try {
+       safeCreatedHandler = new BPELConnectsToPluginHandler();
+    } catch (ParserConfigurationException e) {
+      // Wow this is bad
+      e.printStackTrace();
+      safeCreatedHandler = null;
     }
+    handler = safeCreatedHandler;
+  }
 
-    /*
+  /*
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#handle(org.
@@ -75,4 +78,5 @@ public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
     public int getPriority() {
         return 1;
     }
+
 }

@@ -7,13 +7,13 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <description>
-        Configuration for Spring-Bean service discovery of beans within the org.opentosca.container.api module
-    </description>
+  <description>
+    Configuration for Spring-Bean service discovery of beans within the org.opentosca.container.api module
+  </description>
 
-    <context:annotation-config/>
+  <context:annotation-config />
 
-    <context:component-scan base-package="org.opentosca.container.api.controller"/>
-    <context:component-scan base-package="org.opentosca.container.api.service"/>
-    <context:component-scan base-package="org.opentosca.container.api.config"/>
+  <context:component-scan base-package="org.opentosca.container.api.controller" />
+  <context:component-scan base-package="org.opentosca.container.api.service" />
+  <context:component-scan base-package="org.opentosca.container.api.config" />
 </beans>

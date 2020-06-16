@@ -1,12 +1,12 @@
 package org.opentosca.planbuilder;
 
-import javax.inject.Inject;
-
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 public abstract class AbstractPlanBuilder {
 
@@ -15,11 +15,11 @@ public abstract class AbstractPlanBuilder {
     @Inject
     protected final PluginRegistry pluginRegistry;
 
-    protected AbstractPlanBuilder(PluginRegistry pluginRegistry) {
-        this.pluginRegistry = pluginRegistry;
-    }
+  protected AbstractPlanBuilder(PluginRegistry pluginRegistry) {
+    this.pluginRegistry = pluginRegistry;
+  }
 
-    abstract public PlanType createdPlanType();
+  abstract public PlanType createdPlanType();
 
     public boolean isRunning(final AbstractNodeTemplate nodeTemplate) {
         if (nodeTemplate.getProperties() != null) {

@@ -6,10 +6,12 @@
 // Generated on: 2013.07.29 at 03:39:23 PM MESZ
 //
 
+
 package org.opentosca.bus.management.invocation.plugin.rest.model;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -32,13 +34,14 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum MethodeType {
 
-    POST, GET;
+  POST, GET;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static MethodeType fromValue(final String v) {
-        return valueOf(v);
-    }
+  public static MethodeType fromValue(final String v) {
+    return valueOf(v);
+  }
+
 }

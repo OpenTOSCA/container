@@ -1,7 +1,6 @@
 <bpel:copy>
-    <bpel:from partnerLink="{partnerLinkName}" endpointReference="myRole"></bpel:from>
-    <bpel:to variable="{requestVarName}" part="{requestVarPartName}">
-        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-            <![CDATA[//*[local-name()="{paramName}" and namespace-uri()="http://siserver.org/schema"]]]></bpel:query>
-    </bpel:to>
+	<bpel:from partnerLink="{partnerLinkName}" endpointReference="myRole"></bpel:from>
+	<bpel:to variable="{requestVarName}" part="{requestVarPartName}">
+		<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[//*[local-name()="{paramName}" and namespace-uri()="http://siserver.org/schema"]]]></bpel:query>
+	</bpel:to>
 </bpel:copy>

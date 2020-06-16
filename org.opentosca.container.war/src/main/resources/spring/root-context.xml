@@ -9,33 +9,33 @@
                            http://www.springframework.org/schema/context/spring-context.xsd
                            http://camel.apache.org/schema/spring
                            http://camel.apache.org/schema/spring/camel-spring.xsd">
-    <description>
-        Configuration for Spring-Bean service discovery and injection
-    </description>
+  <description>
+    Configuration for Spring-Bean service discovery and injection
+  </description>
 
-    <context:annotation-config/>
+  <context:annotation-config />
 
-    <!-- configuration for external modules -->
-    <context:component-scan base-package="org.opentosca.deployment.checks"/>
+  <!-- configuration for external modules -->
+  <context:component-scan base-package="org.opentosca.deployment.checks" />
 
-    <context:component-scan base-package="org.opentosca.container.engine.plan.impl"/>
-    <bean class="org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin"/>
-    <bean class="org.opentosca.container.engine.plan.plugin.camunda.CamundaPlanEnginePlugin"/>
+  <context:component-scan base-package="org.opentosca.container.engine.plan.impl" />
+  <bean class="org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin" />
+  <bean class="org.opentosca.container.engine.plan.plugin.camunda.CamundaPlanEnginePlugin" />
 
-    <!-- fallback camel context for all camel-context dependents with no route configuration -->
-    <camel:camelContext id="fallback"/>
+  <!-- fallback camel context for all camel-context dependents with no route configuration -->
+  <camel:camelContext id="fallback" />
 
-    <!-- import RESTEasy spring definitions -->
-    <!--  <import resource="classpath:springmvc-resteasy.xml" />-->
+  <!-- import RESTEasy spring definitions -->
+<!--  <import resource="classpath:springmvc-resteasy.xml" />-->
 
-    <!-- importing external module's own configuration -->
-    <import resource="classpath:/spring/context-api.xml"/>
-    <import resource="classpath:/spring/context-container-core.xml"/>
-    <import resource="classpath:/spring/context-deployment-checks.xml"/>
-    <import resource="classpath:/spring/context-planbuilder.xml"/>
-    <import resource="classpath:/spring/context-legacy.xml"/>
-    <import resource="classpath:/spring/context-control.xml"/>
-    <import resource="classpath:/spring/context-bus-management-service.xml"/>
-    <import resource="classpath:/spring/context-bus-application-service.xml"/>
-    <import resource="classpath:/spring/context-mqtt-broker.xml"/>
+  <!-- importing external module's own configuration -->
+  <import resource="classpath:/spring/context-api.xml" />
+  <import resource="classpath:/spring/context-container-core.xml" />
+  <import resource="classpath:/spring/context-deployment-checks.xml" />
+  <import resource="classpath:/spring/context-planbuilder.xml" />
+  <import resource="classpath:/spring/context-legacy.xml" />
+  <import resource="classpath:/spring/context-control.xml" />
+  <import resource="classpath:/spring/context-bus-management-service.xml" />
+  <import resource="classpath:/spring/context-bus-application-service.xml" />
+  <import resource="classpath:/spring/context-mqtt-broker.xml" />
 </beans>

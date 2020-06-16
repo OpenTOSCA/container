@@ -23,6 +23,7 @@ import org.w3c.dom.Node;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public class PropertyVariableHandler {
 
@@ -35,7 +36,7 @@ public class PropertyVariableHandler {
     /**
      * Constructor
      *
-     * @param planHandler     a BuildPlanHandler for the class
+     * @param planHandler a BuildPlanHandler for the class
      * @param templateHandler a TemplateBuildPlanHandler for the class
      */
     public PropertyVariableHandler(final BPELPlanHandler planHandler) {
@@ -43,17 +44,18 @@ public class PropertyVariableHandler {
     }
 
     /**
-     * Initializes the BuildPlan with variables for Template Properties and returns the Mappings for the Properties and
-     * variables
+     * Initializes the BuildPlan with variables for Template Properties and returns the Mappings for the
+     * Properties and variables
      *
      * @param buildPlan the BuildPlan to initialize
-     * @return a PropertyMap which holds mappings from Template to Template Property and BuildPlan variable
+     * @return a PropertyMap which holds mappings from Template to Template Property and BuildPlan
+     *         variable
      */
     public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan buildPlan,
                                                                     final AbstractServiceTemplate serviceTemplate) {
         return this.initializePropertiesAsVariables(buildPlan, serviceTemplate,
-            serviceTemplate.getTopologyTemplate().getNodeTemplates(),
-            serviceTemplate.getTopologyTemplate().getRelationshipTemplates());
+                                                    serviceTemplate.getTopologyTemplate().getNodeTemplates(),
+                                                    serviceTemplate.getTopologyTemplate().getRelationshipTemplates());
     }
 
     public Property2VariableMapping initializePropertiesAsVariables(final BPELPlan plan,
@@ -76,7 +78,7 @@ public class PropertyVariableHandler {
     /**
      * Initializes Properties inside the given PropertyMap of the given TemplateBuildPlan
      *
-     * @param map          a PropertyMap to save the mappings to
+     * @param map a PropertyMap to save the mappings to
      * @param templatePlan the TemplateBuildPlan to initialize its properties
      */
     public void initializePropertiesAsVariables(final Property2VariableMapping map, final BPELScope templatePlan,
@@ -90,9 +92,10 @@ public class PropertyVariableHandler {
     }
 
     /**
-     * Initializes Property variables and mappings for a TemplateBuildPlan which handles a RelationshipTemplate
+     * Initializes Property variables and mappings for a TemplateBuildPlan which handles a
+     * RelationshipTemplate
      *
-     * @param map          the PropertyMap to save the result to
+     * @param map the PropertyMap to save the result to
      * @param templatePlan a TemplateBuildPlan which handles a RelationshipTemplate
      */
     private void initPropsAsVarsInRelationship(final Property2VariableMapping map, final BPELScope templatePlan,
@@ -120,7 +123,7 @@ public class PropertyVariableHandler {
 
                 for (int j = 0; j < propertyElement.getChildNodes().item(i).getChildNodes().getLength(); j++) {
                     if (propertyElement.getChildNodes().item(i).getChildNodes().item(j)
-                        .getNodeType() == Node.TEXT_NODE) {
+                                       .getNodeType() == Node.TEXT_NODE) {
                         value += propertyElement.getChildNodes().item(i).getChildNodes().item(j).getNodeValue();
                     }
                 }
@@ -136,6 +139,7 @@ public class PropertyVariableHandler {
                 } else {
                     this.planHandler.assignInitValueToVariable(propVarName, "", templatePlan.getBuildPlan());
                 }
+
             }
         }
     }
@@ -158,7 +162,7 @@ public class PropertyVariableHandler {
     /**
      * Initializes Property variables for the given TemplateBuildPlan which handles a NodeTemplate
      *
-     * @param map          a PropertyMap to save the result/mappings to
+     * @param map a PropertyMap to save the result/mappings to
      * @param templatePlan a TemplateBuildPlan which handles a NodeTemplate
      */
     private void initPropsAsVarsInNode(final Property2VariableMapping map, final BPELScope templatePlan,
@@ -185,7 +189,7 @@ public class PropertyVariableHandler {
 
                 for (int j = 0; j < propertyElement.getChildNodes().item(i).getChildNodes().getLength(); j++) {
                     if (propertyElement.getChildNodes().item(i).getChildNodes().item(j)
-                        .getNodeType() == Node.TEXT_NODE) {
+                                       .getNodeType() == Node.TEXT_NODE) {
                         value += propertyElement.getChildNodes().item(i).getChildNodes().item(j).getNodeValue();
                     }
                 }
@@ -198,4 +202,5 @@ public class PropertyVariableHandler {
             }
         }
     }
+
 }

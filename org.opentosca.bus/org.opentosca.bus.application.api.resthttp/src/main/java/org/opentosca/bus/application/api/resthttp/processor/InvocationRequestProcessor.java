@@ -18,6 +18,7 @@ import org.json.simple.parser.ParseException;
 import org.opentosca.bus.application.api.resthttp.route.Route;
 import org.opentosca.bus.application.model.constants.ApplicationBusConstants;
 import org.opentosca.bus.application.model.exception.ApplicationBusExternalException;
+import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
@@ -39,131 +40,141 @@ import org.xml.sax.SAXException;
  */
 public class InvocationRequestProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(InvocationRequestProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(InvocationRequestProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) throws ParseException, ApplicationBusExternalException, SAXException {
+  @Override
+  public void process(final Exchange exchange) throws ParseException, ApplicationBusExternalException, SAXException {
 
-        String nodeTemplateID = null;
-        Integer nodeInstanceID = null;
-        Integer serviceInstanceID = null;
-        String interfaceName = null;
-        String operationName = null;
-        LinkedHashMap<String, Object> params = null;
+    String nodeTemplateID = null;
+    Integer nodeInstanceID = null;
+    Integer serviceInstanceID = null;
+    String interfaceName = null;
+    String operationName = null;
+    LinkedHashMap<String, Object> params = null;
 
-        InvocationRequestProcessor.LOG.debug("Processing Invocation request...");
+    InvocationRequestProcessor.LOG.debug("Processing Invocation request...");
 
-        final Message message = exchange.getIn();
+    final Message message = exchange.getIn();
 
-        serviceInstanceID = message.getHeader(Route.SI, Integer.class);
-        InvocationRequestProcessor.LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
-        exchange.getIn().setHeader(ApplicationBusConstants.SERVICE_INSTANCE_ID_INT.toString(), serviceInstanceID);
+    serviceInstanceID = message.getHeader(Route.SI, Integer.class);
+    InvocationRequestProcessor.LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
+    exchange.getIn().setHeader(ApplicationBusConstants.SERVICE_INSTANCE_ID_INT.toString(), serviceInstanceID);
 
-        nodeInstanceID = message.getHeader(Route.NI, Integer.class);
-        InvocationRequestProcessor.LOG.debug("NodeInstanceID: {}", nodeInstanceID);
-        exchange.getIn().setHeader(ApplicationBusConstants.NODE_INSTANCE_ID_INT.toString(), nodeInstanceID);
+    nodeInstanceID = message.getHeader(Route.NI, Integer.class);
+    InvocationRequestProcessor.LOG.debug("NodeInstanceID: {}", nodeInstanceID);
+    exchange.getIn().setHeader(ApplicationBusConstants.NODE_INSTANCE_ID_INT.toString(), nodeInstanceID);
 
-        nodeTemplateID = message.getHeader(Route.NT, String.class);
-        InvocationRequestProcessor.LOG.debug("NodeTemplateID: {}", nodeTemplateID);
-        exchange.getIn().setHeader(ApplicationBusConstants.NODE_TEMPLATE_ID.toString(), nodeTemplateID);
+    nodeTemplateID = message.getHeader(Route.NT, String.class);
+    InvocationRequestProcessor.LOG.debug("NodeTemplateID: {}", nodeTemplateID);
+    exchange.getIn().setHeader(ApplicationBusConstants.NODE_TEMPLATE_ID.toString(), nodeTemplateID);
 
-        interfaceName = message.getHeader(Route.IN, String.class);
-        InvocationRequestProcessor.LOG.debug("Interface: {}", interfaceName);
-        exchange.getIn().setHeader(ApplicationBusConstants.INTERFACE_NAME.toString(), interfaceName);
+    interfaceName = message.getHeader(Route.IN, String.class);
+    InvocationRequestProcessor.LOG.debug("Interface: {}", interfaceName);
+    exchange.getIn().setHeader(ApplicationBusConstants.INTERFACE_NAME.toString(), interfaceName);
 
-        operationName = message.getHeader(Route.ON, String.class);
-        InvocationRequestProcessor.LOG.debug("Operation: {}", operationName);
-        exchange.getIn().setHeader(ApplicationBusConstants.OPERATION_NAME.toString(), operationName);
+    operationName = message.getHeader(Route.ON, String.class);
+    InvocationRequestProcessor.LOG.debug("Operation: {}", operationName);
+    exchange.getIn().setHeader(ApplicationBusConstants.OPERATION_NAME.toString(), operationName);
 
-        final Form httpHeaders = (Form) exchange.getIn().getHeader("org.restlet.http.headers");
-        final String contentType = httpHeaders.getValues("Content-Type").toString();
+    final Form httpHeaders = (Form) exchange.getIn().getHeader("org.restlet.http.headers");
+    final String contentType = httpHeaders.getValues("Content-Type").toString();
 
-        InvocationRequestProcessor.LOG.debug("Content-Type: {}", contentType);
+    InvocationRequestProcessor.LOG.debug("Content-Type: {}", contentType);
 
-        final String bodyString = message.getBody(String.class);
+    final String bodyString = message.getBody(String.class);
 
-        if (bodyString != null) {
+    if (bodyString != null) {
 
-            if (contentType != null && contentType.equals(MediaType.APPLICATION_JSON.getName())) {
+      if (contentType != null && contentType.equals(MediaType.APPLICATION_JSON.getName())) {
 
-                params = jsonStringToMap(bodyString);
-            } else if (contentType != null && contentType.equals(MediaType.APPLICATION_XML.getName())) {
+        params = jsonStringToMap(bodyString);
 
-                params = xmlStringToMap(bodyString);
-            } else {
-                InvocationRequestProcessor.LOG.warn("The request entity media type is not supported. Supported types are {} and {}",
-                    MediaType.APPLICATION_JSON.getName(),
-                    MediaType.APPLICATION_XML.getName());
-                throw new ApplicationBusExternalException(
-                    "The request entity media type is not supported. Supported types are "
-                        + MediaType.APPLICATION_JSON.getName() + " and " + MediaType.APPLICATION_XML.getName(),
-                    Status.CLIENT_ERROR_UNSUPPORTED_MEDIA_TYPE.getCode());
-            }
-        }
+      } else if (contentType != null && contentType.equals(MediaType.APPLICATION_XML.getName())) {
 
-        exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-            ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
+        params = xmlStringToMap(bodyString);
 
-        exchange.getIn().setBody(params);
+      } else {
+        InvocationRequestProcessor.LOG.warn("The request entity media type is not supported. Supported types are {} and {}",
+          MediaType.APPLICATION_JSON.getName(),
+          MediaType.APPLICATION_XML.getName());
+        throw new ApplicationBusExternalException(
+          "The request entity media type is not supported. Supported types are "
+            + MediaType.APPLICATION_JSON.getName() + " and " + MediaType.APPLICATION_XML.getName(),
+          Status.CLIENT_ERROR_UNSUPPORTED_MEDIA_TYPE.getCode());
+      }
     }
 
-    /**
-     * Parses and maps a json String to a {@literal LinkedHashMap<String, Object>}.
-     *
-     * @return LinkedHashMap
-     */
-    private LinkedHashMap<String, Object> jsonStringToMap(final String jsonString) throws ParseException {
+    exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
+      ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
 
-        final ContainerFactory orderedKeyFactory = new ContainerFactory() {
-            @Override
-            public LinkedHashMap<String, Object> createObjectContainer() {
-                return new LinkedHashMap<>();
-            }
+    exchange.getIn().setBody(params);
 
-            @Override
-            public List<?> creatArrayContainer() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        };
+  }
 
-        final JSONParser parser = new JSONParser();
+  /**
+   * Parses and maps a json String to a {@literal LinkedHashMap<String, Object>}.
+   *
+   * @param request
+   * @return LinkedHashMap
+   * @throws IOException
+   * @throws ParseException
+   * @throws ApplicationBusInternalException
+   */
+  private LinkedHashMap<String, Object> jsonStringToMap(final String jsonString) throws ParseException {
 
-        final Object obj = parser.parse(jsonString, orderedKeyFactory);
+    final ContainerFactory orderedKeyFactory = new ContainerFactory() {
+      @Override
+      public LinkedHashMap<String, Object> createObjectContainer() {
+        return new LinkedHashMap<>();
+      }
 
-        return (LinkedHashMap<String, Object>) obj;
-    }
-
-    private LinkedHashMap<String, Object> xmlStringToMap(final String xmlString) throws SAXException {
-
-        final LinkedHashMap<String, Object> params = new LinkedHashMap<>();
-
-        final Document xml = convertStringToDocument(xmlString);
-        final Node parent = xml.getFirstChild();
-        final NodeList childs = parent.getChildNodes();
-        Node child;
-        for (int i = 0; i < childs.getLength(); i++) {
-            child = childs.item(i);
-
-            if (child.getNodeType() == Node.ELEMENT_NODE) {
-                params.put(child.getNodeName(), child.getTextContent());
-            }
-        }
-
-        return params;
-    }
-
-    private static Document convertStringToDocument(final String xmlString) throws SAXException {
-        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-
-        try {
-            builder = factory.newDocumentBuilder();
-            final Document doc = builder.parse(new InputSource(new StringReader(xmlString)));
-            return doc;
-        } catch (ParserConfigurationException | IOException e) {
-            e.printStackTrace();
-        }
+      @Override
+      public List<?> creatArrayContainer() {
+        // TODO Auto-generated method stub
         return null;
+      }
+
+    };
+
+    final JSONParser parser = new JSONParser();
+
+    final Object obj = parser.parse(jsonString, orderedKeyFactory);
+
+    return (LinkedHashMap<String, Object>) obj;
+
+  }
+
+  private LinkedHashMap<String, Object> xmlStringToMap(final String xmlString) throws SAXException {
+
+    final LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+
+    final Document xml = convertStringToDocument(xmlString);
+    final Node parent = xml.getFirstChild();
+    final NodeList childs = parent.getChildNodes();
+    Node child;
+    for (int i = 0; i < childs.getLength(); i++) {
+      child = childs.item(i);
+
+      if (child.getNodeType() == Node.ELEMENT_NODE) {
+        params.put(child.getNodeName(), child.getTextContent());
+      }
     }
+
+    return params;
+  }
+
+  private static Document convertStringToDocument(final String xmlString) throws SAXException {
+    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder;
+
+    try {
+      builder = factory.newDocumentBuilder();
+      final Document doc = builder.parse(new InputSource(new StringReader(xmlString)));
+      return doc;
+    } catch (ParserConfigurationException | IOException e) {
+      e.printStackTrace();
+    }
+    return null;
+
+  }
 }

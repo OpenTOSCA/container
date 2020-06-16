@@ -43,4 +43,5 @@ public abstract class VinothekPlugin<T extends PlanContext> implements IPlanBuil
     public String getID() {
         return VinothekPlugin.PLUGIN_ID;
     }
+
 }

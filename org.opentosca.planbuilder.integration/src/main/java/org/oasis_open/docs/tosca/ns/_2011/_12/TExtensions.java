@@ -6,6 +6,7 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
+
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -40,32 +42,33 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tExtensions", propOrder = {"extension"})
 public class TExtensions extends TExtensibleElements {
 
-    @XmlElement(name = "Extension", required = true)
-    protected List<TExtension> extension;
+  @XmlElement(name = "Extension", required = true)
+  protected List<TExtension> extension;
 
-    /**
-     * Gets the value of the extension property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
-     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
-     * the extension property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     *
-     * <pre>
-     * getExtension().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link TExtension }
-     */
-    public List<TExtension> getExtension() {
-        if (this.extension == null) {
-            this.extension = new ArrayList<>();
-        }
-        return this.extension;
+  /**
+   * Gets the value of the extension property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is why
+   * there is not a <CODE>set</CODE> method for the extension property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   *
+   * <pre>
+   * getExtension().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link TExtension }
+   */
+  public List<TExtension> getExtension() {
+    if (this.extension == null) {
+      this.extension = new ArrayList<>();
     }
+    return this.extension;
+  }
+
 }

@@ -12,64 +12,65 @@ import org.eclipse.winery.model.tosca.TBoolean;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TParameter {
 
-    @XmlAttribute(name = "name")
-    protected String name;
+  @XmlAttribute(name = "name")
+  protected String name;
 
-    @XmlAttribute(name = "type")
-    protected String type;
+  @XmlAttribute(name = "type")
+  protected String type;
 
-    @XmlAttribute(name = "required")
-    protected TBoolean required;
+  @XmlAttribute(name = "required")
+  protected TBoolean required;
 
-    @XmlValue
-    protected String value;
+  @XmlValue
+  protected String value;
 
-    public TParameter() {
 
-    }
+  public TParameter() {
 
-    public TParameter(final org.eclipse.winery.model.tosca.TParameter p) {
-        this.name = p.getName();
-        this.required = p.getRequired();
-        this.type = p.getType();
-    }
+  }
 
-    public TParameter(final TParameterDTO p) {
-        this.name = p.getName();
-        this.required = p.getRequired();
-        this.type = p.getType();
-        this.value = p.getValue();
-    }
+  public TParameter(final org.eclipse.winery.model.tosca.TParameter p) {
+    this.name = p.getName();
+    this.required = p.getRequired();
+    this.type = p.getType();
+  }
 
-    public String getName() {
-        return this.name;
-    }
+  public TParameter(final TParameterDTO p) {
+    this.name = p.getName();
+    this.required = p.getRequired();
+    this.type = p.getType();
+    this.value = p.getValue();
+  }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return this.name;
+  }
 
-    public String getType() {
-        return this.type;
-    }
+  public void setName(final String name) {
+    this.name = name;
+  }
 
-    public void setType(final String type) {
-        this.type = type;
-    }
+  public String getType() {
+    return this.type;
+  }
 
-    public TBoolean getRequired() {
-        return this.required;
-    }
+  public void setType(final String type) {
+    this.type = type;
+  }
 
-    public void setRequired(final TBoolean required) {
-        this.required = required;
-    }
+  public TBoolean getRequired() {
+    return this.required;
+  }
 
-    public String getValue() {
-        return this.value;
-    }
+  public void setRequired(final TBoolean required) {
+    this.required = required;
+  }
 
-    public void setValue(final String value) {
-        this.value = value;
-    }
+  public String getValue() {
+    return this.value;
+  }
+
+  public void setValue(final String value) {
+    this.value = value;
+  }
 }

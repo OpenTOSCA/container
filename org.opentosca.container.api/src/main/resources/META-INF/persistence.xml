@@ -1,64 +1,64 @@
 <persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
-             xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+  xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
 
-    <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
+  <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
 
-        <!-- provider is unspecified to make resolution more failure-tolerant -->
-        <!-- <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider> -->
+    <!-- provider is unspecified to make resolution more failure-tolerant -->
+    <!-- <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider> -->
 
-        <!-- converter classes -->
-        <class>org.opentosca.container.core.common.jpa.CsarIdConverter</class>
-        <class>org.opentosca.container.core.common.jpa.DocumentConverter</class>
-        <class>org.opentosca.container.core.common.jpa.PathConverter</class>
-        <class>org.opentosca.container.core.common.jpa.QNameConverter</class>
-        <class>org.opentosca.container.core.common.jpa.UriConverter</class>
+    <!-- converter classes -->
+    <class>org.opentosca.container.core.common.jpa.CsarIdConverter</class>
+    <class>org.opentosca.container.core.common.jpa.DocumentConverter</class>
+    <class>org.opentosca.container.core.common.jpa.PathConverter</class>
+    <class>org.opentosca.container.core.common.jpa.QNameConverter</class>
+    <class>org.opentosca.container.core.common.jpa.UriConverter</class>
 
-        <!-- entities -->
-        <class>org.opentosca.container.core.next.model.PersistenceObject</class>
-        <class>org.opentosca.container.core.next.model.Property</class>
-        <class>org.opentosca.container.core.next.model.ServiceTemplateInstance</class>
-        <class>org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty</class>
-        <class>org.opentosca.container.core.next.model.NodeTemplateInstance</class>
-        <class>org.opentosca.container.core.next.model.NodeTemplateInstanceProperty</class>
-        <class>org.opentosca.container.core.next.model.RelationshipTemplateInstance</class>
-        <class>org.opentosca.container.core.next.model.RelationshipTemplateInstanceProperty</class>
-        <class>org.opentosca.container.core.next.model.PlanInstance</class>
-        <class>org.opentosca.container.core.next.model.PlanInstanceEvent</class>
-        <class>org.opentosca.container.core.next.model.PlanInstanceOutput</class>
-        <class>org.opentosca.container.core.next.model.PlanInstanceInput</class>
+    <!-- entities -->
+    <class>org.opentosca.container.core.next.model.PersistenceObject</class>
+    <class>org.opentosca.container.core.next.model.Property</class>
+    <class>org.opentosca.container.core.next.model.ServiceTemplateInstance</class>
+    <class>org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty</class>
+    <class>org.opentosca.container.core.next.model.NodeTemplateInstance</class>
+    <class>org.opentosca.container.core.next.model.NodeTemplateInstanceProperty</class>
+    <class>org.opentosca.container.core.next.model.RelationshipTemplateInstance</class>
+    <class>org.opentosca.container.core.next.model.RelationshipTemplateInstanceProperty</class>
+    <class>org.opentosca.container.core.next.model.PlanInstance</class>
+    <class>org.opentosca.container.core.next.model.PlanInstanceEvent</class>
+    <class>org.opentosca.container.core.next.model.PlanInstanceOutput</class>
+    <class>org.opentosca.container.core.next.model.PlanInstanceInput</class>
 
-        <class>org.opentosca.container.core.next.model.DeploymentTest</class>
-        <class>org.opentosca.container.core.next.model.DeploymentTestResult</class>
+    <class>org.opentosca.container.core.next.model.DeploymentTest</class>
+    <class>org.opentosca.container.core.next.model.DeploymentTestResult</class>
 
-        <class>org.opentosca.container.core.next.model.Situation</class>
-        <class>org.opentosca.container.core.next.model.SituationTrigger</class>
-        <class>org.opentosca.container.core.next.model.SituationTriggerProperty</class>
-        <class>org.opentosca.container.core.next.model.SituationTriggerInstance</class>
-        <class>org.opentosca.container.core.next.model.SituationTriggerInstanceProperty</class>
-        <class>org.opentosca.container.core.next.model.SituationsMonitor</class>
-        <class>org.opentosca.container.core.next.model.SituationsMonitorIdCollection</class>
+    <class>org.opentosca.container.core.next.model.Situation</class>
+    <class>org.opentosca.container.core.next.model.SituationTrigger</class>
+    <class>org.opentosca.container.core.next.model.SituationTriggerProperty</class>
+    <class>org.opentosca.container.core.next.model.SituationTriggerInstance</class>
+    <class>org.opentosca.container.core.next.model.SituationTriggerInstanceProperty</class>
+    <class>org.opentosca.container.core.next.model.SituationsMonitor</class>
+    <class>org.opentosca.container.core.next.model.SituationsMonitorIdCollection</class>
 
-        <class>org.opentosca.container.core.model.credentials.Credentials</class>
-        <class>org.opentosca.container.legacy.core.model.CSARContent</class>
-        <class>org.opentosca.container.core.model.deployment.ia.IADeploymentInfo</class>
-        <class>org.opentosca.container.core.model.deployment.plan.PlanDeploymentInfo</class>
-        <class>org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo</class>
-        <class>org.opentosca.container.core.model.deployment.AbstractDeploymentInfo</class>
-        <class>org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo</class>
-        <class>org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint</class>
-        <class>org.opentosca.container.core.model.endpoint.rest.RESTEndpoint</class>
+    <class>org.opentosca.container.core.model.credentials.Credentials</class>
+    <class>org.opentosca.container.legacy.core.model.CSARContent</class>
+    <class>org.opentosca.container.core.model.deployment.ia.IADeploymentInfo</class>
+    <class>org.opentosca.container.core.model.deployment.plan.PlanDeploymentInfo</class>
+    <class>org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo</class>
+    <class>org.opentosca.container.core.model.deployment.AbstractDeploymentInfo</class>
+    <class>org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo</class>
+    <class>org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint</class>
+    <class>org.opentosca.container.core.model.endpoint.rest.RESTEndpoint</class>
 
-        <class>org.opentosca.container.core.model.capability.Capability</class>
+    <class>org.opentosca.container.core.model.capability.Capability</class>
 
-        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
-        <properties>
-            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
-        </properties>
+    <properties>
+      <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
+      <property name="hibernate.hbm2ddl.auto" value="update" />
+      <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+    </properties>
 
-    </persistence-unit>
+  </persistence-unit>
 
 </persistence>

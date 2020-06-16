@@ -29,7 +29,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 public class BPELOpenMTCDockerContainerTypePluginHandler implements
-    OpenMTCDockerContainerTypePluginHandler<BPELPlanContext> {
+                                                         OpenMTCDockerContainerTypePluginHandler<BPELPlanContext> {
     private static final Logger LOG = LoggerFactory.getLogger(BPELOpenMTCDockerContainerTypePluginHandler.class);
     private BPELProcessFragments planBuilderFragments;
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
@@ -40,7 +40,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
     public BPELOpenMTCDockerContainerTypePluginHandler() {
         try {
             this.planBuilderFragments = new BPELProcessFragments();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
     }
@@ -98,10 +99,10 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         if (backendNodeTemplate != null) {
             backendIpVar =
                 templateContext.getPropertyVariable(backendNodeTemplate,
-                    "Endpoint") != null ? templateContext.getPropertyVariable(backendNodeTemplate,
-                    "Endpoint")
-                    : templateContext.getPropertyVariable(backendNodeTemplate,
-                    "IP");
+                                                    "Endpoint") != null ? templateContext.getPropertyVariable(backendNodeTemplate,
+                                                                                                              "Endpoint")
+                                                                        : templateContext.getPropertyVariable(backendNodeTemplate,
+                                                                                                              "IP");
             backendCSEIdVar = templateContext.getPropertyVariable(backendNodeTemplate, "ONEM2MCSEID");
         }
 
@@ -113,12 +114,12 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             // assign portmappings
             Node assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignPortMapping",
-                    "concat($"
-                        + containerPortVar.getVariableName()
-                        + ",',',$"
-                        + portVar.getVariableName()
-                        + ")",
-                    portMappingVar.getVariableName());
+                                                                                          "concat($"
+                                                                                              + containerPortVar.getVariableName()
+                                                                                              + ",',',$"
+                                                                                              + portVar.getVariableName()
+                                                                                              + ")",
+                                                                                          portMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
@@ -136,14 +137,16 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             // assign environment variable mappings
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignEnvironmentVariables",
-                    envVarXpathQuery,
-                    envMappingVar.getVariableName());
+                                                                                          envVarXpathQuery,
+                                                                                          envMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -177,7 +180,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             final AbstractDeploymentArtifact da =
                 BPELDockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate);
             return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
-                containerIpVar, containerIdVar, envMappingVar, null, null);
+                                containerIpVar, containerIdVar, envMappingVar, null, null);
         }
 
         return false;
@@ -189,7 +192,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
 
         for (final AbstractRelationshipTemplate relation : protocolAdapterDerviceNodeTemplate.getIngoingRelations()) {
             if (ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType())
-                .contains(this.pyhsicallyConnectedRelationshipType)) {
+                          .contains(this.pyhsicallyConnectedRelationshipType)) {
                 dataChannelNTs.add(relation.getSource());
             }
         }
@@ -276,7 +279,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             + System.currentTimeMillis(), "");
         final Variable deviceMappingVar =
             templateContext.createGlobalStringVariable("dockerContainerDeviceMappings" + System.currentTimeMillis(),
-                "");
+                                                       "");
         final Variable linksVar =
             templateContext.createGlobalStringVariable("dockerContainerLinks" + System.currentTimeMillis(), "");
 
@@ -287,12 +290,12 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             // assign portmappings
             Node assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignPortMapping",
-                    "concat($"
-                        + containerPortVar.getVariableName()
-                        + ",',',$"
-                        + portVar.getVariableName()
-                        + ")",
-                    portMappingVar.getVariableName());
+                                                                                          "concat($"
+                                                                                              + containerPortVar.getVariableName()
+                                                                                              + ",',',$"
+                                                                                              + portVar.getVariableName()
+                                                                                              + ")",
+                                                                                          portMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
@@ -303,8 +306,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
 
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignContainerIdForLinking",
-                    queryContainerIdXpath,
-                    gatewayContainerIdVar.getVariableName());
+                                                                                          queryContainerIdXpath,
+                                                                                          gatewayContainerIdVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
@@ -321,8 +324,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             // assign environment variable mappings
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignEnvironmentVariables",
-                    envVarConcatXpathQuery,
-                    envMappingVar.getVariableName());
+                                                                                          envVarConcatXpathQuery,
+                                                                                          envMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
@@ -330,22 +333,24 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
 
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignDevices",
-                    deviceMappingConcatXpathQuery,
-                    deviceMappingVar.getVariableName());
+                                                                                          deviceMappingConcatXpathQuery,
+                                                                                          deviceMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 
             final String linksConcatXpathQuery = "concat($" + gatewayContainerIdVar.getVariableName() + ",'')";
             assignContainerPortsNode =
                 this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignLinks",
-                    linksConcatXpathQuery,
-                    linksVar.getVariableName());
+                                                                                          linksConcatXpathQuery,
+                                                                                          linksVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -379,7 +384,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             final AbstractDeploymentArtifact da =
                 BPELDockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate);
             return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
-                containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar);
+                                containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar);
         }
 
         return false;
@@ -394,7 +399,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         context.addStringValueToPlanRequest("csarEntrypoint");
         final String artifactPathQuery =
             this.planBuilderFragments.createXPathQueryForURLRemoteFilePath(da.getArtifactRef().getArtifactReferences()
-                .get(0).getReference());
+                                                                             .get(0).getReference());
 
         final String artefactVarName = "dockerContainerFile" + System.currentTimeMillis();
 
@@ -406,10 +411,12 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
                     + System.currentTimeMillis(), artifactPathQuery, dockerContainerFileRefVar.getVariableName());
             assignNode = context.importNode(assignNode);
             context.getProvisioningPhaseElement().appendChild(assignNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -449,10 +456,11 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         }
 
         this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, createDEInternalExternalPropsInput,
-            createDEInternalExternalPropsOutput, context.getProvisioningPhaseElement());
+                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
+                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, createDEInternalExternalPropsInput,
+                                  createDEInternalExternalPropsOutput, context.getProvisioningPhaseElement());
 
         return true;
     }
+
 }

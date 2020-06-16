@@ -12,6 +12,6 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  */
 public interface VinothekPluginHandler<T extends PlanContext> {
 
-    public boolean handle(final T context, final AbstractNodeTemplate nodeTemplate,
-                          final AbstractNodeTypeImplementation nodeImpl);
+  public boolean handle(final T context, final AbstractNodeTemplate nodeTemplate,
+                        final AbstractNodeTypeImplementation nodeImpl);
 }

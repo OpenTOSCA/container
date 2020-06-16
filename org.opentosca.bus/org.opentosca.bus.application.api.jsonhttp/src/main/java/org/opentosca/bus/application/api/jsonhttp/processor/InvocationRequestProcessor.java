@@ -1,5 +1,6 @@
 package org.opentosca.bus.application.api.jsonhttp.processor;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.opentosca.bus.application.model.constants.ApplicationBusConstants;
+import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,111 +26,124 @@ import org.slf4j.LoggerFactory;
  */
 public class InvocationRequestProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(InvocationRequestProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(InvocationRequestProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) throws NullPointerException, ParseException {
+  @Override
+  public void process(final Exchange exchange) throws NullPointerException, ParseException {
 
-        String nodeTemplateID = null;
-        Integer nodeInstanceID = null;
-        Integer serviceInstanceID = null;
-        String interfaceName = null;
-        String operationName = null;
-        LinkedHashMap<String, Object> params;
+    String nodeTemplateID = null;
+    Integer nodeInstanceID = null;
+    Integer serviceInstanceID = null;
+    String interfaceName = null;
+    String operationName = null;
+    LinkedHashMap<String, Object> params;
 
-        InvocationRequestProcessor.LOG.debug("Processing Invocation request...");
+    InvocationRequestProcessor.LOG.debug("Processing Invocation request...");
 
-        final String bodyString = exchange.getIn().getBody(String.class);
+    final String bodyString = exchange.getIn().getBody(String.class);
 
-        final LinkedHashMap<String, LinkedHashMap<String, Object>> requestMap = requestToMap(bodyString);
+    final LinkedHashMap<String, LinkedHashMap<String, Object>> requestMap = requestToMap(bodyString);
 
-        final LinkedHashMap<String, Object> infosMap = requestMap.get("invocation-information");
+    final LinkedHashMap<String, Object> infosMap = requestMap.get("invocation-information");
 
-        if (infosMap != null) {
+    if (infosMap != null) {
 
-            if (infosMap.containsKey("serviceInstanceID")) {
-                serviceInstanceID = ((Long) infosMap.get("serviceInstanceID")).intValue();
-                InvocationRequestProcessor.LOG.debug("serviceInstanceID: {}", serviceInstanceID);
-                exchange.getIn().setHeader(ApplicationBusConstants.SERVICE_INSTANCE_ID_INT.toString(),
-                    serviceInstanceID);
-            }
-            if (infosMap.containsKey("nodeInstanceID")) {
-                nodeInstanceID = ((Long) infosMap.get("nodeInstanceID")).intValue();
-                InvocationRequestProcessor.LOG.debug("nodeInstanceID: {}", nodeInstanceID);
-                exchange.getIn().setHeader(ApplicationBusConstants.NODE_INSTANCE_ID_INT.toString(), nodeInstanceID);
-            }
-            if (infosMap.containsKey("nodeTemplateID")) {
-                nodeTemplateID = (String) infosMap.get("nodeTemplateID");
-                InvocationRequestProcessor.LOG.debug("nodeTemplateID: {}", nodeTemplateID);
-                exchange.getIn().setHeader(ApplicationBusConstants.NODE_TEMPLATE_ID.toString(), nodeTemplateID);
-            }
-            if (infosMap.containsKey("interface")) {
-                interfaceName = (String) infosMap.get("interface");
-                InvocationRequestProcessor.LOG.debug("interfaceName: {}", interfaceName);
-                exchange.getIn().setHeader(ApplicationBusConstants.INTERFACE_NAME.toString(), interfaceName);
-            }
-            if (infosMap.containsKey("operation")) {
-                operationName = (String) infosMap.get("operation");
-                InvocationRequestProcessor.LOG.debug("operationName: {}", operationName);
-                exchange.getIn().setHeader(ApplicationBusConstants.OPERATION_NAME.toString(), operationName);
-            }
+      if (infosMap.containsKey("serviceInstanceID")) {
+        serviceInstanceID = ((Long) infosMap.get("serviceInstanceID")).intValue();
+        InvocationRequestProcessor.LOG.debug("serviceInstanceID: {}", serviceInstanceID);
+        exchange.getIn().setHeader(ApplicationBusConstants.SERVICE_INSTANCE_ID_INT.toString(),
+          serviceInstanceID);
 
-            final LinkedHashMap<String, Object> paramsMap = requestMap.get("params");
+      }
+      if (infosMap.containsKey("nodeInstanceID")) {
+        nodeInstanceID = ((Long) infosMap.get("nodeInstanceID")).intValue();
+        InvocationRequestProcessor.LOG.debug("nodeInstanceID: {}", nodeInstanceID);
+        exchange.getIn().setHeader(ApplicationBusConstants.NODE_INSTANCE_ID_INT.toString(), nodeInstanceID);
 
-            params = new LinkedHashMap<>();
+      }
+      if (infosMap.containsKey("nodeTemplateID")) {
+        nodeTemplateID = (String) infosMap.get("nodeTemplateID");
+        InvocationRequestProcessor.LOG.debug("nodeTemplateID: {}", nodeTemplateID);
+        exchange.getIn().setHeader(ApplicationBusConstants.NODE_TEMPLATE_ID.toString(), nodeTemplateID);
+      }
+      if (infosMap.containsKey("interface")) {
+        interfaceName = (String) infosMap.get("interface");
+        InvocationRequestProcessor.LOG.debug("interfaceName: {}", interfaceName);
+        exchange.getIn().setHeader(ApplicationBusConstants.INTERFACE_NAME.toString(), interfaceName);
+      }
+      if (infosMap.containsKey("operation")) {
+        operationName = (String) infosMap.get("operation");
+        InvocationRequestProcessor.LOG.debug("operationName: {}", operationName);
+        exchange.getIn().setHeader(ApplicationBusConstants.OPERATION_NAME.toString(), operationName);
+      }
 
-            if (paramsMap != null) {
+      final LinkedHashMap<String, Object> paramsMap = requestMap.get("params");
 
-                InvocationRequestProcessor.LOG.debug("Params:");
+      params = new LinkedHashMap<>();
 
-                for (final Entry<String, Object> set : paramsMap.entrySet()) {
+      if (paramsMap != null) {
 
-                    final String name = set.getKey();
-                    InvocationRequestProcessor.LOG.debug("Name: {}", name);
+        InvocationRequestProcessor.LOG.debug("Params:");
 
-                    final Object value = set.getValue();
-                    InvocationRequestProcessor.LOG.debug("Value: {}", set.getValue());
+        for (final Entry<String, Object> set : paramsMap.entrySet()) {
 
-                    params.put(name, value);
-                }
-            } else {
-                InvocationRequestProcessor.LOG.debug("No parameter specified.");
-            }
-        } else {
-            InvocationRequestProcessor.LOG.warn("Needed information not specified.");
-            throw new NullPointerException();
+          final String name = set.getKey();
+          InvocationRequestProcessor.LOG.debug("Name: {}", name);
+
+          final Object value = set.getValue();
+          InvocationRequestProcessor.LOG.debug("Value: {}", set.getValue());
+
+          params.put(name, value);
+
         }
 
-        exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-            ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
+      } else {
+        InvocationRequestProcessor.LOG.debug("No parameter specified.");
+      }
 
-        exchange.getIn().setBody(params);
+    } else {
+      InvocationRequestProcessor.LOG.warn("Needed information not specified.");
+      throw new NullPointerException();
     }
 
-    /**
-     * Parses and maps a json String to a {@literal LinkedHashMap<String, LinkedHashMap<String, Object>>}.
-     *
-     * @return LinkedHashMap
-     */
-    private LinkedHashMap<String, LinkedHashMap<String, Object>> requestToMap(final String body) throws ParseException {
+    exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
+      ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
 
-        final ContainerFactory orderedKeyFactory = new ContainerFactory() {
-            @Override
-            public Map<String, LinkedHashMap<String, Object>> createObjectContainer() {
-                return new LinkedHashMap<>();
-            }
+    exchange.getIn().setBody(params);
 
-            @Override
-            public List<?> creatArrayContainer() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        };
+  }
 
-        final JSONParser parser = new JSONParser();
+  /**
+   * Parses and maps a json String to a
+   * {@literal LinkedHashMap<String, LinkedHashMap<String, Object>>}.
+   *
+   * @param request
+   * @return LinkedHashMap
+   * @throws IOException
+   * @throws ParseException
+   * @throws ApplicationBusInternalException
+   */
+  private LinkedHashMap<String, LinkedHashMap<String, Object>> requestToMap(final String body) throws ParseException {
 
-        final Object obj = parser.parse(body, orderedKeyFactory);
+    final ContainerFactory orderedKeyFactory = new ContainerFactory() {
+      @Override
+      public Map<String, LinkedHashMap<String, Object>> createObjectContainer() {
+        return new LinkedHashMap<>();
+      }
 
-        return (LinkedHashMap<String, LinkedHashMap<String, Object>>) obj;
-    }
+      @Override
+      public List<?> creatArrayContainer() {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+    };
+
+    final JSONParser parser = new JSONParser();
+
+    final Object obj = parser.parse(body, orderedKeyFactory);
+
+    return (LinkedHashMap<String, LinkedHashMap<String, Object>>) obj;
+
+  }
 }

@@ -6,6 +6,7 @@
 // Generated on: 2016.02.25 at 04:54:56 PM CET
 //
 
+
 package org.opentosca.bus.application.api.soaphttp.model;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -39,32 +41,33 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "ParamsMap", propOrder = {"param"})
 public class ParamsMap {
 
-    @XmlElement(name = "Param", required = true)
-    protected List<ParamsMapItemType> param;
+  @XmlElement(name = "Param", required = true)
+  protected List<ParamsMapItemType> param;
 
-    /**
-     * Gets the value of the param property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
-     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
-     * the param property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     *
-     * <pre>
-     * getParam().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link ParamsMapItemType }
-     */
-    public List<ParamsMapItemType> getParam() {
-        if (this.param == null) {
-            this.param = new ArrayList<>();
-        }
-        return this.param;
+  /**
+   * Gets the value of the param property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is why
+   * there is not a <CODE>set</CODE> method for the param property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   *
+   * <pre>
+   * getParam().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link ParamsMapItemType }
+   */
+  public List<ParamsMapItemType> getParam() {
+    if (this.param == null) {
+      this.param = new ArrayList<>();
     }
+    return this.param;
+  }
+
 }

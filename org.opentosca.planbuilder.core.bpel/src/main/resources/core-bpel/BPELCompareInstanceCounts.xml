@@ -1,52 +1,47 @@
 <bpel:if xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
-    <bpel:condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{booleanExpression}
-    </bpel:condition>
-    <bpel:sequence>
+	<bpel:condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{booleanExpression}</bpel:condition>
+	<bpel:sequence>
 
-        <bpel:forEach counterName="nodeInstanceIndex" parallel="no">
+		<bpel:forEach counterName="nodeInstanceIndex" parallel="no">
 
-            <bpel:startCounterValue
-                expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{integerExpression}
-            </bpel:startCounterValue>
-            <bpel:finalCounterValue
-                expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{integerExpression2}
-            </bpel:finalCounterValue>
+			<bpel:startCounterValue
+				expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{integerExpression}</bpel:startCounterValue>
+			<bpel:finalCounterValue
+				expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{integerExpression2}</bpel:finalCounterValue>
 
 
-            <bpel:scope>
-                <bpel:forEach counterName="relationInstanceIndex" parallel="no">
+			<bpel:scope>
+				<bpel:forEach counterName="relationInstanceIndex" parallel="no">
 
-                    <bpel:startCounterValue
-                        expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{integerExpression3}
-                    </bpel:startCounterValue>
-                    <bpel:finalCounterValue
-                        expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{integerExpression4}
-                    </bpel:finalCounterValue>
+					<bpel:startCounterValue
+						expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{integerExpression3}</bpel:startCounterValue>
+					<bpel:finalCounterValue
+						expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">{integerExpression4}</bpel:finalCounterValue>
 
-                    <bpel:scope>
-                        <!-- fetch relation instance data to check source and target -->
-                    </bpel:scope>
+					<bpel:scope>
+					<!-- fetch relation instance data to check source and target -->
+					</bpel:scope>
 
-                </bpel:forEach>
-            </bpel:scope>
+				</bpel:forEach>
+			</bpel:scope>
 
-        </bpel:forEach>
+		</bpel:forEach>
 
-    </bpel:sequence>
-    <bpel:else>
-        <bpel:sequence>
-            <!-- assign last nodeInstance from list -->
-            <bpel:assign validate="no" name="{AssignName}">
-                <!-- {AssignName},{xpath2query}, {stringVarName} -->
-                <bpel:copy>
-                    <bpel:from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                        <![CDATA[{xpath2query}]]>
-                    </bpel:from>
-                    <bpel:to expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                        <![CDATA[${stringVarName}]]>
-                    </bpel:to>
-                </bpel:copy>
-            </bpel:assign>
-        </bpel:sequence>
-    </bpel:else>
+	</bpel:sequence>
+	<bpel:else>
+		<bpel:sequence>
+			<!-- assign last nodeInstance from list -->
+			<bpel:assign validate="no" name="{AssignName}">
+				<!-- {AssignName},{xpath2query}, {stringVarName} -->
+				<bpel:copy>
+					<bpel:from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+			<![CDATA[{xpath2query}]]>
+					</bpel:from>
+					<bpel:to expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+		    <![CDATA[${stringVarName}]]>
+					</bpel:to>
+				</bpel:copy>
+			</bpel:assign>
+		</bpel:sequence>
+	</bpel:else>
 </bpel:if>

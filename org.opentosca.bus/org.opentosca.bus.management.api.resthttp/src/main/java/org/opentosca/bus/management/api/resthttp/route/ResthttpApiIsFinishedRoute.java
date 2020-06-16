@@ -19,20 +19,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResthttpApiIsFinishedRoute extends RouteBuilder {
 
-    @Override
-    public void configure() throws Exception {
+  @Override
+  public void configure() throws Exception {
 
-        final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
-        final IsFinishedProcessor isFinishedProcessor = new IsFinishedProcessor();
-        final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
-        final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
+    final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
+    final IsFinishedProcessor isFinishedProcessor = new IsFinishedProcessor();
+    final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
+    final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
-        // handle exceptions
-        onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
-            .process(exceptionProcessor);
+    // handle exceptions
+    onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
+      .process(exceptionProcessor);
 
-        from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
-            + "?restletMethod=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
-            .process(isFinishedResponseProcessor).removeHeaders("*");
-    }
+    from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
+      + "?restletMethod=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
+      .process(isFinishedResponseProcessor).removeHeaders("*");
+  }
 }

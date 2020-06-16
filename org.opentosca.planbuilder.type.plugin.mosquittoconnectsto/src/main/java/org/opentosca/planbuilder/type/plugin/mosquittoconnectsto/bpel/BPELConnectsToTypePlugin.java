@@ -12,67 +12,68 @@ import org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core.ConnectsTo
  * Copyright 2016 IAAS University of Stuttgart <br>
  * <br>
  * <p>
- * This class implements a PlanBuilder Type Plugin for the RelationshipType MosquittoConnectsTo. The plugin looks for a
- * connection of the given RelationshipTemplate with a Moquitto Stack which entails a Topic and Mosquitto node.
+ * This class implements a PlanBuilder Type Plugin for the RelationshipType MosquittoConnectsTo. The
+ * plugin looks for a connection of the given RelationshipTemplate with a Moquitto Stack which
+ * entails a Topic and Mosquitto node.
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  */
 public class BPELConnectsToTypePlugin extends ConnectsToTypePlugin<BPELPlanContext> {
 
-    private BPELConnectsToPluginHandler handler;
+  private BPELConnectsToPluginHandler handler;
 
-    public BPELConnectsToTypePlugin() {
-        try {
-            this.handler = new BPELConnectsToPluginHandler();
-        } catch (final ParserConfigurationException e) {
-            e.printStackTrace();
-        }
+  public BPELConnectsToTypePlugin() {
+    try {
+      this.handler = new BPELConnectsToPluginHandler();
+    } catch (final ParserConfigurationException e) {
+      e.printStackTrace();
     }
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#handle(org.
-     * opentosca.planbuilder.plugins.context.BPELPlanContext)
-     */
-    @Override
-    public boolean handleCreate(final BPELPlanContext templateContext,
-                                AbstractRelationshipTemplate relationshipTemplate) {
-        return this.handler.handle(templateContext);
-    }
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#handle(org.
+   * opentosca.planbuilder.plugins.context.BPELPlanContext)
+   */
+  @Override
+  public boolean handleCreate(final BPELPlanContext templateContext,
+                              AbstractRelationshipTemplate relationshipTemplate) {
+    return this.handler.handle(templateContext);
+  }
 
-    @Override
-    public boolean handleCreate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
-        return false;
-    }
+  @Override
+  public boolean handleCreate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+    return false;
+  }
 
-    @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
-        // we never handle nodeTemplates in this plugin
-        return false;
-    }
+  @Override
+  public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+    // we never handle nodeTemplates in this plugin
+    return false;
+  }
 
-    @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
-        // TODO we have to define the semantics of a disconnect first
-        return false;
-    }
+  @Override
+  public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+    // TODO we have to define the semantics of a disconnect first
+    return false;
+  }
 
-    @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
-        // we never handle nodeTemplates in this plugin
-        return false;
-    }
+  @Override
+  public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+    // we never handle nodeTemplates in this plugin
+    return false;
+  }
 
-    @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
-        // TODO we have to define the semantics of a disconnect first
-        return false;
-    }
+  @Override
+  public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    // TODO we have to define the semantics of a disconnect first
+    return false;
+  }
 
-    @Override
-    public int getPriority() {
-        // connection should be handled by the generic plugin, but this can be used for specific mosquitto connections
-        return 0;
-    }
+  @Override
+  public int getPriority() {
+    // connection should be handled by the generic plugin, but this can be used for specific mosquitto connections
+    return 0;
+  }
 }

@@ -69,6 +69,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
      * <p>
      * Default Constructor
      * </p>
+     *
+     * @param pluginRegistry
      */
     public BPELFreezeProcessBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);

@@ -6,6 +6,7 @@
 // Generated on: 2013.07.29 at 03:39:23 PM MESZ
 //
 
+
 package org.opentosca.bus.management.invocation.plugin.rest.model;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -67,26 +69,95 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "DataAssign")
 public class DataAssign {
 
-    @XmlElement(name = "Operations", required = true)
-    protected DataAssign.Operations operations;
+  @XmlElement(name = "Operations", required = true)
+  protected DataAssign.Operations operations;
+
+  /**
+   * Gets the value of the operations property.
+   *
+   * @return possible object is {@link DataAssign.Operations }
+   */
+  public DataAssign.Operations getOperations() {
+    return this.operations;
+  }
+
+  /**
+   * Sets the value of the operations property.
+   *
+   * @param value allowed object is {@link DataAssign.Operations }
+   */
+  public void setOperations(final DataAssign.Operations value) {
+    this.operations = value;
+  }
+
+
+  /**
+   * <p>
+   * Java class for anonymous complex type.
+   *
+   * <p>
+   * The following schema fragment specifies the expected content contained within this class.
+   *
+   * <pre>
+   * &lt;complexType>
+   *   &lt;complexContent>
+   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+   *       &lt;sequence>
+   *         &lt;element name="Operation" maxOccurs="unbounded">
+   *           &lt;complexType>
+   *             &lt;complexContent>
+   *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+   *                 &lt;sequence>
+   *                   &lt;element name="Endpoint" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}EndpointType" minOccurs="0"/>
+   *                   &lt;element name="Params" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}ParamsType" minOccurs="0"/>
+   *                   &lt;element name="ContentType" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}ContentType" minOccurs="0"/>
+   *                   &lt;element name="Methode" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}MethodeType" minOccurs="0"/>
+   *                 &lt;/sequence>
+   *                 &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" />
+   *                 &lt;attribute name="interfaceName" type="{http://www.w3.org/2001/XMLSchema}string" />
+   *               &lt;/restriction>
+   *             &lt;/complexContent>
+   *           &lt;/complexType>
+   *         &lt;/element>
+   *       &lt;/sequence>
+   *     &lt;/restriction>
+   *   &lt;/complexContent>
+   * &lt;/complexType>
+   * </pre>
+   */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(name = "", propOrder = {"operation"})
+  public static class Operations {
+
+    @XmlElement(name = "Operation", required = true)
+    protected List<DataAssign.Operations.Operation> operation;
 
     /**
-     * Gets the value of the operations property.
+     * Gets the value of the operation property.
      *
-     * @return possible object is {@link DataAssign.Operations }
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+     * modification you make to the returned list will be present inside the JAXB object. This is why
+     * there is not a <CODE>set</CODE> method for the operation property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getOperation().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link DataAssign.Operations.Operation }
      */
-    public DataAssign.Operations getOperations() {
-        return this.operations;
+    public List<DataAssign.Operations.Operation> getOperation() {
+      if (this.operation == null) {
+        this.operation = new ArrayList<>();
+      }
+      return this.operation;
     }
 
-    /**
-     * Sets the value of the operations property.
-     *
-     * @param value allowed object is {@link DataAssign.Operations }
-     */
-    public void setOperations(final DataAssign.Operations value) {
-        this.operations = value;
-    }
 
     /**
      * <p>
@@ -100,209 +171,145 @@ public class DataAssign {
      *   &lt;complexContent>
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
      *       &lt;sequence>
-     *         &lt;element name="Operation" maxOccurs="unbounded">
-     *           &lt;complexType>
-     *             &lt;complexContent>
-     *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *                 &lt;sequence>
-     *                   &lt;element name="Endpoint" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}EndpointType" minOccurs="0"/>
-     *                   &lt;element name="Params" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}ParamsType" minOccurs="0"/>
-     *                   &lt;element name="ContentType" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}ContentType" minOccurs="0"/>
-     *                   &lt;element name="Methode" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}MethodeType" minOccurs="0"/>
-     *                 &lt;/sequence>
-     *                 &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" />
-     *                 &lt;attribute name="interfaceName" type="{http://www.w3.org/2001/XMLSchema}string" />
-     *               &lt;/restriction>
-     *             &lt;/complexContent>
-     *           &lt;/complexType>
-     *         &lt;/element>
+     *         &lt;element name="Endpoint" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}EndpointType" minOccurs="0"/>
+     *         &lt;element name="Params" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}ParamsType" minOccurs="0"/>
+     *         &lt;element name="ContentType" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}ContentType" minOccurs="0"/>
+     *         &lt;element name="Methode" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}MethodeType" minOccurs="0"/>
      *       &lt;/sequence>
+     *       &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" />
+     *       &lt;attribute name="interfaceName" type="{http://www.w3.org/2001/XMLSchema}string" />
      *     &lt;/restriction>
      *   &lt;/complexContent>
      * &lt;/complexType>
      * </pre>
      */
     @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {"operation"})
-    public static class Operations {
+    @XmlType(name = "", propOrder = {"endpoint", "params", "contentType", "methode"})
+    public static class Operation {
 
-        @XmlElement(name = "Operation", required = true)
-        protected List<DataAssign.Operations.Operation> operation;
+      @XmlElement(name = "Endpoint")
+      protected EndpointType endpoint;
+      @XmlElement(name = "Params")
+      protected ParamsType params;
+      @XmlElement(name = "ContentType")
+      protected ContentType contentType;
+      @XmlElement(name = "Methode")
+      protected MethodeType methode;
+      @XmlAttribute
+      protected String name;
+      @XmlAttribute
+      protected String interfaceName;
 
-        /**
-         * Gets the value of the operation property.
-         *
-         * <p>
-         * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you
-         * make to the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE>
-         * method for the operation property.
-         *
-         * <p>
-         * For example, to add a new item, do as follows:
-         *
-         * <pre>
-         * getOperation().add(newItem);
-         * </pre>
-         *
-         *
-         * <p>
-         * Objects of the following type(s) are allowed in the list {@link DataAssign.Operations.Operation }
-         */
-        public List<DataAssign.Operations.Operation> getOperation() {
-            if (this.operation == null) {
-                this.operation = new ArrayList<>();
-            }
-            return this.operation;
-        }
+      /**
+       * Gets the value of the endpoint property.
+       *
+       * @return possible object is {@link EndpointType }
+       */
+      public EndpointType getEndpoint() {
+        return this.endpoint;
+      }
 
-        /**
-         * <p>
-         * Java class for anonymous complex type.
-         *
-         * <p>
-         * The following schema fragment specifies the expected content contained within this class.
-         *
-         * <pre>
-         * &lt;complexType>
-         *   &lt;complexContent>
-         *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-         *       &lt;sequence>
-         *         &lt;element name="Endpoint" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}EndpointType" minOccurs="0"/>
-         *         &lt;element name="Params" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}ParamsType" minOccurs="0"/>
-         *         &lt;element name="ContentType" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}ContentType" minOccurs="0"/>
-         *         &lt;element name="Methode" type="{http://www.siengine.restplugin.org/SpecificContentRestSchema}MethodeType" minOccurs="0"/>
-         *       &lt;/sequence>
-         *       &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" />
-         *       &lt;attribute name="interfaceName" type="{http://www.w3.org/2001/XMLSchema}string" />
-         *     &lt;/restriction>
-         *   &lt;/complexContent>
-         * &lt;/complexType>
-         * </pre>
-         */
-        @XmlAccessorType(XmlAccessType.FIELD)
-        @XmlType(name = "", propOrder = {"endpoint", "params", "contentType", "methode"})
-        public static class Operation {
+      /**
+       * Sets the value of the endpoint property.
+       *
+       * @param value allowed object is {@link EndpointType }
+       */
+      public void setEndpoint(final EndpointType value) {
+        this.endpoint = value;
+      }
 
-            @XmlElement(name = "Endpoint")
-            protected EndpointType endpoint;
-            @XmlElement(name = "Params")
-            protected ParamsType params;
-            @XmlElement(name = "ContentType")
-            protected ContentType contentType;
-            @XmlElement(name = "Methode")
-            protected MethodeType methode;
-            @XmlAttribute
-            protected String name;
-            @XmlAttribute
-            protected String interfaceName;
+      /**
+       * Gets the value of the params property.
+       *
+       * @return possible object is {@link ParamsType }
+       */
+      public ParamsType getParams() {
+        return this.params;
+      }
 
-            /**
-             * Gets the value of the endpoint property.
-             *
-             * @return possible object is {@link EndpointType }
-             */
-            public EndpointType getEndpoint() {
-                return this.endpoint;
-            }
+      /**
+       * Sets the value of the params property.
+       *
+       * @param value allowed object is {@link ParamsType }
+       */
+      public void setParams(final ParamsType value) {
+        this.params = value;
+      }
 
-            /**
-             * Sets the value of the endpoint property.
-             *
-             * @param value allowed object is {@link EndpointType }
-             */
-            public void setEndpoint(final EndpointType value) {
-                this.endpoint = value;
-            }
+      /**
+       * Gets the value of the contentType property.
+       *
+       * @return possible object is {@link ContentType }
+       */
+      public ContentType getContentType() {
+        return this.contentType;
+      }
 
-            /**
-             * Gets the value of the params property.
-             *
-             * @return possible object is {@link ParamsType }
-             */
-            public ParamsType getParams() {
-                return this.params;
-            }
+      /**
+       * Sets the value of the contentType property.
+       *
+       * @param value allowed object is {@link ContentType }
+       */
+      public void setContentType(final ContentType value) {
+        this.contentType = value;
+      }
 
-            /**
-             * Sets the value of the params property.
-             *
-             * @param value allowed object is {@link ParamsType }
-             */
-            public void setParams(final ParamsType value) {
-                this.params = value;
-            }
+      /**
+       * Gets the value of the methode property.
+       *
+       * @return possible object is {@link MethodeType }
+       */
+      public MethodeType getMethode() {
+        return this.methode;
+      }
 
-            /**
-             * Gets the value of the contentType property.
-             *
-             * @return possible object is {@link ContentType }
-             */
-            public ContentType getContentType() {
-                return this.contentType;
-            }
+      /**
+       * Sets the value of the methode property.
+       *
+       * @param value allowed object is {@link MethodeType }
+       */
+      public void setMethode(final MethodeType value) {
+        this.methode = value;
+      }
 
-            /**
-             * Sets the value of the contentType property.
-             *
-             * @param value allowed object is {@link ContentType }
-             */
-            public void setContentType(final ContentType value) {
-                this.contentType = value;
-            }
+      /**
+       * Gets the value of the name property.
+       *
+       * @return possible object is {@link String }
+       */
+      public String getName() {
+        return this.name;
+      }
 
-            /**
-             * Gets the value of the methode property.
-             *
-             * @return possible object is {@link MethodeType }
-             */
-            public MethodeType getMethode() {
-                return this.methode;
-            }
+      /**
+       * Sets the value of the name property.
+       *
+       * @param value allowed object is {@link String }
+       */
+      public void setName(final String value) {
+        this.name = value;
+      }
 
-            /**
-             * Sets the value of the methode property.
-             *
-             * @param value allowed object is {@link MethodeType }
-             */
-            public void setMethode(final MethodeType value) {
-                this.methode = value;
-            }
+      /**
+       * Gets the value of the interfaceName property.
+       *
+       * @return possible object is {@link String }
+       */
+      public String getInterfaceName() {
+        return this.interfaceName;
+      }
 
-            /**
-             * Gets the value of the name property.
-             *
-             * @return possible object is {@link String }
-             */
-            public String getName() {
-                return this.name;
-            }
+      /**
+       * Sets the value of the interfaceName property.
+       *
+       * @param value allowed object is {@link String }
+       */
+      public void setInterfaceName(final String value) {
+        this.interfaceName = value;
+      }
 
-            /**
-             * Sets the value of the name property.
-             *
-             * @param value allowed object is {@link String }
-             */
-            public void setName(final String value) {
-                this.name = value;
-            }
-
-            /**
-             * Gets the value of the interfaceName property.
-             *
-             * @return possible object is {@link String }
-             */
-            public String getInterfaceName() {
-                return this.interfaceName;
-            }
-
-            /**
-             * Sets the value of the interfaceName property.
-             *
-             * @param value allowed object is {@link String }
-             */
-            public void setInterfaceName(final String value) {
-                this.interfaceName = value;
-            }
-        }
     }
+
+  }
+
 }

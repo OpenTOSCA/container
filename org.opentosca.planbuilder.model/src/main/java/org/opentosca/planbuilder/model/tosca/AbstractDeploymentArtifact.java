@@ -12,6 +12,7 @@ import javax.xml.namespace.QName;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public abstract class AbstractDeploymentArtifact {
 
@@ -72,4 +73,5 @@ public abstract class AbstractDeploymentArtifact {
 
         return true;
     }
+
 }

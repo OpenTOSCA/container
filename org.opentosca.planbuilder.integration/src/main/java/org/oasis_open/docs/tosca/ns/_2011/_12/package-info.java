@@ -7,5 +7,5 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://docs.oasis-open.org/tosca/ns/2011/12",
-    elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+  elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.oasis_open.docs.tosca.ns._2011._12;

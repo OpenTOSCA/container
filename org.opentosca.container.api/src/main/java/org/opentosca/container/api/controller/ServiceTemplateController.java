@@ -13,9 +13,6 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
@@ -30,6 +27,10 @@ import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.stereotype.Component;
 
 @Path("/csars/{csar}/servicetemplates")
@@ -37,149 +38,149 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServiceTemplateController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
+  private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
 
-    @Context
-    private UriInfo uriInfo;
+  @Context
+  private UriInfo uriInfo;
 
-    @Context
-    private Request request;
+  @Context
+  private Request request;
 
-    @Context
-    private ResourceContext resourceContext;
+  @Context
+  private ResourceContext resourceContext;
 
-    @Inject
-    private PlanService planService;
+  @Inject
+  private PlanService planService;
 
-    @Inject
-    private InstanceService instanceService;
+  @Inject
+  private InstanceService instanceService;
 
-    @Inject
-    private NodeTemplateService nodeTemplateService;
+  @Inject
+  private NodeTemplateService nodeTemplateService;
 
-    @Inject
-    private RelationshipTemplateService relationshipTemplateService;
+  @Inject
+  private RelationshipTemplateService relationshipTemplateService;
 
-    @Inject
-    private DeploymentTestService deploymentTestService;
+  @Inject
+  private DeploymentTestService deploymentTestService;
 
-    @Inject
-    private CsarStorageService storage;
+  @Inject
+  private CsarStorageService storage;
 
-    @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all service templates", response = ServiceTemplateListDTO.class)
-    public Response getServiceTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId) {
-        logger.info("Loading all service templates for csar [{}]", csarId);
-        final Csar csar = storage.findById(new CsarId(csarId));
-        final ServiceTemplateListDTO list = new ServiceTemplateListDTO();
+  @GET
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get all service templates", response = ServiceTemplateListDTO.class)
+  public Response getServiceTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId) {
+    logger.info("Loading all service templates for csar [{}]", csarId);
+    final Csar csar = storage.findById(new CsarId(csarId));
+    final ServiceTemplateListDTO list = new ServiceTemplateListDTO();
 
-        for (final TServiceTemplate template : csar.serviceTemplates()) {
-            final String templateId = template.getIdFromIdOrNameField();
-            final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO(templateId);
-            serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, templateId, false, "self"));
-            list.add(serviceTemplate);
-        }
-
-        list.add(UriUtil.generateSelfLink(this.uriInfo));
-
-        return Response.ok(list).build();
+    for (final TServiceTemplate template : csar.serviceTemplates()) {
+      final String templateId = template.getIdFromIdOrNameField();
+      final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO(templateId);
+      serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, templateId, false, "self"));
+      list.add(serviceTemplate);
     }
 
-    @GET
-    @Path("/{servicetemplate}")
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a service template", response = ServiceTemplateDTO.class)
-    public Response getServiceTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
-                                       @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
+    list.add(UriUtil.generateSelfLink(this.uriInfo));
 
-        final Csar csar = storage.findById(new CsarId(csarId));
-        // return value is not used, we only need to throw if we didn't find stuff
-        csar.serviceTemplates().stream()
-            .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
-            .findFirst().orElseThrow(NotFoundException::new);
+    return Response.ok(list).build();
+  }
 
-        final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO(serviceTemplateId);
+  @GET
+  @Path("/{servicetemplate}")
+  @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get a service template", response = ServiceTemplateDTO.class)
+  public Response getServiceTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
+                                     @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
 
-        serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "boundarydefinitions", false,
-            "boundarydefinitions"));
-        serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "buildplans", false, "buildplans"));
-        serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
-        serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "nodetemplates", false, "nodetemplates"));
-        serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "relationshiptemplates", false,
-            "relationshiptemplates"));
-        serviceTemplate.add(UriUtil.generateSelfLink(this.uriInfo));
+    final Csar csar = storage.findById(new CsarId(csarId));
+    // return value is not used, we only need to throw if we didn't find stuff
+    csar.serviceTemplates().stream()
+      .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
+      .findFirst().orElseThrow(NotFoundException::new);
 
-        return Response.ok(serviceTemplate).build();
-    }
+    final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO(serviceTemplateId);
 
-    @Path("/{servicetemplate}/buildplans")
-    public BuildPlanController getBuildPlans(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
-                                             @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
-        final Csar csar = storage.findById(new CsarId(csarId));
-        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-            .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
-            .findFirst().orElseThrow(NotFoundException::new);
+    serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "boundarydefinitions", false,
+      "boundarydefinitions"));
+    serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "buildplans", false, "buildplans"));
+    serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
+    serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "nodetemplates", false, "nodetemplates"));
+    serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "relationshiptemplates", false,
+      "relationshiptemplates"));
+    serviceTemplate.add(UriUtil.generateSelfLink(this.uriInfo));
 
-        return new BuildPlanController(csar, serviceTemplate, this.planService);
-    }
+    return Response.ok(serviceTemplate).build();
+  }
 
-    @Path("/{servicetemplate}/nodetemplates")
-    public NodeTemplateController getNodeTemplates(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
-                                                   @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
+  @Path("/{servicetemplate}/buildplans")
+  public BuildPlanController getBuildPlans(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
+                                           @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
+    final Csar csar = storage.findById(new CsarId(csarId));
+    final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
+      .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
+      .findFirst().orElseThrow(NotFoundException::new);
 
-        final Csar csar = storage.findById(new CsarId(csarId));
-        // return value is not used, we only need to throw if we didn't find stuff
-        csar.serviceTemplates().stream()
-            .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
-            .findFirst().orElseThrow(NotFoundException::new);
+    return new BuildPlanController(csar, serviceTemplate, this.planService);
+  }
 
-        final NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.instanceService);
-        this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
-        return child;
-    }
+  @Path("/{servicetemplate}/nodetemplates")
+  public NodeTemplateController getNodeTemplates(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
+                                                 @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
 
-    @Path("/{servicetemplate}/relationshiptemplates")
-    public RelationshipTemplateController getRelationshipTemplates(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
-                                                                   @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
-        final Csar csar = storage.findById(new CsarId(csarId));
-        // return value is not used, we only need to throw if we didn't find stuff
-        csar.serviceTemplates().stream()
-            .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
-            .findFirst().orElseThrow(NotFoundException::new);
+    final Csar csar = storage.findById(new CsarId(csarId));
+    // return value is not used, we only need to throw if we didn't find stuff
+    csar.serviceTemplates().stream()
+      .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
+      .findFirst().orElseThrow(NotFoundException::new);
 
-        final RelationshipTemplateController child =
-            new RelationshipTemplateController(this.relationshipTemplateService, this.instanceService);
-        this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
-        return child;
-    }
+    final NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.instanceService);
+    this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
+    return child;
+  }
 
-    @Path("/{servicetemplate}/placement")
-    public PlacementController startPlacement(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
-                                              @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
-        final Csar csar = storage.findById(new CsarId(csarId));
-        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-            .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
-            .findFirst().orElseThrow(NotFoundException::new);
+  @Path("/{servicetemplate}/relationshiptemplates")
+  public RelationshipTemplateController getRelationshipTemplates(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
+                                                                 @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
+    final Csar csar = storage.findById(new CsarId(csarId));
+    // return value is not used, we only need to throw if we didn't find stuff
+    csar.serviceTemplates().stream()
+      .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
+      .findFirst().orElseThrow(NotFoundException::new);
 
-        // init placement controller if placement is started
-        final PlacementController child = new PlacementController(instanceService, nodeTemplateService);
-        resourceContext.initResource(child);
-        return child;
-    }
+    final RelationshipTemplateController child =
+      new RelationshipTemplateController(this.relationshipTemplateService, this.instanceService);
+    this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
+    return child;
+  }
 
-    @Path("/{servicetemplate}/instances")
-    public ServiceTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
-                                                          @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
-        final Csar csar = storage.findById(new CsarId(csarId));
-        // return value is not used, we only need to throw if we didn't find stuff
-        TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-            .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
-            .findFirst().orElseThrow(NotFoundException::new);
+  @Path("/{servicetemplate}/placement")
+  public PlacementController startPlacement(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
+                                            @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
+      final Csar csar = storage.findById(new CsarId(csarId));
+      final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
+          .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
+          .findFirst().orElseThrow(NotFoundException::new);
 
-        final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(csar, serviceTemplate, this.instanceService,
-            this.planService, this.deploymentTestService);
-        this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
-        return child;
-    }
+      // init placement controller if placement is started
+      final PlacementController child = new PlacementController(instanceService, nodeTemplateService);
+      resourceContext.initResource(child);
+      return child;
+  }
+
+  @Path("/{servicetemplate}/instances")
+  public ServiceTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
+                                                        @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
+    final Csar csar = storage.findById(new CsarId(csarId));
+    // return value is not used, we only need to throw if we didn't find stuff
+    TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
+      .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
+      .findFirst().orElseThrow(NotFoundException::new);
+
+    final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(csar, serviceTemplate, this.instanceService,
+      this.planService, this.deploymentTestService);
+    this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
+    return child;
+  }
 }

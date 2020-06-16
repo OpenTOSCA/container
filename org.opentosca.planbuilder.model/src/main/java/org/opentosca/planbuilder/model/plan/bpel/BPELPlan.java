@@ -20,16 +20,18 @@ import org.w3c.dom.Element;
 
 /**
  * <p>
- * This class is the main model for the PlanBuilder. It represents a BPEL Process, which enforces the structure of the
- * concepts in <a href= "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
- * >Konzept und Implementierung eine Java-Komponente zur Generierung von WS-BPEL 2.0 BuildPlans für OpenTOSCA</a>. The
- * methods on this class mostly consist of setters/getters, all logic should be made through the facade under
- * org.opentosca.planbuilder.handlers
+ * This class is the main model for the PlanBuilder. It represents a BPEL Process, which enforces
+ * the structure of the concepts in <a href=
+ * "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
+ * >Konzept und Implementierung eine Java-Komponente zur Generierung von WS-BPEL 2.0 BuildPlans für
+ * OpenTOSCA</a>. The methods on this class mostly consist of setters/getters, all logic should be
+ * made through the facade under org.opentosca.planbuilder.handlers
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public class BPELPlan extends AbstractPlan {
 
@@ -41,6 +43,7 @@ public class BPELPlan extends AbstractPlan {
      * <br>
      *
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+     *
      */
     public enum VariableType {
         MESSAGE, TYPE, ELEMENT;
@@ -54,6 +57,7 @@ public class BPELPlan extends AbstractPlan {
      * <br>
      *
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+     *
      */
     public enum ImportType {
         WSDL, XSD;
@@ -128,7 +132,7 @@ public class BPELPlan extends AbstractPlan {
     public BPELPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
                     final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
                     final Collection<Link> links) {
-        super(id, type, definitions, serviceTemplate, activities, links);
+      super(id, type, definitions, serviceTemplate, activities, links);
     }
 
     public void setTOSCAInterfaceName(final String name) {

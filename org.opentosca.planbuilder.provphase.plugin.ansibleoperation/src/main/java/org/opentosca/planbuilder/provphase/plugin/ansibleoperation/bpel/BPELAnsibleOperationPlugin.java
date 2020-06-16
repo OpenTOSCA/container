@@ -20,6 +20,7 @@ import org.w3c.dom.Element;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
+ *
  */
 public class BPELAnsibleOperationPlugin extends AnsibleOperationPlugin<BPELPlanContext> {
 

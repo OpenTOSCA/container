@@ -16,45 +16,47 @@ import org.opentosca.planbuilder.model.tosca.AbstractPropertyMapping;
  */
 public class PropertyMappingImpl extends AbstractPropertyMapping {
 
-    private final TPropertyMapping mapping;
+  private final TPropertyMapping mapping;
 
-    /**
-     * Constructor
-     *
-     * @param mapping a JAXB TPropertyMapping
-     */
-    public PropertyMappingImpl(final TPropertyMapping mapping) {
-        this.mapping = mapping;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getServiceTemplatePropertyRef() {
-        return this.mapping.getServiceTemplatePropertyRef();
-    }
+  /**
+   * Constructor
+   *
+   * @param mapping a JAXB TPropertyMapping
+   */
+  public PropertyMappingImpl(final TPropertyMapping mapping) {
+    this.mapping = mapping;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getTargetObjectRef() {
-        final Object obj = this.mapping.getTargetObjectRef();
-        if (obj instanceof TNodeTemplate) {
-            return ((TNodeTemplate) obj).getId();
-        }
-        if (obj instanceof TRelationshipTemplate) {
-            return ((TRelationshipTemplate) obj).getId();
-        }
-        return null;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getServiceTemplatePropertyRef() {
+    return this.mapping.getServiceTemplatePropertyRef();
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getTargetPropertyRef() {
-        return this.mapping.getTargetPropertyRef();
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getTargetObjectRef() {
+    final Object obj = this.mapping.getTargetObjectRef();
+    if (obj instanceof TNodeTemplate) {
+      return ((TNodeTemplate) obj).getId();
     }
+    if (obj instanceof TRelationshipTemplate) {
+      return ((TRelationshipTemplate) obj).getId();
+    }
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getTargetPropertyRef() {
+    return this.mapping.getTargetPropertyRef();
+  }
+
 }

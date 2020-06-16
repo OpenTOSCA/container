@@ -16,15 +16,17 @@ import org.xml.sax.SAXException;
 
 /**
  * <p>
- * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to the OpenTOSCA
- * Container InstanceData API
+ * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to
+ * the OpenTOSCA Container InstanceData API
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanContext> {
+
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
@@ -33,6 +35,7 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
         final String inputFieldName = nodeTemplate.getId() + "_InstanceID";
         context.addStringValueToPlanRequest(inputFieldName);
 
+        
         // fetch nodeInstanceVar
         final String nodeInstanceVarName = context.findInstanceURLVar(nodeTemplate.getId(), true);
 
@@ -40,18 +43,20 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
         try {
             Node assignFromInputToNodeInstanceIdVar =
                 new BPELProcessFragments().generateAssignFromInputMessageToStringVariableAsNode(inputFieldName,
-                    nodeInstanceVarName);
+                                                                                                nodeInstanceVarName);
             assignFromInputToNodeInstanceIdVar = context.importNode(assignFromInputToNodeInstanceIdVar);
             context.getPrePhaseElement().appendChild(assignFromInputToNodeInstanceIdVar);
-        } catch (IOException | ParserConfigurationException | SAXException e) {
+        }
+        catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
 
         try {
             new NodeRelationInstanceVariablesHandler(
                 new BPELPlanHandler()).addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate,
-                context.getServiceTemplate());
-        } catch (final ParserConfigurationException e) {
+                                                                                      context.getServiceTemplate());
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
 
@@ -62,4 +67,5 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
     public int getPriority() {
         return 1;
     }
+
 }

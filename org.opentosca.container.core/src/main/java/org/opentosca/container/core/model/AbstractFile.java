@@ -11,49 +11,51 @@ import org.opentosca.container.core.common.SystemException;
 @Deprecated
 public abstract class AbstractFile {
 
-    private final String FILE_REFERENCE;
+  private final String FILE_REFERENCE;
 
-    /**
-     * Creates a {@link AbstractFile}.
-     *
-     * @param fileReference that points to this file.
-     */
-    public AbstractFile(final String fileReference) {
-        this.FILE_REFERENCE = fileReference;
-    }
 
-    /**
-     * Retrieves this file to a temporary directory.
-     *
-     * @return {@link Path} of this file.
-     * @throws SystemException if an error occurred during retrieving.
-     */
-    public abstract Path getFile() throws SystemException;
+  /**
+   * Creates a {@link AbstractFile}.
+   *
+   * @param fileReference that points to this file.
+   */
+  public AbstractFile(final String fileReference) {
+    this.FILE_REFERENCE = fileReference;
+  }
 
-    /**
-     * @return {@link InputStream} of this file.
-     * @throws SystemException if an error occurred during getting.
-     */
-    public abstract InputStream getFileAsInputStream() throws SystemException;
+  /**
+   * Retrieves this file to a temporary directory.
+   *
+   * @return {@link Path} of this file.
+   * @throws SystemException if an error occurred during retrieving.
+   */
+  public abstract Path getFile() throws SystemException;
 
-    /**
-     * @return File name of this file.
-     */
-    public abstract String getName();
+  /**
+   * @return {@link InputStream} of this file.
+   * @throws SystemException if an error occurred during getting.
+   */
+  public abstract InputStream getFileAsInputStream() throws SystemException;
 
-    /**
-     * @return Reference that points to this file.
-     */
-    public String getPath() {
-        return this.FILE_REFERENCE;
-    }
+  /**
+   * @return File name of this file.
+   */
+  public abstract String getName();
 
-    /**
-     * @return String representation of this file.
-     */
-    @Override
-    public abstract String toString();
+  /**
+   * @return Reference that points to this file.
+   */
+  public String getPath() {
+    return this.FILE_REFERENCE;
+  }
 
-    @Override
-    public abstract boolean equals(Object file);
+  /**
+   * @return String representation of this file.
+   */
+  @Override
+  public abstract String toString();
+
+  @Override
+  public abstract boolean equals(Object file);
+
 }

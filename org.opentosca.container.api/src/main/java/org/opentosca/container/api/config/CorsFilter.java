@@ -30,6 +30,7 @@ public class CorsFilter implements ContainerResponseFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(CorsFilter.class.getName());
 
+
     @Override
     public void filter(final ContainerRequestContext request,
                        final ContainerResponseContext response) throws IOException {

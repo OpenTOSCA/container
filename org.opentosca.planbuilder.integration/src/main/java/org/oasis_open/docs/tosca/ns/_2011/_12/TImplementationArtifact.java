@@ -6,6 +6,7 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
+
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -17,6 +18,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
+
 
 /**
  * <p>
@@ -44,87 +46,88 @@ import javax.xml.namespace.QName;
 @XmlSeeAlso( {org.oasis_open.docs.tosca.ns._2011._12.TImplementationArtifacts.ImplementationArtifact.class})
 public class TImplementationArtifact extends TExtensibleElements {
 
-    @XmlAttribute
-    @XmlSchemaType(name = "anyURI")
-    protected String interfaceName;
-    @XmlAttribute
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "NCName")
-    protected String operationName;
-    @XmlAttribute(required = true)
-    protected QName artifactType;
-    @XmlAttribute
-    protected QName artifactRef;
+  @XmlAttribute
+  @XmlSchemaType(name = "anyURI")
+  protected String interfaceName;
+  @XmlAttribute
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "NCName")
+  protected String operationName;
+  @XmlAttribute(required = true)
+  protected QName artifactType;
+  @XmlAttribute
+  protected QName artifactRef;
 
-    /**
-     * Gets the value of the interfaceName property.
-     *
-     * @return possible object is {@link String }
-     */
-    public String getInterfaceName() {
-        return this.interfaceName;
-    }
+  /**
+   * Gets the value of the interfaceName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getInterfaceName() {
+    return this.interfaceName;
+  }
 
-    /**
-     * Sets the value of the interfaceName property.
-     *
-     * @param value allowed object is {@link String }
-     */
-    public void setInterfaceName(final String value) {
-        this.interfaceName = value;
-    }
+  /**
+   * Sets the value of the interfaceName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setInterfaceName(final String value) {
+    this.interfaceName = value;
+  }
 
-    /**
-     * Gets the value of the operationName property.
-     *
-     * @return possible object is {@link String }
-     */
-    public String getOperationName() {
-        return this.operationName;
-    }
+  /**
+   * Gets the value of the operationName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getOperationName() {
+    return this.operationName;
+  }
 
-    /**
-     * Sets the value of the operationName property.
-     *
-     * @param value allowed object is {@link String }
-     */
-    public void setOperationName(final String value) {
-        this.operationName = value;
-    }
+  /**
+   * Sets the value of the operationName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setOperationName(final String value) {
+    this.operationName = value;
+  }
 
-    /**
-     * Gets the value of the artifactType property.
-     *
-     * @return possible object is {@link QName }
-     */
-    public QName getArtifactType() {
-        return this.artifactType;
-    }
+  /**
+   * Gets the value of the artifactType property.
+   *
+   * @return possible object is {@link QName }
+   */
+  public QName getArtifactType() {
+    return this.artifactType;
+  }
 
-    /**
-     * Sets the value of the artifactType property.
-     *
-     * @param value allowed object is {@link QName }
-     */
-    public void setArtifactType(final QName value) {
-        this.artifactType = value;
-    }
+  /**
+   * Sets the value of the artifactType property.
+   *
+   * @param value allowed object is {@link QName }
+   */
+  public void setArtifactType(final QName value) {
+    this.artifactType = value;
+  }
 
-    /**
-     * Gets the value of the artifactRef property.
-     *
-     * @return possible object is {@link QName }
-     */
-    public QName getArtifactRef() {
-        return this.artifactRef;
-    }
+  /**
+   * Gets the value of the artifactRef property.
+   *
+   * @return possible object is {@link QName }
+   */
+  public QName getArtifactRef() {
+    return this.artifactRef;
+  }
 
-    /**
-     * Sets the value of the artifactRef property.
-     *
-     * @param value allowed object is {@link QName }
-     */
-    public void setArtifactRef(final QName value) {
-        this.artifactRef = value;
-    }
+  /**
+   * Sets the value of the artifactRef property.
+   *
+   * @param value allowed object is {@link QName }
+   */
+  public void setArtifactRef(final QName value) {
+    this.artifactRef = value;
+  }
+
 }

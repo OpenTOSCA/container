@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.persistence.PostUpdate;
 import javax.persistence.PreUpdate;
 
-import com.google.common.collect.Lists;
 import org.opentosca.container.core.engine.management.IManagementBus;
 import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
@@ -20,6 +19,8 @@ import org.opentosca.container.core.next.repository.SituationTriggerRepository;
 import org.opentosca.container.core.next.repository.SituationsMonitorRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -28,126 +29,133 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
  */
 public class SituationListener {
 
-    final private static Logger LOG = LoggerFactory.getLogger(SituationListener.class);
+  final private static Logger LOG = LoggerFactory.getLogger(SituationListener.class);
 
-    // injection crutch to enable managementBus adaption
-    @Autowired
-    private IManagementBus managementBus;
+  // injection crutch to enable managementBus adaption
+  @Autowired
+  private IManagementBus managementBus;
 
-    final SituationRepository sitRepo = new SituationRepository();
-    final SituationTriggerRepository sitTrigRepo = new SituationTriggerRepository();
-    final SituationTriggerInstanceRepository sitTrigInstRepo = new SituationTriggerInstanceRepository();
-    final SituationsMonitorRepository sitMonRepo = new SituationsMonitorRepository();
+  final SituationRepository sitRepo = new SituationRepository();
+  final SituationTriggerRepository sitTrigRepo = new SituationTriggerRepository();
+  final SituationTriggerInstanceRepository sitTrigInstRepo = new SituationTriggerInstanceRepository();
+  final SituationsMonitorRepository sitMonRepo = new SituationsMonitorRepository();
 
-    @PostUpdate
-    void situationAfterUpdate(final Situation situation) {
-        Collection<SituationsMonitor> monis = sitMonRepo.findSituationMonitorsBySituationId(situation.getId());
+  @PostUpdate
+  void situationAfterUpdate(final Situation situation) {
+    Collection<SituationsMonitor> monis = sitMonRepo.findSituationMonitorsBySituationId(situation.getId());
 
-        // this SHOULD inject the managementBus dependency when we use it
-        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        for (SituationsMonitor moni : monis) {
-            sendServiceInstanceAdaptionEvent(moni);
-        }
+    // this SHOULD inject the managementBus dependency when we use it
+    SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    for (SituationsMonitor moni : monis) {
+      sendServiceInstanceAdaptionEvent(moni);
+    }
+  }
+
+
+  @PreUpdate
+  void situationBeforeUpdate(final Situation situation) {
+    LOG.info("Updating situation with template " + situation.getSituationTemplateId() + " and thing "
+      + situation.getThingId() + " with active state " + situation.isActive());
+
+    final Situation sitInRepo = this.sitRepo.find(situation.getId()).get();
+
+    if (situation.isActive() == sitInRepo.isActive()) {
+      // nothing changed => do nothing
+      return;
     }
 
-    @PreUpdate
-    void situationBeforeUpdate(final Situation situation) {
-        LOG.info("Updating situation with template " + situation.getSituationTemplateId() + " and thing "
-            + situation.getThingId() + " with active state " + situation.isActive());
+    // handling triggers on situation changes
+    final List<SituationTrigger> triggers =
+      this.sitTrigRepo.findSituationTriggersBySituationId(situation.getId());
+    final List<SituationTriggerInstance> newInstances = Lists.newArrayList();
 
-        final Situation sitInRepo = this.sitRepo.find(situation.getId()).get();
+    if (situation.isActive()) {
+      // fetch triggers that must be triggered on activation
+      triggers.forEach(x -> {
+        if (x.isTriggerOnActivation()) {
+          if (!x.isSingleInstance()) {
+            // if this is not a single instance we can just kick of another trigger
+            final SituationTriggerInstance newInstance = new SituationTriggerInstance();
+            newInstance.setSituationTrigger(x);
+            newInstance.setStarted(false);
+            newInstance.setFinished(false);
+            newInstances.add(newInstance);
+          } else {
+            // we have to check if there is already an instance of the trigger
 
-        if (situation.isActive() == sitInRepo.isActive()) {
-            // nothing changed => do nothing
-            return;
+            final List<SituationTriggerInstance> singleInstanceTriggerInstances =
+              this.sitTrigInstRepo.findBySituationTriggerId(x.getId());
+
+            int count = 0;
+
+            for (final SituationTriggerInstance instance : singleInstanceTriggerInstances) {
+              if (instance.isFinished()) {
+                count++;
+              }
+            }
+
+            if (count == singleInstanceTriggerInstances.size()) {
+              // create new instance
+              final SituationTriggerInstance newInstance = new SituationTriggerInstance();
+              newInstance.setSituationTrigger(x);
+              newInstance.setStarted(false);
+              newInstance.setFinished(false);
+              newInstances.add(newInstance);
+            }
+
+          }
+
         }
+      });
 
-        // handling triggers on situation changes
-        final List<SituationTrigger> triggers =
-            this.sitTrigRepo.findSituationTriggersBySituationId(situation.getId());
-        final List<SituationTriggerInstance> newInstances = Lists.newArrayList();
+    } else {
+      // fetch triggers that must kicked of on deactivation
+      triggers.forEach(x -> {
+        if (!x.isTriggerOnActivation()) {
+          if (!x.isSingleInstance()) {
+            // if this is not a single instance we can just kick of another trigger
+            final SituationTriggerInstance newInstance = new SituationTriggerInstance();
+            newInstance.setSituationTrigger(x);
+            newInstance.setStarted(false);
+            newInstance.setFinished(false);
+            newInstances.add(newInstance);
+          } else {
+            // we have to check if there is already an instance of the trigger
 
-        if (situation.isActive()) {
-            // fetch triggers that must be triggered on activation
-            triggers.forEach(x -> {
-                if (x.isTriggerOnActivation()) {
-                    if (!x.isSingleInstance()) {
-                        // if this is not a single instance we can just kick of another trigger
-                        final SituationTriggerInstance newInstance = new SituationTriggerInstance();
-                        newInstance.setSituationTrigger(x);
-                        newInstance.setStarted(false);
-                        newInstance.setFinished(false);
-                        newInstances.add(newInstance);
-                    } else {
-                        // we have to check if there is already an instance of the trigger
+            final List<SituationTriggerInstance> singleInstanceTriggerInstances =
+              this.sitTrigInstRepo.findBySituationTriggerId(x.getId());
 
-                        final List<SituationTriggerInstance> singleInstanceTriggerInstances =
-                            this.sitTrigInstRepo.findBySituationTriggerId(x.getId());
+            int count = 0;
 
-                        int count = 0;
+            for (final SituationTriggerInstance instance : singleInstanceTriggerInstances) {
+              if (instance.isFinished()) {
+                count++;
+              }
+            }
 
-                        for (final SituationTriggerInstance instance : singleInstanceTriggerInstances) {
-                            if (instance.isFinished()) {
-                                count++;
-                            }
-                        }
+            if (count == singleInstanceTriggerInstances.size()) {
+              // create new instance
+              final SituationTriggerInstance newInstance = new SituationTriggerInstance();
+              newInstance.setSituationTrigger(x);
+              newInstance.setStarted(false);
+              newInstance.setFinished(false);
+              newInstances.add(newInstance);
+            }
 
-                        if (count == singleInstanceTriggerInstances.size()) {
-                            // create new instance
-                            final SituationTriggerInstance newInstance = new SituationTriggerInstance();
-                            newInstance.setSituationTrigger(x);
-                            newInstance.setStarted(false);
-                            newInstance.setFinished(false);
-                            newInstances.add(newInstance);
-                        }
-                    }
-                }
-            });
-        } else {
-            // fetch triggers that must kicked of on deactivation
-            triggers.forEach(x -> {
-                if (!x.isTriggerOnActivation()) {
-                    if (!x.isSingleInstance()) {
-                        // if this is not a single instance we can just kick of another trigger
-                        final SituationTriggerInstance newInstance = new SituationTriggerInstance();
-                        newInstance.setSituationTrigger(x);
-                        newInstance.setStarted(false);
-                        newInstance.setFinished(false);
-                        newInstances.add(newInstance);
-                    } else {
-                        // we have to check if there is already an instance of the trigger
+          }
 
-                        final List<SituationTriggerInstance> singleInstanceTriggerInstances =
-                            this.sitTrigInstRepo.findBySituationTriggerId(x.getId());
-
-                        int count = 0;
-
-                        for (final SituationTriggerInstance instance : singleInstanceTriggerInstances) {
-                            if (instance.isFinished()) {
-                                count++;
-                            }
-                        }
-
-                        if (count == singleInstanceTriggerInstances.size()) {
-                            // create new instance
-                            final SituationTriggerInstance newInstance = new SituationTriggerInstance();
-                            newInstance.setSituationTrigger(x);
-                            newInstance.setStarted(false);
-                            newInstance.setFinished(false);
-                            newInstances.add(newInstance);
-                        }
-                    }
-                }
-            });
         }
-        this.sitTrigInstRepo.add(newInstances);
+      });
     }
+    this.sitTrigInstRepo.add(newInstances);
+  }
 
-    private void sendServiceInstanceAdaptionEvent(SituationsMonitor monitor) {
-        final Map<String, Object> eventProperties = new HashMap<>();
-        eventProperties.put("SERVICEINSTANCE", monitor.getServiceInstance());
-        eventProperties.put("NODE2SITUATIONS", monitor.getNode2Situations());
+  private void sendServiceInstanceAdaptionEvent(SituationsMonitor monitor) {
+    final Map<String, Object> eventProperties = new HashMap<>();
+    eventProperties.put("SERVICEINSTANCE", monitor.getServiceInstance());
+    eventProperties.put("NODE2SITUATIONS", monitor.getNode2Situations());
 
-        managementBus.situationAdaption(eventProperties);
-    }
+    managementBus.situationAdaption(eventProperties);
+  }
+
 }

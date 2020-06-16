@@ -7,23 +7,24 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.opentosca.container.api.dto.ResourceSupport;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
-import org.opentosca.container.api.dto.ResourceSupport;
 
 @XmlRootElement(name = "SituationResources")
 public class SituationListDTO extends ResourceSupport {
 
-    @JsonProperty
-    @XmlElement(name = "Situation")
-    @XmlElementWrapper(name = "Situations")
-    private final List<SituationDTO> situations = Lists.newArrayList();
+  @JsonProperty
+  @XmlElement(name = "Situation")
+  @XmlElementWrapper(name = "Situations")
+  private final List<SituationDTO> situations = Lists.newArrayList();
 
-    public List<SituationDTO> getSituations() {
-        return this.situations;
-    }
+  public List<SituationDTO> getSituations() {
+    return this.situations;
+  }
 
-    public void add(final SituationDTO... situations) {
-        this.situations.addAll(Arrays.asList(situations));
-    }
+  public void add(final SituationDTO... situations) {
+    this.situations.addAll(Arrays.asList(situations));
+  }
 }

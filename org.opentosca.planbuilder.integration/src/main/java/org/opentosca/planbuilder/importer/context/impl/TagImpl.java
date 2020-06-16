@@ -14,30 +14,32 @@ import org.opentosca.planbuilder.model.tosca.AbstractTag;
  */
 public class TagImpl extends AbstractTag {
 
-    private final TTag tag;
+  private final TTag tag;
 
-    /**
-     * Constructor
-     *
-     * @param tag a JAXB TTag
-     */
-    public TagImpl(final TTag tag) {
-        this.tag = tag;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return this.tag.getName();
-    }
+  /**
+   * Constructor
+   *
+   * @param tag a JAXB TTag
+   */
+  public TagImpl(final TTag tag) {
+    this.tag = tag;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getValue() {
-        return this.tag.getValue();
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getName() {
+    return this.tag.getName();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getValue() {
+    return this.tag.getValue();
+  }
+
 }

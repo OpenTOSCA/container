@@ -20,18 +20,19 @@ import org.w3c.dom.NodeList;
  *
  */
 public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> implements
-    org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin<T> {
+                                                      org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin<T> {
     private static final String ID = "OpenTOSCA PlanBuilder Type Plugin OpenMTC DockerContainer";
 
     public static AbstractNodeTemplate findConnectedBackend(final AbstractNodeTemplate gatewayNodeTemplate) {
         for (final AbstractRelationshipTemplate relationshipTemplate : gatewayNodeTemplate.getOutgoingRelations()) {
             if (ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType())
-                .contains(Types.connectsToRelationType)) {
+                          .contains(Types.connectsToRelationType)) {
                 if (ModelUtils.getNodeTypeHierarchy(relationshipTemplate.getTarget().getType())
-                    .contains(DockerContainerTypePluginPluginConstants.OPENMTC_BACKEND_SERVICE_NODETYPE)) {
+                              .contains(DockerContainerTypePluginPluginConstants.OPENMTC_BACKEND_SERVICE_NODETYPE)) {
                     return relationshipTemplate.getTarget();
                 }
             }
+
         }
         return null;
     }
@@ -39,12 +40,13 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     public static AbstractNodeTemplate findConnectedGateway(final AbstractNodeTemplate protocolAdapterNodeTemplate) {
         for (final AbstractRelationshipTemplate relationshipTemplate : protocolAdapterNodeTemplate.getOutgoingRelations()) {
             if (ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType())
-                .contains(Types.connectsToRelationType)) {
+                          .contains(Types.connectsToRelationType)) {
                 if (ModelUtils.getNodeTypeHierarchy(relationshipTemplate.getTarget().getType())
-                    .contains(DockerContainerTypePluginPluginConstants.OPENMTC_GATEWAY_DOCKER_CONTAINER_NODETYPE)) {
+                              .contains(DockerContainerTypePluginPluginConstants.OPENMTC_GATEWAY_DOCKER_CONTAINER_NODETYPE)) {
                     return relationshipTemplate.getTarget();
                 }
             }
+
         }
         return null;
     }
@@ -173,12 +175,13 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
         }
 
         return ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType())
-            .contains(DockerContainerTypePluginPluginConstants.OPENMTC_GATEWAY_DOCKER_CONTAINER_NODETYPE);
+                         .contains(DockerContainerTypePluginPluginConstants.OPENMTC_GATEWAY_DOCKER_CONTAINER_NODETYPE);
+
     }
 
     public boolean canHandleProtocolAdapter(final AbstractNodeTemplate nodeTemplate) {
         if (!ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType())
-            .contains(DockerContainerTypePluginPluginConstants.OPENMTC_PROTOCOL_ADAPTER_DOCKER_CONTAINER_NODETYPE)) {
+                       .contains(DockerContainerTypePluginPluginConstants.OPENMTC_PROTOCOL_ADAPTER_DOCKER_CONTAINER_NODETYPE)) {
             return false;
         }
 
@@ -198,4 +201,5 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     public String getID() {
         return ID;
     }
+
 }

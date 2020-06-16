@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public class ServiceTemplateImpl extends AbstractServiceTemplate {
 
@@ -32,6 +33,7 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
     private TServiceTemplate serviceTemplate = null;
     private AbstractTopologyTemplate topologyTemplate = null;
     private DefinitionsImpl definitions = null;
+
 
     /**
      * Constructor
@@ -134,14 +136,15 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
             final TPlans plans = this.serviceTemplate.getPlans();
             final List<TPlan> plans2 = plans.getPlan();
             ServiceTemplateImpl.LOG.debug("Checking whether ServiceTemplate {} has no BuildPlan",
-                this.getQName().toString());
+                                          this.getQName().toString());
             for (final TPlan plan : plans.getPlan()) {
                 ServiceTemplateImpl.LOG.debug("Checking Plan {} of Type {}", plan.getId(), plan.getPlanType());
                 if (plan.getPlanType().trim()
-                    .equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan")) {
+                        .equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan")) {
                     return true;
                 }
             }
+
         }
         return false;
     }
@@ -152,14 +155,15 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
             final TPlans plans = this.serviceTemplate.getPlans();
             final List<TPlan> plans2 = plans.getPlan();
             ServiceTemplateImpl.LOG.debug("Checking whether ServiceTemplate {} has no TerminationPlan",
-                this.getQName().toString());
+                                          this.getQName().toString());
             for (final TPlan plan : plans.getPlan()) {
                 ServiceTemplateImpl.LOG.debug("Checking Plan {} of Type {}", plan.getId(), plan.getPlanType());
                 if (plan.getPlanType().trim()
-                    .equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan")) {
+                        .equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan")) {
                     return true;
                 }
             }
+
         }
         return false;
     }
@@ -180,4 +184,5 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
 
         return tags;
     }
+
 }

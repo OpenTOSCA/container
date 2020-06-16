@@ -10,14 +10,16 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
  */
 public class NodeTemplateActivity extends AbstractActivity {
 
-    private final AbstractNodeTemplate nodeTemplate;
+  private final AbstractNodeTemplate nodeTemplate;
 
-    public NodeTemplateActivity(final String id, final ActivityType type, final AbstractNodeTemplate nodeTemplate) {
-        super(id, type);
-        this.nodeTemplate = nodeTemplate;
-    }
 
-    public AbstractNodeTemplate getNodeTemplate() {
-        return this.nodeTemplate;
-    }
+  public NodeTemplateActivity(final String id, final ActivityType type, final AbstractNodeTemplate nodeTemplate) {
+    super(id, type);
+    this.nodeTemplate = nodeTemplate;
+  }
+
+  public AbstractNodeTemplate getNodeTemplate() {
+    return this.nodeTemplate;
+  }
+
 }

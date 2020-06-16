@@ -10,34 +10,35 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ServiceTemplateDTO extends ResourceSupport {
 
-    private String id;
+  private String id;
 
-    private String name;
+  private String name;
 
-    public ServiceTemplateDTO() {
 
-    }
+  public ServiceTemplateDTO() {
 
-    public ServiceTemplateDTO(final String qname) {
-        this.name = qname;
-        this.id = qname;
-    }
+  }
 
-    @XmlAttribute(name = "id")
-    public String getId() {
-        return this.id;
-    }
+  public ServiceTemplateDTO(final String qname) {
+    this.name = qname;
+    this.id = qname;
+  }
 
-    public void setId(final String id) {
-        this.id = id;
-    }
+  @XmlAttribute(name = "id")
+  public String getId() {
+    return this.id;
+  }
 
-    @XmlElement(name = "Name")
-    public String getName() {
-        return this.name;
-    }
+  public void setId(final String id) {
+    this.id = id;
+  }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
+  @XmlElement(name = "Name")
+  public String getName() {
+    return this.name;
+  }
+
+  public void setName(final String name) {
+    this.name = name;
+  }
 }

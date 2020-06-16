@@ -6,6 +6,7 @@
 // Generated on: 2018.07.16 at 01:55:00 PM CEST
 //
 
+
 package org.opentosca.bus.management.api.soaphttp.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,6 +15,7 @@ import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.w3c.dom.Element;
+
 
 /**
  * <p>
@@ -38,24 +40,25 @@ import org.w3c.dom.Element;
 @XmlType(name = "Doc", propOrder = {"any"})
 public class Doc {
 
-    @XmlAnyElement
-    protected Element any;
+  @XmlAnyElement
+  protected Element any;
 
-    /**
-     * Gets the value of the any property.
-     *
-     * @return possible object is {@link Element }
-     */
-    public Element getAny() {
-        return this.any;
-    }
+  /**
+   * Gets the value of the any property.
+   *
+   * @return possible object is {@link Element }
+   */
+  public Element getAny() {
+    return this.any;
+  }
 
-    /**
-     * Sets the value of the any property.
-     *
-     * @param value allowed object is {@link Element }
-     */
-    public void setAny(final Element value) {
-        this.any = value;
-    }
+  /**
+   * Sets the value of the any property.
+   *
+   * @param value allowed object is {@link Element }
+   */
+  public void setAny(final Element value) {
+    this.any = value;
+  }
+
 }

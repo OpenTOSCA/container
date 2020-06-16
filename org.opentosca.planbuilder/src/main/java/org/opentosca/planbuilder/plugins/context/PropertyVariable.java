@@ -48,7 +48,7 @@ public class PropertyVariable extends Variable {
     public String getPropertyName() {
         return this.propertyName;
     }
-
+    
     public String getContent() {
         return this.nodeTemplate.getProperties().asMap().get(this.propertyName);
     }

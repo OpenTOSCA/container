@@ -11,17 +11,17 @@ package org.opentosca.planbuilder.model.tosca;
  */
 public abstract class AbstractTag {
 
-    /**
-     * Returns the Name of this Tag
-     *
-     * @return a String containing the Name of this Tag
-     */
-    public abstract String getName();
+  /**
+   * Returns the Name of this Tag
+   *
+   * @return a String containing the Name of this Tag
+   */
+  public abstract String getName();
 
-    /**
-     * Returns the Value of this Tag
-     *
-     * @return a String containing the Value of this Tag
-     */
-    public abstract String getValue();
+  /**
+   * Returns the Value of this Tag
+   *
+   * @return a String containing the Value of this Tag
+   */
+  public abstract String getValue();
 }

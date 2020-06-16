@@ -6,15 +6,15 @@
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
-    <description>
-        Configuration for Spring-Bean service discovery across container.core
-    </description>
+  <description>
+    Configuration for Spring-Bean service discovery across container.core
+  </description>
 
-    <context:annotation-config/>
+  <context:annotation-config />
 
-    <context:component-scan base-package="org.opentosca.container.core.impl.service"/>
-    <context:component-scan base-package="org.opentosca.container.core.plan"/>
-    <!-- xml serializer service -->
-    <context:component-scan base-package="org.opentosca.container.core.engine.xml.impl"/>
-    <context:component-scan base-package="org.opentosca.container.core.engine.next"/>
+  <context:component-scan base-package="org.opentosca.container.core.impl.service" />
+  <context:component-scan base-package="org.opentosca.container.core.plan" />
+  <!-- xml serializer service -->
+  <context:component-scan base-package="org.opentosca.container.core.engine.xml.impl" />
+  <context:component-scan base-package="org.opentosca.container.core.engine.next" />
 </beans>

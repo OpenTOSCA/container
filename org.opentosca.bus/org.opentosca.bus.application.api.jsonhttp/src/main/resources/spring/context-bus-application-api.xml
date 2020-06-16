@@ -7,13 +7,13 @@
                            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <context:annotation-config/>
+  <context:annotation-config />
 
-    <!-- processors are manually depended upon and not ready for DI configuration -->
-    <camel:camelContext id="mb-application-api-jsonhttp-camel-context">
-        <camel:packageScan>
-            <camel:package>org.opentosca.bus.application.api.jsonhttp.route</camel:package>
-        </camel:packageScan>
-    </camel:camelContext>
+  <!-- processors are manually depended upon and not ready for DI configuration -->
+  <camel:camelContext id="mb-application-api-jsonhttp-camel-context">
+    <camel:packageScan>
+      <camel:package>org.opentosca.bus.application.api.jsonhttp.route</camel:package>
+    </camel:packageScan>
+  </camel:camelContext>
 
 </beans>

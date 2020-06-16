@@ -8,62 +8,53 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.common.ids.definitions.DefinitionsChildId;
 import org.eclipse.winery.model.selfservice.Application;
-import org.eclipse.winery.model.tosca.TArtifactTemplate;
-import org.eclipse.winery.model.tosca.TDefinitions;
-import org.eclipse.winery.model.tosca.TExportedOperation;
-import org.eclipse.winery.model.tosca.TExtensibleElements;
-import org.eclipse.winery.model.tosca.TNodeType;
-import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
-import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPolicyTemplate;
-import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.*;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.backwards.ToscaMetaFileReplacement;
 
 @NonNullByDefault
 public interface Csar {
 
-    public CsarId id();
+  public CsarId id();
 
-    public List<TArtifactTemplate> artifactTemplates();
+  public List<TArtifactTemplate> artifactTemplates();
 
-    public List<TServiceTemplate> serviceTemplates();
+  public List<TServiceTemplate> serviceTemplates();
 
-    public List<TPolicyTemplate> policyTemplates();
+  public List<TPolicyTemplate> policyTemplates();
 
-    @Nullable
-    public TServiceTemplate entryServiceTemplate();
+  @Nullable
+  public TServiceTemplate entryServiceTemplate();
 
-    public List<TDefinitions> definitions();
+  public List<TDefinitions> definitions();
 
-    public List<TExportedOperation> exportedOperations();
+  public List<TExportedOperation> exportedOperations();
 
-    public List<TPlan> plans();
+  public List<TPlan> plans();
 
-    public List<TNodeType> nodeTypes();
+  public List<TNodeType> nodeTypes();
 
-    public List<TNodeTypeImplementation> nodeTypeImplementations();
+  public List<TNodeTypeImplementation> nodeTypeImplementations();
 
-    public List<TRelationshipTypeImplementation> relationshipTypeImplementations();
+  public List<TRelationshipTypeImplementation> relationshipTypeImplementations();
 
-    public String description();
+  public String description();
 
-    // FIXME decide on Path / File / Binary Representation / ??
-    public AbstractFile topologyPicture();
+  // FIXME decide on Path / File / Binary Representation / ??
+  public AbstractFile topologyPicture();
 
-    public Application selfserviceMetadata();
+  public Application selfserviceMetadata();
 
-    @Nullable
-    public TExtensibleElements queryRepository(DefinitionsChildId definitionId);
+  @Nullable
+  public TExtensibleElements queryRepository(DefinitionsChildId definitionId);
 
-    void exportTo(Path targetPath) throws IOException;
+  void exportTo(Path targetPath) throws IOException;
 
-    @Deprecated
-    ToscaMetaFileReplacement metafileReplacement();
+  @Deprecated
+  ToscaMetaFileReplacement metafileReplacement();
 
-    @Deprecated
-    Path getSaveLocation();
+  @Deprecated
+  Path getSaveLocation();
 
-    String toString();
+  String toString();
 }

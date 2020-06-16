@@ -13,16 +13,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @XmlRootElement(name = "CsarResources")
 public class CsarListDTO extends ResourceSupport {
 
-    @JsonProperty
-    @XmlElement(name = "Csar")
-    @XmlElementWrapper(name = "Csars")
-    private final List<CsarDTO> csars = new ArrayList<>();
+  @JsonProperty
+  @XmlElement(name = "Csar")
+  @XmlElementWrapper(name = "Csars")
+  private final List<CsarDTO> csars = new ArrayList<>();
 
-    public List<CsarDTO> getCsars() {
-        return this.csars;
-    }
+  public List<CsarDTO> getCsars() {
+    return this.csars;
+  }
 
-    public void add(final CsarDTO... csars) {
-        this.csars.addAll(Arrays.asList(csars));
-    }
+  public void add(final CsarDTO... csars) {
+    this.csars.addAll(Arrays.asList(csars));
+  }
 }

@@ -18,20 +18,21 @@ import org.xml.sax.SAXException;
 
 /**
  * <p>
- * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to the OpenTOSCA
- * Container InstanceData API
+ * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to
+ * the OpenTOSCA Container InstanceData API
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanContext> {
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
                           final List<String> selectionStrategies) {
-
+        
         // fetch instance variables
         final String nodeTemplateInstanceURLVar = context.findInstanceURLVar(nodeTemplate.getId(), true);
         final String nodeTemplateInstanceIDVar = context.findInstanceIDVar(nodeTemplate.getId(), true);
@@ -49,8 +50,8 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
         try {
             Node getNodeInstances =
                 new BPELProcessFragments().createRESTExtensionGETForNodeInstanceDataAsNode(serviceTemplateUrlVar,
-                    responseVarName,
-                    nodeTemplate.getId(), null);
+                                                                                           responseVarName,
+                                                                                           nodeTemplate.getId(), null);
             getNodeInstances = context.importNode(getNodeInstances);
             context.getPrePhaseElement().appendChild(getNodeInstances);
 
@@ -58,28 +59,30 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
                 "//*[local-name()='NodeTemplateInstanceResources']/*[local-name()='NodeTemplateInstances']/*[local-name()='NodeTemplateInstance']/*[1]/*[local-name()='Link']/@*[local-name()='href']/string()";
             Node fetchNodeInstance =
                 new BPELProcessFragments().createAssignVarToVarWithXpathQueryAsNode("selectFirstInstance_"
-                        + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), responseVarName,
-                    nodeTemplateInstanceURLVar,
-                    xpath2Query);
-            ;
+                    + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), responseVarName,
+                                                                                    nodeTemplateInstanceURLVar,
+                                                                                    xpath2Query);;
             fetchNodeInstance = context.importNode(fetchNodeInstance);
             context.getPrePhaseElement().appendChild(fetchNodeInstance);
 
             final String assignIDFromUrlVarQuery = "tokenize(//*,'/')[last()]";
             Node assignId =
                 new BPELProcessFragments().createAssignVarToVarWithXpathQueryAsNode("seleftFirstInstanceassignIDFromUrlVar",
-                    nodeTemplateInstanceURLVar,
-                    nodeTemplateInstanceIDVar,
-                    assignIDFromUrlVarQuery);
+                                                                                    nodeTemplateInstanceURLVar,
+                                                                                    nodeTemplateInstanceIDVar,
+                                                                                    assignIDFromUrlVarQuery);
             assignId = context.importNode(assignId);
             context.getPrePhaseElement().appendChild(assignId);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -89,8 +92,9 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
                 new NodeRelationInstanceVariablesHandler(new BPELPlanHandler());
 
             nodeInit.addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate,
-                context.getServiceTemplate());
-        } catch (final ParserConfigurationException e) {
+                                                                    context.getServiceTemplate());
+        }
+        catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -102,4 +106,5 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
     public int getPriority() {
         return 1;
     }
+
 }

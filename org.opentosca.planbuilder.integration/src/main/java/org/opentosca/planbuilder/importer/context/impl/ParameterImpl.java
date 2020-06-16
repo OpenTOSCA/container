@@ -14,41 +14,43 @@ import org.opentosca.planbuilder.model.tosca.AbstractParameter;
  */
 public class ParameterImpl extends AbstractParameter {
 
-    private final DefinitionsImpl defs;
-    private final TParameter parameter;
+  private final DefinitionsImpl defs;
+  private final TParameter parameter;
 
-    /**
-     * Constructur
-     *
-     * @param defs      a DefinitionsImpl
-     * @param parameter a JAXB TParameter
-     */
-    public ParameterImpl(final DefinitionsImpl defs, final TParameter parameter) {
-        this.defs = defs;
-        this.parameter = parameter;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return this.parameter.getName();
-    }
+  /**
+   * Constructur
+   *
+   * @param defs      a DefinitionsImpl
+   * @param parameter a JAXB TParameter
+   */
+  public ParameterImpl(final DefinitionsImpl defs, final TParameter parameter) {
+    this.defs = defs;
+    this.parameter = parameter;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isRequired() {
-        return this.parameter.getRequired().value().equals("yes") ? true : false;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getName() {
+    return this.parameter.getName();
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getType() {
-        return this.parameter.getType();
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isRequired() {
+    return this.parameter.getRequired().value().equals("yes") ? true : false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getType() {
+    return this.parameter.getType();
+  }
+
 }

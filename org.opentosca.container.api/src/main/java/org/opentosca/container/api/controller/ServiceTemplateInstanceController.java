@@ -298,6 +298,9 @@ public class ServiceTemplateInstanceController {
      * Gets a reference to the service template instance. Ensures that the instance actually belongs to the service
      * template.
      *
+     * @param instanceId
+     * @param templateId
+     * @return
      * @throws NotFoundException if the instance does not belong to the service template
      */
     private ServiceTemplateInstance resolveInstance(final Long instanceId, final String templateId) throws NotFoundException {

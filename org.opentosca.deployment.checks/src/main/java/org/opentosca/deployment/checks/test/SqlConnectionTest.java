@@ -12,39 +12,39 @@ import org.slf4j.LoggerFactory;
 
 public class SqlConnectionTest implements TestExecutionPlugin {
 
-    public static final QName ANNOTATION =
-        new QName("http://opentosca.org/policytypes/annotations/tests", "SqlConnectionTest");
+  public static final QName ANNOTATION =
+    new QName("http://opentosca.org/policytypes/annotations/tests", "SqlConnectionTest");
 
-    private static Logger logger = LoggerFactory.getLogger(SqlConnectionTest.class);
+  private static Logger logger = LoggerFactory.getLogger(SqlConnectionTest.class);
 
-    @Override
-    public DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
-                                        final NodeTemplateInstance nodeTemplateInstance,
-                                        final TPolicyTemplate policyTemplate) {
+  @Override
+  public DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
+                                      final NodeTemplateInstance nodeTemplateInstance,
+                                      final TPolicyTemplate policyTemplate) {
 
-        logger.debug("Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
-            this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
-            policyTemplate.getId());
+    logger.debug("Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
+      this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
+      policyTemplate.getId());
 
-        final DeploymentTestResult result = new DeploymentTestResult();
-        result.setName(policyTemplate.getId());
-        result.setNodeTemplateInstance(nodeTemplateInstance);
-        result.start();
+    final DeploymentTestResult result = new DeploymentTestResult();
+    result.setName(policyTemplate.getId());
+    result.setNodeTemplateInstance(nodeTemplateInstance);
+    result.start();
 
-        // TODO
+    // TODO
 
-        result.failed();
-        logger.info("Test executed: {}", result);
-        return result;
+    result.failed();
+    logger.info("Test executed: {}", result);
+    return result;
+  }
+
+  @Override
+  public boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate) {
+
+    if (policyTemplate.getType().equals(ANNOTATION)) {
+      return true;
     }
 
-    @Override
-    public boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate) {
-
-        if (policyTemplate.getType().equals(ANNOTATION)) {
-            return true;
-        }
-
-        return false;
-    }
+    return false;
+  }
 }

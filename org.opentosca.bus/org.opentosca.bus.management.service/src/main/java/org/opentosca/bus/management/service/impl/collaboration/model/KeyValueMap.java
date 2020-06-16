@@ -6,6 +6,7 @@
 // Generated on: 2018.07.05 at 09:07:58 PM CEST
 //
 
+
 package org.opentosca.bus.management.service.impl.collaboration.model;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -36,32 +38,32 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "KeyValueMap", propOrder = {"keyValuePair"})
 public class KeyValueMap {
 
-    @XmlElement(name = "KeyValuePair", required = true)
-    protected List<KeyValueType> keyValuePair;
+  @XmlElement(name = "KeyValuePair", required = true)
+  protected List<KeyValueType> keyValuePair;
 
-    /**
-     * Gets the value of the KeyValuePair property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
-     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
-     * the keyValuePair property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     *
-     * <pre>
-     * getKeyValuePair().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link KeyValueType }
-     */
-    public List<KeyValueType> getKeyValuePair() {
-        if (this.keyValuePair == null) {
-            this.keyValuePair = new ArrayList<>();
-        }
-        return this.keyValuePair;
+  /**
+   * Gets the value of the KeyValuePair property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is
+   * why there is not a <CODE>set</CODE> method for the keyValuePair property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   *
+   * <pre>
+   * getKeyValuePair().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link KeyValueType }
+   */
+  public List<KeyValueType> getKeyValuePair() {
+    if (this.keyValuePair == null) {
+      this.keyValuePair = new ArrayList<>();
     }
+    return this.keyValuePair;
+  }
 }

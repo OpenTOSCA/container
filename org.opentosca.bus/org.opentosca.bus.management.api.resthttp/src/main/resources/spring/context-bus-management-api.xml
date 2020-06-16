@@ -6,15 +6,15 @@
                            http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-    <description>
-        Register the beans within the resthttp bus management api
-    </description>
-    <context:annotation-config/>
+  <description>
+    Register the beans within the resthttp bus management api
+  </description>
+  <context:annotation-config />
 
-    <!-- processors are not ready for DI -->
-    <camel:camelContext id="mb-api-rest-camel-context">
-        <camel:packageScan>
-            <camel:package>org.opentosca.bus.management.api.resthttp.route</camel:package>
-        </camel:packageScan>
-    </camel:camelContext>
+  <!-- processors are not ready for DI -->
+  <camel:camelContext id="mb-api-rest-camel-context" >
+    <camel:packageScan>
+      <camel:package>org.opentosca.bus.management.api.resthttp.route</camel:package>
+    </camel:packageScan>
+  </camel:camelContext>
 </beans>

@@ -32,6 +32,7 @@ import org.xml.sax.SAXException;
 
 /**
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
+ *
  */
 public class NodeRelationInstanceVariablesHandler {
 
@@ -81,10 +82,12 @@ public class NodeRelationInstanceVariablesHandler {
                 Node bpelIf = this.bpelFragments.generateBPELIfTrueThrowFaultAsNode(xpathQuery, propertyEmptyFault);
                 bpelIf = templatePlan.getBpelDocument().importNode(bpelIf, true);
                 templatePlan.getBpelSequencePrePhaseElement().appendChild(bpelIf);
-            } catch (final IOException e) {
+            }
+            catch (final IOException e) {
                 e.printStackTrace();
                 return false;
-            } catch (final SAXException e) {
+            }
+            catch (final SAXException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -94,12 +97,13 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     /**
-     * Fetches the correct nodeInstanceID link for the given TemplatePlan and sets the value inside a NodeInstanceID
-     * bpel variable
+     * Fetches the correct nodeInstanceID link for the given TemplatePlan and sets the value inside a
+     * NodeInstanceID bpel variable
      *
-     * @param templatePlan              a templatePlan with set variable with name NodeInstanceID
+     * @param templatePlan a templatePlan with set variable with name NodeInstanceID
      * @param serviceTemplateUrlVarName the name of the variable holding the url to the serviceTemplate
-     * @param instanceDataUrlVarName    the name of the variable holding the url to the instanceDataAPI
+     * @param instanceDataUrlVarName the name of the variable holding the url to the instanceDataAPI
+     * @return
      */
     public boolean addNodeInstanceFindLogic(final BPELScope templatePlan, final String serviceTemplateUrlVarName,
                                             final String query, AbstractServiceTemplate serviceTemplate) {
@@ -114,20 +118,22 @@ public class NodeRelationInstanceVariablesHandler {
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
         this.bpelTemplateScopeHandler.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
+                                                  new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
         // find nodeInstance with query at instanceDataAPI
         try {
             Node nodeInstanceGETNode =
                 this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(serviceTemplateUrlVarName,
-                    instanceDataAPIResponseVarName,
-                    templatePlan.getNodeTemplate()
-                        .getId(),
-                    query);
+                                                                                   instanceDataAPIResponseVarName,
+                                                                                   templatePlan.getNodeTemplate()
+                                                                                               .getId(),
+                                                                                   query);
             nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstanceGETNode);
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -137,22 +143,24 @@ public class NodeRelationInstanceVariablesHandler {
         try {
             Node assignNodeInstanceIDFromInstanceDataAPIQueryResponse =
                 this.bpelFragments.createAssignSelectFirstNodeInstanceAndAssignToStringVarAsNode(instanceDataAPIResponseVarName,
-                    instanceIDVarName);
+                                                                                              instanceIDVarName);
             assignNodeInstanceIDFromInstanceDataAPIQueryResponse =
                 templatePlan.getBpelDocument().importNode(assignNodeInstanceIDFromInstanceDataAPIQueryResponse, true);
             templatePlan.getBpelSequencePrePhaseElement()
-                .appendChild(assignNodeInstanceIDFromInstanceDataAPIQueryResponse);
-        } catch (final SAXException e) {
+                        .appendChild(assignNodeInstanceIDFromInstanceDataAPIQueryResponse);
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
         }
 
         return true;
     }
-
+    
     public boolean addRelationInstanceFindLogic(final BPELScope templatePlan, final String serviceTemplateUrlVarName,
-                                                final String query, AbstractServiceTemplate serviceTemplate) {
+                                            final String query, AbstractServiceTemplate serviceTemplate) {
         if (templatePlan.getRelationshipTemplate() == null) {
             throw new RuntimeException("Can't create instance find logic only for relations");
         }
@@ -163,20 +171,22 @@ public class NodeRelationInstanceVariablesHandler {
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
         this.bpelTemplateScopeHandler.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
+                                                  new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
         // find relationInstance with query at instanceDataAPI
         try {
             Node relationInstanceGETNode =
                 this.bpelFragments.createRESTExtensionGETForRelationInstanceDataAsNode(serviceTemplateUrlVarName,
-                    instanceDataAPIResponseVarName,
-                    templatePlan.getRelationshipTemplate()
-                        .getId(),
-                    query);
+                                                                                   instanceDataAPIResponseVarName,
+                                                                                   templatePlan.getRelationshipTemplate()
+                                                                                               .getId(),
+                                                                                   query);
             relationInstanceGETNode = templatePlan.getBpelDocument().importNode(relationInstanceGETNode, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(relationInstanceGETNode);
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -185,18 +195,20 @@ public class NodeRelationInstanceVariablesHandler {
         // fetch nodeInstanceID from nodeInstance query
         try {
             Node assignNodeInstanceIDFromInstanceDataAPIQueryResponse =
-                this.bpelFragments.createAssignSelectFirstRelationInstanceFromResponseAsNode(instanceDataAPIResponseVarName, instanceIDVarName);
+                this.bpelFragments.createAssignSelectFirstRelationInstanceFromResponseAsNode(instanceDataAPIResponseVarName, instanceIDVarName);                
             assignNodeInstanceIDFromInstanceDataAPIQueryResponse =
                 templatePlan.getBpelDocument().importNode(assignNodeInstanceIDFromInstanceDataAPIQueryResponse, true);
             templatePlan.getBpelSequencePrePhaseElement()
-                .appendChild(assignNodeInstanceIDFromInstanceDataAPIQueryResponse);
-        } catch (final SAXException e) {
+                        .appendChild(assignNodeInstanceIDFromInstanceDataAPIQueryResponse);
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
         }
 
-        return true;
+        return true;        
     }
 
     public boolean addInstanceIDVarToTemplatePlans(final BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
@@ -232,8 +244,8 @@ public class NodeRelationInstanceVariablesHandler {
             + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "string", xsdPrefix),
-            templatePlan.getBuildPlan());
+                                                   new QName(xsdNamespace, "string", xsdPrefix),
+                                                   templatePlan.getBuildPlan());
     }
 
     /**
@@ -272,14 +284,16 @@ public class NodeRelationInstanceVariablesHandler {
             + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceUrlVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "string", xsdPrefix),
-            templatePlan.getBuildPlan());
+                                                   new QName(xsdNamespace, "string", xsdPrefix),
+                                                   templatePlan.getBuildPlan());
+
     }
 
     /**
      * Adds a NodeInstanceID Variable to each TemplatePlan inside the given Plan
      *
      * @param plan a plan with TemplatePlans
+     * @return
      */
     public boolean addInstanceURLVarToTemplatePlans(final BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
         boolean check = true;
@@ -298,13 +312,13 @@ public class NodeRelationInstanceVariablesHandler {
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getNodeTemplate() != null) {
                 check &= addNodeInstanceFindLogic(templatePlan, serviceTemplateUrlVarName, queryForNodeInstances,
-                    serviceTemplate);
+                                                  serviceTemplate);
             }
         }
 
         return check;
     }
-
+    
     public boolean addRelationInstanceFindLogic(final BPELPlan plan, final String queryForRelationInstances, AbstractServiceTemplate serviceTemplate) {
         boolean check = true;
 
@@ -313,7 +327,7 @@ public class NodeRelationInstanceVariablesHandler {
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getRelationshipTemplate() != null) {
                 check &= addRelationInstanceFindLogic(templatePlan, serviceTemplateUrlVarName, queryForRelationInstances,
-                    serviceTemplate);
+                                                  serviceTemplate);
             }
         }
 
@@ -321,10 +335,10 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     /**
-     * Adds logic to fetch property data from the instanceDataAPI with the nodeInstanceID variable. The property data is
-     * then assigned to appropriate BPEL variables of the given plan.
+     * Adds logic to fetch property data from the instanceDataAPI with the nodeInstanceID variable. The
+     * property data is then assigned to appropriate BPEL variables of the given plan.
      *
-     * @param plan    a plan containing templatePlans with set nodeInstanceID variables
+     * @param plan a plan containing templatePlans with set nodeInstanceID variables
      * @param propMap a Mapping from NodeTemplate Properties to BPEL Variables
      * @return true if adding logic described above was successful
      */
@@ -340,7 +354,7 @@ public class NodeRelationInstanceVariablesHandler {
         }
         return check;
     }
-
+    
     public boolean addPropertyVariableUpdateBasedOnRelationInstanceID(final BPELPlan plan, final Property2VariableMapping propMap, AbstractServiceTemplate serviceTemplate) {
         boolean check = true;
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
@@ -353,7 +367,7 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     public boolean addPropertyVariableUpdateBasedOnRelationInstanceID(final BPELScope templatePlan, final Property2VariableMapping propMap, AbstractServiceTemplate serviceTemplate) {
-        // check if everything is available
+     // check if everything is available
         if (templatePlan.getRelationshipTemplate() == null) {
             return false;
         }
@@ -376,19 +390,21 @@ public class NodeRelationInstanceVariablesHandler {
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
         this.bpelTemplateScopeHandler.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
+                                                  new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
 
         // fetch properties from nodeInstance
         try {
             Node nodeInstancePropertiesGETNode =
                 this.bpelFragments.createRESTExtensionGETForInstancePropertiesAsNode(instanceIdVarName,
-                    instanceDataAPIResponseVarName);
+                                                                                         instanceDataAPIResponseVarName);
             nodeInstancePropertiesGETNode =
                 templatePlan.getBpelDocument().importNode(nodeInstancePropertiesGETNode, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstancePropertiesGETNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -415,21 +431,23 @@ public class NodeRelationInstanceVariablesHandler {
                     + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
         return true;
     }
-
+    
     /**
-     * Adds logic to fetch property data from the instanceDataAPI with the nodeInstanceID variable. The property data is
-     * then assigned to appropriate BPEL Variables of the given templatePlan.
+     * Adds logic to fetch property data from the instanceDataAPI with the nodeInstanceID variable. The
+     * property data is then assigned to appropriate BPEL Variables of the given templatePlan.
      *
      * @param templatePlan a TemplatePlan of a NodeTemplate that has properties
-     * @param propMap      a Mapping from NodeTemplate Properties to BPEL Variables
+     * @param propMap a Mapping from NodeTemplate Properties to BPEL Variables
      * @return true if adding logic described above was successful
      */
     public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(final BPELScope templatePlan,
@@ -458,19 +476,21 @@ public class NodeRelationInstanceVariablesHandler {
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
         this.bpelTemplateScopeHandler.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
+                                                  new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
 
         // fetch properties from nodeInstance
         try {
             Node nodeInstancePropertiesGETNode =
                 this.bpelFragments.createRESTExtensionGETForInstancePropertiesAsNode(instanceIdVarName,
-                    instanceDataAPIResponseVarName);
+                                                                                         instanceDataAPIResponseVarName);
             nodeInstancePropertiesGETNode =
                 templatePlan.getBpelDocument().importNode(nodeInstancePropertiesGETNode, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstancePropertiesGETNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -497,9 +517,11 @@ public class NodeRelationInstanceVariablesHandler {
                     + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -524,19 +546,21 @@ public class NodeRelationInstanceVariablesHandler {
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
 
         context.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "anyType", xsdPrefix));
+                            new QName(xsdNamespace, "anyType", xsdPrefix));
 
         // fetch properties from nodeInstance
         try {
             Node nodeInstancePropertiesGETNode =
                 this.bpelFragments.createRESTExtensionGETForInstancePropertiesAsNode(instanceIdVarName,
-                    instanceDataAPIResponseVarName);
+                                                                                         instanceDataAPIResponseVarName);
 
             nodeInstancePropertiesGETNode = context.importNode(nodeInstancePropertiesGETNode);
             context.getPrePhaseElement().appendChild(nodeInstancePropertiesGETNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -561,9 +585,11 @@ public class NodeRelationInstanceVariablesHandler {
                     + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
             assignPropertiesToVariables = context.importNode(assignPropertiesToVariables);
             context.getPrePhaseElement().appendChild(assignPropertiesToVariables);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -596,22 +622,24 @@ public class NodeRelationInstanceVariablesHandler {
 
             Node getNodeInstancesREST =
                 this.bpelFragments.createRESTExtensionGETForRelationInstanceDataAsNode(SimplePlanBuilderServiceInstanceHandler.getServiceTemplateURLVariableName(context.getMainVariableNames()),
-                    responseVarName,
-                    relationshipTemplate.getId(), query);
+                                                                                   responseVarName,
+                                                                                   relationshipTemplate.getId(), query);
             getNodeInstancesREST = context.importNode(getNodeInstancesREST);
             templateMainSequeceNode.appendChild(getNodeInstancesREST);
 
             Node assignCounter =
                 this.bpelFragments.createAssignVarToVarWithXpathQueryAsNode("assignInstanceCount_"
-                        + relationshipTemplate.getId() + "_" + context.getIdForNames(), responseVarName,
-                    counterVariable.getVariableName(),
-                    "count(//*[local-name()='RelationshipTemplateInstance'])");
+                    + relationshipTemplate.getId() + "_" + context.getIdForNames(), responseVarName,
+                                                                            counterVariable.getVariableName(),
+                                                                            "count(//*[local-name()='RelationshipTemplateInstance'])");
             assignCounter = context.importNode(assignCounter);
             templateMainSequeceNode.appendChild(assignCounter);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -630,6 +658,7 @@ public class NodeRelationInstanceVariablesHandler {
 
             forEachScopeElement.appendChild(cloneCorreElement);
             templateMainScopeNode.removeChild(correlationSets);
+
         }
         final Element sequenceElement = context.createElement(BPELPlan.bpelNamespace, "sequence");
 
@@ -647,7 +676,7 @@ public class NodeRelationInstanceVariablesHandler {
 
         return null;
     }
-
+    
     public String appendCountInstancesLogic(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
                                             final String query) {
 
@@ -674,22 +703,24 @@ public class NodeRelationInstanceVariablesHandler {
 
             Node getNodeInstancesREST =
                 this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(SimplePlanBuilderServiceInstanceHandler.getServiceTemplateURLVariableName(context.getMainVariableNames()),
-                    responseVarName,
-                    nodeTemplate.getId(), query);
+                                                                                   responseVarName,
+                                                                                   nodeTemplate.getId(), query);
             getNodeInstancesREST = context.importNode(getNodeInstancesREST);
             templateMainSequeceNode.appendChild(getNodeInstancesREST);
 
             Node assignCounter =
                 this.bpelFragments.createAssignVarToVarWithXpathQueryAsNode("assignInstanceCount_"
-                        + nodeTemplate.getId() + "_" + context.getIdForNames(), responseVarName,
-                    counterVariable.getVariableName(),
-                    "count(//*[local-name()='NodeTemplateInstance'])");
+                    + nodeTemplate.getId() + "_" + context.getIdForNames(), responseVarName,
+                                                                            counterVariable.getVariableName(),
+                                                                            "count(//*[local-name()='NodeTemplateInstance'])");
             assignCounter = context.importNode(assignCounter);
             templateMainSequeceNode.appendChild(assignCounter);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -708,17 +739,18 @@ public class NodeRelationInstanceVariablesHandler {
 
             forEachScopeElement.appendChild(cloneCorreElement);
             templateMainScopeNode.removeChild(correlationSets);
+
         }
-
-        if (((Element) templateMainScopeNode).getElementsByTagName("compensationHandler").getLength() != 0) {
+        
+        if(((Element) templateMainScopeNode).getElementsByTagName("compensationHandler").getLength() != 0) {
             final Element compensationHandler = (Element) ((Element) templateMainScopeNode).getElementsByTagName("compensationHandler").item(0);
-
+            
             final Node cloneCompensationHandler = compensationHandler.cloneNode(true);
-
+            
             forEachScopeElement.appendChild(cloneCompensationHandler);
             templateMainScopeNode.removeChild(compensationHandler);
         }
-
+        
         final Element sequenceElement = context.createElement(BPELPlan.bpelNamespace, "sequence");
 
         sequenceElement.appendChild(context.importNode(context.getPrePhaseElement().cloneNode(true)));
@@ -791,7 +823,7 @@ public class NodeRelationInstanceVariablesHandler {
     public String findInstanceUrlVarName(final BPELPlan plan, AbstractServiceTemplate serviceTemplate,
                                          final String templateId, final boolean isNode) {
         return this.findInstanceUrlVarName(serviceTemplate, this.bpelProcessHandler.getMainVariableNames(plan),
-            templateId, isNode);
+                                           templateId, isNode);
     }
 
     public String findInstanceUrlVarName(final BPELScope templatePlan, AbstractServiceTemplate serviceTemplate) {

@@ -6,6 +6,7 @@
 // Generated on: 2013.05.27 at 03:40:55 PM CEST
 //
 
+
 package org.apache.ode.schemas.dd._2007._03;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -48,52 +50,53 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tProcessEvents", propOrder = {"scopeEvents"})
 public class TProcessEvents extends TEnableEventList {
 
-    @XmlElement(name = "scope-events")
-    protected List<TScopeEvents> scopeEvents;
-    @XmlAttribute
-    protected String generate;
+  @XmlElement(name = "scope-events")
+  protected List<TScopeEvents> scopeEvents;
+  @XmlAttribute
+  protected String generate;
 
-    /**
-     * Gets the value of the scopeEvents property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
-     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
-     * the scopeEvents property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     *
-     * <pre>
-     * getScopeEvents().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link TScopeEvents }
-     */
-    public List<TScopeEvents> getScopeEvents() {
-        if (this.scopeEvents == null) {
-            this.scopeEvents = new ArrayList<>();
-        }
-        return this.scopeEvents;
+  /**
+   * Gets the value of the scopeEvents property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is why
+   * there is not a <CODE>set</CODE> method for the scopeEvents property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   *
+   * <pre>
+   * getScopeEvents().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link TScopeEvents }
+   */
+  public List<TScopeEvents> getScopeEvents() {
+    if (this.scopeEvents == null) {
+      this.scopeEvents = new ArrayList<>();
     }
+    return this.scopeEvents;
+  }
 
-    /**
-     * Gets the value of the generate property.
-     *
-     * @return possible object is {@link String }
-     */
-    public String getGenerate() {
-        return this.generate;
-    }
+  /**
+   * Gets the value of the generate property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGenerate() {
+    return this.generate;
+  }
 
-    /**
-     * Sets the value of the generate property.
-     *
-     * @param value allowed object is {@link String }
-     */
-    public void setGenerate(final String value) {
-        this.generate = value;
-    }
+  /**
+   * Sets the value of the generate property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGenerate(final String value) {
+    this.generate = value;
+  }
+
 }

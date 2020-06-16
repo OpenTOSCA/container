@@ -21,30 +21,30 @@ import org.opentosca.container.api.planbuilder.model.PlanGenerationState;
  */
 public class RunningTasks {
 
-    private static final Map<String, PlanGenerationState> tasks = new ConcurrentHashMap<>();
+  private static final Map<String, PlanGenerationState> tasks = new ConcurrentHashMap<>();
 
-    private static String generateId() {
-        final String newId = String.valueOf(System.currentTimeMillis());
-        if (RunningTasks.tasks.containsKey(newId)) {
-            return RunningTasks.generateId();
-        } else {
-            return newId;
-        }
+  private static String generateId() {
+    final String newId = String.valueOf(System.currentTimeMillis());
+    if (RunningTasks.tasks.containsKey(newId)) {
+      return RunningTasks.generateId();
+    } else {
+      return newId;
     }
+  }
 
-    public static String putSafe(PlanGenerationState generationState) {
-        synchronized (tasks) {
-            final String id = generateId();
-            tasks.put(id, generationState);
-            return id;
-        }
+  public static String putSafe(PlanGenerationState generationState) {
+    synchronized (tasks) {
+      final String id = generateId();
+      tasks.put(id, generationState);
+      return id;
     }
+  }
 
-    public static PlanGenerationState get(String id) {
-        return tasks.get(id);
-    }
+  public static PlanGenerationState get(String id) {
+    return tasks.get(id);
+  }
 
-    public static boolean exists(String id) {
-        return tasks.containsKey(id);
-    }
+  public static boolean exists(String id) {
+    return tasks.containsKey(id);
+  }
 }

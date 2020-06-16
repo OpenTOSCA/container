@@ -11,31 +11,32 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name = ServiceTemplateInstanceProperty.TABLE_NAME)
 public class ServiceTemplateInstanceProperty extends Property {
 
-    public static final String TABLE_NAME = ServiceTemplateInstance.TABLE_NAME + "_" + Property.TABLE_NAME;
+  public static final String TABLE_NAME = ServiceTemplateInstance.TABLE_NAME + "_" + Property.TABLE_NAME;
 
-    private static final long serialVersionUID = -8847410322957873980L;
+  private static final long serialVersionUID = -8847410322957873980L;
 
-    @ManyToOne
-    @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
-    @JsonIgnore
-    private ServiceTemplateInstance serviceTemplateInstance;
+  @ManyToOne
+  @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
+  @JsonIgnore
+  private ServiceTemplateInstance serviceTemplateInstance;
 
-    public ServiceTemplateInstanceProperty() {
-        super();
+
+  public ServiceTemplateInstanceProperty() {
+    super();
+  }
+
+  public ServiceTemplateInstanceProperty(final String name, final String value) {
+    super(name, value, null);
+  }
+
+  public ServiceTemplateInstance getServiceTemplateInstance() {
+    return this.serviceTemplateInstance;
+  }
+
+  public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
+    this.serviceTemplateInstance = serviceTemplateInstance;
+    if (!serviceTemplateInstance.getProperties().contains(this)) {
+      serviceTemplateInstance.getProperties().add(this);
     }
-
-    public ServiceTemplateInstanceProperty(final String name, final String value) {
-        super(name, value, null);
-    }
-
-    public ServiceTemplateInstance getServiceTemplateInstance() {
-        return this.serviceTemplateInstance;
-    }
-
-    public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
-        this.serviceTemplateInstance = serviceTemplateInstance;
-        if (!serviceTemplateInstance.getProperties().contains(this)) {
-            serviceTemplateInstance.getProperties().add(this);
-        }
-    }
+  }
 }

@@ -7,13 +7,13 @@
                            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <context:annotation-config/>
+  <context:annotation-config />
 
-    <!-- processors are not ready for DI -->
-    <camel:camelContext id="mb-application-api-resthttp-camel-context">
-        <camel:packageScan>
-            <camel:package>org.opentosca.bus.application.api.resthttp.route</camel:package>
-        </camel:packageScan>
-    </camel:camelContext>
+  <!-- processors are not ready for DI -->
+  <camel:camelContext id="mb-application-api-resthttp-camel-context">
+    <camel:packageScan>
+      <camel:package>org.opentosca.bus.application.api.resthttp.route</camel:package>
+    </camel:packageScan>
+  </camel:camelContext>
 
 </beans>

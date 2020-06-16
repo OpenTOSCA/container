@@ -25,35 +25,39 @@ import org.springframework.stereotype.Component;
 @Component
 public class GetResultResponseProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(GetResultResponseProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(GetResultResponseProcessor.class);
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void process(final Exchange exchange) throws Exception {
+  @SuppressWarnings("unchecked")
+  @Override
+  public void process(final Exchange exchange) throws Exception {
 
-        GetResultResponseProcessor.LOG.debug("Processing GetResult response....");
+    GetResultResponseProcessor.LOG.debug("Processing GetResult response....");
 
-        final String requestID = exchange.getIn().getHeader(InvocationRoute.ID, String.class);
+    final String requestID = exchange.getIn().getHeader(InvocationRoute.ID, String.class);
 
-        GetResultResponseProcessor.LOG.debug("RequestID: {}", requestID);
+    GetResultResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+    final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
 
-        if (exchange.getIn().getBody() instanceof Exception) {
+    if (exchange.getIn().getBody() instanceof Exception) {
 
-            response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-            response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
-        } else {
+      response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+      response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
 
-            final HashMap<String, String> responseMap = exchange.getIn().getBody(HashMap.class);
+    } else {
 
-            final JSONObject obj = new JSONObject();
-            obj.put("response", responseMap);
+      final HashMap<String, String> responseMap = exchange.getIn().getBody(HashMap.class);
 
-            response.setStatus(Status.SUCCESS_OK);
-            response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
-        }
+      final JSONObject obj = new JSONObject();
+      obj.put("response", responseMap);
 
-        exchange.getOut().setBody(response);
+      response.setStatus(Status.SUCCESS_OK);
+      response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
+
     }
+
+    exchange.getOut().setBody(response);
+
+  }
+
 }

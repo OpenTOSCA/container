@@ -6,6 +6,7 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
+
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -39,32 +41,33 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tRequiredContainerFeatures", propOrder = {"requiredContainerFeature"})
 public class TRequiredContainerFeatures {
 
-    @XmlElement(name = "RequiredContainerFeature", required = true)
-    protected List<TRequiredContainerFeature> requiredContainerFeature;
+  @XmlElement(name = "RequiredContainerFeature", required = true)
+  protected List<TRequiredContainerFeature> requiredContainerFeature;
 
-    /**
-     * Gets the value of the requiredContainerFeature property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
-     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
-     * the requiredContainerFeature property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     *
-     * <pre>
-     * getRequiredContainerFeature().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link TRequiredContainerFeature }
-     */
-    public List<TRequiredContainerFeature> getRequiredContainerFeature() {
-        if (this.requiredContainerFeature == null) {
-            this.requiredContainerFeature = new ArrayList<>();
-        }
-        return this.requiredContainerFeature;
+  /**
+   * Gets the value of the requiredContainerFeature property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is why
+   * there is not a <CODE>set</CODE> method for the requiredContainerFeature property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   *
+   * <pre>
+   * getRequiredContainerFeature().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list {@link TRequiredContainerFeature }
+   */
+  public List<TRequiredContainerFeature> getRequiredContainerFeature() {
+    if (this.requiredContainerFeature == null) {
+      this.requiredContainerFeature = new ArrayList<>();
     }
+    return this.requiredContainerFeature;
+  }
+
 }

@@ -8,8 +8,8 @@ import org.opentosca.planbuilder.plugins.typebased.IScalingPlanBuilderSelectionP
 
 /**
  * <p>
- * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to the OpenTOSCA
- * Container InstanceData API
+ * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to
+ * the OpenTOSCA Container InstanceData API
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
@@ -18,17 +18,19 @@ import org.opentosca.planbuilder.plugins.typebased.IScalingPlanBuilderSelectionP
  */
 public abstract class MosquittoSelectionPlugin<T extends PlanContext> implements IScalingPlanBuilderSelectionPlugin<T> {
 
-    private static final String PLUGIN_ID = "OpenTOSCA Mosquitto Workload Selection Plugin";
-    private static final String WORKLOAD_SELECTION_STRATEGY = "WorkloadBased";
+  private static final String PLUGIN_ID = "OpenTOSCA Mosquitto Workload Selection Plugin";
+  private static final String WORKLOAD_SELECTION_STRATEGY = "WorkloadBased";
 
-    @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
-        // we can basically handle every type with this strategy
-        return selectionStrategies.contains(MosquittoSelectionPlugin.WORKLOAD_SELECTION_STRATEGY);
-    }
+  @Override
+  public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
+    // we can basically handle every type with this strategy
+    return selectionStrategies.contains(MosquittoSelectionPlugin.WORKLOAD_SELECTION_STRATEGY);
 
-    @Override
-    public String getID() {
-        return MosquittoSelectionPlugin.PLUGIN_ID;
-    }
+  }
+
+  @Override
+  public String getID() {
+    return MosquittoSelectionPlugin.PLUGIN_ID;
+  }
+
 }

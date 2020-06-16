@@ -6,17 +6,18 @@ package org.opentosca.container.core.common;
 
 public class UserException extends Exception {
 
-    private static final long serialVersionUID = 3247334536178572202L;
+  private static final long serialVersionUID = 3247334536178572202L;
 
-    public UserException() {
-        super();
-    }
 
-    public UserException(final String message) {
-        super(message);
-    }
+  public UserException() {
+    super();
+  }
 
-    public UserException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
+  public UserException(final String message) {
+    super(message);
+  }
+
+  public UserException(final String message, final Throwable cause) {
+    super(message, cause);
+  }
 }

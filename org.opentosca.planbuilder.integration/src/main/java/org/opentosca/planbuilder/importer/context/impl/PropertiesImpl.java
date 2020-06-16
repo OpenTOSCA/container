@@ -18,41 +18,43 @@ import org.w3c.dom.Element;
  */
 public class PropertiesImpl extends AbstractProperties {
 
-    private Object props = null;
-    private boolean isDOM = false;
+  private Object props = null;
+  private boolean isDOM = false;
 
-    /**
-     * Constructor
-     *
-     * @param properties an Object of class ElementNSImpl
-     */
-    public PropertiesImpl(final Object properties) {
-        if (properties == null) {
-            throw new RuntimeException("Properties may not be null!");
-        }
 
-        this.props = properties;
-        if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
-            this.isDOM = true;
-        }
+  /**
+   * Constructor
+   *
+   * @param properties an Object of class ElementNSImpl
+   */
+  public PropertiesImpl(final Object properties) {
+    if (properties == null) {
+      throw new RuntimeException("Properties may not be null!");
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Element getDOMElement() {
-        return this.isDOM ? (Element) this.props : null;
+    this.props = properties;
+    if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
+      this.isDOM = true;
     }
+  }
 
-    @Override
-    public Map<String, String> asMap() {
-        final PropertyParser parser = new PropertyParser();
-        Map<String, String> properties = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        final Element element = getDOMElement();
-        if (element != null) {
-            properties = parser.parse(element);
-        }
-        return properties;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Element getDOMElement() {
+    return this.isDOM ? (Element) this.props : null;
+  }
+
+  @Override
+  public Map<String, String> asMap() {
+    final PropertyParser parser = new PropertyParser();
+    Map<String, String> properties = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    final Element element = getDOMElement();
+    if (element != null) {
+      properties = parser.parse(element);
     }
+    return properties;
+  }
+
 }

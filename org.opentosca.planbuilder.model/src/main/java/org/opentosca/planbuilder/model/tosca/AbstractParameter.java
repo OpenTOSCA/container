@@ -11,24 +11,24 @@ package org.opentosca.planbuilder.model.tosca;
  */
 public abstract class AbstractParameter {
 
-    /**
-     * Returns the Name of this Parameter
-     *
-     * @return a String containing the Name of this Parameter
-     */
-    public abstract String getName();
+  /**
+   * Returns the Name of this Parameter
+   *
+   * @return a String containing the Name of this Parameter
+   */
+  public abstract String getName();
 
-    /**
-     * Returns whether this Parameter is required or not
-     *
-     * @return true if is required, else false
-     */
-    public abstract boolean isRequired();
+  /**
+   * Returns whether this Parameter is required or not
+   *
+   * @return true if is required, else false
+   */
+  public abstract boolean isRequired();
 
-    /**
-     * Returns the Type of this Parameter
-     *
-     * @return a String containing the Type of this Parameter
-     */
-    public abstract String getType();
+  /**
+   * Returns the Type of this Parameter
+   *
+   * @return a String containing the Type of this Parameter
+   */
+  public abstract String getType();
 }

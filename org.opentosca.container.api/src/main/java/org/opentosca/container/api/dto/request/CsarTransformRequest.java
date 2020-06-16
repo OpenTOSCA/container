@@ -12,25 +12,25 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CsarTransformRequest {
 
-    @XmlElement(name = "SourceCsarName")
-    private String sourceCsarName;
+  @XmlElement(name = "SourceCsarName")
+  private String sourceCsarName;
 
-    @XmlElement(name = "TargetCsarName")
-    private String targetCsarName;
+  @XmlElement(name = "TargetCsarName")
+  private String targetCsarName;
 
-    public String getSourceCsarName() {
-        return this.sourceCsarName;
-    }
+  public String getSourceCsarName() {
+    return this.sourceCsarName;
+  }
 
-    public void setSourceCsarName(final String sourceCsarName) {
-        this.sourceCsarName = sourceCsarName;
-    }
+  public void setSourceCsarName(final String sourceCsarName) {
+    this.sourceCsarName = sourceCsarName;
+  }
 
-    public String getTargetCsarName() {
-        return this.targetCsarName;
-    }
+  public String getTargetCsarName() {
+    return this.targetCsarName;
+  }
 
-    public void setTargetCsarName(final String targetCsarName) {
-        this.targetCsarName = targetCsarName;
-    }
+  public void setTargetCsarName(final String targetCsarName) {
+    this.targetCsarName = targetCsarName;
+  }
 }

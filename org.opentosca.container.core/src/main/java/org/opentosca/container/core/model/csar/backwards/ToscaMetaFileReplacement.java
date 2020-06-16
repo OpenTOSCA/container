@@ -12,31 +12,31 @@ import org.opentosca.container.core.model.csar.Csar;
 @SuppressWarnings("serial")
 public class ToscaMetaFileReplacement extends TOSCAMetaFile {
 
-    private final Csar wrappedCsar;
+  private final Csar wrappedCsar;
 
-    public ToscaMetaFileReplacement(Csar wrappedCsar) {
-        this.wrappedCsar = wrappedCsar;
-    }
+  public ToscaMetaFileReplacement(Csar wrappedCsar) {
+    this.wrappedCsar = wrappedCsar;
+  }
 
-    @Override
-    public String getEntryDefinitions() {
-        final TServiceTemplate entryServiceTemplate = wrappedCsar.entryServiceTemplate();
-        try {
-            return "servicetemplates" + File.separator
-                + URLEncoder.encode(entryServiceTemplate.getTargetNamespace(), "UTF-8")
-                + File.separator + entryServiceTemplate.getId()
-                + File.separator + "ServiceTemplate.tosca";
-        } catch (UnsupportedEncodingException e) {
-            // yea you deserve that one.
-            throw new RuntimeException(e);
-        }
+  @Override
+  public String getEntryDefinitions() {
+    final TServiceTemplate entryServiceTemplate = wrappedCsar.entryServiceTemplate();
+    try {
+      return "servicetemplates" + File.separator
+        + URLEncoder.encode(entryServiceTemplate.getTargetNamespace(), "UTF-8")
+        + File.separator + entryServiceTemplate.getId()
+        + File.separator + "ServiceTemplate.tosca";
+    } catch (UnsupportedEncodingException e) {
+      // yea you deserve that one.
+      throw new RuntimeException(e);
     }
+  }
 
-    @Override
-    public String getTopology() {
-        return Paths.get(wrappedCsar.topologyPicture()
-            .getPath())
-            .relativize(wrappedCsar.getSaveLocation())
-            .toString();
-    }
+  @Override
+  public String getTopology() {
+    return Paths.get(wrappedCsar.topologyPicture()
+      .getPath())
+      .relativize(wrappedCsar.getSaveLocation())
+      .toString();
+  }
 }

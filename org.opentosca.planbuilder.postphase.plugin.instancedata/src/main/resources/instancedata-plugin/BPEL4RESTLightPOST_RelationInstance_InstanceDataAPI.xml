@@ -1,56 +1,50 @@
 <bpel:scope xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
-    <bpel:sequence>
-        <bpel:assign>
-            <bpel:copy>
-                <bpel:from>
-                    <bpel:literal>
-                        <api:CreateRelationshipTemplateInstanceRequest
-                            xmlns:api="http://opentosca.org/api" service-instance-id="asd" source-instance-id="asd"
-                            target-instance-id="asd"/>
-                    </bpel:literal>
-                </bpel:from>
-                <bpel:to variable="$RequestVarName"/>
-            </bpel:copy>
-            <bpel:copy>
-                <bpel:from variable="$sourceInstanceIdVarName">
-                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                        <![CDATA[string($$sourceInstanceIdVarName)]]></bpel:query>
-                </bpel:from>
-                <bpel:to variable="$RequestVarName">
-                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                        <![CDATA[$$RequestVarName/@*[local-name()='source-instance-id']]]></bpel:query>
-                </bpel:to>
-            </bpel:copy>
-            <bpel:copy>
-                <bpel:from variable="$targetInstanceIdVarName">
-                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                        <![CDATA[string($$targetInstanceIdVarName)]]></bpel:query>
-                </bpel:from>
-                <bpel:to variable="$RequestVarName">
-                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                        <![CDATA[$$RequestVarName/@*[local-name()='target-instance-id']]]></bpel:query>
-                </bpel:to>
-            </bpel:copy>
-            <bpel:copy>
-                <bpel:from variable="$serviceInstanceIdVarName">
-                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                        <![CDATA[string($$serviceInstanceIdVarName)]]></bpel:query>
-                </bpel:from>
-                <bpel:to variable="$RequestVarName">
-                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                        <![CDATA[$$RequestVarName/@*[local-name()='service-instance-id']]]></bpel:query>
-                </bpel:to>
-            </bpel:copy>
-        </bpel:assign>
-        <bpel:extensionActivity
-            xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
-            xmlns:bpel4RestLight="http://www.apache.org/ode/bpel/extensions/bpel4restlight">
-            <!-- $serviceInstanceURLVar, $relationshipTemplateId, $ResponseVarName,
-                $sourceInstanceIdVarName, $targetInstanceIdVarName -->
-            <bpel4RestLight:POST
-                uri="$bpelvar[$serviceInstanceURLVar]/relationshiptemplates/$relationshipTemplateId/instances"
-                accept="application/xml" contenttype="application/xml" request="$RequestVarName"
-                response="$ResponseVarName"></bpel4RestLight:POST>
-        </bpel:extensionActivity>
-    </bpel:sequence>
+	<bpel:sequence>
+		<bpel:assign>
+			<bpel:copy>
+				<bpel:from>
+					<bpel:literal>
+						<api:CreateRelationshipTemplateInstanceRequest
+							xmlns:api="http://opentosca.org/api" service-instance-id="asd" source-instance-id="asd"
+							target-instance-id="asd" />
+					</bpel:literal>
+				</bpel:from>
+				<bpel:to variable="$RequestVarName" />
+			</bpel:copy>
+			<bpel:copy>
+				<bpel:from variable="$sourceInstanceIdVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string($$sourceInstanceIdVarName)]]></bpel:query>
+				</bpel:from>
+				<bpel:to variable="$RequestVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$$RequestVarName/@*[local-name()='source-instance-id']]]></bpel:query>
+				</bpel:to>
+			</bpel:copy>
+			<bpel:copy>
+				<bpel:from variable="$targetInstanceIdVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string($$targetInstanceIdVarName)]]></bpel:query>
+				</bpel:from>
+				<bpel:to variable="$RequestVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$$RequestVarName/@*[local-name()='target-instance-id']]]></bpel:query>
+				</bpel:to>
+			</bpel:copy>
+			<bpel:copy>
+				<bpel:from variable="$serviceInstanceIdVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string($$serviceInstanceIdVarName)]]></bpel:query>
+				</bpel:from>
+				<bpel:to variable="$RequestVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$$RequestVarName/@*[local-name()='service-instance-id']]]></bpel:query>
+				</bpel:to>
+			</bpel:copy>
+		</bpel:assign>
+		<bpel:extensionActivity
+			xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+			xmlns:bpel4RestLight="http://www.apache.org/ode/bpel/extensions/bpel4restlight">
+			<!-- $serviceInstanceURLVar, $relationshipTemplateId, $ResponseVarName,
+				$sourceInstanceIdVarName, $targetInstanceIdVarName -->
+			<bpel4RestLight:POST
+				uri="$bpelvar[$serviceInstanceURLVar]/relationshiptemplates/$relationshipTemplateId/instances"
+				accept="application/xml" contenttype="application/xml" request="$RequestVarName"
+				response="$ResponseVarName"></bpel4RestLight:POST>
+		</bpel:extensionActivity>
+	</bpel:sequence>
 </bpel:scope>

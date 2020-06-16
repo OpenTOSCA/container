@@ -6,11 +6,13 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
+
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -33,25 +35,26 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum TBoolean {
 
-    @XmlEnumValue("yes")
-    YES("yes"), @XmlEnumValue("no")
-    NO("no");
-    private final String value;
+  @XmlEnumValue("yes")
+  YES("yes"), @XmlEnumValue("no")
+  NO("no");
+  private final String value;
 
-    TBoolean(final String v) {
-        this.value = v;
-    }
+  TBoolean(final String v) {
+    this.value = v;
+  }
 
-    public String value() {
-        return this.value;
-    }
+  public String value() {
+    return this.value;
+  }
 
-    public static TBoolean fromValue(final String v) {
-        for (final TBoolean c : TBoolean.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static TBoolean fromValue(final String v) {
+    for (final TBoolean c : TBoolean.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
+
 }

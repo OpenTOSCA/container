@@ -6,12 +6,14 @@
 // Generated on: 2012.05.16 at 05:29:02 PM MESZ
 //
 
+
 package org.apache.ode.activityrecovery;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -41,61 +43,62 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "failureHandling")
 public class FailureHandling {
 
-    protected Integer retryFor;
-    protected Integer retryDelay;
-    protected Boolean faultOnFailure;
+  protected Integer retryFor;
+  protected Integer retryDelay;
+  protected Boolean faultOnFailure;
 
-    /**
-     * Gets the value of the retryFor property.
-     *
-     * @return possible object is {@link Integer }
-     */
-    public Integer getRetryFor() {
-        return this.retryFor;
-    }
+  /**
+   * Gets the value of the retryFor property.
+   *
+   * @return possible object is {@link Integer }
+   */
+  public Integer getRetryFor() {
+    return this.retryFor;
+  }
 
-    /**
-     * Sets the value of the retryFor property.
-     *
-     * @param value allowed object is {@link Integer }
-     */
-    public void setRetryFor(final Integer value) {
-        this.retryFor = value;
-    }
+  /**
+   * Sets the value of the retryFor property.
+   *
+   * @param value allowed object is {@link Integer }
+   */
+  public void setRetryFor(final Integer value) {
+    this.retryFor = value;
+  }
 
-    /**
-     * Gets the value of the retryDelay property.
-     *
-     * @return possible object is {@link Integer }
-     */
-    public Integer getRetryDelay() {
-        return this.retryDelay;
-    }
+  /**
+   * Gets the value of the retryDelay property.
+   *
+   * @return possible object is {@link Integer }
+   */
+  public Integer getRetryDelay() {
+    return this.retryDelay;
+  }
 
-    /**
-     * Sets the value of the retryDelay property.
-     *
-     * @param value allowed object is {@link Integer }
-     */
-    public void setRetryDelay(final Integer value) {
-        this.retryDelay = value;
-    }
+  /**
+   * Sets the value of the retryDelay property.
+   *
+   * @param value allowed object is {@link Integer }
+   */
+  public void setRetryDelay(final Integer value) {
+    this.retryDelay = value;
+  }
 
-    /**
-     * Gets the value of the faultOnFailure property.
-     *
-     * @return possible object is {@link Boolean }
-     */
-    public Boolean isFaultOnFailure() {
-        return this.faultOnFailure;
-    }
+  /**
+   * Gets the value of the faultOnFailure property.
+   *
+   * @return possible object is {@link Boolean }
+   */
+  public Boolean isFaultOnFailure() {
+    return this.faultOnFailure;
+  }
 
-    /**
-     * Sets the value of the faultOnFailure property.
-     *
-     * @param value allowed object is {@link Boolean }
-     */
-    public void setFaultOnFailure(final Boolean value) {
-        this.faultOnFailure = value;
-    }
+  /**
+   * Sets the value of the faultOnFailure property.
+   *
+   * @param value allowed object is {@link Boolean }
+   */
+  public void setFaultOnFailure(final Boolean value) {
+    this.faultOnFailure = value;
+  }
+
 }

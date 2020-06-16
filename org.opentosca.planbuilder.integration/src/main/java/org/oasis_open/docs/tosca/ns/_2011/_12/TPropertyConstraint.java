@@ -6,12 +6,14 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
+
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -34,24 +36,25 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tPropertyConstraint")
 public class TPropertyConstraint extends TConstraint {
 
-    @XmlAttribute(required = true)
-    protected String property;
+  @XmlAttribute(required = true)
+  protected String property;
 
-    /**
-     * Gets the value of the property property.
-     *
-     * @return possible object is {@link String }
-     */
-    public String getProperty() {
-        return this.property;
-    }
+  /**
+   * Gets the value of the property property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getProperty() {
+    return this.property;
+  }
 
-    /**
-     * Sets the value of the property property.
-     *
-     * @param value allowed object is {@link String }
-     */
-    public void setProperty(final String value) {
-        this.property = value;
-    }
+  /**
+   * Sets the value of the property property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setProperty(final String value) {
+    this.property = value;
+  }
+
 }

@@ -17,10 +17,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
@@ -29,6 +27,10 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Api
 public class PlacementController {
@@ -58,12 +60,12 @@ public class PlacementController {
     }
 
     @POST
-    @Produces( {MediaType.APPLICATION_JSON})
-    @Consumes( {MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
     @ApiOperation(hidden = true, value = "")
     public Response getInstances(@ApiParam("node template list need to be placed") final List<String> request) throws InstantiationException,
-        IllegalAccessException,
-        IllegalArgumentException {
+                                                                                                               IllegalAccessException,
+                                                                                                               IllegalArgumentException {
 
         // all node templates that need to be placed
         final List<NodeTemplateDTO> nodeTemplatesToBePlaced = request.stream()
@@ -90,9 +92,9 @@ public class PlacementController {
                     // yay, we found an option, add to list
                     resultMap.get(nodeTemplateDTO.getId())
                         .add(Stream.of(nodeTemplateInstance.getId(),
-                            nodeTemplateInstance.getTemplateId(),
-                            nodeTemplateInstance.getServiceTemplateInstance().getId(),
-                            nodeTemplateInstance.getServiceTemplateInstance().getCsarId())
+                                nodeTemplateInstance.getTemplateId(),
+                                nodeTemplateInstance.getServiceTemplateInstance().getId(),
+                                nodeTemplateInstance.getServiceTemplateInstance().getCsarId())
                             .map(String::valueOf)
                             .collect(Collectors.joining("|||")));
                 }

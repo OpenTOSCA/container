@@ -1,135 +1,136 @@
 <?xml version="1.0"?>
 <definitions name="{wsdlname}"
-             targetNamespace="{wsdltargetnamespace}"
-             xmlns:tns="{wsdltargetnamespace}"
-             xmlns="http://schemas.xmlsoap.org/wsdl/"
-             xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype"
-             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-    {wsdlnamespaceprefix}
-    >
+        targetNamespace="{wsdltargetnamespace}"
+        xmlns:tns="{wsdltargetnamespace}"
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:vprop="http://docs.oasis-open.org/wsbpel/2.0/varprop"
+        {wsdlnamespaceprefix}
+        >
 
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         TYPE DEFINITION - List of services participating in this BPEL process
-         The default output of the BPEL designer uses strings as input and
-         output to the BPEL Process. But you can define or import any XML
-         Schema type and us them as part of the message types.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    {wsdlpartnerlinks}
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     TYPE DEFINITION - List of services participating in this BPEL process
+     The default output of the BPEL designer uses strings as input and
+     output to the BPEL Process. But you can define or import any XML
+     Schema type and us them as part of the message types.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+     {wsdlpartnerlinks}
 
-    {vprops}
-    {vpropaliases}
+     {vprops}
+     {vpropaliases}
 
     {wsdlimports}
-<types>
-<schema attributeFormDefault="unqualified"
-        elementFormDefault="qualified"
-        targetNamespace="{wsdltargetnamespace}"
-        xmlns="http://www.w3.org/2001/XMLSchema"
->
+    <types>
+        <schema attributeFormDefault="unqualified"
+                elementFormDefault="qualified"
+                targetNamespace="{wsdltargetnamespace}"
+                xmlns="http://www.w3.org/2001/XMLSchema"
+                >
 
-    <element name="{wsdlname}Request">
-        <complexType>
-            <sequence>
-                {wsdlrequesttypeelements}
-            </sequence>
-        </complexType>
-    </element>
+            <element name="{wsdlname}Request">
+                <complexType>
+                    <sequence>
+                        {wsdlrequesttypeelements}
+                    </sequence>
+                </complexType>
+            </element>
 
-    <element name="{wsdlname}Response">
-        <complexType>
-            <sequence>
-                {wsdlresponsetypeelements}
-            </sequence>
-        </complexType>
-    </element>
+            <element name="{wsdlname}Response">
+                <complexType>
+                    <sequence>
+                        {wsdlresponsetypeelements}
+                    </sequence>
+                </complexType>
+            </element>
 
-</schema>
-</types>
+        </schema>
+    </types>
 
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         MESSAGE TYPE DEFINITION - Definition of the message types used as
-         part of the port type defintions
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-<message name="{wsdlname}RequestMessage">
-<part name="payload" element="tns:{wsdlname}Request"/>
-</message>
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     MESSAGE TYPE DEFINITION - Definition of the message types used as
+     part of the port type defintions
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <message name="{wsdlname}RequestMessage">
+        <part name="payload" element="tns:{wsdlname}Request"/>
+    </message>
 
-<message name="{wsdlname}ResponseMessage">
-<part name="payload" element="tns:{wsdlname}Response"/>
-</message>
+    <message name="{wsdlname}ResponseMessage">
+        <part name="payload" element="tns:{wsdlname}Response"/>
+    </message>
 
 
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         PORT TYPE DEFINITION - A port type groups a set of operations into
-         a logical service unit.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PORT TYPE DEFINITION - A port type groups a set of operations into
+     a logical service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <!-- portType implemented by the bamoodlebuildplan BPEL process -->
-<portType name="{wsdlname}">
-<operation name="{operationName}">
-    <input message="tns:{wsdlname}RequestMessage"/>
-</operation>
-</portType>
+    <portType name="{wsdlname}">
+        <operation name="{operationName}">
+            <input message="tns:{wsdlname}RequestMessage"/>
+        </operation>
+    </portType>
 
     <!-- portType implemented by the requester of bamoodlebuildplan BPEL process
          for asynchronous callback purposes
          -->
-<portType name="{wsdlname}Callback">
-<operation name="onResult">
-    <input message="tns:{wsdlname}ResponseMessage"/>
-</operation>
-</portType>
+    <portType name="{wsdlname}Callback">
+        <operation name="onResult">
+            <input message="tns:{wsdlname}ResponseMessage"/>
+        </operation>
+    </portType>
 
 
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         PARTNER LINK TYPE DEFINITION
-             the bamoodlebuildplan partnerLinkType binds the provider and
-             requester portType into an asynchronous conversation.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-<plnk:partnerLinkType name="{wsdlname}">
-<plnk:role name="{wsdlname}Provider" portType="tns:{wsdlname}"/>
-<plnk:role name="{wsdlname}Requester" portType="tns:{wsdlname}Callback"/>
-</plnk:partnerLinkType>
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PARTNER LINK TYPE DEFINITION
+         the bamoodlebuildplan partnerLinkType binds the provider and
+         requester portType into an asynchronous conversation.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <plnk:partnerLinkType name="{wsdlname}">
+        <plnk:role name="{wsdlname}Provider" portType="tns:{wsdlname}"/>
+        <plnk:role name="{wsdlname}Requester" portType="tns:{wsdlname}Callback"/>
+    </plnk:partnerLinkType>
 
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         BINDING DEFINITION - Defines the message format and protocol details
-         for a web service.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-<binding name="{wsdlname}Binding" type="tns:{wsdlname}">
-<soap:binding style="document"
-              transport="http://schemas.xmlsoap.org/soap/http"/>
-<operation name="{operationName}">
-    <soap:operation
-        soapAction="{wsdltargetnamespace}/initiate"/>
-    <input>
-        <soap:body use="literal"/>
-    </input>
-</operation>
-</binding>
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     BINDING DEFINITION - Defines the message format and protocol details
+     for a web service.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <binding name="{wsdlname}Binding" type="tns:{wsdlname}">
+        <soap:binding style="document"
+    		transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="{operationName}">
+            <soap:operation
+    			soapAction="{wsdltargetnamespace}/initiate"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+        </operation>
+    </binding>
 
-<binding name="{wsdlname}CallbackBinding" type="tns:{wsdlname}Callback">
-<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-<operation name="onResult">
-    <soap:operation
-        soapAction="{wsdltargetnamespace}/onResult"/>
-    <input>
-        <soap:body use="literal"/>
-    </input>
-</operation>
-</binding>
+    <binding name="{wsdlname}CallbackBinding" type="tns:{wsdlname}Callback">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="onResult">
+            <soap:operation
+    			soapAction="{wsdltargetnamespace}/onResult"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+        </operation>
+    </binding>
 
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         SERVICE DEFINITION - A service groups a set of ports into
-         a service unit.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-<service name="{wsdlname}Service">
-<port name="{wsdlname}Port" binding="tns:{wsdlname}Binding">
-    <soap:address location="http://localhost:8080/{wsdlname}"/>
-</port>
-</service>
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     SERVICE DEFINITION - A service groups a set of ports into
+     a service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <service name="{wsdlname}Service">
+        <port name="{wsdlname}Port" binding="tns:{wsdlname}Binding">
+    		<soap:address location="http://localhost:8080/{wsdlname}"/>
+        </port>
+    </service>
 
-<service name="{wsdlname}ServiceCallback">
-<port name="{wsdlname}PortCallbackPort" binding="tns:{wsdlname}CallbackBinding">
-    <soap:address location="http://localhost:8080/{wsdlname}Callback"/>
-</port>
-</service>
-    </definitions>
+    <service name="{wsdlname}ServiceCallback">
+        <port name="{wsdlname}PortCallbackPort" binding="tns:{wsdlname}CallbackBinding">
+    		<soap:address location="http://localhost:8080/{wsdlname}Callback"/>
+        </port>
+    </service>
+</definitions>

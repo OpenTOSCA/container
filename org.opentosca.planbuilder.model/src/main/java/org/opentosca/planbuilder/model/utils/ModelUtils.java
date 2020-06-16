@@ -3,12 +3,7 @@ package org.opentosca.planbuilder.model.utils;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -54,6 +49,7 @@ import org.xml.sax.SAXException;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public class ModelUtils {
 
@@ -61,14 +57,15 @@ public class ModelUtils {
 
     public static String makeValidNCName(final String string) {
         return string.replaceAll("\\.", "_").replaceAll(" ", "_").replace("{", "_").replace("}", "_").replace("/", "_")
-            .replace(":", "_");
+                     .replace(":", "_");
     }
 
     /**
-     * Returns true if the given QName type denotes to a NodeType in the type hierarchy of the given NodeTemplate
+     * Returns true if the given QName type denotes to a NodeType in the type hierarchy of the given
+     * NodeTemplate
      *
      * @param nodeTemplate an AbstractNodeTemplate
-     * @param type         the Type as a QName to check against
+     * @param type the Type as a QName to check against
      * @return true iff the given NodeTemplate contains the given type in its type hierarchy
      */
     public static boolean checkForTypeInHierarchy(final AbstractNodeTemplate nodeTemplate, final QName type) {
@@ -83,11 +80,11 @@ public class ModelUtils {
     }
 
     /**
-     * Returns true if the given QName type denotes to a RelationshipType in the type hierarchy of the given
-     * RelationshipTemplate
+     * Returns true if the given QName type denotes to a RelationshipType in the type hierarchy of the
+     * given RelationshipTemplate
      *
      * @param relationshipTemplate an AbstractRelationshipTemplate
-     * @param type                 the Type as a QName to check against
+     * @param type the Type as a QName to check against
      * @return true iff the given RelationshipTemplate contains the given type in its type hierarchy
      */
     public static boolean checkForTypeInHierarchy(final AbstractRelationshipTemplate relationshipTemplate,
@@ -123,6 +120,7 @@ public class ModelUtils {
         }
         nodeTemplates.clear();
         nodeTemplates.addAll(list);
+
     }
 
     /**
@@ -148,7 +146,8 @@ public class ModelUtils {
             transformer.transform(domSource, result);
             writer.flush();
             return writer.toString();
-        } catch (final TransformerException ex) {
+        }
+        catch (final TransformerException ex) {
             ModelUtils.LOG.error("Couldn't transform DOM Document to a String", ex);
             return null;
         }
@@ -207,8 +206,9 @@ public class ModelUtils {
     /**
      * Adds the InfrastructureEdges of the given NodeTemplate to the given List
      *
-     * @param nodeTemplate        an AbstractNodeTemplate
-     * @param infrastructureEdges a List of AbstractRelationshipTemplate to add the InfrastructureEdges to
+     * @param nodeTemplate an AbstractNodeTemplate
+     * @param infrastructureEdges a List of AbstractRelationshipTemplate to add the InfrastructureEdges
+     *        to
      */
     public static void getInfrastructureEdges(final AbstractNodeTemplate nodeTemplate,
                                               final List<AbstractRelationshipTemplate> infrastructureEdges) {
@@ -243,9 +243,9 @@ public class ModelUtils {
      * Adds the InfrastructureEdges of the given RelationshipTemplate to the given List
      *
      * @param relationshipTemplate an AbstractRelationshipTemplate
-     * @param infraEdges           a List of AbstractRelationshipTemplate to add the InfrastructureEdges to
-     * @param forSource            whether to search for InfrastructureEdges along the SourceInterface or
-     *                             TargetInterface
+     * @param infraEdges a List of AbstractRelationshipTemplate to add the InfrastructureEdges to
+     * @param forSource whether to search for InfrastructureEdges along the SourceInterface or
+     *        TargetInterface
      */
     public static void getInfrastructureEdges(final AbstractRelationshipTemplate relationshipTemplate,
                                               final List<AbstractRelationshipTemplate> infraEdges,
@@ -257,12 +257,15 @@ public class ModelUtils {
         }
     }
 
+
+
     /**
-     * Calculates all Infrastructure Nodes of all Infrastructure Paths originating from the given NodeTemplate
+     * Calculates all Infrastructure Nodes of all Infrastructure Paths originating from the given
+     * NodeTemplate
      *
-     * @param nodeTemplate        AbstractNodeTemplate from where the search for Infrastructure Nodes begin
-     * @param infrastructureNodes a List of AbstractNodeTemplates which represent Infrastructure Nodes of the given
-     *                            NodeTemplate (including itself when applicable as an infrastructure node)
+     * @param nodeTemplate AbstractNodeTemplate from where the search for Infrastructure Nodes begin
+     * @param infrastructureNodes a List of AbstractNodeTemplates which represent Infrastructure Nodes
+     *        of the given NodeTemplate (including itself when applicable as an infrastructure node)
      * @Info the infrastructureNodes List must be empty
      */
     public static void getInfrastructureNodes(final AbstractNodeTemplate nodeTemplate,
@@ -296,9 +299,10 @@ public class ModelUtils {
      * Adds InfrastructureNodes of the given RelaitonshipTemplate to the given List of NodeTemplates
      *
      * @param relationshipTemplate an AbstractRelationshipTemplate to search its InfrastructureNodes
-     * @param infrastructureNodes  a List of AbstractNodeTemplate where the InfrastructureNodes will be added
-     * @param forSource            whether to search for InfrastructureNodes along the SourceInterface or
-     *                             TargetInterface
+     * @param infrastructureNodes a List of AbstractNodeTemplate where the InfrastructureNodes will be
+     *        added
+     * @param forSource whether to search for InfrastructureNodes along the SourceInterface or
+     *        TargetInterface
      */
     public static void getInfrastructureNodes(final AbstractRelationshipTemplate relationshipTemplate,
                                               final List<AbstractNodeTemplate> infrastructureNodes,
@@ -309,6 +313,7 @@ public class ModelUtils {
         } else {
             ModelUtils.getInfrastructureNodes(relationshipTemplate.getTarget(), infrastructureNodes);
         }
+
     }
 
     public static List<AbstractRelationshipTemplate> getIngoingRelations(final AbstractNodeTemplate nodeTemplate,
@@ -355,31 +360,31 @@ public class ModelUtils {
     }
 
     public static TNodeType getNodeBaseType(Csar csar, final TNodeTemplate nodeTemplate) {
-        LOG.debug("Beginning search for basetype of: " + nodeTemplate.getId());
-        final List<TNodeType> typeHierarchy;
-        try {
-            typeHierarchy = ToscaEngine.resolveNodeTypeHierarchy(csar, nodeTemplate);
-        } catch (NotFoundException e) {
-            return null;
+      LOG.debug("Beginning search for basetype of: " + nodeTemplate.getId());
+      final List<TNodeType> typeHierarchy;
+      try {
+        typeHierarchy = ToscaEngine.resolveNodeTypeHierarchy(csar, nodeTemplate);
+      } catch (NotFoundException e) {
+        return null;
+      }
+      for (final TNodeType type : typeHierarchy) {
+        ModelUtils.LOG.debug("Checking Type in Hierarchy, type: " + type.toString());
+        if (type.getQName().equals(Types.TOSCABASETYPE_SERVER)) {
+          return type;
+        } else if (type.getQName().equals(Types.TOSCABASETYPE_OS)) {
+          return type;
         }
-        for (final TNodeType type : typeHierarchy) {
-            ModelUtils.LOG.debug("Checking Type in Hierarchy, type: " + type.toString());
-            if (type.getQName().equals(Types.TOSCABASETYPE_SERVER)) {
-                return type;
-            } else if (type.getQName().equals(Types.TOSCABASETYPE_OS)) {
-                return type;
-            }
-        }
-        // FIXME: when there are no basetypes we're screwed
-        return typeHierarchy.get(typeHierarchy.size() - 1);
+      }
+      // FIXME: when there are no basetypes we're screwed
+      return typeHierarchy.get(typeHierarchy.size() - 1);
     }
 
     /**
-     * Returns all NodeTemplates from the given NodeTemplate going along the path of relation following the target
-     * interfaces
+     * Returns all NodeTemplates from the given NodeTemplate going along the path of relation following
+     * the target interfaces
      *
      * @param nodeTemplate an AbstractNodeTemplate
-     * @param nodes        a List of AbstractNodeTemplate to add the result to
+     * @param nodes a List of AbstractNodeTemplate to add the result to
      */
     public static void getNodesFromNodeToSink(final AbstractNodeTemplate nodeTemplate,
                                               final List<AbstractNodeTemplate> nodes) {
@@ -401,7 +406,7 @@ public class ModelUtils {
         nodes.add(nodeTemplate);
         for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
             if (ModelUtils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType())
-                .contains(relationshipType)) {
+                          .contains(relationshipType)) {
                 // we skip connectTo relations, as they are connecting stacks
                 // and
                 // make the result even more ambigious
@@ -427,11 +432,11 @@ public class ModelUtils {
     }
 
     /**
-     * Returns all NodeTemplates from the given RelationshipTemplate going along all occuring Relationships using the
-     * Target
+     * Returns all NodeTemplates from the given RelationshipTemplate going along all occuring
+     * Relationships using the Target
      *
      * @param relationshipTemplate an AbstractRelationshipTemplate
-     * @param nodes                a List of AbstractNodeTemplate to add the result to
+     * @param nodes a List of AbstractNodeTemplate to add the result to
      */
     public static void getNodesFromRelationToSink(final AbstractRelationshipTemplate relationshipTemplate,
                                                   final Collection<AbstractNodeTemplate> nodes) {
@@ -457,10 +462,11 @@ public class ModelUtils {
         for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
 
             if (ModelUtils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType())
-                .contains(relationshipType)) {
+                          .contains(relationshipType)) {
 
                 ModelUtils.getNodesFromRelationToSink(outgoingTemplate, relationshipType, nodes);
             }
+
         }
         ModelUtils.cleanDuplciates(nodes);
     }
@@ -479,13 +485,14 @@ public class ModelUtils {
     }
 
     /**
-     * Returns a ordered list of QNames. The order represents the inheritance of NodeTypes defining the given NodeType.
-     * E.g. NodeType "someNodeType" inherits properties from "someOtherNodeType". The returns list would have
-     * {someNs}someNodeType,{someNs}someOtherNodeType inside, in the exact same order.
+     * Returns a ordered list of QNames. The order represents the inheritance of NodeTypes defining the
+     * given NodeType. E.g. NodeType "someNodeType" inherits properties from "someOtherNodeType". The
+     * returns list would have {someNs}someNodeType,{someNs}someOtherNodeType inside, in the exact same
+     * order.
      *
      * @param nodeType the nodeType to get the hierarchy for
-     * @return a List containing an order of inheritance of NodeTypes for this NodeType with itself at the first spot in
-     * the list.
+     * @return a List containing an order of inheritance of NodeTypes for this NodeType with itself at
+     *         the first spot in the list.
      */
     @Obsolete
     public static List<QName> getNodeTypeHierarchy(final AbstractNodeType nodeType) {
@@ -576,14 +583,15 @@ public class ModelUtils {
     }
 
     /**
-     * Returns a ordered list of QNames. The order represents the inheritance of RelationshipTypes defining the given
-     * RelationshipType. E.g. Relationship "someRelationType" and it inherits properties from "someOtherRelationType".
-     * The returns list would have {someNs}someRelationType,{someNs}someOtherRelationType inside, in the exact same
-     * order. Var
+     * Returns a ordered list of QNames. The order represents the inheritance of RelationshipTypes
+     * defining the given RelationshipType. E.g. Relationship "someRelationType" and it inherits
+     * properties from "someOtherRelationType". The returns list would have
+     * {someNs}someRelationType,{someNs}someOtherRelationType inside, in the exact same order. Var
      *
-     * @param definitions      the Definitions to look in
+     * @param definitions the Definitions to look in
      * @param relationshipType the RelationshipType to get the hierarchy for
-     * @return a List containing an order of inheritance of RelationshipTypes of the given RelationshipType
+     * @return a List containing an order of inheritance of RelationshipTypes of the given
+     *         RelationshipType
      */
     public static List<QName> getRelationshipTypeHierarchy(final AbstractRelationshipType relationshipType) {
         final List<QName> typeHierarchy = new ArrayList<>();
@@ -606,11 +614,11 @@ public class ModelUtils {
     /**
      * Looks for a childelement with an attribute with the given name and value
      *
-     * @param element        the element to look in
-     * @param attributeName  the name of the attribute
+     * @param element the element to look in
+     * @param attributeName the name of the attribute
      * @param attributeValue the value of the attribute
-     * @return true if the given element has a child element with an attribute where attrname.equals(attributeName) &
-     * attr.value(attributeValue), else false
+     * @return true if the given element has a child element with an attribute where
+     *         attrname.equals(attributeName) & attr.value(attributeValue), else false
      */
     public static boolean hasChildElementWithAttribute(final Element element, final String attributeName,
                                                        final String attributeValue) {
@@ -650,9 +658,12 @@ public class ModelUtils {
      *
      * @param xmlString the xml to transform as String
      * @return a DOM Node representing the given string
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
      */
     public static Node string2dom(final String xmlString) throws ParserConfigurationException, SAXException,
-        IOException {
+                                                          IOException {
 
         final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         docFactory.setNamespaceAware(true);
@@ -667,7 +678,8 @@ public class ModelUtils {
     public static Node string2domQuietly(final String xmlString) {
         try {
             return string2dom(xmlString);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
+        }
+        catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -675,20 +687,20 @@ public class ModelUtils {
     /**
      * Get the AbstractInterface with a certain name from a NodeTemplate
      *
-     * @param nodeTemplate  the name of the NodeTemplate
+     * @param nodeTemplate the name of the NodeTemplate
      * @param interfaceName the name of the interface
      * @return the AbstractInterface if found, <code>null</code> otherwise
      */
     public static AbstractInterface getInterfaceOfNode(final AbstractNodeTemplate nodeTemplate,
                                                        final String interfaceName) {
         return nodeTemplate.getType().getInterfaces().stream().filter(iface -> iface.getName().equals(interfaceName))
-            .findFirst().orElse(null);
+                           .findFirst().orElse(null);
     }
 
     /**
      * Get the AbstractOperation with a certain name from a NodeTemplate
      *
-     * @param nodeTemplate  the name of the NodeTemplate
+     * @param nodeTemplate the name of the NodeTemplate
      * @param interfaceName the name of the interface containing the operation
      * @param operationName the name of the operation
      * @return the AbstractOperation if found, <code>null>/code> otherwise
@@ -698,7 +710,7 @@ public class ModelUtils {
         final AbstractInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, interfaceName);
         if (Objects.nonNull(iface)) {
             return iface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst()
-                .orElse(null);
+                        .orElse(null);
         } else {
             LOG.error("Unable to find interface {} for NodeTemplate {}", interfaceName, nodeTemplate.getName());
             return null;

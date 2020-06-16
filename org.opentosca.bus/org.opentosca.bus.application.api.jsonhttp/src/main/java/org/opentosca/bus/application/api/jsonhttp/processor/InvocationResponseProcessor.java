@@ -9,6 +9,7 @@ import org.restlet.data.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * InvocationResponseProcessor of the Application Bus-JSON/HTTP-API.<br>
  * <br>
@@ -19,20 +20,22 @@ import org.slf4j.LoggerFactory;
  */
 public class InvocationResponseProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(InvocationResponseProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(InvocationResponseProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) throws Exception {
+  @Override
+  public void process(final Exchange exchange) throws Exception {
 
-        InvocationResponseProcessor.LOG.debug("Processing Invocation response....");
+    InvocationResponseProcessor.LOG.debug("Processing Invocation response....");
 
-        final String requestID = exchange.getIn().getBody(String.class);
+    final String requestID = exchange.getIn().getBody(String.class);
 
-        InvocationResponseProcessor.LOG.debug("RequestID: {}", requestID);
+    InvocationResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
-        response.setStatus(Status.SUCCESS_ACCEPTED);
-        response.setLocationRef(Route.POLL_ENDPOINT.replace(Route.ID_PLACEHODLER, requestID));
-        exchange.getOut().setBody(response);
-    }
+    final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+    response.setStatus(Status.SUCCESS_ACCEPTED);
+    response.setLocationRef(Route.POLL_ENDPOINT.replace(Route.ID_PLACEHODLER, requestID));
+    exchange.getOut().setBody(response);
+
+  }
+
 }

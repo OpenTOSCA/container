@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public class TopologyTemplateImpl extends AbstractTopologyTemplate {
 
@@ -38,23 +39,25 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
     private final List<AbstractRelationshipTemplate> relationshipTemplates = new ArrayList<>();
     private DefinitionsImpl definitions = null;
 
+
     /**
      * Constructor
      *
      * @param topologyTemplate a JAXB TTopologyTemplate
-     * @param definitions      a DefinitionsImpl
+     * @param definitions a DefinitionsImpl
      */
     public TopologyTemplateImpl(final TTopologyTemplate topologyTemplate, final DefinitionsImpl definitions,
                                 final QName serviceTemplateId) {
         this.topologyTemplate = topologyTemplate;
         this.definitions = definitions;
-        this.serviceTemplateId = serviceTemplateId;
+        this.serviceTemplateId = serviceTemplateId;                
         setUpTemplates();
         setUpRelations();
     }
 
     /**
-     * Initializes the relations between the NodeTemplates and RelationshipTemplates inside this TopologyTemplate
+     * Initializes the relations between the NodeTemplates and RelationshipTemplates inside this
+     * TopologyTemplate
      */
     private void setUpRelations() {
         setUpRelationshipTemplates();
@@ -77,12 +80,12 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
                 final TNodeTemplate source = (TNodeTemplate) temp._getSource();
                 if (source == null) {
                     TopologyTemplateImpl.LOG.warn("Source NodeTemplate of RelationshipTemplate {} is null!",
-                        temp.getId());
+                                                  temp.getId());
                 }
                 final TNodeTemplate target = (TNodeTemplate) temp._getTarget();
                 if (target == null) {
                     TopologyTemplateImpl.LOG.warn("Target NodeTemplate of RelationshipTemplate {} is null!",
-                        temp.getId());
+                                                  temp.getId());
                 }
                 for (final AbstractNodeTemplate nodetemplate : this.nodeTemplates) {
                     if (source.getId().equals(nodetemplate.getId())) {
@@ -132,6 +135,7 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
                         }
                     }
                 }
+
             } else {
                 TopologyTemplateImpl.LOG.error("Error, relationshipTemplate {} has no defined source", temp.getId());
             }
@@ -200,6 +204,7 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
                     this.definitions));
             } else if (element instanceof TNodeTemplate) {
                 this.nodeTemplates.add(new NodeTemplateImpl((TNodeTemplate) element, this.definitions));
+
             }
         }
     }
@@ -208,4 +213,5 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
     public QName getServiceTemplateId() {
         return this.serviceTemplateId;
     }
+
 }

@@ -33,12 +33,13 @@ import org.springframework.stereotype.Component;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * <p>
- * Here the route an incoming invoke-request has to pass is defined. Also the web services to consume and produce a SOAP
- * message are created here. An incoming SOAP message will be unmarshalled and with the request-processor transformed.
- * After that the message will be given the Management Bus for further execution. The response will be transformed,
- * marshalled and send to the recipient. Supported are both synchronous request-response communication and asynchronous
- * communication with callback. MessageID and ReplyTo-address can be passed as parameter of the SOAP body or as WS-A
- * header.
+ * Here the route an incoming invoke-request has to pass is defined. Also the web services to
+ * consume and produce a SOAP message are created here. An incoming SOAP message will be
+ * unmarshalled and with the request-processor transformed. After that the message will be given the
+ * Management Bus for further execution. The response will be transformed, marshalled and send to
+ * the recipient. Supported are both synchronous request-response communication and asynchronous
+ * communication with callback. MessageID and ReplyTo-address can be passed as parameter of the SOAP
+ * body or as WS-A header.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
@@ -47,84 +48,85 @@ import org.springframework.stereotype.Component;
 //@Named("management-bus-soaphttp-route")
 public class Route extends RouteBuilder {
 
-    public final static String PUBLIC_ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";
-    public final static QName PORT = new QName("http://siserver.org/wsdl", "InvokePort");
-    public final static QName PORTTYPE = new QName("http://siserver.org/wsdl", "InvokePortType");
+  public final static String PUBLIC_ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";
+  public final static QName PORT = new QName("http://siserver.org/wsdl", "InvokePort");
+  public final static QName PORTTYPE = new QName("http://siserver.org/wsdl", "InvokePortType");
 
-    private final static String ENDPOINT = "http://0.0.0.0:8081/invoker";
+  private final static String ENDPOINT = "http://0.0.0.0:8081/invoker";
 
-    // Checks if invoking a IA
-    final Predicate IS_INVOKE_IA = header(CxfConstants.OPERATION_NAME).isEqualTo("invokeIA");
+  // Checks if invoking a IA
+  final Predicate IS_INVOKE_IA = header(CxfConstants.OPERATION_NAME).isEqualTo("invokeIA");
 
-    // Checks if invoking a Plan
-    final Predicate IS_INVOKE_PLAN = header(CxfConstants.OPERATION_NAME).isEqualTo("invokePlan");
+  // Checks if invoking a Plan
+  final Predicate IS_INVOKE_PLAN = header(CxfConstants.OPERATION_NAME).isEqualTo("invokePlan");
 
-    private final CsarStorageService csarStorageService;
-    private final IManagementBusService managementBusService;
-    private final ICoreEndpointService endpointService;
-    private final ContainerEngine containerEngine;
+  private final CsarStorageService csarStorageService;
+  private final IManagementBusService managementBusService;
+  private final ICoreEndpointService endpointService;
+  private final ContainerEngine containerEngine;
 
-    @Inject
-    public Route(CsarStorageService csarStorageService, IManagementBusService managementBusService,
-                 ICoreEndpointService endpointService, ContainerEngine containerEngine) {
-        this.csarStorageService = csarStorageService;
-        this.managementBusService = managementBusService;
-        this.endpointService = endpointService;
-        this.containerEngine = containerEngine;
+  @Inject
+  public Route(CsarStorageService csarStorageService, IManagementBusService managementBusService,
+               ICoreEndpointService endpointService, ContainerEngine containerEngine) {
+    this.csarStorageService = csarStorageService;
+    this.managementBusService = managementBusService;
+    this.endpointService = endpointService;
+    this.containerEngine = containerEngine;
 
-        storeManagementEndpoint();
+    storeManagementEndpoint();
+  }
+
+  private void storeManagementEndpoint() {
+    try {
+      URI uri = new URI(Route.PUBLIC_ENDPOINT);
+      final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+      final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, localContainer, localContainer,
+        new CsarId("***"), null, null, null, null, new HashMap<String,String>());
+      endpointService.storeWSDLEndpoint(endpoint);
     }
-
-    private void storeManagementEndpoint() {
-        try {
-            URI uri = new URI(Route.PUBLIC_ENDPOINT);
-            final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-            final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, localContainer, localContainer,
-                new CsarId("***"), null, null, null, null, new HashMap<String, String>());
-            endpointService.storeWSDLEndpoint(endpoint);
-        } catch (final URISyntaxException e) {
-            e.printStackTrace();
-        }
+    catch (final URISyntaxException e) {
+      e.printStackTrace();
     }
+  }
 
-    @Override
-    public void configure() throws Exception {
-        final URL wsdlURL = this.getClass().getClassLoader().getResource("wsdl/invoker.wsdl");
+  @Override
+  public void configure() throws Exception {
+    final URL wsdlURL = this.getClass().getClassLoader().getResource("wsdl/invoker.wsdl");
 
-        // CXF Endpoints
-        final String INVOKE_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString()
-            + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT.toString()
-            + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
-        final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL.toString()
-            + "&headerFilterStrategy=#dropAllMessageHeadersStrategy"
-            + "&serviceName={http://siserver.org/wsdl}CallbackService&portName={http://siserver.org/wsdl}CallbackPort"
-            + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+    // CXF Endpoints
+    final String INVOKE_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString()
+      + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT.toString()
+      + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+    final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL.toString()
+      + "&headerFilterStrategy=#dropAllMessageHeadersStrategy"
+      + "&serviceName={http://siserver.org/wsdl}CallbackService&portName={http://siserver.org/wsdl}CallbackPort"
+      + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
-        // Checks if invoke is sync or async
-        final Predicate MESSAGEID = header("MessageID").isNotNull();
-        final Predicate REPLYTO = header("ReplyTo").isNotNull();
-        final Predicate ASYNC = PredicateBuilder.and(MESSAGEID, REPLYTO);
+    // Checks if invoke is sync or async
+    final Predicate MESSAGEID = header("MessageID").isNotNull();
+    final Predicate REPLYTO = header("ReplyTo").isNotNull();
+    final Predicate ASYNC = PredicateBuilder.and(MESSAGEID, REPLYTO);
 
-        final ClassLoader cl = org.opentosca.bus.management.api.soaphttp.model.ObjectFactory.class.getClassLoader();
-        final JAXBContext jc = JAXBContext.newInstance("org.opentosca.bus.management.api.soaphttp.model", cl);
-        final JaxbDataFormat requestJaxb = new JaxbDataFormat(jc);
-        final JaxbDataFormat responseJaxb = new JaxbDataFormat(jc);
-        responseJaxb.setPartClass("org.opentosca.bus.management.api.soaphttp.model.InvokeResponse");
-        responseJaxb.setPartNamespace(new QName("http://siserver.org/schema", "invokeResponse"));
+    final ClassLoader cl = org.opentosca.bus.management.api.soaphttp.model.ObjectFactory.class.getClassLoader();
+    final JAXBContext jc = JAXBContext.newInstance("org.opentosca.bus.management.api.soaphttp.model", cl);
+    final JaxbDataFormat requestJaxb = new JaxbDataFormat(jc);
+    final JaxbDataFormat responseJaxb = new JaxbDataFormat(jc);
+    responseJaxb.setPartClass("org.opentosca.bus.management.api.soaphttp.model.InvokeResponse");
+    responseJaxb.setPartNamespace(new QName("http://siserver.org/schema", "invokeResponse"));
 
-        final Processor requestProcessor = new RequestProcessor(csarStorageService, containerEngine);
-        final Processor responseProcessor = new ResponseProcessor();
+    final Processor requestProcessor = new RequestProcessor(csarStorageService, containerEngine);
+    final Processor responseProcessor = new ResponseProcessor();
 
-        this.from(INVOKE_ENDPOINT)
-            .unmarshal(requestJaxb)
-            .process(requestProcessor)
-            .choice().when(IS_INVOKE_IA)
-            .bean(managementBusService, "invokeIA")
-            .when(IS_INVOKE_PLAN)
-            .bean(managementBusService, "invokePlan")
-            .end();
+    this.from(INVOKE_ENDPOINT)
+      .unmarshal(requestJaxb)
+      .process(requestProcessor)
+      .choice().when(IS_INVOKE_IA)
+        .bean(managementBusService, "invokeIA")
+      .when(IS_INVOKE_PLAN)
+        .bean(managementBusService, "invokePlan")
+      .end();
 
-        this.from("direct-vm:" + RequestProcessor.MB_MANAGEMENT_SOAPHTTP_API_ID).process(responseProcessor).marshal(responseJaxb).choice().when(ASYNC)
-            .recipientList(this.simple(CALLBACK_ENDPOINT)).end();
-    }
+    this.from("direct-vm:" + RequestProcessor.MB_MANAGEMENT_SOAPHTTP_API_ID).process(responseProcessor).marshal(responseJaxb).choice().when(ASYNC)
+      .recipientList(this.simple(CALLBACK_ENDPOINT)).end();
+  }
 }

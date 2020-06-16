@@ -6,11 +6,13 @@
 // Generated on: 2013.05.27 at 03:40:55 PM CEST
 //
 
+
 package org.apache.ode.schemas.dd._2007._03;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * <p>
@@ -31,5 +33,6 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tEnableSharing")
 public class TEnableSharing {
+
 
 }

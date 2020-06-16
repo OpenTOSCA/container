@@ -8,9 +8,9 @@ import org.opentosca.deployment.checks.TestContext;
 
 public interface TestExecutionPlugin {
 
-    DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
-                                 final NodeTemplateInstance nodeTemplateInstance,
-                                 final TPolicyTemplate policyTemplate);
+  DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
+                               final NodeTemplateInstance nodeTemplateInstance,
+                               final TPolicyTemplate policyTemplate);
 
-    boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate);
+  boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate);
 }

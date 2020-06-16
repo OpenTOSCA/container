@@ -22,29 +22,33 @@ import org.slf4j.LoggerFactory;
  */
 public class ExceptionProcessor implements Processor {
 
-    final private static Logger LOG = LoggerFactory.getLogger(ExceptionProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(ExceptionProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) throws Exception {
+  @Override
+  public void process(final Exchange exchange) throws Exception {
 
-        ExceptionProcessor.LOG.debug("Exception handling...");
+    ExceptionProcessor.LOG.debug("Exception handling...");
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+    final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
 
-        if (exchange.getIn().getBody() instanceof ParseException) {
-            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            response.setEntity("JSON is not valid: " + exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
-        } else if (exchange.getIn().getBody() instanceof NullPointerException) {
-            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            response.setEntity("Needed information not specified.", MediaType.TEXT_ALL);
-        } else if (exchange.getIn().getBody() instanceof ApplicationBusExternalException) {
-            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
-        } else if (exchange.getIn().getBody() instanceof ApplicationBusInternalException) {
-            response.setStatus(Status.SERVER_ERROR_INTERNAL);
-            response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
-        }
+    if (exchange.getIn().getBody() instanceof ParseException) {
+      response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+      response.setEntity("JSON is not valid: " + exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
 
-        exchange.getOut().setBody(response);
+    } else if (exchange.getIn().getBody() instanceof NullPointerException) {
+      response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+      response.setEntity("Needed information not specified.", MediaType.TEXT_ALL);
+
+    } else if (exchange.getIn().getBody() instanceof ApplicationBusExternalException) {
+      response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+      response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
+    } else if (exchange.getIn().getBody() instanceof ApplicationBusInternalException) {
+      response.setStatus(Status.SERVER_ERROR_INTERNAL);
+      response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
     }
+
+    exchange.getOut().setBody(response);
+
+  }
+
 }

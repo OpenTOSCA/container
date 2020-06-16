@@ -19,26 +19,27 @@ import org.springframework.stereotype.Component;
 @Component(IsFinishedProcessor.BEAN_NAME)
 public class IsFinishedProcessor implements Processor {
 
-    public static final String BEAN_NAME = "isFinishedProcessor";
-    private static final Logger LOG = LoggerFactory.getLogger(IsFinishedProcessor.class);
+  public static final String BEAN_NAME = "isFinishedProcessor";
+  private static final Logger LOG = LoggerFactory.getLogger(IsFinishedProcessor.class);
 
-    @Override
-    public void process(final Exchange exchange) {
-        final String requestID = exchange.getIn().getBody(String.class);
-        LOG.debug("Queue polling for RequestID: {}", requestID);
+  @Override
+  public void process(final Exchange exchange) {
+    final String requestID = exchange.getIn().getBody(String.class);
+    LOG.debug("Queue polling for RequestID: {}", requestID);
 
-        if (QueueMap.containsID(requestID)) {
-            LOG.debug("RequestID is known.");
-            if (QueueMap.hasFinished(requestID)) {
-                LOG.debug("Invocation has finished.");
-                exchange.getIn().setBody(true);
-            } else {
-                LOG.debug("Invocation has not finished yet.");
-                exchange.getIn().setBody(false);
-            }
-        } else {
-            LOG.warn("Unknown RequestID: {}", requestID);
-            exchange.getIn().setBody(new ApplicationBusInternalException("Unknown RequestID: " + requestID));
-        }
+    if (QueueMap.containsID(requestID)) {
+      LOG.debug("RequestID is known.");
+      if (QueueMap.hasFinished(requestID)) {
+        LOG.debug("Invocation has finished.");
+        exchange.getIn().setBody(true);
+      } else {
+        LOG.debug("Invocation has not finished yet.");
+        exchange.getIn().setBody(false);
+      }
+    } else {
+      LOG.warn("Unknown RequestID: {}", requestID);
+      exchange.getIn().setBody(new ApplicationBusInternalException("Unknown RequestID: " + requestID));
     }
+  }
+
 }

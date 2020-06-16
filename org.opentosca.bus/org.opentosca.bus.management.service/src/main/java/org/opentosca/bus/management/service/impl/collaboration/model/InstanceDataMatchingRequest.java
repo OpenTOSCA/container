@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
+
 /**
  * <p>
  * The following schema fragment specifies the expected content contained within this class.
@@ -33,52 +34,52 @@ import javax.xml.namespace.QName;
 @XmlType(name = "InstanceDataMatchingRequest", propOrder = {"nodeType", "properties"})
 public class InstanceDataMatchingRequest {
 
-    @XmlElement(name = "NodeType", required = true)
-    protected QName nodeType;
-    @XmlElement(name = "Properties", required = true)
-    protected KeyValueMap properties;
+  @XmlElement(name = "NodeType", required = true)
+  protected QName nodeType;
+  @XmlElement(name = "Properties", required = true)
+  protected KeyValueMap properties;
 
-    public InstanceDataMatchingRequest() {
-    }
+  public InstanceDataMatchingRequest() {
+  }
 
-    public InstanceDataMatchingRequest(final QName nodeType, final KeyValueMap properties) {
-        this.nodeType = nodeType;
-        this.properties = properties;
-    }
+  public InstanceDataMatchingRequest(final QName nodeType, final KeyValueMap properties) {
+    this.nodeType = nodeType;
+    this.properties = properties;
+  }
 
-    /**
-     * Gets the value of the nodeType property.
-     *
-     * @return possible object is {@link QName }
-     */
-    public QName getNodeType() {
-        return this.nodeType;
-    }
+  /**
+   * Gets the value of the nodeType property.
+   *
+   * @return possible object is {@link QName }
+   */
+  public QName getNodeType() {
+    return this.nodeType;
+  }
 
-    /**
-     * Sets the value of the nodeType property.
-     *
-     * @param value allowed object is {@link QName }
-     */
-    public void setNodeType(final QName value) {
-        this.nodeType = value;
-    }
+  /**
+   * Sets the value of the nodeType property.
+   *
+   * @param value allowed object is {@link QName }
+   */
+  public void setNodeType(final QName value) {
+    this.nodeType = value;
+  }
 
-    /**
-     * Gets the value of the properties property.
-     *
-     * @return possible object is {@link KeyValueMap }
-     */
-    public KeyValueMap getProperties() {
-        return this.properties;
-    }
+  /**
+   * Gets the value of the properties property.
+   *
+   * @return possible object is {@link KeyValueMap }
+   */
+  public KeyValueMap getProperties() {
+    return this.properties;
+  }
 
-    /**
-     * Sets the value of the properties property.
-     *
-     * @param value allowed object is {@link KeyValueMap }
-     */
-    public void setProperties(final KeyValueMap value) {
-        this.properties = value;
-    }
+  /**
+   * Sets the value of the properties property.
+   *
+   * @param value allowed object is {@link KeyValueMap }
+   */
+  public void setProperties(final KeyValueMap value) {
+    this.properties = value;
+  }
 }

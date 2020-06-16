@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.bpel.handler;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -12,6 +13,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.FileUtils;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -35,6 +37,7 @@ import org.xml.sax.SAXException;
  * <br>
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
+ *
  */
 public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<BPELPlanContext> {
 
@@ -53,6 +56,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         this.docFactory = DocumentBuilderFactory.newInstance();
         this.docFactory.setNamespaceAware(true);
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+
     }
 
     @Override
@@ -79,6 +83,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
                     mosquittoVmIp = templateContext.getPropertyVariable(infraNode, ipPropName);
                     break;
                 }
+
             }
 
             if (mosquittoVmIp != null) {
@@ -102,6 +107,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
                     clientVmIp = templateContext.getPropertyVariable(infraNode, ipPropName);
                     break;
                 }
+
             }
 
             for (final String loginNameProp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
@@ -116,6 +122,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
                     ubuntuTemplateId = infraNode.getId();
                     clientVmPass = templateContext.getPropertyVariable(infraNode, loginPwProp);
                 }
+
             }
         }
 
@@ -140,10 +147,12 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
                 + System.currentTimeMillis(), xpathQuery, bashCommandVariable.getVariableName());
             assignNode = templateContext.importNode(assignNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             BPELConnectsToPluginHandler.LOG.error("Couldn't load fragment from file", e);
             return false;
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             BPELConnectsToPluginHandler.LOG.error("Couldn't parse fragment to DOM", e);
             return false;
         }
@@ -169,25 +178,26 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         runScriptRequestInputParams.put("Script", bashCommandVariable);
 
         this.invokerPlugin.handle(templateContext, ubuntuTemplateId, true, "runScript",
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
-            new HashMap<String, Variable>(), templateContext.getProvisioningPhaseElement());
+                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
+                                  new HashMap<String, Variable>(), templateContext.getProvisioningPhaseElement());
 
         return true;
     }
 
     /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
+     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String
+     * variable.
      *
-     * @param assignName          the name of the BPEL assign
+     * @param assignName the name of the BPEL assign
      * @param csarEntryXpathQuery the csarEntryPoint XPath query
-     * @param stringVarName       the variable to load the queries results into
+     * @param stringVarName the variable to load the queries results into
      * @return a DOM Node representing a BPEL assign element
-     * @throws IOException  is thrown when loading internal bpel fragments fails
+     * @throws IOException is thrown when loading internal bpel fragments fails
      * @throws SAXException is thrown when parsing internal format into DOM fails
      */
     public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
                                                               final String stringVarName) throws IOException,
-        SAXException {
+                                                                                          SAXException {
         final String templateString =
             loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
         final InputSource is = new InputSource();
@@ -197,10 +207,11 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
     }
 
     /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
+     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String
+     * variable.
      *
-     * @param assignName    the name of the BPEL assign
-     * @param xpath2Query   the csarEntryPoint XPath query
+     * @param assignName the name of the BPEL assign
+     * @param xpath2Query the csarEntryPoint XPath query
      * @param stringVarName the variable to load the queries results into
      * @return a String containing a BPEL Assign element
      * @throws IOException is thrown when reading the BPEL fragment form the resources fails
@@ -209,11 +220,12 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
                                                                   final String stringVarName) throws IOException {
         // <!-- {AssignName},{xpath2query}, {stringVarName} -->
         final URL url = getClass().getClassLoader()
-            .getResource("mosquittoconnectsto-plugin/assignStringVarWithXpath2Query.xml");
+          .getResource("mosquittoconnectsto-plugin/assignStringVarWithXpath2Query.xml");
         String template = ResourceAccess.readResourceAsString(url);
         template = template.replace("{AssignName}", assignName);
         template = template.replace("{xpath2query}", xpath2Query);
         template = template.replace("{stringVarName}", stringVarName);
         return template;
     }
+
 }
