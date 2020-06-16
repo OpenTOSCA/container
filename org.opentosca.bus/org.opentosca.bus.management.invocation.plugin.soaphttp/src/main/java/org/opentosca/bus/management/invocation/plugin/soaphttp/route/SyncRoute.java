@@ -11,18 +11,18 @@ import org.opentosca.bus.management.invocation.plugin.soaphttp.processor.HeaderP
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * <p>
- * This class manages the synchronous communication with a service.It invokes the service and waits
- * for the response from it.
+ * This class manages the synchronous communication with a service.It invokes the service and waits for the response
+ * from it.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
 public class SyncRoute extends RouteBuilder {
 
-  @Override
-  public void configure() throws Exception {
-    final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+    @Override
+    public void configure() throws Exception {
+        final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
-    final Processor headerProcessor = new HeaderProcessor();
-    this.from("direct:Sync-WS-Invoke").process(headerProcessor).recipientList(this.simple(ENDPOINT));
-  }
+        final Processor headerProcessor = new HeaderProcessor();
+        this.from("direct:Sync-WS-Invoke").process(headerProcessor).recipientList(this.simple(ENDPOINT));
+    }
 }

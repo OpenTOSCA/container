@@ -19,7 +19,6 @@ import javax.ws.rs.ext.Provider;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-
 import dk.nykredit.jackson.dataformat.hal.HALMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,24 +26,24 @@ import org.slf4j.LoggerFactory;
 @Provider
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ObjectMapperProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ObjectMapperProvider.class);
 
-  private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
-  @Override
-  public ObjectMapper getContext(final Class<?> type) {
-    if (this.objectMapper == null) {
-      this.objectMapper = createDefaultMapper();
+    @Override
+    public ObjectMapper getContext(final Class<?> type) {
+        if (this.objectMapper == null) {
+            this.objectMapper = createDefaultMapper();
+        }
+        LOG.trace("Retrieving Jackson Object Mapper");
+        return this.objectMapper;
     }
-    LOG.trace("Retrieving Jackson Object Mapper");
-    return this.objectMapper;
-  }
 
-  private static ObjectMapper createDefaultMapper() {
-    final ObjectMapper om = new HALMapper();
-    om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-    LOG.info("Created Jackson ObjectMapper");
-    return om;
-  }
+    private static ObjectMapper createDefaultMapper() {
+        final ObjectMapper om = new HALMapper();
+        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        LOG.info("Created Jackson ObjectMapper");
+        return om;
+    }
 }

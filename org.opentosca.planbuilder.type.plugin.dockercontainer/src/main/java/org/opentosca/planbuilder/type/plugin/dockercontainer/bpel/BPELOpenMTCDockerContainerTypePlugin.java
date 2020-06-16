@@ -17,8 +17,8 @@ public class BPELOpenMTCDockerContainerTypePlugin extends OpenMTCDockerContainer
                 return this.handler.handleOpenMTCGateway(templateContext, findConnectedBackend(nodeTemplate));
             } else if (this.canHandleProtocolAdapter(templateContext.getNodeTemplate())) {
                 return this.handler.handleOpenMTCProtocolAdapter(templateContext,
-                                                                 findConnectedGateway(templateContext.getNodeTemplate()),
-                                                                 getAdapterForNode(templateContext.getNodeTemplate()));
+                    findConnectedGateway(templateContext.getNodeTemplate()),
+                    getAdapterForNode(templateContext.getNodeTemplate()));
             }
         }
         return false;
@@ -46,5 +46,4 @@ public class BPELOpenMTCDockerContainerTypePlugin extends OpenMTCDockerContainer
         // specific first than generic
         return 0;
     }
-
 }

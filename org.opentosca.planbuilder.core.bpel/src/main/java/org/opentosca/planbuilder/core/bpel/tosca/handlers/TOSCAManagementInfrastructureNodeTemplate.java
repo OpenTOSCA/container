@@ -23,7 +23,6 @@ import org.w3c.dom.Node;
  * This class represents the TOSCA Management Infrastructure as a NodeTemplate.
  *
  * @author kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTemplate {
 
@@ -183,5 +182,4 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
     public List<AbstractPolicy> getPolicies() {
         return new ArrayList<>();
     }
-
 }

@@ -14,7 +14,6 @@ public class AbstractTransformationPlan extends AbstractPlan {
     private final AbstractDefinitions targetDefinitions;
     private final AbstractServiceTemplate targetServiceTemplate;
 
-
     public AbstractTransformationPlan(String id, PlanType type, AbstractDefinitions sourceDefinitions,
                                       AbstractServiceTemplate sourceServiceTemplate,
                                       AbstractDefinitions targetDefinitions,
@@ -68,5 +67,4 @@ public class AbstractTransformationPlan extends AbstractPlan {
         }
         return handledServiceTemplateNodes;
     }
-
 }

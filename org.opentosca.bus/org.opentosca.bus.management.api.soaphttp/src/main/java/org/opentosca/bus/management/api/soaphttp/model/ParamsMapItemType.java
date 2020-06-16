@@ -6,14 +6,12 @@
 // Generated on: 2018.07.16 at 01:55:00 PM CEST
 //
 
-
 package org.opentosca.bus.management.api.soaphttp.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -39,45 +37,44 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "ParamsMapItemType", propOrder = {"key", "value"})
 public class ParamsMapItemType {
 
-  @XmlElement(required = true)
-  protected String key;
-  @XmlElement(required = true)
-  protected String value;
+    @XmlElement(required = true)
+    protected String key;
+    @XmlElement(required = true)
+    protected String value;
 
-  /**
-   * Gets the value of the key property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getKey() {
-    return this.key;
-  }
+    /**
+     * Gets the value of the key property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getKey() {
+        return this.key;
+    }
 
-  /**
-   * Sets the value of the key property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setKey(final String value) {
-    this.key = value;
-  }
+    /**
+     * Sets the value of the key property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setKey(final String value) {
+        this.key = value;
+    }
 
-  /**
-   * Gets the value of the value property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getValue() {
-    return this.value;
-  }
+    /**
+     * Gets the value of the value property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getValue() {
+        return this.value;
+    }
 
-  /**
-   * Sets the value of the value property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setValue(final String value) {
-    this.value = value;
-  }
-
+    /**
+     * Sets the value of the value property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setValue(final String value) {
+        this.value = value;
+    }
 }

@@ -18,17 +18,16 @@ import org.w3c.dom.NodeList;
 
 /**
  * <p>
- * This class represents a generic plugin to install a PhpModule on Apache HTTP Server with the
- * OpenTOSCA Container Invoker Service
+ * This class represents a generic plugin to install a PhpModule on Apache HTTP Server with the OpenTOSCA Container
+ * Invoker Service
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public abstract class DockerContainerTypePlugin<T extends PlanContext> implements IPlanBuilderTypePlugin<T>,
-                                               IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
+    IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
 
     private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder Type Plugin DockerContainer";
 
@@ -36,7 +35,7 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
         for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
             if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
                 || da.getArtifactType()
-                     .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
+                .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
                 return da;
             }
         }
@@ -45,7 +44,7 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
             for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
                 if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
                     || da.getArtifactType()
-                         .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
+                    .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
                     return da;
                 }
             }
@@ -59,7 +58,7 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
 
         for (final AbstractNodeTemplate node : nodes) {
             if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
-                                                                                                        .getId())) {
+                .getId())) {
                 return node;
             }
         }
@@ -68,7 +67,6 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
 
     public static boolean isConnectedToDockerEnginerNode(final AbstractNodeTemplate nodeTemplate) {
         return DockerContainerTypePlugin.getDockerEngineNode(nodeTemplate) != null;
-
     }
 
     @Override

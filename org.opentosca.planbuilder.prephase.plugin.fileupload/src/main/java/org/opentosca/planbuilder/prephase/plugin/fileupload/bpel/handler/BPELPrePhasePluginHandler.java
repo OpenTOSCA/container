@@ -16,14 +16,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * This class contains logic to upload files to a linux machine. Those files must be available
- * trough a openTOSCA Container
+ * This class contains logic to upload files to a linux machine. Those files must be available trough a openTOSCA
+ * Container
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public class BPELPrePhasePluginHandler {
 
@@ -39,8 +38,7 @@ public class BPELPrePhasePluginHandler {
     public BPELPrePhasePluginHandler() {
         try {
             this.res = new ResourceHandler();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             BPELPrePhasePluginHandler.LOG.error("Couldn't initialize internal ResourceHandler", e);
         }
     }
@@ -49,8 +47,8 @@ public class BPELPrePhasePluginHandler {
      * Adds necessary BPEL logic trough the given context that can upload the given DA unto the given
      * InfrastructureNode
      *
-     * @param context a TemplateContext
-     * @param da the DeploymentArtifact to deploy
+     * @param context           a TemplateContext
+     * @param da                the DeploymentArtifact to deploy
      * @param infraNodeTemplate the NodeTemplate which is used as InfrastructureNode
      * @return true iff adding logic was successful
      */
@@ -64,8 +62,8 @@ public class BPELPrePhasePluginHandler {
      * Adds necessary BPEL logic through the given context that can upload the given IA unto the given
      * InfrastructureNode
      *
-     * @param context a TemplateContext
-     * @param ia the ImplementationArtifact to deploy
+     * @param context      a TemplateContext
+     * @param ia           the ImplementationArtifact to deploy
      * @param nodeTemplate the NodeTemplate which is used as InfrastructureNode
      * @return true iff adding logic was successful
      */
@@ -74,19 +72,17 @@ public class BPELPrePhasePluginHandler {
         // fetch references
         final List<AbstractArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
         return this.handle(context, refs, ia.getArtifactType().getLocalPart() + "_" + ia.getOperationName() + "_IA",
-                           nodeTemplate);
-
+            nodeTemplate);
     }
 
     /**
-     * Adds necessary BPEL logic through the given Context, to deploy the given ArtifactReferences unto
-     * the specified InfrastructureNode
+     * Adds necessary BPEL logic through the given Context, to deploy the given ArtifactReferences unto the specified
+     * InfrastructureNode
      *
-     * @param context a TemplateContext
-     * @param refs the ArtifactReferences to deploy
-     * @param artifactName the name of the artifact, where the references originate from
-     * @param infraTemplate a NodeTemplate which is a InfrastructureNode to deploy the
-     *        AbstractReferences on
+     * @param context       a TemplateContext
+     * @param refs          the ArtifactReferences to deploy
+     * @param artifactName  the name of the artifact, where the references originate from
+     * @param infraTemplate a NodeTemplate which is a InfrastructureNode to deploy the AbstractReferences on
      * @return true iff adding the logic was successful
      */
     private boolean handle(final BPELPlanContext templateContext, final List<AbstractArtifactReference> refs,
@@ -148,7 +144,7 @@ public class BPELPrePhasePluginHandler {
         for (final AbstractArtifactReference ref : refs) {
             // upload da ref and unzip it
             this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable,
-                                                             sshKeyVariable, infraTemplate, templateContext.getPrePhaseElement());
+                sshKeyVariable, infraTemplate, templateContext.getPrePhaseElement());
         }
 
         return true;

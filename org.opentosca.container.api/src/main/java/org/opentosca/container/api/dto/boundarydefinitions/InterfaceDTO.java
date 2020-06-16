@@ -12,26 +12,26 @@ import org.opentosca.container.api.dto.ResourceSupport;
 @XmlRootElement(name = "Interface")
 public class InterfaceDTO extends ResourceSupport {
 
-  private String name;
+    private String name;
 
-  private Map<String, OperationDTO> operations;
+    private Map<String, OperationDTO> operations;
 
-  @XmlAttribute
-  public String getName() {
-    return this.name;
-  }
+    @XmlAttribute
+    public String getName() {
+        return this.name;
+    }
 
-  public void setName(final String name) {
-    this.name = name;
-  }
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-  @XmlElement(name = "Operation")
-  @XmlElementWrapper(name = "Operations")
-  public Map<String, OperationDTO> getOperations() {
-    return this.operations;
-  }
+    @XmlElement(name = "Operation")
+    @XmlElementWrapper(name = "Operations")
+    public Map<String, OperationDTO> getOperations() {
+        return this.operations;
+    }
 
-  public void setOperations(final Map<String, OperationDTO> operations) {
-    this.operations = operations;
-  }
+    public void setOperations(final Map<String, OperationDTO> operations) {
+        this.operations = operations;
+    }
 }

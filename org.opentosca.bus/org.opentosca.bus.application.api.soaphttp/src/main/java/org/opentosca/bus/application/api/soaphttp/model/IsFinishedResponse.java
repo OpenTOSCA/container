@@ -6,13 +6,11 @@
 // Generated on: 2016.02.25 at 04:54:56 PM CET
 //
 
-
 package org.opentosca.bus.application.api.soaphttp.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -37,20 +35,19 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "isFinishedResponse", propOrder = {"isFinished"})
 public class IsFinishedResponse {
 
-  protected boolean isFinished;
+    protected boolean isFinished;
 
-  /**
-   * Gets the value of the isFinished property.
-   */
-  public boolean isIsFinished() {
-    return this.isFinished;
-  }
+    /**
+     * Gets the value of the isFinished property.
+     */
+    public boolean isIsFinished() {
+        return this.isFinished;
+    }
 
-  /**
-   * Sets the value of the isFinished property.
-   */
-  public void setIsFinished(final boolean value) {
-    this.isFinished = value;
-  }
-
+    /**
+     * Sets the value of the isFinished property.
+     */
+    public void setIsFinished(final boolean value) {
+        this.isFinished = value;
+    }
 }

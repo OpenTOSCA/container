@@ -14,25 +14,24 @@ import org.w3c.dom.NodeList;
 
 /**
  * <p>
- * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to
- * the OpenTOSCA Container InstanceData API
+ * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to the OpenTOSCA
+ * Container InstanceData API
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 @Component
 public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELPlanContext>,
-                                               IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext> {
+    IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext> {
 
     private static final String PLAN_ID = "OpenTOSCA InstanceData Post Phase Plugin";
 
     private final Handler handler = new Handler();
 
     private final QName securePasswordPolicyType =
-      new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
+        new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
 
     @Override
     public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
@@ -144,5 +143,4 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
                                    AbstractRelationshipTemplate targetRelationshipTemplate) {
         return sourceRelationshipTemplate.getType().equals(targetRelationshipTemplate.getType());
     }
-
 }

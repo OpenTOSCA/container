@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
@@ -22,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-
 @Component
 public class BPELPluginHandler {
 
@@ -32,7 +32,7 @@ public class BPELPluginHandler {
 
     @Inject
     public BPELPluginHandler(PluginRegistry pluginRegistry) {
-      this.pluginRegistry = pluginRegistry;
+        this.pluginRegistry = pluginRegistry;
     }
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
@@ -61,7 +61,6 @@ public class BPELPluginHandler {
         }
     }
 
-
     private boolean handleTerminationActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                               final AbstractRelationshipTemplate relationshipTemplate) {
         boolean result = true;
@@ -82,7 +81,6 @@ public class BPELPluginHandler {
 
         return result;
     }
-
 
     private boolean handleTerminationActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                               final AbstractNodeTemplate nodeTemplate) {
@@ -170,7 +168,7 @@ public class BPELPluginHandler {
 
         final AbstractOperation defrostOp =
             ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
-                                          Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE);
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE);
 
         // generate code for the pre handling, e.g., upload DAs
         for (final IPlanBuilderPrePhasePlugin prePlugin : this.pluginRegistry.getPrePlugins()) {
@@ -183,7 +181,8 @@ public class BPELPluginHandler {
         LOG.debug("Defrost on NodeTemplate {} needs the following input parameters:", nodeTemplate.getName());
         for (final AbstractParameter param : defrostOp.getInputParameters()) {
             LOG.debug("Input param: {}", param.getName());
-            found: for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+            found:
+            for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
                 for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                     if (param.getName().equals(propName)) {
                         param2propertyMapping.put(param, context.getPropertyVariable(nodeForMatching, propName));
@@ -193,16 +192,16 @@ public class BPELPluginHandler {
             }
         }
         LOG.debug("Found {} of {} input parameters.", param2propertyMapping.size(),
-                  defrostOp.getInputParameters().size());
+            defrostOp.getInputParameters().size());
 
         result &= context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
-                                           Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE,
-                                           param2propertyMapping, null);
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE,
+            param2propertyMapping, null);
 
         // generate code the post handling, e.g., update instance data, logs etc.
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             LOG.info("Checking if post plugin {} is suited for handling {}", postPhasePlugin.getID(),
-                     nodeTemplate.getName());
+                nodeTemplate.getName());
             if (postPhasePlugin.canHandleCreate(bpelScope.getNodeTemplate())) {
                 LOG.info("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());

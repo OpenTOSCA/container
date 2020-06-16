@@ -19,47 +19,45 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
  */
 public class InterfaceImpl extends AbstractInterface {
 
-  private final DefinitionsImpl defs;
-  private final TInterface inter;
-  private final List<AbstractOperation> operations;
+    private final DefinitionsImpl defs;
+    private final TInterface inter;
+    private final List<AbstractOperation> operations;
 
-
-  /**
-   * Constructor
-   *
-   * @param definitions a DefinitionsImpl
-   * @param a           JAXB TInterface
-   */
-  public InterfaceImpl(final DefinitionsImpl definitions, final TInterface i) {
-    this.inter = i;
-    this.defs = definitions;
-    this.operations = new ArrayList<>();
-    this.setUp();
-  }
-
-  /**
-   * Initializes the internal Operations
-   */
-  private void setUp() {
-    for (final TOperation operation : this.inter.getOperation()) {
-      this.operations.add(new OperationImpl(this.defs, operation));
+    /**
+     * Constructor
+     *
+     * @param definitions a DefinitionsImpl
+     * @param a           JAXB TInterface
+     */
+    public InterfaceImpl(final DefinitionsImpl definitions, final TInterface i) {
+        this.inter = i;
+        this.defs = definitions;
+        this.operations = new ArrayList<>();
+        this.setUp();
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public List<AbstractOperation> getOperations() {
-    return this.operations;
-  }
+    /**
+     * Initializes the internal Operations
+     */
+    private void setUp() {
+        for (final TOperation operation : this.inter.getOperation()) {
+            this.operations.add(new OperationImpl(this.defs, operation));
+        }
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getName() {
-    return this.inter.getName();
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AbstractOperation> getOperations() {
+        return this.operations;
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return this.inter.getName();
+    }
 }

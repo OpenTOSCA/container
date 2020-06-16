@@ -44,9 +44,8 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
      * @param managementInterfaceName the Management Interface on which the plan operates
      * @param activityType            the ActivityType for the Management Plan
      * @param topDown                 <code>true</code> if the activities need to be executed downwards in the
-     *                                direction
-     *                                of the hostedOn relationship templates, <code>false</code> if they need to be
-     *                                executed bottom-up
+     *                                direction of the hostedOn relationship templates, <code>false</code> if they need
+     *                                to be executed bottom-up
      * @return the AbstractPlan containing the activities
      */
     protected AbstractPlan generateMOG(final String id, final AbstractDefinitions definitions,

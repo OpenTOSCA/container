@@ -19,29 +19,26 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplateProperties;
  */
 public class BoundaryDefinitionsImpl extends AbstractBoundaryDefinitions {
 
-  private final TBoundaryDefinitions boundaryDefinitions;
+    private final TBoundaryDefinitions boundaryDefinitions;
 
-
-  /**
-   * Constructor
-   *
-   * @param boundaryDefinitions a JAXB TBoundaryDefinitions Object
-   */
-  public BoundaryDefinitionsImpl(final TBoundaryDefinitions boundaryDefinitions) {
-    this.boundaryDefinitions = boundaryDefinitions;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public AbstractServiceTemplateProperties getProperties() {
-    if (this.boundaryDefinitions.getProperties() != null) {
-      return new ServiceTemplatePropertiesImpl(this.boundaryDefinitions.getProperties());
-    } else {
-      return null;
+    /**
+     * Constructor
+     *
+     * @param boundaryDefinitions a JAXB TBoundaryDefinitions Object
+     */
+    public BoundaryDefinitionsImpl(final TBoundaryDefinitions boundaryDefinitions) {
+        this.boundaryDefinitions = boundaryDefinitions;
     }
 
-  }
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AbstractServiceTemplateProperties getProperties() {
+        if (this.boundaryDefinitions.getProperties() != null) {
+            return new ServiceTemplatePropertiesImpl(this.boundaryDefinitions.getProperties());
+        } else {
+            return null;
+        }
+    }
 }

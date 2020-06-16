@@ -63,11 +63,11 @@ public class InstanceStates {
     }
 
     /**
-     * Returns the next stable state for the given state. A stable state means that the node isn't in a
-     * state of modification such as installing, starting, pending, etc..
-     *
-     * The next stable state of e.g., uninstalled would be installed, for installing it would be
-     * installed, configuring would be configured, etc.
+     * Returns the next stable state for the given state. A stable state means that the node isn't in a state of
+     * modification such as installing, starting, pending, etc..
+     * <p>
+     * The next stable state of e.g., uninstalled would be installed, for installing it would be installed, configuring
+     * would be configured, etc.
      *
      * @param state a String containing a lifecycle state
      * @return a String containing the next stable state from the given state
@@ -112,5 +112,4 @@ public class InstanceStates {
 
         return null;
     }
-
 }

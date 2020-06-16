@@ -6,7 +6,6 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-
 
 /**
  * <p>
@@ -82,318 +80,309 @@ import javax.xml.namespace.QName;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tRelationshipType", propOrder = {"instanceStates", "interfaces", "sourceInterfaces",
-  "targetInterfaces", "validSource", "validTarget"})
+    "targetInterfaces", "validSource", "validTarget"})
 public class TRelationshipType extends TEntityType {
 
-  @XmlElement(name = "InstanceStates")
-  protected TTopologyElementInstanceStates instanceStates;
-  @XmlElement(name = "Interfaces", namespace = "http://www.opentosca.org/winery/extensions/tosca/2013/02/12")
-  protected TInterfaces interfaces;
-  @XmlElement(name = "SourceInterfaces")
-  protected TRelationshipType.SourceInterfaces sourceInterfaces;
-  @XmlElement(name = "TargetInterfaces")
-  protected TRelationshipType.TargetInterfaces targetInterfaces;
-  @XmlElement(name = "ValidSource")
-  protected TRelationshipType.ValidSource validSource;
-  @XmlElement(name = "ValidTarget")
-  protected TRelationshipType.ValidTarget validTarget;
-
-  /**
-   * Gets the value of the instanceStates property.
-   *
-   * @return possible object is {@link TTopologyElementInstanceStates }
-   */
-  public TTopologyElementInstanceStates getInstanceStates() {
-    return this.instanceStates;
-  }
-
-  /**
-   * Sets the value of the instanceStates property.
-   *
-   * @param value allowed object is {@link TTopologyElementInstanceStates }
-   */
-  public void setInstanceStates(final TTopologyElementInstanceStates value) {
-    this.instanceStates = value;
-  }
-
-  public TInterfaces getInterfaces() {
-    return this.interfaces;
-  }
-
-  public void setInterfaces(final TInterfaces interfaces) {
-    this.interfaces = interfaces;
-  }
-
-  /**
-   * Gets the value of the sourceInterfaces property.
-   *
-   * @return possible object is {@link TRelationshipType.SourceInterfaces }
-   */
-  public TRelationshipType.SourceInterfaces getSourceInterfaces() {
-    return this.sourceInterfaces;
-  }
-
-  /**
-   * Sets the value of the sourceInterfaces property.
-   *
-   * @param value allowed object is {@link TRelationshipType.SourceInterfaces }
-   */
-  public void setSourceInterfaces(final TRelationshipType.SourceInterfaces value) {
-    this.sourceInterfaces = value;
-  }
-
-  /**
-   * Gets the value of the targetInterfaces property.
-   *
-   * @return possible object is {@link TRelationshipType.TargetInterfaces }
-   */
-  public TRelationshipType.TargetInterfaces getTargetInterfaces() {
-    return this.targetInterfaces;
-  }
-
-  /**
-   * Sets the value of the targetInterfaces property.
-   *
-   * @param value allowed object is {@link TRelationshipType.TargetInterfaces }
-   */
-  public void setTargetInterfaces(final TRelationshipType.TargetInterfaces value) {
-    this.targetInterfaces = value;
-  }
-
-  /**
-   * Gets the value of the validSource property.
-   *
-   * @return possible object is {@link TRelationshipType.ValidSource }
-   */
-  public TRelationshipType.ValidSource getValidSource() {
-    return this.validSource;
-  }
-
-  /**
-   * Sets the value of the validSource property.
-   *
-   * @param value allowed object is {@link TRelationshipType.ValidSource }
-   */
-  public void setValidSource(final TRelationshipType.ValidSource value) {
-    this.validSource = value;
-  }
-
-  /**
-   * Gets the value of the validTarget property.
-   *
-   * @return possible object is {@link TRelationshipType.ValidTarget }
-   */
-  public TRelationshipType.ValidTarget getValidTarget() {
-    return this.validTarget;
-  }
-
-  /**
-   * Sets the value of the validTarget property.
-   *
-   * @param value allowed object is {@link TRelationshipType.ValidTarget }
-   */
-  public void setValidTarget(final TRelationshipType.ValidTarget value) {
-    this.validTarget = value;
-  }
-
-
-  /**
-   * <p>
-   * Java class for anonymous complex type.
-   *
-   * <p>
-   * The following schema fragment specifies the expected content contained within this class.
-   *
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;sequence>
-   *         &lt;element name="Interface" type="{http://docs.oasis-open.org/tosca/ns/2011/12}tInterface" maxOccurs="unbounded"/>
-   *       &lt;/sequence>
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
-   */
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "", propOrder = {"_interface"})
-  public static class SourceInterfaces {
-
-    @XmlElement(name = "Interface", required = true)
-    protected List<TInterface> _interface;
+    @XmlElement(name = "InstanceStates")
+    protected TTopologyElementInstanceStates instanceStates;
+    @XmlElement(name = "Interfaces", namespace = "http://www.opentosca.org/winery/extensions/tosca/2013/02/12")
+    protected TInterfaces interfaces;
+    @XmlElement(name = "SourceInterfaces")
+    protected TRelationshipType.SourceInterfaces sourceInterfaces;
+    @XmlElement(name = "TargetInterfaces")
+    protected TRelationshipType.TargetInterfaces targetInterfaces;
+    @XmlElement(name = "ValidSource")
+    protected TRelationshipType.ValidSource validSource;
+    @XmlElement(name = "ValidTarget")
+    protected TRelationshipType.ValidTarget validTarget;
 
     /**
-     * Gets the value of the interface property.
+     * Gets the value of the instanceStates property.
+     *
+     * @return possible object is {@link TTopologyElementInstanceStates }
+     */
+    public TTopologyElementInstanceStates getInstanceStates() {
+        return this.instanceStates;
+    }
+
+    /**
+     * Sets the value of the instanceStates property.
+     *
+     * @param value allowed object is {@link TTopologyElementInstanceStates }
+     */
+    public void setInstanceStates(final TTopologyElementInstanceStates value) {
+        this.instanceStates = value;
+    }
+
+    public TInterfaces getInterfaces() {
+        return this.interfaces;
+    }
+
+    public void setInterfaces(final TInterfaces interfaces) {
+        this.interfaces = interfaces;
+    }
+
+    /**
+     * Gets the value of the sourceInterfaces property.
+     *
+     * @return possible object is {@link TRelationshipType.SourceInterfaces }
+     */
+    public TRelationshipType.SourceInterfaces getSourceInterfaces() {
+        return this.sourceInterfaces;
+    }
+
+    /**
+     * Sets the value of the sourceInterfaces property.
+     *
+     * @param value allowed object is {@link TRelationshipType.SourceInterfaces }
+     */
+    public void setSourceInterfaces(final TRelationshipType.SourceInterfaces value) {
+        this.sourceInterfaces = value;
+    }
+
+    /**
+     * Gets the value of the targetInterfaces property.
+     *
+     * @return possible object is {@link TRelationshipType.TargetInterfaces }
+     */
+    public TRelationshipType.TargetInterfaces getTargetInterfaces() {
+        return this.targetInterfaces;
+    }
+
+    /**
+     * Sets the value of the targetInterfaces property.
+     *
+     * @param value allowed object is {@link TRelationshipType.TargetInterfaces }
+     */
+    public void setTargetInterfaces(final TRelationshipType.TargetInterfaces value) {
+        this.targetInterfaces = value;
+    }
+
+    /**
+     * Gets the value of the validSource property.
+     *
+     * @return possible object is {@link TRelationshipType.ValidSource }
+     */
+    public TRelationshipType.ValidSource getValidSource() {
+        return this.validSource;
+    }
+
+    /**
+     * Sets the value of the validSource property.
+     *
+     * @param value allowed object is {@link TRelationshipType.ValidSource }
+     */
+    public void setValidSource(final TRelationshipType.ValidSource value) {
+        this.validSource = value;
+    }
+
+    /**
+     * Gets the value of the validTarget property.
+     *
+     * @return possible object is {@link TRelationshipType.ValidTarget }
+     */
+    public TRelationshipType.ValidTarget getValidTarget() {
+        return this.validTarget;
+    }
+
+    /**
+     * Sets the value of the validTarget property.
+     *
+     * @param value allowed object is {@link TRelationshipType.ValidTarget }
+     */
+    public void setValidTarget(final TRelationshipType.ValidTarget value) {
+        this.validTarget = value;
+    }
+
+    /**
+     * <p>
+     * Java class for anonymous complex type.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-     * modification you make to the returned list will be present inside the JAXB object. This is why
-     * there is not a <CODE>set</CODE> method for the interface property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
+     * The following schema fragment specifies the expected content contained within this class.
      *
      * <pre>
-     * getInterface().add(newItem);
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;sequence>
+     *         &lt;element name="Interface" type="{http://docs.oasis-open.org/tosca/ns/2011/12}tInterface" maxOccurs="unbounded"/>
+     *       &lt;/sequence>
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
      * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link TInterface }
      */
-    public List<TInterface> getInterface() {
-      if (this._interface == null) {
-        this._interface = new ArrayList<>();
-      }
-      return this._interface;
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "", propOrder = {"_interface"})
+    public static class SourceInterfaces {
+
+        @XmlElement(name = "Interface", required = true)
+        protected List<TInterface> _interface;
+
+        /**
+         * Gets the value of the interface property.
+         *
+         * <p>
+         * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you
+         * make to the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE>
+         * method for the interface property.
+         *
+         * <p>
+         * For example, to add a new item, do as follows:
+         *
+         * <pre>
+         * getInterface().add(newItem);
+         * </pre>
+         *
+         *
+         * <p>
+         * Objects of the following type(s) are allowed in the list {@link TInterface }
+         */
+        public List<TInterface> getInterface() {
+            if (this._interface == null) {
+                this._interface = new ArrayList<>();
+            }
+            return this._interface;
+        }
     }
 
-  }
-
-
-  /**
-   * <p>
-   * Java class for anonymous complex type.
-   *
-   * <p>
-   * The following schema fragment specifies the expected content contained within this class.
-   *
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;sequence>
-   *         &lt;element name="Interface" type="{http://docs.oasis-open.org/tosca/ns/2011/12}tInterface" maxOccurs="unbounded"/>
-   *       &lt;/sequence>
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
-   */
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "", propOrder = {"_interface"})
-  public static class TargetInterfaces {
-
-    @XmlElement(name = "Interface", required = true)
-    protected List<TInterface> _interface;
-
     /**
-     * Gets the value of the interface property.
+     * <p>
+     * Java class for anonymous complex type.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-     * modification you make to the returned list will be present inside the JAXB object. This is why
-     * there is not a <CODE>set</CODE> method for the interface property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
+     * The following schema fragment specifies the expected content contained within this class.
      *
      * <pre>
-     * getInterface().add(newItem);
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;sequence>
+     *         &lt;element name="Interface" type="{http://docs.oasis-open.org/tosca/ns/2011/12}tInterface" maxOccurs="unbounded"/>
+     *       &lt;/sequence>
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
      * </pre>
-     *
+     */
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "", propOrder = {"_interface"})
+    public static class TargetInterfaces {
+
+        @XmlElement(name = "Interface", required = true)
+        protected List<TInterface> _interface;
+
+        /**
+         * Gets the value of the interface property.
+         *
+         * <p>
+         * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you
+         * make to the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE>
+         * method for the interface property.
+         *
+         * <p>
+         * For example, to add a new item, do as follows:
+         *
+         * <pre>
+         * getInterface().add(newItem);
+         * </pre>
+         *
+         *
+         * <p>
+         * Objects of the following type(s) are allowed in the list {@link TInterface }
+         */
+        public List<TInterface> getInterface() {
+            if (this._interface == null) {
+                this._interface = new ArrayList<>();
+            }
+            return this._interface;
+        }
+    }
+
+    /**
+     * <p>
+     * Java class for anonymous complex type.
      *
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link TInterface }
-     */
-    public List<TInterface> getInterface() {
-      if (this._interface == null) {
-        this._interface = new ArrayList<>();
-      }
-      return this._interface;
-    }
-
-  }
-
-
-  /**
-   * <p>
-   * Java class for anonymous complex type.
-   *
-   * <p>
-   * The following schema fragment specifies the expected content contained within this class.
-   *
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;attribute name="typeRef" use="required" type="{http://www.w3.org/2001/XMLSchema}QName" />
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
-   */
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "")
-  public static class ValidSource {
-
-    @XmlAttribute(required = true)
-    protected QName typeRef;
-
-    /**
-     * Gets the value of the typeRef property.
+     * The following schema fragment specifies the expected content contained within this class.
      *
-     * @return possible object is {@link QName }
+     * <pre>
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;attribute name="typeRef" use="required" type="{http://www.w3.org/2001/XMLSchema}QName" />
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
+     * </pre>
      */
-    public QName getTypeRef() {
-      return this.typeRef;
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "")
+    public static class ValidSource {
+
+        @XmlAttribute(required = true)
+        protected QName typeRef;
+
+        /**
+         * Gets the value of the typeRef property.
+         *
+         * @return possible object is {@link QName }
+         */
+        public QName getTypeRef() {
+            return this.typeRef;
+        }
+
+        /**
+         * Sets the value of the typeRef property.
+         *
+         * @param value allowed object is {@link QName }
+         */
+        public void setTypeRef(final QName value) {
+            this.typeRef = value;
+        }
     }
 
     /**
-     * Sets the value of the typeRef property.
+     * <p>
+     * Java class for anonymous complex type.
      *
-     * @param value allowed object is {@link QName }
-     */
-    public void setTypeRef(final QName value) {
-      this.typeRef = value;
-    }
-
-  }
-
-
-  /**
-   * <p>
-   * Java class for anonymous complex type.
-   *
-   * <p>
-   * The following schema fragment specifies the expected content contained within this class.
-   *
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;attribute name="typeRef" use="required" type="{http://www.w3.org/2001/XMLSchema}QName" />
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
-   */
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "")
-  public static class ValidTarget {
-
-    @XmlAttribute(required = true)
-    protected QName typeRef;
-
-    /**
-     * Gets the value of the typeRef property.
+     * <p>
+     * The following schema fragment specifies the expected content contained within this class.
      *
-     * @return possible object is {@link QName }
+     * <pre>
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;attribute name="typeRef" use="required" type="{http://www.w3.org/2001/XMLSchema}QName" />
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
+     * </pre>
      */
-    public QName getTypeRef() {
-      return this.typeRef;
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "")
+    public static class ValidTarget {
+
+        @XmlAttribute(required = true)
+        protected QName typeRef;
+
+        /**
+         * Gets the value of the typeRef property.
+         *
+         * @return possible object is {@link QName }
+         */
+        public QName getTypeRef() {
+            return this.typeRef;
+        }
+
+        /**
+         * Sets the value of the typeRef property.
+         *
+         * @param value allowed object is {@link QName }
+         */
+        public void setTypeRef(final QName value) {
+            this.typeRef = value;
+        }
     }
-
-    /**
-     * Sets the value of the typeRef property.
-     *
-     * @param value allowed object is {@link QName }
-     */
-    public void setTypeRef(final QName value) {
-      this.typeRef = value;
-    }
-
-  }
-
 }

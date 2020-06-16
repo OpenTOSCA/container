@@ -1,17 +1,17 @@
 package org.opentosca.bus.application.api.soaphttp.servicehandler;
 
-import org.opentosca.bus.application.service.IApplicationBusService;
-import org.springframework.stereotype.Service;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.opentosca.bus.application.service.IApplicationBusService;
+import org.springframework.stereotype.Service;
 
 /**
  * Service Handler of the Application Bus-SOAP/HTTP-API.<br>
  * <br>
  * <p>
- * Here the implementation of the IApplicationBusService is binded or unbinded. During the binding
- * the routing endpoint of the Application Bus is handed over.
+ * Here the implementation of the IApplicationBusService is binded or unbinded. During the binding the routing endpoint
+ * of the Application Bus is handed over.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @see IApplicationBusService
@@ -21,17 +21,17 @@ import javax.inject.Singleton;
 @Deprecated
 public class ApplicationBusServiceHandler {
 
-  private final String applicationBusRoutingEndpoint;
+    private final String applicationBusRoutingEndpoint;
 
-  @Inject
-  public ApplicationBusServiceHandler(String applicationBusRoutingEndpoint) {
-    this.applicationBusRoutingEndpoint = applicationBusRoutingEndpoint;
-  }
+    @Inject
+    public ApplicationBusServiceHandler(String applicationBusRoutingEndpoint) {
+        this.applicationBusRoutingEndpoint = applicationBusRoutingEndpoint;
+    }
 
-  /**
-   * @return The Routing endpoint of the ApplicationBus
-   */
-  public String getApplicationBusRoutingEndpoint() {
-    return applicationBusRoutingEndpoint;
-  }
+    /**
+     * @return The Routing endpoint of the ApplicationBus
+     */
+    public String getApplicationBusRoutingEndpoint() {
+        return applicationBusRoutingEndpoint;
+    }
 }

@@ -10,6 +10,5 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  */
 public interface ConnectsToPluginHandler<T extends PlanContext> {
 
-  public boolean handle(final T templateContext);
-
+    public boolean handle(final T templateContext);
 }

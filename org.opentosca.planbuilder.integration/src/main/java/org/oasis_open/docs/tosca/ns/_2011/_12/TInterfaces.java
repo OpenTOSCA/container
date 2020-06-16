@@ -13,30 +13,30 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {"_interface"})
 public class TInterfaces {
 
-  @XmlElement(name = "Interface", required = true)
-  protected List<TInterface> _interface;
+    @XmlElement(name = "Interface", required = true)
+    protected List<TInterface> _interface;
 
-  public List<TInterface> getInterface() {
-    if (this._interface == null) {
-      this._interface = new ArrayList<>();
+    public List<TInterface> getInterface() {
+        if (this._interface == null) {
+            this._interface = new ArrayList<>();
+        }
+        return this._interface;
     }
-    return this._interface;
-  }
 
-  @Override
-  public boolean equals(final Object o) {
-    if (this == o) {
-      return true;
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final TInterfaces that = (TInterfaces) o;
+        return Objects.equals(this._interface, that._interface);
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    final TInterfaces that = (TInterfaces) o;
-    return Objects.equals(this._interface, that._interface);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(this._interface);
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(this._interface);
+    }
 }

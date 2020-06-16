@@ -6,14 +6,12 @@
 // Generated on: 2012.05.16 at 05:29:02 PM MESZ
 //
 
-
 package org.apache.ode.schemas.dd._2007._03;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * Message exchange interceptor configuration.
@@ -41,25 +39,24 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tMexInterceptor", propOrder = {"className"})
 public class TMexInterceptor {
 
-  @XmlElement(name = "class-name", required = true)
-  protected String className;
+    @XmlElement(name = "class-name", required = true)
+    protected String className;
 
-  /**
-   * Gets the value of the className property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getClassName() {
-    return this.className;
-  }
+    /**
+     * Gets the value of the className property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getClassName() {
+        return this.className;
+    }
 
-  /**
-   * Sets the value of the className property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setClassName(final String value) {
-    this.className = value;
-  }
-
+    /**
+     * Sets the value of the className property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setClassName(final String value) {
+        this.className = value;
+    }
 }

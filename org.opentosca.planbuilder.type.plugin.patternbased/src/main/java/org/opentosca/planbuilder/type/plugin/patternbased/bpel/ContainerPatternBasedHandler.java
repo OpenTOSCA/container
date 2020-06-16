@@ -55,7 +55,7 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
         return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode),
-                                   getContainerPatternCreateMethod(hostingNode));
+            getContainerPatternCreateMethod(hostingNode));
     }
 
     public boolean isDeprovisionableByContainerPattern(final AbstractNodeTemplate nodeTemplate) {
@@ -72,7 +72,7 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
         return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode),
-                                   getContainerPatternTerminateMethod(hostingNode));
+            getContainerPatternTerminateMethod(hostingNode));
     }
 
     private boolean hasContainerPatternCreateMethod(final AbstractNodeTemplate nodeTemplate) {

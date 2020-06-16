@@ -32,44 +32,44 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "IAInvocationRequest", propOrder = {"params", "doc"})
 public class IAInvocationRequest {
 
-  @XmlElement(name = "Params")
-  protected KeyValueMap params;
-  @XmlElement(name = "Doc")
-  protected Doc doc;
+    @XmlElement(name = "Params")
+    protected KeyValueMap params;
+    @XmlElement(name = "Doc")
+    protected Doc doc;
 
-  /**
-   * Gets the value of the params property.
-   *
-   * @return possible object is {@link KeyValueMap }
-   */
-  public KeyValueMap getParams() {
-    return this.params;
-  }
+    /**
+     * Gets the value of the params property.
+     *
+     * @return possible object is {@link KeyValueMap }
+     */
+    public KeyValueMap getParams() {
+        return this.params;
+    }
 
-  /**
-   * Sets the value of the params property.
-   *
-   * @param value allowed object is {@link KeyValueMap }
-   */
-  public void setParams(final KeyValueMap value) {
-    this.params = value;
-  }
+    /**
+     * Sets the value of the params property.
+     *
+     * @param value allowed object is {@link KeyValueMap }
+     */
+    public void setParams(final KeyValueMap value) {
+        this.params = value;
+    }
 
-  /**
-   * Gets the value of the doc property.
-   *
-   * @return possible object is {@link Doc }
-   */
-  public Doc getDoc() {
-    return this.doc;
-  }
+    /**
+     * Gets the value of the doc property.
+     *
+     * @return possible object is {@link Doc }
+     */
+    public Doc getDoc() {
+        return this.doc;
+    }
 
-  /**
-   * Sets the value of the doc property.
-   *
-   * @param value allowed object is {@link Doc }
-   */
-  public void setDoc(final Doc value) {
-    this.doc = value;
-  }
+    /**
+     * Sets the value of the doc property.
+     *
+     * @param value allowed object is {@link Doc }
+     */
+    public void setDoc(final Doc value) {
+        this.doc = value;
+    }
 }

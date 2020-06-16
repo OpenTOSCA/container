@@ -8,16 +8,14 @@ import org.w3c.dom.Element;
 
 /**
  * <p>
- * This class is the model for TemplateBuildPlans as declared in <a href=
- * "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
- * >Konzept und Implementierung eine Java-Komponente zur Generierung von WS-BPEL 2.0 BuildPlans für
- * OpenTOSCA</a> and enforces those concepts by defining placeholder elements
+ * This class is the model for TemplateBuildPlans as declared in <a href= "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
+ * >Konzept und Implementierung eine Java-Komponente zur Generierung von WS-BPEL 2.0 BuildPlans für OpenTOSCA</a> and
+ * enforces those concepts by defining placeholder elements
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class BPELScope {
 
@@ -25,7 +23,6 @@ public class BPELScope {
 
     // the buildplan this templatebuildplan belongs to
     private BPELPlan buildPlan;
-
 
     // bpel elements this templatebuildplan controls
     private Element bpelScopeElement;
@@ -39,17 +36,16 @@ public class BPELScope {
     private Element bpelMainSequenceElement;
     private Element bpelSequencePrePhaseElement;
     private Element bpelSequenceProvisioningPhaseElement;
-    private Element bpelSequencePostPhaseElement;    
-
+    private Element bpelSequencePostPhaseElement;
 
     private BPELScope bpelCompensationScope;
 
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
-    
+
     @Override
     public String toString() {
-        return "BPELScope Plan: " + buildPlan.getId() + " Activity: " + this.act + ((this.getNodeTemplate() != null) ? " Node: " +this.nodeTemplate.getId() : " Relation: " + this.relationshipTemplate.getId());
+        return "BPELScope Plan: " + buildPlan.getId() + " Activity: " + this.act + ((this.getNodeTemplate() != null) ? " Node: " + this.nodeTemplate.getId() : " Relation: " + this.relationshipTemplate.getId());
     }
 
     public BPELScope(AbstractActivity activity) {
@@ -63,7 +59,7 @@ public class BPELScope {
     public AbstractActivity getActivity() {
         return this.act;
     }
-    
+
     /**
      * Returns the DOM Document this TemplateBuildPlan is declared
      *
@@ -252,11 +248,10 @@ public class BPELScope {
     public void setBpelSequencePostPhaseElement(final Element bpelSequencePostPhaseElement) {
         this.bpelSequencePostPhaseElement = bpelSequencePostPhaseElement;
     }
-    
-
 
     /**
      * Returns the scope containing the compensation activities of this scope
+     *
      * @return a DOM Element
      */
     public BPELScope getBpelCompensationHandlerScope() {
@@ -264,23 +259,21 @@ public class BPELScope {
     }
 
     /**
-     * Sets the scope as the compensation handler of this scope 
+     * Sets the scope as the compensation handler of this scope
+     *
      * @param bpelCompensationScope a BPEL DOM Element with a compensation handler
      */
     public void setBpelCompensationHandlerScope(BPELScope bpelCompensationScope) {
-        this.bpelCompensationScope = bpelCompensationScope;        
-        Element compensationHandlerElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "compensationHandler");                
-        compensationHandlerElement.appendChild(this.bpelCompensationScope.getBpelScopeElement());        
-        this.bpelScopeElement.insertBefore(compensationHandlerElement, this.bpelMainSequenceElement);        
+        this.bpelCompensationScope = bpelCompensationScope;
+        Element compensationHandlerElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "compensationHandler");
+        compensationHandlerElement.appendChild(this.bpelCompensationScope.getBpelScopeElement());
+        this.bpelScopeElement.insertBefore(compensationHandlerElement, this.bpelMainSequenceElement);
     }
-
-    
 
     /**
      * Gets the NodeTemplate this TemplateBuildPlan belongs to
      *
-     * @return an AbstractNodeTemplate, else null if this is a TemplateBuildPlan for a
-     *         RelationshipTemplate
+     * @return an AbstractNodeTemplate, else null if this is a TemplateBuildPlan for a RelationshipTemplate
      */
     public AbstractNodeTemplate getNodeTemplate() {
         return this.nodeTemplate;
@@ -298,8 +291,7 @@ public class BPELScope {
     /**
      * Get the RelationshipTemplate this TemplateBuildPlan belongs to
      *
-     * @return an AbstractRelationshipTemplate, else null if this is a TemplateBuildPlan for a
-     *         RelationshipTemplate
+     * @return an AbstractRelationshipTemplate, else null if this is a TemplateBuildPlan for a RelationshipTemplate
      */
     public AbstractRelationshipTemplate getRelationshipTemplate() {
         return this.relationshipTemplate;
@@ -331,5 +323,4 @@ public class BPELScope {
     public void setBpelCorrelationSets(final Element bpelCorrelationSets) {
         this.bpelCorrelationSets = bpelCorrelationSets;
     }
-
 }

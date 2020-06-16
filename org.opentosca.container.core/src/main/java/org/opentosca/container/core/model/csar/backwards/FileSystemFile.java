@@ -12,46 +12,45 @@ import org.opentosca.container.core.model.AbstractFile;
 @Deprecated
 public class FileSystemFile extends AbstractFile {
 
-  private final Path actualPath;
+    private final Path actualPath;
 
-  public FileSystemFile(Path actualPath) {
-    super(actualPath.toString());
-    if (!Files.isRegularFile(actualPath)) {
-      throw new IllegalArgumentException();
+    public FileSystemFile(Path actualPath) {
+        super(actualPath.toString());
+        if (!Files.isRegularFile(actualPath)) {
+            throw new IllegalArgumentException();
+        }
+        this.actualPath = actualPath;
     }
-    this.actualPath = actualPath;
-  }
 
-  @Override
-  public Path getFile() throws SystemException {
-    return actualPath;
-  }
-
-  @Override
-  public InputStream getFileAsInputStream() throws SystemException {
-    try {
-      return Files.newInputStream(actualPath, StandardOpenOption.READ);
-    } catch (IOException e) {
-      throw new SystemException("Could not create input stream", e);
+    @Override
+    public Path getFile() throws SystemException {
+        return actualPath;
     }
-  }
 
-  @Override
-  public String getName() {
-    return actualPath.getFileName().toString();
-  }
-
-  @Override
-  public String toString() {
-    return actualPath.toString();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other instanceof FileSystemFile) {
-      return this.actualPath.equals(((FileSystemFile) other).actualPath);
+    @Override
+    public InputStream getFileAsInputStream() throws SystemException {
+        try {
+            return Files.newInputStream(actualPath, StandardOpenOption.READ);
+        } catch (IOException e) {
+            throw new SystemException("Could not create input stream", e);
+        }
     }
-    return false;
-  }
 
+    @Override
+    public String getName() {
+        return actualPath.getFileName().toString();
+    }
+
+    @Override
+    public String toString() {
+        return actualPath.toString();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof FileSystemFile) {
+            return this.actualPath.equals(((FileSystemFile) other).actualPath);
+        }
+        return false;
+    }
 }

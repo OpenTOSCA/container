@@ -10,25 +10,22 @@ import java.util.List;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public abstract class AbstractNodeTemplate {
 
     /**
-     * Returns the TOSCA RelationshipTemplate which can be used/are declared as the source relation, of
-     * this NodeTemplate.
+     * Returns the TOSCA RelationshipTemplate which can be used/are declared as the source relation, of this
+     * NodeTemplate.
      *
-     * @return a List of AbstractRelationshipTemplates that have this NodeTemplate as possible source
-     *         declaration
+     * @return a List of AbstractRelationshipTemplates that have this NodeTemplate as possible source declaration
      */
     public abstract List<AbstractRelationshipTemplate> getOutgoingRelations();
 
     /**
-     * Returns the TOSCA RelationshipTemplate which can be used/are declared as the target relation of
-     * this NodeTemplate
+     * Returns the TOSCA RelationshipTemplate which can be used/are declared as the target relation of this
+     * NodeTemplate
      *
-     * @return a List of AbstractRelationshipTemplates that have this NodeTemplate as possible target
-     *         declaration
+     * @return a List of AbstractRelationshipTemplates that have this NodeTemplate as possible target declaration
      */
     public abstract List<AbstractRelationshipTemplate> getIngoingRelations();
 
@@ -124,10 +121,8 @@ public abstract class AbstractNodeTemplate {
                 return false;
             }
             return true;
-
         } else {
             return false;
         }
     }
-
 }

@@ -6,14 +6,12 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -37,25 +35,24 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tCapability")
 public class TCapability extends TEntityTemplate {
 
-  @XmlAttribute(required = true)
-  protected String name;
+    @XmlAttribute(required = true)
+    protected String name;
 
-  /**
-   * Gets the value of the name property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getName() {
-    return this.name;
-  }
+    /**
+     * Gets the value of the name property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getName() {
+        return this.name;
+    }
 
-  /**
-   * Sets the value of the name property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setName(final String value) {
-    this.name = value;
-  }
-
+    /**
+     * Sets the value of the name property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setName(final String value) {
+        this.name = value;
+    }
 }

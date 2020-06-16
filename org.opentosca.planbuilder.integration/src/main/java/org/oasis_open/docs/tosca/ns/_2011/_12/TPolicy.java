@@ -6,7 +6,6 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,7 +13,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-
 
 /**
  * <p>
@@ -40,65 +38,64 @@ import javax.xml.namespace.QName;
 @XmlType(name = "tPolicy")
 public class TPolicy extends TExtensibleElements {
 
-  @XmlAttribute
-  protected String name;
-  @XmlAttribute(required = true)
-  protected QName policyType;
-  @XmlAttribute
-  protected QName policyRef;
+    @XmlAttribute
+    protected String name;
+    @XmlAttribute(required = true)
+    protected QName policyType;
+    @XmlAttribute
+    protected QName policyRef;
 
-  /**
-   * Gets the value of the name property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getName() {
-    return this.name;
-  }
+    /**
+     * Gets the value of the name property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getName() {
+        return this.name;
+    }
 
-  /**
-   * Sets the value of the name property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setName(final String value) {
-    this.name = value;
-  }
+    /**
+     * Sets the value of the name property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setName(final String value) {
+        this.name = value;
+    }
 
-  /**
-   * Gets the value of the policyType property.
-   *
-   * @return possible object is {@link QName }
-   */
-  public QName getPolicyType() {
-    return this.policyType;
-  }
+    /**
+     * Gets the value of the policyType property.
+     *
+     * @return possible object is {@link QName }
+     */
+    public QName getPolicyType() {
+        return this.policyType;
+    }
 
-  /**
-   * Sets the value of the policyType property.
-   *
-   * @param value allowed object is {@link QName }
-   */
-  public void setPolicyType(final QName value) {
-    this.policyType = value;
-  }
+    /**
+     * Sets the value of the policyType property.
+     *
+     * @param value allowed object is {@link QName }
+     */
+    public void setPolicyType(final QName value) {
+        this.policyType = value;
+    }
 
-  /**
-   * Gets the value of the policyRef property.
-   *
-   * @return possible object is {@link QName }
-   */
-  public QName getPolicyRef() {
-    return this.policyRef;
-  }
+    /**
+     * Gets the value of the policyRef property.
+     *
+     * @return possible object is {@link QName }
+     */
+    public QName getPolicyRef() {
+        return this.policyRef;
+    }
 
-  /**
-   * Sets the value of the policyRef property.
-   *
-   * @param value allowed object is {@link QName }
-   */
-  public void setPolicyRef(final QName value) {
-    this.policyRef = value;
-  }
-
+    /**
+     * Sets the value of the policyRef property.
+     *
+     * @param value allowed object is {@link QName }
+     */
+    public void setPolicyRef(final QName value) {
+        this.policyRef = value;
+    }
 }

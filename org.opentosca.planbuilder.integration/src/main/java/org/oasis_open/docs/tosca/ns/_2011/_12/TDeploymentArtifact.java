@@ -6,7 +6,6 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,7 +13,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-
 
 /**
  * <p>
@@ -40,65 +38,64 @@ import javax.xml.namespace.QName;
 @XmlType(name = "tDeploymentArtifact")
 public class TDeploymentArtifact extends TExtensibleElements {
 
-  @XmlAttribute(required = true)
-  protected String name;
-  @XmlAttribute(required = true)
-  protected QName artifactType;
-  @XmlAttribute
-  protected QName artifactRef;
+    @XmlAttribute(required = true)
+    protected String name;
+    @XmlAttribute(required = true)
+    protected QName artifactType;
+    @XmlAttribute
+    protected QName artifactRef;
 
-  /**
-   * Gets the value of the name property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getName() {
-    return this.name;
-  }
+    /**
+     * Gets the value of the name property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getName() {
+        return this.name;
+    }
 
-  /**
-   * Sets the value of the name property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setName(final String value) {
-    this.name = value;
-  }
+    /**
+     * Sets the value of the name property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setName(final String value) {
+        this.name = value;
+    }
 
-  /**
-   * Gets the value of the artifactType property.
-   *
-   * @return possible object is {@link QName }
-   */
-  public QName getArtifactType() {
-    return this.artifactType;
-  }
+    /**
+     * Gets the value of the artifactType property.
+     *
+     * @return possible object is {@link QName }
+     */
+    public QName getArtifactType() {
+        return this.artifactType;
+    }
 
-  /**
-   * Sets the value of the artifactType property.
-   *
-   * @param value allowed object is {@link QName }
-   */
-  public void setArtifactType(final QName value) {
-    this.artifactType = value;
-  }
+    /**
+     * Sets the value of the artifactType property.
+     *
+     * @param value allowed object is {@link QName }
+     */
+    public void setArtifactType(final QName value) {
+        this.artifactType = value;
+    }
 
-  /**
-   * Gets the value of the artifactRef property.
-   *
-   * @return possible object is {@link QName }
-   */
-  public QName getArtifactRef() {
-    return this.artifactRef;
-  }
+    /**
+     * Gets the value of the artifactRef property.
+     *
+     * @return possible object is {@link QName }
+     */
+    public QName getArtifactRef() {
+        return this.artifactRef;
+    }
 
-  /**
-   * Sets the value of the artifactRef property.
-   *
-   * @param value allowed object is {@link QName }
-   */
-  public void setArtifactRef(final QName value) {
-    this.artifactRef = value;
-  }
-
+    /**
+     * Sets the value of the artifactRef property.
+     *
+     * @param value allowed object is {@link QName }
+     */
+    public void setArtifactRef(final QName value) {
+        this.artifactRef = value;
+    }
 }

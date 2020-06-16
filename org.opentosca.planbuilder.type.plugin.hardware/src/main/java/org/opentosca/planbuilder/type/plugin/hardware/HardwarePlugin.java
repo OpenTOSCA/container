@@ -1,4 +1,3 @@
-
 package org.opentosca.planbuilder.type.plugin.hardware;
 
 import java.util.Collection;
@@ -20,16 +19,14 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * <p>
- * This class implements a PlanBuilder Type Plugin for the provisioning of NodeTypes that are
- * hardware components such as Sensors and Actuators.
+ * This class implements a PlanBuilder Type Plugin for the provisioning of NodeTypes that are hardware components such
+ * as Sensors and Actuators.
  * </p>
  *
- *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
-                            IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
+    IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
 
     private final static Logger LOG = LoggerFactory.getLogger(HardwarePlugin.class);
 
@@ -44,7 +41,7 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     }
 
     @Override
-    public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {        
+    public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         // available platforms such as Clouds and Devices are not provisioned (as of yet), therefore do
         // nothing here
         return this.canHandleCreate(nodeTemplate);
@@ -92,7 +89,7 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {        
+    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         // handle these running components by doing nothing
         return this.canHandleTerminate(nodeTemplate);
     }
@@ -121,12 +118,12 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
 
     private boolean isSupportedType(AbstractNodeTemplate nodeTemplate) {
         QName type = nodeTemplate.getType().getId();
-        return Utils.isSupportedHardwareNodeType(type);        
+        return Utils.isSupportedHardwareNodeType(type);
     }
-    
+
     private Collection<AbstractNodeTemplate> getDependecies(AbstractNodeTemplate nodeTemplate) {
         Collection<AbstractNodeTemplate> deps = new HashSet<AbstractNodeTemplate>();
-     // if it is supported hardware is should be connected to some kind of device
+        // if it is supported hardware is should be connected to some kind of device
         for (AbstractRelationshipTemplate rel : nodeTemplate.getIngoingRelations()) {
             if (ModelUtils.isCommunicationRelationshipType(rel.getType()) && Utils.isSupportedDeviceNodeType(rel.getSource().getType().getId())) {
                 deps.add(rel.getSource());

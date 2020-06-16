@@ -32,15 +32,13 @@ import org.xml.sax.SAXException;
 /**
  * <p>
  * This class implements the logic to provision an EC2VM Stack, consisting of the NodeTypes
- * {http://www.example.com/tosca/ServiceTemplates/EC2VM}EC2,
- * {http://www.example.com/tosca/ServiceTemplates/EC2VM}VM,
+ * {http://www.example.com/tosca/ServiceTemplates/EC2VM}EC2, {http://www.example.com/tosca/ServiceTemplates/EC2VM}VM,
  * {http://www.example.com/tosca/ServiceTemplates/EC2VM}Ubuntu.
  * </p>
  * Copyright 2016 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<BPELPlanContext> {
 
@@ -60,7 +58,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
     // new possible external params
     private final static String[] createVMInstanceExternalInputParams =
         {"VMKeyPairName", "HypervisorUserPassword", "HypervisorUserName", "HypervisorEndpoint", "VMImageID", "VMType",
-         "HypervisorTenantID", "VMUserPassword", "VMPublicKey", "VMKeyPairName"};
+            "HypervisorTenantID", "VMUserPassword", "VMPublicKey", "VMKeyPairName"};
 
     // mandatory params for the local hypervisor node
     private final static String[] localCreateVMInstanceExternalInputParams =
@@ -72,8 +70,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
      * Creates a string representing an ubuntu image id on a cloud provider
      *
      * @param nodeType a QName of an Ubuntu ImplicitImage NodeType
-     * @return a String containing an ubuntuImageId, if given QName is not presenting an Ubuntu image
-     *         then null
+     * @return a String containing an ubuntuImageId, if given QName is not presenting an Ubuntu image then null
      */
     private String createUbuntuImageStringFromNodeType(final QName nodeType) {
         if (!org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(nodeType)) {
@@ -88,9 +85,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             return "ubuntu-16.04";
         } else if (nodeType.equals(Types.ubuntu1804ServerVmNodeType)
             || nodeType.getNamespaceURI().equals(Types.ubuntu1804ServerVmNodeTypeGenerated.getNamespaceURI())
-                && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart())) {
-                    return "ubuntu-18.04";
-                }
+            && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart())) {
+            return "ubuntu-18.04";
+        }
 
         final String localName = nodeType.getLocalPart();
 
@@ -114,8 +111,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         int majorVers;
         try {
             majorVers = Integer.parseInt(leftDashSplit[1]);
-        }
-        catch (final NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             return null;
         }
 
@@ -135,9 +131,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             if (minorVersString.length() != 2) {
                 minorVersString = "0" + minorVersString;
             }
-
-        }
-        catch (final NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             return null;
         }
 
@@ -157,7 +151,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         for (final AbstractNodeTemplate node : nodes) {
             if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(node.getType()
-                                                                                                         .getId())) {
+                .getId())) {
                 return node;
             }
         }
@@ -174,15 +168,15 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
     private AbstractNodeTemplate findDockerEngineNode(final AbstractNodeTemplate nodeTemplate) {
         // check if the given node is the docker engine node
         if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(nodeTemplate.getType()
-                                                                                                            .getId())) {
+            .getId())) {
             return nodeTemplate;
         }
 
         // check if the given node is connected to an docker engine node
         for (final AbstractRelationshipTemplate relationTemplate : nodeTemplate.getOutgoingRelations()) {
             if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(relationTemplate.getTarget()
-                                                                                                                    .getType()
-                                                                                                                    .getId())) {
+                .getType()
+                .getId())) {
                 return relationTemplate.getTarget();
             }
         }
@@ -199,25 +193,25 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
     private AbstractNodeTemplate findUbuntuNode(final AbstractNodeTemplate nodeTemplate) {
         // check if the given node is the ubuntu node
         if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType()
-                                                                                                              .getId())) {
+            .getId())) {
             return nodeTemplate;
         }
 
         for (final AbstractRelationshipTemplate relationTemplate : nodeTemplate.getIngoingRelations()) {
             // check if the given node is connected to an ubuntu node
             if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(relationTemplate.getSource()
-                                                                                                                      .getType()
-                                                                                                                      .getId())) {
+                .getType()
+                .getId())) {
                 return relationTemplate.getSource();
             }
 
             // check if an ubuntu node is connected with the given node through
             // a path of length 2
             for (final AbstractRelationshipTemplate relationTemplate2 : relationTemplate.getSource()
-                                                                                        .getIngoingRelations()) {
+                .getIngoingRelations()) {
                 if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(relationTemplate2.getSource()
-                                                                                                                           .getType()
-                                                                                                                           .getId())) {
+                    .getType()
+                    .getId())) {
 
                     return relationTemplate2.getSource();
                 }
@@ -230,7 +224,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
     /**
      * Adds fragments to provision a VM
      *
-     * @param context a BPELPlanContext for a EC2, VM or Ubuntu Node
+     * @param context      a BPELPlanContext for a EC2, VM or Ubuntu Node
      * @param nodeTemplate the NodeTemplate on which the fragments are used
      * @return true iff adding the fragments was successful
      */
@@ -314,7 +308,6 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         if (sshUserVariable == null) {
             LOG.debug("Adding sshUser field to plan input");
             context.addStringValueToPlanRequest("sshUser");
-
         }
 
         if (sshKeyVariable == null) {
@@ -366,7 +359,6 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             } else {
                 createEC2InternalExternalPropsInput.put(externalParameter, variable);
             }
-
         }
 
         // generate var with random value for the correlation id
@@ -395,7 +387,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // of properties at the InstanceDataAPI
 
         this.invokerOpPlugin.handle(context, "create", "InterfaceAmazonEC2VM", "planCallbackAddress_invoker",
-                                    createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput);
+            createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput);
 
         /*
          * Check whether the SSH port is open on the VM
@@ -407,8 +399,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         startRequestInputParams.put("sshKey", sshKeyVariable);
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu",
-                                    startRequestInputParams, new HashMap<String, Variable>(),
-                                    context.getProvisioningPhaseElement());
+            startRequestInputParams, new HashMap<String, Variable>(),
+            context.getProvisioningPhaseElement());
 
         return true;
     }
@@ -418,7 +410,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         final List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
         for (final AbstractNodeTemplate infraNode : infraNodes) {
             if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(infraNode.getType()
-                                                                                                              .getId())) {
+                .getId())) {
                 // append logic to call terminateVM method on the
                 // node
 
@@ -440,13 +432,10 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 inputs.put("HypervisorUserName", hypervisorUserName);
                 inputs.put("HypervisorUserPassword", hypervisorUserPassword);
 
-
-                return this.invokerOpPlugin.handle(context, hypervisorNode.getId(),true,
-                                                   org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
-                                                   org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
-                                                   inputs, outputs, elementToAppendTo);
-
-
+                return this.invokerOpPlugin.handle(context, hypervisorNode.getId(), true,
+                    org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
+                    org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+                    inputs, outputs, elementToAppendTo);
             }
         }
         return false;
@@ -533,8 +522,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
                 // add an assign from input to internal property variable
                 context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME,
-                                                                sshUserVariable);
-
+                    sshUserVariable);
             }
         }
 
@@ -558,7 +546,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 LOG.debug("Adding sshKey field to plan input");
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
                 context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD,
-                                                                sshKeyVariable);
+                    sshKeyVariable);
             }
         }
 
@@ -620,7 +608,6 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             } else {
                 createEC2InternalExternalPropsInput.put(externalParameter, variable);
             }
-
         }
 
         // check if there is an access policy attached
@@ -653,9 +640,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // getPublicDNSReturn into the InstanceId Property of the Ubuntu
         // Node
         createEC2InternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID,
-                                                 instanceIdPropWrapper);
+            instanceIdPropWrapper);
         createEC2InternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP,
-                                                 serverIpPropWrapper);
+            serverIpPropWrapper);
 
         // generate plan input message element for the plan address, this is
         // needed as BPS 2.1.2 fails at returning addresses appropiate for
@@ -668,10 +655,10 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // of properties at the InstanceDataAPI
 
         this.invokerOpPlugin.handle(context, cloudProviderNodeTemplate.getId(), true,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
-                                    createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
-                                    context.getProvisioningPhaseElement());
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+            createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
+            context.getProvisioningPhaseElement());
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -688,10 +675,10 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         startRequestOutputParams.put("WaitResult", context.createGlobalStringVariable("WaitResultDummy", ""));
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, context.getProvisioningPhaseElement());
-        
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
+            startRequestOutputParams, context.getProvisioningPhaseElement());
+
         this.handleTerminateWithCloudProviderInterface(context, ubuntuNodeTemplate, context.getProvisioningCompensationPhaseElement());
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
@@ -699,7 +686,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 final List<Variable> modeledPortsVariables = fetchModeledPortsOfInfrastructure(context, nodeTemplate);
                 modeledPortsVariables.add(context.createGlobalStringVariable("vmSshPort", "22"));
                 addIpTablesScriptLogic(context, modeledPortsVariables, serverIpPropWrapper, sshUserVariable,
-                                       sshKeyVariable, ubuntuNodeTemplate);
+                    sshKeyVariable, ubuntuNodeTemplate);
             }
         }
 
@@ -734,14 +721,11 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                     + System.currentTimeMillis(), xpathQuery, ipTablesScriptVariable.getVariableName());
             assignIpTables = context.importNode(assignIpTables);
             context.getProvisioningPhaseElement().appendChild(assignIpTables);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
 
             e.printStackTrace();
         }
@@ -761,9 +745,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         startRequestOutputParams.put("ScriptResult", context.createGlobalStringVariable("IpTablesResult", ""));
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, context.getProvisioningPhaseElement());
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT,
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
+            startRequestOutputParams, context.getProvisioningPhaseElement());
     }
 
     private List<Variable> fetchModeledPortsOfInfrastructure(final PlanContext context,
@@ -797,9 +781,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
     /**
      * Provisions a Docker Ubuntu Container on a DockerEngine
      *
-     * @param context
-     *
-     *        a BPELPlanContext for a DockerEngine or Ubuntu Node
+     * @param context      a BPELPlanContext for a DockerEngine or Ubuntu Node
      * @param nodeTemplate the NodeTemplate on which the fragments are used
      * @return true iff provisioning the container was successful
      */
@@ -910,7 +892,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 LOG.debug("Adding sshUser field to plan input");
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
                 context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME,
-                                                                sshUserVariable);
+                    sshUserVariable);
             }
         }
 
@@ -932,7 +914,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 LOG.debug("Adding sshKey field to plan input");
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
                 context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD,
-                                                                sshKeyVariable);
+                    sshKeyVariable);
             }
         }
 
@@ -959,10 +941,10 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         LOG.debug(dockerEngineNodeTemplate.getId() + " " + dockerEngineNodeTemplate.getType());
         this.invokerOpPlugin.handle(context, dockerEngineNodeTemplate.getId(), true,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                    createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
-                                    context.getProvisioningPhaseElement());
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
+            createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
+            context.getProvisioningPhaseElement());
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -978,9 +960,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         startRequestOutputParams.put("WaitResult", context.createGlobalStringVariable("WaitResultDummy", ""));
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, context.getProvisioningPhaseElement());
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
+            startRequestOutputParams, context.getProvisioningPhaseElement());
 
         return true;
     }
@@ -1063,8 +1045,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
                 // add an assign from input to internal property variable
                 context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME,
-                                                                sshUserVariable);
-
+                    sshUserVariable);
             }
         }
 
@@ -1088,7 +1069,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 BPELUbuntuVmTypePluginHandler.LOG.debug("Adding sshKey field to plan input");
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
                 context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD,
-                                                                sshKeyVariable);
+                    sshKeyVariable);
             }
         }
 
@@ -1151,11 +1132,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 context.addAssignFromInput2VariableToMainAssign(externalParameter, variable);
 
                 createEC2InternalExternalPropsInput.put(externalParameter, variable);
-
             } else {
                 createEC2InternalExternalPropsInput.put(externalParameter, variable);
             }
-
         }
 
         // generate var with random value for the correlation id
@@ -1171,9 +1150,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // getPublicDNSReturn into the InstanceId Property of the Ubuntu
         // Node
         createEC2InternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID,
-                                                 instanceIdPropWrapper);
+            instanceIdPropWrapper);
         createEC2InternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP,
-                                                 serverIpPropWrapper);
+            serverIpPropWrapper);
 
         // generate plan input message element for the plan address, this is
         // needed as BPS 2.1.2 fails at returning addresses appropiate for
@@ -1186,10 +1165,10 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // of properties at the InstanceDataAPI
 
         this.invokerOpPlugin.handle(context, cloudProviderNodeTemplate.getId(), true,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
-                                    createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
-                                    context.getProvisioningPhaseElement());
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+            createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
+            context.getProvisioningPhaseElement());
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -1205,16 +1184,15 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         startRequestOutputParams.put("WaitResult", context.createGlobalStringVariable("WaitResultDummy", ""));
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
-                                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-                                    startRequestOutputParams, context.getProvisioningPhaseElement());
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
+            startRequestOutputParams, context.getProvisioningPhaseElement());
 
         return true;
     }
 
     private Variable getUbtuntuAMIId(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         final PropertyVariable vmImageId = context.getPropertyVariable("VMImageID", true);
-
 
         // here either the ubuntu connected to the provider this handler is
         // working on hasn't a version in the ID (ubuntu version must be written
@@ -1225,11 +1203,10 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             // context.createGlobalStringVariable("ubuntu_AMIId",
             // "ubuntu-13.10-server-cloudimg-amd64");
             return context.createGlobalStringVariable("ubuntu_AMIId",
-                                                      createUbuntuImageStringFromNodeType(nodeTemplate.getType()
-                                                                                                      .getId()));
+                createUbuntuImageStringFromNodeType(nodeTemplate.getType()
+                    .getId()));
         }
 
         return vmImageId;
     }
-
 }

@@ -16,6 +16,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.namespace.QName;
 
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.impl.DefaultExchange;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
@@ -30,12 +35,6 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRequiredContainerFeatures;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-
-import org.apache.camel.Exchange;
-import org.apache.camel.Message;
-import org.apache.camel.ProducerTemplate;
-import org.apache.camel.impl.DefaultExchange;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
@@ -306,7 +305,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (typeID.equals(Types.abstractOperatingSystemNodeType)) {
             // replace abstract operating system node instance
             nodeInstance = MBUtils.getAbstractOSReplacementInstance(nodeInstance);
-            assert(nodeInstance != null); // if not, we're fucked anyways
+            assert (nodeInstance != null); // if not, we're fucked anyways
             final ServiceTemplateInstance replacementSTI = nodeInstance.getServiceTemplateInstance();
             replacementCsar = storage.findById(replacementSTI.getCsarId());
             try {
@@ -320,7 +319,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 return event;
             }
         }
-
 
         // update input parameters for the operation call
         if (message.getBody() instanceof HashMap) {

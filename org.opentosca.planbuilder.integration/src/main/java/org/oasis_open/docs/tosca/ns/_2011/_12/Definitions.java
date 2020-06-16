@@ -6,14 +6,12 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -37,6 +35,5 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "Definitions", namespace = "http://docs.oasis-open.org/tosca/ns/2011/12")
 public class Definitions extends TDefinitions {
-
 
 }

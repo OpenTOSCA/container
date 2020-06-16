@@ -1,4 +1,3 @@
-
 package org.opentosca.planbuilder.type.plugin.platforms;
 
 import java.util.Collection;
@@ -19,16 +18,14 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * <p>
- * This class implements a PlanBuilder Type Plugin for the provisioning of NodeTypes that are
- * platform components such as Clouds (OpenStack, AWS,..) or Devices (Raspberry Pi,..).
+ * This class implements a PlanBuilder Type Plugin for the provisioning of NodeTypes that are platform components such
+ * as Clouds (OpenStack, AWS,..) or Devices (Raspberry Pi,..).
  * </p>
  *
- *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public class PlatformPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
-                            IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
+    IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
 
     private final static Logger LOG = LoggerFactory.getLogger(PlatformPlugin.class);
 

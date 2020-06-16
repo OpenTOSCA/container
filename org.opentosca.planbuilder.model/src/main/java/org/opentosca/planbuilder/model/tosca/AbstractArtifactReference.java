@@ -13,25 +13,24 @@ import java.util.List;
  */
 public abstract class AbstractArtifactReference {
 
-  /**
-   * Returns the reference
-   *
-   * @return a String containing a path to some artifact
-   */
-  public abstract String getReference();
+    /**
+     * Returns the reference
+     *
+     * @return a String containing a path to some artifact
+     */
+    public abstract String getReference();
 
-  /**
-   * Returns a List of Strings, containing Include Pattern declarations
-   *
-   * @return a List of Strings
-   */
-  public abstract List<String> getIncludePatterns();
+    /**
+     * Returns a List of Strings, containing Include Pattern declarations
+     *
+     * @return a List of Strings
+     */
+    public abstract List<String> getIncludePatterns();
 
-  /**
-   * Returns a List of Strings, containing Exclude Pattern declarations
-   *
-   * @return a List of Strings
-   */
-  public abstract List<String> getExcludePatterns();
-
+    /**
+     * Returns a List of Strings, containing Exclude Pattern declarations
+     *
+     * @return a List of Strings
+     */
+    public abstract List<String> getExcludePatterns();
 }

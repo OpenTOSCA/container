@@ -1,4 +1,3 @@
-
 package org.opentosca.planbuilder.type.plugin.patternbased.bpel;
 
 import java.util.Collection;
@@ -16,16 +15,14 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * <p>
- * This class implements a PlanBuilder Type Plugin for the provisioning of NodeType that are modeled
- * based on provisioning patterns.
+ * This class implements a PlanBuilder Type Plugin for the provisioning of NodeType that are modeled based on
+ * provisioning patterns.
  * </p>
  *
- *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
-                                IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
+    IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
 
     private final static Logger LOG = LoggerFactory.getLogger(PatternBasedPlugin.class);
 
@@ -47,25 +44,25 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
         if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate)) {
             LOG.debug("Handling by container pattern");
             check &= containerPatternHandler.handleCreate(templateContext, nodeTemplate,
-                                                          templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement());
 
             if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
                 LOG.debug("Adding container pattern compensation logic");
                 check &=
                     containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
-                                                            templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement());
             }
         } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
             LOG.debug("Handling by lifecycle pattern");
 
             check &= lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
-                                                          templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement());
 
             if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
                 LOG.debug("Adding lifecycle pattern compensation logic");
                 check &=
                     lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
-                                                            templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement());
             }
         } else {
             return false;
@@ -146,24 +143,23 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
         if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
             LOG.debug("Handling by container pattern");
             check &= containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
-                                                             templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement());
 
             if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate)) {
                 LOG.debug("Adding container pattern compensation logic");
                 check &=
                     containerPatternHandler.handleCreate(templateContext, nodeTemplate,
-                                                         templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement());
             }
-
         } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
             LOG.debug("Handling by lifecycle pattern");
             check &= lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
-                                                             templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement());
             if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
                 LOG.debug("Adding lifecycle pattern compensation logic");
                 check &=
                     lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
-                                                         templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement());
             }
         } else {
             return false;
@@ -202,5 +198,4 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     public int getPriority() {
         return 1;
     }
-
 }

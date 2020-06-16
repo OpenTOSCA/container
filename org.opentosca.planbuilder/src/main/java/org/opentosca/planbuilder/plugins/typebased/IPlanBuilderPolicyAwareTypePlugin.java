@@ -6,8 +6,7 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
 public interface IPlanBuilderPolicyAwareTypePlugin<T extends PlanContext> extends IPlanBuilderPlugin {
 
     /**
-     * This method should generate and add a fragment which handle the Template inside the
-     * TemplateContext
+     * This method should generate and add a fragment which handle the Template inside the TemplateContext
      *
      * @param templateContext a TemplateContext of a Template
      * @return true iff when generating and adding fragment that handles the template completely

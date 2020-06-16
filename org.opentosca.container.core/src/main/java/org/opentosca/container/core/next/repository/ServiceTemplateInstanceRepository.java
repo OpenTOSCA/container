@@ -14,7 +14,6 @@ import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
-import org.springframework.stereotype.Component;
 
 public class ServiceTemplateInstanceRepository extends JpaRepository<ServiceTemplateInstance> {
 
@@ -29,7 +28,11 @@ public class ServiceTemplateInstanceRepository extends JpaRepository<ServiceTemp
         Hibernate.initialize(instance.getProperties());
         Hibernate.initialize(instance.getRelationshipTemplateInstances());
         Hibernate.initialize(instance.getPlanInstances());
-        instance.getPlanInstances().forEach(pi -> {Hibernate.initialize(pi.getInputs());Hibernate.initialize(pi.getOutputs()); Hibernate.initialize(pi.getEvents());});
+        instance.getPlanInstances().forEach(pi -> {
+            Hibernate.initialize(pi.getInputs());
+            Hibernate.initialize(pi.getOutputs());
+            Hibernate.initialize(pi.getEvents());
+        });
         instance.getNodeTemplateInstances().forEach(nti -> Hibernate.initialize(nti.getProperties()));
     }
 

@@ -9,7 +9,6 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public interface IPlanBuilderPrePhasePlugin<T extends PlanContext> extends IPlanBuilderPlugin {
 
@@ -20,5 +19,4 @@ public interface IPlanBuilderPrePhasePlugin<T extends PlanContext> extends IPlan
     public boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
 
     public boolean handleCreate(T context, AbstractRelationshipTemplate relationshipTemplate);
-
 }

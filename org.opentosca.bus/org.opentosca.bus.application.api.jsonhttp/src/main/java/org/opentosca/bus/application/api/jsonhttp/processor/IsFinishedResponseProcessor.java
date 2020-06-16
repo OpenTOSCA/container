@@ -21,46 +21,42 @@ import org.slf4j.LoggerFactory;
  */
 public class IsFinishedResponseProcessor implements Processor {
 
-  final private static Logger LOG = LoggerFactory.getLogger(IsFinishedResponseProcessor.class);
+    final private static Logger LOG = LoggerFactory.getLogger(IsFinishedResponseProcessor.class);
 
-  @Override
-  public void process(final Exchange exchange) throws Exception {
+    @Override
+    public void process(final Exchange exchange) throws Exception {
 
-    IsFinishedResponseProcessor.LOG.debug("Processing IsFinished response....");
+        IsFinishedResponseProcessor.LOG.debug("Processing IsFinished response....");
 
-    final String requestID = exchange.getIn().getHeader(Route.ID, String.class);
+        final String requestID = exchange.getIn().getHeader(Route.ID, String.class);
 
-    IsFinishedResponseProcessor.LOG.debug("RequestID: {}", requestID);
+        IsFinishedResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-    final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
 
-    if (exchange.getIn().getBody() instanceof Exception) {
+        if (exchange.getIn().getBody() instanceof Exception) {
 
-      response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-      response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
+            response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+            response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
+        } else {
 
-    } else {
+            final Boolean isFinished = exchange.getIn().getBody(Boolean.class);
 
-      final Boolean isFinished = exchange.getIn().getBody(Boolean.class);
+            if (isFinished) {
+                IsFinishedResponseProcessor.LOG.debug("Invocation has finished, send location of result.");
 
-      if (isFinished) {
-        IsFinishedResponseProcessor.LOG.debug("Invocation has finished, send location of result.");
+                response.setStatus(Status.REDIRECTION_SEE_OTHER);
+                response.setLocationRef(Route.GET_RESULT_ENDPOINT.replace(Route.ID_PLACEHODLER, requestID));
+            } else {
+                IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
 
-        response.setStatus(Status.REDIRECTION_SEE_OTHER);
-        response.setLocationRef(Route.GET_RESULT_ENDPOINT.replace(Route.ID_PLACEHODLER, requestID));
+                final JSONObject obj = new JSONObject();
+                obj.put("status", "PENDING");
 
-      } else {
-        IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
-
-        final JSONObject obj = new JSONObject();
-        obj.put("status", "PENDING");
-
-        response.setStatus(Status.SUCCESS_OK);
-        response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
-
-      }
-      exchange.getOut().setBody(response);
+                response.setStatus(Status.SUCCESS_OK);
+                response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
+            }
+            exchange.getOut().setBody(response);
+        }
     }
-  }
-
 }

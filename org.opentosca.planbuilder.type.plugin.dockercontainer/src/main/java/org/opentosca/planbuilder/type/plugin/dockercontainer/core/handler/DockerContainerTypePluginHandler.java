@@ -4,8 +4,7 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**
  * <p>
- * This class contains all the logic to add BPEL Code which installs a PhpModule on an Apache HTTP
- * Server
+ * This class contains all the logic to add BPEL Code which installs a PhpModule on an Apache HTTP Server
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>

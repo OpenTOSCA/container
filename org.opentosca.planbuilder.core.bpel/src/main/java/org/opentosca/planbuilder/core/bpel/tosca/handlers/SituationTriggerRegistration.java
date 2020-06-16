@@ -178,7 +178,6 @@ public class SituationTriggerRegistration {
     private final BPELPlanHandler handler;
     private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
 
-
     public SituationTriggerRegistration() throws ParserConfigurationException {
         this.fragments = new BPELProcessFragments();
         this.handler = new BPELPlanHandler();
@@ -211,7 +210,7 @@ public class SituationTriggerRegistration {
                         final String situationIdVarName =
                             this.handler.addGlobalStringVariable("SituationId_" + i + "_var", plan);
                         appendAssignSituationIdFromInputToSituationIdVar(plan, inputName, i, situationIdVarName,
-                                                                         plan.getBpelMainFlowElement());
+                            plan.getBpelMainFlowElement());
                         situationIdVarNames.add(situationIdVarName);
                     } else {
                         // TODO Add Selection of SituationId
@@ -223,7 +222,7 @@ public class SituationTriggerRegistration {
                     // fetch serviceInstance from buildPlan
                     final String serviceInstanceIdVar = this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
                     appendAssignServiceInstanceIdFromServiceInstanceIdVar(plan, serviceInstanceIdVar, varName,
-                                                                          plan.getBpelMainFlowElement());
+                        plan.getBpelMainFlowElement());
                 }
 
                 // optional TODO set nodeInstance selection
@@ -237,29 +236,25 @@ public class SituationTriggerRegistration {
                 final String situationsAPIVar = this.handler.addGlobalStringVariable(situationsAPIVarName, plan);
 
                 appendAssignSituationsAPIURLVar(plan, "input", "payload", situationsAPI, situationsAPIVar,
-                                                plan.getBpelMainFlowElement());
+                    plan.getBpelMainFlowElement());
 
                 final String stringReqVar =
                     this.handler.addGlobalStringVariable("situationRegistrationStringVar" + System.currentTimeMillis(),
-                                                         plan);
+                        plan);
 
                 appendAssignTransformXmltoString(plan, varName, stringReqVar, plan.getBpelMainFlowElement(), "SituationTrigger");
 
                 appendAssignRESTPOST(plan, situationsAPIVar, stringReqVar,
-                                     this.handler.addGlobalStringVariable("SituationRegistrationResponse", plan),
-                                     plan.getBpelMainFlowElement());
+                    this.handler.addGlobalStringVariable("SituationRegistrationResponse", plan),
+                    plan.getBpelMainFlowElement());
             }
-
-        }
-        catch (final XPathExpressionException e) {
+        } catch (final XPathExpressionException e) {
             e.printStackTrace();
             return false;
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
             return false;
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
             return false;
         }
@@ -268,18 +263,18 @@ public class SituationTriggerRegistration {
     }
 
     public void appendAssignTransformXmltoString(final BPELPlan plan, final String xmlVar, final String stringVar,
-                                                  final Element elementToAppendBefore, String rootElementName) throws IOException,
-                                                                                       SAXException {
-        final String xpathQuery1 = "ode:dom-to-string(\\$" + xmlVar + "/*[local-name()='"+rootElementName+ "'])";
+                                                 final Element elementToAppendBefore, String rootElementName) throws IOException,
+        SAXException {
+        final String xpathQuery1 = "ode:dom-to-string(\\$" + xmlVar + "/*[local-name()='" + rootElementName + "'])";
         final String xpathQuery2 = "\\$" + stringVar;
 
         Node assign =
             this.fragments.createAssignVarToVarWithXpathQueriesAsNode("transformXMLtoStringVar", xmlVar, null,
-                                                                      stringVar, null, xpathQuery1, xpathQuery2,
-                                                                      "Transforms one xml var to a string var as ODE sets a an xml element as wrapper around complex type when using the rest extension.",
-                                                                      new QName(
-                                                                          "http://www.apache.org/ode/type/extension",
-                                                                          "ode", "ode"));
+                stringVar, null, xpathQuery1, xpathQuery2,
+                "Transforms one xml var to a string var as ODE sets a an xml element as wrapper around complex type when using the rest extension.",
+                new QName(
+                    "http://www.apache.org/ode/type/extension",
+                    "ode", "ode"));
         assign = this.handler.importNode(plan, assign);
         elementToAppendBefore.getParentNode().insertBefore(assign, elementToAppendBefore);
     }
@@ -301,10 +296,10 @@ public class SituationTriggerRegistration {
         final String xpathQuery2 = "\\$" + situationsAPIVarName;
         Node assign =
             this.fragments.createAssignVarToVarWithXpathQueriesAsNode("AssignSituationsAPIUrl", varName, partName,
-                                                                      situationsAPIVarName, null, xpathQuery1,
-                                                                      xpathQuery2,
-                                                                      "Assigns the SituationsAPIURL from Input to the designated Variable",
-                                                                      null);
+                situationsAPIVarName, null, xpathQuery1,
+                xpathQuery2,
+                "Assigns the SituationsAPIURL from Input to the designated Variable",
+                null);
         assign = this.handler.importNode(plan, assign);
         elementToAppendBefore.getParentNode().insertBefore(assign, elementToAppendBefore);
     }
@@ -313,16 +308,16 @@ public class SituationTriggerRegistration {
                                                                        final String serviceInstanceIdVarName,
                                                                        final String situationTriggerReqVarName,
                                                                        final Element elementToAppendBefore) throws IOException,
-                                                                                                            SAXException {
+        SAXException {
         final String xpathQuery1 = "text()";
         final String xpathQuery2 = "//*[local-name()='ServiceInstanceId']";
         Node assign =
             this.fragments.createAssignVarToVarWithXpathQueriesAsNode("assignSituationTriggerReqWithServiceInstanceID",
-                                                                      serviceInstanceIdVarName, null,
-                                                                      situationTriggerReqVarName, null, xpathQuery1,
-                                                                      xpathQuery2,
-                                                                      "Assign the ServiceInstanceID of SituationTrigger Request from ServiceInstanceID inside this BuildPlan",
-                                                                      null);
+                serviceInstanceIdVarName, null,
+                situationTriggerReqVarName, null, xpathQuery1,
+                xpathQuery2,
+                "Assign the ServiceInstanceID of SituationTrigger Request from ServiceInstanceID inside this BuildPlan",
+                null);
 
         assign = this.handler.importNode(plan, assign);
         elementToAppendBefore.getParentNode().insertBefore(assign, elementToAppendBefore);
@@ -331,21 +326,20 @@ public class SituationTriggerRegistration {
     private void appendAssignSituationIdFromInputToSituationIdVar(final BPELPlan plan, final String inputFieldName,
                                                                   final int situationIndex, final String varName,
                                                                   final Element elementToAppendBefore) throws IOException,
-                                                                                                       SAXException {
+        SAXException {
         final String xpathQuery1 = "//*[local-name()='" + inputFieldName + "']/text()";
         final String xpathQuery2 = "text()";
 
         Node assignNode =
             this.fragments.createAssignVarToVarWithXpathQueriesAsNode("AssignSituationIdFromInputToVar", "input",
-                                                                      "payload", varName, null, xpathQuery1,
-                                                                      xpathQuery2,
-                                                                      "Assigning the SituationId of a SituationTrigger based on the input variable to situationId Variable",
-                                                                      null);
+                "payload", varName, null, xpathQuery1,
+                xpathQuery2,
+                "Assigning the SituationId of a SituationTrigger based on the input variable to situationId Variable",
+                null);
 
         assignNode = this.handler.importNode(plan, assignNode);
 
         elementToAppendBefore.getParentNode().insertBefore(assignNode, elementToAppendBefore);
-
     }
 
     private void appendAssignSituationidFromInput(final BPELPlan plan, final String inputFieldName,
@@ -358,15 +352,14 @@ public class SituationTriggerRegistration {
 
         Node assignNode =
             this.fragments.createAssignVarToVarWithXpathQueriesAsNode("AssignSituationIdFromInput", "input", "payload",
-                                                                      situationTriggerRequestVar, null, xpathQuery1,
-                                                                      xpathQuery2,
-                                                                      "Assigning the SituationId of a SituationTrigger based on the input variable",
-                                                                      null);
+                situationTriggerRequestVar, null, xpathQuery1,
+                xpathQuery2,
+                "Assigning the SituationId of a SituationTrigger based on the input variable",
+                null);
 
         assignNode = this.handler.importNode(plan, assignNode);
 
         elementToAppendBefore.getParentNode().insertBefore(assignNode, elementToAppendBefore);
-
     }
 
     private void appendAssignLiteralVariable(final BPELPlan plan, final String xmlLiteral, final String varName,
@@ -378,7 +371,7 @@ public class SituationTriggerRegistration {
 
         Node node =
             this.fragments.createAssignVarWithLiteralAsNode(xmlLiteral, varName,
-                                                            "Appending the initial xml body of a situationtrigger which will be used for registering such a trigger");
+                "Appending the initial xml body of a situationtrigger which will be used for registering such a trigger");
 
         node = this.handler.importNode(plan, node);
         elementToAppendBefore.getParentNode().insertBefore(node, elementToAppendBefore);
@@ -434,8 +427,7 @@ public class SituationTriggerRegistration {
         List<SituationTrigger> triggers = new ArrayList<>();
         try {
             triggers = parseSituationTriggers(serviceTemplate);
-        }
-        catch (final XPathExpressionException e) {
+        } catch (final XPathExpressionException e) {
             e.printStackTrace();
         }
 
@@ -478,7 +470,7 @@ public class SituationTriggerRegistration {
             if (serviceTemplate.getBoundaryDefinitions().getProperties() != null) {
                 if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties() != null) {
                     if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties()
-                                       .getDOMElement() != null) {
+                        .getDOMElement() != null) {
                         return serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().getDOMElement();
                     }
                 }
@@ -510,27 +502,27 @@ public class SituationTriggerRegistration {
 
         final String onActivation =
             getNodeContent(queryNodeSet(situationTriggerElement,
-                                        SituationTrigger.xpath_query_situationtrigger_onActivation).item(0));
+                SituationTrigger.xpath_query_situationtrigger_onActivation).item(0));
         final String isSingleInstance =
             getNodeContent(queryNodeSet(situationTriggerElement,
-                                        SituationTrigger.xpath_query_situationtrigger_isSingleInstance).item(0));
+                SituationTrigger.xpath_query_situationtrigger_isSingleInstance).item(0));
         final String serviceInstanceId =
             getNodeContent(queryNodeSet(situationTriggerElement,
-                                        SituationTrigger.xpath_query_situationtrigger_serviceInstanceId).item(0));
+                SituationTrigger.xpath_query_situationtrigger_serviceInstanceId).item(0));
 
         NodeList nodeInstanceIdList = null;
         if ((nodeInstanceIdList = queryNodeSet(situationTriggerElement,
-                                               SituationTrigger.xpath_query_situationtrigger_nodeInstanceId)).getLength() != 0) {
+            SituationTrigger.xpath_query_situationtrigger_nodeInstanceId)).getLength() != 0) {
             final String nodeInstanceId = getNodeContent(nodeInstanceIdList.item(0));
             trigger.setNodeInstanceId(nodeInstanceId);
         }
 
         final String interfaceName =
             getNodeContent(queryNodeSet(situationTriggerElement,
-                                        SituationTrigger.xpath_query_situationtrigger_interfaceName).item(0));
+                SituationTrigger.xpath_query_situationtrigger_interfaceName).item(0));
         final String operationName =
             getNodeContent(queryNodeSet(situationTriggerElement,
-                                        SituationTrigger.xpath_query_situationtrigger_operationName).item(0));
+                SituationTrigger.xpath_query_situationtrigger_operationName).item(0));
         final List<Triplet<String, String, String>> inputParameters =
             parseParameters(situationTriggerElement, SituationTrigger.xpath_query_situationtrigger_inputParameters);
 
@@ -570,10 +562,10 @@ public class SituationTriggerRegistration {
                 final Element situationElement = (Element) situationElements.item(i);
                 final String situationTemplateId =
                     getNodeContent(queryNodeSet(situationElement,
-                                                SituationTrigger.xpath_query_situations_situationTemplateId).item(0));
+                        SituationTrigger.xpath_query_situations_situationTemplateId).item(0));
                 final String thingId =
                     getNodeContent(queryNodeSet(situationElement,
-                                                SituationTrigger.xpath_query_situations_thingId).item(0));
+                        SituationTrigger.xpath_query_situations_thingId).item(0));
                 situations.add(new Situation(situationTemplateId, thingId,
                     Boolean.valueOf(situationElement.getAttribute("fromInput"))));
             }

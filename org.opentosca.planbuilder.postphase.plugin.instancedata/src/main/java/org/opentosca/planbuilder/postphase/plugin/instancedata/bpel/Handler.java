@@ -41,14 +41,12 @@ import org.xml.sax.SAXException;
 
 /**
  * <p>
- * This class contains all logic to append BPEL code which updates the InstanceData of a
- * NodeTemplate
+ * This class contains all logic to append BPEL code which updates the InstanceData of a NodeTemplate
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class Handler {
 
@@ -66,8 +64,7 @@ public class Handler {
             this.fragments = new Fragments();
             this.bpelFrags = new BPELProcessFragments();
             this.invoker = new BPELInvokerPlugin();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
     }
@@ -208,14 +205,11 @@ public class Handler {
                     // send the state before the assign of the invoker request
                     // is made
                     bpelAssignNode.getParentNode().insertBefore(extActiv, bpelAssignNode);
-                }
-                catch (final IOException e2) {
+                } catch (final IOException e2) {
                     e2.printStackTrace();
-                }
-                catch (final SAXException e) {
+                } catch (final SAXException e) {
                     e.printStackTrace();
-                }
-                catch (final ParserConfigurationException e) {
+                } catch (final ParserConfigurationException e) {
                     e.printStackTrace();
                 }
             }
@@ -248,7 +242,7 @@ public class Handler {
 
                     // insert assign after the receive
                     assignNode = invokerReceiveElement.getParentNode()
-                                                      .insertBefore(assignNode, invokerReceiveElement.getNextSibling());
+                        .insertBefore(assignNode, invokerReceiveElement.getNextSibling());
 
                     // create PUT activity
                     final String bpelString =
@@ -258,19 +252,14 @@ public class Handler {
 
                     // insert REST call after the assign
                     invokerReceiveElement.getParentNode().insertBefore(extActiv, assignNode.getNextSibling());
-
-                }
-                catch (final IOException e2) {
+                } catch (final IOException e2) {
                     e2.printStackTrace();
-                }
-                catch (final SAXException e) {
+                } catch (final SAXException e) {
                     e.printStackTrace();
-                }
-                catch (final ParserConfigurationException e) {
+                } catch (final ParserConfigurationException e) {
                     e.printStackTrace();
                 }
             }
-
         }
 
         // needs property update only if the node has properties
@@ -283,12 +272,10 @@ public class Handler {
                     this.fragments.generateInstancePropertiesGETAsNode(nodeInstanceURLVarName, restCallResponseVarName);
                 nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
                 context.getPostPhaseElement().appendChild(nodeInstancePropsGETNode);
-            }
-            catch (final SAXException e1) {
+            } catch (final SAXException e1) {
                 e1.printStackTrace();
                 return false;
-            }
-            catch (final IOException e1) {
+            } catch (final IOException e1) {
                 e1.printStackTrace();
                 return false;
             }
@@ -306,15 +293,13 @@ public class Handler {
                 // has
                 // proper format
                 Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-                                                                                           propertyVarNameToDOMMapping);
+                    propertyVarNameToDOMMapping);
                 assignNode = context.importNode(assignNode);
                 context.getPostPhaseElement().appendChild(assignNode);
-            }
-            catch (final SAXException e) {
+            } catch (final SAXException e) {
                 e.printStackTrace();
                 return false;
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -322,15 +307,13 @@ public class Handler {
             // generate BPEL4RESTLight PUT request to update the instance data
             try {
                 Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-                                                                                                nodeInstanceURLVarName);
+                    nodeInstanceURLVarName);
                 bpel4restPUTNode = context.importNode(bpel4restPUTNode);
                 context.getPostPhaseElement().appendChild(bpel4restPUTNode);
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 return false;
-            }
-            catch (final SAXException e) {
+            } catch (final SAXException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -392,14 +375,11 @@ public class Handler {
                     // send the state before the assign of the invoker request
                     // is made
                     bpelAssignNode.getParentNode().insertBefore(extActiv, bpelAssignNode);
-                }
-                catch (final IOException e2) {
+                } catch (final IOException e2) {
                     e2.printStackTrace();
-                }
-                catch (final SAXException e) {
+                } catch (final SAXException e) {
                     e.printStackTrace();
-                }
-                catch (final ParserConfigurationException e) {
+                } catch (final ParserConfigurationException e) {
                     e.printStackTrace();
                 }
             }
@@ -432,7 +412,7 @@ public class Handler {
 
                     // insert assign after the receive
                     assignNode = invokerReceiveElement.getParentNode()
-                                                      .insertBefore(assignNode, invokerReceiveElement.getNextSibling());
+                        .insertBefore(assignNode, invokerReceiveElement.getNextSibling());
 
                     // create PUT activity
                     final String bpelString =
@@ -442,19 +422,14 @@ public class Handler {
 
                     // insert REST call after the assign
                     invokerReceiveElement.getParentNode().insertBefore(extActiv, assignNode.getNextSibling());
-
-                }
-                catch (final IOException e2) {
+                } catch (final IOException e2) {
                     e2.printStackTrace();
-                }
-                catch (final SAXException e) {
+                } catch (final SAXException e) {
                     e.printStackTrace();
-                }
-                catch (final ParserConfigurationException e) {
+                } catch (final ParserConfigurationException e) {
                     e.printStackTrace();
                 }
             }
-
         }
 
         // needs property update only if the node has properties
@@ -467,12 +442,10 @@ public class Handler {
                     this.fragments.generateInstancePropertiesGETAsNode(relationInstanceURLVarName, restCallResponseVarName);
                 nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
                 context.getPostPhaseElement().appendChild(nodeInstancePropsGETNode);
-            }
-            catch (final SAXException e1) {
+            } catch (final SAXException e1) {
                 e1.printStackTrace();
                 return false;
-            }
-            catch (final IOException e1) {
+            } catch (final IOException e1) {
                 e1.printStackTrace();
                 return false;
             }
@@ -490,15 +463,13 @@ public class Handler {
                 // has
                 // proper format
                 Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-                                                                                           propertyVarNameToDOMMapping);
+                    propertyVarNameToDOMMapping);
                 assignNode = context.importNode(assignNode);
                 context.getPostPhaseElement().appendChild(assignNode);
-            }
-            catch (final SAXException e) {
+            } catch (final SAXException e) {
                 e.printStackTrace();
                 return false;
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -506,15 +477,13 @@ public class Handler {
             // generate BPEL4RESTLight PUT request to update the instance data
             try {
                 Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-                                                                                                relationInstanceURLVarName);
+                    relationInstanceURLVarName);
                 bpel4restPUTNode = context.importNode(bpel4restPUTNode);
                 context.getPostPhaseElement().appendChild(bpel4restPUTNode);
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 return false;
-            }
-            catch (final SAXException e) {
+            } catch (final SAXException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -541,19 +510,16 @@ public class Handler {
         try {
             final String bpelString =
                 this.fragments.generateBPEL4RESTLightNodeInstancePOST(targetServiceTemplateUrlVar,
-                                                                      targetServiceInstanceIdVar,
-                                                                      targetNodeTemplate.getId(), restCallResponseVar);
+                    targetServiceInstanceIdVar,
+                    targetNodeTemplate.getId(), restCallResponseVar);
             Node createNodeInstanceExActiv = ModelUtils.string2dom(bpelString);
             createNodeInstanceExActiv = targetContext.importNode(createNodeInstanceExActiv);
             targetContext.getPrePhaseElement().appendChild(createNodeInstanceExActiv);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -566,19 +532,16 @@ public class Handler {
             // save nodeInstance url from response
             final String bpelString =
                 this.fragments.generateAssignFromNodeInstancePOSTResponseToStringVar(targetNodeInstanceUrlVar,
-                                                                                     targetNodeInstanceIdVar,
-                                                                                     restCallResponseVar);
+                    targetNodeInstanceIdVar,
+                    restCallResponseVar);
             Node assignNodeInstanceUrl = ModelUtils.string2dom(bpelString);
             assignNodeInstanceUrl = targetContext.importNode(assignNodeInstanceUrl);
             targetContext.getPrePhaseElement().appendChild(assignNodeInstanceUrl);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -586,8 +549,8 @@ public class Handler {
         /* load properties and state from old instance to new instance */
         if (hasProps) {
             this.appendUpdatePropertiesFromSourceToTarget(sourceContext, sourceNodeTemplate,
-                                                          sourceNodeInstanceURLVarName, targetNodeInstanceUrlVar,
-                                                          restCallResponseVar, targetContext.getPostPhaseElement());
+                sourceNodeInstanceURLVarName, targetNodeInstanceUrlVar,
+                restCallResponseVar, targetContext.getPostPhaseElement());
         }
 
         this.appendGetStateToPostPhase(targetContext, sourceNodeInstanceURLVarName, stateVar);
@@ -598,10 +561,10 @@ public class Handler {
     }
 
     /**
-     * Appends BPEL Code that updates InstanceData for the given NodeTemplate. Needs initialization code
-     * on the global level in the plan. This will be checked and appended if needed.
+     * Appends BPEL Code that updates InstanceData for the given NodeTemplate. Needs initialization code on the global
+     * level in the plan. This will be checked and appended if needed.
      *
-     * @param context the TemplateContext of the NodeTemplate
+     * @param context      the TemplateContext of the NodeTemplate
      * @param nodeTemplate the NodeTemplate to handle
      * @return true iff appending all BPEL code was successful
      */
@@ -649,20 +612,17 @@ public class Handler {
             // create bpel extension activity and append
             final String bpelString =
                 this.fragments.generateBPEL4RESTLightNodeInstancePOST(serviceTemplateUrlVarName,
-                                                                      serviceInstanceIDVarName,
-                                                                      context.getNodeTemplate().getId(),
-                                                                      restCallResponseVarName);
+                    serviceInstanceIDVarName,
+                    context.getNodeTemplate().getId(),
+                    restCallResponseVarName);
             Node createNodeInstanceExActiv = ModelUtils.string2dom(bpelString);
             createNodeInstanceExActiv = context.importNode(createNodeInstanceExActiv);
             context.getPrePhaseElement().appendChild(createNodeInstanceExActiv);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -696,19 +656,16 @@ public class Handler {
             // save nodeInstance url from response
             final String bpelString =
                 this.fragments.generateAssignFromNodeInstancePOSTResponseToStringVar(nodeInstanceURLVarName,
-                                                                                     nodeInstanceIDVarName,
-                                                                                     restCallResponseVarName);
+                    nodeInstanceIDVarName,
+                    restCallResponseVarName);
             Node assignNodeInstanceUrl = ModelUtils.string2dom(bpelString);
             assignNodeInstanceUrl = context.importNode(assignNodeInstanceUrl);
             context.getPrePhaseElement().appendChild(assignNodeInstanceUrl);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -768,14 +725,11 @@ public class Handler {
                     // send the state before the assign of the invoker request
                     // is made
                     bpelAssignNode.getParentNode().insertBefore(extActiv, bpelAssignNode);
-                }
-                catch (final IOException e2) {
+                } catch (final IOException e2) {
                     e2.printStackTrace();
-                }
-                catch (final SAXException e) {
+                } catch (final SAXException e) {
                     e.printStackTrace();
-                }
-                catch (final ParserConfigurationException e) {
+                } catch (final ParserConfigurationException e) {
                     e.printStackTrace();
                 }
             }
@@ -812,7 +766,7 @@ public class Handler {
 
                     // insert assign after the receive
                     assignNode = invokerReceiveElement.getParentNode()
-                                                      .insertBefore(assignNode, invokerReceiveElement.getNextSibling());
+                        .insertBefore(assignNode, invokerReceiveElement.getNextSibling());
 
                     // create PUT activity
                     final String bpelString =
@@ -823,25 +777,20 @@ public class Handler {
                     // insert REST call after the assign
                     final Element afterElement =
                         (Element) invokerReceiveElement.getParentNode().insertBefore(extActiv,
-                                                                                     assignNode.getNextSibling());
+                            assignNode.getNextSibling());
 
                     if (hasProps) {
                         appendUpdateProperties(context, nodeTemplate, nodeInstanceURLVarName, restCallResponseVarName,
-                                               afterElement.getParentNode());
+                            afterElement.getParentNode());
                     }
-
-                }
-                catch (final IOException e2) {
+                } catch (final IOException e2) {
                     e2.printStackTrace();
-                }
-                catch (final SAXException e) {
+                } catch (final SAXException e) {
                     e.printStackTrace();
-                }
-                catch (final ParserConfigurationException e) {
+                } catch (final ParserConfigurationException e) {
                     e.printStackTrace();
                 }
             }
-
         }
 
         /*
@@ -870,14 +819,11 @@ public class Handler {
 
                 context.getPostPhaseElement().appendChild(assignNode);
                 context.getPostPhaseElement().appendChild(extActiv);
-            }
-            catch (final IOException e2) {
+            } catch (final IOException e2) {
                 e2.printStackTrace();
-            }
-            catch (final SAXException e) {
+            } catch (final SAXException e) {
                 e.printStackTrace();
-            }
-            catch (final ParserConfigurationException e) {
+            } catch (final ParserConfigurationException e) {
                 e.printStackTrace();
             }
         }
@@ -887,7 +833,7 @@ public class Handler {
             final Element postPhaseElement = context.getPostPhaseElement();
             // make a GET on the nodeInstance properties
             appendUpdateProperties(context, nodeTemplate, nodeInstanceURLVarName, restCallResponseVarName,
-                                   postPhaseElement);
+                postPhaseElement);
         }
 
         // add progression log message
@@ -911,14 +857,11 @@ public class Handler {
                 this.fragments.generateBPEL4RESTLightGETInstanceStateAsNode(instanceURLVar, stateVarName);
             getStateNode = context.importNode(getStateNode);
             toAppendAsChild.appendChild(getStateNode);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
         }
-
     }
 
     private void appendStateUpdateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName,
@@ -940,20 +883,17 @@ public class Handler {
             Node extActiv = ModelUtils.string2dom(bpelString);
             extActiv = context.importNode(extActiv);
             element.appendChild(extActiv);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
     }
 
     private void appendStateUpdateToPostPhase(BPELPlanContext context, String nodeRelationInstanceURLVarName,
-                                             String stateVarName, String stateToSet) {
+                                              String stateVarName, String stateToSet) {
         this.appendStateUpdateAsChild(context, nodeRelationInstanceURLVarName, stateVarName, stateToSet, context.getPostPhaseElement());
     }
 
@@ -969,7 +909,7 @@ public class Handler {
             final BPELProcessFragments frag = new BPELProcessFragments();
             Node assignNode =
                 frag.createAssignXpathQueryToStringVarFragmentAsNode("assignSetNodeState" + System.currentTimeMillis(),
-                                                                     "string('" + stateToSet + "')", stateVarName);
+                    "string('" + stateToSet + "')", stateVarName);
             assignNode = context.importNode(assignNode);
             parentElement.appendChild(assignNode);
 
@@ -979,14 +919,11 @@ public class Handler {
             Node extActiv = ModelUtils.string2dom(bpelString);
             extActiv = context.importNode(extActiv);
             parentElement.appendChild(extActiv);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
     }
@@ -1010,15 +947,13 @@ public class Handler {
             // fetch properties
             Node nodeInstancePropsGETNode =
                 this.fragments.generateInstancePropertiesGETAsNode(sourceNodeInstanceURLVarName,
-                                                                   restCallResponseVarName);
+                    restCallResponseVarName);
             nodeInstancePropsGETNode = sourceNodeContext.importNode(nodeInstancePropsGETNode);
             appendAsChildElement.appendChild(nodeInstancePropsGETNode);
-        }
-        catch (final SAXException e1) {
+        } catch (final SAXException e1) {
             e1.printStackTrace();
             return false;
-        }
-        catch (final IOException e1) {
+        } catch (final IOException e1) {
             e1.printStackTrace();
             return false;
         }
@@ -1036,15 +971,13 @@ public class Handler {
             // has
             // proper format
             Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-                                                                                       propertyVarNameToDOMMapping);
+                propertyVarNameToDOMMapping);
             assignNode = sourceNodeContext.importNode(assignNode);
             appendAsChildElement.appendChild(assignNode);
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
             return false;
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
             return false;
         }
@@ -1053,15 +986,13 @@ public class Handler {
         try {
             Node bpel4restPUTNode =
                 this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-                                                                        targetNodeInstanceUrlVarName);
+                    targetNodeInstanceUrlVarName);
             bpel4restPUTNode = sourceNodeContext.importNode(bpel4restPUTNode);
             appendAsChildElement.appendChild(bpel4restPUTNode);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
             return false;
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
             return false;
         }
@@ -1077,12 +1008,10 @@ public class Handler {
                 this.fragments.generateInstancePropertiesGETAsNode(nodeInstanceURLVarName, restCallResponseVarName);
             nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
             appendAsChildElement.appendChild(nodeInstancePropsGETNode);
-        }
-        catch (final SAXException e1) {
+        } catch (final SAXException e1) {
             e1.printStackTrace();
             return false;
-        }
-        catch (final IOException e1) {
+        } catch (final IOException e1) {
             e1.printStackTrace();
             return false;
         }
@@ -1100,15 +1029,13 @@ public class Handler {
             // has
             // proper format
             Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-                                                                                       propertyVarNameToDOMMapping);
+                propertyVarNameToDOMMapping);
             assignNode = context.importNode(assignNode);
             appendAsChildElement.appendChild(assignNode);
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
             return false;
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
             return false;
         }
@@ -1116,15 +1043,13 @@ public class Handler {
         // generate BPEL4RESTLight PUT request to update the instance data
         try {
             Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-                                                                                            nodeInstanceURLVarName);
+                nodeInstanceURLVarName);
             bpel4restPUTNode = context.importNode(bpel4restPUTNode);
             appendAsChildElement.appendChild(bpel4restPUTNode);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
             return false;
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
             return false;
         }
@@ -1158,7 +1083,7 @@ public class Handler {
         Element injectionPreElement = null;
         Element injectionPostElement = null;
         if (ModelUtils.getRelationshipTypeHierarchy(targetRelationshipTemplate.getRelationshipType())
-                      .contains(Types.connectsToRelationType)) {
+            .contains(Types.connectsToRelationType)) {
             injectionPreElement = targetContext.getPrePhaseElement();
             injectionPostElement = targetContext.getPostPhaseElement();
         } else {
@@ -1180,9 +1105,8 @@ public class Handler {
                 targetContext.importQName(createRelationshipTemplateInstanceRequestQName);
 
             targetContext.addGlobalVariable(createRelTInstanceReqVarName, BPELPlan.VariableType.ELEMENT,
-                                            createRelationshipTemplateInstanceRequestQName);
-        }
-        catch (final IOException e3) {
+                createRelationshipTemplateInstanceRequestQName);
+        } catch (final IOException e3) {
             // TODO Auto-generated catch block
             e3.printStackTrace();
         }
@@ -1192,22 +1116,19 @@ public class Handler {
             // create bpel extension activity and append
             final String bpelString =
                 this.fragments.generateBPEL4RESTLightRelationInstancePOST(targetServiceTemplateUrlVarName,
-                                                                          targetRelationshipTemplate.getId(),
-                                                                          createRelTInstanceReqVarName,
-                                                                          restCallResponseVarName,
-                                                                          targetServiceRelationSourceNodeInstanceIdVar,
-                                                                          targetServiceRelationTargetNodeInstanceIdVar, targetServiceInstanceIdVarName);
+                    targetRelationshipTemplate.getId(),
+                    createRelTInstanceReqVarName,
+                    restCallResponseVarName,
+                    targetServiceRelationSourceNodeInstanceIdVar,
+                    targetServiceRelationTargetNodeInstanceIdVar, targetServiceInstanceIdVarName);
             Node createRelationInstanceExActiv = ModelUtils.string2dom(bpelString);
             createRelationInstanceExActiv = targetContext.importNode(createRelationInstanceExActiv);
             injectionPreElement.appendChild(createRelationInstanceExActiv);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -1225,19 +1146,16 @@ public class Handler {
             // save relationInstance url from response
             final String bpelString =
                 this.fragments.generateAssignFromRelationInstancePOSTResponseToStringVar(createRelationInstanceUrl,
-                                                                                         createdRelationInstanceId,
-                                                                                         restCallResponseVarName);
+                    createdRelationInstanceId,
+                    restCallResponseVarName);
             Node assignRelationInstanceUrl = ModelUtils.string2dom(bpelString);
             assignRelationInstanceUrl = targetContext.importNode(assignRelationInstanceUrl);
             injectionPreElement.appendChild(assignRelationInstanceUrl);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -1252,12 +1170,10 @@ public class Handler {
                     this.fragments.generateInstancePropertiesGETAsNode(oldRelationInstanceUrl, restCallResponseVarName);
                 nodeInstancePropsGETNode = targetContext.importNode(nodeInstancePropsGETNode);
                 injectionPostElement.appendChild(nodeInstancePropsGETNode);
-            }
-            catch (final SAXException e1) {
+            } catch (final SAXException e1) {
                 e1.printStackTrace();
                 return false;
-            }
-            catch (final IOException e1) {
+            } catch (final IOException e1) {
                 e1.printStackTrace();
                 return false;
             }
@@ -1275,15 +1191,13 @@ public class Handler {
                 // has
                 // proper format
                 Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-                                                                                           propertyVarNameToDOMMapping);
+                    propertyVarNameToDOMMapping);
                 assignNode = targetContext.importNode(assignNode);
                 injectionPostElement.appendChild(assignNode);
-            }
-            catch (final SAXException e) {
+            } catch (final SAXException e) {
                 e.printStackTrace();
                 return false;
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -1292,15 +1206,13 @@ public class Handler {
             try {
                 Node bpel4restPUTNode =
                     this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-                                                                            createRelationInstanceUrl);
+                        createRelationInstanceUrl);
                 bpel4restPUTNode = targetContext.importNode(bpel4restPUTNode);
                 injectionPostElement.appendChild(bpel4restPUTNode);
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 return false;
-            }
-            catch (final SAXException e) {
+            } catch (final SAXException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -1329,7 +1241,7 @@ public class Handler {
         }
 
         final String serviceInstanceIdVarName = context.getServiceInstanceIDVarName();
-        if(serviceInstanceIdVarName == null) {
+        if (serviceInstanceIdVarName == null) {
             return false;
         }
 
@@ -1364,7 +1276,7 @@ public class Handler {
             context.findInstanceIDVar(context.getRelationshipTemplate().getTarget().getId(), true);
 
         if (ModelUtils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType())
-                      .contains(Types.connectsToRelationType)) {
+            .contains(Types.connectsToRelationType)) {
             injectionPreElement = context.getPrePhaseElement();
             injectionPostElement = context.getPostPhaseElement();
         } else {
@@ -1374,8 +1286,8 @@ public class Handler {
 
             // Right now the knowledge of DEFROST and PROVISIONING activities is to hard of an assumption, if you ask me
             BPELPlanContext sourceContext = context.createContext(sourceNodeTemplate, ActivityType.PROVISIONING, ActivityType.DEFROST);
-            if(sourceContext == null) {
-                LOG.error("Couldn't create context for sourceNodeTemplate {}" , sourceNodeTemplate.toString());
+            if (sourceContext == null) {
+                LOG.error("Couldn't create context for sourceNodeTemplate {}", sourceNodeTemplate.toString());
                 return false;
             }
             injectionPreElement = sourceContext.getPostPhaseElement();
@@ -1402,9 +1314,8 @@ public class Handler {
                 context.importQName(createRelationshipTemplateInstanceRequestQName);
 
             context.addGlobalVariable(createRelTInstanceReqVarName, BPELPlan.VariableType.ELEMENT,
-                                      createRelationshipTemplateInstanceRequestQName);
-        }
-        catch (final IOException e3) {
+                createRelationshipTemplateInstanceRequestQName);
+        } catch (final IOException e3) {
             // TODO Auto-generated catch block
             e3.printStackTrace();
         }
@@ -1418,21 +1329,18 @@ public class Handler {
             // create bpel extension activity and append
             final String bpelString =
                 this.fragments.generateBPEL4RESTLightRelationInstancePOST(serviceTemplateUrlVarName,
-                                                                          context.getRelationshipTemplate().getId(),
-                                                                          createRelTInstanceReqVarName,
-                                                                          restCallResponseVarName,
-                                                                          sourceInstanceVarName, targetInstanceVarName,serviceInstanceIdVarName);
+                    context.getRelationshipTemplate().getId(),
+                    createRelTInstanceReqVarName,
+                    restCallResponseVarName,
+                    sourceInstanceVarName, targetInstanceVarName, serviceInstanceIdVarName);
             Node createRelationInstanceExActiv = ModelUtils.string2dom(bpelString);
             createRelationInstanceExActiv = context.importNode(createRelationInstanceExActiv);
             injectionPreElement.appendChild(createRelationInstanceExActiv);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -1467,19 +1375,16 @@ public class Handler {
             // save relationInstance data from response
             final String bpelString =
                 this.fragments.generateAssignFromRelationInstancePOSTResponseToStringVar(relationInstanceURLVarName,
-                                                                                         relationInstanceIDVarName,
-                                                                                         restCallResponseVarName);
+                    relationInstanceIDVarName,
+                    restCallResponseVarName);
             Node assignRelationInstanceUrl = ModelUtils.string2dom(bpelString);
             assignRelationInstanceUrl = context.importNode(assignRelationInstanceUrl);
             injectionPreElement.appendChild(assignRelationInstanceUrl);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -1503,14 +1408,11 @@ public class Handler {
             Node extActiv = ModelUtils.string2dom(bpelString);
             extActiv = context.importNode(extActiv);
             injectionPreElement.appendChild(extActiv);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
 
@@ -1518,9 +1420,9 @@ public class Handler {
             // set state
             final BPELProcessFragments frag = new BPELProcessFragments();
             Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-                                                                                   "assignFinalNodeState"
-                                                                                       + System.currentTimeMillis(),
-                                                                                   "string('CREATED')", stateVarName);
+                "assignFinalNodeState"
+                    + System.currentTimeMillis(),
+                "string('CREATED')", stateVarName);
             assignNode = context.importNode(assignNode);
 
             // create PUT activity
@@ -1531,14 +1433,11 @@ public class Handler {
 
             injectionPostElement.appendChild(assignNode);
             injectionPostElement.appendChild(extActiv);
-        }
-        catch (final IOException e2) {
+        } catch (final IOException e2) {
             e2.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
 
@@ -1550,15 +1449,13 @@ public class Handler {
                 // fetch properties
                 Node nodeInstancePropsGETNode =
                     this.fragments.generateInstancePropertiesGETAsNode(relationInstanceURLVarName,
-                                                                       restCallResponseVarName);
+                        restCallResponseVarName);
                 nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
                 injectionPostElement.appendChild(nodeInstancePropsGETNode);
-            }
-            catch (final SAXException e1) {
+            } catch (final SAXException e1) {
                 e1.printStackTrace();
                 return false;
-            }
-            catch (final IOException e1) {
+            } catch (final IOException e1) {
                 e1.printStackTrace();
                 return false;
             }
@@ -1576,15 +1473,13 @@ public class Handler {
                 // has
                 // proper format
                 Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-                                                                                           propertyVarNameToDOMMapping);
+                    propertyVarNameToDOMMapping);
                 assignNode = context.importNode(assignNode);
                 injectionPostElement.appendChild(assignNode);
-            }
-            catch (final SAXException e) {
+            } catch (final SAXException e) {
                 e.printStackTrace();
                 return false;
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -1593,15 +1488,13 @@ public class Handler {
             try {
                 Node bpel4restPUTNode =
                     this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-                                                                            relationInstanceURLVarName);
+                        relationInstanceURLVarName);
                 bpel4restPUTNode = context.importNode(bpel4restPUTNode);
                 injectionPostElement.appendChild(bpel4restPUTNode);
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 return false;
-            }
-            catch (final SAXException e) {
+            } catch (final SAXException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -1667,9 +1560,8 @@ public class Handler {
         try {
 
             operationName = (String) xpath.evaluate(".//*[local-name()='OperationName']/node()", assignElement,
-                                                    XPathConstants.STRING);
-        }
-        catch (final XPathExpressionException e) {
+                XPathConstants.STRING);
+        } catch (final XPathExpressionException e) {
             e.printStackTrace();
         }
 
@@ -1689,9 +1581,7 @@ public class Handler {
                     assignElements.add((Element) nodeList.item(i));
                 }
             }
-
-        }
-        catch (final XPathExpressionException e) {
+        } catch (final XPathExpressionException e) {
             e.printStackTrace();
         }
 
@@ -1700,14 +1590,13 @@ public class Handler {
 
     /**
      * <p>
-     * This method is initializing a Map from BpelVariableName to a DomElement of the given Properties
-     * and Context.
+     * This method is initializing a Map from BpelVariableName to a DomElement of the given Properties and Context.
      * </p>
      *
-     * @param context BPELPlanContext
+     * @param context    BPELPlanContext
      * @param properties AbstractProperties with proper DOM Element
-     * @return a Map<String,Node> of BpelVariableName to DOM Node. Maybe null if the mapping is not
-     *         complete, e.g. some bpel variable was not found or the properties weren't parsed right.
+     * @return a Map<String,Node> of BpelVariableName to DOM Node. Maybe null if the mapping is not complete, e.g. some
+     * bpel variable was not found or the properties weren't parsed right.
      */
     private Map<String, Node> buildMappingsFromVarNameToDomElement(final PlanContext context,
                                                                    AbstractNodeTemplate nodeTemplate) {
@@ -1723,11 +1612,10 @@ public class Handler {
             if (child.getNodeType() == Node.ELEMENT_NODE) {
                 final String propertyName = child.getLocalName();
                 final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
-                if(propVarName != null) {
+                if (propVarName != null) {
                     mapping.put(propVarName, child);
                 }
             }
-
         }
         return mapping;
     }
@@ -1748,21 +1636,19 @@ public class Handler {
                 final String propVarName = context.getVariableNameOfProperty(relationshipTemplate, propertyName);
                 mapping.put(propVarName, child);
             }
-
         }
         return mapping;
     }
 
     /**
      * <p>
-     * Checks the given AbstractProperties against following criteria: Nullpointer-Check for properties
-     * itself and its given DOM Element, followed by whether the dom element has any child elements (if
-     * not, we have no properties/bpel-variables defined)
+     * Checks the given AbstractProperties against following criteria: Nullpointer-Check for properties itself and its
+     * given DOM Element, followed by whether the dom element has any child elements (if not, we have no
+     * properties/bpel-variables defined)
      * </p>
      *
      * @param properties AbstractProperties of an AbstractNodeTemplate or AbstractRelationshipTemplate
-     * @return true iff properties and properties.getDomElement() != null and DomElement.hasChildNodes()
-     *         == true
+     * @return true iff properties and properties.getDomElement() != null and DomElement.hasChildNodes() == true
      */
     private boolean checkProperties(final AbstractProperties properties) {
         if (properties == null) {
@@ -1817,12 +1703,10 @@ public class Handler {
                     + System.currentTimeMillis(), xPathReplacementCmd, cmdVar.getVariableName());
             assignPlaceholder = context.importNode(assignPlaceholder);
             context.getPrePhaseElement().appendChild(assignPlaceholder);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -1877,14 +1761,14 @@ public class Handler {
 
         // generate call to method
         context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT, inputParams,
-                                 outputParams, context.getPrePhaseElement());
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT, inputParams,
+            outputParams, context.getPrePhaseElement());
 
         // check result and eventually throw error
 
         Node ifTrueThrowError =
             this.bpelFrags.createIfTrueThrowsError("contains($" + outputVar.getVariableName() + ",'false')",
-                                                   new QName("http://opentosca.org/plans/faults", "PasswordWeak"));
+                new QName("http://opentosca.org/plans/faults", "PasswordWeak"));
         ifTrueThrowError = context.importNode(ifTrueThrowError);
         context.getPrePhaseElement().appendChild(ifTrueThrowError);
 
@@ -1929,7 +1813,7 @@ public class Handler {
                     for (final AbstractOperation op : iface.getOperations()) {
                         if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
                             | op.getName()
-                                .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)) {
+                            .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)) {
                             return node;
                         }
                     }

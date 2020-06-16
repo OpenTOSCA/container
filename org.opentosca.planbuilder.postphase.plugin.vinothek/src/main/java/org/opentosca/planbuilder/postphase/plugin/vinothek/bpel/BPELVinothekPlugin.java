@@ -42,8 +42,7 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
     public BPELVinothekPlugin() {
         try {
             this.handler = new BPELVinothekPluginHandler();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -188,7 +187,6 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
                 // right spots
                 return nodeImpl;
             }
-
         }
         return null;
     }
@@ -245,5 +243,4 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
                                    AbstractRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
-
 }

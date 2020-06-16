@@ -17,18 +17,17 @@ import java.util.List;
  */
 public abstract class AbstractServiceTemplateProperties {
 
-  /**
-   * Returns the PropertyMappings of this ServiceTemplate Properties
-   *
-   * @return a List of AbstractPropertyMappings
-   */
-  public abstract List<AbstractPropertyMapping> getPropertyMappings();
+    /**
+     * Returns the PropertyMappings of this ServiceTemplate Properties
+     *
+     * @return a List of AbstractPropertyMappings
+     */
+    public abstract List<AbstractPropertyMapping> getPropertyMappings();
 
-  /**
-   * Returns the Properties of this ServiceTemplate Properties
-   *
-   * @return an AbstractProperties of this ServiceTemplate Properties
-   */
-  public abstract AbstractProperties getProperties();
-
+    /**
+     * Returns the Properties of this ServiceTemplate Properties
+     *
+     * @return an AbstractProperties of this ServiceTemplate Properties
+     */
+    public abstract AbstractProperties getProperties();
 }
