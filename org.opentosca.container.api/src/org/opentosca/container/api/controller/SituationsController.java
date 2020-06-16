@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -146,8 +147,20 @@ public class SituationsController {
 
 		return Response.ok(instanceURI).build();
 	}
-
-
+	
+    @DELETE
+    @Consumes({ MediaType.TEXT_PLAIN })
+    @Path("/situations/{situation}")
+	public Response deleteSituation(@PathParam("situation") final Long situationId) {
+	    
+	    boolean removed = this.instanceService.removeSituation(situationId);
+	    
+	    if(removed){	        
+	        return Response.ok().build();
+	    } else {
+	        return Response.status(410).build();
+	    }
+	}
 
 	@POST
 	@Path("/triggers")

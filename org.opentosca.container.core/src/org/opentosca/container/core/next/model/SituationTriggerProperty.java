@@ -2,6 +2,7 @@ package org.opentosca.container.core.next.model;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -13,9 +14,9 @@ public class SituationTriggerProperty extends Property {
 
     private static final long serialVersionUID = -8812520971044865745L;
 
-    public static final String TABLE_NAME = SituationTrigger.TABLE_NAME + "_" + Property.TABLE_NAME;
+    public static final String TABLE_NAME = "SITUATION_TRIGGER_PROPERTY";
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "SITUATION_TRIGGER_ID")
     @JsonIgnore
     private SituationTrigger situationTrigger;

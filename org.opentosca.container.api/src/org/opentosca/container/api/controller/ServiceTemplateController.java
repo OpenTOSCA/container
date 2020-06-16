@@ -1,6 +1,12 @@
 package org.opentosca.container.api.controller;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -12,19 +18,27 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.api.dto.NodeTemplateDTO;
+import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
+import org.opentosca.container.api.dto.request.ServiceTransformRequest;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.service.ServiceTemplateService;
+import org.opentosca.container.api.service.CsarService.AdaptationPlanGenerationResult;
 import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.deployment.tests.DeploymentTestService;
+
+import com.google.common.collect.Lists;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,6 +68,8 @@ public class ServiceTemplateController {
     private ServiceTemplateService serviceTemplateService;
 
     private CsarService csarService;
+    
+    private IOpenToscaControlService controlService;
 
     private DeploymentTestService deploymentTestService;
 
@@ -149,6 +165,42 @@ public class ServiceTemplateController {
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
+    
+    @POST
+    @Path("/{servicetemplate}/transform")
+    @ApiOperation(value = "Generates a plan to adapt service template instances via the given the source and target nodes/relations")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response transformCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
+                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId, @ApiParam(required = true) final ServiceTransformRequest request) {    
+
+        
+        
+        final AdaptationPlanGenerationResult result = this.csarService.generateAdaptationPlan(new CSARID(csar), QName.valueOf(serviceTemplateId), request.getSourceNodeTemplates(), request.getSourceRelationshipTemplates(), request.getTargetNodeTemplates(), request.getTargetRelationshipTemplates());
+        
+        if(result == null) {
+            return Response.serverError().build();
+        }
+        
+        this.controlService.setDeploymentProcessStateStored(result.csarId);
+        boolean success = this.controlService.invokeTOSCAProcessing(result.csarId);
+
+        if (success) {
+            final List<QName> serviceTemplates =
+                this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(result.csarId);
+            for (final QName serviceTemplate : serviceTemplates) {                
+                if (!this.controlService.invokePlanDeployment(result.csarId, serviceTemplate)) {                    
+                    success = false;
+                }
+            }
+        }
+
+        if (success) {            
+            return this.planService.getPlan(result.planId, uriInfo, result.csarId, QName.valueOf(serviceTemplateId), PlanTypes.OTHERMANAGEMENT);            
+        } else {
+            return Response.serverError().build();
+        }
+    }
 
     public void setPlanService(final PlanService planService) {
         this.planService = planService;
@@ -184,5 +236,9 @@ public class ServiceTemplateController {
         // it is manually created in our default implementation of {@link
         // IToscaEngineService}
         this.referenceMapper = this.engineService.getToscaReferenceMapper();
+    }
+    
+    public void setControlService(final IOpenToscaControlService controlService) {
+        this.controlService = controlService;
     }
 }

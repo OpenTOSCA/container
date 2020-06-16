@@ -681,6 +681,14 @@ public class BPELPlanContext extends PlanContext {
     public Element getProvisioningCompensationPhaseElement() {
         return this.templateBuildPlan.getBpelCompensationHandlerScope().getBpelSequenceProvisioningPhaseElement();
     }
+    
+    /**
+     * Returns a BPEL sequence element which is used as the main fault handler sequence of this scope
+     * @return a DOM Element which is a BPEL sequence activity
+     */
+    public Element getProvisioningFaultHandlerPhaseElement() {
+        return this.templateBuildPlan.getBpelFaultHandlerScope().getBpelSequenceProvisioningPhaseElement();
+    }
 
     /**
      * Returns the RelationshipTemplate this context handles

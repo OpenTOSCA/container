@@ -123,7 +123,7 @@ public class Handler {
 
 
 
-    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {               
         final boolean hasProps = checkProperties(nodeTemplate.getProperties());
 
         final String serviceInstanceVarName = context.getServiceInstanceURLVarName();
@@ -342,7 +342,7 @@ public class Handler {
         }
 
         this.appendStateUpdateToPostPhase(context, nodeInstanceURLVarName, stateVarName, lastSetState);
-
+        this.appendFailedStateToFaultHandler(context, nodeInstanceURLVarName);
         return true;
     }
 
@@ -526,7 +526,7 @@ public class Handler {
         }
 
         this.appendStateUpdateToPostPhase(context, relationInstanceURLVarName, stateVarName, lastSetState);
-
+        this.appendFailedStateToFaultHandler(context, relationInstanceURLVarName);
         return true;
     }
 
@@ -599,6 +599,9 @@ public class Handler {
         this.appendStateUpdateToPostPhase(targetContext, targetNodeInstanceUrlVar, stateVar);
         /* set state of old instance to migrated */
         this.appendStateUpdateToPostPhase(sourceContext, sourceNodeInstanceURLVarName, stateVar, "MIGRATED");
+        
+        this.appendFailedStateToFaultHandler(targetContext, targetNodeInstanceUrlVar);
+        this.appendFailedStateToFaultHandler(sourceContext, sourceNodeInstanceURLVarName);
         return true;
     }
 
@@ -898,6 +901,8 @@ public class Handler {
         // add progression log message
         appendProgressionUpdateLogMessage(context, nodeTemplate.getId());
 
+        this.appendFailedStateToFaultHandler(context, nodeInstanceURLVarName);
+        
         return true;
     }
 
@@ -924,6 +929,11 @@ public class Handler {
             e.printStackTrace();
         }
         
+    }
+    
+    private void appendFailedStateToFaultHandler(BPELPlanContext context, String nodeInstanceURLVarName) {
+        String stateVarName = this.createStateVar(context, context.getTemplateId());
+        this.appendStateUpdateAsChild(context, nodeInstanceURLVarName, stateVarName, "ERROR", context.getProvisioningFaultHandlerPhaseElement());                
     }
 
     private void appendStateUpdateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName,
