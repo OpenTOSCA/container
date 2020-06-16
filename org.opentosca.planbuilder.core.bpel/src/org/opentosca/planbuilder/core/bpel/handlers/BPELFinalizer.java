@@ -152,6 +152,7 @@ public class BPELFinalizer {
 
         for (final BPELScope templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
             this.finalizeBPELScope(buildPlan, templateBuildPlan);
+            this.finalizeBPELScope(buildPlan, templateBuildPlan.getBpelFaultHandlerScope());
             this.finalizeBPELScope(buildPlan, templateBuildPlan.getBpelCompensationHandlerScope());
         }
 

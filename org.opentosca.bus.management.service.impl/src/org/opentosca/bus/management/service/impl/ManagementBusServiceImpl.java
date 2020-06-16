@@ -137,12 +137,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             if (Boolean.valueOf(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK)) {
 
-                final long waitTime = System.currentTimeMillis() + 1000;
+                long waitTime = System.currentTimeMillis() + 1000;
                 while (System.currentTimeMillis() < waitTime) {
                 }
+                         
+                respondViaMocking(exchange, message,  csarID, serviceTemplateID, nodeTemplateID, neededInterface,
+                                      neededOperation);               
 
-                respondViaMocking(exchange, csarID, serviceTemplateID, nodeTemplateID, neededInterface,
-                                  neededOperation);
             } else {
                 this.invokeIA(exchange, csarID, serviceTemplateID, serviceTemplateInstanceID, nodeTemplateID,
                               relationship, neededInterface, neededOperation);
@@ -170,9 +171,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
     }
 
-    private void respondViaMocking(final Exchange exchange, final CSARID csarID, final QName serviceTemplateID,
+    private void respondViaMocking(final Exchange exchange,Message message,  final CSARID csarID, final QName serviceTemplateID,
                                    final String nodeTemplateID, final String neededInterface,
                                    final String neededOperation) {
+        
+        
+
         final List<String> outputParams =
             ServiceHandler.toscaEngineService.getOutputParametersOfTypeOperation(csarID,
                                                                                  ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID,
@@ -184,6 +188,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         for (final String outputParam : outputParams) {
             responseMap.put(outputParam, "managementBusMockValue");
+        }
+        
+        final Object params = message.getBody();
+        if (params != null && params instanceof HashMap && ((HashMap) params).values().contains("fault")) {                    
+            responseMap.put("Fault", "managementBusMockFaultValue");
         }
 
         exchange.getIn().setBody(responseMap);

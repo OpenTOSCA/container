@@ -1005,6 +1005,10 @@ public class BPELPlanHandler {
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
                 abstract2bpelMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);
 
+                final BPELScope newFaultHandlerScope =
+                    this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "fault");               
+                newEmpty3SequenceScopeBPELActivity.setBpelFaultHandlerScope(newFaultHandlerScope);
+                
                 final BPELScope newCompensationHandlerScope =
                     this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "compensation");               
                 newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
@@ -1013,6 +1017,10 @@ public class BPELPlanHandler {
                 newEmpty3SequenceScopeBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "");
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
                 abstract2bpelMap.put(rtActivity, newEmpty3SequenceScopeBPELActivity);
+                
+                final BPELScope newFaultHandlerScope =
+                    this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "fault");               
+                newEmpty3SequenceScopeBPELActivity.setBpelFaultHandlerScope(newFaultHandlerScope);
 
                 final BPELScope newCompensationHandlerScope =
                     this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "compensation");
