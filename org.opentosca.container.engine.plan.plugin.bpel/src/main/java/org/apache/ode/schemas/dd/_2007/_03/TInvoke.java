@@ -15,8 +15,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.apache.ode.activityrecovery.FailureHandling;
-
 /**
  * <p>
  * Java class for tInvoke complex type.
@@ -49,14 +47,12 @@ import org.apache.ode.activityrecovery.FailureHandling;
  * </pre>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "tInvoke", propOrder = {"service", "binding", "failureHandling"})
+@XmlType(name = "tInvoke", propOrder = {"service", "binding"})
 public class TInvoke {
 
     @XmlElement(required = true)
     protected TService service;
     protected TInvoke.Binding binding;
-    @XmlElement(namespace = "http://ode.apache.org/activityRecovery")
-    protected FailureHandling failureHandling;
     @XmlAttribute(required = true)
     protected String partnerLink;
     @XmlAttribute
@@ -96,24 +92,6 @@ public class TInvoke {
      */
     public void setBinding(final TInvoke.Binding value) {
         this.binding = value;
-    }
-
-    /**
-     * Gets the value of the failureHandling property.
-     *
-     * @return possible object is {@link FailureHandling }
-     */
-    public FailureHandling getFailureHandling() {
-        return this.failureHandling;
-    }
-
-    /**
-     * Sets the value of the failureHandling property.
-     *
-     * @param value allowed object is {@link FailureHandling }
-     */
-    public void setFailureHandling(final FailureHandling value) {
-        this.failureHandling = value;
     }
 
     /**

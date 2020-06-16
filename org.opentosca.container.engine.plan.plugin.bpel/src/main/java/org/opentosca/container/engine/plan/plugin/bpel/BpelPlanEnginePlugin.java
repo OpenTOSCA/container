@@ -91,7 +91,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     private final CsarStorageService storage;
 
     @Inject
-    // FIXME inject a Spring Environment to read the messages.properties and use these instead of the core settings
     public BpelPlanEnginePlugin(ICoreEndpointService endpointService, CsarStorageService storage) {
         this.endpointService = endpointService;
         this.storage = storage;
