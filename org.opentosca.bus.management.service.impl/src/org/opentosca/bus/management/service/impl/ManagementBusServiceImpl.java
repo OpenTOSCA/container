@@ -583,131 +583,123 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
         LOG.debug("Correlation ID: {}", correlationID);
 
-        
+
         final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
         LOG.debug("CSARID: " + csarID.toString());
 
         if (correlationID != null) {
-         
-        final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
-        LOG.debug("csarInstanceID: {}", serviceInstanceID);
 
-        final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
-        LOG.debug("serviceTemplateID: {}", serviceTemplateID);
+            final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
+            LOG.debug("csarInstanceID: {}", serviceInstanceID);
 
-        final QName planID = message.getHeader(MBHeader.PLANID_QNAME.toString(), QName.class);
-        LOG.debug("planID: {}", planID);
+            final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
+            LOG.debug("serviceTemplateID: {}", serviceTemplateID);
 
-        // get the ServiceTemplateInstance ID Long from the serviceInstanceID URI
-        final Long serviceTemplateInstanceID = Util.determineServiceTemplateInstanceId(serviceInstanceID);
+            final QName planID = message.getHeader(MBHeader.PLANID_QNAME.toString(), QName.class);
+            LOG.debug("planID: {}", planID);
 
-        // generate new unique correlation ID if no ID is passed
-        if (Objects.isNull(correlationID)) {
-            correlationID = PlanInstanceHandler.createCorrelationId();
-            message.setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationID);
-        }
+            // get the ServiceTemplateInstance ID Long from the serviceInstanceID URI
+            final Long serviceTemplateInstanceID = Util.determineServiceTemplateInstanceId(serviceInstanceID);
 
-        // create the instance data for the plan instance to be started
-        PlanInstance plan = PlanInstanceHandler.createPlanInstance(csarID, serviceTemplateID, serviceTemplateInstanceID,
-                                                                   planID, correlationID, message.getBody());
-
-        if (plan != null) {
-            LOG.debug("Plan ID: {}", plan.getTemplateId());
-            LOG.debug("Plan language: {}", plan.getLanguage().toString());
-
-            LOG.debug("Getting endpoint for the plan...");
-            ServiceHandler.endpointService.printPlanEndpoints();
-            final WSDLEndpoint WSDLendpoint =
-                ServiceHandler.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID,
-                                                                        plan.getTemplateId());
-
-            if (WSDLendpoint != null) {
-
-                final URI endpoint = WSDLendpoint.getURI();
-                LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
-
-                // Assumption. Should be checked with ToscaEngine
-                message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
-                message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
-
-                if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
-                    exchange = PluginHandler.callMatchingInvocationPlugin(exchange, "REST",
-                                                                          Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-
-                } else {
-                    exchange = PluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP",
-                                                                          Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-                }
-
-                
-                
-             // write WCET back to Plan
-                final TPlan currentPlan =
-                    ServiceHandler.toscaEngineService.getToscaReferenceMapper()
-                                                     .getPlanForCSARIDAndPlanID(csarID, plan.getTemplateId());
-
-             // add end timestamp and log message with duration
-                event.setEndTimestamp(new Date());
-                final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
-                event.setMessage("Finished plan execution with correlation id " + correlationID + " after " + duration
-                    + "ms");
-                LOG.info("Plan execution duration: {}ms", duration);
-                
-                final SituationTriggerInstanceListener instanceListener = new SituationTriggerInstanceListener();
-                final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan);
-                // if total duration larger than calculatedWCET, use duration
-                if (calculatedWCET > 0 && calculatedWCET < duration) {
-                    currentPlan.setCalculatedWCET(duration);
-                }
-                // if newly calculated WCET is larger than previous WCET, update
-                if (calculatedWCET > currentPlan.getCalculatedWCET()) {
-                    currentPlan.setCalculatedWCET(calculatedWCET);
-                }
-                
-                
-                // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
-                // was executed.
-                if (plan.getType().equals(PlanType.TERMINATION)) {
-                    LOG.debug("Executed plan was a termination plan. Removing endpoints...");
-
-                    final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
-
-                    if (serviceInstance != null) {
-                        deleteEndpointsForServiceInstance(csarID, serviceInstance);
-                    } else {
-                        LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
-                    }
-                }
-            } else {
-                LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!",
-                         plan.getTemplateId(), csarID);
+            // generate new unique correlation ID if no ID is passed
+            if (Objects.isNull(correlationID)) {
+                correlationID = PlanInstanceHandler.createCorrelationId();
+                message.setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationID);
             }
 
-            // add end timestamp and log message with duration
-            event.setEndTimestamp(new Date());
-            final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
-            event.setMessage("Finished plan execution with correlation id " + correlationID + " after " + duration
-                + "ms");
-            LOG.info("Plan execution duration: {}ms", duration);
-            
-            
+            // create the instance data for the plan instance to be started
+            PlanInstance plan =
+                PlanInstanceHandler.createPlanInstance(csarID, serviceTemplateID, serviceTemplateInstanceID, planID,
+                                                       correlationID, message.getBody());
 
-            // update plan in repository with new log event
-            final PlanInstanceRepository repo = new PlanInstanceRepository();
-            plan = repo.findByCorrelationId(correlationID);
-            plan.addEvent(event);
-            repo.update(plan);
+            if (plan != null) {
+                LOG.debug("Plan ID: {}", plan.getTemplateId());
+                LOG.debug("Plan language: {}", plan.getLanguage().toString());
 
-            // update the output parameters in the plan instance
-            PlanInstanceHandler.updatePlanInstanceOutput(plan, csarID, message.getBody());
-        } else {
-            LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
-        }
+                LOG.debug("Getting endpoint for the plan...");
+                ServiceHandler.endpointService.printPlanEndpoints();
+                final WSDLEndpoint WSDLendpoint =
+                    ServiceHandler.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                                                                            csarID, plan.getTemplateId());
+
+                if (WSDLendpoint != null) {
+
+                    final URI endpoint = WSDLendpoint.getURI();
+                    LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
+
+                    // Assumption. Should be checked with ToscaEngine
+                    message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
+                    message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+
+                    if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
+                        exchange = PluginHandler.callMatchingInvocationPlugin(exchange, "REST",
+                                                                              Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+
+                    } else {
+                        exchange = PluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP",
+                                                                              Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                    }
+
+                    // write WCET back to Plan
+                    final TPlan currentPlan =
+                        ServiceHandler.toscaEngineService.getToscaReferenceMapper()
+                                                         .getPlanForCSARIDAndPlanID(csarID, plan.getTemplateId());
+
+                    // add end timestamp and log message with duration
+                    event.setEndTimestamp(new Date());
+                    final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
+                    event.setMessage("Finished plan execution with correlation id " + correlationID + " after "
+                        + duration + "ms");
+                    LOG.info("Plan execution duration: {}ms", duration);
+
+                    final SituationTriggerInstanceListener instanceListener = new SituationTriggerInstanceListener();
+                    final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan);
+                    // if total duration larger than calculatedWCET, use duration
+                    if (calculatedWCET > 0 && calculatedWCET < duration) {
+                        currentPlan.setCalculatedWCET(duration);
+                    }
+                    // if newly calculated WCET is larger than previous WCET, update
+                    if (calculatedWCET > currentPlan.getCalculatedWCET()) {
+                        currentPlan.setCalculatedWCET(calculatedWCET);
+                    }
+
+                    // update plan in repository with new log event
+                    final PlanInstanceRepository repo = new PlanInstanceRepository();
+                    plan = repo.findByCorrelationId(correlationID);
+                    plan.addEvent(event);
+                    repo.update(plan);
+
+
+                    // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
+                    // was executed.
+                    if (plan.getType().equals(PlanType.TERMINATION)) {
+                        LOG.debug("Executed plan was a termination plan. Removing endpoints...");
+
+                        final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
+
+                        if (serviceInstance != null) {
+                            deleteEndpointsForServiceInstance(csarID, serviceInstance);
+                        } else {
+                            LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
+                        }
+                    }
+
+                    // update the output parameters in the plan instance
+                    PlanInstanceHandler.updatePlanInstanceOutput(plan, csarID, message.getBody());
+
+                } else {
+                    LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!",
+                             plan.getTemplateId(), csarID);
+                }
+
+            } else {
+                LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", correlationID);
+            }
         }
 
         handleResponse(exchange);
     }
-    
+
 
     /**
      * Checks if the defined IA provides the needed interface/operation.
@@ -935,8 +927,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-<<<<<<< HEAD
-<<<<<<< HEAD
      * Checks if a certain property was specified in the Tosca.xml of the ArtifactTemplate and returns
      * it if so.
      *
@@ -992,10 +982,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-=======
->>>>>>> master
-=======
->>>>>>> feature/hardware
      * Replaces placeholder with a matching instance data value. Placeholder is defined like
      * "/PLACEHOLDER_VMIP_IP_PLACEHOLDER/"
      *
