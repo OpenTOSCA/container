@@ -46,7 +46,6 @@ import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
-import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationsMonitor;
 import org.opentosca.container.core.next.repository.DeploymentTestRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
@@ -59,7 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import io.swagger.annotations.Api;
@@ -87,6 +85,7 @@ public class ServiceTemplateInstanceController {
     private final PlanService planService;
 
     private final CsarService csarService;
+        
 
     private final DeploymentTestService deploymentTestService;
 
@@ -99,7 +98,7 @@ public class ServiceTemplateInstanceController {
                                              final IToscaReferenceMapper referenceMapper) {
         this.instanceService = instanceService;
         this.planService = planService;
-        this.csarService = csarService;
+        this.csarService = csarService;        
         this.deploymentTestService = deploymentTestService;
         this.referenceMapper = referenceMapper;
     }
@@ -538,4 +537,6 @@ public class ServiceTemplateInstanceController {
         final URI location = this.uriInfo.getAbsolutePathBuilder().path(String.valueOf(result.getId())).build();
         return Response.created(UriUtil.encode(location)).build();
     }
+    
+    
 }

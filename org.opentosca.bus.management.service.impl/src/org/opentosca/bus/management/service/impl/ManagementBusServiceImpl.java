@@ -143,7 +143,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                          
                 respondViaMocking(exchange, message,  csarID, serviceTemplateID, nodeTemplateID, neededInterface,
                                       neededOperation);               
-
             } else {
                 this.invokeIA(exchange, csarID, serviceTemplateID, serviceTemplateInstanceID, nodeTemplateID,
                               relationship, neededInterface, neededOperation);
