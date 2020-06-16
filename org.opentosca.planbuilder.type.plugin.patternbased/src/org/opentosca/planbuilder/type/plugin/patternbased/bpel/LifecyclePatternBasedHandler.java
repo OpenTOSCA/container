@@ -273,7 +273,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         }
     }
 
-    private AbstractInterface getLifecyclePatternInterface(final AbstractNodeTemplate nodeTemplate) {
+    protected AbstractInterface getLifecyclePatternInterface(final AbstractNodeTemplate nodeTemplate) {
         for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {            
             switch(iface.getName()) {
                 case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE:
@@ -285,25 +285,25 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    private AbstractOperation getLifecyclePatternStartMethod(final AbstractNodeTemplate nodeTemplate) {
+    protected AbstractOperation getLifecyclePatternStartMethod(final AbstractNodeTemplate nodeTemplate) {
         return this.getLifecyclePatternMethod(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START);
     }
 
-    private AbstractOperation getLifecyclePatternInstallMethod(final AbstractNodeTemplate nodeTemplate) {
+    protected AbstractOperation getLifecyclePatternInstallMethod(final AbstractNodeTemplate nodeTemplate) {
         return this.getLifecyclePatternMethod(nodeTemplate,
                                               Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_INSTALL);
     }
 
-    private AbstractOperation getLifecyclePatternConfigureMethod(final AbstractNodeTemplate nodeTemplate) {
+    protected AbstractOperation getLifecyclePatternConfigureMethod(final AbstractNodeTemplate nodeTemplate) {
         return this.getLifecyclePatternMethod(nodeTemplate,
                                               Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_CONFIGURE);
     }
 
-    private AbstractOperation getLifecyclePatternStopMethod(final AbstractNodeTemplate nodeTemplate) {
+    protected AbstractOperation getLifecyclePatternStopMethod(final AbstractNodeTemplate nodeTemplate) {
         return this.getLifecyclePatternMethod(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP);
     }
 
-    private AbstractOperation getLifecyclePatternUninstallMethod(final AbstractNodeTemplate nodeTemplate) {
+    protected AbstractOperation getLifecyclePatternUninstallMethod(final AbstractNodeTemplate nodeTemplate) {
         return this.getLifecyclePatternMethod(nodeTemplate,
                                               Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_UNINSTALL);
     }

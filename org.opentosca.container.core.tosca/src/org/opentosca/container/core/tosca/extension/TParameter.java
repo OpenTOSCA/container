@@ -7,10 +7,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
 import org.opentosca.container.core.tosca.model.TBoolean;
+import org.opentosca.container.core.tosca.model.TExtensibleElements;
 
 @XmlRootElement(name = "Parameter")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TParameter {
+public class TParameter extends TExtensibleElements {
 
     @XmlAttribute(name = "name")
     protected String name;

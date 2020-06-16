@@ -53,6 +53,9 @@ public class SituationTrigger extends PersistenceObject {
     @Column(nullable = false)
     private String operationName;
 
+    @Column(nullable = false)
+    private long timeAvailableInSeconds;
+
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "situationTrigger")
     private Collection<SituationTriggerInstance> situationTriggerInstances;

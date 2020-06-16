@@ -53,7 +53,7 @@ public class BPELProcessFragments {
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
-    private String loadFragmentResourceAsString(final String fileName) throws IOException {
+    public String loadFragmentResourceAsString(final String fileName) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource(fileName);
         final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelfragmentfile);
@@ -405,6 +405,16 @@ public class BPELProcessFragments {
         ifElement.appendChild(throwElement);
 
         return ifElement;
+    }
+    
+    public Node createWaitForCondition(String xpathExpr, String durationExpression) throws IOException, SAXException {
+        String templateString = this.loadFragmentResourceAsString("BPELWaitTillTrue.xml");
+        
+        templateString = templateString.replace("$xpath1Expr", xpathExpr);
+        templateString = templateString.replace("$durationexpression", durationExpression);
+        
+        
+        return this.transformStringToNode(templateString);
     }
 
     /**

@@ -66,7 +66,6 @@ public class PlanInstance extends PersistenceObject {
     @Column(name = "TEMPLATE_ID", nullable = false)
     private QName templateId;
 
-
     public PlanInstance() {
 
     }

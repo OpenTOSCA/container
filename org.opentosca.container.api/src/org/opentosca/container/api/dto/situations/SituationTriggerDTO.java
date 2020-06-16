@@ -50,6 +50,9 @@ public class SituationTriggerDTO extends ResourceSupport {
     @XmlElement(name = "InterfaceName")
     private String interfaceName;
 
+    @XmlElement(name = "TimeAvailableInSeconds")
+    private Long timeAvailableInSeconds;
+
     @XmlElement(name = "OperationName")
     private String operationName;
 
@@ -150,7 +153,6 @@ public class SituationTriggerDTO extends ResourceSupport {
     public void setEventProbability(final float eventProbability) {
         this.eventProbability = eventProbability;
     }
-
     public String getEventTime() {
         return this.eventTime;
     }
@@ -166,7 +168,6 @@ public class SituationTriggerDTO extends ResourceSupport {
             dto.setId(object.getId());
             dto.setOnActivation(object.isTriggerOnActivation());
             dto.setIsSingleInstance(object.isSingleInstance());
-
             final Collection<Long> situationIds = Lists.newArrayList();
 
             for (final Situation situation : object.getSituations()) {

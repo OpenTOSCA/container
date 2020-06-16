@@ -39,7 +39,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tParameter")
-public class TParameter {
+public class TParameter extends TExtensibleElements {
 
     @XmlAttribute(name = "name", required = true)
     protected String name;

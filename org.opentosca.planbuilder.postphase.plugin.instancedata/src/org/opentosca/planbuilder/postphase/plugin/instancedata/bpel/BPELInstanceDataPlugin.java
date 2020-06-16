@@ -30,24 +30,24 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
     private static final String PLAN_ID = "OpenTOSCA InstanceData Post Phase Plugin";
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // we can handle nodes
         return true;
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
         // we can handle relations
         return true;
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
         return true;
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
         return true;
     }
 
