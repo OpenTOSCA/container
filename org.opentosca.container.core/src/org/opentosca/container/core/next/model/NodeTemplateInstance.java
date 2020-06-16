@@ -103,8 +103,8 @@ public class NodeTemplateInstance extends PersistenceObject {
     }
 
     /*
-     * Currently, the plan writes all properties as one XML document into the database. Therefore,
-     * we parse this XML and return a Map<String, String>.
+     * Currently, the plan writes all properties as one XML document into the database. Therefore, we
+     * parse this XML and return a Map<String, String>.
      */
     @JsonProperty("properties")
     public Map<String, String> getPropertiesAsMap() {

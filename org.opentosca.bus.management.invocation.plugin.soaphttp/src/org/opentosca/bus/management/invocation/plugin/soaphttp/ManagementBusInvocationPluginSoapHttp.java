@@ -173,13 +173,13 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
                                     String messageId = message.getMessageId();
                                     if (paramsMap.containsKey("CorrelationID")) {
-                                        if(paramsMap.get("CorrelationID") != null) {                                            
+                                        if (paramsMap.get("CorrelationID") != null) {
                                             messageId = paramsMap.get("CorrelationID");
                                         } else {
                                             paramsMap.put("CorrelationID", messageId);
                                         }
                                         message.setMessageId(messageId);
-                                        
+
                                     }
                                     LOG.debug("Message ID: {}", messageId);
 
@@ -329,8 +329,8 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
      *
      * @param endpoint of the wsdl to check.
      * @param operationName to check.
-     * @return <code>true</code> if operation returns output params. Otherwise <code>false</code>.
-     *         If operation can't be found <code>null</code> is returned.
+     * @return <code>true</code> if operation returns output params. Otherwise <code>false</code>. If
+     *         operation can't be found <code>null</code> is returned.
      */
     private Boolean hasOutputDefinedInWSDL(final String endpoint, final String operationName) {
 
