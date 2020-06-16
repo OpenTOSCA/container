@@ -1,10 +1,11 @@
 <bpel:assign validate="no" name="$assignName"
-	xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
-	<!-- $xpath2query, $fromVarName, $toVarName -->		    
-	<bpel:copy>
-		<bpel:from variable="$fromVarName">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$xpath2query]]></bpel:query>
-		</bpel:from>
-		<bpel:to variable="$toVarName"/>		    		
-	</bpel:copy>
+             xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
+    <!-- $xpath2query, $fromVarName, $toVarName -->
+    <bpel:copy>
+        <bpel:from variable="$fromVarName">
+            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+                <![CDATA[$xpath2query]]></bpel:query>
+        </bpel:from>
+        <bpel:to variable="$toVarName"/>
+    </bpel:copy>
 </bpel:assign>

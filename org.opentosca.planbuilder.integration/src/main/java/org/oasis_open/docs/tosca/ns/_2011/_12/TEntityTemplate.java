@@ -6,7 +6,6 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import java.util.ArrayList;
@@ -26,7 +25,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
-
 
 /**
  * <p>
@@ -74,193 +72,188 @@ import org.w3c.dom.Element;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tEntityTemplate", propOrder = {"properties", "propertyConstraints"})
 @XmlSeeAlso( {TArtifactTemplate.class, TPolicyTemplate.class, TNodeTemplate.class, TCapability.class,
-  TRelationshipTemplate.class, TRequirement.class})
+    TRelationshipTemplate.class, TRequirement.class})
 public abstract class TEntityTemplate extends TExtensibleElements {
 
-  @XmlElement(name = "Properties")
-  protected TEntityTemplate.Properties properties;
-  @XmlElement(name = "PropertyConstraints")
-  protected TEntityTemplate.PropertyConstraints propertyConstraints;
-  @XmlAttribute(required = true)
-  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-  @XmlID
-  @XmlSchemaType(name = "ID")
-  protected String id;
-  @XmlAttribute(required = true)
-  protected QName type;
-
-  /**
-   * Gets the value of the properties property.
-   *
-   * @return possible object is {@link TEntityTemplate.Properties }
-   */
-  public TEntityTemplate.Properties getProperties() {
-    return this.properties;
-  }
-
-  /**
-   * Sets the value of the properties property.
-   *
-   * @param value allowed object is {@link TEntityTemplate.Properties }
-   */
-  public void setProperties(final TEntityTemplate.Properties value) {
-    this.properties = value;
-  }
-
-  /**
-   * Gets the value of the propertyConstraints property.
-   *
-   * @return possible object is {@link TEntityTemplate.PropertyConstraints }
-   */
-  public TEntityTemplate.PropertyConstraints getPropertyConstraints() {
-    return this.propertyConstraints;
-  }
-
-  /**
-   * Sets the value of the propertyConstraints property.
-   *
-   * @param value allowed object is {@link TEntityTemplate.PropertyConstraints }
-   */
-  public void setPropertyConstraints(final TEntityTemplate.PropertyConstraints value) {
-    this.propertyConstraints = value;
-  }
-
-  /**
-   * Gets the value of the id property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * Sets the value of the id property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setId(final String value) {
-    this.id = value;
-  }
-
-  /**
-   * Gets the value of the type property.
-   *
-   * @return possible object is {@link QName }
-   */
-  public QName getType() {
-    return this.type;
-  }
-
-  /**
-   * Sets the value of the type property.
-   *
-   * @param value allowed object is {@link QName }
-   */
-  public void setType(final QName value) {
-    this.type = value;
-  }
-
-
-  /**
-   * <p>
-   * Java class for anonymous complex type.
-   *
-   * <p>
-   * The following schema fragment specifies the expected content contained within this class.
-   *
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;sequence>
-   *         &lt;any processContents='lax' namespace='##other'/>
-   *       &lt;/sequence>
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
-   */
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "", propOrder = {"any"})
-  public static class Properties {
-
-    @XmlAnyElement(lax = true)
-    protected Object any;
+    @XmlElement(name = "Properties")
+    protected TEntityTemplate.Properties properties;
+    @XmlElement(name = "PropertyConstraints")
+    protected TEntityTemplate.PropertyConstraints propertyConstraints;
+    @XmlAttribute(required = true)
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlID
+    @XmlSchemaType(name = "ID")
+    protected String id;
+    @XmlAttribute(required = true)
+    protected QName type;
 
     /**
-     * Gets the value of the any property.
+     * Gets the value of the properties property.
      *
-     * @return possible object is {@link Object } {@link Element }
+     * @return possible object is {@link TEntityTemplate.Properties }
      */
-    public Object getAny() {
-      return this.any;
+    public TEntityTemplate.Properties getProperties() {
+        return this.properties;
     }
 
     /**
-     * Sets the value of the any property.
+     * Sets the value of the properties property.
      *
-     * @param value allowed object is {@link Object } {@link Element }
+     * @param value allowed object is {@link TEntityTemplate.Properties }
      */
-    public void setAny(final Object value) {
-      this.any = value;
+    public void setProperties(final TEntityTemplate.Properties value) {
+        this.properties = value;
     }
 
-  }
-
-
-  /**
-   * <p>
-   * Java class for anonymous complex type.
-   *
-   * <p>
-   * The following schema fragment specifies the expected content contained within this class.
-   *
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;sequence>
-   *         &lt;element name="PropertyConstraint" type="{http://docs.oasis-open.org/tosca/ns/2011/12}tPropertyConstraint" maxOccurs="unbounded"/>
-   *       &lt;/sequence>
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
-   */
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "", propOrder = {"propertyConstraint"})
-  public static class PropertyConstraints {
-
-    @XmlElement(name = "PropertyConstraint", required = true)
-    protected List<TPropertyConstraint> propertyConstraint;
+    /**
+     * Gets the value of the propertyConstraints property.
+     *
+     * @return possible object is {@link TEntityTemplate.PropertyConstraints }
+     */
+    public TEntityTemplate.PropertyConstraints getPropertyConstraints() {
+        return this.propertyConstraints;
+    }
 
     /**
-     * Gets the value of the propertyConstraint property.
+     * Sets the value of the propertyConstraints property.
+     *
+     * @param value allowed object is {@link TEntityTemplate.PropertyConstraints }
+     */
+    public void setPropertyConstraints(final TEntityTemplate.PropertyConstraints value) {
+        this.propertyConstraints = value;
+    }
+
+    /**
+     * Gets the value of the id property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getId() {
+        return this.id;
+    }
+
+    /**
+     * Sets the value of the id property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setId(final String value) {
+        this.id = value;
+    }
+
+    /**
+     * Gets the value of the type property.
+     *
+     * @return possible object is {@link QName }
+     */
+    public QName getType() {
+        return this.type;
+    }
+
+    /**
+     * Sets the value of the type property.
+     *
+     * @param value allowed object is {@link QName }
+     */
+    public void setType(final QName value) {
+        this.type = value;
+    }
+
+    /**
+     * <p>
+     * Java class for anonymous complex type.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-     * modification you make to the returned list will be present inside the JAXB object. This is why
-     * there is not a <CODE>set</CODE> method for the propertyConstraint property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
+     * The following schema fragment specifies the expected content contained within this class.
      *
      * <pre>
-     * getPropertyConstraint().add(newItem);
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;sequence>
+     *         &lt;any processContents='lax' namespace='##other'/>
+     *       &lt;/sequence>
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
      * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link TPropertyConstraint }
      */
-    public List<TPropertyConstraint> getPropertyConstraint() {
-      if (this.propertyConstraint == null) {
-        this.propertyConstraint = new ArrayList<>();
-      }
-      return this.propertyConstraint;
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "", propOrder = {"any"})
+    public static class Properties {
+
+        @XmlAnyElement(lax = true)
+        protected Object any;
+
+        /**
+         * Gets the value of the any property.
+         *
+         * @return possible object is {@link Object } {@link Element }
+         */
+        public Object getAny() {
+            return this.any;
+        }
+
+        /**
+         * Sets the value of the any property.
+         *
+         * @param value allowed object is {@link Object } {@link Element }
+         */
+        public void setAny(final Object value) {
+            this.any = value;
+        }
     }
 
-  }
+    /**
+     * <p>
+     * Java class for anonymous complex type.
+     *
+     * <p>
+     * The following schema fragment specifies the expected content contained within this class.
+     *
+     * <pre>
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;sequence>
+     *         &lt;element name="PropertyConstraint" type="{http://docs.oasis-open.org/tosca/ns/2011/12}tPropertyConstraint" maxOccurs="unbounded"/>
+     *       &lt;/sequence>
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
+     * </pre>
+     */
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "", propOrder = {"propertyConstraint"})
+    public static class PropertyConstraints {
 
+        @XmlElement(name = "PropertyConstraint", required = true)
+        protected List<TPropertyConstraint> propertyConstraint;
+
+        /**
+         * Gets the value of the propertyConstraint property.
+         *
+         * <p>
+         * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you
+         * make to the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE>
+         * method for the propertyConstraint property.
+         *
+         * <p>
+         * For example, to add a new item, do as follows:
+         *
+         * <pre>
+         * getPropertyConstraint().add(newItem);
+         * </pre>
+         *
+         *
+         * <p>
+         * Objects of the following type(s) are allowed in the list {@link TPropertyConstraint }
+         */
+        public List<TPropertyConstraint> getPropertyConstraint() {
+            if (this.propertyConstraint == null) {
+                this.propertyConstraint = new ArrayList<>();
+            }
+            return this.propertyConstraint;
+        }
+    }
 }

@@ -96,13 +96,6 @@ public class InstanceService {
 
     /**
      * Converts an xml document to an xml-based property sui/table for service or node template instances
-     *
-     * @param propertyDoc
-     * @param type
-     * @return
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws IllegalArgumentException
      */
     public <T extends Property> T convertDocumentToProperty(final Document propertyDoc,
                                                             final Class<T> type) throws InstantiationException,

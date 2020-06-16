@@ -1,6 +1,7 @@
 <bpel:copy>
-  <bpel:from variable="{bpelVarName}"></bpel:from>
-  <bpel:to variable="{requestVarName}" part="{requestVarPartName}">
-    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[//*[local-name()="Param" and namespace-uri()="http://siserver.org/schema"]/*[local-name()="key" and text()="{paramName}"]/following-sibling::*[local-name()="value"]]]></bpel:query>
-  </bpel:to>
+    <bpel:from variable="{bpelVarName}"></bpel:from>
+    <bpel:to variable="{requestVarName}" part="{requestVarPartName}">
+        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+            <![CDATA[//*[local-name()="Param" and namespace-uri()="http://siserver.org/schema"]/*[local-name()="key" and text()="{paramName}"]/following-sibling::*[local-name()="value"]]]></bpel:query>
+    </bpel:to>
 </bpel:copy>

@@ -29,7 +29,6 @@ import org.xml.sax.SAXException;
  * <br>
  *
  * @author Kálmán Képes - kepeskn@iaas.uni-stuttgart.de
- *
  */
 public class NodeInstanceSelector {
 
@@ -42,8 +41,7 @@ public class NodeInstanceSelector {
             this.bpelFragments = new BPELProcessFragments();
             this.bpelProcessHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -76,16 +74,14 @@ public class NodeInstanceSelector {
             try {
                 Node requestRelationInstancesGET =
                     this.bpelFragments.createBPEL4RESTLightRelationInstancesGETAsNode(relationshipTemplate.getId(),
-                                                                                      serviceInstanceVarName,
-                                                                                      relationInstancesListResponseVarName);
+                        serviceInstanceVarName,
+                        relationInstancesListResponseVarName);
                 requestRelationInstancesGET = plan.getBpelDocument().importNode(requestRelationInstancesGET, true);
                 plan.getBpelMainSequenceElement().appendChild(requestRelationInstancesGET);
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            }
-            catch (final SAXException e) {
+            } catch (final SAXException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -94,17 +90,15 @@ public class NodeInstanceSelector {
             try {
                 Node countRelationInstancesAssign =
                     this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode("countRelationInstanceCount_"
-                        + relationshipTemplate.getId() + "_" + System.currentTimeMillis(),
-                                                                                       createReferenceCountingXPathQuery(relationInstancesListResponseVarName),
-                                                                                       relationInstancesCountVarName);
+                            + relationshipTemplate.getId() + "_" + System.currentTimeMillis(),
+                        createReferenceCountingXPathQuery(relationInstancesListResponseVarName),
+                        relationInstancesCountVarName);
                 countRelationInstancesAssign = plan.getBpelDocument().importNode(countRelationInstancesAssign, true);
                 plan.getBpelMainSequenceElement().appendChild(countRelationInstancesAssign);
-            }
-            catch (final IOException e1) {
+            } catch (final IOException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
-            }
-            catch (final SAXException e1) {
+            } catch (final SAXException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
@@ -114,16 +108,14 @@ public class NodeInstanceSelector {
                 try {
                     Node requestNodeInstancesGET =
                         this.bpelFragments.createBPEL4RESTLightNodeInstancesGETAsNode(nodeTemplate.getId(),
-                                                                                      serviceInstanceVarName,
-                                                                                      relationInstancesListResponseVarName);
+                            serviceInstanceVarName,
+                            relationInstancesListResponseVarName);
                     requestNodeInstancesGET = plan.getBpelDocument().importNode(requestNodeInstancesGET, true);
                     plan.getBpelMainSequenceElement().appendChild(requestNodeInstancesGET);
-                }
-                catch (final IOException e) {
+                } catch (final IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
-                }
-                catch (final SAXException e) {
+                } catch (final SAXException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -132,17 +124,15 @@ public class NodeInstanceSelector {
                 try {
                     Node countNodeInstancesAssign =
                         this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode("countNodeInstanceCount_"
-                            + nodeTemplate.getId() + "_" + System.currentTimeMillis(),
-                                                                                           createReferenceCountingXPathQuery(nodeInstancesListResponseVarName),
-                                                                                           nodeInstancesCountVarName);
+                                + nodeTemplate.getId() + "_" + System.currentTimeMillis(),
+                            createReferenceCountingXPathQuery(nodeInstancesListResponseVarName),
+                            nodeInstancesCountVarName);
                     countNodeInstancesAssign = plan.getBpelDocument().importNode(countNodeInstancesAssign, true);
                     plan.getBpelMainSequenceElement().appendChild(countNodeInstancesAssign);
-                }
-                catch (final IOException e) {
+                } catch (final IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
-                }
-                catch (final SAXException e) {
+                } catch (final SAXException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -150,7 +140,6 @@ public class NodeInstanceSelector {
                 // TODO compare counts and execute proper selection
 
             }
-
         }
     }
 
@@ -161,12 +150,12 @@ public class NodeInstanceSelector {
     }
 
     /**
-     * Adds bpel code at the beginingn of the main logic to update instance data of the given
-     * nodeTemplates their set nodeInstance
+     * Adds bpel code at the beginingn of the main logic to update instance data of the given nodeTemplates their set
+     * nodeInstance
      *
-     * @param nodes a set of node templates whose set nodeInstance (set at runtime) will be used for
-     *        updating instancedata inside the given plan
-     * @param plan the plan to add the bpel code to
+     * @param nodes a set of node templates whose set nodeInstance (set at runtime) will be used for updating
+     *              instancedata inside the given plan
+     * @param plan  the plan to add the bpel code to
      */
     public void addNodeInstanceUpdate(final Set<AbstractNodeTemplate> nodes, final BPELPlan plan,
                                       final Property2VariableMapping propMap, AbstractServiceTemplate serviceTemplate) {
@@ -178,8 +167,7 @@ public class NodeInstanceSelector {
             try {
                 nodeInstanceIDVarName = new NodeRelationInstanceVariablesHandler(
                     this.bpelProcessHandler).findInstanceUrlVarName(plan, serviceTemplate, nodeTemplate.getId(), true);
-            }
-            catch (final ParserConfigurationException e) {
+            } catch (final ParserConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -189,7 +177,7 @@ public class NodeInstanceSelector {
             }
 
             this.addNodeInstanceUpdate(nodeTemplate, plan, propMap, nodeInstanceIDVarName,
-                                       instanceDataAPIResponseVarName, serviceTemplate);
+                instanceDataAPIResponseVarName, serviceTemplate);
         }
     }
 
@@ -201,7 +189,7 @@ public class NodeInstanceSelector {
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
         this.bpelProcessHandler.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
-                                            new QName(xsdNamespace, "anyType", xsdPrefix), plan);
+            new QName(xsdNamespace, "anyType", xsdPrefix), plan);
         return instanceDataAPIResponseVarName;
     }
 
@@ -219,15 +207,13 @@ public class NodeInstanceSelector {
         try {
             Node nodeInstancePropertiesGETNode =
                 this.bpelFragments.createRESTExtensionGETForInstancePropertiesAsNode(nodeInstanceIDVarName,
-                                                                                         instanceDataAPIResponseVarName);
+                    instanceDataAPIResponseVarName);
             nodeInstancePropertiesGETNode = plan.getBpelDocument().importNode(nodeInstancePropertiesGETNode, true);
 
             plan.getBpelMainSequenceElement().appendChild(nodeInstancePropertiesGETNode);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -245,7 +231,6 @@ public class NodeInstanceSelector {
                         element2BpelVarNameMap.put(childElement, var.getVariableName());
                     }
                 }
-
             }
         }
 
@@ -255,14 +240,10 @@ public class NodeInstanceSelector {
                     + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
             assignPropertiesToVariables = plan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             plan.getBpelMainSequenceElement().appendChild(assignPropertiesToVariables);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
+            e.printStackTrace();
+        } catch (final SAXException e) {
             e.printStackTrace();
         }
-        catch (final SAXException e) {
-            e.printStackTrace();
-        }
-
     }
-
 }

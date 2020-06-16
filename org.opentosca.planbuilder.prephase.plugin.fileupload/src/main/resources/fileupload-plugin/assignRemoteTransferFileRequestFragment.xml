@@ -1,47 +1,54 @@
 <bpel:assign validate="no" name="{AssignName}" xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
-	<bpel:copy>
-		<bpel:from>
-			<bpel:literal>
-				<impl:transferRemoteFile xmlns:impl="http://ec2linux.aws.ia.opentosca.org"
-					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					<impl:host>impl:host</impl:host>
-					<impl:remoteFilePath>impl:fromAbsoluteLocalFileName</impl:remoteFilePath>
-					<impl:toLinuxAbsolutePath>impl:toLinuxAbsolutePath</impl:toLinuxAbsolutePath>
-					<impl:sshKey>impl:sshKey</impl:sshKey>
-				</impl:transferRemoteFile>
-			</bpel:literal>
-		</bpel:from>
-		<bpel:to variable="{RequestVarName}" part="parameters"></bpel:to>
-	</bpel:copy>
-	
-	<bpel:copy>
-		<bpel:from variable="{ServerIpPropVarName}"></bpel:from>
-		<bpel:to variable="{RequestVarName}" part="parameters">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{prefix}:host]]></bpel:query>
-		</bpel:to>
+    <bpel:copy>
+        <bpel:from>
+            <bpel:literal>
+                <impl:transferRemoteFile xmlns:impl="http://ec2linux.aws.ia.opentosca.org"
+                >
+                    <impl:host>impl:host</impl:host>
+                    <impl:remoteFilePath>impl:fromAbsoluteLocalFileName</impl:remoteFilePath>
+                    <impl:toLinuxAbsolutePath>impl:toLinuxAbsolutePath</impl:toLinuxAbsolutePath>
+                    <impl:sshKey>impl:sshKey</impl:sshKey>
+                </impl:transferRemoteFile>
+            </bpel:literal>
+        </bpel:from>
+        <bpel:to variable="{RequestVarName}" part="parameters"></bpel:to>
+    </bpel:copy>
+
+    <bpel:copy>
+        <bpel:from variable="{ServerIpPropVarName}"></bpel:from>
+        <bpel:to variable="{RequestVarName}" part="parameters">
+            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                <![CDATA[{prefix}:host]]></bpel:query>
+        </bpel:to>
 
 
-	</bpel:copy>
-	
-	<bpel:copy>
-		<bpel:from><![CDATA[{remoteFilePath}]]></bpel:from>
-		<bpel:to variable="{RequestVarName}" part="parameters">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{prefix}:remoteFilePath]]></bpel:query>
-		</bpel:to>
-	</bpel:copy>
-	
-	<bpel:copy>
-		<bpel:from><bpel:literal xml:space="preserve"><![CDATA[{remotePath}]]></bpel:literal></bpel:from>
-		<bpel:to variable="{RequestVarName}" part="parameters">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{prefix}:toLinuxAbsolutePath]]></bpel:query>
-		</bpel:to>
-	</bpel:copy>
-	
-	<bpel:copy>
-		<from variable="{planRequestName}" part="payload">                                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:sshKey]]></query>
-</from>
-		<bpel:to variable="{RequestVarName}" part="parameters">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{prefix}:sshKey]]></bpel:query>
-		</bpel:to>
-	</bpel:copy>
+    </bpel:copy>
+
+    <bpel:copy>
+        <bpel:from><![CDATA[{remoteFilePath}]]></bpel:from>
+        <bpel:to variable="{RequestVarName}" part="parameters">
+            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                <![CDATA[{prefix}:remoteFilePath]]></bpel:query>
+        </bpel:to>
+    </bpel:copy>
+
+    <bpel:copy>
+        <bpel:from>
+            <bpel:literal xml:space="preserve"><![CDATA[{remotePath}]]></bpel:literal>
+        </bpel:from>
+        <bpel:to variable="{RequestVarName}" part="parameters">
+            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                <![CDATA[{prefix}:toLinuxAbsolutePath]]></bpel:query>
+        </bpel:to>
+    </bpel:copy>
+
+    <bpel:copy>
+        <from variable="{planRequestName}" part="payload">
+            <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:sshKey]]></query>
+        </from>
+        <bpel:to variable="{RequestVarName}" part="parameters">
+            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                <![CDATA[{prefix}:sshKey]]></bpel:query>
+        </bpel:to>
+    </bpel:copy>
 </bpel:assign>

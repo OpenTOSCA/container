@@ -22,29 +22,29 @@ import org.springframework.stereotype.Component;
 @NonNullByDefault
 public class GetResultProcessor implements Processor {
 
-  public static final String BEAN_NAME = "getResultProcessor";
+    public static final String BEAN_NAME = "getResultProcessor";
 
-  private static final Logger LOG = LoggerFactory.getLogger(GetResultProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GetResultProcessor.class);
 
-  @Override
-  public void process(final Exchange exchange) {
-    final String requestID = exchange.getIn().getBody(String.class);
-    LOG.debug("getResult request received. RequestID: {}", requestID);
-    if (ResultMap.containsID(requestID)) {
-      LOG.debug("Getting result.");
-      final Object result = ResultMap.get(requestID);
+    @Override
+    public void process(final Exchange exchange) {
+        final String requestID = exchange.getIn().getBody(String.class);
+        LOG.debug("getResult request received. RequestID: {}", requestID);
+        if (ResultMap.containsID(requestID)) {
+            LOG.debug("Getting result.");
+            final Object result = ResultMap.get(requestID);
 
-      // "Garbage collection": Remove polled responses. Maybe client should actively delete it.
-      ResultMap.remove(requestID);
-      QueueMap.remove(requestID);
+            // "Garbage collection": Remove polled responses. Maybe client should actively delete it.
+            ResultMap.remove(requestID);
+            QueueMap.remove(requestID);
 
-      exchange.getIn().setBody(result);
-    } else if (!QueueMap.containsID(requestID)) {
-      LOG.warn("Unknown RequestID: {}", requestID);
-      exchange.getIn().setBody(new ApplicationBusInternalException("Unknown RequestID: " + requestID));
-    } else {
-      LOG.warn("Error while invoking specified method.");
-      exchange.getIn().setBody(new ApplicationBusInternalException("Error while invoking specified method."));
+            exchange.getIn().setBody(result);
+        } else if (!QueueMap.containsID(requestID)) {
+            LOG.warn("Unknown RequestID: {}", requestID);
+            exchange.getIn().setBody(new ApplicationBusInternalException("Unknown RequestID: " + requestID));
+        } else {
+            LOG.warn("Error while invoking specified method.");
+            exchange.getIn().setBody(new ApplicationBusInternalException("Error while invoking specified method."));
+        }
     }
-  }
 }

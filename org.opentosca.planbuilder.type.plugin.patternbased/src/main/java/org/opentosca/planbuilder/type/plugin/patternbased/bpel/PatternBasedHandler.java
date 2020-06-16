@@ -61,8 +61,8 @@ public abstract class PatternBasedHandler {
                                       final AbstractNodeTemplate hostingContainer, Element elementToAppendTo) {
 
         return invoker.handle(context, hostingContainer.getId(), true, matching.operationName.getName(),
-                              matching.interfaceName.getName(), transformForInvoker(matching.inputMatching),
-                              transformForInvoker(matching.outputMatching), elementToAppendTo);
+            matching.interfaceName.getName(), transformForInvoker(matching.inputMatching),
+            transformForInvoker(matching.outputMatching), elementToAppendTo);
     }
 
     private Map<String, Variable> transformForInvoker(final Map<AbstractParameter, Variable> map) {

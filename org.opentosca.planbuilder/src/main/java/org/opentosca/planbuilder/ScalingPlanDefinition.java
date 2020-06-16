@@ -108,7 +108,6 @@ public class ScalingPlanDefinition {
         public List<AbstractPolicy> getPolicies() {
             return this.nodeTemplate.getPolicies();
         }
-
     }
 
     // recursive selections
@@ -152,7 +151,7 @@ public class ScalingPlanDefinition {
 
             final List<AbstractRelationshipTemplate> outgoing =
                 ModelUtils.getOutgoingRelations(nodeTemplate, Types.hostedOnRelationType, Types.dependsOnRelationType,
-                                                Types.deployedOnRelationType);
+                    Types.deployedOnRelationType);
 
             this.nodeTemplatesRecursiveSelection.addAll(sinkNodes);
             this.relationshipTemplatesRecursiveSelection.addAll(outgoing);
@@ -242,7 +241,6 @@ public class ScalingPlanDefinition {
             if (!nodesToScale.contains(target)) {
                 return target;
             }
-
         }
 
         return null;

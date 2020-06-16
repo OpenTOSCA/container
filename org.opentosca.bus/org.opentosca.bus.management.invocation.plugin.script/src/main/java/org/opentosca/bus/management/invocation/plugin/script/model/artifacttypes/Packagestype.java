@@ -6,7 +6,6 @@
 // Generated on: 2016.07.12 at 02:53:01 PM CEST
 //
 
-
 package org.opentosca.bus.management.invocation.plugin.script.model.artifacttypes;
 
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -42,39 +40,39 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "packagestype", propOrder = {"_package"})
 public class Packagestype {
 
-  @XmlElement(name = "package")
-  protected List<String> _package;
+    @XmlElement(name = "package")
+    protected List<String> _package;
 
-  /**
-   * Gets the value of the package property.
-   *
-   * <p>
-   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-   * modification you make to the returned list will be present inside the JAXB object. This is why
-   * there is not a <CODE>set</CODE> method for the package property.
-   *
-   * <p>
-   * For example, to add a new item, do as follows:
-   *
-   * <pre>
-   * getPackage().add(newItem);
-   * </pre>
-   *
-   *
-   * <p>
-   * Objects of the following type(s) are allowed in the list {@link String }
-   */
-  public List<String> getPackage() {
-    if (this._package == null) {
-      this._package = new ArrayList<>();
+    /**
+     * Gets the value of the package property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+     * the package property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getPackage().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link String }
+     */
+    public List<String> getPackage() {
+        if (this._package == null) {
+            this._package = new ArrayList<>();
+        }
+        return this._package;
     }
-    return this._package;
-  }
 
-  @Override
-  public String toString() {
-    return "Packagestype{" +
-      "package=" + _package.stream().collect(Collectors.joining(", ")) +
-      '}';
-  }
+    @Override
+    public String toString() {
+        return "Packagestype{" +
+            "package=" + _package.stream().collect(Collectors.joining(", ")) +
+            '}';
+    }
 }

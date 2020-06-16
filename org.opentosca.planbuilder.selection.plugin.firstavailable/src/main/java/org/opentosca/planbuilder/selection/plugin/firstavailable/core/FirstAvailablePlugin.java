@@ -8,8 +8,8 @@ import org.opentosca.planbuilder.plugins.typebased.IScalingPlanBuilderSelectionP
 
 /**
  * <p>
- * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to
- * the OpenTOSCA Container InstanceData API
+ * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to the OpenTOSCA
+ * Container InstanceData API
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
@@ -18,17 +18,17 @@ import org.opentosca.planbuilder.plugins.typebased.IScalingPlanBuilderSelectionP
  */
 public abstract class FirstAvailablePlugin<T extends PlanContext> implements IScalingPlanBuilderSelectionPlugin<T> {
 
-  private static final String PLUGIN_ID = "OpenTOSCA First Available Selection Plugin";
-  private static final String FIRST_AVAIABLE_SELECTION_STRATEGY = "FirstInstance";
+    private static final String PLUGIN_ID = "OpenTOSCA First Available Selection Plugin";
+    private static final String FIRST_AVAIABLE_SELECTION_STRATEGY = "FirstInstance";
 
-  @Override
-  public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
-    // we can basically handle every type with this strategy
-    return selectionStrategies.contains(FirstAvailablePlugin.FIRST_AVAIABLE_SELECTION_STRATEGY);
-  }
+    @Override
+    public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
+        // we can basically handle every type with this strategy
+        return selectionStrategies.contains(FirstAvailablePlugin.FIRST_AVAIABLE_SELECTION_STRATEGY);
+    }
 
-  @Override
-  public String getID() {
-    return FirstAvailablePlugin.PLUGIN_ID;
-  }
+    @Override
+    public String getID() {
+        return FirstAvailablePlugin.PLUGIN_ID;
+    }
 }

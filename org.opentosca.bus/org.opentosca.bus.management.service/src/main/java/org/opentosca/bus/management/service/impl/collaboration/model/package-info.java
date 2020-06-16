@@ -7,5 +7,5 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://collaboration.org/schema",
-  elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+    elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.opentosca.bus.management.service.impl.collaboration.model;

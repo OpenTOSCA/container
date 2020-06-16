@@ -6,13 +6,11 @@
 // Generated on: 2016.02.25 at 04:54:56 PM CET
 //
 
-
 package org.opentosca.bus.application.api.soaphttp.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -37,24 +35,23 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "getResultResponse", propOrder = {"result"})
 public class GetResultResponse {
 
-  protected Object result;
+    protected Object result;
 
-  /**
-   * Gets the value of the result property.
-   *
-   * @return possible object is {@link Object }
-   */
-  public Object getResult() {
-    return this.result;
-  }
+    /**
+     * Gets the value of the result property.
+     *
+     * @return possible object is {@link Object }
+     */
+    public Object getResult() {
+        return this.result;
+    }
 
-  /**
-   * Sets the value of the result property.
-   *
-   * @param value allowed object is {@link Object }
-   */
-  public void setResult(final Object value) {
-    this.result = value;
-  }
-
+    /**
+     * Sets the value of the result property.
+     *
+     * @param value allowed object is {@link Object }
+     */
+    public void setResult(final Object value) {
+        this.result = value;
+    }
 }

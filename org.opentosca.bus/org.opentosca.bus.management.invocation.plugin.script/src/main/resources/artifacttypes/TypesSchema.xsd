@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-	<xs:complexType name="packagestype">
-		<xs:sequence>
-			<xs:element type="xs:string" name="package" maxOccurs="unbounded"
-				minOccurs="0" />
-		</xs:sequence>
-	</xs:complexType>
+    <xs:complexType name="packagestype">
+        <xs:sequence>
+            <xs:element type="xs:string" name="package" maxOccurs="unbounded"
+                        minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
 
-	<xs:complexType name="commandstype">
-		<xs:sequence>
-			<xs:element type="xs:string" name="command" maxOccurs="unbounded"
-				minOccurs="0" />
-		</xs:sequence>
-	</xs:complexType>
+    <xs:complexType name="commandstype">
+        <xs:sequence>
+            <xs:element type="xs:string" name="command" maxOccurs="unbounded"
+                        minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
 
-	<xs:element name="artifacttype">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element name="packages" type="packagestype" />
-				<xs:element name="commands" type="commandstype" />
-			</xs:sequence>
-			<xs:attribute type="xs:string" name="name" />
-			<xs:attribute type="xs:anyURI" name="namespace" />
-		</xs:complexType>
-	</xs:element>
+    <xs:element name="artifacttype">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="packages" type="packagestype"/>
+                <xs:element name="commands" type="commandstype"/>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="name"/>
+            <xs:attribute type="xs:anyURI" name="namespace"/>
+        </xs:complexType>
+    </xs:element>
 </xs:schema>

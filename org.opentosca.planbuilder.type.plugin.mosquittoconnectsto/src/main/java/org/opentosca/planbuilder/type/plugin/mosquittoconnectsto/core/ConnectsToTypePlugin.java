@@ -11,12 +11,10 @@ import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
  * Copyright 2016 IAAS University of Stuttgart <br>
  * <br>
  *
- * This class implements a PlanBuilder Type Plugin for the RelationshipType MosquittoConnectsTo. The
- * plugin looks for a connection of the given RelationshipTemplate with a Moquitto Stack which
- * entails a Topic and Mosquitto node.
+ * This class implements a PlanBuilder Type Plugin for the RelationshipType MosquittoConnectsTo. The plugin looks for a
+ * connection of the given RelationshipTemplate with a Moquitto Stack which entails a Topic and Mosquitto node.
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
- *
  */
 public abstract class ConnectsToTypePlugin<T extends PlanContext> implements IPlanBuilderTypePlugin<T> {
     private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder Type Plugin Client connects to Mosquitto Broker";
@@ -44,7 +42,7 @@ public abstract class ConnectsToTypePlugin<T extends PlanContext> implements IPl
 
         // check the relationshipType
         if (!relationshipTemplate.getType()
-                                 .equals(ConnectsToTypePluginConstants.MOSQUITTO_CONNECTSTO_RELATIONSHIPTYPE)) {
+            .equals(ConnectsToTypePluginConstants.MOSQUITTO_CONNECTSTO_RELATIONSHIPTYPE)) {
             return false;
         }
 

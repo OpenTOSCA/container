@@ -21,9 +21,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class GeneratePlanForTopology {
 
-  @XmlElement
-  public String CSARURL;
+    @XmlElement
+    public String CSARURL;
 
-  @XmlElement
-  public String PLANPOSTURL;
+    @XmlElement
+    public String PLANPOSTURL;
 }

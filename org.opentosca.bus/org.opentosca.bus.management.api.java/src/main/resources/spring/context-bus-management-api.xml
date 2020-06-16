@@ -6,21 +6,21 @@
                            http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-  <description>
-    Register the beans providing the Management Bus Java API
-  </description>
-  <context:annotation-config />
+    <description>
+        Register the beans providing the Management Bus Java API
+    </description>
+    <context:annotation-config/>
 
-  <camel:camelContext id="mb-api-java-camel-context">
-    <camel:packageScan>
-      <camel:package>org.opentosca.bus.management.api.java.route</camel:package>
-    </camel:packageScan>
-  </camel:camelContext>
-  
-  <bean class="org.opentosca.bus.management.api.java.MBJavaApi">
-    <constructor-arg type="org.apache.camel.CamelContext" ref="mb-api-java-camel-context"/>
-  </bean>
-  <!-- We're manually adding the routes needed in the MBJavaApi ctor -->
-  <!--<context:component-scan base-package="org.opentosca.bus.management.api.java.route"/>-->
+    <camel:camelContext id="mb-api-java-camel-context">
+        <camel:packageScan>
+            <camel:package>org.opentosca.bus.management.api.java.route</camel:package>
+        </camel:packageScan>
+    </camel:camelContext>
+
+    <bean class="org.opentosca.bus.management.api.java.MBJavaApi">
+        <constructor-arg type="org.apache.camel.CamelContext" ref="mb-api-java-camel-context"/>
+    </bean>
+    <!-- We're manually adding the routes needed in the MBJavaApi ctor -->
+    <!--<context:component-scan base-package="org.opentosca.bus.management.api.java.route"/>-->
 
 </beans>

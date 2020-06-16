@@ -1,37 +1,40 @@
 <bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" validate="no" name="{assignName}">
-	<bpel:copy>
-		<bpel:from>
-			<bpel:literal>
-				<{prefix}:runScript
-				xmlns:{prefix}="http://ec2linux.aws.ia.opentosca.org"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<{prefix}:host>impl:host</{prefix}:host>
-				<{prefix}:script>impl:script</{prefix}:script>
-				<{prefix}:sshKey>impl:sshKey</{prefix}:sshKey>
-				</{prefix}:runScript> </bpel:literal>
-		</bpel:from>
-		<bpel:to variable="{requestVarName}" part="parameters"></bpel:to>
-	</bpel:copy>
-	<bpel:copy>
-		<bpel:from variable="{serverIpVarName}"></bpel:from>
-		<bpel:to variable="{requestVarName}" part="parameters">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{prefix}:host]]></bpel:query>
-		</bpel:to>
-	</bpel:copy>
-	<bpel:copy>
-		<bpel:from variable="{inputMessageVarName}" part="payload">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:sshKey]]></bpel:query>
-		</bpel:from>
-		<bpel:to variable="{requestVarName}" part="parameters">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{prefix}:sshKey]]></bpel:query>
-		</bpel:to>
-	</bpel:copy>
-	<bpel:copy>
-		<bpel:from>
-			<![CDATA[{script}]]>
-		</bpel:from>
-		<bpel:to variable="{requestVarName}" part="parameters">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{prefix}:script]]></bpel:query>
-		</bpel:to>
-	</bpel:copy>
-</bpel:assign>
+    <bpel:copy>
+        <bpel:from>
+            <bpel:literal>
+                <{prefix}:runScript
+                xmlns:{prefix}="http://ec2linux.aws.ia.opentosca.org"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <{prefix}:host>impl:host
+            </{prefix}:host>
+            <{prefix}:script>impl:script
+        </{prefix}:script>
+        <{prefix}:sshKey>impl:sshKey
+    </{prefix}:sshKey>
+</{prefix}:runScript> </bpel:literal>
+    </bpel:from>
+<bpel:to variable="{requestVarName}" part="parameters"></bpel:to>
+    </bpel:copy>
+<bpel:copy>
+<bpel:from variable="{serverIpVarName}"></bpel:from>
+<bpel:to variable="{requestVarName}" part="parameters">
+    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{prefix}:host]]></bpel:query>
+</bpel:to>
+</bpel:copy>
+<bpel:copy>
+<bpel:from variable="{inputMessageVarName}" part="payload">
+    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:sshKey]]></bpel:query>
+</bpel:from>
+<bpel:to variable="{requestVarName}" part="parameters">
+    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{prefix}:sshKey]]></bpel:query>
+</bpel:to>
+</bpel:copy>
+<bpel:copy>
+<bpel:from>
+    <![CDATA[{script}]]>
+</bpel:from>
+<bpel:to variable="{requestVarName}" part="parameters">
+    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{prefix}:script]]></bpel:query>
+</bpel:to>
+</bpel:copy>
+    </bpel:assign>

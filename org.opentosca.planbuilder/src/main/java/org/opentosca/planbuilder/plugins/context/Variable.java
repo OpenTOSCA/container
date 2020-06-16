@@ -11,7 +11,6 @@ package org.opentosca.planbuilder.plugins.context;
  */
 public class Variable {
 
-
     private final String variableName;
 
     /**

@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.common.ids.definitions.ArtifactTypeId;
 import org.eclipse.winery.common.ids.definitions.NodeTypeId;
@@ -41,9 +43,6 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.xml.XMLHelper;
 import org.opentosca.container.core.model.csar.Csar;
@@ -89,7 +88,6 @@ public final class ToscaEngine {
      *
      * @return A {@link TServiceTemplate} instance matching the passed QName as it's id. Guaranteed to not be
      * <tt>null</tt>.
-     * @throws NotFoundException
      */
     public static TServiceTemplate resolveServiceTemplate(Csar csar, QName serviceTemplateId) throws NotFoundException {
         TServiceTemplate serviceTemplate = getServiceTemplate(csar, serviceTemplateId);
@@ -107,7 +105,6 @@ public final class ToscaEngine {
      * @param serviceTemplateId The local id of the service template
      * @return A {@link TServiceTemplate} instance from within the given CSAR where the local id matches the search
      * parameter given to this method.
-     * @throws NotFoundException
      */
     public static TServiceTemplate resolveServiceTemplate(Csar csar, String serviceTemplateId) throws NotFoundException {
         // Iterate service templates here to allow resolving service templates by name without knowing their fully qualified Id

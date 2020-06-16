@@ -6,13 +6,13 @@
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
-  <description>
-    Configuration for Spring-Bean service discovery within the legacy module
-  </description>
+    <description>
+        Configuration for Spring-Bean service discovery within the legacy module
+    </description>
 
-  <context:annotation-config />
+    <context:annotation-config/>
 
-  <context:component-scan base-package="org.opentosca.container.legacy.core.service" />
-  <context:component-scan base-package="org.opentosca.container.legacy.core.engine" />
+    <context:component-scan base-package="org.opentosca.container.legacy.core.service"/>
+    <context:component-scan base-package="org.opentosca.container.legacy.core.engine"/>
 
 </beans>

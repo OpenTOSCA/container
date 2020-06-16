@@ -1,4 +1,4 @@
-
-<bpel:invoke xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" name="{InvokeName}" partnerLink="{partnerlinkName}"
-	operation="{operation}" portType="{portTypePrefix}:EC2LinuxIAService"
-	inputVariable="{inputVarName}" outputVariable="{outputVarName}"></bpel:invoke>
+<bpel:invoke xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" name="{InvokeName}"
+             partnerLink="{partnerlinkName}"
+             operation="{operation}" portType="{portTypePrefix}:EC2LinuxIAService"
+             inputVariable="{inputVarName}" outputVariable="{outputVarName}"></bpel:invoke>

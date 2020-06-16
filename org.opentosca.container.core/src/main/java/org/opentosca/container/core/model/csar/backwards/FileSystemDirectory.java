@@ -19,108 +19,108 @@ import org.opentosca.container.core.model.AbstractFile;
 @Deprecated
 public class FileSystemDirectory extends AbstractDirectory {
 
-  private final Path representedPath;
+    private final Path representedPath;
 
-  public FileSystemDirectory(Path dirPath) {
-    super(dirPath.toAbsolutePath().toString(), Collections.emptySet(), Collections.emptySet(), false);
-    if (Files.exists(dirPath) && !Files.isDirectory(dirPath)) {
-      throw new IllegalArgumentException("Given path " + dirPath + " was not a directory");
-    }
-    representedPath = dirPath;
-  }
-
-  @Override
-  public AbstractFile getFile(String relPathOfFile) {
-    Path resolved = representedPath.resolve(relPathOfFile);
-    if (Files.exists(resolved) && Files.isRegularFile(resolved)) {
-      return new FileSystemFile(resolved);
-    }
-    return null;
-  }
-
-  @Override
-  public Set<AbstractFile> getFilesRecursively() {
-    try {
-      return Files.walk(representedPath)
-        .filter(Files::isRegularFile)
-        .map(FileSystemFile::new)
-        .collect(Collectors.toSet());
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  @Override
-  public String getPath() {
-    return representedPath.toAbsolutePath().toString();
-  }
-
-  @Override
-  public Set<AbstractDirectory> getDirectories() {
-    Set<Path> result = new HashSet<>();
-    try (DirectoryStream<Path> stream = Files.newDirectoryStream(representedPath)) {
-      for (Path entry : stream) {
-        if (Files.isDirectory(entry)) {
-          result.add(entry);
+    public FileSystemDirectory(Path dirPath) {
+        super(dirPath.toAbsolutePath().toString(), Collections.emptySet(), Collections.emptySet(), false);
+        if (Files.exists(dirPath) && !Files.isDirectory(dirPath)) {
+            throw new IllegalArgumentException("Given path " + dirPath + " was not a directory");
         }
-      }
-    } catch (DirectoryIteratorException ex) {
-      // I/O error encounted during the iteration, the cause is an IOException
-      throw new UncheckedIOException((IOException) ex.getCause());
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
+        representedPath = dirPath;
     }
-    return result.stream().map(FileSystemDirectory::new).collect(Collectors.toSet());
-  }
 
-  @Override
-  protected AbstractFile getFileNotConsiderPatterns(String relPathOfFile) {
-    return new FileSystemFile(representedPath.resolve(relPathOfFile));
-  }
-
-  @Override
-  protected Set<AbstractFile> getFilesNotConsiderPatterns() {
-    Set<Path> result = new HashSet<>();
-    try (DirectoryStream<Path> stream = Files.newDirectoryStream(representedPath)) {
-      for (Path entry : stream) {
-        if (Files.isRegularFile(entry)) {
-          result.add(entry);
+    @Override
+    public AbstractFile getFile(String relPathOfFile) {
+        Path resolved = representedPath.resolve(relPathOfFile);
+        if (Files.exists(resolved) && Files.isRegularFile(resolved)) {
+            return new FileSystemFile(resolved);
         }
-      }
-    } catch (DirectoryIteratorException ex) {
-      // I/O error encounted during the iteration, the cause is an IOException
-      throw new UncheckedIOException((IOException) ex.getCause());
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
+        return null;
     }
-    return result.stream().map(FileSystemFile::new).collect(Collectors.toSet());
-  }
 
-  @Override
-  public AbstractDirectory getDirectory(String relPathOfDirectory) {
-    Path resolved = representedPath.resolve(relPathOfDirectory);
-    if (Files.exists(resolved) && Files.isDirectory(resolved)) {
-      return new FileSystemDirectory(resolved);
+    @Override
+    public Set<AbstractFile> getFilesRecursively() {
+        try {
+            return Files.walk(representedPath)
+                .filter(Files::isRegularFile)
+                .map(FileSystemFile::new)
+                .collect(Collectors.toSet());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
-    return null;
-  }
 
-  @Override
-  public String getName() {
-    // getFileName just returns the last path fragment
-    return representedPath.getFileName().toString();
-  }
+    @Override
+    public String getPath() {
+        return representedPath.toAbsolutePath().toString();
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    FileSystemDirectory that = (FileSystemDirectory) o;
-    return Objects.equals(representedPath, that.representedPath);
-  }
+    @Override
+    public Set<AbstractDirectory> getDirectories() {
+        Set<Path> result = new HashSet<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(representedPath)) {
+            for (Path entry : stream) {
+                if (Files.isDirectory(entry)) {
+                    result.add(entry);
+                }
+            }
+        } catch (DirectoryIteratorException ex) {
+            // I/O error encounted during the iteration, the cause is an IOException
+            throw new UncheckedIOException((IOException) ex.getCause());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return result.stream().map(FileSystemDirectory::new).collect(Collectors.toSet());
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(representedPath);
-  }
+    @Override
+    protected AbstractFile getFileNotConsiderPatterns(String relPathOfFile) {
+        return new FileSystemFile(representedPath.resolve(relPathOfFile));
+    }
+
+    @Override
+    protected Set<AbstractFile> getFilesNotConsiderPatterns() {
+        Set<Path> result = new HashSet<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(representedPath)) {
+            for (Path entry : stream) {
+                if (Files.isRegularFile(entry)) {
+                    result.add(entry);
+                }
+            }
+        } catch (DirectoryIteratorException ex) {
+            // I/O error encounted during the iteration, the cause is an IOException
+            throw new UncheckedIOException((IOException) ex.getCause());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return result.stream().map(FileSystemFile::new).collect(Collectors.toSet());
+    }
+
+    @Override
+    public AbstractDirectory getDirectory(String relPathOfDirectory) {
+        Path resolved = representedPath.resolve(relPathOfDirectory);
+        if (Files.exists(resolved) && Files.isDirectory(resolved)) {
+            return new FileSystemDirectory(resolved);
+        }
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        // getFileName just returns the last path fragment
+        return representedPath.getFileName().toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FileSystemDirectory that = (FileSystemDirectory) o;
+        return Objects.equals(representedPath, that.representedPath);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(representedPath);
+    }
 }

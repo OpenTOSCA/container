@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <artifacttype name="ScriptArtifact"
-	namespace="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes">
-	<packages>
-	</packages>
-	<commands>
-		<command>chmod +x {TARGET_FILE_PATH}</command>
-		<command>CAN_SUDO=$(sudo -n uptime 2&gt;&amp;1|grep "load"|wc -l); if [ ${CAN_SUDO} -gt 0 ]; then sudo -E {DA_NAME_PATH_MAP}{INPUT_PARAMETER}{TARGET_FILE_PATH}; else {DA_NAME_PATH_MAP}{INPUT_PARAMETER}{TARGET_FILE_PATH}; fi</command>
-	</commands>
+              namespace="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes">
+    <packages>
+    </packages>
+    <commands>
+        <command>chmod +x {TARGET_FILE_PATH}</command>
+        <command>CAN_SUDO=$(sudo -n uptime 2&gt;&amp;1|grep "load"|wc -l); if [ ${CAN_SUDO} -gt 0 ]; then sudo -E
+            {DA_NAME_PATH_MAP}{INPUT_PARAMETER}{TARGET_FILE_PATH}; else
+            {DA_NAME_PATH_MAP}{INPUT_PARAMETER}{TARGET_FILE_PATH}; fi
+        </command>
+    </commands>
 </artifacttype>

@@ -6,7 +6,6 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -18,7 +17,6 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 import org.w3c.dom.Element;
-
 
 /**
  * <p>
@@ -45,46 +43,45 @@ import org.w3c.dom.Element;
 @XmlSeeAlso( {TPropertyConstraint.class})
 public class TConstraint {
 
-  @XmlAnyElement(lax = true)
-  protected Object any;
-  @XmlAttribute(required = true)
-  @XmlSchemaType(name = "anyURI")
-  protected String constraintType;
+    @XmlAnyElement(lax = true)
+    protected Object any;
+    @XmlAttribute(required = true)
+    @XmlSchemaType(name = "anyURI")
+    protected String constraintType;
 
-  /**
-   * Gets the value of the any property.
-   *
-   * @return possible object is {@link Object } {@link Element }
-   */
-  public Object getAny() {
-    return this.any;
-  }
+    /**
+     * Gets the value of the any property.
+     *
+     * @return possible object is {@link Object } {@link Element }
+     */
+    public Object getAny() {
+        return this.any;
+    }
 
-  /**
-   * Sets the value of the any property.
-   *
-   * @param value allowed object is {@link Object } {@link Element }
-   */
-  public void setAny(final Object value) {
-    this.any = value;
-  }
+    /**
+     * Sets the value of the any property.
+     *
+     * @param value allowed object is {@link Object } {@link Element }
+     */
+    public void setAny(final Object value) {
+        this.any = value;
+    }
 
-  /**
-   * Gets the value of the constraintType property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getConstraintType() {
-    return this.constraintType;
-  }
+    /**
+     * Gets the value of the constraintType property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getConstraintType() {
+        return this.constraintType;
+    }
 
-  /**
-   * Sets the value of the constraintType property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setConstraintType(final String value) {
-    this.constraintType = value;
-  }
-
+    /**
+     * Sets the value of the constraintType property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setConstraintType(final String value) {
+        this.constraintType = value;
+    }
 }

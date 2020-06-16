@@ -12,7 +12,6 @@ import org.w3c.dom.Element;
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public abstract class AbstractProperties {
 

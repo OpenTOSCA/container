@@ -6,7 +6,6 @@
 // Generated on: 2016.07.12 at 02:53:01 PM CEST
 //
 
-
 package org.opentosca.bus.management.invocation.plugin.script.model.artifacttypes;
 
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -41,38 +39,38 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "commandstype", propOrder = {"command"})
 public class Commandstype {
 
-  protected List<String> command;
+    protected List<String> command;
 
-  /**
-   * Gets the value of the command property.
-   *
-   * <p>
-   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-   * modification you make to the returned list will be present inside the JAXB object. This is why
-   * there is not a <CODE>set</CODE> method for the command property.
-   *
-   * <p>
-   * For example, to add a new item, do as follows:
-   *
-   * <pre>
-   * getCommand().add(newItem);
-   * </pre>
-   *
-   *
-   * <p>
-   * Objects of the following type(s) are allowed in the list {@link String }
-   */
-  public List<String> getCommand() {
-    if (this.command == null) {
-      this.command = new ArrayList<>();
+    /**
+     * Gets the value of the command property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+     * the command property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getCommand().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link String }
+     */
+    public List<String> getCommand() {
+        if (this.command == null) {
+            this.command = new ArrayList<>();
+        }
+        return this.command;
     }
-    return this.command;
-  }
 
-  @Override
-  public String toString() {
-    return "Commandstype{" +
-      "command=" + command.stream().collect(Collectors.joining(", ")) +
-      '}';
-  }
+    @Override
+    public String toString() {
+        return "Commandstype{" +
+            "command=" + command.stream().collect(Collectors.joining(", ")) +
+            '}';
+    }
 }

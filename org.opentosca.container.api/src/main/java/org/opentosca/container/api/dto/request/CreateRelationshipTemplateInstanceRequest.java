@@ -12,36 +12,36 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateRelationshipTemplateInstanceRequest {
 
-  @XmlAttribute(name = "service-instance-id")
-  private Long serviceInstanceId;
+    @XmlAttribute(name = "service-instance-id")
+    private Long serviceInstanceId;
 
-  @XmlAttribute(name = "source-instance-id")
-  private Long sourceNodeTemplateInstanceId;
+    @XmlAttribute(name = "source-instance-id")
+    private Long sourceNodeTemplateInstanceId;
 
-  @XmlAttribute(name = "target-instance-id")
-  private Long targetNodeTemplateInstanceId;
+    @XmlAttribute(name = "target-instance-id")
+    private Long targetNodeTemplateInstanceId;
 
-  public Long getServiceInstanceId() {
-    return serviceInstanceId;
-  }
+    public Long getServiceInstanceId() {
+        return serviceInstanceId;
+    }
 
-  public void setServiceInstanceId(Long serviceInstanceId) {
-    this.serviceInstanceId = serviceInstanceId;
-  }
+    public void setServiceInstanceId(Long serviceInstanceId) {
+        this.serviceInstanceId = serviceInstanceId;
+    }
 
-  public Long getSourceNodeTemplateInstanceId() {
-    return this.sourceNodeTemplateInstanceId;
-  }
+    public Long getSourceNodeTemplateInstanceId() {
+        return this.sourceNodeTemplateInstanceId;
+    }
 
-  public void setSourceNodeTemplateInstanceId(final Long sourceNodeTemplateInstanceId) {
-    this.sourceNodeTemplateInstanceId = sourceNodeTemplateInstanceId;
-  }
+    public void setSourceNodeTemplateInstanceId(final Long sourceNodeTemplateInstanceId) {
+        this.sourceNodeTemplateInstanceId = sourceNodeTemplateInstanceId;
+    }
 
-  public Long getTargetNodeTemplateInstanceId() {
-    return this.targetNodeTemplateInstanceId;
-  }
+    public Long getTargetNodeTemplateInstanceId() {
+        return this.targetNodeTemplateInstanceId;
+    }
 
-  public void setTargetNodeTemplateInstanceId(final Long targetNodeTemplateInstanceId) {
-    this.targetNodeTemplateInstanceId = targetNodeTemplateInstanceId;
-  }
+    public void setTargetNodeTemplateInstanceId(final Long targetNodeTemplateInstanceId) {
+        this.targetNodeTemplateInstanceId = targetNodeTemplateInstanceId;
+    }
 }

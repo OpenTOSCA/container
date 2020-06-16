@@ -6,32 +6,31 @@ import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**
  * <p>
- * This interface should be implemented by Plugins which are PostPhasePlugins. PostPhasePlugins are
- * used to update data outside of the BuildPlan, like Databases
+ * This interface should be implemented by Plugins which are PostPhasePlugins. PostPhasePlugins are used to update data
+ * outside of the BuildPlan, like Databases
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPlanBuilderPlugin {
 
     /**
-     * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of
-     * the given NodeTemplate and send it to the Component it belongs to
+     * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of the given
+     * NodeTemplate and send it to the Component it belongs to
      *
-     * @param context a TemplatePlanContext for accessing data inside the BuildPlan
+     * @param context      a TemplatePlanContext for accessing data inside the BuildPlan
      * @param nodeTemplate the NodeTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
     public boolean handleCreate(T context, AbstractNodeTemplate nodeTemplate);
 
     /**
-     * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of
-     * the given RelationshipTemplate and send it to the Component it belongs to
+     * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of the given
+     * RelationshipTemplate and send it to the Component it belongs to
      *
-     * @param context a TemplatePlanContext for accessing data inside the BuildPlan
+     * @param context              a TemplatePlanContext for accessing data inside the BuildPlan
      * @param relationshipTemplate the RelationshipTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
@@ -53,22 +52,21 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      */
     public boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
 
-
     /**
-     * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of
-     * the given NodeTemplate and send it to the Component it belongs to
+     * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of the given
+     * NodeTemplate and send it to the Component it belongs to
      *
-     * @param context a TemplatePlanContext for accessing data inside the BuildPlan
+     * @param context      a TemplatePlanContext for accessing data inside the BuildPlan
      * @param nodeTemplate the NodeTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
     public boolean handleTerminate(T context, AbstractNodeTemplate nodeTemplate);
 
     /**
-     * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of
-     * the given RelationshipTemplate and send it to the Component it belongs to
+     * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of the given
+     * RelationshipTemplate and send it to the Component it belongs to
      *
-     * @param context a TemplatePlanContext for accessing data inside the BuildPlan
+     * @param context              a TemplatePlanContext for accessing data inside the BuildPlan
      * @param relationshipTemplate the RelationshipTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */

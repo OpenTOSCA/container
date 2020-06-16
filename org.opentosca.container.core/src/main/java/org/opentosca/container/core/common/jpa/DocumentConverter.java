@@ -26,88 +26,86 @@ import org.xml.sax.SAXException;
 @Converter
 public class DocumentConverter implements AttributeConverter<Document, String> {
 
-  private static final long serialVersionUID = -1227963218864722385L;
+    private static final long serialVersionUID = -1227963218864722385L;
 
-  /**
-   * Converts a given String to a XML document
-   *
-   * @param documentString
-   * @return Document - converted xml Document
-   */
-  private static Document getDocument(final String documentString) {
-    if (documentString.isEmpty()) {
-      return emptyDocument();
+    /**
+     * Converts a given String to a XML document
+     *
+     * @return Document - converted xml Document
+     */
+    private static Document getDocument(final String documentString) {
+        if (documentString.isEmpty()) {
+            return emptyDocument();
+        }
+        // start conversion
+        final InputSource iSource = new InputSource(new StringReader(documentString));
+        Document doc = null;
+        try {
+            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            dbf.setIgnoringComments(true);
+            final DocumentBuilder db = dbf.newDocumentBuilder();
+
+            // parse
+            doc = db.parse(iSource);
+            doc.getDocumentElement().normalize();
+        } catch (final ParserConfigurationException | SAXException | IOException e) {
+            e.printStackTrace();
+        }
+        return doc;
     }
-    // start conversion
-    final InputSource iSource = new InputSource(new StringReader(documentString));
-    Document doc = null;
-    try {
-      final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      dbf.setNamespaceAware(true);
-      dbf.setIgnoringComments(true);
-      final DocumentBuilder db = dbf.newDocumentBuilder();
 
-      // parse
-      doc = db.parse(iSource);
-      doc.getDocumentElement().normalize();
-    } catch (final ParserConfigurationException | SAXException | IOException e) {
-      e.printStackTrace();
+    /**
+     * returns an empty document
+     *
+     * @return empty document
+     */
+    public static Document emptyDocument() {
+        final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+
+        try {
+            final DocumentBuilder db = dbf.newDocumentBuilder();
+            final Document doc = db.newDocument();
+            return doc;
+        } catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
-    return doc;
-  }
 
-  /**
-   * returns an empty document
-   *
-   * @return empty document
-   */
-  public static Document emptyDocument() {
-    final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    dbf.setNamespaceAware(true);
-
-    try {
-      final DocumentBuilder db = dbf.newDocumentBuilder();
-      final Document doc = db.newDocument();
-      return doc;
-    } catch (final ParserConfigurationException e) {
-      e.printStackTrace();
+    /**
+     * Converts a given node to a String
+     *
+     * @return String - String representation of the given Node
+     */
+    private static String getString(final Node node) {
+        String result = null;
+        if (node != null) {
+            try {
+                // prepare
+                final Source source = new DOMSource(node);
+                final StringWriter stringWriter = new StringWriter();
+                final Result streamResult = new StreamResult(stringWriter);
+                final TransformerFactory factory = TransformerFactory.newInstance();
+                final Transformer transformer = factory.newTransformer();
+                // serialize
+                transformer.transform(source, streamResult);
+                result = stringWriter.getBuffer().toString();
+            } catch (final TransformerFactoryConfigurationError | TransformerException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
-    return null;
-  }
 
-  /**
-   * Converts a given node to a String
-   *
-   * @param node
-   * @return String - String representation of the given Node
-   */
-  private static String getString(final Node node) {
-    String result = null;
-    if (node != null) {
-      try {
-        // prepare
-        final Source source = new DOMSource(node);
-        final StringWriter stringWriter = new StringWriter();
-        final Result streamResult = new StreamResult(stringWriter);
-        final TransformerFactory factory = TransformerFactory.newInstance();
-        final Transformer transformer = factory.newTransformer();
-        // serialize
-        transformer.transform(source, streamResult);
-        result = stringWriter.getBuffer().toString();
-      } catch (final TransformerFactoryConfigurationError | TransformerException e) {
-        e.printStackTrace();
-      }
+    @Override
+    public String convertToDatabaseColumn(Document document) {
+        return document == null ? null : getString(document);
     }
-    return result;
-  }
 
-  @Override
-  public String convertToDatabaseColumn(Document document) {
-    return document == null ? null : getString(document);
-  }
-
-  @Override
-  public Document convertToEntityAttribute(String s) {
-    return s == null ? null : getDocument(s);
-  }
+    @Override
+    public Document convertToEntityAttribute(String s) {
+        return s == null ? null : getDocument(s);
+    }
 }

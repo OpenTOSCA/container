@@ -8,184 +8,194 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import javax.xml.namespace.QName;
-
-import org.opentosca.container.core.common.jpa.QNameConverter;
-import org.opentosca.container.core.next.xml.PropertyParser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.opentosca.container.core.common.jpa.QNameConverter;
+import org.opentosca.container.core.next.xml.PropertyParser;
 
 @Entity
 @Table(name = NodeTemplateInstance.TABLE_NAME)
 public class NodeTemplateInstance extends PersistenceObject {
 
-  public static final String TABLE_NAME = "NODE_TEMPLATE_INSTANCE";
+    public static final String TABLE_NAME = "NODE_TEMPLATE_INSTANCE";
 
-  private static final long serialVersionUID = 6596755785422340480L;
+    private static final long serialVersionUID = 6596755785422340480L;
 
-  @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  private NodeTemplateInstanceState state;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private NodeTemplateInstanceState state;
 
-  @OrderBy("createdAt DESC")
-  @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
-  @JsonIgnore
-  private Set<NodeTemplateInstanceProperty> properties = new HashSet<>();
+    @OrderBy("createdAt DESC")
+    @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
+    @JsonIgnore
+    private Set<NodeTemplateInstanceProperty> properties = new HashSet<>();
 
-  @ManyToOne
-  @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
-  private ServiceTemplateInstance serviceTemplateInstance;
+    @ManyToOne
+    @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
+    private ServiceTemplateInstance serviceTemplateInstance;
 
-  @OneToMany(mappedBy = "target")
-  private Collection<RelationshipTemplateInstance> incomingRelations = new ArrayList<>();
+    @OneToMany(mappedBy = "target")
+    private Collection<RelationshipTemplateInstance> incomingRelations = new ArrayList<>();
 
-  @OneToMany(mappedBy = "source")
-  private Collection<RelationshipTemplateInstance> outgoingRelations = new ArrayList<>();
+    @OneToMany(mappedBy = "source")
+    private Collection<RelationshipTemplateInstance> outgoingRelations = new ArrayList<>();
 
-  @Column(name = "TEMPLATE_ID", nullable = false)
-  private String templateId;
+    @Column(name = "TEMPLATE_ID", nullable = false)
+    private String templateId;
 
-  @Convert(converter = QNameConverter.class)
-  @Column(name = "TEMPLATE_TYPE", nullable = false)
-  private QName templateType;
+    @Convert(converter = QNameConverter.class)
+    @Column(name = "TEMPLATE_TYPE", nullable = false)
+    private QName templateType;
 
-  @OrderBy("createdAt DESC")
-  @OneToMany(mappedBy = "nodeTemplateInstance", fetch = FetchType.EAGER)
-  @JsonIgnore
-  private List<DeploymentTestResult> deploymentTestResults = new ArrayList<>();
+    @OrderBy("createdAt DESC")
+    @OneToMany(mappedBy = "nodeTemplateInstance", fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<DeploymentTestResult> deploymentTestResults = new ArrayList<>();
 
-  @Column(name = "managingContainer")
-  private String managingContainer;
+    @Column(name = "managingContainer")
+    private String managingContainer;
 
-  public NodeTemplateInstance() {
-  }
-
-  public String getName() {
-    return this.templateId;
-  }
-
-  public NodeTemplateInstanceState getState() {
-    return this.state;
-  }
-
-  public void setState(final NodeTemplateInstanceState state) {
-    this.state = state;
-  }
-
-  public Collection<NodeTemplateInstanceProperty> getProperties() {
-    return this.properties;
-  }
-
-  public void setProperties(final Set<NodeTemplateInstanceProperty> properties) {
-    this.properties = properties;
-  }
-
-  public void addProperty(final NodeTemplateInstanceProperty property) {
-    if (!this.properties.add(property)) {
-      this.properties.remove(property);
-      this.properties.add(property);
+    public NodeTemplateInstance() {
     }
-    if (property.getNodeTemplateInstance() != this) {
-      property.setNodeTemplateInstance(this);
+
+    public String getName() {
+        return this.templateId;
     }
-  }
 
-  /*
-   * Currently, the plan writes all properties as one XML document into the database. Therefore,
-   * we parse this XML and return a Map<String, String>.
-   */
-  @JsonProperty("properties")
-  public Map<String, String> getPropertiesAsMap() {
-    final PropertyParser parser = new PropertyParser();
-    final NodeTemplateInstanceProperty prop =
-      getProperties().stream()
-        .filter(p -> p.getType().equalsIgnoreCase("xml"))
-        .collect(Collectors.reducing((a, b) -> null)).orElse(null);
-    if (prop != null) {
-      return parser.parse(prop.getValue());
+    public NodeTemplateInstanceState getState() {
+        return this.state;
     }
-    return null;
-  }
 
-  public ServiceTemplateInstance getServiceTemplateInstance() {
-    return this.serviceTemplateInstance;
-  }
-
-  public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
-    this.serviceTemplateInstance = serviceTemplateInstance;
-    if (!serviceTemplateInstance.getNodeTemplateInstances().contains(this)) {
-      serviceTemplateInstance.getNodeTemplateInstances().add(this);
+    public void setState(final NodeTemplateInstanceState state) {
+        this.state = state;
     }
-  }
 
-  public Collection<RelationshipTemplateInstance> getIncomingRelations() {
-    return this.incomingRelations;
-  }
-
-  public void setIncomingRelations(final Collection<RelationshipTemplateInstance> incomingRelations) {
-    this.incomingRelations = incomingRelations;
-  }
-
-  public void addIncomingRelation(final RelationshipTemplateInstance incomingRelation) {
-    this.incomingRelations.add(incomingRelation);
-    if (incomingRelation.getTarget() != this) {
-      incomingRelation.setTarget(this);
+    public Collection<NodeTemplateInstanceProperty> getProperties() {
+        return this.properties;
     }
-  }
 
-  public Collection<RelationshipTemplateInstance> getOutgoingRelations() {
-    return this.outgoingRelations;
-  }
-
-  public void setOutgoingRelations(final Collection<RelationshipTemplateInstance> outgoingRelations) {
-    this.outgoingRelations = outgoingRelations;
-  }
-
-  public void addOutgoingRelation(final RelationshipTemplateInstance outgoingRelation) {
-    this.outgoingRelations.add(outgoingRelation);
-    if (outgoingRelation.getSource() != this) {
-      outgoingRelation.setSource(this);
+    public void setProperties(final Set<NodeTemplateInstanceProperty> properties) {
+        this.properties = properties;
     }
-  }
 
-  public String getTemplateId() {
-    return this.templateId;
-  }
-
-  public void setTemplateId(final String templateId) {
-    this.templateId = templateId;
-  }
-
-  public QName getTemplateType() {
-    return this.templateType;
-  }
-
-  public void setTemplateType(final QName templateType) {
-    this.templateType = templateType;
-  }
-
-  public List<DeploymentTestResult> getDeploymentTestResults() {
-    return this.deploymentTestResults;
-  }
-
-  public void setDeploymentTestResults(final List<DeploymentTestResult> deploymentTestResult) {
-    this.deploymentTestResults = deploymentTestResult;
-  }
-
-  public void addDeploymentTestResult(final DeploymentTestResult deploymentTestResult) {
-    this.deploymentTestResults.add(deploymentTestResult);
-    if (deploymentTestResult.getNodeTemplateInstance() != this) {
-      deploymentTestResult.setNodeTemplateInstance(this);
+    public void addProperty(final NodeTemplateInstanceProperty property) {
+        if (!this.properties.add(property)) {
+            this.properties.remove(property);
+            this.properties.add(property);
+        }
+        if (property.getNodeTemplateInstance() != this) {
+            property.setNodeTemplateInstance(this);
+        }
     }
-  }
 
-  public String getManagingContainer() {
-    return this.managingContainer;
-  }
+    /*
+     * Currently, the plan writes all properties as one XML document into the database. Therefore,
+     * we parse this XML and return a Map<String, String>.
+     */
+    @JsonProperty("properties")
+    public Map<String, String> getPropertiesAsMap() {
+        final PropertyParser parser = new PropertyParser();
+        final NodeTemplateInstanceProperty prop =
+            getProperties().stream()
+                .filter(p -> p.getType().equalsIgnoreCase("xml"))
+                .collect(Collectors.reducing((a, b) -> null)).orElse(null);
+        if (prop != null) {
+            return parser.parse(prop.getValue());
+        }
+        return null;
+    }
 
-  public void setManagingContainer(final String managingContainer) {
-    this.managingContainer = managingContainer;
-  }
+    public ServiceTemplateInstance getServiceTemplateInstance() {
+        return this.serviceTemplateInstance;
+    }
+
+    public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
+        this.serviceTemplateInstance = serviceTemplateInstance;
+        if (!serviceTemplateInstance.getNodeTemplateInstances().contains(this)) {
+            serviceTemplateInstance.getNodeTemplateInstances().add(this);
+        }
+    }
+
+    public Collection<RelationshipTemplateInstance> getIncomingRelations() {
+        return this.incomingRelations;
+    }
+
+    public void setIncomingRelations(final Collection<RelationshipTemplateInstance> incomingRelations) {
+        this.incomingRelations = incomingRelations;
+    }
+
+    public void addIncomingRelation(final RelationshipTemplateInstance incomingRelation) {
+        this.incomingRelations.add(incomingRelation);
+        if (incomingRelation.getTarget() != this) {
+            incomingRelation.setTarget(this);
+        }
+    }
+
+    public Collection<RelationshipTemplateInstance> getOutgoingRelations() {
+        return this.outgoingRelations;
+    }
+
+    public void setOutgoingRelations(final Collection<RelationshipTemplateInstance> outgoingRelations) {
+        this.outgoingRelations = outgoingRelations;
+    }
+
+    public void addOutgoingRelation(final RelationshipTemplateInstance outgoingRelation) {
+        this.outgoingRelations.add(outgoingRelation);
+        if (outgoingRelation.getSource() != this) {
+            outgoingRelation.setSource(this);
+        }
+    }
+
+    public String getTemplateId() {
+        return this.templateId;
+    }
+
+    public void setTemplateId(final String templateId) {
+        this.templateId = templateId;
+    }
+
+    public QName getTemplateType() {
+        return this.templateType;
+    }
+
+    public void setTemplateType(final QName templateType) {
+        this.templateType = templateType;
+    }
+
+    public List<DeploymentTestResult> getDeploymentTestResults() {
+        return this.deploymentTestResults;
+    }
+
+    public void setDeploymentTestResults(final List<DeploymentTestResult> deploymentTestResult) {
+        this.deploymentTestResults = deploymentTestResult;
+    }
+
+    public void addDeploymentTestResult(final DeploymentTestResult deploymentTestResult) {
+        this.deploymentTestResults.add(deploymentTestResult);
+        if (deploymentTestResult.getNodeTemplateInstance() != this) {
+            deploymentTestResult.setNodeTemplateInstance(this);
+        }
+    }
+
+    public String getManagingContainer() {
+        return this.managingContainer;
+    }
+
+    public void setManagingContainer(final String managingContainer) {
+        this.managingContainer = managingContainer;
+    }
 }

@@ -1,12 +1,14 @@
 <bpel:assign validate="no" name="$assignName"
-	xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
-	<!-- $xpath2query1,$xpath2query2, $fromVarName, $toVarName, $intent -->
-	<bpel:copy $extension>
-		<bpel:from variable="$fromVarName" $part1>
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$xpath2query1]]></bpel:query>
-		</bpel:from>
-		<bpel:to variable="$toVarName" $part2>
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$xpath2query2]]></bpel:query>
-		</bpel:to>
-	</bpel:copy>
-</bpel:assign>
+             xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
+    <!-- $xpath2query1,$xpath2query2, $fromVarName, $toVarName, $intent -->
+    <bpel:copy
+    $extension>
+    <bpel:from variable="$fromVarName"
+    $part1>
+    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$xpath2query1]]></bpel:query>
+</bpel:from>
+<bpel:to variable="$toVarName" $part2>
+<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$xpath2query2]]></bpel:query>
+    </bpel:to>
+    </bpel:copy>
+    </bpel:assign>

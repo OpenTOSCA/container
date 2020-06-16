@@ -6,13 +6,11 @@
 // Generated on: 2013.07.29 at 03:39:23 PM MESZ
 //
 
-
 package org.opentosca.bus.management.invocation.plugin.rest.model;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -35,27 +33,26 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum ContentType {
 
-  @XmlEnumValue("urlencoded")
-  URLENCODED("urlencoded"), @XmlEnumValue("xml")
-  XML("xml"), @XmlEnumValue("json")
-  JSON("json");
-  private final String value;
+    @XmlEnumValue("urlencoded")
+    URLENCODED("urlencoded"), @XmlEnumValue("xml")
+    XML("xml"), @XmlEnumValue("json")
+    JSON("json");
+    private final String value;
 
-  ContentType(final String v) {
-    this.value = v;
-  }
-
-  public String value() {
-    return this.value;
-  }
-
-  public static ContentType fromValue(final String v) {
-    for (final ContentType c : ContentType.values()) {
-      if (c.value.equals(v)) {
-        return c;
-      }
+    ContentType(final String v) {
+        this.value = v;
     }
-    throw new IllegalArgumentException(v);
-  }
 
+    public String value() {
+        return this.value;
+    }
+
+    public static ContentType fromValue(final String v) {
+        for (final ContentType c : ContentType.values()) {
+            if (c.value.equals(v)) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException(v);
+    }
 }

@@ -43,55 +43,53 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tPlans", propOrder = {"plan"})
 public class TPlans {
 
-  @XmlElement(name = "Plan", required = true)
-  protected List<TPlan> plan;
-  @XmlAttribute
-  @XmlSchemaType(name = "anyURI")
-  protected String targetNamespace;
+    @XmlElement(name = "Plan", required = true)
+    protected List<TPlan> plan;
+    @XmlAttribute
+    @XmlSchemaType(name = "anyURI")
+    protected String targetNamespace;
 
-
-  /**
-   * Gets the value of the plan property.
-   *
-   * <p>
-   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-   * modification you make to the returned list will be present inside the JAXB object. This is why
-   * there is not a <CODE>set</CODE> method for the plan property.
-   *
-   * <p>
-   * For example, to add a new item, do as follows:
-   *
-   * <pre>
-   * getPlan().add(newItem);
-   * </pre>
-   *
-   *
-   * <p>
-   * Objects of the following type(s) are allowed in the list {@link TPlan }
-   */
-  public List<TPlan> getPlan() {
-    if (this.plan == null) {
-      this.plan = new ArrayList<>();
+    /**
+     * Gets the value of the plan property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+     * the plan property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getPlan().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link TPlan }
+     */
+    public List<TPlan> getPlan() {
+        if (this.plan == null) {
+            this.plan = new ArrayList<>();
+        }
+        return this.plan;
     }
-    return this.plan;
-  }
 
-  /**
-   * Gets the value of the targetNamespace property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getTargetNamespace() {
-    return this.targetNamespace;
-  }
+    /**
+     * Gets the value of the targetNamespace property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getTargetNamespace() {
+        return this.targetNamespace;
+    }
 
-  /**
-   * Sets the value of the targetNamespace property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setTargetNamespace(final String value) {
-    this.targetNamespace = value;
-  }
-
+    /**
+     * Sets the value of the targetNamespace property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setTargetNamespace(final String value) {
+        this.targetNamespace = value;
+    }
 }

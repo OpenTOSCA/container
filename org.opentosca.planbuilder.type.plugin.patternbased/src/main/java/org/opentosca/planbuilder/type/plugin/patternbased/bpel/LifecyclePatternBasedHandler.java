@@ -23,24 +23,23 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
         Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
         nodesForMatching = this.filterForNodesInCreation(context, nodesForMatching);
-        
 
         AbstractOperation op = null;
         boolean result = true;
 
         if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate)) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching,elementToAppendTo);
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
         }
 
         if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate)) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching,elementToAppendTo);
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
         }
 
         if (((op = this.getLifecyclePatternStartMethod(nodeTemplate)) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching,elementToAppendTo);
+            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
         }
 
         return result;
@@ -114,17 +113,17 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.hostedOnRelationType, nodesForMatching);
         return nodesForMatching;
     }
-    
+
     private Set<AbstractNodeTemplate> filterForNodesInCreation(BPELPlanContext context, Set<AbstractNodeTemplate> nodes) {
         Set<AbstractNodeTemplate> result = new HashSet<AbstractNodeTemplate>();
         Collection<AbstractNodeTemplate> nodesInCreation = context.getNodesInCreation();
-        
-        for(AbstractNodeTemplate node : nodes) {
-            if(nodesInCreation.contains(node)) {
+
+        for (AbstractNodeTemplate node : nodes) {
+            if (nodesInCreation.contains(node)) {
                 result.add(node);
             }
         }
-        
+
         return result;
     }
 
@@ -273,13 +272,13 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
     }
 
     private AbstractInterface getLifecyclePatternInterface(final AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {            
-            switch(iface.getName()) {
+        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+            switch (iface.getName()) {
                 case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE:
                 case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2:
                 case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE3:
-                    return iface;                                 
-            }            
+                    return iface;
+            }
         }
         return null;
     }
@@ -290,12 +289,12 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
     private AbstractOperation getLifecyclePatternInstallMethod(final AbstractNodeTemplate nodeTemplate) {
         return this.getLifecyclePatternMethod(nodeTemplate,
-                                              Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_INSTALL);
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_INSTALL);
     }
 
     private AbstractOperation getLifecyclePatternConfigureMethod(final AbstractNodeTemplate nodeTemplate) {
         return this.getLifecyclePatternMethod(nodeTemplate,
-                                              Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_CONFIGURE);
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_CONFIGURE);
     }
 
     private AbstractOperation getLifecyclePatternStopMethod(final AbstractNodeTemplate nodeTemplate) {
@@ -304,7 +303,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
     private AbstractOperation getLifecyclePatternUninstallMethod(final AbstractNodeTemplate nodeTemplate) {
         return this.getLifecyclePatternMethod(nodeTemplate,
-                                              Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_UNINSTALL);
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_UNINSTALL);
     }
 
     private AbstractOperation getLifecyclePatternMethod(AbstractNodeTemplate nodeTemplate, String lifecycleMethod) {

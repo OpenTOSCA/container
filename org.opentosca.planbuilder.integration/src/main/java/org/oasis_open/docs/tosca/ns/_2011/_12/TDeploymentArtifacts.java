@@ -6,7 +6,6 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -41,33 +39,32 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tDeploymentArtifacts", propOrder = {"deploymentArtifact"})
 public class TDeploymentArtifacts {
 
-  @XmlElement(name = "DeploymentArtifact", required = true)
-  protected List<TDeploymentArtifact> deploymentArtifact;
+    @XmlElement(name = "DeploymentArtifact", required = true)
+    protected List<TDeploymentArtifact> deploymentArtifact;
 
-  /**
-   * Gets the value of the deploymentArtifact property.
-   *
-   * <p>
-   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-   * modification you make to the returned list will be present inside the JAXB object. This is why
-   * there is not a <CODE>set</CODE> method for the deploymentArtifact property.
-   *
-   * <p>
-   * For example, to add a new item, do as follows:
-   *
-   * <pre>
-   * getDeploymentArtifact().add(newItem);
-   * </pre>
-   *
-   *
-   * <p>
-   * Objects of the following type(s) are allowed in the list {@link TDeploymentArtifact }
-   */
-  public List<TDeploymentArtifact> getDeploymentArtifact() {
-    if (this.deploymentArtifact == null) {
-      this.deploymentArtifact = new ArrayList<>();
+    /**
+     * Gets the value of the deploymentArtifact property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+     * the deploymentArtifact property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getDeploymentArtifact().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link TDeploymentArtifact }
+     */
+    public List<TDeploymentArtifact> getDeploymentArtifact() {
+        if (this.deploymentArtifact == null) {
+            this.deploymentArtifact = new ArrayList<>();
+        }
+        return this.deploymentArtifact;
     }
-    return this.deploymentArtifact;
-  }
-
 }

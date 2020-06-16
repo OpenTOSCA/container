@@ -19,20 +19,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class GetRestResultRoute extends RouteBuilder {
 
-  @Override
-  public void configure() throws Exception {
+    @Override
+    public void configure() throws Exception {
 
-    final GetResultRequestProcessor getResultRequestProcessor = new GetResultRequestProcessor();
-    final GetResultResponseProcessor getResultResponseProcessor = new GetResultResponseProcessor();
-    final GetResultProcessor getResultProcessor = new GetResultProcessor();
-    final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
+        final GetResultRequestProcessor getResultRequestProcessor = new GetResultRequestProcessor();
+        final GetResultResponseProcessor getResultResponseProcessor = new GetResultResponseProcessor();
+        final GetResultProcessor getResultProcessor = new GetResultProcessor();
+        final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
-    // handle exceptions
-    onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
-      .process(exceptionProcessor);
+        // handle exceptions
+        onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
+            .process(exceptionProcessor);
 
-    from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
-      + "?restletMethod=get").process(getResultRequestProcessor).process(getResultProcessor)
-      .process(getResultResponseProcessor).removeHeaders("*");
-  }
+        from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
+            + "?restletMethod=get").process(getResultRequestProcessor).process(getResultProcessor)
+            .process(getResultResponseProcessor).removeHeaders("*");
+    }
 }

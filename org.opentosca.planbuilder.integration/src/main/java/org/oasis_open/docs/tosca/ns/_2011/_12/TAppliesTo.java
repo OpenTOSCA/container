@@ -6,7 +6,6 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-
 
 /**
  * <p>
@@ -51,78 +49,75 @@ import javax.xml.namespace.QName;
 @XmlType(name = "tAppliesTo", propOrder = {"nodeTypeReference"})
 public class TAppliesTo {
 
-  @XmlElement(name = "NodeTypeReference", required = true)
-  protected List<TAppliesTo.NodeTypeReference> nodeTypeReference;
-
-  /**
-   * Gets the value of the nodeTypeReference property.
-   *
-   * <p>
-   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-   * modification you make to the returned list will be present inside the JAXB object. This is why
-   * there is not a <CODE>set</CODE> method for the nodeTypeReference property.
-   *
-   * <p>
-   * For example, to add a new item, do as follows:
-   *
-   * <pre>
-   * getNodeTypeReference().add(newItem);
-   * </pre>
-   *
-   *
-   * <p>
-   * Objects of the following type(s) are allowed in the list {@link TAppliesTo.NodeTypeReference }
-   */
-  public List<TAppliesTo.NodeTypeReference> getNodeTypeReference() {
-    if (this.nodeTypeReference == null) {
-      this.nodeTypeReference = new ArrayList<>();
-    }
-    return this.nodeTypeReference;
-  }
-
-
-  /**
-   * <p>
-   * Java class for anonymous complex type.
-   *
-   * <p>
-   * The following schema fragment specifies the expected content contained within this class.
-   *
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;attribute name="typeRef" use="required" type="{http://www.w3.org/2001/XMLSchema}QName" />
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
-   */
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "")
-  public static class NodeTypeReference {
-
-    @XmlAttribute(required = true)
-    protected QName typeRef;
+    @XmlElement(name = "NodeTypeReference", required = true)
+    protected List<TAppliesTo.NodeTypeReference> nodeTypeReference;
 
     /**
-     * Gets the value of the typeRef property.
+     * Gets the value of the nodeTypeReference property.
      *
-     * @return possible object is {@link QName }
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+     * the nodeTypeReference property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getNodeTypeReference().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link TAppliesTo.NodeTypeReference }
      */
-    public QName getTypeRef() {
-      return this.typeRef;
+    public List<TAppliesTo.NodeTypeReference> getNodeTypeReference() {
+        if (this.nodeTypeReference == null) {
+            this.nodeTypeReference = new ArrayList<>();
+        }
+        return this.nodeTypeReference;
     }
 
     /**
-     * Sets the value of the typeRef property.
+     * <p>
+     * Java class for anonymous complex type.
      *
-     * @param value allowed object is {@link QName }
+     * <p>
+     * The following schema fragment specifies the expected content contained within this class.
+     *
+     * <pre>
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;attribute name="typeRef" use="required" type="{http://www.w3.org/2001/XMLSchema}QName" />
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
+     * </pre>
      */
-    public void setTypeRef(final QName value) {
-      this.typeRef = value;
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "")
+    public static class NodeTypeReference {
+
+        @XmlAttribute(required = true)
+        protected QName typeRef;
+
+        /**
+         * Gets the value of the typeRef property.
+         *
+         * @return possible object is {@link QName }
+         */
+        public QName getTypeRef() {
+            return this.typeRef;
+        }
+
+        /**
+         * Sets the value of the typeRef property.
+         *
+         * @param value allowed object is {@link QName }
+         */
+        public void setTypeRef(final QName value) {
+            this.typeRef = value;
+        }
     }
-
-  }
-
 }

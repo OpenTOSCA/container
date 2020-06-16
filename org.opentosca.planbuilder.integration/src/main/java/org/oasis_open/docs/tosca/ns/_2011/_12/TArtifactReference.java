@@ -6,7 +6,6 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -62,146 +60,141 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tArtifactReference", propOrder = {"includeOrExclude"})
 public class TArtifactReference {
 
-  @XmlElements( {@XmlElement(name = "Exclude", type = TArtifactReference.Exclude.class),
-    @XmlElement(name = "Include", type = TArtifactReference.Include.class)})
-  protected List<Object> includeOrExclude;
-  @XmlAttribute(required = true)
-  @XmlSchemaType(name = "anyURI")
-  protected String reference;
-
-  /**
-   * Gets the value of the includeOrExclude property.
-   *
-   * <p>
-   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-   * modification you make to the returned list will be present inside the JAXB object. This is why
-   * there is not a <CODE>set</CODE> method for the includeOrExclude property.
-   *
-   * <p>
-   * For example, to add a new item, do as follows:
-   *
-   * <pre>
-   * getIncludeOrExclude().add(newItem);
-   * </pre>
-   *
-   *
-   * <p>
-   * Objects of the following type(s) are allowed in the list {@link TArtifactReference.Exclude }
-   * {@link TArtifactReference.Include }
-   */
-  public List<Object> getIncludeOrExclude() {
-    if (this.includeOrExclude == null) {
-      this.includeOrExclude = new ArrayList<>();
-    }
-    return this.includeOrExclude;
-  }
-
-  /**
-   * Gets the value of the reference property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getReference() {
-    return this.reference;
-  }
-
-  /**
-   * Sets the value of the reference property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setReference(final String value) {
-    this.reference = value;
-  }
-
-
-  /**
-   * <p>
-   * Java class for anonymous complex type.
-   *
-   * <p>
-   * The following schema fragment specifies the expected content contained within this class.
-   *
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;attribute name="pattern" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
-   */
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "")
-  public static class Exclude {
-
+    @XmlElements( {@XmlElement(name = "Exclude", type = TArtifactReference.Exclude.class),
+        @XmlElement(name = "Include", type = TArtifactReference.Include.class)})
+    protected List<Object> includeOrExclude;
     @XmlAttribute(required = true)
-    protected String pattern;
+    @XmlSchemaType(name = "anyURI")
+    protected String reference;
 
     /**
-     * Gets the value of the pattern property.
+     * Gets the value of the includeOrExclude property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+     * the includeOrExclude property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getIncludeOrExclude().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link TArtifactReference.Exclude } {@link
+     * TArtifactReference.Include }
+     */
+    public List<Object> getIncludeOrExclude() {
+        if (this.includeOrExclude == null) {
+            this.includeOrExclude = new ArrayList<>();
+        }
+        return this.includeOrExclude;
+    }
+
+    /**
+     * Gets the value of the reference property.
      *
      * @return possible object is {@link String }
      */
-    public String getPattern() {
-      return this.pattern;
+    public String getReference() {
+        return this.reference;
     }
 
     /**
-     * Sets the value of the pattern property.
+     * Sets the value of the reference property.
      *
      * @param value allowed object is {@link String }
      */
-    public void setPattern(final String value) {
-      this.pattern = value;
-    }
-
-  }
-
-
-  /**
-   * <p>
-   * Java class for anonymous complex type.
-   *
-   * <p>
-   * The following schema fragment specifies the expected content contained within this class.
-   *
-   * <pre>
-   * &lt;complexType>
-   *   &lt;complexContent>
-   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-   *       &lt;attribute name="pattern" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
-   *     &lt;/restriction>
-   *   &lt;/complexContent>
-   * &lt;/complexType>
-   * </pre>
-   */
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "")
-  public static class Include {
-
-    @XmlAttribute(required = true)
-    protected String pattern;
-
-    /**
-     * Gets the value of the pattern property.
-     *
-     * @return possible object is {@link String }
-     */
-    public String getPattern() {
-      return this.pattern;
+    public void setReference(final String value) {
+        this.reference = value;
     }
 
     /**
-     * Sets the value of the pattern property.
+     * <p>
+     * Java class for anonymous complex type.
      *
-     * @param value allowed object is {@link String }
+     * <p>
+     * The following schema fragment specifies the expected content contained within this class.
+     *
+     * <pre>
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;attribute name="pattern" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
+     * </pre>
      */
-    public void setPattern(final String value) {
-      this.pattern = value;
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "")
+    public static class Exclude {
+
+        @XmlAttribute(required = true)
+        protected String pattern;
+
+        /**
+         * Gets the value of the pattern property.
+         *
+         * @return possible object is {@link String }
+         */
+        public String getPattern() {
+            return this.pattern;
+        }
+
+        /**
+         * Sets the value of the pattern property.
+         *
+         * @param value allowed object is {@link String }
+         */
+        public void setPattern(final String value) {
+            this.pattern = value;
+        }
     }
 
-  }
+    /**
+     * <p>
+     * Java class for anonymous complex type.
+     *
+     * <p>
+     * The following schema fragment specifies the expected content contained within this class.
+     *
+     * <pre>
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;attribute name="pattern" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
+     * </pre>
+     */
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "")
+    public static class Include {
 
+        @XmlAttribute(required = true)
+        protected String pattern;
+
+        /**
+         * Gets the value of the pattern property.
+         *
+         * @return possible object is {@link String }
+         */
+        public String getPattern() {
+            return this.pattern;
+        }
+
+        /**
+         * Sets the value of the pattern property.
+         *
+         * @param value allowed object is {@link String }
+         */
+        public void setPattern(final String value) {
+            this.pattern = value;
+        }
+    }
 }

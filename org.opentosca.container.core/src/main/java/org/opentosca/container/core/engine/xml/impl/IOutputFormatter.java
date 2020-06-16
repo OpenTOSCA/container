@@ -9,13 +9,12 @@ import org.w3c.dom.Node;
  */
 public interface IOutputFormatter {
 
-  /**
-   * Serializes a passed DOM node to a String.
-   *
-   * @param node              A DOM Node which is needed in a String representation.
-   * @param removeWhitespaces Flag for removing whitespace.
-   * @return String representation of the passed DOM Node.
-   */
-  public abstract String docToString(Node node, boolean removeWhitespaces);
-
+    /**
+     * Serializes a passed DOM node to a String.
+     *
+     * @param node              A DOM Node which is needed in a String representation.
+     * @param removeWhitespaces Flag for removing whitespace.
+     * @return String representation of the passed DOM Node.
+     */
+    public abstract String docToString(Node node, boolean removeWhitespaces);
 }

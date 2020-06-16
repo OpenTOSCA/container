@@ -8,7 +8,6 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -73,8 +72,7 @@ public abstract class PlanContext {
     }
 
     /**
-     * Returns a Variable object that represents a property inside the given nodeTemplate with the given
-     * name
+     * Returns a Variable object that represents a property inside the given nodeTemplate with the given name
      *
      * @param nodeTemplate a nodeTemplate to look for the property in
      * @param propertyName the name of the searched property
@@ -82,22 +80,22 @@ public abstract class PlanContext {
      */
     public PropertyVariable getPropertyVariable(final AbstractNodeTemplate nodeTemplate, final String propertyName) {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate).stream()
-                               .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
+            .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
     }
 
     public PropertyVariable getPropertyVariable(final AbstractRelationshipTemplate relationshipTemplate,
                                                 final String propertyName) {
         return this.propertyMap.getRelationPropertyVariables(this.serviceTemplate, relationshipTemplate).stream()
-                               .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
+            .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
     }
 
     /**
-     * Looks for a Property with the same localName as the given toscaParameter. The search is on the
-     * whole TopologyTemplate this TemplateContext belongs to.
+     * Looks for a Property with the same localName as the given toscaParameter. The search is on the whole
+     * TopologyTemplate this TemplateContext belongs to.
      *
      * @param localName a String
-     * @return a Variable Object with TemplateId and Name, if null the whole Topology has no Property
-     *         with the specified localName
+     * @return a Variable Object with TemplateId and Name, if null the whole Topology has no Property with the specified
+     * localName
      */
     public PropertyVariable getPropertyVariable(final String localName) {
         // then on everything else
@@ -135,8 +133,8 @@ public abstract class PlanContext {
     }
 
     /**
-     * Returns an Integer which can be used as variable names etc. So that there are no collisions with
-     * other declarations
+     * Returns an Integer which can be used as variable names etc. So that there are no collisions with other
+     * declarations
      *
      * @return an Integer
      */
@@ -176,19 +174,19 @@ public abstract class PlanContext {
     /**
      * Returns the variable name of the given template and property localName
      *
-     * @param templateId the Id of the Template to look in
+     * @param templateId   the Id of the Template to look in
      * @param propertyName the LocalName of a Template Property
      * @return a String containing the variable name, else null
      */
     public String getVariableNameOfProperty(final AbstractNodeTemplate templateId, final String propertyName) {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, templateId).stream()
-                               .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
-                               .map(var -> var.getVariableName()).orElse(null);
+            .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
+            .map(var -> var.getVariableName()).orElse(null);
     }
 
     public String getVariableNameOfProperty(final AbstractRelationshipTemplate templateId, final String propertyName) {
         return this.propertyMap.getRelationPropertyVariables(this.serviceTemplate, templateId).stream()
-                               .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
-                               .map(var -> var.getVariableName()).orElse(null);
+            .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
+            .map(var -> var.getVariableName()).orElse(null);
     }
 }

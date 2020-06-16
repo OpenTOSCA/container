@@ -531,7 +531,6 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
      * @param serviceInstanceIdVarName  the variable for storing the serviceInstanceId
      * @param serviceTemplateUrlVarName the variable for storing the serviceTemplateUrl
      * @param planInstanceUrlVarName    the variable for storing the planinstanceUrl
-     * @return
      */
     private void appendServiceInstanceInitCode(final BPELPlan plan, final String instanceDataAPIUrlVarName,
                                                String serviceInstanceUrlVarName, String serviceInstanceIdVarName,

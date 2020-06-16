@@ -6,18 +6,19 @@
                            http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-  <context:annotation-config />
+    <context:annotation-config/>
 
-  <!-- processors are not ready for DI -->
-  <camel:camelContext id="mb-api-soaphttp-camel-context" >
-    <camel:packageScan>
-      <camel:package>org.opentosca.bus.management.api.soaphttp.route</camel:package>
-    </camel:packageScan>
-  </camel:camelContext>
+    <!-- processors are not ready for DI -->
+    <camel:camelContext id="mb-api-soaphttp-camel-context">
+        <camel:packageScan>
+            <camel:package>org.opentosca.bus.management.api.soaphttp.route</camel:package>
+        </camel:packageScan>
+    </camel:camelContext>
 
 
-  <bean id="dropAllMessageHeadersStrategy" class="org.apache.camel.component.cxf.common.header.CxfHeaderFilterStrategy">
-    <!--   Set relayHeaders to false to drop all SOAP headers  -->
-    <property name="relayHeaders" value="false"/>
-  </bean>
+    <bean id="dropAllMessageHeadersStrategy"
+          class="org.apache.camel.component.cxf.common.header.CxfHeaderFilterStrategy">
+        <!--   Set relayHeaders to false to drop all SOAP headers  -->
+        <property name="relayHeaders" value="false"/>
+    </bean>
 </beans>

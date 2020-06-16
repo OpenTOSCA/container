@@ -6,7 +6,6 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,7 +13,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-
 
 /**
  * <p>
@@ -38,25 +36,24 @@ import javax.xml.namespace.QName;
 @XmlType(name = "tRequirementType")
 public class TRequirementType extends TEntityType {
 
-  @XmlAttribute
-  protected QName requiredCapabilityType;
+    @XmlAttribute
+    protected QName requiredCapabilityType;
 
-  /**
-   * Gets the value of the requiredCapabilityType property.
-   *
-   * @return possible object is {@link QName }
-   */
-  public QName getRequiredCapabilityType() {
-    return this.requiredCapabilityType;
-  }
+    /**
+     * Gets the value of the requiredCapabilityType property.
+     *
+     * @return possible object is {@link QName }
+     */
+    public QName getRequiredCapabilityType() {
+        return this.requiredCapabilityType;
+    }
 
-  /**
-   * Sets the value of the requiredCapabilityType property.
-   *
-   * @param value allowed object is {@link QName }
-   */
-  public void setRequiredCapabilityType(final QName value) {
-    this.requiredCapabilityType = value;
-  }
-
+    /**
+     * Sets the value of the requiredCapabilityType property.
+     *
+     * @param value allowed object is {@link QName }
+     */
+    public void setRequiredCapabilityType(final QName value) {
+        this.requiredCapabilityType = value;
+    }
 }

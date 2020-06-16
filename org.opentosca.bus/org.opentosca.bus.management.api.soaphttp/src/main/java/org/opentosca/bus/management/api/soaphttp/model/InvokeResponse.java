@@ -6,14 +6,12 @@
 // Generated on: 2018.07.16 at 01:55:00 PM CEST
 //
 
-
 package org.opentosca.bus.management.api.soaphttp.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -42,65 +40,64 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "invokeResponse", propOrder = {"messageID", "params", "doc"})
 public class InvokeResponse {
 
-  @XmlElement(name = "MessageID")
-  protected String messageID;
-  @XmlElement(name = "Params")
-  protected ParamsMap params;
-  @XmlElement(name = "Doc")
-  protected Doc doc;
+    @XmlElement(name = "MessageID")
+    protected String messageID;
+    @XmlElement(name = "Params")
+    protected ParamsMap params;
+    @XmlElement(name = "Doc")
+    protected Doc doc;
 
-  /**
-   * Gets the value of the messageID property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getMessageID() {
-    return this.messageID;
-  }
+    /**
+     * Gets the value of the messageID property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getMessageID() {
+        return this.messageID;
+    }
 
-  /**
-   * Sets the value of the messageID property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setMessageID(final String value) {
-    this.messageID = value;
-  }
+    /**
+     * Sets the value of the messageID property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setMessageID(final String value) {
+        this.messageID = value;
+    }
 
-  /**
-   * Gets the value of the params property.
-   *
-   * @return possible object is {@link ParamsMap }
-   */
-  public ParamsMap getParams() {
-    return this.params;
-  }
+    /**
+     * Gets the value of the params property.
+     *
+     * @return possible object is {@link ParamsMap }
+     */
+    public ParamsMap getParams() {
+        return this.params;
+    }
 
-  /**
-   * Sets the value of the params property.
-   *
-   * @param value allowed object is {@link ParamsMap }
-   */
-  public void setParams(final ParamsMap value) {
-    this.params = value;
-  }
+    /**
+     * Sets the value of the params property.
+     *
+     * @param value allowed object is {@link ParamsMap }
+     */
+    public void setParams(final ParamsMap value) {
+        this.params = value;
+    }
 
-  /**
-   * Gets the value of the doc property.
-   *
-   * @return possible object is {@link Doc }
-   */
-  public Doc getDoc() {
-    return this.doc;
-  }
+    /**
+     * Gets the value of the doc property.
+     *
+     * @return possible object is {@link Doc }
+     */
+    public Doc getDoc() {
+        return this.doc;
+    }
 
-  /**
-   * Sets the value of the doc property.
-   *
-   * @param value allowed object is {@link Doc }
-   */
-  public void setDoc(final Doc value) {
-    this.doc = value;
-  }
-
+    /**
+     * Sets the value of the doc property.
+     *
+     * @param value allowed object is {@link Doc }
+     */
+    public void setDoc(final Doc value) {
+        this.doc = value;
+    }
 }

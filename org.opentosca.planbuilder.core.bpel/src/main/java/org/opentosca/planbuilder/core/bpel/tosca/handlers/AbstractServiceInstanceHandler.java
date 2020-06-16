@@ -101,12 +101,12 @@ public abstract class AbstractServiceInstanceHandler {
 
     public String addServiceInstanceIDVariable(BPELPlan plan) {
         return this.bpelProcessHandler.addGlobalStringVariable(ServiceInstanceIDVarKeyword + System.currentTimeMillis(),
-                                                               plan);
+            plan);
     }
 
     public String addPlanInstanceURLVariable(BPELPlan plan) {
         return this.bpelProcessHandler.addGlobalStringVariable(PlanInstanceURLVarKeyword + System.currentTimeMillis(),
-                                                               plan);
+            plan);
     }
 
     public String addServiceInstanceURLVariable(BPELPlan plan) {
@@ -132,18 +132,15 @@ public abstract class AbstractServiceInstanceHandler {
         try {
             Node assignFragment =
                 this.fragments.createAssignVarToVarWithXpathQueryAsNode("assignServiceInstanceIDFromServiceInstanceURl"
-                    + System.currentTimeMillis(), serviceInstanceURLVarName, serviceInstanceIDVarName,
-                                                                        "tokenize(//*,'/')[last()]");
+                        + System.currentTimeMillis(), serviceInstanceURLVarName, serviceInstanceIDVarName,
+                    "tokenize(//*,'/')[last()]");
             assignFragment = plan.getBpelDocument().importNode(assignFragment, true);
             appendToInitSequence(assignFragment, plan);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
+            e.printStackTrace();
+        } catch (final SAXException e) {
             e.printStackTrace();
         }
-        catch (final SAXException e) {
-            e.printStackTrace();
-        }
-
     }
 
     /**
@@ -164,14 +161,14 @@ public abstract class AbstractServiceInstanceHandler {
     }
 
     /**
-     * Adds an element with the given varName to the input message of the given plan and adds logic
-     * assign the input value to an internal variable with the given varName.
+     * Adds an element with the given varName to the input message of the given plan and adds logic assign the input
+     * value to an internal variable with the given varName.
      *
-     * @param plan a plan to add the logic to
-     * @param inputLocalName a name to use inside the input message and as name for the global string
-     *        variable where the value will be added to.
-     * @return a String containing the generated Variable Name of the Variable holding the value from
-     *         the input at runtime
+     * @param plan           a plan to add the logic to
+     * @param inputLocalName a name to use inside the input message and as name for the global string variable where the
+     *                       value will be added to.
+     * @return a String containing the generated Variable Name of the Variable holding the value from the input at
+     * runtime
      */
     protected String appendAssignFromInputToVariable(final BPELPlan plan, final String inputLocalName,
                                                      String variableName) {
@@ -186,12 +183,10 @@ public abstract class AbstractServiceInstanceHandler {
 
             assignNode = plan.getBpelDocument().importNode(assignNode, true);
             appendToInitSequence(assignNode, plan);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
             return null;
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             e.printStackTrace();
             return null;
         }

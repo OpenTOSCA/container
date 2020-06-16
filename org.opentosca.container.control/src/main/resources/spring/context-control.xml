@@ -6,11 +6,11 @@
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
-  <description>
-    Configuration for Spring-Bean service discovery and injection across container.control
-  </description>
+    <description>
+        Configuration for Spring-Bean service discovery and injection across container.control
+    </description>
 
-  <context:annotation-config />
+    <context:annotation-config/>
 
-  <bean class="org.opentosca.container.control.impl.OpenToscaControlServiceImpl" />
+    <bean class="org.opentosca.container.control.impl.OpenToscaControlServiceImpl"/>
 </beans>

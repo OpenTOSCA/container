@@ -7,22 +7,22 @@
                            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-  <context:annotation-config />
+    <context:annotation-config/>
 
-  <!-- use context:component-scan to apply annotation configurations on the discovered beans -->
-  <context:component-scan base-package="org.opentosca.bus.management.service.impl" />
-  <context:component-scan base-package="org.opentosca.bus.management.service.impl.collaboration" />
-  <context:component-scan base-package="org.opentosca.bus.management.service.impl.util" />
+    <!-- use context:component-scan to apply annotation configurations on the discovered beans -->
+    <context:component-scan base-package="org.opentosca.bus.management.service.impl"/>
+    <context:component-scan base-package="org.opentosca.bus.management.service.impl.collaboration"/>
+    <context:component-scan base-package="org.opentosca.bus.management.service.impl.util"/>
 
-  <!-- import the context definitions for invocation plugins -->
-  <import resource="classpath*:/spring/context-bus-invocation-plugin.xml" />
-  <!-- import the context definitions for deployment plugins -->
-  <import resource="classpath*:/spring/context-bus-deployment-plugin.xml" />
-  <!-- import the context definitions for the different APIs we expose -->
-  <import resource="classpath*:/spring/context-bus-management-api.xml" />
+    <!-- import the context definitions for invocation plugins -->
+    <import resource="classpath*:/spring/context-bus-invocation-plugin.xml"/>
+    <!-- import the context definitions for deployment plugins -->
+    <import resource="classpath*:/spring/context-bus-deployment-plugin.xml"/>
+    <!-- import the context definitions for the different APIs we expose -->
+    <import resource="classpath*:/spring/context-bus-management-api.xml"/>
 
-  <camel:camelContext id="collaboration-camel-context">
-    <!-- do not add RouteBuilders to the camel context, they are added through the CollaborationContext bean -->
-    <!-- <camel:package>org.opentosca.bus.management.service.impl.collaboration.route</camel:package> -->
-  </camel:camelContext>
+    <camel:camelContext id="collaboration-camel-context">
+        <!-- do not add RouteBuilders to the camel context, they are added through the CollaborationContext bean -->
+        <!-- <camel:package>org.opentosca.bus.management.service.impl.collaboration.route</camel:package> -->
+    </camel:camelContext>
 </beans>

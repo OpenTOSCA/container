@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.opentosca</groupId>
-    <artifactId>container</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.opentosca</groupId>
+        <artifactId>container</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+    </parent>
 
-  <repositories>
-    <!-- required for moquette broker -->
-    <repository>
-      <id>jcenter</id>
-      <name>JCenter Repository</name>
-      <url>https://jcenter.bintray.com/</url>
-    </repository>
-  </repositories>
+    <repositories>
+        <!-- required for moquette broker -->
+        <repository>
+            <id>jcenter</id>
+            <name>JCenter Repository</name>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
+    </repositories>
 
-  <artifactId>org.opentosca.broker.mqtt</artifactId>
+    <artifactId>org.opentosca.broker.mqtt</artifactId>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.container.core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.opentosca</groupId>
+            <artifactId>org.opentosca.container.core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.moquette</groupId>
-      <artifactId>moquette-broker</artifactId>
-      <version>0.11</version>
-    </dependency>
-  </dependencies>
+        <dependency>
+            <groupId>io.moquette</groupId>
+            <artifactId>moquette-broker</artifactId>
+            <version>0.11</version>
+        </dependency>
+    </dependencies>
 </project>

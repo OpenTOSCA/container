@@ -6,13 +6,11 @@
 // Generated on: 2013.07.29 at 03:39:23 PM MESZ
 //
 
-
 package org.opentosca.bus.management.invocation.plugin.rest.model;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -35,26 +33,25 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum EndpointType {
 
-  @XmlEnumValue("no")
-  NO("no"), @XmlEnumValue("yes")
-  YES("yes");
-  private final String value;
+    @XmlEnumValue("no")
+    NO("no"), @XmlEnumValue("yes")
+    YES("yes");
+    private final String value;
 
-  EndpointType(final String v) {
-    this.value = v;
-  }
-
-  public String value() {
-    return this.value;
-  }
-
-  public static EndpointType fromValue(final String v) {
-    for (final EndpointType c : EndpointType.values()) {
-      if (c.value.equals(v)) {
-        return c;
-      }
+    EndpointType(final String v) {
+        this.value = v;
     }
-    throw new IllegalArgumentException(v);
-  }
 
+    public String value() {
+        return this.value;
+    }
+
+    public static EndpointType fromValue(final String v) {
+        for (final EndpointType c : EndpointType.values()) {
+            if (c.value.equals(v)) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException(v);
+    }
 }

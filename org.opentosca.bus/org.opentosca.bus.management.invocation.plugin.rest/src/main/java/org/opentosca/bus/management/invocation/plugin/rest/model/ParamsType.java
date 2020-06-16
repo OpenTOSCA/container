@@ -6,13 +6,11 @@
 // Generated on: 2013.07.29 at 03:39:23 PM MESZ
 //
 
-
 package org.opentosca.bus.management.invocation.plugin.rest.model;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -35,26 +33,25 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum ParamsType {
 
-  @XmlEnumValue("queryString")
-  QUERY_STRING("queryString"), @XmlEnumValue("payload")
-  PAYLOAD("payload");
-  private final String value;
+    @XmlEnumValue("queryString")
+    QUERY_STRING("queryString"), @XmlEnumValue("payload")
+    PAYLOAD("payload");
+    private final String value;
 
-  ParamsType(final String v) {
-    this.value = v;
-  }
-
-  public String value() {
-    return this.value;
-  }
-
-  public static ParamsType fromValue(final String v) {
-    for (final ParamsType c : ParamsType.values()) {
-      if (c.value.equals(v)) {
-        return c;
-      }
+    ParamsType(final String v) {
+        this.value = v;
     }
-    throw new IllegalArgumentException(v);
-  }
 
+    public String value() {
+        return this.value;
+    }
+
+    public static ParamsType fromValue(final String v) {
+        for (final ParamsType c : ParamsType.values()) {
+            if (c.value.equals(v)) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException(v);
+    }
 }

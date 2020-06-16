@@ -29,15 +29,14 @@ import org.w3c.dom.NodeList;
 
 /**
  * <p>
- * This Class is responsible for fetching BoundaryDefinitions mappings and initialize the BuildPlan
- * with appropiate assigns to return property values to the BuildPlan caller
+ * This Class is responsible for fetching BoundaryDefinitions mappings and initialize the BuildPlan with appropiate
+ * assigns to return property values to the BuildPlan caller
  * </p>
  *
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- *
  */
 public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
 
@@ -46,14 +45,12 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
 
     /**
      * <p>
-     * This class is a wrapper, which holds a mapping from ServiceTemplate Property, Template and
-     * Template Property
+     * This class is a wrapper, which holds a mapping from ServiceTemplate Property, Template and Template Property
      * </p>
      * Copyright 2013 IAAS University of Stuttgart <br>
      * <br>
      *
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
-     *
      */
     private class ServiceTemplatePropertyToPropertyMapping {
 
@@ -64,14 +61,14 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
          * Adds a mapping from ServiceTemplate Property, Template and Template Property
          *
          * @param serviceTemplatePropertyLocalName the localName of a serviceTemplate property
-         * @param templateId the template Id
-         * @param templatePropertyLocalName the localName of a template id
+         * @param templateId                       the template Id
+         * @param templatePropertyLocalName        the localName of a template id
          */
         protected void addMapping(final String serviceTemplatePropertyLocalName, final String templateId,
                                   final String templatePropertyLocalName) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("Adding ServiceTemplate Property Mapping, serviceTemplate property localName {}, templateId {} and template property localName {}",
-                                                                             serviceTemplatePropertyLocalName,
-                                                                             templateId, templatePropertyLocalName);
+                serviceTemplatePropertyLocalName,
+                templateId, templatePropertyLocalName);
             if (this.internalArray.length == 1) {
                 // nothing stored inside array yet
                 this.internalArray[0][0] = serviceTemplatePropertyLocalName;
@@ -103,7 +100,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
          */
         protected void removeServiceTemplatePropertyMapping(final String serviceTemplatePropertyName) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("Removin ServiceTemplate Property Mapping for serviceTemplate Property {}",
-                                                                             serviceTemplatePropertyName);
+                serviceTemplatePropertyName);
             for (int index = 0; index < this.internalArray.length; index++) {
                 if (this.internalArray[index][0] != null
                     && this.internalArray[index][0].equals(serviceTemplatePropertyName)) {
@@ -176,20 +173,19 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             }
             this.internalArray = newArray;
         }
-
     }
 
     /**
      * <p>
-     * Initializes the response message of the given BuildPlan according to the given
-     * BoundaryDefinitions inside the given Definitions document
+     * Initializes the response message of the given BuildPlan according to the given BoundaryDefinitions inside the
+     * given Definitions document
      * </p>
      *
-     * @param definitions the Definitions document to look for BoundaryDefinitions for and contains the
-     *        ServiceTemplate the BuildPlan belongs to
-     * @param buildPlan a initialized BuildPlan
-     * @param propMap a PropMap which contains the names of the different template property variables
-     *        inside the plan
+     * @param definitions the Definitions document to look for BoundaryDefinitions for and contains the ServiceTemplate
+     *                    the BuildPlan belongs to
+     * @param buildPlan   a initialized BuildPlan
+     * @param propMap     a PropMap which contains the names of the different template property variables inside the
+     *                    plan
      */
     public void initializeBuildPlanOutput(final AbstractDefinitions definitions, final BPELPlan buildPlan,
                                           final Property2VariableMapping propMap,
@@ -200,17 +196,15 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             return;
         }
         initializeAssignOutput(buildPlan, propMap, mapping, serviceTemplate);
-
     }
 
     /**
-     * Generates a copy with a literal value to the outputmessage of the given BuildPlan. The literal
-     * consists of the mappings given, where the propertyMap is used identify the propertyVariables
-     * inside the buildPlan
+     * Generates a copy with a literal value to the outputmessage of the given BuildPlan. The literal consists of the
+     * mappings given, where the propertyMap is used identify the propertyVariables inside the buildPlan
      *
      * @param buildPlan the BuildPlan to add the copy to
-     * @param propMap a PropertyMap containing the variable names of the properties
-     * @param mapping the mappings from serviceTemplate Properties to template properties
+     * @param propMap   a PropertyMap containing the variable names of the properties
+     * @param mapping   the mappings from serviceTemplate Properties to template properties
      */
     private void initializeAssignOutput(final BPELPlan buildPlan, final Property2VariableMapping propMap,
                                         final ServiceTemplatePropertyToPropertyMapping mapping,
@@ -236,10 +230,10 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
 
                 if (isConcatQuery(templatePropertyName)) {
                     processHandler.addCopyStringToOutputAssign(generateCopyFromQueryToOutputAsString(templatePropertyName,
-                                                                                                     "//*[local-name()='"
-                                                                                                         + serviceTemplatePropertyName
-                                                                                                         + "']"),
-                                                               buildPlan);
+                        "//*[local-name()='"
+                            + serviceTemplatePropertyName
+                            + "']"),
+                        buildPlan);
                 } else {
                     final String templateId = mapping.getTemplateId(serviceTemplatePropertyName);
                     if (templateId == null) {
@@ -253,7 +247,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
                         if (var.getPropertyName().equals(templatePropertyName)) {
                             assigned = true;
                             processHandler.assginOutputWithVariableValue(var.getVariableName(),
-                                                                         serviceTemplatePropertyName, buildPlan);
+                                serviceTemplatePropertyName, buildPlan);
                         }
                     }
 
@@ -268,20 +262,18 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             for (final String failedServiceTempProp : failedServiceTemplateProperties) {
                 mapping.removeServiceTemplatePropertyMapping(failedServiceTempProp);
             }
-
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.error("Couldn't initialize a Handler, BuildPlan OutputMessage may be empty",
-                                                                             e);
+                e);
             return;
         }
     }
 
     /**
-     * Generates a copy element with from and to elements as String. The given mapping controls what the
-     * from will assign to the outputmessage
+     * Generates a copy element with from and to elements as String. The given mapping controls what the from will
+     * assign to the outputmessage
      *
-     * @param mapping the ServiceTemplate Property to Template Property mappings
+     * @param mapping   the ServiceTemplate Property to Template Property mappings
      * @param buildPlan the BuildPlan to generate the copy for
      * @return a String containing a valid BPEL Copy Element
      */
@@ -295,13 +287,10 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
         return copyString;
     }
 
-
     /**
-     * Calculates the ServiceTemplate Property to Template Property mappings for the given
-     * ServiceTemplate
+     * Calculates the ServiceTemplate Property to Template Property mappings for the given ServiceTemplate
      *
      * @param buildPlanServiceTemplate a ServiceTemplate
-     * @param propMap
      * @return a Mapping from ServiceTemplate properties to Template properties
      */
     private ServiceTemplatePropertyToPropertyMapping getMappings(final AbstractServiceTemplate buildPlanServiceTemplate,
@@ -311,8 +300,8 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
         final AbstractBoundaryDefinitions boundaryDefinitions = buildPlanServiceTemplate.getBoundaryDefinitions();
         if (boundaryDefinitions == null) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("No BoundaryDefinitions in ServiceTemplate {} found. Output of BuildPlan maybe empty.",
-                                                                            buildPlanServiceTemplate.getQName()
-                                                                                                    .toString());
+                buildPlanServiceTemplate.getQName()
+                    .toString());
             return null;
         }
 
@@ -368,7 +357,6 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
                 isConcatQuery = true;
                 templatePropLocalName =
                     injectBPELVariables(propertyMapping.getTargetPropertyRef(), propMap, buildPlanServiceTemplate);
-
             } else {
                 Element templateElement = null;
 
@@ -382,16 +370,16 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
 
                 if (templateElement == null) {
                     ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("Referenced Template {} in ServiceTemplate {} has no Properties defined, continueing with other PropertyMapping",
-                                                                                    templateId,
-                                                                                    buildPlanServiceTemplate.getQName()
-                                                                                                            .toString());
+                        templateId,
+                        buildPlanServiceTemplate.getQName()
+                            .toString());
                     continue;
                 }
 
                 ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("Adding Mapping for ServiceTemplateProperty {}, TemplateId {} and TemplateProperty {}",
-                                                                                 serviceTemplatePropLocalName,
-                                                                                 templateId,
-                                                                                 templateElement.getLocalName());
+                    serviceTemplatePropLocalName,
+                    templateId,
+                    templateElement.getLocalName());
 
                 templatePropLocalName =
                     getTemplatePropertyLocalName(templateElement, propertyMapping.getTargetPropertyRef());
@@ -399,27 +387,26 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
 
             if (templatePropLocalName == null) {
                 ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("Referenced Template {} in ServiceTemplate {} has no Properties defined, continueing with other PropertyMapping",
-                                                                                templateId,
-                                                                                buildPlanServiceTemplate.getQName()
-                                                                                                        .toString());
+                    templateId,
+                    buildPlanServiceTemplate.getQName()
+                        .toString());
                 continue;
             }
 
             if (serviceTemplatePropLocalName == null) {
                 ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("Couldn't find Property Element for ServiceTemplate {} , continueing with other PropertyMapping",
-                                                                                buildPlanServiceTemplate.getQName()
-                                                                                                        .toString());
+                    buildPlanServiceTemplate.getQName()
+                        .toString());
                 continue;
             }
             if (!isConcatQuery && templateId == null) {
                 ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("targetObjectRef for ServiceTemplate {} not set, continueing with other PropertyMapping",
-                                                                                buildPlanServiceTemplate.getQName()
-                                                                                                        .toString());
+                    buildPlanServiceTemplate.getQName()
+                        .toString());
                 continue;
             }
 
             mappingWrapper.addMapping(serviceTemplatePropLocalName, templateId, templatePropLocalName);
-
         }
 
         return mappingWrapper;
@@ -511,18 +498,17 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
     }
 
     /**
-     * Returns the localName of an element which is referenced by the XPath expression inside the
-     * PropertyMappings
+     * Returns the localName of an element which is referenced by the XPath expression inside the PropertyMappings
      *
      * @param serviceTemplatePropElement the first element inside the Properties Element
-     * @param xpathExpr an XPath Expression
+     * @param xpathExpr                  an XPath Expression
      * @return a localName when the XPath expression returned exactly one Node, else null
      */
     private String getTemplatePropertyLocalName(final Element serviceTemplatePropElement, final String xpathExpr) {
         try {
             final XPath xPath = XPathFactory.newInstance().newXPath();
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("Executing XPath Expression {} on Node {}",
-                                                                             xpathExpr, serviceTemplatePropElement);
+                xpathExpr, serviceTemplatePropElement);
             final NodeList nodes =
                 (NodeList) xPath.evaluate(xpathExpr, serviceTemplatePropElement, XPathConstants.NODESET);
 
@@ -532,14 +518,12 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
                 return node.getLocalName();
             } else {
                 ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.error("XPath expression {} on Element {} returned multiple Nodes",
-                                                                                 xpathExpr, serviceTemplatePropElement);
+                    xpathExpr, serviceTemplatePropElement);
                 return null;
             }
-
-        }
-        catch (final XPathExpressionException e1) {
+        } catch (final XPathExpressionException e1) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.error("XPath Expression for serviceTemplatePropetyRef isn't valid",
-                                                                             e1);
+                e1);
         }
         return null;
     }
@@ -548,7 +532,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
      * Returns an AbstractNodeTemplate of the given serviceTemplate and TemplateId
      *
      * @param serviceTemplate the ServiceTemplate to search in
-     * @param templateId the Id of the Template
+     * @param templateId      the Id of the Template
      * @return an AbstractNodeTemplate with the specified Id, else null
      */
     private AbstractNodeTemplate getNodeTemplate(final AbstractServiceTemplate serviceTemplate,
@@ -565,18 +549,17 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
      * Returns an AbstractRelationshipTemplate of the given serviceTemplate and TemplateId
      *
      * @param serviceTemplate the ServiceTemplate to search in
-     * @param templateId the If of the template to search for
+     * @param templateId      the If of the template to search for
      * @return an AbstractRelationshipTemplate with the specified Id, else null
      */
     private AbstractRelationshipTemplate getRelationshipTemplate(final AbstractServiceTemplate serviceTemplate,
                                                                  final String templateId) {
         for (final AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate()
-                                                                                      .getRelationshipTemplates()) {
+            .getRelationshipTemplates()) {
             if (relationshipTemplate.getId().equals(templateId)) {
                 return relationshipTemplate;
             }
         }
         return null;
     }
-
 }

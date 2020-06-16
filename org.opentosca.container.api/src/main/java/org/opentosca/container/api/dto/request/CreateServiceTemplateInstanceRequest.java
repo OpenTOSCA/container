@@ -12,14 +12,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateServiceTemplateInstanceRequest {
 
-  @XmlValue
-  private String correlationId;
+    @XmlValue
+    private String correlationId;
 
-  public String getCorrelationId() {
-    return this.correlationId;
-  }
+    public String getCorrelationId() {
+        return this.correlationId;
+    }
 
-  public void setCorrelationId(final String correlationId) {
-    this.correlationId = correlationId;
-  }
+    public void setCorrelationId(final String correlationId) {
+        this.correlationId = correlationId;
+    }
 }

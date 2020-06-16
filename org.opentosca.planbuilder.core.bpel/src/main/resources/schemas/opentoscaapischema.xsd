@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://opentosca.org/api"
-	targetNamespace="http://opentosca.org/api">
-	<element name="correlationID" type="string"></element>
-	<element name="log" type="string"></element>
-	
-	<element name="CreateRelationshipTemplateInstanceRequest" type="tns:TCreateRelationshipTemplateInstanceRequest"/>
+        targetNamespace="http://opentosca.org/api">
+    <element name="correlationID" type="string"></element>
+    <element name="log" type="string"></element>
 
-	<complexType name="TCreateRelationshipTemplateInstanceRequest">
-		<attribute name="service-instance-id" />
-		<attribute name="source-instance-id" />
-		<attribute name="target-instance-id"/>
-	</complexType>
-	
+    <element name="CreateRelationshipTemplateInstanceRequest" type="tns:TCreateRelationshipTemplateInstanceRequest"/>
+
+    <complexType name="TCreateRelationshipTemplateInstanceRequest">
+        <attribute name="service-instance-id"/>
+        <attribute name="source-instance-id"/>
+        <attribute name="target-instance-id"/>
+    </complexType>
+
 </schema>

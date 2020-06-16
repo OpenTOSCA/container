@@ -24,99 +24,98 @@ import org.w3c.dom.Node;
  */
 public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
 
-  private final DefinitionsImpl defs;
-  private final TArtifactTemplate template;
-  private AbstractProperties props;
-  private final List<AbstractArtifactReference> references;
+    private final DefinitionsImpl defs;
+    private final TArtifactTemplate template;
+    private AbstractProperties props;
+    private final List<AbstractArtifactReference> references;
 
-  /**
-   * Constructor
-   *
-   * @param artifactTemplate a JAXB TArtifactTemplate
-   * @param definitions      a DefinitionsImpl for finding various data
-   */
-  public ArtifactTemplateImpl(final TArtifactTemplate artifactTemplate, final DefinitionsImpl definitions) {
-    this.defs = definitions;
-    this.template = artifactTemplate;
-    if (this.template.getProperties() != null) {
-      this.props = new PropertiesImpl(this.template.getProperties().getAny());
-    }
-    this.references = new ArrayList<>();
-    this.setUp();
-  }
-
-  /**
-   * Initializes the ArtifactReferences inside this ArtifactTemplate
-   */
-  private void setUp() {
-    if (this.template.getArtifactReferences() != null) {
-      for (final TArtifactReference ref : this.template.getArtifactReferences().getArtifactReference()) {
-        this.references.add(new ArtifactReferenceImpl(ref));
-      }
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public AbstractProperties getProperties() {
-    return this.props;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public List<AbstractArtifactReference> getArtifactReferences() {
-    return this.references;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getId() {
-    return this.template.getId();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getName() {
-    return this.template.getName();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public QName getArtifactType() {
-    return this.template.getType();
-  }
-
-  @Override
-  public List<Node> getAdditionalElements() {
-    final List<Node> nodes = new ArrayList<>();
-
-    for (final Object obj : this.template.getAny()) {
-      if (obj instanceof Node && ((Node) obj).getNodeType() == Node.ELEMENT_NODE) {
-        nodes.add((Node) obj);
-      }
+    /**
+     * Constructor
+     *
+     * @param artifactTemplate a JAXB TArtifactTemplate
+     * @param definitions      a DefinitionsImpl for finding various data
+     */
+    public ArtifactTemplateImpl(final TArtifactTemplate artifactTemplate, final DefinitionsImpl definitions) {
+        this.defs = definitions;
+        this.template = artifactTemplate;
+        if (this.template.getProperties() != null) {
+            this.props = new PropertiesImpl(this.template.getProperties().getAny());
+        }
+        this.references = new ArrayList<>();
+        this.setUp();
     }
 
-    return nodes;
-  }
-
-  @Override
-  public AbstractArtifactType getAbstractArtifactType() {
-    for (final AbstractArtifactType absArtType : this.defs.getAllArtifactTypes()) {
-      if (absArtType.getId().equals(this.template.getType())) {
-        return absArtType;
-      }
+    /**
+     * Initializes the ArtifactReferences inside this ArtifactTemplate
+     */
+    private void setUp() {
+        if (this.template.getArtifactReferences() != null) {
+            for (final TArtifactReference ref : this.template.getArtifactReferences().getArtifactReference()) {
+                this.references.add(new ArtifactReferenceImpl(ref));
+            }
+        }
     }
-    return null;
-  }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AbstractProperties getProperties() {
+        return this.props;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AbstractArtifactReference> getArtifactReferences() {
+        return this.references;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getId() {
+        return this.template.getId();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return this.template.getName();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public QName getArtifactType() {
+        return this.template.getType();
+    }
+
+    @Override
+    public List<Node> getAdditionalElements() {
+        final List<Node> nodes = new ArrayList<>();
+
+        for (final Object obj : this.template.getAny()) {
+            if (obj instanceof Node && ((Node) obj).getNodeType() == Node.ELEMENT_NODE) {
+                nodes.add((Node) obj);
+            }
+        }
+
+        return nodes;
+    }
+
+    @Override
+    public AbstractArtifactType getAbstractArtifactType() {
+        for (final AbstractArtifactType absArtType : this.defs.getAllArtifactTypes()) {
+            if (absArtType.getId().equals(this.template.getType())) {
+                return absArtType;
+            }
+        }
+        return null;
+    }
 }

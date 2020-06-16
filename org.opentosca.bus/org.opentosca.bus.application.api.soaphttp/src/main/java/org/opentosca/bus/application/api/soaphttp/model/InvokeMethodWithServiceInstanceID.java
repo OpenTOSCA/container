@@ -6,14 +6,12 @@
 // Generated on: 2016.02.25 at 04:54:56 PM CET
 //
 
-
 package org.opentosca.bus.application.api.soaphttp.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -40,103 +38,102 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "invokeMethodWithServiceInstanceID",
-  propOrder = {"nodeTemplateID", "_interface", "operation", "serviceInstanceID", "params"})
+    propOrder = {"nodeTemplateID", "_interface", "operation", "serviceInstanceID", "params"})
 public class InvokeMethodWithServiceInstanceID {
 
-  @XmlElement(required = true)
-  protected String nodeTemplateID;
-  @XmlElement(name = "interface", required = true)
-  protected String _interface;
-  @XmlElement(required = true)
-  protected String operation;
-  protected int serviceInstanceID;
-  @XmlElement(name = "Params")
-  protected ParamsMap params;
+    @XmlElement(required = true)
+    protected String nodeTemplateID;
+    @XmlElement(name = "interface", required = true)
+    protected String _interface;
+    @XmlElement(required = true)
+    protected String operation;
+    protected int serviceInstanceID;
+    @XmlElement(name = "Params")
+    protected ParamsMap params;
 
-  /**
-   * Gets the value of the nodeTemplateID property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getNodeTemplateID() {
-    return this.nodeTemplateID;
-  }
+    /**
+     * Gets the value of the nodeTemplateID property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getNodeTemplateID() {
+        return this.nodeTemplateID;
+    }
 
-  /**
-   * Sets the value of the nodeTemplateID property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setNodeTemplateID(final String value) {
-    this.nodeTemplateID = value;
-  }
+    /**
+     * Sets the value of the nodeTemplateID property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setNodeTemplateID(final String value) {
+        this.nodeTemplateID = value;
+    }
 
-  /**
-   * Gets the value of the interface property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getInterface() {
-    return this._interface;
-  }
+    /**
+     * Gets the value of the interface property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getInterface() {
+        return this._interface;
+    }
 
-  /**
-   * Sets the value of the interface property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setInterface(final String value) {
-    this._interface = value;
-  }
+    /**
+     * Sets the value of the interface property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setInterface(final String value) {
+        this._interface = value;
+    }
 
-  /**
-   * Gets the value of the operation property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getOperation() {
-    return this.operation;
-  }
+    /**
+     * Gets the value of the operation property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getOperation() {
+        return this.operation;
+    }
 
-  /**
-   * Sets the value of the operation property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setOperation(final String value) {
-    this.operation = value;
-  }
+    /**
+     * Sets the value of the operation property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setOperation(final String value) {
+        this.operation = value;
+    }
 
-  /**
-   * Gets the value of the serviceInstanceID property.
-   */
-  public int getServiceInstanceID() {
-    return this.serviceInstanceID;
-  }
+    /**
+     * Gets the value of the serviceInstanceID property.
+     */
+    public int getServiceInstanceID() {
+        return this.serviceInstanceID;
+    }
 
-  /**
-   * Sets the value of the serviceInstanceID property.
-   */
-  public void setServiceInstanceID(final int value) {
-    this.serviceInstanceID = value;
-  }
+    /**
+     * Sets the value of the serviceInstanceID property.
+     */
+    public void setServiceInstanceID(final int value) {
+        this.serviceInstanceID = value;
+    }
 
-  /**
-   * Gets the value of the params property.
-   *
-   * @return possible object is {@link ParamsMap }
-   */
-  public ParamsMap getParams() {
-    return this.params;
-  }
+    /**
+     * Gets the value of the params property.
+     *
+     * @return possible object is {@link ParamsMap }
+     */
+    public ParamsMap getParams() {
+        return this.params;
+    }
 
-  /**
-   * Sets the value of the params property.
-   *
-   * @param value allowed object is {@link ParamsMap }
-   */
-  public void setParams(final ParamsMap value) {
-    this.params = value;
-  }
-
+    /**
+     * Sets the value of the params property.
+     *
+     * @param value allowed object is {@link ParamsMap }
+     */
+    public void setParams(final ParamsMap value) {
+        this.params = value;
+    }
 }

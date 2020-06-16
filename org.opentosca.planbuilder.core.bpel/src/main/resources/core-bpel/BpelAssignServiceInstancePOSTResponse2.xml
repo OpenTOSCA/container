@@ -1,35 +1,39 @@
 <bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
-	validate="no" name="$assignName">
-	<!-- $ServiceInstanceResponseVarName, $ServiceInstanceURLVarName, $serviceTemplateURLVarName, $serviceTemplateInstancesURLVar, $ServiceInstanceIDVarName -->
-	<bpel:copy>
-		<!-- //*[local-name()='link' and namespace-uri()='http://opentosca.org/api/pp']/@*[local-name()='href'
-			and namespace-uri()='http://www.w3.org/1999/xlink'] -->
-		<bpel:from variable="$ServiceInstanceResponseVarName">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"
-				xmlns:pp="http://opentosca.org/api/pp" xmlns:xlink="http://www.w3.org/1999/xlink"><![CDATA[string(//*[local-name()='url']/text())]]></bpel:query>
-		</bpel:from>
-		<bpel:to variable="$ServiceInstanceURLVarName"></bpel:to>
-	</bpel:copy>
-	<bpel:copy>
-		<!-- //*[local-name()='link' and namespace-uri()='http://opentosca.org/api/pp']/@*[local-name()='href'
-			and namespace-uri()='http://www.w3.org/1999/xlink'] -->
-		<bpel:from variable="$ServiceInstanceURLVarName">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string(codepoints-to-string(reverse(string-to-codepoints(substring-before(codepoints-to-string(reverse(string-to-codepoints($$ServiceInstanceURLVarName))), '/')))))]]></bpel:query>
-		</bpel:from>
-		<bpel:to variable="$ServiceInstanceIDVarName"></bpel:to>
-	</bpel:copy>
-	<bpel:copy>
-		<!-- //*[local-name()='link' and namespace-uri()='http://opentosca.org/api/pp']/@*[local-name()='href'
-			and namespace-uri()='http://www.w3.org/1999/xlink'] -->
-		<bpel:from variable="$serviceTemplateInstancesURLVar">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string(replace($$serviceTemplateInstancesURLVar, '/instances', ''))]]></bpel:query>
-		</bpel:from>
-		<bpel:to variable="$serviceTemplateURLVarName"></bpel:to>
-	</bpel:copy>
-	<bpel:copy>
-		<bpel:from variable="$serviceTemplateURLVarName">
-			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string(concat($$ServiceInstanceURLVarName, '/managementplans/', '$planName', '/instances/', $$ServiceInstanceCorrelationID))]]></bpel:query>
-		</bpel:from>
-		<bpel:to variable="$planInstanceURL"></bpel:to>
-	</bpel:copy>
+             validate="no" name="$assignName">
+    <!-- $ServiceInstanceResponseVarName, $ServiceInstanceURLVarName, $serviceTemplateURLVarName, $serviceTemplateInstancesURLVar, $ServiceInstanceIDVarName -->
+    <bpel:copy>
+        <!-- //*[local-name()='link' and namespace-uri()='http://opentosca.org/api/pp']/@*[local-name()='href'
+            and namespace-uri()='http://www.w3.org/1999/xlink'] -->
+        <bpel:from variable="$ServiceInstanceResponseVarName">
+            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"
+            >
+                <![CDATA[string(//*[local-name()='url']/text())]]></bpel:query>
+        </bpel:from>
+        <bpel:to variable="$ServiceInstanceURLVarName"></bpel:to>
+    </bpel:copy>
+    <bpel:copy>
+        <!-- //*[local-name()='link' and namespace-uri()='http://opentosca.org/api/pp']/@*[local-name()='href'
+            and namespace-uri()='http://www.w3.org/1999/xlink'] -->
+        <bpel:from variable="$ServiceInstanceURLVarName">
+            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+                <![CDATA[string(codepoints-to-string(reverse(string-to-codepoints(substring-before(codepoints-to-string(reverse(string-to-codepoints($$ServiceInstanceURLVarName))), '/')))))]]></bpel:query>
+        </bpel:from>
+        <bpel:to variable="$ServiceInstanceIDVarName"></bpel:to>
+    </bpel:copy>
+    <bpel:copy>
+        <!-- //*[local-name()='link' and namespace-uri()='http://opentosca.org/api/pp']/@*[local-name()='href'
+            and namespace-uri()='http://www.w3.org/1999/xlink'] -->
+        <bpel:from variable="$serviceTemplateInstancesURLVar">
+            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+                <![CDATA[string(replace($$serviceTemplateInstancesURLVar, '/instances', ''))]]></bpel:query>
+        </bpel:from>
+        <bpel:to variable="$serviceTemplateURLVarName"></bpel:to>
+    </bpel:copy>
+    <bpel:copy>
+        <bpel:from variable="$serviceTemplateURLVarName">
+            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+                <![CDATA[string(concat($$ServiceInstanceURLVarName, '/managementplans/', '$planName', '/instances/', $$ServiceInstanceCorrelationID))]]></bpel:query>
+        </bpel:from>
+        <bpel:to variable="$planInstanceURL"></bpel:to>
+    </bpel:copy>
 </bpel:assign>

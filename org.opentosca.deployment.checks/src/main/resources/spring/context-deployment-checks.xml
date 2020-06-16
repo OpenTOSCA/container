@@ -7,19 +7,19 @@
                            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-  <description>
-    Register the beans within the remote management bus invocation plugin.
-  </description>
-  <context:annotation-config />
+    <description>
+        Register the beans within the remote management bus invocation plugin.
+    </description>
+    <context:annotation-config/>
 
-  <camel:camelContext id="deployment-checks-camel-context">
-    <camel:packageScan>
-      <camel:package>org.opentosca.deployment.checks.camel</camel:package>
-    </camel:packageScan>
-  </camel:camelContext>
-  <bean class="org.opentosca.deployment.checks.TestExecutor" >
-    <constructor-arg type="org.apache.camel.CamelContext" ref="deployment-checks-camel-context" />
-  </bean>
+    <camel:camelContext id="deployment-checks-camel-context">
+        <camel:packageScan>
+            <camel:package>org.opentosca.deployment.checks.camel</camel:package>
+        </camel:packageScan>
+    </camel:camelContext>
+    <bean class="org.opentosca.deployment.checks.TestExecutor">
+        <constructor-arg type="org.apache.camel.CamelContext" ref="deployment-checks-camel-context"/>
+    </bean>
 
-  <bean class="org.opentosca.deployment.checks.DeploymentTestService" />
+    <bean class="org.opentosca.deployment.checks.DeploymentTestService"/>
 </beans>

@@ -32,33 +32,36 @@
     <xs:complexType name="tDeployment">
         <xs:sequence>
 
-            <xs:element name="process"  minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="process" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
 
                         <xs:element name="active" minOccurs="0" maxOccurs="1" type="xs:boolean"
                                     default="true">
                             <xs:annotation>
-                                <xs:documentation> Active flag, if set process will be activated once
-                                    deployed. </xs:documentation>
+                                <xs:documentation>Active flag, if set process will be activated once
+                                    deployed.
+                                </xs:documentation>
                             </xs:annotation>
                         </xs:element>
                         <xs:element name="retired" minOccurs="0" maxOccurs="1" type="xs:boolean"
                                     default="false">
                             <xs:annotation>
-                                <xs:documentation> Retired flag, if set process will be retired once
-                                    deployed. </xs:documentation>
+                                <xs:documentation>Retired flag, if set process will be retired once
+                                    deployed.
+                                </xs:documentation>
                             </xs:annotation>
                         </xs:element>
                         <xs:element name="in-memory" minOccurs="0" maxOccurs="1" type="xs:boolean"
                                     default="false">
                             <xs:annotation>
                                 <xs:documentation>Should the process be persistent or only execute
-                                    in-memory.</xs:documentation>
+                                    in-memory.
+                                </xs:documentation>
                             </xs:annotation>
                         </xs:element>
 
-                        <xs:element name="property"  minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="property" minOccurs="0" maxOccurs="unbounded">
                             <xs:annotation>
                                 <xs:documentation>
                                     A user-defined property that will be attached to a process upon
@@ -67,7 +70,8 @@
                             </xs:annotation>
                             <xs:complexType>
                                 <xs:sequence>
-                                    <xs:any namespace="##other" minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+                                    <xs:any namespace="##other" minOccurs="0" maxOccurs="unbounded"
+                                            processContents="lax"/>
                                 </xs:sequence>
                                 <xs:attribute name="name" type="xs:QName" use="required"/>
                             </xs:complexType>
@@ -75,10 +79,10 @@
 
                         <xs:element name="process-events" minOccurs="0" maxOccurs="1" type="dd:tProcessEvents"/>
 
-                        <xs:element name="provide"  minOccurs="0" maxOccurs="unbounded" type="dd:tProvide"/>
-                        <xs:element name="invoke"  minOccurs="0" maxOccurs="unbounded" type="dd:tInvoke"/>
+                        <xs:element name="provide" minOccurs="0" maxOccurs="unbounded" type="dd:tProvide"/>
+                        <xs:element name="invoke" minOccurs="0" maxOccurs="unbounded" type="dd:tInvoke"/>
 
-                        <xs:element name="mex-interceptors" minOccurs="0" maxOccurs="1" >
+                        <xs:element name="mex-interceptors" minOccurs="0" maxOccurs="1">
                             <xs:annotation>
                                 <xs:documentation>
                                     List of message exchange interceptors that should be registered for this process.
@@ -86,18 +90,20 @@
                             </xs:annotation>
                             <xs:complexType>
                                 <xs:sequence>
-                                    <xs:element name="mex-interceptor" minOccurs="0" maxOccurs="unbounded" type="dd:tMexInterceptor" />
+                                    <xs:element name="mex-interceptor" minOccurs="0" maxOccurs="unbounded"
+                                                type="dd:tMexInterceptor"/>
                                 </xs:sequence>
                             </xs:complexType>
                         </xs:element>
-                        <xs:element name="type" minOccurs="0" maxOccurs="1"  type="xs:QName">
+                        <xs:element name="type" minOccurs="0" maxOccurs="1" type="xs:QName">
                             <xs:annotation>
-                                <xs:documentation> Process type -- indicates which process defintion should be used
-                                    for the process.</xs:documentation>
+                                <xs:documentation>Process type -- indicates which process defintion should be used
+                                    for the process.
+                                </xs:documentation>
                             </xs:annotation>
                         </xs:element>
 
-                        <xs:element name="cleanup" minOccurs="0" maxOccurs="3" type="dd:tCleanup" />
+                        <xs:element name="cleanup" minOccurs="0" maxOccurs="3" type="dd:tCleanup"/>
                         <xs:element name="schedule" minOccurs="0" maxOccurs="unbounded" type="dd:tSchedule">
                         </xs:element>
                     </xs:sequence>
@@ -105,11 +111,12 @@
                     <xs:attribute name="name" type="xs:QName" use="required"/>
                     <xs:attribute name="fileName" type="xs:string" use="optional"/>
                     <xs:attribute name="bpel11wsdlFileName" type="xs:string" use="optional">
-                            <xs:annotation>
-                                <xs:documentation>
-                                Allows you to specify a WSDL for BPEL 1.1 processes which do not support an "import" element.
-                                </xs:documentation>
-                            </xs:annotation>
+                        <xs:annotation>
+                            <xs:documentation>
+                                Allows you to specify a WSDL for BPEL 1.1 processes which do not support an "import"
+                                element.
+                            </xs:documentation>
+                        </xs:annotation>
                     </xs:attribute>
                 </xs:complexType>
             </xs:element>
@@ -154,7 +161,7 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="tMexInterceptor" >
+    <xs:complexType name="tMexInterceptor">
         <xs:annotation>
             <xs:documentation>
                 Message exchange interceptor configuration.
@@ -162,7 +169,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="class-name" type="xs:string" />
+            <xs:element name="class-name" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -203,12 +210,12 @@
             <xs:element name="category" default="all" minOccurs="0" maxOccurs="unbounded">
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
-                        <xs:enumeration value="instance" />
-                        <xs:enumeration value="variables" />
-                        <xs:enumeration value="messages" />
-                        <xs:enumeration value="correlations" />
-                        <xs:enumeration value="events" />
-                        <xs:enumeration value="all" />
+                        <xs:enumeration value="instance"/>
+                        <xs:enumeration value="variables"/>
+                        <xs:enumeration value="messages"/>
+                        <xs:enumeration value="correlations"/>
+                        <xs:enumeration value="events"/>
+                        <xs:enumeration value="all"/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
@@ -217,9 +224,9 @@
         <xs:attribute name="on" use="optional">
             <xs:simpleType>
                 <xs:restriction base="xs:string">
-                    <xs:enumeration value="success" />
-                    <xs:enumeration value="failure" />
-                    <xs:enumeration value="always" />
+                    <xs:enumeration value="success"/>
+                    <xs:enumeration value="failure"/>
+                    <xs:enumeration value="always"/>
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>

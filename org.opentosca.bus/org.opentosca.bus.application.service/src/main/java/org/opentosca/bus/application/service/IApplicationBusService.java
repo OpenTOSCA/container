@@ -11,9 +11,8 @@ package org.opentosca.bus.application.service;
  */
 public interface IApplicationBusService {
 
-  /**
-   * @return the routing endpoint of this bundle
-   */
-  public String getRoutingEndpoint();
-
+    /**
+     * @return the routing endpoint of this bundle
+     */
+    public String getRoutingEndpoint();
 }

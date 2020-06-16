@@ -6,7 +6,6 @@
 // Generated on: 2013.04.02 at 04:58:44 PM CEST
 //
 
-
 package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,7 +13,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -37,26 +35,25 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tRequiredContainerFeature")
 public class TRequiredContainerFeature {
 
-  @XmlAttribute(required = true)
-  @XmlSchemaType(name = "anyURI")
-  protected String feature;
+    @XmlAttribute(required = true)
+    @XmlSchemaType(name = "anyURI")
+    protected String feature;
 
-  /**
-   * Gets the value of the feature property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getFeature() {
-    return this.feature;
-  }
+    /**
+     * Gets the value of the feature property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getFeature() {
+        return this.feature;
+    }
 
-  /**
-   * Sets the value of the feature property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setFeature(final String value) {
-    this.feature = value;
-  }
-
+    /**
+     * Sets the value of the feature property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setFeature(final String value) {
+        this.feature = value;
+    }
 }

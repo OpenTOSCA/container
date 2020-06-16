@@ -6,7 +6,6 @@
 // Generated on: 2012.05.16 at 05:29:02 PM MESZ
 //
 
-
 package org.apache.ode.schemas.dd._2007._03;
 
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>
@@ -42,52 +40,51 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "tSchedule", propOrder = {"cleanup"})
 public class TSchedule {
 
-  protected List<TCleanup> cleanup;
-  @XmlAttribute(required = true)
-  protected String when;
+    protected List<TCleanup> cleanup;
+    @XmlAttribute(required = true)
+    protected String when;
 
-  /**
-   * Gets the value of the cleanup property.
-   *
-   * <p>
-   * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-   * modification you make to the returned list will be present inside the JAXB object. This is why
-   * there is not a <CODE>set</CODE> method for the cleanup property.
-   *
-   * <p>
-   * For example, to add a new item, do as follows:
-   *
-   * <pre>
-   * getCleanup().add(newItem);
-   * </pre>
-   *
-   *
-   * <p>
-   * Objects of the following type(s) are allowed in the list {@link TCleanup }
-   */
-  public List<TCleanup> getCleanup() {
-    if (this.cleanup == null) {
-      this.cleanup = new ArrayList<>();
+    /**
+     * Gets the value of the cleanup property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+     * the cleanup property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getCleanup().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link TCleanup }
+     */
+    public List<TCleanup> getCleanup() {
+        if (this.cleanup == null) {
+            this.cleanup = new ArrayList<>();
+        }
+        return this.cleanup;
     }
-    return this.cleanup;
-  }
 
-  /**
-   * Gets the value of the when property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getWhen() {
-    return this.when;
-  }
+    /**
+     * Gets the value of the when property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getWhen() {
+        return this.when;
+    }
 
-  /**
-   * Sets the value of the when property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setWhen(final String value) {
-    this.when = value;
-  }
-
+    /**
+     * Sets the value of the when property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setWhen(final String value) {
+        this.when = value;
+    }
 }

@@ -18,13 +18,13 @@
   -->
 
 <definitions
-        name="ProcessAndInstanceManagement"
-        targetNamespace="http://www.apache.org/ode/pmapi"
-        xmlns:tns="http://www.apache.org/ode/pmapi"
-        xmlns:typ="http://www.apache.org/ode/pmapi/types/2006/08/02/"
-        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        xmlns="http://schemas.xmlsoap.org/wsdl/">
+    name="ProcessAndInstanceManagement"
+    targetNamespace="http://www.apache.org/ode/pmapi"
+    xmlns:tns="http://www.apache.org/ode/pmapi"
+    xmlns:typ="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://schemas.xmlsoap.org/wsdl/">
 
     <types>
         <xsd:schema>
@@ -417,7 +417,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="listAllProcesses">
             <soap:operation soapAction="" style="rpc"/>
@@ -429,7 +429,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="listProcessesCustom">
             <soap:operation soapAction="" style="rpc"/>
@@ -441,7 +441,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="getProcessInfo">
             <soap:operation soapAction="" style="rpc"/>
@@ -453,7 +453,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="getProcessInfoCustom">
             <soap:operation soapAction="" style="rpc"/>
@@ -465,7 +465,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="getExtensibilityElements">
             <soap:operation soapAction="" style="rpc"/>
@@ -477,7 +477,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="setProcessProperty">
             <soap:operation soapAction="" style="rpc"/>
@@ -489,7 +489,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="setProcessPropertyNode">
             <soap:operation soapAction="" style="rpc"/>
@@ -501,7 +501,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="activate">
             <soap:operation soapAction="" style="rpc"/>
@@ -513,7 +513,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="setRetired">
             <soap:operation soapAction="" style="rpc"/>
@@ -525,7 +525,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
     </binding>
 
@@ -541,7 +541,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="listInstancesSummary">
             <soap:operation soapAction="" style="rpc"/>
@@ -553,7 +553,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="queryInstances">
             <soap:operation soapAction="" style="rpc"/>
@@ -565,7 +565,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="listAllInstances">
             <soap:operation soapAction="" style="rpc"/>
@@ -577,7 +577,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="listAllInstancesWithLimit">
             <soap:operation soapAction="" style="rpc"/>
@@ -589,7 +589,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="getInstanceInfo">
             <soap:operation soapAction="" style="rpc"/>
@@ -601,7 +601,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="getScopeInfo">
             <soap:operation soapAction="" style="rpc"/>
@@ -613,7 +613,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="getScopeInfoWithActivity">
             <soap:operation soapAction="" style="rpc"/>
@@ -625,7 +625,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="getVariableInfo">
             <soap:operation soapAction="" style="rpc"/>
@@ -637,7 +637,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="setVariable">
             <soap:operation soapAction="" style="rpc"/>
@@ -649,7 +649,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="listEvents">
             <soap:operation soapAction="" style="rpc"/>
@@ -661,7 +661,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="getEventTimeline">
             <soap:operation soapAction="" style="rpc"/>
@@ -673,7 +673,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="suspend">
             <soap:operation soapAction="" style="rpc"/>
@@ -685,7 +685,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="resume">
             <soap:operation soapAction="" style="rpc"/>
@@ -697,7 +697,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="terminate">
             <soap:operation soapAction="" style="rpc"/>
@@ -709,7 +709,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="fault">
             <soap:operation soapAction="" style="rpc"/>
@@ -721,7 +721,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="delete">
             <soap:operation soapAction="" style="rpc"/>
@@ -733,7 +733,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="recoverActivity">
             <soap:operation soapAction="" style="rpc"/>
@@ -745,7 +745,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="replay">
             <soap:operation soapAction="" style="rpc"/>
@@ -757,7 +757,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
         <operation name="getCommunication">
             <soap:operation soapAction="" style="rpc"/>
@@ -769,7 +769,7 @@
             </output>
             <fault name="ManagementFault">
                 <soap:fault name="ManagementFault" use="literal"/>
-             </fault>
+            </fault>
         </operation>
     </binding>
 
