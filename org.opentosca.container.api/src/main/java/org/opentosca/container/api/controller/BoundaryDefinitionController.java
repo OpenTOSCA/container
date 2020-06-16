@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -115,36 +116,45 @@ public class BoundaryDefinitionController {
         } catch (org.opentosca.container.core.common.NotFoundException e) {
             throw new NotFoundException(e);
         }
-        // using optional to condense nullchecks
-        @SuppressWarnings("null")
+
+        if (Objects.isNull(serviceTemplate)) {
+            return Response.status(Response.Status.NOT_FOUND).entity("ServiceTemplate not found!").build();
+        }
+
+        TBoundaryDefinitions boundary = serviceTemplate.getBoundaryDefinitions();
+        if (Objects.isNull(boundary)) {
+            return Response.status(Response.Status.NOT_FOUND).entity("BoundaryDefinitions not found!").build();
+        }
+
         List<TPropertyMapping> propertyMappings =
-            Optional.ofNullable(serviceTemplate).map(TServiceTemplate::getBoundaryDefinitions)
+            Optional.of(boundary)
                 .map(TBoundaryDefinitions::getProperties).map(TBoundaryDefinitions.Properties::getPropertyMappings)
                 .map(TBoundaryDefinitions.Properties.PropertyMappings::getPropertyMapping)
                 .orElse(Collections.emptyList());
+        logger.debug("Found <{}> property mappings", propertyMappings.size());
+
+        final List<PropertyMappingDTO> propertyMappingDTOs = propertyMappings.stream().map(mapping -> {
+
+            final PropertyMappingDTO result = new PropertyMappingDTO();
+            result.setServiceTemplatePropertyRef(mapping.getServiceTemplatePropertyRef());
+            result.setTargetPropertyRef(mapping.getTargetPropertyRef());
+
+            if (!(mapping.getTargetObjectRef() instanceof TEntityTemplate)) {
+                logger.error("Unexpected mapping target detected for the property ("
+                    + mapping.getServiceTemplatePropertyRef() + ")");
+            } else {
+                result.setTargetObjectRef(((TEntityTemplate) mapping.getTargetObjectRef()).getId());
+            }
+
+            return result;
+        }).collect(Collectors.toList());
+
         final PropertiesDTO dto = new PropertiesDTO();
-        final Object xmlFragment = new Object();
-        // FIXME referenceMapper.getServiceTemplateBoundsPropertiesXMLFragment(csarId, servicetemplate);
-        dto.setXmlFragment(xmlFragment); // we're not really exposing these in the winery-model
-        if (propertyMappings != null) {
-            logger.debug("Found <{}> property mappings", propertyMappings.size());
-            final List<PropertyMappingDTO> propertyMappingDTOs = propertyMappings.stream().map(mapping -> {
-
-                final PropertyMappingDTO result = new PropertyMappingDTO();
-                result.setServiceTemplatePropertyRef(mapping.getServiceTemplatePropertyRef());
-                result.setTargetPropertyRef(mapping.getTargetPropertyRef());
-
-                if (!(mapping.getTargetObjectRef() instanceof TEntityTemplate)) {
-                    logger.error("Unexpected mapping target detected for the property ("
-                        + mapping.getServiceTemplatePropertyRef() + ")");
-                } else {
-                    result.setTargetObjectRef(((TEntityTemplate) mapping.getTargetObjectRef()).getId());
-                }
-
-                return result;
-            }).collect(Collectors.toList());
-
-            dto.setPropertyMappings(propertyMappingDTOs);
+        if (Objects.nonNull(boundary.getProperties())) {
+            dto.setXmlFragment(boundary.getProperties().getAny());
+            if (!propertyMappingDTOs.isEmpty()) {
+                dto.setPropertyMappings(propertyMappingDTOs);
+            }
         }
         dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
         return Response.ok(dto).build();
