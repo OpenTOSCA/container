@@ -141,6 +141,27 @@ public abstract class AbstractDefinitions {
         }
         return null;
     }
+    
+    public AbstractOperation findOperation(String interfaceName, String operationName) {
+        for(AbstractNodeType nodeType : this.getNodeTypes()) {
+            for(AbstractInterface iface : nodeType.getInterfaces()) {
+                if(iface.getName().equals(interfaceName)) {
+                    for(AbstractOperation op : iface.getOperations()) {
+                        if(op.getName().equals(operationName)) {
+                            return op;
+                        }
+                    }
+                }
+            }
+        }
+        for(AbstractDefinitions defs : this.getImportedDefinitions()) {
+            AbstractOperation op = defs.findOperation(interfaceName, operationName);
+            if(op != null) {
+                return op;
+            }
+        }
+        return null;
+    }
 
     /**
      * Returns a List of all RelationshipTypeImplemenations this TOSCA Definitions has defined

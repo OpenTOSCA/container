@@ -78,10 +78,20 @@ public abstract class AbstractRelationshipTemplate extends AbstractEntityTemplat
     public boolean equals(final Object o) {
         if (o instanceof AbstractRelationshipTemplate) {
             final AbstractRelationshipTemplate relation = (AbstractRelationshipTemplate) o;
-            if (relation.getId().equals(this.getId())) {
-                return true;
+            
+            if(!relation.getId().equals(this.getId())) {
+                return false;
             }
-            return false;
+            
+            if(!(relation.getSource().equals(this.getSource()) & relation.getTarget().equals(relation.getTarget()))) {
+                return false;
+            }
+            
+            if (!relation.getType().equals(this.getType())) {
+                return false;
+            }
+            return true;
+
         } else {
             return false;
         }

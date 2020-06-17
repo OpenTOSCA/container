@@ -17,6 +17,7 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.management.IManagementBus;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
@@ -60,9 +61,13 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
             final String correlationId = String.valueOf(System.currentTimeMillis());
 
             try {
-                planRepo.findByCorrelationId(correlationId);
-                LOG.debug("CorrelationId {} already in use.", correlationId);
-            } catch (final NoResultException e) {
+                PlanInstance instance = planRepo.findByCorrelationId(correlationId);
+                if(instance == null) {
+                    return correlationId;
+                }
+                this.LOG.debug("CorrelationId {} already in use.", correlationId);
+            }
+            catch (final NoResultException e) {
                 return correlationId;
             }
         }

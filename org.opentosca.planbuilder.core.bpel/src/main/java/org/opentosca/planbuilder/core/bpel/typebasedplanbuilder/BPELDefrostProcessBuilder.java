@@ -200,8 +200,8 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
                     BPELBuildProcessBuilder.LOG.debug("Skipping the provisioning of NodeTemplate "
                         + nodeTemplate.getId() + "  beacuse state=running is set.");
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
-                            postPhasePlugin.handleCreate(context, nodeTemplate);
+                        if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
+                            postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
                         }
                     }
                     continue;

@@ -59,4 +59,21 @@ public abstract class AbstractNodeType {
      * @return a List of DOM nodes representing additionaly elements defined on this nodeType
      */
     public abstract List<Node> getAdditionalElements();
+    
+    @Override
+    public boolean equals(Object o) {
+        
+        if(!(o instanceof AbstractNodeType)) {
+            return false;
+        }
+        
+        AbstractNodeType nodeType = (AbstractNodeType) o;
+        
+        if(!nodeType.getId().equals(this.getId())) {
+            return false;
+        }
+        
+        return true;
+    }
+
 }

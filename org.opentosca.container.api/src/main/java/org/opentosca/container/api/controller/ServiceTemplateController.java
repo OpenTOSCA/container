@@ -1,8 +1,12 @@
 package org.opentosca.container.api.controller;
 
+import java.util.List;
+
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -12,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,6 +24,10 @@ import io.swagger.annotations.ApiParam;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
+import org.opentosca.container.api.dto.request.ServiceTransformRequest;
+import org.opentosca.container.api.service.CsarService.AdaptationPlanGenerationResult;
+import org.opentosca.container.control.OpenToscaControlService;
+import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;
@@ -26,6 +35,8 @@ import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
@@ -65,6 +76,12 @@ public class ServiceTemplateController {
 
     @Inject
     private CsarStorageService storage;
+    
+    @Inject
+    private OpenToscaControlService controlService;
+    
+    @Inject
+    private CsarService csarService;
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -182,4 +199,48 @@ public class ServiceTemplateController {
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
+    
+    @POST
+    @Path("/{servicetemplate}/transform")
+    @ApiOperation(value = "Generates a plan to adapt service template instances via the given the source and target nodes/relations")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response transformCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
+                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId, @ApiParam(required = true) final ServiceTransformRequest request) {    
+
+        
+        
+        final AdaptationPlanGenerationResult result = this.csarService.generateAdaptationPlan(new CsarId(csar), QName.valueOf(serviceTemplateId), request.getSourceNodeTemplates(), request.getSourceRelationshipTemplates(), request.getTargetNodeTemplates(), request.getTargetRelationshipTemplates());
+        
+        
+        if(result == null) {
+            return Response.serverError().build();
+        }
+        
+        
+     // FIXME maybe this only makes sense when we have generated plans :/
+        this.controlService.declareStored(result.csarId);
+        
+        boolean success = this.controlService.invokeToscaProcessing(result.csarId);
+
+        if (success) {
+        	Csar storedCsar = storage.findById(result.csarId);
+            final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
+            
+            for (final TServiceTemplate serviceTemplate : serviceTemplates) {                
+                if (!this.controlService.invokePlanDeployment(result.csarId, serviceTemplate)) {                    
+                    success = false;
+                }
+            }
+        }
+
+        if (success) {
+        	PlanType[] planTypes = {PlanType.MANAGEMENT};
+        	return Response.ok(this.planService.getPlanDto(storage.findById(result.csarId), planTypes, result.planId)).build();                        
+        } else {
+            return Response.serverError().build();
+        }
+    }
+
+   
 }

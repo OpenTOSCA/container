@@ -40,11 +40,17 @@ public class TPlanDTO {
     @XmlSchemaType(name = "anyURI")
     protected String planLanguage;
 
+    @XmlAttribute(name = "calculatedWCET")
+    @XmlSchemaType(name = "anyURI")
+    protected long calculatedWCET;
+
     public TPlanDTO(final TPlan plan, final String namespace) {
         this.id = new QName(namespace, plan.getId());
         this.name = plan.getName();
         this.planType = plan.getPlanType();
         this.planLanguage = plan.getPlanLanguage();
+        
+        this.calculatedWCET = Long.valueOf(plan.getOtherAttributes().getOrDefault(new QName("http://opentosca.org", "WCET"), String.valueOf(0)));
 
         final org.eclipse.winery.model.tosca.TPlan.InputParameters serializedInputParams = plan.getInputParameters();
         if (null != serializedInputParams) {
@@ -196,6 +202,14 @@ public class TPlanDTO {
      */
     public void setPlanLanguage(final String value) {
         this.planLanguage = value;
+    }
+    
+    public long getCalculatedWCET() {
+        return this.calculatedWCET;
+    }
+
+    public void setCalculatedWCET(final long calculatedWCET) {
+        this.calculatedWCET = calculatedWCET;
     }
 
     @Override

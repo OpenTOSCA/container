@@ -52,7 +52,7 @@ public class RootController {
         links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
         links.add(Link.fromResource(CsarController.class).rel("csars").baseUri(this.uriInfo.getBaseUri()).build());
         links.add(
-            Link.fromResource(SituationsController.class).rel("situations").baseUri(this.uriInfo.getBaseUri()).build());
+            Link.fromResource(SituationsController.class).rel("situationsapi").baseUri(this.uriInfo.getBaseUri()).build());
 
         return Response.ok(links).build();
     }

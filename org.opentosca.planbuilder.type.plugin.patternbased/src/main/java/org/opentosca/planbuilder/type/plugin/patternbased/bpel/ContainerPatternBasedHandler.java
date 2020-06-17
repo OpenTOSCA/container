@@ -55,7 +55,7 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
         return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode),
-            getContainerPatternCreateMethod(hostingNode));
+                                   getContainerPatternCreateMethod(hostingNode));
     }
 
     public boolean isDeprovisionableByContainerPattern(final AbstractNodeTemplate nodeTemplate) {
@@ -72,8 +72,9 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
         return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode),
-            getContainerPatternTerminateMethod(hostingNode));
+                                   getContainerPatternTerminateMethod(hostingNode));
     }
+        
 
     private boolean hasContainerPatternCreateMethod(final AbstractNodeTemplate nodeTemplate) {
         return Objects.nonNull(getContainerPatternCreateMethod(nodeTemplate));
@@ -83,7 +84,7 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         return Objects.nonNull(getContainerPatternTerminateMethod(nodeTemplate));
     }
 
-    private AbstractOperation getContainerPatternTerminateMethod(final AbstractNodeTemplate nodeTemplate) {
+    protected AbstractOperation getContainerPatternTerminateMethod(final AbstractNodeTemplate nodeTemplate) {
         for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
             if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
                 for (final AbstractOperation op : iface.getOperations()) {
@@ -111,7 +112,7 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    private AbstractOperation getContainerPatternCreateMethod(final AbstractNodeTemplate nodeTemplate) {
+    protected AbstractOperation getContainerPatternCreateMethod(final AbstractNodeTemplate nodeTemplate) {
         for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
             if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
                 for (final AbstractOperation op : iface.getOperations()) {
@@ -120,9 +121,7 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
                     }
                 }
             }
-            // possible backwards compatibility through interfaces/operations of
-            // Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER
-            // and Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE
+            // possible backwards compatibility through interfaces/operations of Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER and Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE      
         }
         return null;
     }

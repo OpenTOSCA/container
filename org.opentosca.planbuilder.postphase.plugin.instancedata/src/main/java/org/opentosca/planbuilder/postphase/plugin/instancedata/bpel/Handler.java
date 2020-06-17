@@ -19,8 +19,10 @@ import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
@@ -320,7 +322,7 @@ public class Handler {
         }
 
         this.appendStateUpdateToPostPhase(context, nodeInstanceURLVarName, stateVarName, lastSetState);
-
+        this.appendFailedStateToFaultHandler(context, nodeInstanceURLVarName);
         return true;
     }
 
@@ -490,7 +492,7 @@ public class Handler {
         }
 
         this.appendStateUpdateToPostPhase(context, relationInstanceURLVarName, stateVarName, lastSetState);
-
+        this.appendFailedStateToFaultHandler(context, relationInstanceURLVarName);
         return true;
     }
 
@@ -557,6 +559,9 @@ public class Handler {
         this.appendStateUpdateToPostPhase(targetContext, targetNodeInstanceUrlVar, stateVar);
         /* set state of old instance to migrated */
         this.appendStateUpdateToPostPhase(sourceContext, sourceNodeInstanceURLVarName, stateVar, "MIGRATED");
+        
+        this.appendFailedStateToFaultHandler(targetContext, targetNodeInstanceUrlVar);
+        this.appendFailedStateToFaultHandler(sourceContext, sourceNodeInstanceURLVarName);
         return true;
     }
 
@@ -839,6 +844,8 @@ public class Handler {
         // add progression log message
         appendProgressionUpdateLogMessage(context, nodeTemplate.getId());
 
+        this.appendFailedStateToFaultHandler(context, nodeInstanceURLVarName);
+        
         return true;
     }
 
@@ -862,6 +869,11 @@ public class Handler {
         } catch (final SAXException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void appendFailedStateToFaultHandler(BPELPlanContext context, String nodeInstanceURLVarName) {
+        String stateVarName = this.createStateVar(context, context.getTemplateId());
+        this.appendStateUpdateAsChild(context, nodeInstanceURLVarName, stateVarName, "ERROR", context.getProvisioningFaultHandlerPhaseElement());                
     }
 
     private void appendStateUpdateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName,
@@ -1761,8 +1773,8 @@ public class Handler {
 
         // generate call to method
         context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT, inputParams,
-            outputParams, context.getPrePhaseElement());
+                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT, inputParams,
+                                 outputParams, BPELScopePhaseType.PRE, context.getPrePhaseElement());
 
         // check result and eventually throw error
 

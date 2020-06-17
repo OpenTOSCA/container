@@ -64,6 +64,7 @@
     <module>org.opentosca.planbuilder.integration</module>
     <module>org.opentosca.planbuilder.model</module>
     <module>org.opentosca.planbuilder.postphase.plugin.instancedata</module>
+    <module>org.opentosca.planbuilder.postphase.plugin.situations</module>
     <module>org.opentosca.planbuilder.postphase.plugin.vinothek</module>
     <module>org.opentosca.planbuilder.postphase.plugin.monitoring</module>
     <module>org.opentosca.planbuilder.provphase.plugin.ansibleoperation</module>

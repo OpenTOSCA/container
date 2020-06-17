@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -22,6 +23,7 @@ import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -44,9 +46,11 @@ public class BPELInvokerPluginHandler {
     private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPluginHandler.class);
     private static final String PlanInstanceURLVarKeyword = "OpenTOSCAContainerAPIPlanInstanceURL";
 
-    private final ResourceHandler resHandler;
-    private final BPELProcessFragments bpelFrags;
-    private final DocumentBuilder docBuilder;
+    private ResourceHandler resHandler;
+    private BPELProcessFragments bpelFrags;
+    private DocumentBuilderFactory docFactory;
+
+    private DocumentBuilder docBuilder;
 
     public BPELInvokerPluginHandler() {
         try {

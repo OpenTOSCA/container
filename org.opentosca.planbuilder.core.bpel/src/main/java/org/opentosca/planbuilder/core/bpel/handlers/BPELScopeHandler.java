@@ -9,6 +9,8 @@ import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,7 +197,6 @@ public class BPELScopeHandler {
                 variableElement.setAttribute("type", declarationId.getPrefix() + ":" + declarationId.getLocalPart());
                 break;
             default:
-                ;
                 break;
         }
 
@@ -503,7 +504,14 @@ public class BPELScopeHandler {
             .createElementNS(BPELPlan.bpelNamespace,
                 "sequence"));
         newTemplateBuildPlan.getBpelMainSequenceElement()
-            .appendChild(newTemplateBuildPlan.getBpelSequencePostPhaseElement());
+                            .appendChild(newTemplateBuildPlan.getBpelSequencePostPhaseElement());
+
+        newTemplateBuildPlan.setBpelEventHandlersElement(newTemplateBuildPlan.getBpelDocument()
+                                                                             .createElementNS(BPELPlan.bpelNamespace,
+                                                                                              "eventHandlers"));
+
+        newTemplateBuildPlan.getBpelScopeElement().appendChild(newTemplateBuildPlan.getBpelEventHandlersElement());
+
     }
 
     /**

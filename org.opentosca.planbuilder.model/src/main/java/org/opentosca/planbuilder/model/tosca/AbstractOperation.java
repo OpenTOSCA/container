@@ -33,4 +33,6 @@ public abstract class AbstractOperation {
      * @return a List of AbstractParameters as Ouput of this Operation
      */
     public abstract List<AbstractParameter> getOutputParameters();
+    
+    public abstract AbstractInterface getInterface();
 }

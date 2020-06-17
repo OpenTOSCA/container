@@ -13,6 +13,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import org.opentosca.container.core.model.csar.id.CSARID;
+
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.common.jpa.CsarIdConverter;
 import org.opentosca.container.core.model.csar.CsarId;
@@ -52,6 +54,9 @@ public class SituationTrigger extends PersistenceObject {
 
     @Column(nullable = false)
     private String operationName;
+
+    @Column(nullable = false)
+    private long timeAvailableInSeconds;
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "situationTrigger")
@@ -146,20 +151,21 @@ public class SituationTrigger extends PersistenceObject {
     public void setSituationTriggerInstances(final Collection<SituationTriggerInstance> situationTriggerInstances) {
         this.situationTriggerInstances = situationTriggerInstances;
     }
-
+  
     public float getEventProbability() {
-        return eventProbability;
+        return this.eventProbability;
     }
 
-    public void setEventProbability(float eventProbability) {
+    public void setEventProbability(final float eventProbability) {
         this.eventProbability = eventProbability;
     }
 
     public String getEventTime() {
-        return eventTime;
+        return this.eventTime;
     }
 
-    public void setEventTime(String eventTime) {
+    public void setEventTime(final String eventTime) {
         this.eventTime = eventTime;
     }
+
 }
