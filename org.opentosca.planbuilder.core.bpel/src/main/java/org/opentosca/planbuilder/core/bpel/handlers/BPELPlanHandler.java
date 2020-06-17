@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.core.bpel.handlers;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
@@ -20,6 +21,9 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -31,6 +35,7 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,8 +113,10 @@ public class BPELPlanHandler {
         String varName = varNamePrefix + System.currentTimeMillis();
         final QName stringXsdDeclQName = new QName(xsdNamespace, "string", xsdPrefix);
 
-        while (!addVariable(varName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan)) {
+        boolean added = addVariable(varName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
+        while (!added) {
             varName = varNamePrefix + System.currentTimeMillis();
+            added = addVariable(varName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
         }
         return varName;
     }
@@ -520,7 +527,6 @@ public class BPELPlanHandler {
                 variableElement.setAttribute("element", declarationId.getPrefix() + ":" + declarationId.getLocalPart());
                 break;
             default:
-                ;
                 break;
         }
 
@@ -663,7 +669,7 @@ public class BPELPlanHandler {
         final BPELPlan buildPlan =
             new BPELPlan(abstractPlan.getId(), abstractPlan.getType(), abstractPlan.getDefinitions(),
                 abstractPlan.getServiceTemplate(), abstractPlan.getActivites(), abstractPlan.getLinks());
-        ;
+        
 
         // init wsdl doc
         try {
@@ -979,14 +985,22 @@ public class BPELPlanHandler {
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
                 abstract2bpelMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);
 
-                BPELScope newCompensationHandlerScope =
-                    this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "compensation");
+                final BPELScope newFaultHandlerScope =
+                    this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "fault");               
+                newEmpty3SequenceScopeBPELActivity.setBpelFaultHandlerScope(newFaultHandlerScope);
+                
+                final BPELScope newCompensationHandlerScope =
+                    this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "compensation");               
                 newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
             } else if (activity instanceof RelationshipTemplateActivity) {
                 final RelationshipTemplateActivity rtActivity = (RelationshipTemplateActivity) activity;
                 newEmpty3SequenceScopeBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "");
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
                 abstract2bpelMap.put(rtActivity, newEmpty3SequenceScopeBPELActivity);
+                
+                final BPELScope newFaultHandlerScope =
+                    this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "fault");               
+                newEmpty3SequenceScopeBPELActivity.setBpelFaultHandlerScope(newFaultHandlerScope);
 
                 BPELScope newCompensationHandlerScope =
                     this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "compensation");

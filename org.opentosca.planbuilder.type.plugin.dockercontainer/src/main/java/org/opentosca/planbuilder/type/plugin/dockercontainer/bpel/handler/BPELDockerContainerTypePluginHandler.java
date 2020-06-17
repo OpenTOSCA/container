@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -180,23 +181,28 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             }
         }
 
+
+        boolean check = false;
         if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
             // handle with DA -> construct URL to the DockerImage .zip
 
             final AbstractDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate);
-            return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
-                containerIpVar, containerIdVar,
-                fetchEnvironmentVariables(templateContext, nodeTemplate), null, null,
-                containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
-                vmPrivateKeyVariable);
+            check = handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
+                                containerIpVar, containerIdVar,
+                                fetchEnvironmentVariables(templateContext, nodeTemplate), null, null,
+                                containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
+                                vmPrivateKeyVariable);
+
         } else {
             // handle with imageId
-            return handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar,
-                dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar,
-                fetchEnvironmentVariables(templateContext, nodeTemplate), containerMountPath,
-                remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
-                vmPrivateKeyVariable);
-        }
+            check =handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar,
+                                     dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar,
+                                     fetchEnvironmentVariables(templateContext, nodeTemplate), containerMountPath,
+                                     remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
+                                     vmPrivateKeyVariable);
+        }               
+        
+        return check;
     }
 
     private AbstractNodeTemplate findInfrastructureTemplate(final PlanContext context,

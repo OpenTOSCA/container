@@ -48,6 +48,9 @@ public class SituationTriggerDTO extends ResourceSupport {
     @XmlElement(name = "InterfaceName")
     private String interfaceName;
 
+    @XmlElement(name = "TimeAvailableInSeconds")
+    private Long timeAvailableInSeconds;
+
     @XmlElement(name = "OperationName")
     private String operationName;
 

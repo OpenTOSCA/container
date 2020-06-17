@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.core.bpel.handlers;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.slf4j.Logger;
@@ -26,14 +28,15 @@ import org.xml.sax.SAXException;
 
 /**
  * <p>
- * This class is used to finalize BPEL BuildPlans. For example when BPEL Scopes and their Sequences don't have any
- * sub-elements they must be filled with empty elements, otherwise the plan isn't valid to the specification and a BPEL
- * Engine won't allow the process to be deployed.
+ * This class is used to finalize BPEL BuildPlans. For example when BPEL Scopes and their Sequences
+ * don't have any sub-elements they must be filled with empty elements, otherwise the plan isn't
+ * valid to the specification and a BPEL Engine won't allow the process to be deployed.
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
  */
 public class BPELFinalizer {
 
@@ -51,7 +54,8 @@ public class BPELFinalizer {
             this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             this.buildPlanHandler = new BPELPlanHandler();
             this.scopeHandler = new BPELScopeHandler();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             BPELFinalizer.LOG.error("Initializing factories and handlers failed", e);
         }
     }
@@ -76,8 +80,8 @@ public class BPELFinalizer {
     }
 
     /**
-     * Finalizes the given BuildPlan. Finalizing here means, that possible invalid parts of the plan are made vaid
-     * against the specification
+     * Finalizes the given BuildPlan. Finalizing here means, that possible invalid parts of the plan are
+     * made vaid against the specification
      *
      * @param buildPlan the BuildPlan to finalize
      */
@@ -118,6 +122,7 @@ public class BPELFinalizer {
                 childElement.setPrefix("tns");
                 literalElement.appendChild(childElement);
             }
+
         }
 
         buildPlan.getBpelMainSequencePropertyAssignElement().appendChild(copy);
@@ -127,9 +132,11 @@ public class BPELFinalizer {
             Node addressingCopy = generateWSAddressingOutputAssign();
             addressingCopy = buildPlan.getBpelDocument().importNode(addressingCopy, true);
             buildPlan.getBpelMainSequenceOutputAssignElement().appendChild(addressingCopy);
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             BPELFinalizer.LOG.error("Generating BPEL Copy element to enable callback with WS-Addressing failed", e);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             BPELFinalizer.LOG.error("Generating BPEL Copy element to enable callback with WS-Addressing failed", e);
         }
 
@@ -145,40 +152,43 @@ public class BPELFinalizer {
 
         for (final BPELScope templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
             this.finalizeBPELScope(buildPlan, templateBuildPlan);
+            this.finalizeBPELScope(buildPlan, templateBuildPlan.getBpelFaultHandlerScope());
             this.finalizeBPELScope(buildPlan, templateBuildPlan.getBpelCompensationHandlerScope());
         }
 
         if (buildPlan.getBpelFaultHandlersElement().getChildNodes().getLength() == 0) {
             buildPlan.getBpelDocument().removeChild(buildPlan.getBpelFaultHandlersElement());
         } else {
-            buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan)
-                .appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "compensate"));
-            buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan)
-                .appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "rethrow"));
+             this.buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan).appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
+             "compensate"));
+            this.buildPlanHandler.getMainCatchAllFaultHandlerSequenceElement(buildPlan)
+                                 .appendChild(buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
+                                                                                          "rethrow"));
         }
+
+
+
     }
+
 
     private void finalizeBPELScope(final BPELPlan buildPlan, final BPELScope templateBuildPlan) {
         // check if any phase of this templatebuildplan has no child
         // elements, if it's empty, add an empty activity
         final Element prePhaseElement = templateBuildPlan.getBpelSequencePrePhaseElement();
         if (prePhaseElement.getChildNodes().getLength() == 0) {
-            final Element emptyElement =
-                buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
+            final Element emptyElement = buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
             prePhaseElement.appendChild(emptyElement);
         }
 
         final Element provPhaseElement = templateBuildPlan.getBpelSequenceProvisioningPhaseElement();
         if (provPhaseElement.getChildNodes().getLength() == 0) {
-            final Element emptyElement =
-                buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
+            final Element emptyElement = buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
             provPhaseElement.appendChild(emptyElement);
         }
 
         final Element postPhaseElement = templateBuildPlan.getBpelSequencePostPhaseElement();
         if (postPhaseElement.getChildNodes().getLength() == 0) {
-            final Element emptyElement =
-                buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
+            final Element emptyElement = buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
             postPhaseElement.appendChild(emptyElement);
         }
 
@@ -191,7 +201,8 @@ public class BPELFinalizer {
             templateBuildPlan.setBpelTargetsElement(null);
         } else {
             // add join conditions, where all templates which are target of
-            // an edge should be used in a conjuction
+            // a
+            // edge should be used in a conjuction
             final NodeList targetsChildren = targets.getChildNodes();
             final List<String> targetLinkNames = new ArrayList<>();
             for (int index = 0; index < targetsChildren.getLength(); index++) {
@@ -209,8 +220,8 @@ public class BPELFinalizer {
                 }
             }
             final Element joinCondition =
-                buildPlan.getBpelDocument()
-                    .createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable", "joinCondition");
+                buildPlan.getBpelDocument().createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
+                                                            "joinCondition");
             joinCondition.setTextContent(condition);
             targets.insertBefore(joinCondition, targets.getFirstChild());
         }
@@ -245,12 +256,12 @@ public class BPELFinalizer {
     }
 
     /**
-     * Generates a BPEL copy element for the output message of a BuildPlan, which sets the callback with WS-Addressing
-     * Headers
+     * Generates a BPEL copy element for the output message of a BuildPlan, which sets the callback with
+     * WS-Addressing Headers
      *
      * @return a DOM Node containing a complete BPEL Copy Element
      * @throws SAXException if parsing the internal String fails
-     * @throws IOException  if parsing the internal String fails
+     * @throws IOException if parsing the internal String fails
      */
     private Node generateWSAddressingOutputAssign() throws SAXException, IOException {
         final String copyString =
@@ -287,15 +298,15 @@ public class BPELFinalizer {
     }
 
     /**
-     * Transforms the Scopes inside the Flow Element of the given buildPlan, so that the overall provisioning is
-     * executed sequentially <b>Info:</b> This method assumes that the given BuildPlan contains a single sink inside the
-     * flow
+     * Transforms the Scopes inside the Flow Element of the given buildPlan, so that the overall
+     * provisioning is executed sequentially <b>Info:</b> This method assumes that the given BuildPlan
+     * contains a single sink inside the flow
      *
      * @param buildPlan the BuildPlan to transform to sequential provisioning
      */
     public void makeSequential(final BPELPlan buildPlan) {
         BPELFinalizer.LOG.debug("Starting to transform BuildPlan {} to sequential provsioning",
-            buildPlan.getBpelProcessElement().getAttribute("name"));
+                                buildPlan.getBpelProcessElement().getAttribute("name"));
         final List<BPELScope> templateBuildPlans = buildPlan.getTemplateBuildPlans();
 
         final List<BPELScope> sequentialOrder = calcTopologicalOrdering(templateBuildPlans);
@@ -331,6 +342,7 @@ public class BPELFinalizer {
                 target = source;
             }
         }
+
     }
 
     private void visitTopologicalOrdering(final BPELScope templateBuildPlan,
@@ -360,6 +372,7 @@ public class BPELFinalizer {
      * <br>
      *
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+     *
      */
     private class TopologicalSortMarking {
 

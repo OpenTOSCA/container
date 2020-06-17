@@ -149,6 +149,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         this.correlationHandler.addCorrellationID(newTerminationPlan);
 
         this.finalizer.finalize(newTerminationPlan);
+       
 
         // add for each loop over found node and relation instances to terminate each running
         // instance
@@ -167,6 +168,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                     "?state=CREATED&amp;state=INITIAL&amp;serviceInstanceId=$bpelvar[" + serviceInstanceId + "]");
             }
         }
+
 
         return newTerminationPlan;
     }

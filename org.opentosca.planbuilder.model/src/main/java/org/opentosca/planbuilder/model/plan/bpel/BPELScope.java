@@ -1,7 +1,10 @@
 package org.opentosca.planbuilder.model.plan.bpel;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,6 +23,12 @@ import org.w3c.dom.Element;
 public class BPELScope {
 
     private AbstractActivity act;
+    
+    
+    public BPELScope(AbstractActivity activity) {
+        this.act = activity;
+        this.usedOperations = new HashMap<AbstractOperation, AbstractOperation>();
+    }
 
     // the buildplan this templatebuildplan belongs to
     private BPELPlan buildPlan;
@@ -36,9 +45,14 @@ public class BPELScope {
     private Element bpelMainSequenceElement;
     private Element bpelSequencePrePhaseElement;
     private Element bpelSequenceProvisioningPhaseElement;
-    private Element bpelSequencePostPhaseElement;
+    private Element bpelSequencePostPhaseElement;    
+    private Element bpelEventHandlersElement;    
 
     private BPELScope bpelCompensationScope;
+    private BPELScope bpelFaultScope;
+   
+    private Map<AbstractOperation, AbstractOperation> usedOperations;
+
 
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
@@ -46,10 +60,6 @@ public class BPELScope {
     @Override
     public String toString() {
         return "BPELScope Plan: " + buildPlan.getId() + " Activity: " + this.act + ((this.getNodeTemplate() != null) ? " Node: " + this.nodeTemplate.getId() : " Relation: " + this.relationshipTemplate.getId());
-    }
-
-    public BPELScope(AbstractActivity activity) {
-        this.act = activity;
     }
 
     public static enum BPELScopePhaseType {
@@ -264,10 +274,33 @@ public class BPELScope {
      * @param bpelCompensationScope a BPEL DOM Element with a compensation handler
      */
     public void setBpelCompensationHandlerScope(BPELScope bpelCompensationScope) {
-        this.bpelCompensationScope = bpelCompensationScope;
-        Element compensationHandlerElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "compensationHandler");
-        compensationHandlerElement.appendChild(this.bpelCompensationScope.getBpelScopeElement());
-        this.bpelScopeElement.insertBefore(compensationHandlerElement, this.bpelMainSequenceElement);
+        this.bpelCompensationScope = bpelCompensationScope;        
+        Element compensationHandlerElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "compensationHandler");                
+        compensationHandlerElement.appendChild(this.bpelCompensationScope.getBpelScopeElement());        
+        this.bpelScopeElement.insertBefore(compensationHandlerElement, this.bpelMainSequenceElement);        
+    }
+
+    /**
+     * Returns the scope containing the faul handling activities of this scope
+     * @return
+     */
+    public BPELScope getBpelFaultHandlerScope() {
+        return this.bpelFaultScope;
+    }
+    
+    /**
+     * Sets the scope as the fault handler of this scope 
+     * @param bpelFaultScope a BPEL DOM Element with fault handler
+     */
+    public void setBpelFaultHandlerScope(BPELScope bpelFaultScope) {
+        this.bpelFaultScope = bpelFaultScope;
+        Element rethrowElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "rethrow");
+        bpelFaultScope.getBpelSequencePostPhaseElement().appendChild(rethrowElement);
+        Element faultHandlersElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "faultHandlers");
+        Element catchAllElement = this.buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "catchAll");
+        catchAllElement.appendChild(this.bpelFaultScope.getBpelScopeElement());
+        faultHandlersElement.appendChild(catchAllElement);                
+        this.bpelScopeElement.insertBefore(faultHandlersElement, this.bpelMainSequenceElement);        
     }
 
     /**
@@ -323,4 +356,21 @@ public class BPELScope {
     public void setBpelCorrelationSets(final Element bpelCorrelationSets) {
         this.bpelCorrelationSets = bpelCorrelationSets;
     }
+    
+    public Element getBpelEventHandlersElement() {
+        return bpelEventHandlersElement;
+    }
+
+    public void setBpelEventHandlersElement(Element bpelEventHandlersElement) {
+        this.bpelEventHandlersElement = bpelEventHandlersElement;
+    }
+    
+    public Map<AbstractOperation, AbstractOperation> getUsedOperations() {
+        return usedOperations;
+    }
+
+    public void addUsedOperation(AbstractOperation usedOperation, AbstractOperation compensationOperation) {
+        this.usedOperations.put(usedOperation, compensationOperation);        
+    }
+
 }

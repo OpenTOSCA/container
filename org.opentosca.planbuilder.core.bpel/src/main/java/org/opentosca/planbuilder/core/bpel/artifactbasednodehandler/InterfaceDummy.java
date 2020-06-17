@@ -72,4 +72,11 @@ class InterfaceDummy extends AbstractOperation {
     public List<AbstractParameter> getOutputParameters() {
         return null;
     }
+
+    @Override
+    public AbstractInterface getInterface() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

@@ -276,7 +276,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                     }
 
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+                        if (postPhasePlugin.canHandleCreate(context, nodeTemplate)) {
                             handled = postPhasePlugin.handleCreate(context, nodeTemplate);
                         }
                     }
@@ -352,7 +352,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                     }
 
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+                        if (postPhasePlugin.canHandleCreate(context, nodeTemplate)) {
                             handled = postPhasePlugin.handleCreate(context, nodeTemplate);
                         }
                     }
@@ -383,7 +383,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                 }
 
                 for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                    if (postPhasePlugin.canHandleCreate(relationshipTemplate)) {
+                    if (postPhasePlugin.canHandleCreate(context, relationshipTemplate)) {
                         handled = postPhasePlugin.handleCreate(context, relationshipTemplate);
                     }
                 }

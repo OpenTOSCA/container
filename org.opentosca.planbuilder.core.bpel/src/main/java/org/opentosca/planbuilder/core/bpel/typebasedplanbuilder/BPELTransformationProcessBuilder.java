@@ -112,15 +112,20 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             this.generateTFOG(csarName, definitions, serviceTemplate, sourceNodeTemplates, sourceRelationshipTemplates,
                 csarName, definitions, serviceTemplate, targetNodeTemplates, targetRelationshipTemplates);
 
+        Long id = System.currentTimeMillis();
+        
         // transform to bpel skeleton
-        final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_adaptationPlan_" + System.currentTimeMillis());
+        final String processName =
+            ModelUtils.makeValidNCName(serviceTemplate.getId() + "_adaptationPlan_" + id);
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_adaptiationPlan";
 
         BPELPlan transformationBPELPlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, adaptationPlan, "adapt");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, adaptationPlan, "adapt" + id);
+
+
 
         transformationBPELPlan.setTOSCAInterfaceName("OpenTOSCA-Transformation-Interface");
-        transformationBPELPlan.setTOSCAOperationname("adapt");
+        transformationBPELPlan.setTOSCAOperationname("adapt" + id);
 
         this.planHandler.initializeBPELSkeleton(transformationBPELPlan, csarName);
         // instanceDataAPI handling is done solely trough this extension
@@ -475,53 +480,12 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
     private void addNodeRelationInstanceVariables(BPELPlan plan, AbstractServiceTemplate sourceServiceTemplate,
                                                   AbstractServiceTemplate targetServiceTemplate) {
-        for (BPELScope scope : this.getTerminationScopes(plan)) {
-            boolean added =
-                this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
-            while (!added) {
-                added = this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
-            }
+        this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(plan, sourceServiceTemplate);
+        this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(plan, targetServiceTemplate);
+        
+        this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(plan, sourceServiceTemplate);
+        this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(plan, targetServiceTemplate);
 
-            added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, sourceServiceTemplate);
-            while (!added) {
-                added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, sourceServiceTemplate);
-            }
-        }
-        for (BPELScope scope : this.getProvisioningScopes(plan)) {
-            boolean added =
-                this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
-            while (!added) {
-                added = this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
-            }
-
-            added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, targetServiceTemplate);
-            while (!added) {
-                added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, targetServiceTemplate);
-            }
-        }
-
-        for (BPELScope scope : this.getMigrationScopes(plan)) {
-            boolean added =
-                this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
-            while (!added) {
-                added = this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, sourceServiceTemplate);
-            }
-
-            added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, sourceServiceTemplate);
-            while (!added) {
-                added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, sourceServiceTemplate);
-            }
-
-            added = this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
-            while (!added) {
-                added = this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlan(scope, targetServiceTemplate);
-            }
-
-            added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, targetServiceTemplate);
-            while (!added) {
-                added = this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlan(scope, targetServiceTemplate);
-            }
-        }
     }
 
     @Override

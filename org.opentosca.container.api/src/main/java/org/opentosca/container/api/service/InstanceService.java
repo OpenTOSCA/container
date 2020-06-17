@@ -55,6 +55,8 @@ import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.common.collect.Lists;
+
 /**
  * Allows access to instance information for service templates and node templates.
  */
@@ -643,6 +645,14 @@ public class InstanceService {
     public Collection<Situation> getSituations() {
         return this.sitRepo.findAll();
     }
+    
+    public boolean removeSituation(final Long situationId) {        
+        if(this.sitTrig.findSituationTriggersBySituationId(situationId).isEmpty()) {            
+            this.sitRepo.find(situationId).ifPresent(x -> this.sitRepo.remove(x));
+            return true;
+        }
+        return false;
+    }
 
     public Collection<SituationTrigger> getSituationTriggers() {
         return this.sitTrig.findAll();
@@ -699,6 +709,10 @@ public class InstanceService {
         }
 
         throw new NotFoundException("SituationTrigger <" + id + "> not found.");
+    }
+    
+    public void removeSituationTrigger(Long situationTriggerId) {
+        this.sitTrig.find(situationTriggerId).ifPresent(x -> this.sitTrig.remove(x));
     }
 
     public Collection<SituationTriggerInstance> geSituationTriggerInstances(final SituationTrigger trigger) {

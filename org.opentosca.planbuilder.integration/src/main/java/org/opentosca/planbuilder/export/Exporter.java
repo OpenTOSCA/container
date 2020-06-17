@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -72,6 +73,20 @@ public class Exporter extends AbstractExporter {
     private final ObjectFactory toscaFactory = new ObjectFactory();
     private final CSARHandler handler = new CSARHandler();
 
+
+    public class PlanExportResult{
+        public Path csarFile;
+        public Collection<String> planIds;
+        
+        public PlanExportResult(Path csarFile, Collection<String> planIds) {
+            this.csarFile = csarFile;
+            this.planIds = planIds;
+        }
+    }
+    
+    /**
+     * Constructor
+     */
     public Exporter() {
     }
 
@@ -87,9 +102,9 @@ public class Exporter extends AbstractExporter {
         this.simpleExporter.export(destination, (BPELPlan) buildPlan);
     }
 
-    public File exportToCSAR(final List<AbstractPlan> plans, final CSARID csarId) {
-        final List<BPELPlan> bpelPlans = new ArrayList<>();
-
+    public PlanExportResult exportToCSAR(final List<AbstractPlan> plans, final CSARID csarId) {
+        final List<BPELPlan> bpelPlans = new ArrayList<>();        
+        
         for (final AbstractPlan plan : plans) {
             if (plan instanceof BPELPlan) {
                 bpelPlans.add((BPELPlan) plan);
@@ -99,7 +114,9 @@ public class Exporter extends AbstractExporter {
         return exportBPELToCSAR(bpelPlans, csarId);
     }
 
-    public File exportBPELToCSAR(final List<BPELPlan> plans, final CSARID csarId) {
+    public PlanExportResult exportBPELToCSAR(final List<BPELPlan> plans, final CSARID csarId) {
+        
+        Collection<String> exportedBpelPlanIds = new ArrayList<String>();
 
         CSARContent csarContent = null;
         try {
@@ -156,6 +173,7 @@ public class Exporter extends AbstractExporter {
                     if (plan.getServiceTemplate().getQName().equals(buildQName(defs, serviceTemplate))) {
 
                         final TPlan generatedPlanElement = generateTPlanElement(plan);
+                        exportedBpelPlanIds.add(generatedPlanElement.getId());
                         planList.add(generatedPlanElement);
                         plansToExport.add(plan);
 
@@ -336,8 +354,9 @@ public class Exporter extends AbstractExporter {
         } catch (final SystemException e) {
             Exporter.LOG.error("Some error in the openTOSCA Core", e);
         }
-        LOG.debug(repackagedCsar.toString());
-        return repackagedCsar.toFile();
+        
+        Exporter.LOG.debug(repackagedCsar.toString());        
+        return new PlanExportResult(repackagedCsar, exportedBpelPlanIds);
     }
 
     private ApplicationOption createApplicationOption(final BPELPlan plan, final int optionCounter) {

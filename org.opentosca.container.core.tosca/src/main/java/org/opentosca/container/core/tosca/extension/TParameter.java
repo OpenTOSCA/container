@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlValue;
 
 import org.eclipse.winery.model.tosca.TBoolean;
 
+
 @XmlRootElement(name = "Parameter")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TParameter {

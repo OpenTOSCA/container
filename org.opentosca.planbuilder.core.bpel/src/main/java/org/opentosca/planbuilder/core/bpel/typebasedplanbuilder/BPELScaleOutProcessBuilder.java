@@ -15,6 +15,7 @@ import org.opentosca.planbuilder.AbstractScaleOutPlanBuilder;
 import org.opentosca.planbuilder.ScalingPlanDefinition;
 import org.opentosca.planbuilder.ScalingPlanDefinition.AnnotatedAbstractNodeTemplate;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
+import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
@@ -676,7 +677,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleCreate(nodeTemplate)) {
+            if (postPhasePlugin.canHandleCreate(context, nodeTemplate)) {
                 postPhasePlugin.handleCreate(context, nodeTemplate);
             }
         }
@@ -704,7 +705,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleCreate(relationshipTemplate)) {
+            if (postPhasePlugin.canHandleCreate(context, relationshipTemplate)) {
                 postPhasePlugin.handleCreate(context, relationshipTemplate);
             }
         }
@@ -717,7 +718,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                                                 String serviceTemplateUrl, String csarFileName) {
         for (final AbstractNodeTemplate node : nodeTemplates) {
             this.runProvisioningLogicGeneration(plan, node, map, serviceInstanceUrl, serviceInstanceId,
-                serviceTemplateUrl, csarFileName);
+                                                serviceTemplateUrl, csarFileName);
         }
         for (final AbstractRelationshipTemplate relation : relationshipTemplates) {
             this.runProvisioningLogicGeneration(plan, relation, map, csarFileName);

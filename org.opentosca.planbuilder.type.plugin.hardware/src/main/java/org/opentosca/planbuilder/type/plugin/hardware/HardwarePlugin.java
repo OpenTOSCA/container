@@ -10,6 +10,8 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +120,7 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
 
     private boolean isSupportedType(AbstractNodeTemplate nodeTemplate) {
         QName type = nodeTemplate.getType().getId();
-        return Utils.isSupportedHardwareNodeType(type);
+        return Utils.isSupportedHardwareNodeType(type) | Utils.isSupportedDeviceNodeType(type);        
     }
 
     private Collection<AbstractNodeTemplate> getDependecies(AbstractNodeTemplate nodeTemplate) {

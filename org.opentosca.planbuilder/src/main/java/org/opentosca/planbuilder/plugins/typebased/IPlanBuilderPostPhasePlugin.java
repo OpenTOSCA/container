@@ -42,7 +42,7 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param nodeTemplate An AbstractNodeTemplate
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    public boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
+    public boolean canHandleCreate(T context, AbstractNodeTemplate nodeTemplate);
 
     /**
      * Evaluates whether the given RelationshipTemplate can be handled by this post phase plugin.
@@ -50,7 +50,8 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param relationshipTemplate An AbstractRelationshipTemplate
      * @return true iff this plugin can handle the given relationshipTemplate
      */
-    public boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
+    public boolean canHandleCreate(T context, AbstractRelationshipTemplate relationshipTemplate);
+
 
     /**
      * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of the given
@@ -78,7 +79,7 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param nodeTemplate An AbstractNodeTemplate
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate);
+    public boolean canHandleTerminate(T context, AbstractNodeTemplate nodeTemplate);
 
     /**
      * Evaluates whether the given RelationshipTemplate can be handled by this post phase plugin.
@@ -86,7 +87,8 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param relationshipTemplate An AbstractRelationshipTemplate
      * @return true iff this plugin can handle the given relationshipTemplate
      */
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate);
+    public boolean canHandleTerminate(T context, AbstractRelationshipTemplate relationshipTemplate);
+
 
     public boolean handleUpdate(T sourceContext, T targetContext, AbstractNodeTemplate sourceNodeTemplate,
                                 AbstractNodeTemplate targetNodeTemplate);

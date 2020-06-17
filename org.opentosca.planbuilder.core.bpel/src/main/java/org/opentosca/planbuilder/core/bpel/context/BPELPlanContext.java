@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -25,15 +27,20 @@ import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBui
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
+import org.opentosca.planbuilder.core.bpel.tosca.handlers.AbstractServiceInstanceHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
@@ -46,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * <p>
@@ -94,6 +102,26 @@ public class BPELPlanContext extends PlanContext {
         } catch (final ParserConfigurationException e) {
             BPELPlanContext.LOG.warn("Coulnd't initialize internal handlers", e);
         }
+    }
+
+    
+    public void addUsedOperation(AbstractOperation operation, AbstractOperation compensationOperation) {
+        this.templateBuildPlan.addUsedOperation(operation, compensationOperation);       
+    }
+    
+    public boolean addUsedOperation(String interfaceName, String operationName, String compensationInterfaceName, String compensationOperationName) {
+        AbstractOperation op = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(interfaceName, operationName);
+        AbstractOperation compensationOp = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(compensationInterfaceName, compensationOperationName);
+        if(op != null) {
+            this.addUsedOperation(op, compensationOp);
+            return true;
+        } else {
+            return false;
+        }        
+    }
+    
+    public Map<AbstractOperation, AbstractOperation> getUsedOperations() {
+        return this.templateBuildPlan.getUsedOperations();
     }
 
     // TODO Refactor methods up to the BPEL specific methods
@@ -160,6 +188,11 @@ public class BPELPlanContext extends PlanContext {
         } else {
             return getRelationshipTemplate().getId();
         }
+
+    }
+
+    public Element getEventHandlersElement() {
+        return this.templateBuildPlan.getBpelEventHandlersElement();
     }
 
     /**
@@ -484,7 +517,7 @@ public class BPELPlanContext extends PlanContext {
                                     final String operationName,
                                     final Map<AbstractParameter, Variable> param2propertyMapping,
                                     final Map<AbstractParameter, Variable> param2propertyOutputMapping,
-                                    final Element elementToAppendTo) {
+                                    final BPELScopePhaseType phase, Element elementToAppendTo) {
         final OperationChain chain = scopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
         if (chain == null) {
             return false;
@@ -620,6 +653,14 @@ public class BPELPlanContext extends PlanContext {
      */
     public Element getProvisioningCompensationPhaseElement() {
         return this.templateBuildPlan.getBpelCompensationHandlerScope().getBpelSequenceProvisioningPhaseElement();
+    }
+    
+    /**
+     * Returns a BPEL sequence element which is used as the main fault handler sequence of this scope
+     * @return a DOM Element which is a BPEL sequence activity
+     */
+    public Element getProvisioningFaultHandlerPhaseElement() {
+        return this.templateBuildPlan.getBpelFaultHandlerScope().getBpelSequenceProvisioningPhaseElement();
     }
 
     /**

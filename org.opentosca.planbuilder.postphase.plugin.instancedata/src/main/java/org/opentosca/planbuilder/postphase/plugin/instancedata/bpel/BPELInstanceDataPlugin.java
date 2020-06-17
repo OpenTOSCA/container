@@ -3,9 +3,11 @@ package org.opentosca.planbuilder.postphase.plugin.instancedata.bpel;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.springframework.stereotype.Component;
@@ -34,24 +36,24 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
         new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // we can handle nodes
         return true;
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
         // we can handle relations
         return true;
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
         return true;
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
         return true;
     }
 

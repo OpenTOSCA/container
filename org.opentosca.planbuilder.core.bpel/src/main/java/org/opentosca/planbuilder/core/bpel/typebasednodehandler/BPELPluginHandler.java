@@ -37,28 +37,40 @@ public class BPELPluginHandler {
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractNodeTemplate nodeTemplate) {
+        boolean result = false;
         switch (bpelScope.getActivity().getType()) {
             case PROVISIONING:
-                return this.handleProvisioningActivity(context, bpelScope, nodeTemplate);
+                result = this.handleProvisioningActivity(context, bpelScope, nodeTemplate);
+                break;
             case TERMINATION:
-                return this.handleTerminationActivity(context, bpelScope, nodeTemplate);
+                result = this.handleTerminationActivity(context, bpelScope, nodeTemplate);
+                break;
             case DEFROST:
-                return handleDefrostActivity(context, bpelScope, nodeTemplate);
+                result = handleDefrostActivity(context, bpelScope, nodeTemplate);
+                break;
             default:
-                return false;
+                result = false;
+                break;
         }
+
+        return result;
     }
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractRelationshipTemplate relationshipTemplate) {
+        boolean result = false;
         switch (bpelScope.getActivity().getType()) {
             case PROVISIONING:
-                return this.handleProvisioningActivity(context, bpelScope, relationshipTemplate);
+                result = this.handleProvisioningActivity(context, bpelScope, relationshipTemplate);
+                break;
             case TERMINATION:
-                return this.handleTerminationActivity(context, bpelScope, relationshipTemplate);
+                result = this.handleTerminationActivity(context, bpelScope, relationshipTemplate);
+                break;
             default:
-                return false;
+                result = false;
+                break;
         }
+        return result;
     }
 
     private boolean handleTerminationActivity(final BPELPlanContext context, final BPELScope bpelScope,
@@ -74,7 +86,7 @@ public class BPELPluginHandler {
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleTerminate(relationshipTemplate)) {
+            if (postPhasePlugin.canHandleTerminate(context, relationshipTemplate)) {
                 result &= postPhasePlugin.handleTerminate(context, relationshipTemplate);
             }
         }
@@ -97,7 +109,7 @@ public class BPELPluginHandler {
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleTerminate(nodeTemplate)) {
+            if (postPhasePlugin.canHandleTerminate(context, nodeTemplate)) {
                 result &= postPhasePlugin.handleTerminate(context, nodeTemplate);
             }
         }
@@ -128,7 +140,7 @@ public class BPELPluginHandler {
 
         // generate code the post handling, e.g., update instance data, logs etc.
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleCreate(bpelScope.getNodeTemplate())) {
+            if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
                 LOG.info("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
             }
@@ -149,7 +161,7 @@ public class BPELPluginHandler {
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            if (postPhasePlugin.canHandleCreate(bpelScope.getRelationshipTemplate())) {
+            if (postPhasePlugin.canHandleCreate(context, bpelScope.getRelationshipTemplate())) {
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getRelationshipTemplate());
             }
         }
@@ -201,8 +213,8 @@ public class BPELPluginHandler {
         // generate code the post handling, e.g., update instance data, logs etc.
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             LOG.info("Checking if post plugin {} is suited for handling {}", postPhasePlugin.getID(),
-                nodeTemplate.getName());
-            if (postPhasePlugin.canHandleCreate(bpelScope.getNodeTemplate())) {
+                     nodeTemplate.getName());
+            if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
                 LOG.info("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
             }

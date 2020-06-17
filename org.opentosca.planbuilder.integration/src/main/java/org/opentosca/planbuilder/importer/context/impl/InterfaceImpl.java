@@ -41,7 +41,7 @@ public class InterfaceImpl extends AbstractInterface {
      */
     private void setUp() {
         for (final TOperation operation : this.inter.getOperation()) {
-            this.operations.add(new OperationImpl(this.defs, operation));
+            this.operations.add(new OperationImpl(this.defs, this, operation));
         }
     }
 

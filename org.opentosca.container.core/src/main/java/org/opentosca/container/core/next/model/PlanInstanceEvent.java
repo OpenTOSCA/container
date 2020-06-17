@@ -27,7 +27,7 @@ public class PlanInstanceEvent extends PersistenceObject {
     @Temporal(TemporalType.TIMESTAMP)
     private Date startTimestamp;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date endTimestamp;
 
@@ -36,6 +36,50 @@ public class PlanInstanceEvent extends PersistenceObject {
     private String type;
 
     private String message;
+
+    @Column(nullable = true)
+    private String nodeTemplateID;
+
+    @Column(nullable = true)
+    private String interfaceName;
+
+    @Column(nullable = true)
+    private String operationName;
+
+    @Column(nullable = true)
+    private long executionDuration;
+
+    public String getNodeTemplateID() {
+        return this.nodeTemplateID;
+    }
+
+    public void setNodeTemplateID(final String nodeTemplateID) {
+        this.nodeTemplateID = nodeTemplateID;
+    }
+
+    public String getInterfaceName() {
+        return this.interfaceName;
+    }
+
+    public void setInterfaceName(final String interfaceName) {
+        this.interfaceName = interfaceName;
+    }
+
+    public String getOperationName() {
+        return this.operationName;
+    }
+
+    public void setOperationName(final String operationName) {
+        this.operationName = operationName;
+    }
+
+    public long getExecutionDuration() {
+        return this.executionDuration;
+    }
+
+    public void setExecutionDuration(final long executionDuration) {
+        this.executionDuration = executionDuration;
+    }
 
     @ManyToOne
     @JoinColumn(name = "PLAN_INSTANCE_ID")
@@ -69,7 +113,7 @@ public class PlanInstanceEvent extends PersistenceObject {
     }
 
     public Date getEndTimestamp() {
-        return endTimestamp;
+        return this.endTimestamp;
     }
 
     public void setEndTimestamp(Date endTimestamp) {

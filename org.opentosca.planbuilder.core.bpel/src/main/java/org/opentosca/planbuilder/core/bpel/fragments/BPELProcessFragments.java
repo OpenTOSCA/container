@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.core.bpel.fragments;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -16,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.slf4j.Logger;
@@ -389,6 +391,16 @@ public class BPELProcessFragments {
         ifElement.appendChild(throwElement);
 
         return ifElement;
+    }
+    
+    public Node createWaitForCondition(String xpathExpr, String durationExpression) throws IOException, SAXException {
+        String templateString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPELWaitTillTrue.xml"));
+        
+        templateString = templateString.replace("$xpath1Expr", xpathExpr);
+        templateString = templateString.replace("$durationexpression", durationExpression);
+        
+        
+        return this.transformStringToNode(templateString);
     }
 
     /**
