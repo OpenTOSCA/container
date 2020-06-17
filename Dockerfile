@@ -62,9 +62,11 @@ RUN rm -rf ${CATALINA_HOME}/webapps/*
 COPY --from=builder /tmp/build/container ${CATALINA_HOME}/webapps/ROOT
 
 ADD .docker/application.properties.tpl /tmp/opentosca/container/application.properties.tpl
+ADD .docker/server.xml.tpl /tmp/opentosca/container/server.xml.tpl
 
-EXPOSE 1337
+EXPOSE ${CONTAINER_PORT}
 
 CMD dockerize -template /tmp/opentosca/container/application.properties.tpl:${CATALINA_HOME}/webapps/ROOT/WEB-INF/classes/application.properties \
+    -template /tmp/opentosca/container/server.xml.tpl:${CATALINA_HOME}/conf/server.xml \
     && export spring_config_location=${CATALINA_HOME}/webapps/ROOT/WEB-INF/classes/application.properties \
     && ${CATALINA_HOME}/bin/catalina.sh run

@@ -180,7 +180,7 @@ public class OdeConnector {
         Collections.sort(idNums);
         final int highestNumber = idNums.get(idNums.size() - 1);
         for (final QName pid : pids) {
-            if (pid.getLocalPart().endsWith("-" + String.valueOf(highestNumber))) {
+            if (pid.getLocalPart().endsWith("-" + highestNumber)) {
                 return pid.toString();
             }
         }
