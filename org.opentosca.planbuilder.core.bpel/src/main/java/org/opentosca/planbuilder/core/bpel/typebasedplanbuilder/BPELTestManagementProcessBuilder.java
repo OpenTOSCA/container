@@ -157,6 +157,16 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newTestPlan),
             "FAILED",
             this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newTestPlan));
+        
+        String planInstanceUrlVarName = this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newTestPlan);
+        this.serviceInstanceInitializer.appendSetServiceInstanceState(newTestPlan,
+        		newTestPlan.getBpelMainFlowElement(),
+                "RUNNING", planInstanceUrlVarName);
+        
+        this.serviceInstanceInitializer.appendSetServiceInstanceState(newTestPlan,
+        		newTestPlan.getBpelMainSequenceOutputAssignElement(),
+                "FINISHED", planInstanceUrlVarName);
+        
 
         this.finalizer.finalize(newTestPlan);
 

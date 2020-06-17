@@ -240,6 +240,17 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(transformationBPELPlan),
             "FAILED",
             this.serviceInstanceHandler.findPlanInstanceUrlVariableName(transformationBPELPlan));
+        
+        
+        String planInstanceUrlVarName = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(transformationBPELPlan);
+        this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
+        		transformationBPELPlan.getBpelMainFlowElement(),
+                "RUNNING", planInstanceUrlVarName);
+        
+        this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
+        		transformationBPELPlan.getBpelMainSequenceOutputAssignElement(),
+                "FINISHED", planInstanceUrlVarName);
+        
 
         this.finalizer.finalize(transformationBPELPlan);
 

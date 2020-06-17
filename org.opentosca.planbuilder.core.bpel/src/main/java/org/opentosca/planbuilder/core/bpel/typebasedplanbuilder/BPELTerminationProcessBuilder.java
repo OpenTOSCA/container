@@ -148,6 +148,15 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
         this.correlationHandler.addCorrellationID(newTerminationPlan);
 
+        String planInstanceUrlVarName = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(newTerminationPlan);
+        this.serviceInstanceHandler.appendSetServiceInstanceState(newTerminationPlan,
+        		newTerminationPlan.getBpelMainFlowElement(),
+                "RUNNING", planInstanceUrlVarName);
+        
+        this.serviceInstanceHandler.appendSetServiceInstanceState(newTerminationPlan,
+        		newTerminationPlan.getBpelMainSequenceOutputAssignElement(),
+                "FINISHED", planInstanceUrlVarName);
+        
         this.finalizer.finalize(newTerminationPlan);
        
 

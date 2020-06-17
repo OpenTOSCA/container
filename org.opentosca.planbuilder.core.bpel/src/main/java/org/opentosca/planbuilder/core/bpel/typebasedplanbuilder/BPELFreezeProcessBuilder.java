@@ -171,6 +171,17 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newFreezePlan),
             "ERROR", serviceInstanceURLVarName);
         this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newFreezePlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newFreezePlan), "FAILED", this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newFreezePlan));
+        
+        
+        String planInstanceUrlVarName = this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newFreezePlan);
+        this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newFreezePlan,
+        		newFreezePlan.getBpelMainFlowElement(),
+                "RUNNING", planInstanceUrlVarName);
+        
+        this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newFreezePlan,
+        		newFreezePlan.getBpelMainSequenceOutputAssignElement(),
+                "FINISHED", planInstanceUrlVarName);
+        
 
         this.finalizer.finalize(newFreezePlan);
 

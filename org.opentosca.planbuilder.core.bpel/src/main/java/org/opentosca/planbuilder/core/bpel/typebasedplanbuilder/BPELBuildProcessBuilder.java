@@ -163,6 +163,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newBuildPlan);
             String serviceTemplateUrl =
                 this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newBuildPlan);
+            
 
             this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap, serviceInstanceUrl,
                 serviceInstanceID, serviceTemplateUrl,
@@ -181,6 +182,15 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "ERROR", serviceInstanceUrl);
             this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "FAILED", this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan));
+            
+            String planInstanceUrlVarName = this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan);
+            this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
+                    newBuildPlan.getBpelMainFlowElement(),
+                    "RUNNING", planInstanceUrlVarName);
+            
+            this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
+                    newBuildPlan.getBpelMainSequenceOutputAssignElement(),
+                    "FINISHED", planInstanceUrlVarName);
 
             this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
 

@@ -199,6 +199,15 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
                 LOG.error("Couldn't read file", e);
                 return null;
             }
+            
+            String planInstanceUrlVarName = this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan);
+            this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
+                    newBuildPlan.getBpelMainFlowElement(),
+                    "RUNNING", planInstanceUrlVarName);
+            
+            this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
+                    newBuildPlan.getBpelMainSequenceOutputAssignElement(),
+                    "FINISHED", planInstanceUrlVarName);
 
             this.finalizer.finalize(newBuildPlan);
             return newBuildPlan;

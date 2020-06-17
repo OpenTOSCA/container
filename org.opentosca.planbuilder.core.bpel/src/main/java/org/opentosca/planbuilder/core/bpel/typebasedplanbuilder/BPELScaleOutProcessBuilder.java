@@ -395,6 +395,16 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                 "ERROR", serviceInstanceUrl);
             this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(bpelScaleOutProcess, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(bpelScaleOutProcess), "FAILED", this.serviceInstanceHandler.findPlanInstanceUrlVariableName(bpelScaleOutProcess));
 
+            String planInstanceUrlVarName = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(bpelScaleOutProcess);
+            this.serviceInstanceHandler.appendSetServiceInstanceState(bpelScaleOutProcess,
+            		bpelScaleOutProcess.getBpelMainFlowElement(),
+                    "RUNNING", planInstanceUrlVarName);
+            
+            this.serviceInstanceHandler.appendSetServiceInstanceState(bpelScaleOutProcess,
+            		bpelScaleOutProcess.getBpelMainSequenceOutputAssignElement(),
+                    "FINISHED", planInstanceUrlVarName);
+           
+            
             this.finalizer.finalize(bpelScaleOutProcess);
             scalingPlans.add(bpelScaleOutProcess);
         }

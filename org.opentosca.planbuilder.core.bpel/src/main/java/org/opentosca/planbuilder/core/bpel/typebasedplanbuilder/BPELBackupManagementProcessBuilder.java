@@ -169,6 +169,18 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
             "FAILED",
             this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newBackupPlan));
 
+        
+        String planInstanceUrlVarName = this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newBackupPlan);
+        this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newBackupPlan,
+        		newBackupPlan.getBpelMainFlowElement(),
+                "RUNNING", planInstanceUrlVarName);
+        
+        this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newBackupPlan,
+        		newBackupPlan.getBpelMainSequenceOutputAssignElement(),
+                "FINISHED", planInstanceUrlVarName);
+       
+        
+        
         this.finalizer.finalize(newBackupPlan);
 
         LOG.debug("Created Plan:");
