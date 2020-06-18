@@ -1,13 +1,15 @@
 
 # Custom
 
-### Intellij ###
 .idea
-
-### Eclipse ###
 .project
 .classpath
+.vscode
 
+!.idea/codeStyles
+!.idea/copyright
+!.idea/runConfigurations
+!.idea/modules.xml
 
 # Created by https://www.gitignore.io/api/java,maven,eclipse,intellij,visualstudiocode
 
@@ -171,5 +173,7 @@ buildNumber.properties
 !.vscode/extensions.json
 
 # End of https://www.gitignore.io/api/java,maven,eclipse,intellij,visualstudiocode
-/org.opentosca.container.product/config.ini
-/org.opentosca.container.product/org.opentosca.container.product
+### Project specific overrides
+
+# Avoid ignoring the war project
+!/org.opentosca.container.war/

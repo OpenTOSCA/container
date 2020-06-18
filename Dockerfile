@@ -2,49 +2,71 @@ FROM maven:3-jdk-8 as builder
 
 RUN rm /dev/random && ln -s /dev/urandom /dev/random
 
-WORKDIR /opt/opentosca/container
-COPY . /opt/opentosca/container
-RUN mvn package
+WORKDIR /tmp/opentosca/container
+COPY . /tmp/opentosca/container
 
+RUN mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B \
+    && mkdir /tmp/build \
+    && unzip /tmp/opentosca/container/org.opentosca.container.war/target/OpenTOSCA-container.war -d /tmp/build/container
 
-FROM openjdk:8
-LABEL maintainer "Johannes Wettinger <jowettinger@gmail.com>, Michael Wurster <miwurster@gmail.com>"
+FROM tomcat:9-jdk8
+LABEL maintainer = "Benjamin Weder <weder@iaas.uni-stuttgart.de>, Lukas Harzenetter <lharzenetter@gmx.de>, Michael Wurster <miwurster@gmail.com>"
 
-ARG DOCKERIZE_VERSION=v0.3.0
+ARG DOCKERIZE_VERSION=v0.6.1
 
-ENV PUBLIC_HOSTNAME localhost
+ENV CONTAINER_HOSTNAME localhost
+ENV CONTAINER_PORT 1337
+
 ENV CONTAINER_REPOSITORY_HOSTNAME localhost
 ENV CONTAINER_REPOSITORY_PORT 8091
+ENV CONTAINER_REPOSITORY_CONTEXT winery
+
+ENV CONTAINER_BUS_MANAGEMENT_MOCK false
+ENV CONTAINER_DEPLOYMENT_TESTS false
+
 ENV ENGINE_IA_HOSTNAME localhost
-ENV ENGINE_IA_USER_NAME admin
-ENV ENGINE_IA_PWD admin
+ENV ENGINE_IA_PORT 8090
+ENV ENGINE_IA_USER admin
+ENV ENGINE_IA_PASSWORD admin
+ENV ENGINE_IA_KEEP_FILES true
+
 ENV ENGINE_PLAN_BPEL ODE
-ENV ENGINE_PLAN_BPEL_ROOT_URL http://localhost:9763/ode
-ENV ENGINE_PLAN_BPEL_SERVICES_URL http://localhost:9763/ode/processes
+ENV ENGINE_PLAN_BPEL_USER ""
+ENV ENGINE_PLAN_BPEL_PASSWORD ""
+ENV ENGINE_PLAN_BPEL_HOSTNAME localhost
+ENV ENGINE_PLAN_BPEL_PORT 9763
+ENV ENGINE_PLAN_BPEL_CONTEXT ode
+ENV ENGINE_PLAN_BPEL_SERVICES_PATH processes
+
 ENV ENGINE_PLAN_BPMN Camunda
-ENV ENGINE_PLAN_BPMN_ROOT_URL http://localhost:8092/engine-rest
+ENV ENGINE_PLAN_BPMN_USER admin
+ENV ENGINE_PLAN_BPMN_PASSWORD admin
+ENV ENGINE_PLAN_BPMN_HOSTNAME localhost
+ENV ENGINE_PLAN_BPMN_PORT 8092
+ENV ENGINE_PLAN_BPMN_CONTEXT engine-rest
+
+ENV MQTT_BROKER_PORT 1883
+ENV MQTT_BROKER_USER admin
+ENV MQTT_BROKER_PASSWORD admin
+
 ENV COLLABORATION_MODE false
 ENV COLLABORATION_HOSTNAMES ""
 ENV COLLABORATION_PORTS ""
-ENV CONTAINER_BUS_MANAGEMENT_MOCK false
 
 RUN rm /dev/random && ln -s /dev/urandom /dev/random \
     && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-COPY --from=builder /opt/opentosca/container/org.opentosca.container.product/target/products/org.opentosca.container.product/linux/gtk/x86_64 /opt/opentosca/container
+RUN rm -rf ${CATALINA_HOME}/webapps/*
+COPY --from=builder /tmp/build/container ${CATALINA_HOME}/webapps/ROOT
 
-WORKDIR /opt/opentosca/container
+ADD .docker/application.properties.tpl /tmp/opentosca/container/application.properties.tpl
+ADD .docker/server.xml.tpl /tmp/opentosca/container/server.xml.tpl
 
-RUN ln -s /opt/opentosca/container/OpenTOSCA /usr/local/bin/opentosca-container \
-    && chmod +x /usr/local/bin/opentosca-container
+EXPOSE ${CONTAINER_PORT}
 
-ADD docker/config.ini.tpl /opt/opentosca/container/config.ini.tpl
-ADD docker/OpenTOSCA.ini.tpl /opt/opentosca/container/OpenTOSCA.ini.tpl
-
-EXPOSE 1337
-
-CMD dockerize -template /opt/opentosca/container/config.ini.tpl:/opt/opentosca/container/configuration/config.ini \
-    -template /opt/opentosca/container/OpenTOSCA.ini.tpl:/opt/opentosca/container/OpenTOSCA.ini \
-    /usr/local/bin/opentosca-container
+CMD dockerize -template /tmp/opentosca/container/application.properties.tpl:${CATALINA_HOME}/webapps/ROOT/WEB-INF/classes/application.properties \
+    -template /tmp/opentosca/container/server.xml.tpl:${CATALINA_HOME}/conf/server.xml \
+    && export spring_config_location=${CATALINA_HOME}/webapps/ROOT/WEB-INF/classes/application.properties \
+    && ${CATALINA_HOME}/bin/catalina.sh run

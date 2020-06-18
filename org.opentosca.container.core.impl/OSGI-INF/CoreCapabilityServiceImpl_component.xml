@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CoreCapabilityServiceImpl">
-   <implementation class="org.opentosca.container.core.impl.service.CoreCapabilityServiceImpl"/>
-   <service>
-      <provide interface="org.opentosca.container.core.service.ICoreCapabilityService"/>
-   </service>
-   <reference bind="bind" cardinality="1..1" interface="org.opentosca.container.core.service.internal.ICoreInternalCapabilityService" name="ICoreInternalCapabilityService" policy="static" unbind="unbind"/>
-</scr:component>

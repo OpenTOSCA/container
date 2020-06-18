@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.bus.application.plugin.jsonhttp.service.impl.ApplicationBusJsonHttpPluginServiceImpl">
-   <implementation class="org.opentosca.bus.application.plugin.jsonhttp.service.impl.ApplicationBusJsonHttpPluginServiceImpl"/>
-   <service>
-      <provide interface="org.opentosca.bus.application.plugin.service.IApplicationBusPluginService"/>
-   </service>
-</scr:component>

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" validate="no" name="$assignName">
-    <bpel:copy>
-        <!-- $inputElementLocalName, $StringVariableName, $assignName -->
-        <bpel:from part="payload" variable="input"><bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[//*[local-name()='$inputElementLocalName']/text()]]></bpel:query></bpel:from>
-        <bpel:to variable="$StringVariableName"></bpel:to>
-    </bpel:copy>
-</bpel:assign>

@@ -1,0 +1,8 @@
+<bpel:copy xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
+	<!-- $PropertyVarName, $NodeInstancePropertyRequestVarName, $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
+	<bpel:from variable="$PropertyVarName">
+	</bpel:from>
+	<bpel:to variable="$NodeInstancePropertyRequestVarName">
+	    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[//*[local-name()='$NodeInstancePropertyLocalName' and namespace-uri()='$NodeInstancePropertyNamespace']]]></bpel:query>
+	</bpel:to>
+</bpel:copy>

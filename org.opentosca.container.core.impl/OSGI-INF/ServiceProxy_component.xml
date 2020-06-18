@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="ServiceProxy">
-   <implementation class="org.opentosca.container.core.impl.plan.ServiceProxy"/>
-   <reference bind="bindtoscaEngineService" cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindtoscaEngineService"/>
-   <reference bind="bindEventAdmin" cardinality="1..1" interface="org.osgi.service.event.EventAdmin" name="EventAdmin" policy="static" unbind="unbindEventAdmin"/>
-   <reference bind="bindIXMLSerializerService" cardinality="1..1" interface="org.opentosca.container.core.engine.xml.IXMLSerializerService" name="IXMLSerializerService" policy="static" unbind="unbindIXMLSerializerService"/>
-</scr:component>

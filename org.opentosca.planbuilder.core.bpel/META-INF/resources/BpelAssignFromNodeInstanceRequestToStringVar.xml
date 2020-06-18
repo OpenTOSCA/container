@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" validate="no" name="$assignName">
-    <bpel:copy>
-        <!-- $assignName, $stringVarName, $NodeInstanceResponseVarName -->
-        <bpel:from variable="$NodeInstanceResponseVarName"><bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0" xmlns:pp="http://opentosca.org/api/pp" xmlns:xlink="http://www.w3.org/1999/xlink"><![CDATA[string(//pp:NodeInstanceList/pp:nodeinstances/pp:link/@xlink:href)]]></bpel:query></bpel:from>
-        <bpel:to variable="$stringVarName"></bpel:to>
-    </bpel:copy>
-</bpel:assign>

@@ -1,0 +1,9 @@
+<bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+	validate="no" name="assignSelfserviceApplicationUrl">
+	<bpel:copy>
+		<bpel:from><![CDATA[concat(${serverIpVarName},'{appName}')]]></bpel:from>
+		<bpel:to variable="{outputVarName}" part="{outputVarPartName}">
+			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[{outputVarPrefix}:selfserviceApplicationUrl]]></bpel:query>
+		</bpel:to>
+	</bpel:copy>
+</bpel:assign>
