@@ -10,9 +10,10 @@ Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
 1. Run `git update-index --assume-unchanged ./org.opentosca.container.core/src/main/resources/application.properties`
    to ignore custom configuration changes inside the application.properties.
-2. Update [application.properties](org.opentosca.container.core/src/main/resources/application.properties)
+2. Update [application.properties](org.opentosca.container.core/src/main/resources/application.properties) and
+   replace `localhost` with your external IP address, e.g., `192.168.1.100`.
 3. Run `mvn package` inside the root folder.
-4. Afterwards, the [opentocsa-container.war](org.opentosca.container.war/target/opentosca-container.war)
+4. Afterwards, the [OpenTOSCA-container.war](org.opentosca.container.war/target/OpenTOSCA-container.war)
    can be deployed using a tomcat webserver.
 
 ## Setup in IntelliJ
