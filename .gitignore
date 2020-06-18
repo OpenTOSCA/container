@@ -6,6 +6,11 @@
 .classpath
 .vscode
 
+!.idea/codeStyles
+!.idea/copyright
+!.idea/runConfigurations
+!.idea/modules.xml
+
 # Created by https://www.gitignore.io/api/java,maven,eclipse,intellij,visualstudiocode
 
 ### Eclipse ###
