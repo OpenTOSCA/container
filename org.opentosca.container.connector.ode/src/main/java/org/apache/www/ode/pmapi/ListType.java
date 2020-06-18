@@ -28,8 +28,6 @@ public class ListType implements java.io.Serializable {
 
     /**
      * Sets the element value for this ListType.
-     *
-     * @param element
      */
     public void setElement(java.lang.String element) {
         this.element = element;

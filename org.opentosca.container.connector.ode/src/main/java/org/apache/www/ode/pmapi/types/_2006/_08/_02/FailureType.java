@@ -28,8 +28,6 @@ public class FailureType implements java.io.Serializable {
 
     /**
      * Sets the explanation value for this FailureType.
-     *
-     * @param explanation
      */
     public void setExplanation(java.lang.String explanation) {
         this.explanation = explanation;

@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
@@ -36,7 +34,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     private static final ContainerPatternBasedHandler containerPatternHandler = new ContainerPatternBasedHandler();
 
     private static final LifecyclePatternBasedHandler lifecyclePatternHandler = new LifecyclePatternBasedHandler();
-    
+
     private static final RemoteManagerPatternBasedHandler remoteMgrHandler = new RemoteManagerPatternBasedHandler();
 
     private static final RemoteManagerPatternBasedHandler remoteManagerPatternHandler =
@@ -57,14 +55,14 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             AbstractOperation terminateOp = null;
             LOG.debug("Handling by container pattern");
             check &= containerPatternHandler.handleCreate(templateContext, nodeTemplate,
-                                                          templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement());
             createOp = containerPatternHandler.getContainerPatternCreateMethod(nodeTemplate);
             usedOps.put(createOp, null);
             if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
                 LOG.debug("Adding container pattern compensation logic");
                 check &=
                     containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
-                                                            templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement());
                 terminateOp = containerPatternHandler.getContainerPatternTerminateMethod(nodeTemplate);
                 usedOps.put(createOp, terminateOp);
             }
@@ -78,7 +76,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             AbstractOperation stopOp = null;
 
             check &= lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
-                                                          templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement());
 
             installOp = lifecyclePatternHandler.getLifecyclePatternInstallMethod(nodeTemplate);
             configureOp = lifecyclePatternHandler.getLifecyclePatternConfigureMethod(nodeTemplate);
@@ -97,7 +95,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
                 LOG.debug("Adding lifecycle pattern compensation logic");
                 check &=
                     lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
-                                                            templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement());
                 stopOp = lifecyclePatternHandler.getLifecyclePatternStopMethod(nodeTemplate);
                 uninstallOp = lifecyclePatternHandler.getLifecyclePatternUninstallMethod(nodeTemplate);
                 if (installOp != null & uninstallOp != null) {
@@ -107,19 +105,18 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
                     usedOps.put(startOp, stopOp);
                 }
             }
-        } else if(remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
-          LOG.debug("Handling by remote manager pattern");
-          check &= remoteMgrHandler.handleCreate(templateContext, nodeTemplate, templateContext.getProvisioningPhaseElement());
-          
-          if(check == true) {              
-              AbstractOperation installOp = remoteMgrHandler.getRemoteManagerPatternInstallMethod(nodeTemplate);
-              AbstractOperation resetOp = remoteMgrHandler.getRemoteManagerPatternResetMethod(nodeTemplate);
-              
-              if(installOp != null & resetOp != null) {
-                  usedOps.put(installOp, resetOp);
-              }
-              
-          }
+        } else if (remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
+            LOG.debug("Handling by remote manager pattern");
+            check &= remoteMgrHandler.handleCreate(templateContext, nodeTemplate, templateContext.getProvisioningPhaseElement());
+
+            if (check == true) {
+                AbstractOperation installOp = remoteMgrHandler.getRemoteManagerPatternInstallMethod(nodeTemplate);
+                AbstractOperation resetOp = remoteMgrHandler.getRemoteManagerPatternResetMethod(nodeTemplate);
+
+                if (installOp != null & resetOp != null) {
+                    usedOps.put(installOp, resetOp);
+                }
+            }
         } else {
             return false;
         }
@@ -140,7 +137,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
         } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
             LOG.debug("Can be handled by lifecycle pattern");
             return true;
-        } else if(remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
+        } else if (remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
             LOG.debug("Can be handled by remote mgr pattern");
             return true;
         } else {
@@ -174,7 +171,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             deps.addAll(lifecyclePatternHandler.getMatchedNodesForProvisioning(nodeTemplate));
             LOG.debug("Adding matched nodes to handle by lifecycle pattern");
             return deps;
-        } else if(remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
+        } else if (remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
             deps.addAll(remoteMgrHandler.getNodeDependencies(nodeTemplate));
             return deps;
         } else {
@@ -220,7 +217,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             AbstractOperation terminateOp = null;
 
             check &= containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
-                                                             templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement());
             terminateOp = containerPatternHandler.getContainerPatternTerminateMethod(nodeTemplate);
             usedOps.put(terminateOp, null);
 
@@ -228,15 +225,14 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
                 LOG.debug("Adding container pattern compensation logic");
                 check &=
                     containerPatternHandler.handleCreate(templateContext, nodeTemplate,
-                                                         templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement());
                 createOp = containerPatternHandler.getContainerPatternCreateMethod(nodeTemplate);
                 usedOps.put(terminateOp, createOp);
             }
-
         } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
             LOG.debug("Handling by lifecycle pattern");
             check &= lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
-                                                             templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement());
 
             AbstractOperation installOp = null;
             AbstractOperation configureOp = null;
@@ -259,7 +255,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
                 LOG.debug("Adding lifecycle pattern compensation logic");
                 check &=
                     lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
-                                                         templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement());
 
                 installOp = lifecyclePatternHandler.getLifecyclePatternInstallMethod(nodeTemplate);
                 configureOp = lifecyclePatternHandler.getLifecyclePatternConfigureMethod(nodeTemplate);
@@ -277,25 +273,24 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             }
         } else if (remoteManagerPatternHandler.isDeprovisionableByRemoteManagerPattern(nodeTemplate)) {
             check &= remoteManagerPatternHandler.handleTerminate(templateContext, nodeTemplate,
-                                                                 templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement());
 
             AbstractOperation installOp = null;
             AbstractOperation resetOp = null;
 
             resetOp = remoteManagerPatternHandler.getRemoteManagerPatternResetMethod(nodeTemplate);
-            installOp = remoteManagerPatternHandler.getRemoteManagerPatternInstallMethod(nodeTemplate);           
+            installOp = remoteManagerPatternHandler.getRemoteManagerPatternInstallMethod(nodeTemplate);
 
             if (remoteManagerPatternHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
                 LOG.debug("Adding compensation logic for remote manager pattern");
                 check &=
                     remoteManagerPatternHandler.handleCreate(templateContext, nodeTemplate,
-                                                             templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement());
 
                 if (installOp != null & resetOp != null) {
                     usedOps.put(resetOp, installOp);
                 }
             }
-
         } else {
             return false;
         }

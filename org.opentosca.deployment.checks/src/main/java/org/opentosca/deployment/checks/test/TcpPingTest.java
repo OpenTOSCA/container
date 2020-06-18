@@ -7,10 +7,11 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPolicyTemplate;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.deployment.checks.TestContext;

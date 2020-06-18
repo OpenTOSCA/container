@@ -6,9 +6,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
-import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 @XmlRootElement(name = "RelationshipTemplate")
 @XmlAccessorType(XmlAccessType.FIELD)

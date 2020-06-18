@@ -32,8 +32,6 @@ public class TInstanceSummaryInstances implements java.io.Serializable {
 
     /**
      * Sets the state value for this TInstanceSummaryInstances.
-     *
-     * @param state
      */
     public void setState(org.apache.www.ode.pmapi.types._2006._08._02.TInstanceStatus state) {
         this.state = state;
@@ -50,8 +48,6 @@ public class TInstanceSummaryInstances implements java.io.Serializable {
 
     /**
      * Sets the count value for this TInstanceSummaryInstances.
-     *
-     * @param count
      */
     public void setCount(int count) {
         this.count = count;

@@ -35,8 +35,6 @@ public class TInstanceSummary implements java.io.Serializable {
 
     /**
      * Sets the instances value for this TInstanceSummary.
-     *
-     * @param instances
      */
     public void setInstances(org.apache.www.ode.pmapi.types._2006._08._02.TInstanceSummaryInstances[] instances) {
         this.instances = instances;
@@ -61,8 +59,6 @@ public class TInstanceSummary implements java.io.Serializable {
 
     /**
      * Sets the failures value for this TInstanceSummary.
-     *
-     * @param failures
      */
     public void setFailures(org.apache.www.ode.pmapi.types._2006._08._02.TFailuresInfo failures) {
         this.failures = failures;

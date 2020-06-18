@@ -36,8 +36,6 @@ public class ResponseType implements java.io.Serializable {
 
     /**
      * Sets the out value for this ResponseType.
-     *
-     * @param out
      */
     public void setOut(java.lang.Object out) {
         this.out = out;
@@ -54,8 +52,6 @@ public class ResponseType implements java.io.Serializable {
 
     /**
      * Sets the fault value for this ResponseType.
-     *
-     * @param fault
      */
     public void setFault(org.apache.www.ode.pmapi.types._2006._08._02.FaultType fault) {
         this.fault = fault;
@@ -72,8 +68,6 @@ public class ResponseType implements java.io.Serializable {
 
     /**
      * Sets the failure value for this ResponseType.
-     *
-     * @param failure
      */
     public void setFailure(org.apache.www.ode.pmapi.types._2006._08._02.FailureType failure) {
         this.failure = failure;

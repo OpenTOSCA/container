@@ -80,7 +80,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Sets the pid value for this TProcessInfo.
      *
-     * @param pid   * The unique name/id of the process.
+     * @param pid * The unique name/id of the process.
      */
     public void setPid(java.lang.String pid) {
         this.pid = pid;
@@ -98,7 +98,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Sets the status value for this TProcessInfo.
      *
-     * @param status   * Process status.
+     * @param status * Process status.
      */
     public void setStatus(org.apache.www.ode.pmapi.types._2006._08._02.TProcessStatus status) {
         this.status = status;
@@ -116,7 +116,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Sets the version value for this TProcessInfo.
      *
-     * @param version   * Process version.
+     * @param version * Process version.
      */
     public void setVersion(long version) {
         this.version = version;
@@ -125,8 +125,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Gets the definitionInfo value for this TProcessInfo.
      *
-     * @return definitionInfo   * Information about the process
-     *                         definition.
+     * @return definitionInfo   * Information about the process definition.
      */
     public org.apache.www.ode.pmapi.types._2006._08._02.TDefinitionInfo getDefinitionInfo() {
         return definitionInfo;
@@ -135,8 +134,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Sets the definitionInfo value for this TProcessInfo.
      *
-     * @param definitionInfo   * Information about the process
-     *                         definition.
+     * @param definitionInfo * Information about the process definition.
      */
     public void setDefinitionInfo(org.apache.www.ode.pmapi.types._2006._08._02.TDefinitionInfo definitionInfo) {
         this.definitionInfo = definitionInfo;
@@ -145,8 +143,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Gets the deploymentInfo value for this TProcessInfo.
      *
-     * @return deploymentInfo   * Information about the process
-     *                         deployment.
+     * @return deploymentInfo   * Information about the process deployment.
      */
     public org.apache.www.ode.pmapi.types._2006._08._02.TDeploymentInfo getDeploymentInfo() {
         return deploymentInfo;
@@ -155,8 +152,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Sets the deploymentInfo value for this TProcessInfo.
      *
-     * @param deploymentInfo   * Information about the process
-     *                         deployment.
+     * @param deploymentInfo * Information about the process deployment.
      */
     public void setDeploymentInfo(org.apache.www.ode.pmapi.types._2006._08._02.TDeploymentInfo deploymentInfo) {
         this.deploymentInfo = deploymentInfo;
@@ -165,8 +161,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Gets the instanceSummary value for this TProcessInfo.
      *
-     * @return instanceSummary   * Summary of the instances belonging to this
-     *                         process.
+     * @return instanceSummary   * Summary of the instances belonging to this process.
      */
     public org.apache.www.ode.pmapi.types._2006._08._02.TInstanceSummary getInstanceSummary() {
         return instanceSummary;
@@ -175,8 +170,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Sets the instanceSummary value for this TProcessInfo.
      *
-     * @param instanceSummary   * Summary of the instances belonging to this
-     *                         process.
+     * @param instanceSummary * Summary of the instances belonging to this process.
      */
     public void setInstanceSummary(org.apache.www.ode.pmapi.types._2006._08._02.TInstanceSummary instanceSummary) {
         this.instanceSummary = instanceSummary;
@@ -194,7 +188,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Sets the properties value for this TProcessInfo.
      *
-     * @param properties   * Process properties.
+     * @param properties * Process properties.
      */
     public void setProperties(org.apache.www.ode.pmapi.types._2006._08._02.TProcessPropertiesProperty[] properties) {
         this.properties = properties;
@@ -212,7 +206,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Sets the endpoints value for this TProcessInfo.
      *
-     * @param endpoints   * Endpoint references.
+     * @param endpoints * Endpoint references.
      */
     public void setEndpoints(org.apache.www.ode.pmapi.types._2006._08._02.TEndpointReferencesEndpointRef[] endpoints) {
         this.endpoints = endpoints;
@@ -230,7 +224,7 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
     /**
      * Sets the documents value for this TProcessInfo.
      *
-     * @param documents   * Process documents
+     * @param documents * Process documents
      */
     public void setDocuments(org.apache.www.ode.pmapi.types._2006._08._02.TDocumentInfo[] documents) {
         this.documents = documents;
@@ -247,8 +241,6 @@ public class TProcessInfo implements java.io.Serializable, org.apache.axis.encod
 
     /**
      * Sets the _any value for this TProcessInfo.
-     *
-     * @param _any
      */
     public void set_any(org.apache.axis.message.MessageElement[] _any) {
         this._any = _any;

@@ -78,5 +78,4 @@ class InterfaceDummy extends AbstractOperation {
         // TODO Auto-generated method stub
         return null;
     }
-
 }

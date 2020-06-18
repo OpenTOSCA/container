@@ -7,8 +7,7 @@
 package org.apache.www.ode.pmapi.types._2006._08._02;
 
 /**
- * Information about a BPEL process
- *                 deployment.
+ * Information about a BPEL process deployment.
  */
 public class TDeploymentInfo implements java.io.Serializable {
     /* Deployment package the process was deployed into. */
@@ -50,7 +49,7 @@ public class TDeploymentInfo implements java.io.Serializable {
     /**
      * Sets the _package value for this TDeploymentInfo.
      *
-     * @param _package   * Deployment package the process was deployed into.
+     * @param _package * Deployment package the process was deployed into.
      */
     public void set_package(java.lang.String _package) {
         this._package = _package;
@@ -68,7 +67,7 @@ public class TDeploymentInfo implements java.io.Serializable {
     /**
      * Sets the document value for this TDeploymentInfo.
      *
-     * @param document   * File name of BPEL document.
+     * @param document * File name of BPEL document.
      */
     public void setDocument(java.lang.String document) {
         this.document = document;
@@ -86,7 +85,7 @@ public class TDeploymentInfo implements java.io.Serializable {
     /**
      * Sets the deployDate value for this TDeploymentInfo.
      *
-     * @param deployDate   * Date the process was deployed.
+     * @param deployDate * Date the process was deployed.
      */
     public void setDeployDate(java.util.Calendar deployDate) {
         this.deployDate = deployDate;
@@ -95,8 +94,7 @@ public class TDeploymentInfo implements java.io.Serializable {
     /**
      * Gets the deployer value for this TDeploymentInfo.
      *
-     * @return deployer   * The user that deployed this
-     *                         process.
+     * @return deployer   * The user that deployed this process.
      */
     public java.lang.String getDeployer() {
         return deployer;
@@ -105,8 +103,7 @@ public class TDeploymentInfo implements java.io.Serializable {
     /**
      * Sets the deployer value for this TDeploymentInfo.
      *
-     * @param deployer   * The user that deployed this
-     *                         process.
+     * @param deployer * The user that deployed this process.
      */
     public void setDeployer(java.lang.String deployer) {
         this.deployer = deployer;

@@ -141,11 +141,10 @@ public class Utils {
         if (nodeType.equals(Types.KVM_QEMU_VM_TYPE)) {
             return true;
         }
-        
-        if(nodeType.equals(Types.raspbianJessieOSNodeType)) {
+
+        if (nodeType.equals(Types.raspbianJessieOSNodeType)) {
             return true;
         }
-
 
         return false;
     }
@@ -202,7 +201,7 @@ public class Utils {
             || nodeType.equals(Types.ubuntu1404ServerVmNodeType3) || nodeType.equals(Types.ubuntu1604ServerVmNodeType)
             || nodeType.equals(Types.ubuntu1804ServerVmNodeType)
             || nodeType.getNamespaceURI().equals(Types.ubuntu1804ServerVmNodeTypeGenerated.getNamespaceURI())
-                && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart());
+            && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart());
     }
 
     public static boolean isSupportedOSNodeType(final QName nodeType) {

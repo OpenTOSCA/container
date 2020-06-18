@@ -31,7 +31,6 @@ public class DocumentConverter implements AttributeConverter<Document, String> {
     /**
      * Converts a given String to a XML document
      *
-     * @param documentString
      * @return Document - converted xml Document
      */
     private static Document getDocument(final String documentString) {
@@ -78,7 +77,6 @@ public class DocumentConverter implements AttributeConverter<Document, String> {
     /**
      * Converts a given node to a String
      *
-     * @param node
      * @return String - String representation of the given Node
      */
     private static String getString(final Node node) {

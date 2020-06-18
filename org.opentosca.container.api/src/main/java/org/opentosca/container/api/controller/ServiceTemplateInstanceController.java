@@ -23,13 +23,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceDecorator;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceDTO;
@@ -298,9 +299,6 @@ public class ServiceTemplateInstanceController {
      * Gets a reference to the service template instance. Ensures that the instance actually belongs to the service
      * template.
      *
-     * @param instanceId
-     * @param templateId
-     * @return
      * @throws NotFoundException if the instance does not belong to the service template
      */
     private ServiceTemplateInstance resolveInstance(final Long instanceId, final String templateId) throws NotFoundException {

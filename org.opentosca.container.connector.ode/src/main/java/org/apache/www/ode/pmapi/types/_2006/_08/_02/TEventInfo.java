@@ -164,8 +164,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the name value for this TEventInfo.
-     *
-     * @param name
      */
     public void setName(java.lang.String name) {
         this.name = name;
@@ -182,8 +180,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the type value for this TEventInfo.
-     *
-     * @param type
      */
     public void setType(java.lang.String type) {
         this.type = type;
@@ -200,8 +196,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the lineNumber value for this TEventInfo.
-     *
-     * @param lineNumber
      */
     public void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
@@ -218,8 +212,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the timestamp value for this TEventInfo.
-     *
-     * @param timestamp
      */
     public void setTimestamp(java.util.Calendar timestamp) {
         this.timestamp = timestamp;
@@ -236,8 +228,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the processId value for this TEventInfo.
-     *
-     * @param processId
      */
     public void setProcessId(javax.xml.namespace.QName processId) {
         this.processId = processId;
@@ -254,8 +244,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the processType value for this TEventInfo.
-     *
-     * @param processType
      */
     public void setProcessType(javax.xml.namespace.QName processType) {
         this.processType = processType;
@@ -272,8 +260,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the instanceId value for this TEventInfo.
-     *
-     * @param instanceId
      */
     public void setInstanceId(java.lang.Long instanceId) {
         this.instanceId = instanceId;
@@ -290,8 +276,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the scopeId value for this TEventInfo.
-     *
-     * @param scopeId
      */
     public void setScopeId(java.lang.Long scopeId) {
         this.scopeId = scopeId;
@@ -308,8 +292,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the parentScopeId value for this TEventInfo.
-     *
-     * @param parentScopeId
      */
     public void setParentScopeId(java.lang.Long parentScopeId) {
         this.parentScopeId = parentScopeId;
@@ -326,8 +308,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the scopeName value for this TEventInfo.
-     *
-     * @param scopeName
      */
     public void setScopeName(java.lang.String scopeName) {
         this.scopeName = scopeName;
@@ -344,8 +324,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the scopeDefinitionId value for this TEventInfo.
-     *
-     * @param scopeDefinitionId
      */
     public void setScopeDefinitionId(java.lang.Integer scopeDefinitionId) {
         this.scopeDefinitionId = scopeDefinitionId;
@@ -362,8 +340,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the activityId value for this TEventInfo.
-     *
-     * @param activityId
      */
     public void setActivityId(java.lang.Long activityId) {
         this.activityId = activityId;
@@ -380,8 +356,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the activityName value for this TEventInfo.
-     *
-     * @param activityName
      */
     public void setActivityName(java.lang.String activityName) {
         this.activityName = activityName;
@@ -398,8 +372,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the activityType value for this TEventInfo.
-     *
-     * @param activityType
      */
     public void setActivityType(java.lang.String activityType) {
         this.activityType = activityType;
@@ -416,8 +388,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the activityDefinitionId value for this TEventInfo.
-     *
-     * @param activityDefinitionId
      */
     public void setActivityDefinitionId(java.lang.Integer activityDefinitionId) {
         this.activityDefinitionId = activityDefinitionId;
@@ -434,8 +404,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the activityFailureReason value for this TEventInfo.
-     *
-     * @param activityFailureReason
      */
     public void setActivityFailureReason(java.lang.String activityFailureReason) {
         this.activityFailureReason = activityFailureReason;
@@ -452,8 +420,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the activityRecoveryAction value for this TEventInfo.
-     *
-     * @param activityRecoveryAction
      */
     public void setActivityRecoveryAction(java.lang.String activityRecoveryAction) {
         this.activityRecoveryAction = activityRecoveryAction;
@@ -470,8 +436,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the variableName value for this TEventInfo.
-     *
-     * @param variableName
      */
     public void setVariableName(java.lang.String variableName) {
         this.variableName = variableName;
@@ -488,8 +452,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the newValue value for this TEventInfo.
-     *
-     * @param newValue
      */
     public void setNewValue(java.lang.String newValue) {
         this.newValue = newValue;
@@ -506,8 +468,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the portType value for this TEventInfo.
-     *
-     * @param portType
      */
     public void setPortType(javax.xml.namespace.QName portType) {
         this.portType = portType;
@@ -524,8 +484,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the operation value for this TEventInfo.
-     *
-     * @param operation
      */
     public void setOperation(java.lang.String operation) {
         this.operation = operation;
@@ -542,8 +500,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the correlationSet value for this TEventInfo.
-     *
-     * @param correlationSet
      */
     public void setCorrelationSet(java.lang.String correlationSet) {
         this.correlationSet = correlationSet;
@@ -560,8 +516,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the mexId value for this TEventInfo.
-     *
-     * @param mexId
      */
     public void setMexId(java.lang.String mexId) {
         this.mexId = mexId;
@@ -578,8 +532,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the correlationKey value for this TEventInfo.
-     *
-     * @param correlationKey
      */
     public void setCorrelationKey(java.lang.String correlationKey) {
         this.correlationKey = correlationKey;
@@ -596,8 +548,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the expression value for this TEventInfo.
-     *
-     * @param expression
      */
     public void setExpression(java.lang.String expression) {
         this.expression = expression;
@@ -614,8 +564,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the fault value for this TEventInfo.
-     *
-     * @param fault
      */
     public void setFault(javax.xml.namespace.QName fault) {
         this.fault = fault;
@@ -632,8 +580,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the faultLineNumber value for this TEventInfo.
-     *
-     * @param faultLineNumber
      */
     public void setFaultLineNumber(java.lang.Integer faultLineNumber) {
         this.faultLineNumber = faultLineNumber;
@@ -650,8 +596,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the explanation value for this TEventInfo.
-     *
-     * @param explanation
      */
     public void setExplanation(java.lang.String explanation) {
         this.explanation = explanation;
@@ -668,8 +612,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the result value for this TEventInfo.
-     *
-     * @param result
      */
     public void setResult(java.lang.String result) {
         this.result = result;
@@ -686,8 +628,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the rootScopeId value for this TEventInfo.
-     *
-     * @param rootScopeId
      */
     public void setRootScopeId(java.lang.Long rootScopeId) {
         this.rootScopeId = rootScopeId;
@@ -704,8 +644,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the rootScopeDeclarationId value for this TEventInfo.
-     *
-     * @param rootScopeDeclarationId
      */
     public void setRootScopeDeclarationId(java.lang.Integer rootScopeDeclarationId) {
         this.rootScopeDeclarationId = rootScopeDeclarationId;
@@ -722,8 +660,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the partnerLinkName value for this TEventInfo.
-     *
-     * @param partnerLinkName
      */
     public void setPartnerLinkName(java.lang.String partnerLinkName) {
         this.partnerLinkName = partnerLinkName;
@@ -740,8 +676,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the oldState value for this TEventInfo.
-     *
-     * @param oldState
      */
     public void setOldState(java.lang.Integer oldState) {
         this.oldState = oldState;
@@ -758,8 +692,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the newState value for this TEventInfo.
-     *
-     * @param newState
      */
     public void setNewState(java.lang.Integer newState) {
         this.newState = newState;
@@ -776,8 +708,6 @@ public class TEventInfo implements java.io.Serializable {
 
     /**
      * Sets the success value for this TEventInfo.
-     *
-     * @param success
      */
     public void setSuccess(java.lang.Boolean success) {
         this.success = success;

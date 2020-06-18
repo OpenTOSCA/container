@@ -12,6 +12,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
+
 import org.opentosca.container.core.common.jpa.CsarIdConverter;
 import org.opentosca.container.core.model.AbstractDirectory;
 import org.opentosca.container.core.model.AbstractFile;

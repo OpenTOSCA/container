@@ -13,9 +13,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.google.common.collect.Lists;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import com.google.common.collect.Lists;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
@@ -54,8 +55,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.google.common.collect.Lists;
 
 /**
  * Allows access to instance information for service templates and node templates.
@@ -98,13 +97,6 @@ public class InstanceService {
 
     /**
      * Converts an xml document to an xml-based property sui/table for service or node template instances
-     *
-     * @param propertyDoc
-     * @param type
-     * @return
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws IllegalArgumentException
      */
     public <T extends Property> T convertDocumentToProperty(final Document propertyDoc,
                                                             final Class<T> type) throws InstantiationException,
@@ -645,9 +637,9 @@ public class InstanceService {
     public Collection<Situation> getSituations() {
         return this.sitRepo.findAll();
     }
-    
-    public boolean removeSituation(final Long situationId) {        
-        if(this.sitTrig.findSituationTriggersBySituationId(situationId).isEmpty()) {            
+
+    public boolean removeSituation(final Long situationId) {
+        if (this.sitTrig.findSituationTriggersBySituationId(situationId).isEmpty()) {
             this.sitRepo.find(situationId).ifPresent(x -> this.sitRepo.remove(x));
             return true;
         }
@@ -710,7 +702,7 @@ public class InstanceService {
 
         throw new NotFoundException("SituationTrigger <" + id + "> not found.");
     }
-    
+
     public void removeSituationTrigger(Long situationTriggerId) {
         this.sitTrig.find(situationTriggerId).ifPresent(x -> this.sitTrig.remove(x));
     }

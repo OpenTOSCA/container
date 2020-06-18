@@ -19,7 +19,6 @@ import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
@@ -559,7 +558,7 @@ public class Handler {
         this.appendStateUpdateToPostPhase(targetContext, targetNodeInstanceUrlVar, stateVar);
         /* set state of old instance to migrated */
         this.appendStateUpdateToPostPhase(sourceContext, sourceNodeInstanceURLVarName, stateVar, "MIGRATED");
-        
+
         this.appendFailedStateToFaultHandler(targetContext, targetNodeInstanceUrlVar);
         this.appendFailedStateToFaultHandler(sourceContext, sourceNodeInstanceURLVarName);
         return true;
@@ -845,7 +844,7 @@ public class Handler {
         appendProgressionUpdateLogMessage(context, nodeTemplate.getId());
 
         this.appendFailedStateToFaultHandler(context, nodeInstanceURLVarName);
-        
+
         return true;
     }
 
@@ -870,10 +869,10 @@ public class Handler {
             e.printStackTrace();
         }
     }
-    
+
     private void appendFailedStateToFaultHandler(BPELPlanContext context, String nodeInstanceURLVarName) {
         String stateVarName = this.createStateVar(context, context.getTemplateId());
-        this.appendStateUpdateAsChild(context, nodeInstanceURLVarName, stateVarName, "ERROR", context.getProvisioningFaultHandlerPhaseElement());                
+        this.appendStateUpdateAsChild(context, nodeInstanceURLVarName, stateVarName, "ERROR", context.getProvisioningFaultHandlerPhaseElement());
     }
 
     private void appendStateUpdateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName,
@@ -1773,8 +1772,8 @@ public class Handler {
 
         // generate call to method
         context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT, inputParams,
-                                 outputParams, BPELScopePhaseType.PRE, context.getPrePhaseElement());
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT, inputParams,
+            outputParams, BPELScopePhaseType.PRE, context.getPrePhaseElement());
 
         // check result and eventually throw error
 

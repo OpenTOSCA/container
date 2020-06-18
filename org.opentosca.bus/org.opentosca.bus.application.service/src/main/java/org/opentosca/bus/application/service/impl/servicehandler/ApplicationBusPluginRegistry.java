@@ -39,7 +39,6 @@ public class ApplicationBusPluginRegistry {
     }
 
     /**
-     * @param invocationType
      * @return BundleID of the matching ApplicationBusPlugin
      */
     @Nullable

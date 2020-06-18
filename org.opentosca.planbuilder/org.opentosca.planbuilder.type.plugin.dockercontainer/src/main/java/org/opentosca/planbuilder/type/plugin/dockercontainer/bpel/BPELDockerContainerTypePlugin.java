@@ -5,7 +5,6 @@ import java.util.HashSet;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.handler.BPELDockerContainerTypePluginHandler;
@@ -30,17 +29,16 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
 
         boolean check = false;
         if (this.canHandleCreate(nodeTemplate)) {
-            check =this.handler.handleCreate(templateContext);
+            check = this.handler.handleCreate(templateContext);
         }
-        
-        
-        if(check) {
+
+        if (check) {
             templateContext.addUsedOperation(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER);
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER);
         }
-        
+
         return check;
     }
 
@@ -65,16 +63,16 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         boolean check = false;
         if (this.canHandleTerminate(nodeTemplate)) {
-            check =this.handler.handleTerminate(templateContext);
+            check = this.handler.handleTerminate(templateContext);
         }
-        
-        if(check) {
+
+        if (check) {
             templateContext.addUsedOperation(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
-                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER);
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER);
         }
-        
+
         return check;
     }
 

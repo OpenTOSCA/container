@@ -9,7 +9,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TDeploymentArtifacts;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
@@ -18,6 +17,8 @@ import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
+
+import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
@@ -70,9 +71,6 @@ public class ContainerProxy {
     }
 
     /**
-     * @param serviceInstanceID
-     * @param nodeInstanceID
-     * @param nodeTemplateID
      * @return NodeInstance with specified ID
      */
     @Nullable
@@ -115,7 +113,6 @@ public class ContainerProxy {
     }
 
     /**
-     * @param id
      * @return ServiceInstance with specified ID
      */
     @Nullable
@@ -143,9 +140,6 @@ public class ContainerProxy {
      * Searches for NodeTypeImplementations and their DeploymentArtifacts as well as their ArtifactTemplates of the
      * specified NodeType. If the needed properties are found, they are returned.
      *
-     * @param csarId
-     * @param nodeTypeName
-     * @param interfaceName
      * @return specified properties as Node
      */
     @Nullable
@@ -259,7 +253,6 @@ public class ContainerProxy {
     }
 
     /**
-     * @param propNode
      * @return relative endpoint, specified in properties (as <tt>Endpoint</tt> property).
      */
     @Nullable
@@ -278,7 +271,6 @@ public class ContainerProxy {
     }
 
     /**
-     * @param propNode
      * @return port, specified in properties (as <tt>Port</tt> property).
      */
     @Nullable
@@ -299,7 +291,6 @@ public class ContainerProxy {
     }
 
     /**
-     * @param propNode
      * @return invocationType, specified in properties (as <tt>InvocationType</tt> property).
      */
     @Nullable
@@ -326,8 +317,6 @@ public class ContainerProxy {
     }
 
     /**
-     * @param propNode
-     * @param interfaceName
      * @return implementing class specified in the properties of the specified interface
      */
     @Nullable
@@ -371,9 +360,6 @@ public class ContainerProxy {
     }
 
     /**
-     * @param csarId
-     * @param serviceTemplateID
-     * @param nodeTypeQName
      * @return name of a NodeTemplate of the specified NodeType inside of the specified serviceTemplate & csar
      */
     @Nullable
@@ -421,9 +407,6 @@ public class ContainerProxy {
     /**
      * Returns the first NodeTemplate underneath the defined NodeTemplate containing the IP property.
      *
-     * @param csarId
-     * @param serviceTemplateId
-     * @param nodeTemplateId
      * @return name of the first NodeTemplate underneath the defined NodeTemplate containing the IP property.
      */
     public String getHostedOnNodeTemplateWithSpecifiedIPProperty(final CsarId csarId,
@@ -469,8 +452,6 @@ public class ContainerProxy {
     /**
      * Returns the in the InstanceDataService stored IP property of the specified ServiceInstance & NodeTemplate.
      *
-     * @param serviceInstanceID
-     * @param nodeTemplateID
      * @return IP property
      */
     @Nullable

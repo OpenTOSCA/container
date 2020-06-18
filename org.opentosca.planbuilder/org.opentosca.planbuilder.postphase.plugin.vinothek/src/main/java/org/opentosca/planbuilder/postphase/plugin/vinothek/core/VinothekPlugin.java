@@ -6,7 +6,6 @@ package org.opentosca.planbuilder.postphase.plugin.vinothek.core;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -28,14 +27,14 @@ public abstract class VinothekPlugin<T extends BPELPlanContext> implements IPlan
         new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 
     @Override
-    public boolean canHandleCreate(BPELPlanContext context,  final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         // if the nodeTemplate is some kind of PhpApp we're happy
         return ModelUtils.checkForTypeInHierarchy(nodeTemplate, phpApp)
             || ModelUtils.checkForTypeInHierarchy(nodeTemplate, bpelProcess);
     }
 
     @Override
-    public boolean canHandleCreate(BPELPlanContext context,  final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
         // only handling nodeTemplates
         return false;
     }

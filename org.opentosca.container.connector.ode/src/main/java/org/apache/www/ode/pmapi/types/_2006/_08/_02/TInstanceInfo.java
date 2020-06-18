@@ -90,7 +90,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Sets the iid value for this TInstanceInfo.
      *
-     * @param iid   * The unique instance identifier.
+     * @param iid * The unique instance identifier.
      */
     public void setIid(java.lang.String iid) {
         this.iid = iid;
@@ -99,8 +99,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Gets the pid value for this TInstanceInfo.
      *
-     * @return pid   * Process id of the process to which this instance
-     *                         belongs.
+     * @return pid   * Process id of the process to which this instance belongs.
      */
     public java.lang.String getPid() {
         return pid;
@@ -109,8 +108,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Sets the pid value for this TInstanceInfo.
      *
-     * @param pid   * Process id of the process to which this instance
-     *                         belongs.
+     * @param pid * Process id of the process to which this instance belongs.
      */
     public void setPid(java.lang.String pid) {
         this.pid = pid;
@@ -127,8 +125,6 @@ public class TInstanceInfo implements java.io.Serializable {
 
     /**
      * Sets the processName value for this TInstanceInfo.
-     *
-     * @param processName
      */
     public void setProcessName(javax.xml.namespace.QName processName) {
         this.processName = processName;
@@ -146,7 +142,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Sets the rootScope value for this TInstanceInfo.
      *
-     * @param rootScope   * Root scope id (might not exist).
+     * @param rootScope * Root scope id (might not exist).
      */
     public void setRootScope(org.apache.www.ode.pmapi.types._2006._08._02.TScopeRef rootScope) {
         this.rootScope = rootScope;
@@ -164,7 +160,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Sets the status value for this TInstanceInfo.
      *
-     * @param status   * Status of ths instance.
+     * @param status * Status of ths instance.
      */
     public void setStatus(org.apache.www.ode.pmapi.types._2006._08._02.TInstanceStatus status) {
         this.status = status;
@@ -173,8 +169,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Gets the dtStarted value for this TInstanceInfo.
      *
-     * @return dtStarted   * The date/time when the instance was
-     *                         started.
+     * @return dtStarted   * The date/time when the instance was started.
      */
     public java.util.Calendar getDtStarted() {
         return dtStarted;
@@ -183,8 +178,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Sets the dtStarted value for this TInstanceInfo.
      *
-     * @param dtStarted   * The date/time when the instance was
-     *                         started.
+     * @param dtStarted * The date/time when the instance was started.
      */
     public void setDtStarted(java.util.Calendar dtStarted) {
         this.dtStarted = dtStarted;
@@ -193,8 +187,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Gets the dtLastActive value for this TInstanceInfo.
      *
-     * @return dtLastActive   * The date/time when the last activity
-     *                         occured.
+     * @return dtLastActive   * The date/time when the last activity occured.
      */
     public java.util.Calendar getDtLastActive() {
         return dtLastActive;
@@ -203,8 +196,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Sets the dtLastActive value for this TInstanceInfo.
      *
-     * @param dtLastActive   * The date/time when the last activity
-     *                         occured.
+     * @param dtLastActive * The date/time when the last activity occured.
      */
     public void setDtLastActive(java.util.Calendar dtLastActive) {
         this.dtLastActive = dtLastActive;
@@ -213,8 +205,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Gets the dtErrorSince value for this TInstanceInfo.
      *
-     * @return dtErrorSince   * If present, indicates the date/time since which the
-     *                         instance has been in an error state.
+     * @return dtErrorSince   * If present, indicates the date/time since which the instance has been in an error state.
      */
     public java.util.Calendar getDtErrorSince() {
         return dtErrorSince;
@@ -223,8 +214,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Sets the dtErrorSince value for this TInstanceInfo.
      *
-     * @param dtErrorSince   * If present, indicates the date/time since which the
-     *                         instance has been in an error state.
+     * @param dtErrorSince * If present, indicates the date/time since which the instance has been in an error state.
      */
     public void setDtErrorSince(java.util.Calendar dtErrorSince) {
         this.dtErrorSince = dtErrorSince;
@@ -233,8 +223,8 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Gets the correlationProperties value for this TInstanceInfo.
      *
-     * @return correlationProperties   * Lists all correlation properties with their values that
-     *                         are associated with this process instance.
+     * @return correlationProperties   * Lists all correlation properties with their values that are associated with
+     * this process instance.
      */
     public org.apache.www.ode.pmapi.types._2006._08._02.TCorrelationProperty[] getCorrelationProperties() {
         return correlationProperties;
@@ -243,8 +233,8 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Sets the correlationProperties value for this TInstanceInfo.
      *
-     * @param correlationProperties   * Lists all correlation properties with their values that
-     *                         are associated with this process instance.
+     * @param correlationProperties * Lists all correlation properties with their values that are associated with this
+     *                              process instance.
      */
     public void setCorrelationProperties(org.apache.www.ode.pmapi.types._2006._08._02.TCorrelationProperty[] correlationProperties) {
         this.correlationProperties = correlationProperties;
@@ -253,8 +243,8 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Gets the eventInfo value for this TInstanceInfo.
      *
-     * @return eventInfo   * Information about the events for this instance. If
-     *                         absent, indicates events are not available.
+     * @return eventInfo   * Information about the events for this instance. If absent, indicates events are not
+     * available.
      */
     public org.apache.www.ode.pmapi.types._2006._08._02.TInstanceInfoEventInfo getEventInfo() {
         return eventInfo;
@@ -263,8 +253,8 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Sets the eventInfo value for this TInstanceInfo.
      *
-     * @param eventInfo   * Information about the events for this instance. If
-     *                         absent, indicates events are not available.
+     * @param eventInfo * Information about the events for this instance. If absent, indicates events are not
+     *                  available.
      */
     public void setEventInfo(org.apache.www.ode.pmapi.types._2006._08._02.TInstanceInfoEventInfo eventInfo) {
         this.eventInfo = eventInfo;
@@ -273,8 +263,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Gets the faultInfo value for this TInstanceInfo.
      *
-     * @return faultInfo   * If present, indicates the fault with which this
-     *                         instance failed.
+     * @return faultInfo   * If present, indicates the fault with which this instance failed.
      */
     public org.apache.www.ode.pmapi.types._2006._08._02.TFaultInfo getFaultInfo() {
         return faultInfo;
@@ -283,8 +272,7 @@ public class TInstanceInfo implements java.io.Serializable {
     /**
      * Sets the faultInfo value for this TInstanceInfo.
      *
-     * @param faultInfo   * If present, indicates the fault with which this
-     *                         instance failed.
+     * @param faultInfo * If present, indicates the fault with which this instance failed.
      */
     public void setFaultInfo(org.apache.www.ode.pmapi.types._2006._08._02.TFaultInfo faultInfo) {
         this.faultInfo = faultInfo;
@@ -301,8 +289,6 @@ public class TInstanceInfo implements java.io.Serializable {
 
     /**
      * Sets the failures value for this TInstanceInfo.
-     *
-     * @param failures
      */
     public void setFailures(org.apache.www.ode.pmapi.types._2006._08._02.TFailuresInfo failures) {
         this.failures = failures;

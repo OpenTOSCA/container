@@ -18,7 +18,6 @@ import org.json.simple.parser.ParseException;
 import org.opentosca.bus.application.api.resthttp.route.Route;
 import org.opentosca.bus.application.model.constants.ApplicationBusConstants;
 import org.opentosca.bus.application.model.exception.ApplicationBusExternalException;
-import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
@@ -111,11 +110,7 @@ public class InvocationRequestProcessor implements Processor {
     /**
      * Parses and maps a json String to a {@literal LinkedHashMap<String, Object>}.
      *
-     * @param request
      * @return LinkedHashMap
-     * @throws IOException
-     * @throws ParseException
-     * @throws ApplicationBusInternalException
      */
     private LinkedHashMap<String, Object> jsonStringToMap(final String jsonString) throws ParseException {
 

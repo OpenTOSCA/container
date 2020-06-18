@@ -337,7 +337,6 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
      * @param typeImplementation  the NodeTypeImplementation or RelationshipTypeImplementation which is used to create a
      *                            unique path where the WAR is deployed
      * @param fileName            the file name which is part of the deployment path
-     * @return
      */
     private String deployWAROnTomcat(final File warFile, final String triggeringContainer,
                                      final QName typeImplementation, final String fileName) {

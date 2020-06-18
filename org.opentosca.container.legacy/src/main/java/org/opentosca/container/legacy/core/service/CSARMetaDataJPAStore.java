@@ -11,6 +11,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
+
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.CsarId;
@@ -54,7 +55,6 @@ public class CSARMetaDataJPAStore {
      * Persists the meta data of CSAR {@code csarID}.
      *
      * @param csarID        of the CSAR.
-     * @param csarRoot
      * @param toscaMetaFile - represents the content of the TOSCA meta file of the CSAR.
      */
     public void storeCSARMetaData(final CSARID csarID, Path csarRoot, final TOSCAMetaFile toscaMetaFile) {

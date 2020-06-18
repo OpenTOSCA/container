@@ -10,6 +10,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;

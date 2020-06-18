@@ -15,7 +15,6 @@ import org.opentosca.planbuilder.core.AbstractScaleOutPlanBuilder;
 import org.opentosca.planbuilder.core.ScalingPlanDefinition;
 import org.opentosca.planbuilder.core.ScalingPlanDefinition.AnnotatedAbstractNodeTemplate;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
@@ -397,14 +396,13 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
             String planInstanceUrlVarName = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(bpelScaleOutProcess);
             this.serviceInstanceHandler.appendSetServiceInstanceState(bpelScaleOutProcess,
-            		bpelScaleOutProcess.getBpelMainFlowElement(),
-                    "RUNNING", planInstanceUrlVarName);
-            
+                bpelScaleOutProcess.getBpelMainFlowElement(),
+                "RUNNING", planInstanceUrlVarName);
+
             this.serviceInstanceHandler.appendSetServiceInstanceState(bpelScaleOutProcess,
-            		bpelScaleOutProcess.getBpelMainSequenceOutputAssignElement(),
-                    "FINISHED", planInstanceUrlVarName);
-           
-            
+                bpelScaleOutProcess.getBpelMainSequenceOutputAssignElement(),
+                "FINISHED", planInstanceUrlVarName);
+
             this.finalizer.finalize(bpelScaleOutProcess);
             scalingPlans.add(bpelScaleOutProcess);
         }
@@ -728,7 +726,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                                                 String serviceTemplateUrl, String csarFileName) {
         for (final AbstractNodeTemplate node : nodeTemplates) {
             this.runProvisioningLogicGeneration(plan, node, map, serviceInstanceUrl, serviceInstanceId,
-                                                serviceTemplateUrl, csarFileName);
+                serviceTemplateUrl, csarFileName);
         }
         for (final AbstractRelationshipTemplate relation : relationshipTemplates) {
             this.runProvisioningLogicGeneration(plan, relation, map, csarFileName);

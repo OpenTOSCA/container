@@ -265,7 +265,6 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
     /**
      * Returns the http path that will be concatenated to the endpoint.
      *
-     * @param operation
      * @return http path.
      */
     private String getHttpPath(final Operation operation) {
@@ -353,7 +352,6 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
      * Transfers the paramsMap into a Document.
      *
      * @param operationName as root element.
-     * @param paramsMap
      * @return the created Document.
      */
     private Document mapToDoc(final String operationName, final Map<String, String> paramsMap) {
@@ -383,8 +381,6 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
      *
      * @param exchange       to be altered.
      * @param responseString containing the response of the invoked service.
-     * @param operationName
-     * @param isDoc
      * @return exchange with response of the invokes service as body.
      * @TODO: Response handling is a bit hacky. Should be updated sometime to determine the response type with
      * content-type header.

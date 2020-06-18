@@ -22,7 +22,6 @@ public class ResultMap {
     }
 
     /**
-     * @param id
      * @return result of the invocation. <tt>Void</tt> if the invoked method was of return type
      * <tt>void</tt>. <tt>null</tt> if the invocation failed.
      */

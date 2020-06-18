@@ -64,9 +64,6 @@ public class NodeInstanceDAO {
 
     /**
      * this method wraps the setting/saving of the properties
-     *
-     * @param nodeInstance
-     * @param properties
      */
     public void setProperties(final NodeInstance nodeInstance, final Document properties) {
         try {
@@ -97,8 +94,7 @@ public class NodeInstanceDAO {
     /**
      * this method wraps the setting/saving of the state
      *
-     * @param nodeInstance
-     * @param state        to be set
+     * @param state to be set
      */
     public void setState(final NodeInstance nodeInstance, final String state) {
         try {

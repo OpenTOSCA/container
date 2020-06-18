@@ -48,7 +48,7 @@ public class TFailureInfo implements java.io.Serializable {
     /**
      * Sets the dtFailure value for this TFailureInfo.
      *
-     * @param dtFailure   * The date/time when failure occurred.
+     * @param dtFailure * The date/time when failure occurred.
      */
     public void setDtFailure(java.util.Calendar dtFailure) {
         this.dtFailure = dtFailure;
@@ -66,7 +66,7 @@ public class TFailureInfo implements java.io.Serializable {
     /**
      * Sets the retries value for this TFailureInfo.
      *
-     * @param retries   * Number of retries.
+     * @param retries * Number of retries.
      */
     public void setRetries(int retries) {
         this.retries = retries;
@@ -84,7 +84,7 @@ public class TFailureInfo implements java.io.Serializable {
     /**
      * Sets the reason value for this TFailureInfo.
      *
-     * @param reason   * Reason for failure.
+     * @param reason * Reason for failure.
      */
     public void setReason(java.lang.String reason) {
         this.reason = reason;
@@ -102,7 +102,7 @@ public class TFailureInfo implements java.io.Serializable {
     /**
      * Sets the actions value for this TFailureInfo.
      *
-     * @param actions   * Allowed recovery actions (space separated list of action names).
+     * @param actions * Allowed recovery actions (space separated list of action names).
      */
     public void setActions(java.lang.String actions) {
         this.actions = actions;

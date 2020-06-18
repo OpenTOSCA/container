@@ -28,8 +28,6 @@ public class TFaultInfoData implements java.io.Serializable, org.apache.axis.enc
 
     /**
      * Sets the _any value for this TFaultInfoData.
-     *
-     * @param _any
      */
     public void set_any(org.apache.axis.message.MessageElement[] _any) {
         this._any = _any;

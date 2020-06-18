@@ -39,8 +39,6 @@ public class TCorrelationProperty implements java.io.Serializable, org.apache.ax
 
     /**
      * Sets the _value value for this TCorrelationProperty.
-     *
-     * @param _value
      */
     public void set_value(java.lang.String _value) {
         this._value = _value;
@@ -57,8 +55,6 @@ public class TCorrelationProperty implements java.io.Serializable, org.apache.ax
 
     /**
      * Sets the _any value for this TCorrelationProperty.
-     *
-     * @param _any
      */
     public void set_any(org.apache.axis.message.MessageElement[] _any) {
         this._any = _any;
@@ -75,8 +71,6 @@ public class TCorrelationProperty implements java.io.Serializable, org.apache.ax
 
     /**
      * Sets the csetid value for this TCorrelationProperty.
-     *
-     * @param csetid
      */
     public void setCsetid(java.lang.String csetid) {
         this.csetid = csetid;
@@ -93,8 +87,6 @@ public class TCorrelationProperty implements java.io.Serializable, org.apache.ax
 
     /**
      * Sets the propertyName value for this TCorrelationProperty.
-     *
-     * @param propertyName
      */
     public void setPropertyName(javax.xml.namespace.QName propertyName) {
         this.propertyName = propertyName;

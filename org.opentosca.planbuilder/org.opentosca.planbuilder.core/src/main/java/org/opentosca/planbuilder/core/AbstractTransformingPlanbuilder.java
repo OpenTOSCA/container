@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.core;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -562,7 +561,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         if (!(this.mappingEquals(rel1.getSource(), rel2.getSource())
             && this.mappingEquals(rel1.getTarget(), rel2.getTarget()))) {
             return false;
-        }                      
+        }
 
         return true;
     }

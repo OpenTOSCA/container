@@ -113,7 +113,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                 csarName, definitions, serviceTemplate, targetNodeTemplates, targetRelationshipTemplates);
 
         Long id = System.currentTimeMillis();
-        
+
         // transform to bpel skeleton
         final String processName =
             ModelUtils.makeValidNCName(serviceTemplate.getId() + "_adaptationPlan_" + id);
@@ -121,8 +121,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
         BPELPlan transformationBPELPlan =
             this.planHandler.createEmptyBPELPlan(processNamespace, processName, adaptationPlan, "adapt" + id);
-
-
 
         transformationBPELPlan.setTOSCAInterfaceName("OpenTOSCA-Transformation-Interface");
         transformationBPELPlan.setTOSCAOperationname("adapt" + id);
@@ -240,17 +238,15 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(transformationBPELPlan),
             "FAILED",
             this.serviceInstanceHandler.findPlanInstanceUrlVariableName(transformationBPELPlan));
-        
-        
+
         String planInstanceUrlVarName = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(transformationBPELPlan);
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
-        		transformationBPELPlan.getBpelMainFlowElement(),
-                "RUNNING", planInstanceUrlVarName);
-        
+            transformationBPELPlan.getBpelMainFlowElement(),
+            "RUNNING", planInstanceUrlVarName);
+
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
-        		transformationBPELPlan.getBpelMainSequenceOutputAssignElement(),
-                "FINISHED", planInstanceUrlVarName);
-        
+            transformationBPELPlan.getBpelMainSequenceOutputAssignElement(),
+            "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(transformationBPELPlan);
 
@@ -493,10 +489,9 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                                                   AbstractServiceTemplate targetServiceTemplate) {
         this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(plan, sourceServiceTemplate);
         this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(plan, targetServiceTemplate);
-        
+
         this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(plan, sourceServiceTemplate);
         this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(plan, targetServiceTemplate);
-
     }
 
     @Override

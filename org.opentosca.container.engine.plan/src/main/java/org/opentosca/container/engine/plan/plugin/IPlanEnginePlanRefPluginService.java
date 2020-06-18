@@ -2,8 +2,9 @@ package org.opentosca.container.engine.plan.plugin;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.model.csar.CsarId;
 
 /**

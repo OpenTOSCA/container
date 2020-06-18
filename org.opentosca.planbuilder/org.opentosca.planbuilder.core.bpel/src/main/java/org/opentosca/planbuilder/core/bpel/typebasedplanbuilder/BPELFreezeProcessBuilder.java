@@ -69,8 +69,6 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
      * <p>
      * Default Constructor
      * </p>
-     *
-     * @param pluginRegistry
      */
     public BPELFreezeProcessBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);
@@ -171,17 +169,15 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newFreezePlan),
             "ERROR", serviceInstanceURLVarName);
         this.serviceInstanceVarsHandler.appendSetServiceInstanceStateAsChild(newFreezePlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newFreezePlan), "FAILED", this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newFreezePlan));
-        
-        
+
         String planInstanceUrlVarName = this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(newFreezePlan);
         this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newFreezePlan,
-        		newFreezePlan.getBpelMainFlowElement(),
-                "RUNNING", planInstanceUrlVarName);
-        
+            newFreezePlan.getBpelMainFlowElement(),
+            "RUNNING", planInstanceUrlVarName);
+
         this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newFreezePlan,
-        		newFreezePlan.getBpelMainSequenceOutputAssignElement(),
-                "FINISHED", planInstanceUrlVarName);
-        
+            newFreezePlan.getBpelMainSequenceOutputAssignElement(),
+            "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newFreezePlan);
 

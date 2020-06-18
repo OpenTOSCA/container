@@ -9,6 +9,7 @@ import javax.ws.rs.NotFoundException;
 
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -56,8 +57,6 @@ public class ServiceTemplateService {
     /**
      * Checks whether the specified csarId exists and that it contains the specified service template
      *
-     * @param csarId
-     * @param serviceTemplateQName
      * @return the CSARID that corresponds to the passed parameter
      * @throws NotFoundException if either the CSAR is not found or if does not contain the specified service template.
      */

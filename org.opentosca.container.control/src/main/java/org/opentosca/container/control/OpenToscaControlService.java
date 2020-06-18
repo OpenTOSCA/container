@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
@@ -49,7 +50,6 @@ public interface OpenToscaControlService {
     DeploymentProcessState currentDeploymentProcessState(CsarId csar);
 
     /**
-     * @throws UnsupportedEncodingException
      * @deprecated {@link #invokePlanInvocation(CsarId, TServiceTemplate, int, TPlanDTO)}
      */
     @Deprecated

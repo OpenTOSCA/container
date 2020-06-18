@@ -22,6 +22,7 @@ import javax.xml.validation.SchemaFactory;
 
 import org.eclipse.winery.model.tosca.Definitions;
 import org.eclipse.winery.repository.JAXBSupport;
+
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

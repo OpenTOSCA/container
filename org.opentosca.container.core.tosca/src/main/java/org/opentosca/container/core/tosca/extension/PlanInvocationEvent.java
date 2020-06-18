@@ -55,7 +55,8 @@ public class PlanInvocationEvent {
     @XmlAttribute(name = "hasFailed", required = true)
     protected boolean hasFailed;
 
-    public PlanInvocationEvent() {}
+    public PlanInvocationEvent() {
+    }
 
     public PlanInvocationEvent(final String csarID, final TPlanDTO dto, final String correlationID,
                                final int csarInstanceID, final String ifaceName, final String opName,
@@ -85,9 +86,9 @@ public class PlanInvocationEvent {
      * Gets the value of the inputParameter property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-     * modification you make to the returned list will be present inside the JAXB object. This is why
-     * there is not a <CODE>set</CODE> method for the inputParameter property.
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+     * the inputParameter property.
      *
      * <p>
      * For example, to add a new item, do as follows:
@@ -99,8 +100,6 @@ public class PlanInvocationEvent {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link Parameter }
-     *
-     *
      */
     public List<TParameterDTO> getInputParameter() {
         if (this.inputParameter == null) {
@@ -113,9 +112,9 @@ public class PlanInvocationEvent {
      * Gets the value of the outputParameter property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
-     * modification you make to the returned list will be present inside the JAXB object. This is why
-     * there is not a <CODE>set</CODE> method for the outputParameter property.
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+     * the outputParameter property.
      *
      * <p>
      * For example, to add a new item, do as follows:
@@ -127,8 +126,6 @@ public class PlanInvocationEvent {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link Parameter }
-     *
-     *
      */
     public List<TParameterDTO> getOutputParameter() {
         if (this.outputParameter == null) {
@@ -141,7 +138,6 @@ public class PlanInvocationEvent {
      * Gets the value of the csarid property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getCSARID() {
         return this.csarid;
@@ -151,7 +147,6 @@ public class PlanInvocationEvent {
      * Sets the value of the csarid property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setCSARID(final String value) {
         this.csarid = value;
@@ -161,7 +156,6 @@ public class PlanInvocationEvent {
      * Gets the value of the planType property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getPlanType() {
         return this.planType;
@@ -171,7 +165,6 @@ public class PlanInvocationEvent {
      * Sets the value of the planType property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setPlanType(final String value) {
         this.planType = value;
@@ -179,7 +172,6 @@ public class PlanInvocationEvent {
 
     /**
      * Gets the value of the internalPlanID property.
-     *
      */
     public String getPlanCorrelationID() {
         return this.planCorrelationID;
@@ -187,7 +179,6 @@ public class PlanInvocationEvent {
 
     /**
      * Sets the value of the internalPlanID property.
-     *
      */
     public void setPlanCorrelationID(final String value) {
         this.planCorrelationID = value;
@@ -197,7 +188,6 @@ public class PlanInvocationEvent {
      * Gets the value of the planID property.
      *
      * @return possible object is {@link QName }
-     *
      */
     public QName getPlanID() {
         return this.planID;
@@ -207,7 +197,6 @@ public class PlanInvocationEvent {
      * Sets the value of the planID property.
      *
      * @param value allowed object is {@link QName }
-     *
      */
     public void setPlanID(final QName value) {
         this.planID = value;
@@ -215,7 +204,6 @@ public class PlanInvocationEvent {
 
     /**
      * Gets the value of the internalInstanceInternalID property.
-     *
      */
     public int getCSARInstanceID() {
         return this.csarInstanceID;
@@ -223,7 +211,6 @@ public class PlanInvocationEvent {
 
     /**
      * Sets the value of the internalInstanceInternalID property.
-     *
      */
     public void setCSARInstanceID(final int value) {
         this.csarInstanceID = value;
@@ -233,7 +220,6 @@ public class PlanInvocationEvent {
      * Gets the value of the interfaceName property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getInterfaceName() {
         return this.interfaceName;
@@ -243,7 +229,6 @@ public class PlanInvocationEvent {
      * Sets the value of the interfaceName property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setInterfaceName(final String value) {
         this.interfaceName = value;
@@ -253,7 +238,6 @@ public class PlanInvocationEvent {
      * Gets the value of the operationName property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getOperationName() {
         return this.operationName;
@@ -263,7 +247,6 @@ public class PlanInvocationEvent {
      * Sets the value of the operationName property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setOperationName(final String value) {
         this.operationName = value;
@@ -273,7 +256,6 @@ public class PlanInvocationEvent {
      * Gets the value of the inputMessageID property.
      *
      * @return possible object is {@link QName }
-     *
      */
     public QName getInputMessageID() {
         return this.inputMessageID;
@@ -283,7 +265,6 @@ public class PlanInvocationEvent {
      * Sets the value of the inputMessageID property.
      *
      * @param value allowed object is {@link QName }
-     *
      */
     public void setInputMessageID(final QName value) {
         this.inputMessageID = value;
@@ -293,7 +274,6 @@ public class PlanInvocationEvent {
      * Gets the value of the outputMessageID property.
      *
      * @return possible object is {@link QName }
-     *
      */
     public QName getOutputMessageID() {
         return this.outputMessageID;
@@ -303,7 +283,6 @@ public class PlanInvocationEvent {
      * Sets the value of the outputMessageID property.
      *
      * @param value allowed object is {@link QName }
-     *
      */
     public void setOutputMessageID(final QName value) {
         this.outputMessageID = value;
@@ -313,12 +292,10 @@ public class PlanInvocationEvent {
      * Gets the value of the planLanguage property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getPlanLanguage() {
         return this.planLanguage;
     }
-
 
     public long getCalculatedWCET() {
         return this.calculatedWCET;
@@ -332,7 +309,6 @@ public class PlanInvocationEvent {
      * Sets the value of the planLanguage property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setPlanLanguage(final String value) {
         this.planLanguage = value;
@@ -340,7 +316,6 @@ public class PlanInvocationEvent {
 
     /**
      * Gets the value of the isActive property.
-     *
      */
     public boolean isIsActive() {
         return this.isActive;
@@ -348,7 +323,6 @@ public class PlanInvocationEvent {
 
     /**
      * Sets the value of the isActive property.
-     *
      */
     public void setIsActive(final boolean value) {
         this.isActive = value;
@@ -356,7 +330,6 @@ public class PlanInvocationEvent {
 
     /**
      * Gets the value of the hasFailed property.
-     *
      */
     public boolean isHasFailed() {
         return this.hasFailed;
@@ -364,7 +337,6 @@ public class PlanInvocationEvent {
 
     /**
      * Sets the value of the hasFailed property.
-     *
      */
     public void setHasFailed(final boolean value) {
         this.hasFailed = value;

@@ -10,7 +10,6 @@ public class PathUtils {
     public final static char FILE_EXTENSION_SEPARATOR = '.';
 
     /**
-     * @param file
      * @param extensions of a file.
      * @return {@code true}, if {@code file} has any of the file extensions {@code extensions}, otherwise {@code false}.
      */

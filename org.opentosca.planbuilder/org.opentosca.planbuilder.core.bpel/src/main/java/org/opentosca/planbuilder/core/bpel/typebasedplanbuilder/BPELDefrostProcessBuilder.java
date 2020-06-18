@@ -137,18 +137,15 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newDefreezePlan),
             "ERROR", serviceInstanceURLVarName);
         this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newDefreezePlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newDefreezePlan), "FAILED", this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newDefreezePlan));
-        
-        
+
         String planInstanceUrlVarName = this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newDefreezePlan);
         this.serviceInstanceInitializer.appendSetServiceInstanceState(newDefreezePlan,
-        		newDefreezePlan.getBpelMainFlowElement(),
-                "RUNNING", planInstanceUrlVarName);
-        
+            newDefreezePlan.getBpelMainFlowElement(),
+            "RUNNING", planInstanceUrlVarName);
+
         this.serviceInstanceInitializer.appendSetServiceInstanceState(newDefreezePlan,
-        		newDefreezePlan.getBpelMainSequenceOutputAssignElement(),
-                "FINISHED", planInstanceUrlVarName);
-       
-        
+            newDefreezePlan.getBpelMainSequenceOutputAssignElement(),
+            "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newDefreezePlan);
 

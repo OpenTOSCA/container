@@ -47,8 +47,6 @@ public class TFaultInfo implements java.io.Serializable {
 
     /**
      * Sets the name value for this TFaultInfo.
-     *
-     * @param name
      */
     public void setName(javax.xml.namespace.QName name) {
         this.name = name;
@@ -65,8 +63,6 @@ public class TFaultInfo implements java.io.Serializable {
 
     /**
      * Sets the explanation value for this TFaultInfo.
-     *
-     * @param explanation
      */
     public void setExplanation(java.lang.String explanation) {
         this.explanation = explanation;
@@ -83,8 +79,6 @@ public class TFaultInfo implements java.io.Serializable {
 
     /**
      * Sets the lineNumber value for this TFaultInfo.
-     *
-     * @param lineNumber
      */
     public void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
@@ -101,8 +95,6 @@ public class TFaultInfo implements java.io.Serializable {
 
     /**
      * Sets the aiid value for this TFaultInfo.
-     *
-     * @param aiid
      */
     public void setAiid(int aiid) {
         this.aiid = aiid;
@@ -119,8 +111,6 @@ public class TFaultInfo implements java.io.Serializable {
 
     /**
      * Sets the data value for this TFaultInfo.
-     *
-     * @param data
      */
     public void setData(org.apache.www.ode.pmapi.types._2006._08._02.TFaultInfoData data) {
         this.data = data;

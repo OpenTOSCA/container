@@ -11,10 +11,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.eclipse.winery.model.selfservice.Application;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
-import org.eclipse.winery.model.selfservice.Application;
 
 @XmlRootElement(name = "Csar")
 @XmlAccessorType(XmlAccessType.FIELD)

@@ -5,8 +5,9 @@ import java.util.Objects;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
+
+import org.apache.commons.lang3.StringUtils;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,6 @@ public class Util {
     /**
      * Determine the ServiceTemplateInstanceId long from the ServiceInstanceId QName.
      *
-     * @param serviceInstanceID
      * @return the ServiceTemplateInstanceId if the retrieval is successful, <code>Long.MIN_VALUE</code> otherwise
      */
     public static long determineServiceTemplateInstanceId(final URI serviceInstanceID) {

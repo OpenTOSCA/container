@@ -32,8 +32,6 @@ public class CommunicationTypeServiceConfig implements java.io.Serializable {
 
     /**
      * Sets the service value for this CommunicationTypeServiceConfig.
-     *
-     * @param service
      */
     public void setService(javax.xml.namespace.QName service) {
         this.service = service;
@@ -50,8 +48,6 @@ public class CommunicationTypeServiceConfig implements java.io.Serializable {
 
     /**
      * Sets the replayType value for this CommunicationTypeServiceConfig.
-     *
-     * @param replayType
      */
     public void setReplayType(org.apache.www.ode.pmapi.types._2006._08._02.ReplayType replayType) {
         this.replayType = replayType;

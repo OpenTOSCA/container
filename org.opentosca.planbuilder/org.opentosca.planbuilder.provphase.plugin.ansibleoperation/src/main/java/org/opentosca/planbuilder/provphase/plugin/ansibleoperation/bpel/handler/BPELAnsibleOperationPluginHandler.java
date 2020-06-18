@@ -203,7 +203,6 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
     /**
      * Searches for the Playbook Mapping in the ArtifactTemplate
      *
-     * @param templateContext
      * @return Path to the specified Ansible Playbook within the .zip
      */
     private String getAnsiblePlaybookFilePath(final BPELPlanContext templateContext) {

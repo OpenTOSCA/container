@@ -291,7 +291,6 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
      * Calculates the ServiceTemplate Property to Template Property mappings for the given ServiceTemplate
      *
      * @param buildPlanServiceTemplate a ServiceTemplate
-     * @param propMap
      * @return a Mapping from ServiceTemplate properties to Template properties
      */
     private ServiceTemplatePropertyToPropertyMapping getMappings(final AbstractServiceTemplate buildPlanServiceTemplate,

@@ -40,8 +40,6 @@ public class TEndpointReferencesEndpointRef implements java.io.Serializable, org
 
     /**
      * Sets the _any value for this TEndpointReferencesEndpointRef.
-     *
-     * @param _any
      */
     public void set_any(org.apache.axis.message.MessageElement[] _any) {
         this._any = _any;
@@ -58,8 +56,6 @@ public class TEndpointReferencesEndpointRef implements java.io.Serializable, org
 
     /**
      * Sets the partnerLink value for this TEndpointReferencesEndpointRef.
-     *
-     * @param partnerLink
      */
     public void setPartnerLink(java.lang.String partnerLink) {
         this.partnerLink = partnerLink;
@@ -76,8 +72,6 @@ public class TEndpointReferencesEndpointRef implements java.io.Serializable, org
 
     /**
      * Sets the partnerRole value for this TEndpointReferencesEndpointRef.
-     *
-     * @param partnerRole
      */
     public void setPartnerRole(java.lang.String partnerRole) {
         this.partnerRole = partnerRole;
@@ -94,8 +88,6 @@ public class TEndpointReferencesEndpointRef implements java.io.Serializable, org
 
     /**
      * Sets the myRole value for this TEndpointReferencesEndpointRef.
-     *
-     * @param myRole
      */
     public void setMyRole(java.lang.String myRole) {
         this.myRole = myRole;

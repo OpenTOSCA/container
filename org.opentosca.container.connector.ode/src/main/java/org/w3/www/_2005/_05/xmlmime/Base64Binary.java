@@ -39,8 +39,6 @@ public class Base64Binary implements java.io.Serializable, org.apache.axis.encod
 
     /**
      * Sets the _value value for this Base64Binary.
-     *
-     * @param _value
      */
     public void set_value(byte[] _value) {
         this._value = _value;
@@ -57,8 +55,6 @@ public class Base64Binary implements java.io.Serializable, org.apache.axis.encod
 
     /**
      * Sets the contentType value for this Base64Binary.
-     *
-     * @param contentType
      */
     public void setContentType(java.lang.String contentType) {
         this.contentType = contentType;

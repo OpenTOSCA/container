@@ -99,7 +99,6 @@ public class ArtifactTypesHandler {
     /**
      * Returns the required packages of the specified ArtifactType.
      *
-     * @param artifactType
      * @return the required packages of the specified ArtifactType.
      */
     public List<String> getRequiredPackages(final QName artifactType) {
@@ -115,7 +114,6 @@ public class ArtifactTypesHandler {
     /**
      * Returns the defined commands of the specified ArtifactType.
      *
-     * @param artifactType
      * @return the defined commands of the specified ArtifactType.
      */
     public List<String> getCommands(final QName artifactType) {

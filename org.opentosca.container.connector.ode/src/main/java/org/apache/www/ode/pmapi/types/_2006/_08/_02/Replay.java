@@ -36,8 +36,6 @@ public class Replay implements java.io.Serializable {
 
     /**
      * Sets the upgradeInstance value for this Replay.
-     *
-     * @param upgradeInstance
      */
     public void setUpgradeInstance(long[] upgradeInstance) {
         this.upgradeInstance = upgradeInstance;
@@ -62,8 +60,6 @@ public class Replay implements java.io.Serializable {
 
     /**
      * Sets the replaceInstance value for this Replay.
-     *
-     * @param replaceInstance
      */
     public void setReplaceInstance(long[] replaceInstance) {
         this.replaceInstance = replaceInstance;
@@ -88,8 +84,6 @@ public class Replay implements java.io.Serializable {
 
     /**
      * Sets the restoreInstance value for this Replay.
-     *
-     * @param restoreInstance
      */
     public void setRestoreInstance(org.apache.www.ode.pmapi.types._2006._08._02.CommunicationType[] restoreInstance) {
         this.restoreInstance = restoreInstance;

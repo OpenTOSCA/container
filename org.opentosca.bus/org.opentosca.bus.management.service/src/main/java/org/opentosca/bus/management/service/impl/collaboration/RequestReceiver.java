@@ -520,15 +520,6 @@ public class RequestReceiver {
 
     /**
      * Log the provided information.
-     *
-     * @param triggeringContainer
-     * @param deploymentLocation
-     * @param typeImplementationID
-     * @param implementationArtifactName
-     * @param csarID
-     * @param portType
-     * @param artifactType
-     * @param serviceTemplateInstanceID
      */
     private void logInformation(final String triggeringContainer, final String deploymentLocation,
                                 final QName typeImplementationID, final String implementationArtifactName,

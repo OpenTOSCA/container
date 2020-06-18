@@ -28,8 +28,6 @@ public class AidsType implements java.io.Serializable {
 
     /**
      * Sets the aid value for this AidsType.
-     *
-     * @param aid
      */
     public void setAid(java.lang.String aid) {
         this.aid = aid;

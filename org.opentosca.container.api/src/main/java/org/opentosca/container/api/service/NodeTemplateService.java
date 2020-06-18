@@ -14,6 +14,7 @@ import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
@@ -112,12 +113,6 @@ public class NodeTemplateService {
 
     /**
      * Gets the properties (as an XML document) of a given node template.
-     *
-     * @param csarId
-     * @param serviceTemplateQName
-     * @param nodeTemplateId
-     * @return
-     * @throws NotFoundException
      */
     public Document getPropertiesOfNodeTemplate(final String csarId, final String serviceTemplateQName,
                                                 final String nodeTemplateId) throws NotFoundException {
@@ -135,8 +130,6 @@ public class NodeTemplateService {
     /**
      * Creates a new instance of the NodeTemplateDTO class. It fetches the qualified name of node type of the node
      * template.
-     *
-     * @return
      */
     public NodeTemplateDTO createNodeTemplate(final TNodeTemplate toscaObject, final Csar csar) {
         final QName nodeTypeId = toscaObject.getType();

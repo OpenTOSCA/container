@@ -121,7 +121,6 @@ public class RequestProcessor implements Processor {
     }
 
     /**
-     * @param paramsMap
      * @return LinkedHashMap with keys and values from ParamsMap
      */
     private LinkedHashMap<String, Object> getParams(final ParamsMap paramsMap) {

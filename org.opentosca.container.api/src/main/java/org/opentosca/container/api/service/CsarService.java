@@ -1,6 +1,5 @@
 package org.opentosca.container.api.service;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -10,6 +9,8 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
+
+import com.google.common.collect.Lists;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
@@ -25,8 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Lists;
-
 @Service
 public class CsarService {
     private static Logger logger = LoggerFactory.getLogger(CsarService.class);
@@ -34,11 +33,11 @@ public class CsarService {
     private final CsarStorageService storage;
     private final Exporter planBuilderExporter;
     private final Importer planBuilderImporter;
-    
+
     public class AdaptationPlanGenerationResult {
         public CsarId csarId;
         public String planId;
-        
+
         public AdaptationPlanGenerationResult(CsarId csarId, String planId) {
             this.csarId = csarId;
             this.planId = planId;
@@ -88,32 +87,30 @@ public class CsarService {
         return false;
     }
 
-    public AdaptationPlanGenerationResult generateAdaptationPlan(final CsarId csarId,QName serviceTemplateId, Collection<String> sourceNodeTemplateIds, Collection<String> sourceRelationshipTemplateIds, Collection<String> targetNodeTemplateId, Collection<String> targetRelationshipTemplateId) {
+    public AdaptationPlanGenerationResult generateAdaptationPlan(final CsarId csarId, QName serviceTemplateId, Collection<String> sourceNodeTemplateIds, Collection<String> sourceRelationshipTemplateIds, Collection<String> targetNodeTemplateId, Collection<String> targetRelationshipTemplateId) {
         try {
-        
+
             AbstractPlan plan = planBuilderImporter.generateAdaptationPlan(new CSARID(csarId.csarName()), serviceTemplateId, sourceNodeTemplateIds, sourceRelationshipTemplateIds, targetNodeTemplateId, targetRelationshipTemplateId);
-        
+
             if (plan == null) {
                 return null;
             }
             List<AbstractPlan> plans = Lists.newArrayList();
             plans.add(plan);
-            final PlanExportResult result = planBuilderExporter.exportToCSAR(plans, new CSARID(csarId.csarName())); 
+            final PlanExportResult result = planBuilderExporter.exportToCSAR(plans, new CSARID(csarId.csarName()));
             final Path file = result.csarFile;
 
             storage.deleteCSAR(csarId);
-            
-            
-            CsarId newCsarId = storage.storeCSAR(file); 
+
+            CsarId newCsarId = storage.storeCSAR(file);
             return new AdaptationPlanGenerationResult(newCsarId, result.planIds.iterator().next());
-        }
-        catch (final Exception e) {
+        } catch (final Exception e) {
             logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
         }
 
         return null;
     }
-    
+
     public CsarId generateTransformationPlans(final CsarId sourceCsarId, final CsarId targetCsarId) {
 
 //    final Importer planBuilderImporter = new Importer();

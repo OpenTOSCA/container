@@ -56,8 +56,6 @@ public class CommunicationTypeExchange implements java.io.Serializable {
 
     /**
      * Sets the type value for this CommunicationTypeExchange.
-     *
-     * @param type
      */
     public void setType(org.apache.www.ode.pmapi.types._2006._08._02.ExchangeType type) {
         this.type = type;
@@ -74,8 +72,6 @@ public class CommunicationTypeExchange implements java.io.Serializable {
 
     /**
      * Sets the createTime value for this CommunicationTypeExchange.
-     *
-     * @param createTime
      */
     public void setCreateTime(java.util.Calendar createTime) {
         this.createTime = createTime;
@@ -92,8 +88,6 @@ public class CommunicationTypeExchange implements java.io.Serializable {
 
     /**
      * Sets the service value for this CommunicationTypeExchange.
-     *
-     * @param service
      */
     public void setService(javax.xml.namespace.QName service) {
         this.service = service;
@@ -110,8 +104,6 @@ public class CommunicationTypeExchange implements java.io.Serializable {
 
     /**
      * Sets the operation value for this CommunicationTypeExchange.
-     *
-     * @param operation
      */
     public void setOperation(java.lang.String operation) {
         this.operation = operation;
@@ -128,8 +120,6 @@ public class CommunicationTypeExchange implements java.io.Serializable {
 
     /**
      * Sets the in value for this CommunicationTypeExchange.
-     *
-     * @param in
      */
     public void setIn(java.lang.Object in) {
         this.in = in;
@@ -146,8 +136,6 @@ public class CommunicationTypeExchange implements java.io.Serializable {
 
     /**
      * Sets the out value for this CommunicationTypeExchange.
-     *
-     * @param out
      */
     public void setOut(java.lang.Object out) {
         this.out = out;
@@ -164,8 +152,6 @@ public class CommunicationTypeExchange implements java.io.Serializable {
 
     /**
      * Sets the fault value for this CommunicationTypeExchange.
-     *
-     * @param fault
      */
     public void setFault(org.apache.www.ode.pmapi.types._2006._08._02.FaultType fault) {
         this.fault = fault;
@@ -182,8 +168,6 @@ public class CommunicationTypeExchange implements java.io.Serializable {
 
     /**
      * Sets the failure value for this CommunicationTypeExchange.
-     *
-     * @param failure
      */
     public void setFailure(org.apache.www.ode.pmapi.types._2006._08._02.FailureType failure) {
         this.failure = failure;

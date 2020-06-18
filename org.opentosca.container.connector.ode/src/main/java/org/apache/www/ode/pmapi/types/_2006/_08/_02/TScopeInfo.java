@@ -68,7 +68,7 @@ public class TScopeInfo implements java.io.Serializable {
     /**
      * Sets the siid value for this TScopeInfo.
      *
-     * @param siid   * Scope instance identifier.
+     * @param siid * Scope instance identifier.
      */
     public void setSiid(java.lang.String siid) {
         this.siid = siid;
@@ -86,7 +86,7 @@ public class TScopeInfo implements java.io.Serializable {
     /**
      * Sets the name value for this TScopeInfo.
      *
-     * @param name   * Scope name.
+     * @param name * Scope name.
      */
     public void setName(java.lang.String name) {
         this.name = name;
@@ -104,7 +104,7 @@ public class TScopeInfo implements java.io.Serializable {
     /**
      * Sets the status value for this TScopeInfo.
      *
-     * @param status   * Scope instance identifier.
+     * @param status * Scope instance identifier.
      */
     public void setStatus(org.apache.www.ode.pmapi.types._2006._08._02.TScopeStatus status) {
         this.status = status;
@@ -122,7 +122,7 @@ public class TScopeInfo implements java.io.Serializable {
     /**
      * Sets the parentScopeRef value for this TScopeInfo.
      *
-     * @param parentScopeRef   * Parent scope reference.
+     * @param parentScopeRef * Parent scope reference.
      */
     public void setParentScopeRef(org.apache.www.ode.pmapi.types._2006._08._02.TScopeRef parentScopeRef) {
         this.parentScopeRef = parentScopeRef;
@@ -139,8 +139,6 @@ public class TScopeInfo implements java.io.Serializable {
 
     /**
      * Sets the children value for this TScopeInfo.
-     *
-     * @param children
      */
     public void setChildren(org.apache.www.ode.pmapi.types._2006._08._02.TScopeRef[] children) {
         this.children = children;
@@ -157,8 +155,6 @@ public class TScopeInfo implements java.io.Serializable {
 
     /**
      * Sets the activities value for this TScopeInfo.
-     *
-     * @param activities
      */
     public void setActivities(org.apache.www.ode.pmapi.types._2006._08._02.TActivityInfo[] activities) {
         this.activities = activities;
@@ -175,8 +171,6 @@ public class TScopeInfo implements java.io.Serializable {
 
     /**
      * Sets the variables value for this TScopeInfo.
-     *
-     * @param variables
      */
     public void setVariables(org.apache.www.ode.pmapi.types._2006._08._02.TVariableRef[] variables) {
         this.variables = variables;
@@ -185,8 +179,8 @@ public class TScopeInfo implements java.io.Serializable {
     /**
      * Gets the correlationSets value for this TScopeInfo.
      *
-     * @return correlationSets   * Lists all correlation correlation sets associated with
-     *                         this scope with their valued correlation properties.
+     * @return correlationSets   * Lists all correlation correlation sets associated with this scope with their valued
+     * correlation properties.
      */
     public org.apache.www.ode.pmapi.types._2006._08._02.TCorrelationProperty[][] getCorrelationSets() {
         return correlationSets;
@@ -195,8 +189,8 @@ public class TScopeInfo implements java.io.Serializable {
     /**
      * Sets the correlationSets value for this TScopeInfo.
      *
-     * @param correlationSets   * Lists all correlation correlation sets associated with
-     *                         this scope with their valued correlation properties.
+     * @param correlationSets * Lists all correlation correlation sets associated with this scope with their valued
+     *                        correlation properties.
      */
     public void setCorrelationSets(org.apache.www.ode.pmapi.types._2006._08._02.TCorrelationProperty[][] correlationSets) {
         this.correlationSets = correlationSets;
@@ -214,7 +208,7 @@ public class TScopeInfo implements java.io.Serializable {
     /**
      * Sets the endpoints value for this TScopeInfo.
      *
-     * @param endpoints   * Endpoint references.
+     * @param endpoints * Endpoint references.
      */
     public void setEndpoints(org.apache.www.ode.pmapi.types._2006._08._02.TEndpointReferencesEndpointRef[] endpoints) {
         this.endpoints = endpoints;

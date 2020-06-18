@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -27,7 +25,6 @@ import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBui
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.AbstractServiceInstanceHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
@@ -41,9 +38,7 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -53,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * <p>
@@ -84,7 +78,6 @@ public class BPELPlanContext extends PlanContext {
      * Constructor
      *
      * @param serviceTemplateName the name of the ServiceTemplate where the Template of the context originates
-     * @param scopeBuilder
      * @param templateBuildPlan   the TemplateBuildPlan of a Template
      * @param map                 a PropertyMap containing mappings for all Template properties of the TopologyTemplate
      */
@@ -104,22 +97,21 @@ public class BPELPlanContext extends PlanContext {
         }
     }
 
-    
     public void addUsedOperation(AbstractOperation operation, AbstractOperation compensationOperation) {
-        this.templateBuildPlan.addUsedOperation(operation, compensationOperation);       
+        this.templateBuildPlan.addUsedOperation(operation, compensationOperation);
     }
-    
+
     public boolean addUsedOperation(String interfaceName, String operationName, String compensationInterfaceName, String compensationOperationName) {
         AbstractOperation op = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(interfaceName, operationName);
         AbstractOperation compensationOp = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(compensationInterfaceName, compensationOperationName);
-        if(op != null) {
+        if (op != null) {
             this.addUsedOperation(op, compensationOp);
             return true;
         } else {
             return false;
-        }        
+        }
     }
-    
+
     public Map<AbstractOperation, AbstractOperation> getUsedOperations() {
         return this.templateBuildPlan.getUsedOperations();
     }
@@ -169,7 +161,6 @@ public class BPELPlanContext extends PlanContext {
      * Returns the variable name of the first occurence of a property with the given Property name of
      * InfrastructureNodes
      *
-     * @param propertyName
      * @return a String containing the variable name, else null
      */
     public String getVariableNameOfInfraNodeProperty(final String propertyName) {
@@ -188,7 +179,6 @@ public class BPELPlanContext extends PlanContext {
         } else {
             return getRelationshipTemplate().getId();
         }
-
     }
 
     public Element getEventHandlersElement() {
@@ -253,7 +243,6 @@ public class BPELPlanContext extends PlanContext {
      * @param name          the name of the variable
      * @param variableType  sets if this variable is a Message variable or simple BPEL variable
      * @param declarationId the XSD Type of the variable
-     * @return
      */
     public boolean addVariable(final String name, final BPELPlan.VariableType variableType, QName declarationId) {
         declarationId = importNamespace(declarationId);
@@ -281,10 +270,6 @@ public class BPELPlanContext extends PlanContext {
     /**
      * creates a context with the current context as it's parent scope using the given node template and activity types
      * as input
-     *
-     * @param nodeTemplate
-     * @param activityType
-     * @return
      */
     public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType... activityType) {
         LOG.debug("Trying to create {} plan context for nodeTemplate {}", activityType, nodeTemplate);
@@ -374,8 +359,6 @@ public class BPELPlanContext extends PlanContext {
 
     /**
      * Returns a set of nodes that will be provisioned in the plan of this context
-     *
-     * @return
      */
     public Collection<AbstractNodeTemplate> getNodesInCreation() {
         Collection<AbstractActivity> activities = this.templateBuildPlan.getBuildPlan().getActivites();
@@ -654,9 +637,10 @@ public class BPELPlanContext extends PlanContext {
     public Element getProvisioningCompensationPhaseElement() {
         return this.templateBuildPlan.getBpelCompensationHandlerScope().getBpelSequenceProvisioningPhaseElement();
     }
-    
+
     /**
      * Returns a BPEL sequence element which is used as the main fault handler sequence of this scope
+     *
      * @return a DOM Element which is a BPEL sequence activity
      */
     public Element getProvisioningFaultHandlerPhaseElement() {
@@ -1037,8 +1021,8 @@ public class BPELPlanContext extends PlanContext {
      *
      * @param qname a QName to import
      * @return the QName with set prefix
-     * @deprecated Use {@link org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler#importNamespace(org.opentosca.planbuilder.core.bpel.context.BPELPlanContext, QName)}
-     * instead
+     * @deprecated Use {@link org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler#importNamespace(org.opentosca.planbuilder.core.bpel.context.BPELPlanContext,
+     * QName)} instead
      */
     @Deprecated
     public QName importNamespace(final QName qname) {

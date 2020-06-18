@@ -36,8 +36,6 @@ public class ReplayType implements java.io.Serializable {
 
     /**
      * Sets the mock value for this ReplayType.
-     *
-     * @param mock
      */
     public void setMock(java.lang.String mock) {
         this.mock = mock;
@@ -54,8 +52,6 @@ public class ReplayType implements java.io.Serializable {
 
     /**
      * Sets the mockQuery value for this ReplayType.
-     *
-     * @param mockQuery
      */
     public void setMockQuery(java.lang.String mockQuery) {
         this.mockQuery = mockQuery;
@@ -72,8 +68,6 @@ public class ReplayType implements java.io.Serializable {
 
     /**
      * Sets the live value for this ReplayType.
-     *
-     * @param live
      */
     public void setLive(java.lang.String live) {
         this.live = live;

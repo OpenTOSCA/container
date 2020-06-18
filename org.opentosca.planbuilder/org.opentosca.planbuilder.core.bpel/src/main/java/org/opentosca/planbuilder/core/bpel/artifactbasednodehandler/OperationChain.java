@@ -12,7 +12,6 @@ import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhas
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -446,11 +445,10 @@ public class OperationChain {
             }
         }
         return checkCount == operationNames.size();
-
     }
-    
+
     private AbstractOperation createDummyOperation(String opName, AbstractOperation op) {
-       return new AbstractOperation() {
+        return new AbstractOperation() {
 
             private final String operationName = opName;
             private final InterfaceDummy iface = (InterfaceDummy) op;

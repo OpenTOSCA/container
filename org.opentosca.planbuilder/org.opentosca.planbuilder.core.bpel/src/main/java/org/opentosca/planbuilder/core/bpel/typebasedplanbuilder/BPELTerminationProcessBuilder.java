@@ -150,15 +150,14 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
         String planInstanceUrlVarName = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(newTerminationPlan);
         this.serviceInstanceHandler.appendSetServiceInstanceState(newTerminationPlan,
-        		newTerminationPlan.getBpelMainFlowElement(),
-                "RUNNING", planInstanceUrlVarName);
-        
+            newTerminationPlan.getBpelMainFlowElement(),
+            "RUNNING", planInstanceUrlVarName);
+
         this.serviceInstanceHandler.appendSetServiceInstanceState(newTerminationPlan,
-        		newTerminationPlan.getBpelMainSequenceOutputAssignElement(),
-                "FINISHED", planInstanceUrlVarName);
-        
+            newTerminationPlan.getBpelMainSequenceOutputAssignElement(),
+            "FINISHED", planInstanceUrlVarName);
+
         this.finalizer.finalize(newTerminationPlan);
-       
 
         // add for each loop over found node and relation instances to terminate each running
         // instance
@@ -177,7 +176,6 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                     "?state=CREATED&amp;state=INITIAL&amp;serviceInstanceId=$bpelvar[" + serviceInstanceId + "]");
             }
         }
-
 
         return newTerminationPlan;
     }

@@ -272,7 +272,6 @@ public class ODEEndpointUpdater {
      * @param ports     a list of portType QName's
      * @param wsdlFiles a list of wsdl Files
      * @return a Map<QName, List<File>> containing information which porttype is in which wsdl file
-     * @throws WSDLException
      */
     private Map<QName, List<File>> getWSDLtoChange(final List<QName> ports,
                                                    final List<File> wsdlFiles) throws WSDLException {
@@ -388,7 +387,6 @@ public class ODEEndpointUpdater {
      * @param map a map containing <QName,List<File>> pairs. A QName here represents a portType that is inside the
      *            files
      * @return returns a map <QName,List<File>> containing all the files which weren't changed
-     * @throws WSDLException
      */
     private Map<QName, List<File>> updateInvokedWSDLAddresses(final Map<QName, List<File>> map) throws WSDLException {
         final Map<QName, List<File>> notChanged = new HashMap<>();

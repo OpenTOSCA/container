@@ -100,7 +100,6 @@ public class NodeRelationInstanceVariablesHandler {
      * @param templatePlan              a templatePlan with set variable with name NodeInstanceID
      * @param serviceTemplateUrlVarName the name of the variable holding the url to the serviceTemplate
      * @param instanceDataUrlVarName    the name of the variable holding the url to the instanceDataAPI
-     * @return
      */
     public boolean addNodeInstanceFindLogic(final BPELScope templatePlan, final String serviceTemplateUrlVarName,
                                             final String query, AbstractServiceTemplate serviceTemplate) {
@@ -202,18 +201,17 @@ public class NodeRelationInstanceVariablesHandler {
 
     public boolean addInstanceIDVarToTemplatePlans(final BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
         boolean check = true;
-        
-        for(AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+
+        for (AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             check &= addInstanceIDVarToPlan(node, plan, serviceTemplate);
         }
-        
-        for(AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
+
+        for (AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
             check &= addInstanceIDVarToPlan(relation, plan, serviceTemplate);
         }
-        
+
         return check;
     }
-    
 
     private boolean addInstanceIDVarToPlan(AbstractNodeTemplate nodeTemplate, BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
         String templateId = nodeTemplate.getId();
@@ -221,66 +219,35 @@ public class NodeRelationInstanceVariablesHandler {
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
-   
-        
+
         instanceIdVarName += "_" + ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
             + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
-                                                   new QName(xsdNamespace, "string", xsdPrefix),
-                                                   plan);
+            new QName(xsdNamespace, "string", xsdPrefix),
+            plan);
     }
-    
+
     private boolean addInstanceIDVarToPlan(AbstractRelationshipTemplate relationshipTemplate, BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
         String templateId = relationshipTemplate.getId();
         String instanceIdVarName = relationInstanceIDVarKeyword;
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
-   
-        
+
         instanceIdVarName += "_" + ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
             + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
-                                                   new QName(xsdNamespace, "string", xsdPrefix),
-                                                   plan);
+            new QName(xsdNamespace, "string", xsdPrefix),
+            plan);
     }
-    
-    
 
     private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final AbstractNodeTemplate nodeTemplate,
-                                                    AbstractServiceTemplate serviceTemplate){
-         
-         String   templateId = nodeTemplate.getId();
-         String   instanceUrlVarName = nodeInstanceURLVarKeyword;
-         boolean addNamespace = false;
-         String xsdPrefix = null;
-         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+                                                    AbstractServiceTemplate serviceTemplate) {
 
-         while (!addNamespace) {
-
-             xsdPrefix = "xsd" + System.currentTimeMillis();
-             addNamespace =
-                 this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
-         }
-
-         
-         
-
-         instanceUrlVarName += "_" + ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
-             + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
-
-         return this.bpelProcessHandler.addVariable(instanceUrlVarName, VariableType.TYPE,
-                                                    new QName(xsdNamespace, "string", xsdPrefix),
-                                                    plan);
-     }
-    
-    private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final AbstractRelationshipTemplate relationshipTemplate,
-                                                   AbstractServiceTemplate serviceTemplate){
-        
-        String   templateId = relationshipTemplate.getId();
-        String   instanceUrlVarName = relationInstanceURLVarKeyword;
+        String templateId = nodeTemplate.getId();
+        String instanceUrlVarName = nodeInstanceURLVarKeyword;
         boolean addNamespace = false;
         String xsdPrefix = null;
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -292,31 +259,51 @@ public class NodeRelationInstanceVariablesHandler {
                 this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
         }
 
-        
-        
+        instanceUrlVarName += "_" + ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
+            + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
+
+        return this.bpelProcessHandler.addVariable(instanceUrlVarName, VariableType.TYPE,
+            new QName(xsdNamespace, "string", xsdPrefix),
+            plan);
+    }
+
+    private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final AbstractRelationshipTemplate relationshipTemplate,
+                                                    AbstractServiceTemplate serviceTemplate) {
+
+        String templateId = relationshipTemplate.getId();
+        String instanceUrlVarName = relationInstanceURLVarKeyword;
+        boolean addNamespace = false;
+        String xsdPrefix = null;
+        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+
+        while (!addNamespace) {
+
+            xsdPrefix = "xsd" + System.currentTimeMillis();
+            addNamespace =
+                this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
+        }
 
         instanceUrlVarName += "_" + ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
             + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceUrlVarName, VariableType.TYPE,
-                                                   new QName(xsdNamespace, "string", xsdPrefix),
-                                                   plan);
+            new QName(xsdNamespace, "string", xsdPrefix),
+            plan);
     }
 
     /**
      * Adds a NodeInstanceID Variable to each TemplatePlan inside the given Plan
      *
      * @param plan a plan with TemplatePlans
-     * @return
      */
     public boolean addInstanceURLVarToTemplatePlans(final BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
         boolean check = true;
-        
-        for(AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
+
+        for (AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
             check &= addInstanceURLVarToTemplatePlan(plan, relation, serviceTemplate);
         }
-        
-        for(AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+
+        for (AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             check &= addInstanceURLVarToTemplatePlan(plan, node, serviceTemplate);
         }
         return check;
@@ -698,7 +685,7 @@ public class NodeRelationInstanceVariablesHandler {
         // context.addVariable(counterVarName, VariableType.TYPE, new
         // QName(xsdNamespace, "unsignedInt", xsdPrefix));
 
-        final Node templateMainSequeceNode = context.getPrePhaseElement().getParentNode();        
+        final Node templateMainSequeceNode = context.getPrePhaseElement().getParentNode();
         final Node templateMainScopeNode = templateMainSequeceNode.getParentNode();
 
         // we'll move the correlation sets down one scope later

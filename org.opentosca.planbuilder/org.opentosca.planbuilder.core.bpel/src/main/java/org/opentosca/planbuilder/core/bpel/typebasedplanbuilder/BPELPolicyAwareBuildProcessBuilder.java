@@ -197,16 +197,15 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
         this.serviceInstanceHandler.appendSetServiceInstanceState(newBuildPlan,
             newBuildPlan.getBpelMainSequenceOutputAssignElement(),
             "CREATED", serviceInstanceURLVarName);
-        
+
         String planInstanceUrlVarName = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(newBuildPlan);
         this.serviceInstanceHandler.appendSetServiceInstanceState(newBuildPlan,
-        		newBuildPlan.getBpelMainFlowElement(),
-                "RUNNING", planInstanceUrlVarName);
-        
+            newBuildPlan.getBpelMainFlowElement(),
+            "RUNNING", planInstanceUrlVarName);
+
         this.serviceInstanceHandler.appendSetServiceInstanceState(newBuildPlan,
-        		newBuildPlan.getBpelMainSequenceOutputAssignElement(),
-                "FINISHED", planInstanceUrlVarName);
-        
+            newBuildPlan.getBpelMainSequenceOutputAssignElement(),
+            "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newBuildPlan);
         LOG.debug("Created BuildPlan:");

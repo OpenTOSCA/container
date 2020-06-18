@@ -32,8 +32,6 @@ public class DeployUnit implements java.io.Serializable {
 
     /**
      * Sets the name value for this DeployUnit.
-     *
-     * @param name
      */
     public void setName(java.lang.String name) {
         this.name = name;
@@ -50,8 +48,6 @@ public class DeployUnit implements java.io.Serializable {
 
     /**
      * Sets the id value for this DeployUnit.
-     *
-     * @param id
      */
     public void setId(javax.xml.namespace.QName[] id) {
         this.id = id;

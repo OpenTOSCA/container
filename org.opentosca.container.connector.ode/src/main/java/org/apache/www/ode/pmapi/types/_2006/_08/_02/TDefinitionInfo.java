@@ -25,8 +25,7 @@ public class TDefinitionInfo implements java.io.Serializable {
     /**
      * Gets the processName value for this TDefinitionInfo.
      *
-     * @return processName   * The qualified name of the BPEL
-     *                         process.
+     * @return processName   * The qualified name of the BPEL process.
      */
     public javax.xml.namespace.QName getProcessName() {
         return processName;
@@ -35,8 +34,7 @@ public class TDefinitionInfo implements java.io.Serializable {
     /**
      * Sets the processName value for this TDefinitionInfo.
      *
-     * @param processName   * The qualified name of the BPEL
-     *                         process.
+     * @param processName * The qualified name of the BPEL process.
      */
     public void setProcessName(javax.xml.namespace.QName processName) {
         this.processName = processName;

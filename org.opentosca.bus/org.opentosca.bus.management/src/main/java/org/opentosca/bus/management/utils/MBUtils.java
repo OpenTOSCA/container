@@ -11,8 +11,6 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TInterfaces;
@@ -20,6 +18,9 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
@@ -181,9 +182,6 @@ public class MBUtils {
     /**
      * Returns the name of the OperatingSystem ImplementationArtifact.
      *
-     * @param csar
-     * @param serviceTemplate
-     * @param osNodeType
      * @return name of the OperatingSystem ImplementationArtifact.
      */
     @Nullable

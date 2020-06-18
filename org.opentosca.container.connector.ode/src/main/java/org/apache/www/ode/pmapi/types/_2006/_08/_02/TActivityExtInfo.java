@@ -35,8 +35,6 @@ public class TActivityExtInfo implements java.io.Serializable, org.apache.axis.e
 
     /**
      * Sets the aiid value for this TActivityExtInfo.
-     *
-     * @param aiid
      */
     public void setAiid(java.lang.String aiid) {
         this.aiid = aiid;
@@ -53,8 +51,6 @@ public class TActivityExtInfo implements java.io.Serializable, org.apache.axis.e
 
     /**
      * Sets the _any value for this TActivityExtInfo.
-     *
-     * @param _any
      */
     public void set_any(org.apache.axis.message.MessageElement[] _any) {
         this._any = _any;

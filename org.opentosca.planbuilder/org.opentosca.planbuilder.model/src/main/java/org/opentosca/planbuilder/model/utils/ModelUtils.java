@@ -21,9 +21,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.http.annotation.Obsolete;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
+
+import org.apache.http.annotation.Obsolete;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
@@ -650,9 +651,6 @@ public class ModelUtils {
      *
      * @param xmlString the xml to transform as String
      * @return a DOM Node representing the given string
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
      */
     public static Node string2dom(final String xmlString) throws ParserConfigurationException, SAXException,
         IOException {

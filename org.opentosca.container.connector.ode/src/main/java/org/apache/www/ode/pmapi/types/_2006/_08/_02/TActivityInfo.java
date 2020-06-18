@@ -70,8 +70,6 @@ public class TActivityInfo implements java.io.Serializable {
 
     /**
      * Sets the name value for this TActivityInfo.
-     *
-     * @param name
      */
     public void setName(java.lang.String name) {
         this.name = name;
@@ -88,8 +86,6 @@ public class TActivityInfo implements java.io.Serializable {
 
     /**
      * Sets the type value for this TActivityInfo.
-     *
-     * @param type
      */
     public void setType(java.lang.String type) {
         this.type = type;
@@ -106,8 +102,6 @@ public class TActivityInfo implements java.io.Serializable {
 
     /**
      * Sets the aiid value for this TActivityInfo.
-     *
-     * @param aiid
      */
     public void setAiid(java.lang.String aiid) {
         this.aiid = aiid;
@@ -124,8 +118,6 @@ public class TActivityInfo implements java.io.Serializable {
 
     /**
      * Sets the status value for this TActivityInfo.
-     *
-     * @param status
      */
     public void setStatus(org.apache.www.ode.pmapi.types._2006._08._02.TActivityStatus status) {
         this.status = status;
@@ -143,7 +135,7 @@ public class TActivityInfo implements java.io.Serializable {
     /**
      * Sets the scope value for this TActivityInfo.
      *
-     * @param scope   * ID for scope in which this activity is executing.
+     * @param scope * ID for scope in which this activity is executing.
      */
     public void setScope(org.apache.www.ode.pmapi.types._2006._08._02.TScopeRef scope) {
         this.scope = scope;
@@ -161,7 +153,7 @@ public class TActivityInfo implements java.io.Serializable {
     /**
      * Sets the dtEnabled value for this TActivityInfo.
      *
-     * @param dtEnabled   * The date/time when the activity was enabled.
+     * @param dtEnabled * The date/time when the activity was enabled.
      */
     public void setDtEnabled(java.util.Calendar dtEnabled) {
         this.dtEnabled = dtEnabled;
@@ -170,8 +162,7 @@ public class TActivityInfo implements java.io.Serializable {
     /**
      * Gets the dtStarted value for this TActivityInfo.
      *
-     * @return dtStarted   * The date/time when the activity was
-     *                         started.
+     * @return dtStarted   * The date/time when the activity was started.
      */
     public java.util.Calendar getDtStarted() {
         return dtStarted;
@@ -180,8 +171,7 @@ public class TActivityInfo implements java.io.Serializable {
     /**
      * Sets the dtStarted value for this TActivityInfo.
      *
-     * @param dtStarted   * The date/time when the activity was
-     *                         started.
+     * @param dtStarted * The date/time when the activity was started.
      */
     public void setDtStarted(java.util.Calendar dtStarted) {
         this.dtStarted = dtStarted;
@@ -190,8 +180,7 @@ public class TActivityInfo implements java.io.Serializable {
     /**
      * Gets the dtCompleted value for this TActivityInfo.
      *
-     * @return dtCompleted   * The date/time when the activity was
-     *                         completed.
+     * @return dtCompleted   * The date/time when the activity was completed.
      */
     public java.util.Calendar getDtCompleted() {
         return dtCompleted;
@@ -200,8 +189,7 @@ public class TActivityInfo implements java.io.Serializable {
     /**
      * Sets the dtCompleted value for this TActivityInfo.
      *
-     * @param dtCompleted   * The date/time when the activity was
-     *                         completed.
+     * @param dtCompleted * The date/time when the activity was completed.
      */
     public void setDtCompleted(java.util.Calendar dtCompleted) {
         this.dtCompleted = dtCompleted;
@@ -219,7 +207,7 @@ public class TActivityInfo implements java.io.Serializable {
     /**
      * Sets the failure value for this TActivityInfo.
      *
-     * @param failure   * Indicates activity is in the failure state and requires recovery.
+     * @param failure * Indicates activity is in the failure state and requires recovery.
      */
     public void setFailure(org.apache.www.ode.pmapi.types._2006._08._02.TFailureInfo failure) {
         this.failure = failure;

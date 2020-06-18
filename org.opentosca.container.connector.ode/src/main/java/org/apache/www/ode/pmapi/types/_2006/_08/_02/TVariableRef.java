@@ -39,8 +39,6 @@ public class TVariableRef implements java.io.Serializable {
 
     /**
      * Sets the iid value for this TVariableRef.
-     *
-     * @param iid
      */
     public void setIid(java.lang.String iid) {
         this.iid = iid;
@@ -57,8 +55,6 @@ public class TVariableRef implements java.io.Serializable {
 
     /**
      * Sets the siid value for this TVariableRef.
-     *
-     * @param siid
      */
     public void setSiid(java.lang.String siid) {
         this.siid = siid;
@@ -75,8 +71,6 @@ public class TVariableRef implements java.io.Serializable {
 
     /**
      * Sets the name value for this TVariableRef.
-     *
-     * @param name
      */
     public void setName(java.lang.String name) {
         this.name = name;

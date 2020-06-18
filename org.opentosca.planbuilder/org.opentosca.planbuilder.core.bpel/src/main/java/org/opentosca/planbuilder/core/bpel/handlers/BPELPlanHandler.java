@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.core.bpel.handlers;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
@@ -21,11 +20,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
-import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -669,7 +664,6 @@ public class BPELPlanHandler {
         final BPELPlan buildPlan =
             new BPELPlan(abstractPlan.getId(), abstractPlan.getType(), abstractPlan.getDefinitions(),
                 abstractPlan.getServiceTemplate(), abstractPlan.getActivites(), abstractPlan.getLinks());
-        
 
         // init wsdl doc
         try {
@@ -986,20 +980,20 @@ public class BPELPlanHandler {
                 abstract2bpelMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);
 
                 final BPELScope newFaultHandlerScope =
-                    this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "fault");               
+                    this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "fault");
                 newEmpty3SequenceScopeBPELActivity.setBpelFaultHandlerScope(newFaultHandlerScope);
-                
+
                 final BPELScope newCompensationHandlerScope =
-                    this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "compensation");               
+                    this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "compensation");
                 newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
             } else if (activity instanceof RelationshipTemplateActivity) {
                 final RelationshipTemplateActivity rtActivity = (RelationshipTemplateActivity) activity;
                 newEmpty3SequenceScopeBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "");
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
                 abstract2bpelMap.put(rtActivity, newEmpty3SequenceScopeBPELActivity);
-                
+
                 final BPELScope newFaultHandlerScope =
-                    this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "fault");               
+                    this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "fault");
                 newEmpty3SequenceScopeBPELActivity.setBpelFaultHandlerScope(newFaultHandlerScope);
 
                 BPELScope newCompensationHandlerScope =

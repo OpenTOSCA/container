@@ -62,9 +62,8 @@ public class DeploymentServiceLocator extends org.apache.axis.client.Service imp
     }
 
     /**
-     * For the given interface, get the stub implementation.
-     * If this service has no port for the given interface,
-     * then ServiceException is thrown.
+     * For the given interface, get the stub implementation. If this service has no port for the given interface, then
+     * ServiceException is thrown.
      */
     public java.rmi.Remote getPort(Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
         try {
@@ -80,9 +79,8 @@ public class DeploymentServiceLocator extends org.apache.axis.client.Service imp
     }
 
     /**
-     * For the given interface, get the stub implementation.
-     * If this service has no port for the given interface,
-     * then ServiceException is thrown.
+     * For the given interface, get the stub implementation. If this service has no port for the given interface, then
+     * ServiceException is thrown.
      */
     public java.rmi.Remote getPort(javax.xml.namespace.QName portName, Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
         if (portName == null) {

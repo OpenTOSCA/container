@@ -22,7 +22,7 @@ public class OperationImpl extends AbstractOperation {
 
     private final DefinitionsImpl defs;
     private final InterfaceImpl iface;
-    private final TOperation operation;    
+    private final TOperation operation;
     private final List<AbstractParameter> inputParameters;
     private final List<AbstractParameter> outputParameters;
 
@@ -35,7 +35,7 @@ public class OperationImpl extends AbstractOperation {
     public OperationImpl(final DefinitionsImpl defs, final InterfaceImpl iface, final TOperation operation) {
         this.defs = defs;
         this.iface = iface;
-        this.operation = operation;        
+        this.operation = operation;
         this.inputParameters = new ArrayList<>();
         this.outputParameters = new ArrayList<>();
         this.setUp();
@@ -139,5 +139,4 @@ public class OperationImpl extends AbstractOperation {
     public AbstractInterface getInterface() {
         return this.iface;
     }
-
 }

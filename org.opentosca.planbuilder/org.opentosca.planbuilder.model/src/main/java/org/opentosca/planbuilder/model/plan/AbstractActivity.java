@@ -16,7 +16,7 @@ public abstract class AbstractActivity {
 
     public ActivityType getType() {
         return this.type;
-    }   
+    }
 
     @Override
     public boolean equals(Object obj) {

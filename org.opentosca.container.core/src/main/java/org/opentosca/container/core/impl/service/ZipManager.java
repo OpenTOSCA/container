@@ -131,7 +131,6 @@ public class ZipManager {
      *
      * @param file     Location of ZIP archive.
      * @param toTarget Directory where contents of ZIP archive should be placed.
-     * @return
      */
     public List<File> unzip(final File file, final File toTarget) {
 

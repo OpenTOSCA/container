@@ -28,8 +28,6 @@ public class _package implements java.io.Serializable {
 
     /**
      * Sets the zip value for this _package.
-     *
-     * @param zip
      */
     public void setZip(org.w3.www._2005._05.xmlmime.Base64Binary zip) {
         this.zip = zip;

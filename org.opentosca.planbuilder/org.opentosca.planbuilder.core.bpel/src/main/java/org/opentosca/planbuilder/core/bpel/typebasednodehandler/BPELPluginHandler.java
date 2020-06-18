@@ -213,7 +213,7 @@ public class BPELPluginHandler {
         // generate code the post handling, e.g., update instance data, logs etc.
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             LOG.info("Checking if post plugin {} is suited for handling {}", postPhasePlugin.getID(),
-                     nodeTemplate.getName());
+                nodeTemplate.getName());
             if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
                 LOG.info("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());

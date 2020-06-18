@@ -43,10 +43,9 @@ public class NodeTemplateInstanceCounts {
      * Add an additional entry for the given QName to the Hashmap (all previous entries for QNAME will be
      * <b>overwritten</b>
      *
-     * @param qnameOfNodeTemplate
-     * @param minInstances        - number of minimalInstances of this specific NodeTemplate
-     * @param maxInstances        - number of maximalInstances of this specific NodeTemplate. <b>unbounded is modelled
-     *                            as -1</b>
+     * @param minInstances - number of minimalInstances of this specific NodeTemplate
+     * @param maxInstances - number of maximalInstances of this specific NodeTemplate. <b>unbounded is modelled as
+     *                     -1</b>
      */
     public void addInstanceCount(final QName qnameOfNodeTemplate, final int minInstances, final String maxInstances) {
 

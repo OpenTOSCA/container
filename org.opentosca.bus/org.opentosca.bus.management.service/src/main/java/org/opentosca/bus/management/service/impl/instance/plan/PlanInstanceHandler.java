@@ -7,10 +7,11 @@ import java.util.Objects;
 import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.glassfish.jersey.client.JerseyClient;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.client.JerseyWebTarget;

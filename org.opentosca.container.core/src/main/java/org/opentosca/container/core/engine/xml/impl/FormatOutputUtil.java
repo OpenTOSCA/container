@@ -29,9 +29,7 @@ public class FormatOutputUtil implements IOutputFormatter {
     /**
      * Serializes DOM node to String
      *
-     * @param node
      * @param removeWhitespaces Remove whitespace (e.g. line breaks)?
-     * @return
      */
     @Override
     public String docToString(final Node node, final boolean removeWhitespaces) {

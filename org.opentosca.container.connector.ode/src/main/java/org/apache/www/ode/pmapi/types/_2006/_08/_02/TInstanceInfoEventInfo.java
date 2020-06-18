@@ -40,7 +40,7 @@ public class TInstanceInfoEventInfo implements java.io.Serializable {
     /**
      * Sets the count value for this TInstanceInfoEventInfo.
      *
-     * @param count   * Indicates the datetime of the first event
+     * @param count * Indicates the datetime of the first event
      */
     public void setCount(int count) {
         this.count = count;
@@ -58,7 +58,7 @@ public class TInstanceInfoEventInfo implements java.io.Serializable {
     /**
      * Sets the firstDtime value for this TInstanceInfoEventInfo.
      *
-     * @param firstDtime   * Indicates the datetime of the first event
+     * @param firstDtime * Indicates the datetime of the first event
      */
     public void setFirstDtime(java.util.Calendar firstDtime) {
         this.firstDtime = firstDtime;
@@ -76,7 +76,7 @@ public class TInstanceInfoEventInfo implements java.io.Serializable {
     /**
      * Sets the lastDtime value for this TInstanceInfoEventInfo.
      *
-     * @param lastDtime   * Indicates the datetime of the last event.
+     * @param lastDtime * Indicates the datetime of the last event.
      */
     public void setLastDtime(java.util.Calendar lastDtime) {
         this.lastDtime = lastDtime;

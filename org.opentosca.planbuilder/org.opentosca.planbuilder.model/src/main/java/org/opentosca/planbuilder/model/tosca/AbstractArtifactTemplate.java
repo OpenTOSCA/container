@@ -40,8 +40,6 @@ public abstract class AbstractArtifactTemplate {
 
     /**
      * Returns the ArtifactType of this {@link AbstractArtifactTemplate} as {@link AbstractArtifactType}
-     *
-     * @return
      */
     public abstract AbstractArtifactType getAbstractArtifactType();
 

@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractDirectory;

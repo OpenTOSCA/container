@@ -31,10 +31,6 @@ public interface IInstanceDataService {
      * returns all NodeInstances matching the given parameters the parameters are ANDed therefore a nodeInstance has to
      * match all parameters to be returned
      *
-     * @param nodeInstanceID
-     * @param nodeTemplateID
-     * @param nodeTemplateName
-     * @param serviceInstanceID
      * @return all matching nodeInstances
      */
     public List<NodeInstance> getNodeInstances(URI nodeInstanceID, String nodeTemplateID, String nodeTemplateName,
@@ -44,10 +40,7 @@ public interface IInstanceDataService {
      * returns all RelationInstances matching the given parameters the parameters are ANDed therefore a relationInstance
      * has to match all parameters to be returned
      *
-     * @param relationInstanceID       the relationInstanceId
-     * @param relationshipTemplateID
-     * @param relationshipTemplateName
-     * @param serviceInstanceID
+     * @param relationInstanceID the relationInstanceId
      * @return all matching nodeInstances
      */
     public List<RelationInstance> getRelationInstances(URI relationInstanceID, QName relationshipTemplateID,

@@ -9,9 +9,10 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.management.IManagementBus;
@@ -62,12 +63,11 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
 
             try {
                 PlanInstance instance = planRepo.findByCorrelationId(correlationId);
-                if(instance == null) {
+                if (instance == null) {
                     return correlationId;
                 }
                 this.LOG.debug("CorrelationId {} already in use.", correlationId);
-            }
-            catch (final NoResultException e) {
+            } catch (final NoResultException e) {
                 return correlationId;
             }
         }

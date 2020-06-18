@@ -40,8 +40,6 @@ public class CommunicationType implements java.io.Serializable {
 
     /**
      * Sets the processType value for this CommunicationType.
-     *
-     * @param processType
      */
     public void setProcessType(javax.xml.namespace.QName processType) {
         this.processType = processType;
@@ -58,8 +56,6 @@ public class CommunicationType implements java.io.Serializable {
 
     /**
      * Sets the rollbackOnFault value for this CommunicationType.
-     *
-     * @param rollbackOnFault
      */
     public void setRollbackOnFault(java.lang.Boolean rollbackOnFault) {
         this.rollbackOnFault = rollbackOnFault;
@@ -76,8 +72,6 @@ public class CommunicationType implements java.io.Serializable {
 
     /**
      * Sets the serviceConfig value for this CommunicationType.
-     *
-     * @param serviceConfig
      */
     public void setServiceConfig(org.apache.www.ode.pmapi.types._2006._08._02.CommunicationTypeServiceConfig[] serviceConfig) {
         this.serviceConfig = serviceConfig;
@@ -102,8 +96,6 @@ public class CommunicationType implements java.io.Serializable {
 
     /**
      * Sets the exchange value for this CommunicationType.
-     *
-     * @param exchange
      */
     public void setExchange(org.apache.www.ode.pmapi.types._2006._08._02.CommunicationTypeExchange[] exchange) {
         this.exchange = exchange;

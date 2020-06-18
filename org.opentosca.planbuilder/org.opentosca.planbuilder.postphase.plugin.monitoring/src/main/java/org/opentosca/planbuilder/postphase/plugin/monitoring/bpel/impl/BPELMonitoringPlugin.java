@@ -61,9 +61,8 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
             uploadConfigurationArtifact(context, configDeplArti, nodeTemplate);
         }
 
-
         return context.executeOperation(nodeTemplate, this.monitoringInterfaceName, this.monitoringOperationName, null,
-                                        null, BPELScopePhaseType.POST, context.getPostPhaseElement());
+            null, BPELScopePhaseType.POST, context.getPostPhaseElement());
     }
 
     @Override

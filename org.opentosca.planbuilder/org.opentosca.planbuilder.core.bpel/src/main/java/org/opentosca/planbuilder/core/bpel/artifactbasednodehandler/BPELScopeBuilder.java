@@ -129,9 +129,6 @@ public class BPELScopeBuilder {
     /**
      * TODO: We assume that IAs are already provisinoned on IA engine
      *
-     * @param relationshipTemplate
-     * @param interfaceName
-     * @param operationName
      * @return OperationChain
      */
     public OperationChain createOperationCall(final AbstractRelationshipTemplate relationshipTemplate,

@@ -1,6 +1,5 @@
 package org.opentosca.bus.application.api.jsonhttp.processor;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.opentosca.bus.application.model.constants.ApplicationBusConstants;
-import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,11 +108,7 @@ public class InvocationRequestProcessor implements Processor {
     /**
      * Parses and maps a json String to a {@literal LinkedHashMap<String, LinkedHashMap<String, Object>>}.
      *
-     * @param request
      * @return LinkedHashMap
-     * @throws IOException
-     * @throws ParseException
-     * @throws ApplicationBusInternalException
      */
     private LinkedHashMap<String, LinkedHashMap<String, Object>> requestToMap(final String body) throws ParseException {
 

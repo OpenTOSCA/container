@@ -45,7 +45,7 @@ public class TDocumentInfo implements java.io.Serializable {
     /**
      * Sets the name value for this TDocumentInfo.
      *
-     * @param name   * Name of the document.
+     * @param name * Name of the document.
      */
     public void setName(java.lang.String name) {
         this.name = name;
@@ -54,8 +54,7 @@ public class TDocumentInfo implements java.io.Serializable {
     /**
      * Gets the type value for this TDocumentInfo.
      *
-     * @return type   * Type of document (e.g.
-     *                         WSDL/BPEL/etc...).
+     * @return type   * Type of document (e.g. WSDL/BPEL/etc...).
      */
     public org.apache.axis.types.URI getType() {
         return type;
@@ -64,8 +63,7 @@ public class TDocumentInfo implements java.io.Serializable {
     /**
      * Sets the type value for this TDocumentInfo.
      *
-     * @param type   * Type of document (e.g.
-     *                         WSDL/BPEL/etc...).
+     * @param type * Type of document (e.g. WSDL/BPEL/etc...).
      */
     public void setType(org.apache.axis.types.URI type) {
         this.type = type;
@@ -74,8 +72,7 @@ public class TDocumentInfo implements java.io.Serializable {
     /**
      * Gets the source value for this TDocumentInfo.
      *
-     * @return source   * URL where the document can be
-     *                         retrieved.
+     * @return source   * URL where the document can be retrieved.
      */
     public org.apache.axis.types.URI getSource() {
         return source;
@@ -84,8 +81,7 @@ public class TDocumentInfo implements java.io.Serializable {
     /**
      * Sets the source value for this TDocumentInfo.
      *
-     * @param source   * URL where the document can be
-     *                         retrieved.
+     * @param source * URL where the document can be retrieved.
      */
     public void setSource(org.apache.axis.types.URI source) {
         this.source = source;

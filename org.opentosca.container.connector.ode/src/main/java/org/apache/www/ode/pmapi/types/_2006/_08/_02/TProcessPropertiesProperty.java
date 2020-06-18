@@ -32,8 +32,6 @@ public class TProcessPropertiesProperty implements java.io.Serializable, org.apa
 
     /**
      * Sets the _any value for this TProcessPropertiesProperty.
-     *
-     * @param _any
      */
     public void set_any(org.apache.axis.message.MessageElement[] _any) {
         this._any = _any;
@@ -50,8 +48,6 @@ public class TProcessPropertiesProperty implements java.io.Serializable, org.apa
 
     /**
      * Sets the name value for this TProcessPropertiesProperty.
-     *
-     * @param name
      */
     public void setName(javax.xml.namespace.QName name) {
         this.name = name;

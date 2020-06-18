@@ -44,8 +44,6 @@ public class MockQueryRequest implements java.io.Serializable {
 
     /**
      * Sets the createTime value for this MockQueryRequest.
-     *
-     * @param createTime
      */
     public void setCreateTime(java.util.Calendar createTime) {
         this.createTime = createTime;
@@ -62,8 +60,6 @@ public class MockQueryRequest implements java.io.Serializable {
 
     /**
      * Sets the service value for this MockQueryRequest.
-     *
-     * @param service
      */
     public void setService(javax.xml.namespace.QName service) {
         this.service = service;
@@ -80,8 +76,6 @@ public class MockQueryRequest implements java.io.Serializable {
 
     /**
      * Sets the operation value for this MockQueryRequest.
-     *
-     * @param operation
      */
     public void setOperation(java.lang.String operation) {
         this.operation = operation;
@@ -98,8 +92,6 @@ public class MockQueryRequest implements java.io.Serializable {
 
     /**
      * Sets the in value for this MockQueryRequest.
-     *
-     * @param in
      */
     public void setIn(java.lang.Object in) {
         this.in = in;
@@ -116,8 +108,6 @@ public class MockQueryRequest implements java.io.Serializable {
 
     /**
      * Sets the pattern value for this MockQueryRequest.
-     *
-     * @param pattern
      */
     public void setPattern(org.apache.www.ode.pmapi.types._2006._08._02.MockQueryRequestPattern pattern) {
         this.pattern = pattern;

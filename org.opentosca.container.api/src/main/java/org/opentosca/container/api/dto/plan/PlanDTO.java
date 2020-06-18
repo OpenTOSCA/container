@@ -12,9 +12,10 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TPlan;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
-import org.eclipse.winery.model.tosca.TPlan;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
@@ -147,7 +148,7 @@ public class PlanDTO extends ResourceSupport {
             plan.setName(object.getName());
             plan.setPlanLanguage(object.getPlanLanguage());
             plan.setPlanType(object.getPlanType());
-            plan.setCalculatedWCET(object.getCalculatedWCET());            
+            plan.setCalculatedWCET(object.getCalculatedWCET());
 
             final TPlanDTO.InputParameters inputParameters = new TPlanDTO.InputParameters();
             for (final TParameter param : object.getInputParameters()) {

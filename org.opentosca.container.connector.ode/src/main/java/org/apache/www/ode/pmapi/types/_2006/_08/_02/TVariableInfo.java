@@ -35,8 +35,6 @@ public class TVariableInfo implements java.io.Serializable {
 
     /**
      * Sets the self value for this TVariableInfo.
-     *
-     * @param self
      */
     public void setSelf(org.apache.www.ode.pmapi.types._2006._08._02.TVariableRef self) {
         this.self = self;
@@ -53,8 +51,6 @@ public class TVariableInfo implements java.io.Serializable {
 
     /**
      * Sets the value value for this TVariableInfo.
-     *
-     * @param value
      */
     public void setValue(org.apache.www.ode.pmapi.types._2006._08._02.TVariableInfoValue value) {
         this.value = value;

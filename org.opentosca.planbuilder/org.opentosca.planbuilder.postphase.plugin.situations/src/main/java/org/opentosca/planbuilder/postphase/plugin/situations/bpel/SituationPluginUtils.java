@@ -46,13 +46,12 @@ public class SituationPluginUtils {
         // therefore we have to find those node templates here
         Collection<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
 
-
         Element provPhaseElement = context.getProvisioningPhaseElement();
         XPath xpath = XPathFactory.newInstance().newXPath();
         try {
             NodeList nodeTemplateIDNodes =
                 (NodeList) xpath.evaluate("//*[local-name()='invokeOperationAsync']/*[local-name()='NodeTemplateID']",
-                                          provPhaseElement, XPathConstants.NODESET);
+                    provPhaseElement, XPathConstants.NODESET);
 
             for (int i = 0; i < nodeTemplateIDNodes.getLength(); i++) {
                 String nodeTemplateId = nodeTemplateIDNodes.item(i).getTextContent();
@@ -62,8 +61,7 @@ public class SituationPluginUtils {
                     }
                 }
             }
-        }
-        catch (XPathExpressionException e) {
+        } catch (XPathExpressionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -81,7 +79,7 @@ public class SituationPluginUtils {
         //            nodes.addAll(SituationPluginUtils.findUsedNodes(context, ops.get(key)));
         //
         //        }
-        
+
         nodes.add(context.getNodeTemplate());
         return nodes;
     }
@@ -149,20 +147,17 @@ public class SituationPluginUtils {
                 // fetch situation data
                 Node fetchSituationState =
                     fragments.generateBPEL4RESTLightGETAsNode(situationPolicies2IdVariables.get(policy)
-                                                                                           .getVariableName(),
-                                                              situationPolicies2DataVariables.get(policy)
-                                                                                             .getVariableName());
+                            .getVariableName(),
+                        situationPolicies2DataVariables.get(policy)
+                            .getVariableName());
                 fetchSituationState = context.importNode(fetchSituationState);
                 elementToAppendTo.appendChild(fetchSituationState);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
-            }
-            catch (SAXException e) {
+            } catch (SAXException e) {
                 e.printStackTrace();
             }
         }
-
     }
 
     public static void addSituationDataUpdate(BPELPlanContext context, Node nodeToAppendTo,
@@ -174,10 +169,9 @@ public class SituationPluginUtils {
         Element sequenceElement = context.createElement(BPELPlan.bpelNamespace, "sequence");
 
         SituationPluginUtils.addGETSituationData(context, situationPolicies2IdVariables,
-                                                 situationPolicies2DataVariables, sequenceElement, fragments);
+            situationPolicies2DataVariables, sequenceElement, fragments);
 
         String evalDataExpr = SituationPluginUtils.getSituationDataEvaluationQuery(situationPolicies2DataVariables);
-
 
         if (situationViolation.equals("Abort")) {
             // we exit the process if the situation are not active
@@ -189,15 +183,15 @@ public class SituationPluginUtils {
             // throw error when situation not okay and use integrated compensation logic
             Node throwErrorIfEvalFalse =
                 context.importNode(SituationPluginUtils.createIfXPathExprTrueThrowError(evalDataExpr,
-                                                                                        context.getNodeTemplate(),
-                                                                                        mainFragments));
+                    context.getNodeTemplate(),
+                    mainFragments));
             sequenceElement.appendChild(throwErrorIfEvalFalse);
         }
 
         // add the fetch/check/action sequence into an if that checks whether the scope started already
         Element ifElement =
             SituationPluginUtils.createXpathExprIfElement(context,
-                                                          "$" + situationalScopeStartedVariable.getVariableName());
+                "$" + situationalScopeStartedVariable.getVariableName());
         ifElement.appendChild(sequenceElement);
         nodeToAppendTo.appendChild(ifElement);
     }
@@ -213,8 +207,8 @@ public class SituationPluginUtils {
                                                          BPELProcessFragments processFagments) {
         Element onAlarmElement = SituationPluginUtils.createOnAlarmEventHandler(context, durationExpression);
         SituationPluginUtils.addSituationDataUpdate(context, onAlarmElement, situationPolicies2DataVariables,
-                                                    situationPolicies2IdVariables, situationViolation,
-                                                    situationalScopeStartedVariable, pluginFragments, processFagments);
+            situationPolicies2IdVariables, situationViolation,
+            situationalScopeStartedVariable, pluginFragments, processFagments);
         context.getEventHandlersElement().appendChild(onAlarmElement);
     }
 
@@ -227,7 +221,7 @@ public class SituationPluginUtils {
 
         Collection<AbstractPolicy> operationExecutionTimePolicies =
             SituationPluginUtils.getOperationExecutionTimePolicies(usedNodes);
-        
+
         int defiendWcets = 0;
 
         for (AbstractOperation op : usedOperations.values()) {
@@ -235,7 +229,7 @@ public class SituationPluginUtils {
                 for (AbstractPolicy pol : operationExecutionTimePolicies) {
 
                     if (pol.getTemplate().getProperties().asMap().get("InterfaceName")
-                           .equals(op.getInterface().getName())
+                        .equals(op.getInterface().getName())
                         && pol.getTemplate().getProperties().asMap().get("OperationName").equals(op.getName())) {
 
                         String wcetProp = pol.getTemplate().getProperties().asMap().get("WorstCaseExecutionTime");
@@ -251,7 +245,7 @@ public class SituationPluginUtils {
     }
 
     public static Variable appendCompensationWCETCalculation(BPELPlanContext context, AbstractNodeTemplate nodeTemplate,
-                                                 Collection<AbstractNodeTemplate> usedNodes) {
+                                                             Collection<AbstractNodeTemplate> usedNodes) {
 
         Collection<AbstractPolicy> operationExecutionTimePolicies =
             SituationPluginUtils.getOperationExecutionTimePolicies(usedNodes);
@@ -268,7 +262,7 @@ public class SituationPluginUtils {
                 for (AbstractPolicy pol : operationExecutionTimePolicies) {
 
                     if (pol.getTemplate().getProperties().asMap().get("InterfaceName")
-                           .equals(op.getInterface().getName())
+                        .equals(op.getInterface().getName())
                         && pol.getTemplate().getProperties().asMap().get("OperationName").equals(op.getName())) {
 
                         String wcetProp = pol.getTemplate().getProperties().asMap().get("WorstCaseExecutionTime");
@@ -282,7 +276,7 @@ public class SituationPluginUtils {
 
         Variable wcetVariable =
             context.createGlobalStringVariable(nodeTemplate.getId() + "_WCET_" + System.currentTimeMillis(),
-                                               String.valueOf(wcet));
+                String.valueOf(wcet));
 
         return wcetVariable;
     }
@@ -353,5 +347,4 @@ public class SituationPluginUtils {
 
         return xpathQuery;
     }
-
 }

@@ -13,9 +13,10 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
+
+import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Element;
 
 @XmlRootElement(name = "Plan")
@@ -49,7 +50,7 @@ public class TPlanDTO {
         this.name = plan.getName();
         this.planType = plan.getPlanType();
         this.planLanguage = plan.getPlanLanguage();
-        
+
         this.calculatedWCET = Long.valueOf(plan.getOtherAttributes().getOrDefault(new QName("http://opentosca.org", "WCET"), String.valueOf(0)));
 
         final org.eclipse.winery.model.tosca.TPlan.InputParameters serializedInputParams = plan.getInputParameters();
@@ -203,7 +204,7 @@ public class TPlanDTO {
     public void setPlanLanguage(final String value) {
         this.planLanguage = value;
     }
-    
+
     public long getCalculatedWCET() {
         return this.calculatedWCET;
     }

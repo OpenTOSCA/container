@@ -16,7 +16,6 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -181,27 +180,25 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             }
         }
 
-
         boolean check = false;
         if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
             // handle with DA -> construct URL to the DockerImage .zip
 
             final AbstractDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate);
             check = handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
-                                containerIpVar, containerIdVar,
-                                fetchEnvironmentVariables(templateContext, nodeTemplate), null, null,
-                                containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
-                                vmPrivateKeyVariable);
-
+                containerIpVar, containerIdVar,
+                fetchEnvironmentVariables(templateContext, nodeTemplate), null, null,
+                containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
+                vmPrivateKeyVariable);
         } else {
             // handle with imageId
-            check =handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar,
-                                     dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar,
-                                     fetchEnvironmentVariables(templateContext, nodeTemplate), containerMountPath,
-                                     remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
-                                     vmPrivateKeyVariable);
-        }               
-        
+            check = handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar,
+                dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar,
+                fetchEnvironmentVariables(templateContext, nodeTemplate), containerMountPath,
+                remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
+                vmPrivateKeyVariable);
+        }
+
         return check;
     }
 
@@ -283,10 +280,6 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
     /**
      * Checks whether there are properties which start with "ENV_" in the name and generates a variable for all of these
      * properties to pass them as environment variables to a docker container
-     *
-     * @param context
-     * @param nodeTemplate
-     * @return
      */
     private Variable fetchEnvironmentVariables(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         final Collection<String> propertyNames = ModelUtils.getPropertyNames(nodeTemplate);

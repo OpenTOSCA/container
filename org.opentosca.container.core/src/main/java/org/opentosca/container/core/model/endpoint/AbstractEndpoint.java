@@ -80,12 +80,6 @@ public abstract class AbstractEndpoint {
 
     /**
      * Constructor
-     *
-     * @param uri
-     * @param managingContainer
-     * @param managingContainer
-     * @param csarId
-     * @param serviceTemplateInstanceID
      */
     public AbstractEndpoint(final URI uri, final String triggeringContainer, final String managingContainer,
                             final CsarId csarId, final Long serviceTemplateInstanceID, final Map<String, String> metadata) {

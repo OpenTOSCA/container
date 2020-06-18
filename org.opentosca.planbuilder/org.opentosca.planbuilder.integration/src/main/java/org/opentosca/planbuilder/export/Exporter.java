@@ -22,9 +22,10 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
 
-import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.selfservice.ApplicationOption;
+
+import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.oasis_open.docs.tosca.ns._2011._12.Definitions;
 import org.oasis_open.docs.tosca.ns._2011._12.ObjectFactory;
 import org.oasis_open.docs.tosca.ns._2011._12.Plan;
@@ -73,17 +74,16 @@ public class Exporter extends AbstractExporter {
     private final ObjectFactory toscaFactory = new ObjectFactory();
     private final CSARHandler handler = new CSARHandler();
 
-
-    public class PlanExportResult{
+    public class PlanExportResult {
         public Path csarFile;
         public Collection<String> planIds;
-        
+
         public PlanExportResult(Path csarFile, Collection<String> planIds) {
             this.csarFile = csarFile;
             this.planIds = planIds;
         }
     }
-    
+
     /**
      * Constructor
      */
@@ -103,8 +103,8 @@ public class Exporter extends AbstractExporter {
     }
 
     public PlanExportResult exportToCSAR(final List<AbstractPlan> plans, final CSARID csarId) {
-        final List<BPELPlan> bpelPlans = new ArrayList<>();        
-        
+        final List<BPELPlan> bpelPlans = new ArrayList<>();
+
         for (final AbstractPlan plan : plans) {
             if (plan instanceof BPELPlan) {
                 bpelPlans.add((BPELPlan) plan);
@@ -115,7 +115,7 @@ public class Exporter extends AbstractExporter {
     }
 
     public PlanExportResult exportBPELToCSAR(final List<BPELPlan> plans, final CSARID csarId) {
-        
+
         Collection<String> exportedBpelPlanIds = new ArrayList<String>();
 
         CSARContent csarContent = null;
@@ -354,8 +354,8 @@ public class Exporter extends AbstractExporter {
         } catch (final SystemException e) {
             Exporter.LOG.error("Some error in the openTOSCA Core", e);
         }
-        
-        Exporter.LOG.debug(repackagedCsar.toString());        
+
+        Exporter.LOG.debug(repackagedCsar.toString());
         return new PlanExportResult(repackagedCsar, exportedBpelPlanIds);
     }
 

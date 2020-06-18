@@ -9,10 +9,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.eclipse.winery.model.tosca.TExportedOperation;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiModelProperty;
-import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.opentosca.container.core.tosca.extension.TParameter;
 
 @XmlRootElement(name = "NodeOperation")

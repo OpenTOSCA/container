@@ -13,12 +13,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.namespace.QName;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
-import org.apache.camel.Message;
-import org.apache.camel.ProducerTemplate;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactType;
@@ -33,6 +27,13 @@ import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.ProducerTemplate;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.script.typeshandler.ArtifactTypesHandler;
@@ -489,7 +490,6 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     }
 
     /**
-     * @param params
      * @return whitespace separated String with parameter keys and values
      */
     @SuppressWarnings("unchecked")
@@ -533,9 +533,6 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
     /**
      * Invokes the Management Bus.
-     *
-     * @param paramsMap
-     * @param headers
      */
     private Object invokeManagementBusEngine(final Map<String, String> paramsMap,
                                              final Map<String, Object> headers) {

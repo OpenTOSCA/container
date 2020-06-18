@@ -43,8 +43,6 @@ public class TScopeRef implements java.io.Serializable {
 
     /**
      * Sets the siid value for this TScopeRef.
-     *
-     * @param siid
      */
     public void setSiid(java.lang.String siid) {
         this.siid = siid;
@@ -61,8 +59,6 @@ public class TScopeRef implements java.io.Serializable {
 
     /**
      * Sets the name value for this TScopeRef.
-     *
-     * @param name
      */
     public void setName(java.lang.String name) {
         this.name = name;
@@ -79,8 +75,6 @@ public class TScopeRef implements java.io.Serializable {
 
     /**
      * Sets the modelId value for this TScopeRef.
-     *
-     * @param modelId
      */
     public void setModelId(java.lang.String modelId) {
         this.modelId = modelId;
@@ -97,8 +91,6 @@ public class TScopeRef implements java.io.Serializable {
 
     /**
      * Sets the status value for this TScopeRef.
-     *
-     * @param status
      */
     public void setStatus(org.apache.www.ode.pmapi.types._2006._08._02.TScopeStatus status) {
         this.status = status;

@@ -36,8 +36,6 @@ public class FaultType implements java.io.Serializable {
 
     /**
      * Sets the type value for this FaultType.
-     *
-     * @param type
      */
     public void setType(javax.xml.namespace.QName type) {
         this.type = type;
@@ -54,8 +52,6 @@ public class FaultType implements java.io.Serializable {
 
     /**
      * Sets the explanation value for this FaultType.
-     *
-     * @param explanation
      */
     public void setExplanation(java.lang.String explanation) {
         this.explanation = explanation;
@@ -72,8 +68,6 @@ public class FaultType implements java.io.Serializable {
 
     /**
      * Sets the message value for this FaultType.
-     *
-     * @param message
      */
     public void setMessage(java.lang.Object message) {
         this.message = message;

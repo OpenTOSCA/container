@@ -16,11 +16,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.namespace.QName;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Message;
-import org.apache.camel.ProducerTemplate;
-import org.apache.camel.impl.DefaultExchange;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
@@ -36,6 +31,12 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRequiredContainerFeatures;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.impl.DefaultExchange;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
@@ -177,13 +178,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final PlanInstanceEvent event;
         // operation invocation is only possible with retrieved ServiceTemplateInstance ID
         if (!serviceTemplateInstanceID.equals(Long.MIN_VALUE)) {
-        	
-     
-            	final IAInvocationArguments arguments = new IAInvocationArguments(csarID, serviceInstanceID, serviceTemplateID, serviceTemplateInstanceID,
-                        nodeTemplateID, relationship, neededInterface, neededOperation);
-                    event = internalInvokeIA(arguments, exchange);
-                    LOG.info("IA execution duration: {}", event.getDuration());
-            
+
+            final IAInvocationArguments arguments = new IAInvocationArguments(csarID, serviceInstanceID, serviceTemplateID, serviceTemplateInstanceID,
+                nodeTemplateID, relationship, neededInterface, neededOperation);
+            event = internalInvokeIA(arguments, exchange);
+            LOG.info("IA execution duration: {}", event.getDuration());
         } else {
             LOG.error("Unable to invoke operation without ServiceTemplateInstance ID!");
             handleResponse(exchange);
@@ -201,7 +200,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 repo.update(plan);
             }
         }
-        
+
         if (Objects.nonNull(correlationID)) {
             // add end timestamp and log message with duration
             event.setEndTimestamp(new Date());
@@ -231,20 +230,19 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         while (System.currentTimeMillis() > waitTime) {
             // busy waiting here...
         }
-        
+
         final Message message = exchange.getIn();
         final Map<String, String> responseMap = new HashMap<>();
-        
+
         final Object params = message.getBody();
-        if (params != null && params instanceof HashMap && ((HashMap) params).values().contains("fault")) {                    
+        if (params != null && params instanceof HashMap && ((HashMap) params).values().contains("fault")) {
             responseMap.put("Fault", "managementBusMockFaultValue");
         }
-        
 
         if (outputParameters == null || outputParameters.getOutputParameter().isEmpty()) {
             return;
         }
-        
+
         outputParameters.getOutputParameter()
             .forEach(param -> {
                 responseMap.put(param.getName(), "managementBusMockValue");
@@ -708,19 +706,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP",
                 Settings.OPENTOSCA_CONTAINER_HOSTNAME);
         }
-        
-        
-        
+
         // write WCET back to Plan
         TPlan currentPlan = null;
-		try {
-			currentPlan = ToscaEngine.resolvePlanReference(arguments.csar,arguments.planId);
-		} catch (NotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        	
-        	
+        try {
+            currentPlan = ToscaEngine.resolvePlanReference(arguments.csar, arguments.planId);
+        } catch (NotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         // add end timestamp and log message with duration
         event.setEndTimestamp(new Date());
@@ -733,22 +727,21 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan);
         // if total duration larger than calculatedWCET, use duration
         if (calculatedWCET > 0 && calculatedWCET < duration) {
-        	currentPlan.getOtherAttributes().put(new QName("http://opentosca.org","WCET"), String.valueOf(duration));
+            currentPlan.getOtherAttributes().put(new QName("http://opentosca.org", "WCET"), String.valueOf(duration));
         }
         // if newly calculated WCET is larger than previous WCET, update
-        
-        long currentPlanWCET = Long.valueOf(currentPlan.getOtherAttributes().getOrDefault(new QName("http://opentosca.org","WCET"), String.valueOf(0)));
-        
+
+        long currentPlanWCET = Long.valueOf(currentPlan.getOtherAttributes().getOrDefault(new QName("http://opentosca.org", "WCET"), String.valueOf(0)));
+
         if (calculatedWCET > currentPlanWCET) {
-        	currentPlan.getOtherAttributes().put(new QName("http://opentosca.org","WCET"), String.valueOf(calculatedWCET));
+            currentPlan.getOtherAttributes().put(new QName("http://opentosca.org", "WCET"), String.valueOf(calculatedWCET));
         }
 
         // update plan in repository with new log event
         final PlanInstanceRepository repo = new PlanInstanceRepository();
         plan = repo.findByCorrelationId(arguments.correlationId);
         plan.addEvent(event);
-        repo.update(plan);      
-        
+        repo.update(plan);
 
         // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
         // was executed.
@@ -766,7 +759,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.info("Plan execution duration: {}ms", event.getDuration());
 
         // update plan in repository with new log event
-        
+
         plan = repo.findByCorrelationId(arguments.correlationId);
         plan.addEvent(event);
         repo.update(plan);
@@ -937,7 +930,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     /**
      * Returns an Object which can be used to synchronize all actions related to a certain String value.
      *
-     * @param lockString
      * @return the object which can be used for synchronization
      */
     public static Object getLockForString(final String lockString) {

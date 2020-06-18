@@ -1,6 +1,5 @@
 package org.opentosca.bus.management.api.resthttp.processor;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -125,11 +124,7 @@ public class InvocationRequestProcessor implements Processor {
     /**
      * Parses and maps a json String to a {@literal LinkedHashMap<String, LinkedHashMap<String, String>>}.
      *
-     * @param request
      * @return LinkedHashMap
-     * @throws IOException
-     * @throws ParseException
-     * @throws ApplicationBusInternalException
      */
     @SuppressWarnings("unchecked")
     private LinkedHashMap<String, LinkedHashMap<String, String>> requestToMap(final String body) throws ParseException {

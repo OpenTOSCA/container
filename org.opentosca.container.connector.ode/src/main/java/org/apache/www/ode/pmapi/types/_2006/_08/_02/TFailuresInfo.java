@@ -7,8 +7,7 @@
 package org.apache.www.ode.pmapi.types._2006._08._02;
 
 /**
- * Indicates one or more activities are in the failure
- *                 state and require recovery.
+ * Indicates one or more activities are in the failure state and require recovery.
  */
 public class TFailuresInfo implements java.io.Serializable {
     /* Date/time of last failure. */
@@ -39,7 +38,7 @@ public class TFailuresInfo implements java.io.Serializable {
     /**
      * Sets the dtFailure value for this TFailuresInfo.
      *
-     * @param dtFailure   * Date/time of last failure.
+     * @param dtFailure * Date/time of last failure.
      */
     public void setDtFailure(java.util.Calendar dtFailure) {
         this.dtFailure = dtFailure;
@@ -57,7 +56,7 @@ public class TFailuresInfo implements java.io.Serializable {
     /**
      * Sets the count value for this TFailuresInfo.
      *
-     * @param count   * Number of activities in failure state.
+     * @param count * Number of activities in failure state.
      */
     public void setCount(int count) {
         this.count = count;

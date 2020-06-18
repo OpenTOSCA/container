@@ -74,8 +74,7 @@ public class ServiceInstanceDAO {
     /**
      * this method wraps the setting/saving of the state
      *
-     * @param serviceInstance
-     * @param state           to be set
+     * @param state to be set
      */
     public void setState(final ServiceInstance serviceInstance, final String state) {
         try {
