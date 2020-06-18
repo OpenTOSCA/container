@@ -34,7 +34,7 @@
     </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.planbuilder</artifactId>
+      <artifactId>org.opentosca.planbuilder.core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -60,26 +60,6 @@
         <module>org.opentosca.deployment.checks</module>
         <module>org.opentosca.container.api</module>
         <module>org.opentosca.planbuilder</module>
-        <module>org.opentosca.planbuilder.core.bpel</module>
-        <module>org.opentosca.planbuilder.integration</module>
-        <module>org.opentosca.planbuilder.model</module>
-        <module>org.opentosca.planbuilder.postphase.plugin.instancedata</module>
-        <module>org.opentosca.planbuilder.postphase.plugin.situations</module>
-        <module>org.opentosca.planbuilder.postphase.plugin.vinothek</module>
-        <module>org.opentosca.planbuilder.postphase.plugin.monitoring</module>
-        <module>org.opentosca.planbuilder.provphase.plugin.ansibleoperation</module>
-        <module>org.opentosca.planbuilder.prephase.plugin.fileupload</module>
-        <module>org.opentosca.planbuilder.provphase.plugin.invoker</module>
-        <module>org.opentosca.planbuilder.selection.plugin.firstavailable</module>
-        <module>org.opentosca.planbuilder.selection.plugin.input</module>
-        <module>org.opentosca.planbuilder.selection.plugin.mosquitto.workload</module>
-        <module>org.opentosca.planbuilder.type.plugin.connectsto</module>
-        <module>org.opentosca.planbuilder.type.plugin.dockercontainer</module>
-        <module>org.opentosca.planbuilder.type.plugin.hardware</module>
-        <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
-        <module>org.opentosca.planbuilder.type.plugin.patternbased</module>
-        <module>org.opentosca.planbuilder.type.plugin.platforms</module>
-        <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
         <module>org.opentosca.container.legacy</module>
     </modules>
 
