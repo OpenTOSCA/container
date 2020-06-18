@@ -54,15 +54,15 @@
     </dependency>
 
     <dependency>
-      <groupId>com.github.OpenTOSCA.winery</groupId>
+      <groupId>com.github.opentosca.winery</groupId>
       <artifactId>org.eclipse.winery.repository</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.OpenTOSCA.winery</groupId>
+      <groupId>com.github.opentosca.winery</groupId>
       <artifactId>org.eclipse.winery.model.selfservice</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.OpenTOSCA.winery</groupId>
+      <groupId>com.github.opentosca.winery</groupId>
       <artifactId>org.eclipse.winery.model.tosca</artifactId>
     </dependency>
 

@@ -18,15 +18,15 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.github.OpenTOSCA.winery</groupId>
+      <groupId>com.github.opentosca.winery</groupId>
       <artifactId>org.eclipse.winery.model.tosca</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.OpenTOSCA.winery</groupId>
+      <groupId>com.github.opentosca.winery</groupId>
       <artifactId>org.eclipse.winery.accountability</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.OpenTOSCA.winery</groupId>
+      <groupId>com.github.opentosca.winery</groupId>
       <artifactId>org.eclipse.winery.repository</artifactId>
     </dependency>
     <dependency>
