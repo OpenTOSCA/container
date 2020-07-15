@@ -22,6 +22,12 @@ Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 2. Right click the [pom.xml](pom.xml) and select `Add as Maven project`.
 3. Run the `Container` run configuration.
 
+## Setup in Eclipse
+
+1. Import project via `Import existing maven projects..`
+2. Add created war file of project `org.opentosca.container.war` to suitable server configured within your eclipse, e.g., Tomcat
+3. (AdditionalInfo) Usually the application runs on port 1337 and without a prefix in the path -> change port of tomcat to 1337 and remove the path of the added WAR project
+
 ## Haftungsausschluss
 
 Dies ist ein Forschungsprototyp.
