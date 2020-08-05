@@ -1,5 +1,7 @@
 package org.opentosca.bus.management.service.impl;
 
+import javax.xml.namespace.QName;
+
 import org.opentosca.container.core.common.Settings;
 
 /**
@@ -38,6 +40,50 @@ public class Constants {
      * invocation and deployment plug-ins.
      */
     public final static String REMOTE_TYPE = "remote";
+
+    /**
+     * QName of the location attribute utilized to assign NodeTemplates to partners for choreographies.
+     */
+    public final static QName LOCATION_ATTRIBUTE =
+        QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}location");
+
+    /**
+     * Operation names of the management bus SOAP API to receive notifications from other management
+     * busses.
+     */
+    public final static String RECEIVE_NOTIFY_PARTNER_OPERATION = "receiveNotifyPartner";
+    public final static String RECEIVE_NOTIFY_PARTNERS_OPERATION = "receiveNotifyPartners";
+
+    /**
+     * Parameters for the Notify operation of the SOAP API
+     */
+    public final static String SERVICE_TEMPLATE_NAMESPACE_PARAM = "ServiceTemplateIDNamespaceURI";
+    public final static String SERVICE_TEMPLATE_LOCAL_PARAM = "ServiceTemplateIDLocalPart";
+    public final static String PLAN_CORRELATION_PARAM = "PlanCorrelationID";
+    public final static String CSARID_PARAM = "CsarID";
+    public final static String MESSAGE_ID_PARAM = "MessageID";
+    public final static String PARAMS_PARAM = "Params";
+
+    /**
+     * Parameter containing the template ID of the RelationshipTemplate to which a notify message
+     * belongs in a choreography.
+     */
+    public final static String RELATIONSHIP_TEMPLATE_PARAM = "ConnectingRelationshipTemplate";
+
+    /**
+     * Parameter containing the partner ID of the receiving partner for a notification.
+     */
+    public final static String RECEIVING_PARTNER_PARAM = "ReceivingPartner";
+
+    /**
+     * Namespace of the WSDL and XSD of the Management Bus SOAP API.
+     */
+    public final static String BUS_WSDL_NAMESPACE = "http://siserver.org/schema";
+
+    /**
+     * PortType for callbacks on plans.
+     */
+    public final static QName CALLBACK_PORT_TYPE = QName.valueOf("{http://schemas.xmlsoap.org/wsdl/}CallbackPortType");
 
     // endregion
 

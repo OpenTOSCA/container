@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.opentosca.planbuilder.core.plugins.choreography.IPlanBuilderChoreographyPlugin;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
@@ -27,13 +28,28 @@ import org.springframework.stereotype.Component;
 @Component
 public class BPELPluginHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BPELPluginHandler.class);
+    final static Logger LOG = LoggerFactory.getLogger(BPELPluginHandler.class);
     private final PluginRegistry pluginRegistry;
 
     @Inject
     public BPELPluginHandler(PluginRegistry pluginRegistry) {
         this.pluginRegistry = pluginRegistry;
     }
+
+    public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope) {
+
+        boolean result = false;
+        switch (bpelScope.getActivity().getType()) {
+            case NOTIFYALLPARTNERS:
+                result = handleNotifyAllPartnersActivity(context, bpelScope);
+                break;
+            default:
+                result = false;
+                break;
+        }
+        return result;
+    }
+
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractNodeTemplate nodeTemplate) {
@@ -47,6 +63,12 @@ public class BPELPluginHandler {
                 break;
             case DEFROST:
                 result = handleDefrostActivity(context, bpelScope, nodeTemplate);
+                break;
+            case SENDNODENOTIFY:
+                result = handleSendNotifyActivity(context, bpelScope, nodeTemplate);
+                break;
+            case RECEIVENODENOTIFY:
+                result = handleReceiveNotifyActivity(context, bpelScope, nodeTemplate);
                 break;
             default:
                 result = false;
@@ -72,6 +94,57 @@ public class BPELPluginHandler {
         }
         return result;
     }
+
+    private boolean handleNotifyAllPartnersActivity(final BPELPlanContext context, final BPELScope bpelScope) {
+        boolean result = true;
+
+        for (final IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
+            if (plugin.canHandleNotifyPartners(context)) {
+                result = plugin.handleNotifyPartners(context);
+            }
+        }
+
+        return result;
+    }
+
+    private boolean handleSendNotifyActivity(final BPELPlanContext context, final BPELScope bpelScope,
+                                             final AbstractNodeTemplate nodeTemplate) {
+        boolean result = true;
+
+        for (final IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
+            if (plugin.canHandleSendNotify(context)) {
+                result = plugin.handleSendNotify(context);
+            }
+        }
+
+        for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+            if (postPhasePlugin.canHandleCreate(context, nodeTemplate)) {
+                result &= postPhasePlugin.handleCreate(context, nodeTemplate);
+            }
+        }
+
+        return result;
+    }
+
+    private boolean handleReceiveNotifyActivity(final BPELPlanContext context, final BPELScope scope,
+                                                final AbstractNodeTemplate nodeTemplate) {
+        boolean result = true;
+
+        for (final IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
+            if (plugin.canHandleReceiveNotify(context)) {
+                result = plugin.handleReceiveNotify(context);
+            }
+        }
+
+        for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+            if (postPhasePlugin.canHandleCreate(context, nodeTemplate)) {
+                result &= postPhasePlugin.handleCreate(context, nodeTemplate);
+            }
+        }
+
+        return result;
+    }
+
 
     private boolean handleTerminationActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                               final AbstractRelationshipTemplate relationshipTemplate) {
@@ -152,14 +225,20 @@ public class BPELPluginHandler {
                                                final AbstractRelationshipTemplate relationshipTemplate) {
         boolean result = true;
 
-        if (this.pluginRegistry.canTypePluginHandleCreate(relationshipTemplate)) {
-            final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
-            LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
-            result &= this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);
-        } else {
-            LOG.debug("Couldn't handle RelationshipTemplate {}", relationshipTemplate.getId());
-        }
+        if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
 
+            if (this.pluginRegistry.canTypePluginHandleCreate(relationshipTemplate)) {
+                final IPlanBuilderTypePlugin plugin =
+                    this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
+                LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
+                result &= this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);
+            } else {
+                LOG.debug("Couldn't handle RelationshipTemplate {}", relationshipTemplate.getId());
+            }
+        } else {
+            LOG.info("Ignoring NodeTemplate {} with activityType {}", relationshipTemplate.getId(),
+                     bpelScope.getActivity().getType());
+        }
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             if (postPhasePlugin.canHandleCreate(context, bpelScope.getRelationshipTemplate())) {
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getRelationshipTemplate());

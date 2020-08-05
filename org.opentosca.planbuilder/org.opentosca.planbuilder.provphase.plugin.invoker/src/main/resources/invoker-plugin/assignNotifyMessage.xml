@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" validate="no" name="AssignCreateEC2SIRequest">
+	<bpel:copy>
+		<bpel:from>
+			<bpel:literal>
+				<impl:notifyPartner xmlns:impl="http://siserver.org/schema"
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+					<impl:PlanCorrelationID>{planCorrelation}</impl:PlanCorrelationID>
+					<impl:CsarID>{csarName}</impl:CsarID>						
+					<impl:ServiceTemplateIDNamespaceURI>{serviceTemplateNS}</impl:ServiceTemplateIDNamespaceURI>
+					<impl:ServiceTemplateIDLocalPart>{serviceTemplateLocalName}</impl:ServiceTemplateIDLocalPart>					
+					<impl:MessageID>{messageID}</impl:MessageID>
+					{paramsMap}
+
+				</impl:notifyPartner>
+			</bpel:literal>
+		</bpel:from>
+		<bpel:to variable="{requestVarName}" part="{requestVarPartName}"></bpel:to>
+	</bpel:copy>
+	{copies}
+
+</bpel:assign>

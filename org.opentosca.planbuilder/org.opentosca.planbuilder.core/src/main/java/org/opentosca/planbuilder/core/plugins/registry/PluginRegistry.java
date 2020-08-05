@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.core.plugins.choreography.IPlanBuilderChoreographyPlugin;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwarePostPhasePlugin;
@@ -52,6 +53,7 @@ public class PluginRegistry {
     private final List<IPlanBuilderPolicyAwareTypePlugin<?>> policyAwareTypePlugins = new ArrayList<>();
     private final List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> policyAwarePostPhasePlugins = new ArrayList<>();
     private final List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> policyAwarePrePhasePlugins = new ArrayList<>();
+    private final List<IPlanBuilderChoreographyPlugin<?>> choreographyPlugins = new ArrayList<>();
 
     @Inject
     // required is false to allow starting without any planbuilder plugins
@@ -105,6 +107,10 @@ public class PluginRegistry {
         if (plugin instanceof IPlanBuilderPolicyAwarePrePhasePlugin<?>) {
             roles.add(IPlanBuilderPolicyAwarePrePhasePlugin.class.getSimpleName());
             policyAwarePrePhasePlugins.add((IPlanBuilderPolicyAwarePrePhasePlugin<?>) plugin);
+        }
+        if (plugin instanceof IPlanBuilderChoreographyPlugin<?>) {
+        	roles.add(IPlanBuilderChoreographyPlugin.class.getSimpleName());
+        	choreographyPlugins.add((IPlanBuilderChoreographyPlugin<?>) plugin);
         }
         if (roles.isEmpty()) {
             LOG.warn("Plugin {} could not be registered for any roles. It's not available from the PluginRegistry", plugin.getClass().getSimpleName());
@@ -182,6 +188,10 @@ public class PluginRegistry {
     public List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> getPolicyAwarePrePhasePlugins() {
         return policyAwarePrePhasePlugins;
     }
+    
+    public List<IPlanBuilderChoreographyPlugin<?>> getChoreographyPlugins(){
+    	return choreographyPlugins;        
+    }   
 
     public boolean canTypePluginHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         return this.findTypePluginForCreation(nodeTemplate) != null;

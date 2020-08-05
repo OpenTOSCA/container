@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -999,6 +1000,18 @@ public class BPELPlanHandler {
                 BPELScope newCompensationHandlerScope =
                     this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "compensation");
                 newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
+            } else {
+                newEmpty3SequenceScopeBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(activity, plan, "");
+                plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
+                abstract2bpelMap.put(activity, newEmpty3SequenceScopeBPELActivity);
+
+                final BPELScope newFaultHandlerScope =
+                        this.bpelScopeHandler.createTemplateBuildPlan(activity, plan, "fault");
+                    newEmpty3SequenceScopeBPELActivity.setBpelFaultHandlerScope(newFaultHandlerScope);
+                
+                final BPELScope newCompensationHandlerScope =
+                    this.bpelScopeHandler.createTemplateBuildPlan(activity, plan, "compensation");
+                newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
             }
         }
 
@@ -1018,10 +1031,8 @@ public class BPELPlanHandler {
             }
 
             final String linkName = "connection_"
-                + (source.getNodeTemplate() != null ? source.getNodeTemplate().getId()
-                : source.getRelationshipTemplate().getId())
-                + "_" + (target.getNodeTemplate() != null ? target.getNodeTemplate().getId()
-                : target.getRelationshipTemplate().getId());
+                + source.getActivity().getId()
+                + "_" + target.getActivity().getId();
             addLink(linkName, plan);
 
             this.bpelScopeHandler.connect(source, target, linkName);
@@ -1093,9 +1104,14 @@ public class BPELPlanHandler {
         // init and append imports element
         newBuildPlan.setBpelImportElements(new ArrayList<Element>());
 
+        newBuildPlan.setBpelCorrelationSetsElement(newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
+                                                                                                "correlationSets"));
+
         newBuildPlan.setBpelFaultHandlersElement(newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
             "faultHandlers"));
 
+        newBuildPlan.getBpelProcessElement().appendChild(newBuildPlan.getBpelCorrelationSetsElement());
+        
         newBuildPlan.getBpelProcessElement().appendChild(newBuildPlan.getBpelFaultHandlersElement());
 
         Element catchAll = newBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "catchAll");
@@ -1342,4 +1358,38 @@ public class BPELPlanHandler {
         this.addVariable(varName, VariableType.TYPE, new QName(xsdNamespace, "anyType", xsdPrefix), plan);
         return varName;
     }
+
+    public boolean addCorrelationSet(String correlationSetName, String propertyName, BPELPlan buildPlan) {
+       
+        if (this.hasCorrelationSet(correlationSetName, buildPlan)) {
+            
+            return false;
+        }
+        final Element correlationSetsElement = buildPlan.getBpelCorrelationSetsElement();
+        final Element correlationSetElement =
+            buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "correlationSet");
+        correlationSetElement.setAttribute("name", correlationSetName);
+        correlationSetElement.setAttribute("properties", "tns:" + propertyName);
+        correlationSetsElement.appendChild(correlationSetElement);        
+        return true;
+    }
+    
+    private boolean hasCorrelationSet(final String correlationSetName, final BPELPlan plan) {
+        return ModelUtils.hasChildElementWithAttribute(plan.getBpelCorrelationSetsElement(), "name",
+                                                       correlationSetName);
+    }
+
+    public Collection<String> getCorrelationSetNames( final BPELPlan plan) {
+        NodeList childNodes = plan.getBpelCorrelationSetsElement().getChildNodes();
+        Collection<String> corrNames = new HashSet<String>();
+        
+        
+        for(int i = 0 ; i < childNodes.getLength(); i++) {
+            if(childNodes.item(i).getNodeType() == Node.ELEMENT_NODE & childNodes.item(i).getLocalName().equals("correlationSet")) {
+                corrNames.add(childNodes.item(i).getAttributes().getNamedItem("name").getTextContent());
+            }
+        }
+        return corrNames;
+    }
+
 }

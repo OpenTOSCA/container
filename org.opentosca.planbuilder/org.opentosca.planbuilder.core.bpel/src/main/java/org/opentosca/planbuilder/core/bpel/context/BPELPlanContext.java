@@ -83,8 +83,9 @@ public class BPELPlanContext extends PlanContext {
      */
     public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
                            final AbstractServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
-                           String serviceInstanceIDVarName, String serviceTemplateURLVarName, String csarFileName) {
-        super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, csarFileName);
+                           String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, String csarFileName) {
+    	super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csarFileName);
+       
         this.scopeBuilder = scopeBuilder;
         this.templateBuildPlan = templateBuildPlan;
         this.bpelTemplateHandler = new BPELScopeHandler();
@@ -97,6 +98,10 @@ public class BPELPlanContext extends PlanContext {
         }
     }
 
+    public AbstractActivity getActivity() {
+        return this.templateBuildPlan.getActivity();
+    }
+    
     public void addUsedOperation(AbstractOperation operation, AbstractOperation compensationOperation) {
         this.templateBuildPlan.addUsedOperation(operation, compensationOperation);
     }
@@ -278,7 +283,7 @@ public class BPELPlanContext extends PlanContext {
                 && Arrays.asList(activityType).contains(scope.getActivity().getType())) {
                 LOG.debug("Found scope of nodeTemplate");
                 return new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate,
-                    this.serviceInstanceURLVarName, this.serviceInstanceIDVarName, this.serviceTemplateURLVarName,
+                    this.serviceInstanceURLVarName, this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.planInstanceUrlVarName,
                     this.csarFileName);
             }
         }
@@ -336,7 +341,7 @@ public class BPELPlanContext extends PlanContext {
         // the node for the scope
         final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.csarFileName);
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -483,7 +488,7 @@ public class BPELPlanContext extends PlanContext {
 
         final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.csarFileName);
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(null);
         context.templateBuildPlan.setRelationshipTemplate(relationshipTemplate);
@@ -521,7 +526,7 @@ public class BPELPlanContext extends PlanContext {
         // the node for the scope
         final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.csarFileName);
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -531,11 +536,13 @@ public class BPELPlanContext extends PlanContext {
          */
         if (param2propertyMapping == null) {
             chain.executeOperationProvisioning(context, opNames);
-        } else if (param2propertyOutputMapping == null) {
-            chain.executeOperationProvisioning(context, opNames, param2propertyMapping, elementToAppendTo);
         } else {
-            chain.executeOperationProvisioning(context, opNames, param2propertyMapping, param2propertyOutputMapping,
-                elementToAppendTo);
+            if (param2propertyOutputMapping == null) {
+                chain.executeOperationProvisioning(context, opNames, param2propertyMapping, elementToAppendTo);
+            } else {
+                chain.executeOperationProvisioning(context, opNames, param2propertyMapping, param2propertyOutputMapping,
+                                                   elementToAppendTo);
+            }
         }
 
         // re-set the orginal configuration of the templateBuildPlan
@@ -570,7 +577,7 @@ public class BPELPlanContext extends PlanContext {
         // the node for the scope
         final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.csarFileName);
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csarFileName);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -580,10 +587,13 @@ public class BPELPlanContext extends PlanContext {
          */
         if (param2propertyMapping == null) {
             chain.executeOperationProvisioning(context, opNames);
-        } else if (param2propertyOutputMapping == null) {
-            chain.executeOperationProvisioning(context, opNames, param2propertyMapping);
         } else {
-            chain.executeOperationProvisioning(context, opNames, param2propertyMapping, param2propertyOutputMapping);
+            if (param2propertyOutputMapping == null) {
+                chain.executeOperationProvisioning(context, opNames, param2propertyMapping);
+            } else {
+                chain.executeOperationProvisioning(context, opNames, param2propertyMapping,
+                                                   param2propertyOutputMapping);
+            }
         }
 
         // re-set the orginal configuration of the templateBuildPlan
@@ -679,9 +689,17 @@ public class BPELPlanContext extends PlanContext {
      * @param propertyName       the property to use inside the correlationSet
      * @return true if adding the correlation set was successful, else false
      */
-    public boolean addCorrelationSet(final String correlationSetName, final String propertyName) {
+    public boolean addCorrelationSet(final String correlationSetName, final String propertyName) {    	
         return this.bpelTemplateHandler.addCorrelationSet(correlationSetName, propertyName, this.templateBuildPlan);
     }
+    
+    public boolean addGlobalCorrelationSet(final String correlationSetName, final String propertyName) {    	
+        return this.buildPlanHandler.addCorrelationSet(correlationSetName, propertyName, this.templateBuildPlan.getBuildPlan());
+    }
+    
+    public Collection<String> getGlobalCorrelationSetNames() {
+        return this.buildPlanHandler.getCorrelationSetNames(this.templateBuildPlan.getBuildPlan());
+     }
 
     public boolean addGlobalVariable(final String name, final BPELPlan.VariableType variableType, QName declarationId) {
         declarationId = importNamespace(declarationId);
@@ -823,6 +841,10 @@ public class BPELPlanContext extends PlanContext {
         final QName importedQName = importNamespace(propertyType);
         this.templateBuildPlan.getBuildPlan().getWsdl().addProperty(propertyName, importedQName);
         return importedQName;
+    }
+    
+    public List<String> getCorrelationProperties(){
+        return this.templateBuildPlan.getBuildPlan().getWsdl().getProperties();
     }
 
     /**

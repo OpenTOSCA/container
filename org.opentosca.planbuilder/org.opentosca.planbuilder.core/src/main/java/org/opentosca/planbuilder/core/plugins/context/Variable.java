@@ -31,4 +31,10 @@ public class Variable {
     public String getVariableName() {
         return this.variableName;
     }
+
+    @Override
+    public String toString() {
+        return "Variable " + this.variableName;
+    }
+
 }

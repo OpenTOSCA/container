@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -24,6 +25,7 @@ public abstract class PlanContext {
     protected final String serviceInstanceURLVarName;
     protected final String serviceInstanceIDVarName;
     protected final String serviceTemplateURLVarName;
+    protected final String planInstanceUrlVarName;
 
     protected final String csarFileName;
 
@@ -31,13 +33,14 @@ public abstract class PlanContext {
 
     public PlanContext(final AbstractPlan plan, final AbstractServiceTemplate serviceTemplate,
                        final Property2VariableMapping map, final String serviceInstanceURLVarName,
-                       final String serviceInstanceIDVarName, final String serviceTemplateURLVarName,
+                       final String serviceInstanceIDVarName, final String serviceTemplateURLVarName, final String planInstanceUrlVarName,
                        final String csarFileName) {
         this.plan = plan;
         this.serviceTemplate = serviceTemplate;
         this.serviceInstanceIDVarName = serviceInstanceIDVarName;
         this.serviceTemplateURLVarName = serviceTemplateURLVarName;
         this.serviceInstanceURLVarName = serviceInstanceURLVarName;
+        this.planInstanceUrlVarName = planInstanceUrlVarName;
         this.csarFileName = csarFileName;
         this.propertyMap = map;
     }
@@ -60,6 +63,10 @@ public abstract class PlanContext {
 
     public String getServiceInstanceURLVarName() {
         return this.serviceInstanceURLVarName;
+    }
+    
+    public String getPlanInstanceURLVarName() {
+        return this.planInstanceUrlVarName;
     }
 
     /**

@@ -31,6 +31,16 @@
       <artifactId>org.opentosca.bus.management.invocation.plugin</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    
+    <!-- Potential cycle?! -->
+    <!-- <dependency>
+      <groupId>org.opentosca</groupId>
+      <artifactId>org.opentosca.bus.management.api.soaphttp</artifactId>
+      <version>${project.version}</version>
+    </dependency>-->
+    
+    
 
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>

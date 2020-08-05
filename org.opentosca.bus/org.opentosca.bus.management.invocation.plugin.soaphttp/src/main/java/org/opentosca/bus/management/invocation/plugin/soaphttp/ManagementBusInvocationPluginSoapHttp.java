@@ -75,6 +75,9 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
     @Override
     public Exchange invoke(Exchange exchange) {
+
+        MessagingPattern messagingPattern = null;
+
         final Message message = exchange.getIn();
 
         final Object params = message.getBody();
@@ -96,7 +99,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         headers.put("operationName", operationName);
 
         Document document = null;
-        MessagingPattern messagingPattern = null;
         LOG.info("Creating invocation message.");
         if (params instanceof HashMap) {
             Definition wsdl = pullWsdlDefinitions(endpoint);
@@ -311,12 +313,16 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 }
             } else if (operationName != null) {
                 // Plug-in needs to determine with wsdl.
+                if (operationName.equals("receiveNotify")) {
+                    LOG.debug("ReceiveNotify is executed. Using Request_Only MP!");
+                    return MessagingPattern.REQUEST_ONLY;
+                }
                 final boolean hasOutputDefinedInWSDL = hasOutputDefined(operation);
                 if (hasOutputDefinedInWSDL) {
                     return MessagingPattern.REQUEST_RESPONSE;
                 } else {
                     return MessagingPattern.CALLBACK;
-                }
+                }      
             }
             return null;
         } else {

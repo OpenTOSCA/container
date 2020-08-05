@@ -205,12 +205,18 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         // this will be the endpoint the container can use to instantiate the
         // BPEL Process
         URI endpoint = null;
+        URI callbackEndpoint = null;
         if (endpoints.keySet().size() == 1) {
             endpoint = (URI) endpoints.values().toArray()[0];
         } else {
             for (final String partnerLink : endpoints.keySet()) {
                 if (partnerLink.equals("client")) {
                     endpoint = endpoints.get(partnerLink);
+                }
+
+                // retrieve callback endpoint for the choreography execution
+                if (endpoints.get(partnerLink).toString().contains("CallbackService")) {
+                    callbackEndpoint = endpoints.get(partnerLink);
                 }
             }
         }

@@ -27,6 +27,12 @@ public class ObjectFactory {
 
     private final static QName _InvokeOperationAsync_QNAME =
         new QName("http://siserver.org/schema", "invokeOperationAsync");
+    private final static QName _NotifyPartner_QNAME = new QName("http://siserver.org/schema", "notifyPartner");
+    private final static QName _NotifyPartners_QNAME = new QName("http://siserver.org/schema", "notifyPartners");
+    private final static QName _ReceiveNotifyPartner_QNAME =
+        new QName("http://siserver.org/schema", "receiveNotifyPartner");
+    private final static QName _ReceiveNotifyPartners_QNAME =
+        new QName("http://siserver.org/schema", "receiveNotifyPartners");
     private final static QName _InvokePlan_QNAME = new QName("http://siserver.org/schema", "invokePlan");
     private final static QName _InvokeResponse_QNAME = new QName("http://siserver.org/schema", "invokeResponse");
     private final static QName _InvokeOperation_QNAME = new QName("http://siserver.org/schema", "invokeOperation");
@@ -34,11 +40,43 @@ public class ObjectFactory {
         new QName("http://siserver.org/schema", "invokeOperationSync");
 
     /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package:
-     * org.opentosca.bus.management.api.soaphttp.model
+     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for
+     * package: org.opentosca.bus.management.api.soaphttp.model
+     *
      */
-    public ObjectFactory() {
+    public ObjectFactory() {}
+
+    /**
+     * Create an instance of {@link NotifyPartner }
+     *
+     */
+    public NotifyPartner createNotifyPartner() {
+        return new NotifyPartner();
     }
+
+    /**
+     * Create an instance of {@link NotifyPartners }
+     *
+     */
+    public NotifyPartners createNotifyPartners() {
+        return new NotifyPartners();
+    }
+
+    /**
+     * Create an instance of {@link ReceiveNotifyPartner }
+     *
+     */
+    public ReceiveNotifyPartner createReceiveNotifyPartner() {
+        return new ReceiveNotifyPartner();
+    }
+
+    /**
+     * Create an instance of {@link ReceiveNotifyPartners }
+     */
+      public ReceiveNotifyPartners createReceiveNotifyPartners() {
+        return new ReceiveNotifyPartners();
+      }
+
 
     /**
      * Create an instance of {@link InvokeOperationAsync }
@@ -87,6 +125,42 @@ public class ObjectFactory {
      */
     public ParamsMap createParamsMap() {
         return new ParamsMap();
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link NotifyPartner }{@code >}}
+     *
+     */
+    @XmlElementDecl(namespace = "http://siserver.org/schema", name = "notifyPartner")
+    public JAXBElement<NotifyPartner> createNotifyPartner(final NotifyPartner value) {
+        return new JAXBElement<>(_NotifyPartner_QNAME, NotifyPartner.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link NotifyPartners }{@code >}}
+     *
+     */
+    @XmlElementDecl(namespace = "http://siserver.org/schema", name = "notifyPartners")
+    public JAXBElement<NotifyPartners> createNotifyPartners(final NotifyPartners value) {
+        return new JAXBElement<>(_NotifyPartners_QNAME, NotifyPartners.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ReceiveNotifyPartner }{@code >}}
+     *
+     */
+    @XmlElementDecl(namespace = "http://siserver.org/schema", name = "receiveNotifyPartner")
+    public JAXBElement<ReceiveNotifyPartner> createReceiveNotifyPartner(final ReceiveNotifyPartner value) {
+        return new JAXBElement<>(_ReceiveNotifyPartner_QNAME, ReceiveNotifyPartner.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ReceiveNotifyPartners }{@code >}}
+     *
+     */
+    @XmlElementDecl(namespace = "http://siserver.org/schema", name = "receiveNotifyPartners")
+    public JAXBElement<ReceiveNotifyPartners> createReceiveNotifyPartners(final ReceiveNotifyPartners value) {
+        return new JAXBElement<>(_ReceiveNotifyPartners_QNAME, ReceiveNotifyPartners.class, null, value);
     }
 
     /**
