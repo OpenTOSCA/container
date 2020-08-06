@@ -849,6 +849,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // create the instance data for the plan instance to be started
         
+        Message message = exchange.getIn();
+        
+        final Boolean callbackInvocation = message.getHeader(MBHeader.CALLBACK_BOOLEAN.toString(), Boolean.class);
+        LOG.debug("CallbackInvocation: {}", callbackInvocation);
+        
         PlanInstance plan = null;
 		try {
 			plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
@@ -868,31 +873,63 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         LOG.debug("Getting endpoint for the plan...");
         endpointService.printPlanEndpoints();
-        final WSDLEndpoint WSDLendpoint = endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
-            arguments.csar.id(), plan.getTemplateId());
+        final List<WSDLEndpoint> WSDLendpoints =
+                endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, arguments.csar.id(),
+                                                                         plan.getTemplateId());
 
-        if (WSDLendpoint == null) {
-            LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!", plan.getTemplateId(),
-                arguments.csar.id().csarName());
-            handleResponse(exchange);
-            return;
-        }
+            // choose WSDL endpoint depending on the invokation of the invoker or callback port type
+            WSDLEndpoint WSDLendpoint = null;
+            if (Objects.isNull(callbackInvocation) || !callbackInvocation) {
+                WSDLendpoint =
+                    WSDLendpoints.stream()
+                                 .filter(endpoint -> !endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+                                 .findFirst().orElse(null);
+            } else {
+                LOG.debug("Invokation using callback.");
+                WSDLendpoint =
+                    WSDLendpoints.stream()
+                                 .filter(endpoint -> endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+                                 .findFirst().orElse(null);
+            }
 
-        final URI endpoint = WSDLendpoint.getURI();
-        LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
+            if (WSDLendpoint != null) {
 
-        // Assumption. Should be checked with ToscaEngine
-        exchange.getIn().setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
-        exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+                final URI endpoint = WSDLendpoint.getURI();
+                LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
 
-        if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
-            exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "REST",
-                Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-        } else {
-            exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP",
-                Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-        }
+                // Assumption. Should be checked with ToscaEngine
+                message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
+                message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
 
+                if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
+                    exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "REST",
+                                                                          Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+
+                } else {
+                    exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP",
+                                                                          Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                }
+
+                // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
+                // was executed.
+                if (plan.getType().equals(PlanType.TERMINATION)) {
+                    LOG.debug("Executed plan was a termination plan. Removing endpoints...");
+
+                    final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
+
+                    if (serviceInstance != null) {
+                        deleteEndpointsForServiceInstance(arguments.csar.id(), serviceInstance);
+                    } else {
+                        LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
+                    }
+                }
+            } else {
+                LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!",
+                         plan.getTemplateId(), arguments.csar.id());
+            }
+        
+        
+        
         // write WCET back to Plan
         TPlan currentPlan = null;
         try {
