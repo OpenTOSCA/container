@@ -329,25 +329,4 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
     public void close() {
         em.close();
     }
-
-    @Override
-    public void removePlanEndpoints(String triggeringContainer, CsarId csarId) {
-        if (!this.em.getTransaction().isActive()) {
-            this.em.getTransaction().begin();
-        }
-
-        // get all plan endpoints (plan ID set) for the given csarid
-        final Query queryWsdlEndpoints = this.em.createQuery(
-            "SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId and e.PlanId is not null");
-        queryWsdlEndpoints.setParameter("triggeringContainer", triggeringContainer);
-        queryWsdlEndpoints.setParameter("csarId", csarId);
-        @SuppressWarnings("unchecked") final List<WSDLEndpoint> wsdlEndpoints = queryWsdlEndpoints.getResultList();
-
-        // remove all found plan endpoints one by one
-        for (final WSDLEndpoint wsdlEndpoint : wsdlEndpoints) {
-            this.em.remove(wsdlEndpoint);
-        }
-
-        this.em.getTransaction().commit();
-    }
 }

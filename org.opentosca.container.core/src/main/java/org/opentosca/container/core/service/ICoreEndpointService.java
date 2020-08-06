@@ -119,11 +119,6 @@ public interface ICoreEndpointService {
     public void storeRESTEndpoint(RESTEndpoint endpoint);
 
     /**
-     * @see ICoreInternalEndpointService#removePlanEndpoints
-     */
-    public void removePlanEndpoints(String triggeringContainer, CsarId csarId);
-
-    /**
      * Removes the given WSDL Endpoint if found
      *
      * @param endpoint the WSDL Endpoint to remove
