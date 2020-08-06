@@ -3,6 +3,7 @@ package org.opentosca.bus.management.service.impl.instance.plan;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
@@ -57,7 +58,13 @@ public class PlanInstanceHandler {
      */
     public static PlanInstance createPlanInstance(final Csar csar, final QName serviceTemplateId,
                                                   final long serviceTemplateInstanceId, final QName planId,
-                                                  final String correlationId, final Object input) {
+                                                  final String operationName, final String correlationId,
+                                                  final Object input) throws CorrelationIdAlreadySetException {
+
+        if (Objects.isNull(planId)) {
+            LOG.error("Plan ID is null! Unable to create PlanInstance!");
+            return null;
+        }
 
         final TPlan storedPlan;
         try {
@@ -74,6 +81,19 @@ public class PlanInstanceHandler {
         plan.setType(PlanType.fromString(storedPlan.getPlanType()));
         plan.setState(PlanInstanceState.RUNNING);
         plan.setTemplateId(planId);
+
+        // check if plan instance with that correlation ID is already present
+        final Optional<PlanInstance> planOptional =
+            planRepo.findAll().stream().filter(p -> p.getCorrelationId().equals(correlationId)).findFirst();
+        if (planOptional.isPresent()) {
+            if (operationName.equals("receiveNotify")) {
+                LOG.debug("Processing receiveNotify and plan instance already exists!");
+                return planOptional.get();
+            } else {
+                throw new CorrelationIdAlreadySetException(
+                    "Plan instance with correlation ID " + correlationId + " is already existing.");
+            }
+        }
 
         // cast input parameters for the plan invocation
         Map<String, String> inputMap = new HashMap<>();

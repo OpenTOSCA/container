@@ -140,13 +140,14 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
         final String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newTestPlan);
         final String serviceTemplateUrl =
             this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newTestPlan);
+        final String planInstanceUrl = this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newTestPlan);
 
         this.instanceVarsHandler.addNodeInstanceFindLogic(newTestPlan,
             "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
             serviceTemplate);
         this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTestPlan, propMap, serviceTemplate);
 
-        runPlugins(newTestPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarName);
+        runPlugins(newTestPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarName);
 
         this.correlationHandler.addCorrellationID(newTestPlan);
 
@@ -199,11 +200,11 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
     private void runPlugins(final BPELPlan testPlan, final Property2VariableMapping map,
                             final String serviceInstanceUrl, final String serviceInstanceID,
-                            final String serviceTemplateUrl, final String csarFileName) {
+                            final String serviceTemplateUrl, final String planInstanceUrl, final String csarFileName) {
 
         for (final BPELScope bpelScope : testPlan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), testPlan, bpelScope, map, testPlan.getServiceTemplate(),
-                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csarFileName);
+                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarFileName);
             if (Objects.nonNull(bpelScope.getNodeTemplate())) {
 
                 // retrieve NodeTemplate and corresponding test interface

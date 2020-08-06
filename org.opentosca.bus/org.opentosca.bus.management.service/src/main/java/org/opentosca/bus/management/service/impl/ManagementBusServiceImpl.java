@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -31,6 +34,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRequiredContainerFeatures;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TTag;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -42,6 +46,7 @@ import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.bus.management.service.impl.collaboration.CollaborationContext;
 import org.opentosca.bus.management.service.impl.collaboration.DeploymentDistributionDecisionMaker;
+import org.opentosca.bus.management.service.impl.instance.plan.CorrelationIdAlreadySetException;
 import org.opentosca.bus.management.service.impl.instance.plan.PlanInstanceHandler;
 import org.opentosca.bus.management.service.impl.util.DeploymentPluginCapabilityChecker;
 import org.opentosca.bus.management.service.impl.util.ParameterHandler;
@@ -126,6 +131,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final ContainerEngine containerEngine;
 
     private final CsarStorageService storage;
+
+    private static ConcurrentHashMap<String, List<String>> activePartners = new ConcurrentHashMap<>();
 
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
@@ -657,11 +664,175 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final QName planID = message.getHeader(MBHeader.PLANID_QNAME.toString(), QName.class);
         LOG.debug("planID: {}", planID);
 
+        final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
+        LOG.debug("operationName: {}", operationName);
+
         // get the ServiceTemplateInstance ID Long from the serviceInstanceID URI
         final Long serviceTemplateInstanceID = Util.determineServiceTemplateInstanceId(serviceInstanceID);
         final Csar csar = storage.findById(csarID);
 
-        internalInvokePlan(new PlanInvocationArguments(csar, serviceTemplateID, serviceTemplateInstanceID, planID, correlationID), exchange);
+        internalInvokePlan(new PlanInvocationArguments(csar, serviceTemplateID, serviceTemplateInstanceID, planID, operationName, correlationID), exchange);
+    }
+
+    @Override
+    public void notifyPartner(final Exchange exchange) {
+
+        final Message message = exchange.getIn();
+        final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+        final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
+        final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
+
+        if (!(exchange.getIn().getBody() instanceof HashMap)) {
+            LOG.error("Message to notify partner with Correlation ID {}, CSARID {} and ServiceTemplate ID {} contains no parameters. Aborting!",
+                correlationID, csarID, serviceTemplateID);
+            return;
+        }
+
+        // retrieve parameters defining the partner and RelationshipTemplate from the exchange body
+        @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
+        final String connectingRelationshipTemplate = params.get(Constants.RELATIONSHIP_TEMPLATE_PARAM);
+        final String receivingPartner = params.get(Constants.RECEIVING_PARTNER_PARAM);
+
+        LOG.debug("Notifying partner {} for connectsTo with ID {} for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
+            receivingPartner, connectingRelationshipTemplate, correlationID, csarID, serviceTemplateID);
+
+        // wait until other partner is ready to receive notify
+        while (!this.isPartnerAvailable(correlationID, receivingPartner)) {
+            LOG.debug("Waiting for partner: {}", receivingPartner);
+            try {
+                Thread.sleep(10000);
+            } catch (final InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            Thread.sleep(10000);
+        } catch (final InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // retrieve ServiceTemplate related to the notification request
+        final TServiceTemplate serviceTemplate = this.storage.findById(csarID).entryServiceTemplate();
+        if (Objects.isNull(serviceTemplate)) {
+            LOG.error("Unable to retrieve ServiceTemplate for the notification request.");
+            return;
+        }
+
+        // get tag defining the endpoint of the partner
+        final Optional<TTag> endpointTagOptional =
+            Util.getPartnerEndpoints(serviceTemplate).stream().filter(tag -> tag.getName().equals(receivingPartner))
+                .findFirst();
+        if (!endpointTagOptional.isPresent()) {
+            LOG.error("No endpoint tag available for partner {}", receivingPartner);
+            return;
+        }
+
+        final String endpoint = endpointTagOptional.get().getValue();
+        LOG.debug("Notifying partner {} on endpoint: {}", receivingPartner, endpoint);
+
+        message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
+        message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+        message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_PARTNER_OPERATION);
+
+        // create message body
+        final HashMap<String, String> inputMap = new HashMap<>();
+        inputMap.put(Constants.PLAN_CORRELATION_PARAM, correlationID);
+        inputMap.put(Constants.CSARID_PARAM, csarID.toString());
+        inputMap.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
+        inputMap.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
+        inputMap.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
+
+        // parse to doc and add input parameters
+        final Document inputDoc =
+            MBUtils.mapToDoc(Constants.BUS_WSDL_NAMESPACE, Constants.RECEIVE_NOTIFY_PARTNER_OPERATION, inputMap);
+
+        final Element root = inputDoc.getDocumentElement();
+        final Element paramsWrapper = inputDoc.createElement(Constants.PARAMS_PARAM);
+        root.appendChild(paramsWrapper);
+        for (final Entry<String, String> entry : params.entrySet()) {
+            final Element paramElement = inputDoc.createElement("Param");
+            paramsWrapper.appendChild(paramElement);
+
+            final Element keyElement = inputDoc.createElement("key");
+            keyElement.setTextContent(entry.getKey());
+            paramElement.appendChild(keyElement);
+
+            final Element valueElement = inputDoc.createElement("value");
+            valueElement.setTextContent(entry.getValue());
+            paramElement.appendChild(valueElement);
+        }
+        message.setBody(inputDoc);
+
+        this.pluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+    }
+
+    @Override
+    public void notifyPartners(final Exchange exchange) {
+
+        final Message message = exchange.getIn();
+        final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+        final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
+        final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
+
+        LOG.debug("Notifying partners to start their plans for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
+            correlationID, csarID, serviceTemplateID);
+
+        // retrieve ServiceTemplate related to the notification request
+        final TServiceTemplate serviceTemplate = this.storage.findById(csarID).entryServiceTemplate();
+        if (Objects.isNull(serviceTemplate)) {
+            LOG.error("Unable to retrieve ServiceTemplate for the notification request.");
+            return;
+        }
+
+        // get the tags enpoints of the partners
+        final List<TTag> partnerTags = Util.getPartnerEndpoints(serviceTemplate);
+        if (Objects.isNull(partnerTags)) {
+            LOG.error("Unable to retrieve partners for ServiceTemplate with ID {}.", serviceTemplate.getId());
+            return;
+        }
+
+        @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
+
+        // notify all partners
+        for (final TTag endpointTag : partnerTags) {
+            LOG.debug("Notifying partner {} on endpoint: {}", endpointTag.getName(), endpointTag.getValue());
+
+            message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
+            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointTag.getValue());
+            message.setHeader(MBHeader.OPERATIONNAME_STRING.toString(), Constants.RECEIVE_NOTIFY_PARTNERS_OPERATION);
+
+            // create message body
+            final HashMap<String, String> input = new HashMap<>();
+            input.put(Constants.PLAN_CORRELATION_PARAM, correlationID);
+            input.put(Constants.CSARID_PARAM, csarID.toString());
+            input.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
+            input.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
+            input.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
+
+            // parse to doc and add input parameters
+            final Document inputDoc =
+                MBUtils.mapToDoc(Constants.BUS_WSDL_NAMESPACE, Constants.RECEIVE_NOTIFY_PARTNERS_OPERATION, input);
+
+            final Element root = inputDoc.getDocumentElement();
+            final Element paramsWrapper = inputDoc.createElement(Constants.PARAMS_PARAM);
+            root.appendChild(paramsWrapper);
+            for (final Entry<String, String> entry : params.entrySet()) {
+                final Element paramElement = inputDoc.createElement("Param");
+                paramsWrapper.appendChild(paramElement);
+
+                final Element keyElement = inputDoc.createElement("key");
+                keyElement.setTextContent(entry.getKey());
+                paramElement.appendChild(keyElement);
+
+                final Element valueElement = inputDoc.createElement("value");
+                valueElement.setTextContent(entry.getValue());
+                paramElement.appendChild(valueElement);
+            }
+            message.setBody(inputDoc);
+
+            this.pluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+        }
     }
 
     private void internalInvokePlan(PlanInvocationArguments arguments, Exchange exchange) {
@@ -670,8 +841,21 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_DURATION_LOG", "Plan execution with correlation id " + arguments.correlationId + ".");
 
         // create the instance data for the plan instance to be started
-        PlanInstance plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
-            arguments.serviceTemplateInstanceId, arguments.planId, arguments.correlationId, exchange.getIn().getBody());
+
+        Message message = exchange.getIn();
+
+        final Boolean callbackInvocation = message.getHeader(MBHeader.CALLBACK_BOOLEAN.toString(), Boolean.class);
+        LOG.debug("CallbackInvocation: {}", callbackInvocation);
+
+        PlanInstance plan = null;
+        try {
+            plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
+                arguments.serviceTemplateInstanceId, arguments.planId, arguments.operationName, arguments.correlationId, exchange.getIn().getBody());
+        } catch (CorrelationIdAlreadySetException e) {
+            LOG.warn(e.getMessage() + " Skipping the plan invocation!");
+            return;
+        }
+
         if (plan == null) {
             LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", arguments.correlationId);
             handleResponse(exchange);
@@ -682,29 +866,58 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         LOG.debug("Getting endpoint for the plan...");
         endpointService.printPlanEndpoints();
-        final WSDLEndpoint WSDLendpoint = endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
-            arguments.csar.id(), plan.getTemplateId());
+        final List<WSDLEndpoint> WSDLendpoints =
+            endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, arguments.csar.id(),
+                plan.getTemplateId());
 
-        if (WSDLendpoint == null) {
-            LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!", plan.getTemplateId(),
-                arguments.csar.id().csarName());
-            handleResponse(exchange);
-            return;
+        // choose WSDL endpoint depending on the invokation of the invoker or callback port type
+        WSDLEndpoint WSDLendpoint = null;
+        if (Objects.isNull(callbackInvocation) || !callbackInvocation) {
+            WSDLendpoint =
+                WSDLendpoints.stream()
+                    .filter(endpoint -> !endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+                    .findFirst().orElse(null);
+        } else {
+            LOG.debug("Invokation using callback.");
+            WSDLendpoint =
+                WSDLendpoints.stream()
+                    .filter(endpoint -> endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+                    .findFirst().orElse(null);
         }
 
-        final URI endpoint = WSDLendpoint.getURI();
-        LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
+        if (WSDLendpoint != null) {
 
-        // Assumption. Should be checked with ToscaEngine
-        exchange.getIn().setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
-        exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+            final URI endpoint = WSDLendpoint.getURI();
+            LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
 
-        if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
-            exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "REST",
-                Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+            // Assumption. Should be checked with ToscaEngine
+            message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
+            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+
+            if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
+                exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "REST",
+                    Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+            } else {
+                exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP",
+                    Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+            }
+
+            // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
+            // was executed.
+            if (plan.getType().equals(PlanType.TERMINATION)) {
+                LOG.debug("Executed plan was a termination plan. Removing endpoints...");
+
+                final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
+
+                if (serviceInstance != null) {
+                    deleteEndpointsForServiceInstance(arguments.csar.id(), serviceInstance);
+                } else {
+                    LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
+                }
+            }
         } else {
-            exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP",
-                Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+            LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!",
+                plan.getTemplateId(), arguments.csar.id());
         }
 
         // write WCET back to Plan
@@ -1023,18 +1236,34 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
     }
 
+    @Override
+    public synchronized void addPartnerToReadyList(final String correlationID, final String partnerID) {
+        activePartners.putIfAbsent(correlationID, new LinkedList<String>());
+        activePartners.get(correlationID).add(partnerID);
+    }
+
+    @Override
+    public synchronized boolean isPartnerAvailable(final String correlationID, final String partnerID) {
+        if (Objects.nonNull(activePartners.get(correlationID))) {
+            return activePartners.get(correlationID).contains(partnerID);
+        }
+        return false;
+    }
+
     private static class PlanInvocationArguments {
         public final Csar csar;
         public final QName serviceTemplateId;
         public final Long serviceTemplateInstanceId;
         public final QName planId;
         public final String correlationId;
+        public final String operationName;
 
-        public PlanInvocationArguments(Csar csar, QName serviceTemplateID, Long serviceTemplateInstanceID, QName planID, String correlationID) {
+        public PlanInvocationArguments(Csar csar, QName serviceTemplateID, Long serviceTemplateInstanceID, QName planID, String operationName, String correlationID) {
             this.csar = csar;
             this.serviceTemplateId = serviceTemplateID;
             this.serviceTemplateInstanceId = serviceTemplateInstanceID;
             this.planId = planID;
+            this.operationName = operationName;
             this.correlationId = correlationID;
         }
     }

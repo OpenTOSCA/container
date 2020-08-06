@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -18,9 +17,6 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathVariableResolver;
 
 import org.apache.camel.CamelContext;
@@ -37,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * Management Bus-Plug-in for invoking a service with a SOAP message over HTTP. <br>
@@ -75,6 +70,9 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
     @Override
     public Exchange invoke(Exchange exchange) {
+
+        MessagingPattern messagingPattern = null;
+
         final Message message = exchange.getIn();
 
         final Object params = message.getBody();
@@ -96,7 +94,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         headers.put("operationName", operationName);
 
         Document document = null;
-        MessagingPattern messagingPattern = null;
         LOG.info("Creating invocation message.");
         if (params instanceof HashMap) {
             Definition wsdl = pullWsdlDefinitions(endpoint);
@@ -148,7 +145,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 }
             }
 
-            document = mapToDoc(messagePayloadType.getNamespaceURI(), messagePayloadType.getLocalPart(), paramsMap);
+            document = MBUtils.mapToDoc(messagePayloadType.getNamespaceURI(), messagePayloadType.getLocalPart(), paramsMap);
         }
 
         if (params instanceof Document) {
@@ -311,6 +308,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 }
             } else if (operationName != null) {
                 // Plug-in needs to determine with wsdl.
+                if (operationName.equals("receiveNotify")) {
+                    LOG.debug("ReceiveNotify is executed. Using Request_Only MP!");
+                    return MessagingPattern.REQUEST_ONLY;
+                }
                 final boolean hasOutputDefinedInWSDL = hasOutputDefined(operation);
                 if (hasOutputDefinedInWSDL) {
                     return MessagingPattern.REQUEST_RESPONSE;
@@ -332,34 +333,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 return MessagingPattern.REQUEST_ONLY;
             }
         }
-    }
-
-    /**
-     * Transfers the paramsMap into a Document.
-     */
-    private Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
-                              final Map<String, String> paramsMap) {
-        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = null;
-        try {
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
-            LOG.error("Some error occured.");
-            e.printStackTrace();
-            // return null to avoid NRE in this method
-            return null;
-        }
-        Document document = documentBuilder.newDocument();
-
-        final Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
-        document.appendChild(rootElement);
-        for (final Entry<String, String> entry : paramsMap.entrySet()) {
-            Element mapElement = document.createElement(entry.getKey());
-            mapElement.setTextContent(entry.getValue());
-            rootElement.appendChild(mapElement);
-        }
-
-        return document;
     }
 
     /**

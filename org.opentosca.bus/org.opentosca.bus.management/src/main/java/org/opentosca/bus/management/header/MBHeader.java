@@ -86,6 +86,8 @@ public enum MBHeader {
 
     SYNCINVOCATION_BOOLEAN,
 
+    CALLBACK_BOOLEAN,
+
     APIID_STRING,
 
     /**

@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -205,6 +206,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         // this will be the endpoint the container can use to instantiate the
         // BPEL Process
         URI endpoint = null;
+        URI callbackEndpoint = null;
         if (endpoints.keySet().size() == 1) {
             endpoint = (URI) endpoints.values().toArray()[0];
         } else {
@@ -212,39 +214,47 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 if (partnerLink.equals("client")) {
                     endpoint = endpoints.get(partnerLink);
                 }
+
+                // retrieve callback endpoint for the choreography execution
+                if (endpoints.get(partnerLink).toString().contains("CallbackService")) {
+                    callbackEndpoint = endpoints.get(partnerLink);
+                }
             }
         }
 
-        if (endpoint == null) {
-            return false;
-        }
+        if (processId != null && endpoint != null && portType != null && this.endpointService != null) {
+            BpelPlanEnginePlugin.LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
+            BpelPlanEnginePlugin.LOG.info("Deployment of Plan was successfull: {}", planId);
 
-        if (processId == null || endpoint == null || portType == null || this.endpointService == null) {
-            LOG.error("Error while processing plan");
+            // save endpoint
+            final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType, localContainer, localContainer,
+                csarId, null, planId, null, null, endpointMetadata);
+            this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
+
+            if (Objects.nonNull(callbackEndpoint)) {
+                final QName callbackPortType = QName.valueOf("{http://schemas.xmlsoap.org/wsdl/}CallbackPortType");
+                LOG.debug("Storing callback endpoint: {}", callbackEndpoint.toString());
+                this.endpointService.storeWSDLEndpoint(new WSDLEndpoint(callbackEndpoint, callbackPortType,
+                    localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata));
+            }
+        } else {
+            BpelPlanEnginePlugin.LOG.error("Error while processing plan");
             if (processId == null) {
-                LOG.error("ProcessId is null");
+                BpelPlanEnginePlugin.LOG.error("ProcessId is null");
             }
             if (endpoint == null) {
-                LOG.error("Endpoint for process is null");
+                BpelPlanEnginePlugin.LOG.error("Endpoint for process is null");
             }
             if (portType == null) {
-                LOG.error("PortType of process is null");
+                BpelPlanEnginePlugin.LOG.error("PortType of process is null");
             }
 
             if (this.endpointService == null) {
-                LOG.error("Endpoint Service is null");
+                BpelPlanEnginePlugin.LOG.error("Endpoint Service is null");
             }
             return false;
         }
-        LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
-        LOG.info("Deployment of Plan was successfull: {}", tempPlan.getFileName().toString());
-
-        // save endpoint
-        final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-        final WSDLEndpoint wsdlEndpoint =
-            new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata);
-        this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-
         return true;
     }
 
@@ -291,13 +301,17 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         // remove endpoint from core
         if (this.endpointService != null) {
             LOG.debug("Starting to remove endpoint!");
-            WSDLEndpoint endpoint = this.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
-            if (endpoint == null) {
+            List<WSDLEndpoint> endpoints = this.endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
+            if (endpoints.isEmpty()) {
                 LOG.warn("Couldn't remove endpoint for plan {}, because endpoint service didn't find any endpoint associated with the plan to remove",
                     planRef.getReference());
-            } else if (this.endpointService.removeWSDLEndpoint(endpoint)) {
-                LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
-                    planRef.getReference());
+            } else {
+
+                for (WSDLEndpoint endpoint : endpoints) {
+                    this.endpointService.removeWSDLEndpoint(endpoint);
+                    LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
+                        planRef.getReference());
+                }
             }
         } else {
             LOG.warn("Couldn't remove endpoint for plan {}, cause endpoint service is not available",

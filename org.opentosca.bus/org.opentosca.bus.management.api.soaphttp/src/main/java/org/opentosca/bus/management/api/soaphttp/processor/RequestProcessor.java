@@ -1,11 +1,16 @@
 package org.opentosca.bus.management.api.soaphttp.processor;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,9 +28,15 @@ import org.opentosca.bus.management.api.soaphttp.model.Doc;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationAsync;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationSync;
 import org.opentosca.bus.management.api.soaphttp.model.InvokePlan;
+import org.opentosca.bus.management.api.soaphttp.model.NotifyPartner;
+import org.opentosca.bus.management.api.soaphttp.model.NotifyPartners;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMap;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMapItemType;
+import org.opentosca.bus.management.api.soaphttp.model.ReceiveNotifyPartner;
+import org.opentosca.bus.management.api.soaphttp.model.ReceiveNotifyPartners;
 import org.opentosca.bus.management.header.MBHeader;
+import org.opentosca.bus.management.service.IManagementBusService;
+import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
@@ -59,11 +70,14 @@ public class RequestProcessor implements Processor {
     private static final Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
     private final CsarStorageService csarStorage;
     private final ContainerEngine containerEngine;
+    private final IManagementBusService managementBusService;
 
-    // manually instantiated from within the Route definition. Therefore no @Inject annotation
-    public RequestProcessor(CsarStorageService csarStorage, ContainerEngine containerEngine) {
+    // manually instantiated from within the Route definition. Therefore no @Inject
+    // annotation
+    public RequestProcessor(CsarStorageService csarStorage, ContainerEngine containerEngine, IManagementBusService managementBusService) {
         this.csarStorage = csarStorage;
         this.containerEngine = containerEngine;
+        this.managementBusService = managementBusService;
     }
 
     @Override
@@ -82,6 +96,7 @@ public class RequestProcessor implements Processor {
 
         ParamsMap paramsMap = null;
         Doc doc = null;
+        String planCorrelationID = null;
         String csarIDString = null;
         String serviceInstanceID = null;
         String callbackAddress = null;
@@ -119,9 +134,11 @@ public class RequestProcessor implements Processor {
             final List<ResolvedDeploymentArtifact> resolvedDAs = new ArrayList<>();
             if (nodeTemplateID != null) {
                 final Csar csar = csarStorage.findById(new CsarId(csarIDString));
-                final TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(csar, serviceTemplateID, nodeTemplateID);
+                final TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(csar, serviceTemplateID,
+                    nodeTemplateID);
 
-                final ResolvedArtifacts resolvedArtifacts = containerEngine.resolvedDeploymentArtifacts(csar, nodeTemplate);
+                final ResolvedArtifacts resolvedArtifacts = containerEngine.resolvedDeploymentArtifacts(csar,
+                    nodeTemplate);
                 resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
             }
 
@@ -252,6 +269,115 @@ public class RequestProcessor implements Processor {
             }
 
             exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
+        } else if (exchange.getIn().getBody() instanceof NotifyPartners) {
+            // retrieve information about NotifyPartners request and add to exchange headers
+            LOG.debug("Processing NotifyPartners");
+
+            final NotifyPartners notifyPartnersRequest = (NotifyPartners) exchange.getIn().getBody();
+
+            planCorrelationID = notifyPartnersRequest.getPlanCorrelationID();
+            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
+
+            final QName serviceTemplateID = new QName(notifyPartnersRequest.getServiceTemplateIDNamespaceURI(),
+                notifyPartnersRequest.getServiceTemplateIDLocalPart());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+
+            csarIDString = notifyPartnersRequest.getCsarID();
+            paramsMap = notifyPartnersRequest.getParams();
+            doc = notifyPartnersRequest.getDoc();
+
+            exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "notifyPartners");
+        } else if (exchange.getIn().getBody() instanceof NotifyPartner) {
+            // retrieve information about NotifyPartner request and add to exchange headers
+
+            LOG.debug("Processing NotifyPartner");
+
+            final NotifyPartner notifyPartnerRequest = (NotifyPartner) exchange.getIn().getBody();
+
+            planCorrelationID = notifyPartnerRequest.getPlanCorrelationID();
+            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
+
+            final QName serviceTemplateID = new QName(notifyPartnerRequest.getServiceTemplateIDNamespaceURI(),
+                notifyPartnerRequest.getServiceTemplateIDLocalPart());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+
+            csarIDString = notifyPartnerRequest.getCsarID();
+            paramsMap = notifyPartnerRequest.getParams();
+            doc = notifyPartnerRequest.getDoc();
+
+            exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "notifyPartner");
+        } else if (exchange.getIn().getBody() instanceof ReceiveNotifyPartner) {
+
+            LOG.debug("Invoking plan after reception of ReceiveNotifyPartner");
+
+            final ReceiveNotifyPartner receiveNotifyRequest = (ReceiveNotifyPartner) exchange.getIn().getBody();
+
+            final QName serviceTemplateID = new QName(receiveNotifyRequest.getServiceTemplateIDNamespaceURI(),
+                receiveNotifyRequest.getServiceTemplateIDLocalPart());
+
+            // get plan ID from the boundary definitions
+
+            final QName planID = MBUtils.findPlanByOperation(
+                this.csarStorage.findById(new CsarId(receiveNotifyRequest.getCsarID())),
+                "OpenTOSCA-Lifecycle-Interface", "initiate");
+            // create the body for the receiveNotify request that must be send to the plan
+            final JAXBContext jc = JAXBContext.newInstance(ReceiveNotifyPartner.class);
+            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder db = dbf.newDocumentBuilder();
+            final Document document = db.newDocument();
+            final Marshaller marshaller = jc.createMarshaller();
+            marshaller.marshal(receiveNotifyRequest, document);
+            document.renameNode(document.getDocumentElement(), "http://siserver.org/schema", "receiveNotify");
+            exchange.getIn().setBody(document);
+
+            // add required header fields for the bus
+            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
+                receiveNotifyRequest.getPlanCorrelationID());
+            exchange.getIn().setHeader(MBHeader.CALLBACK_BOOLEAN.toString(), true);
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            exchange.getIn().setHeader(MBHeader.CSARID.toString(), receiveNotifyRequest.getCsarID());
+            exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
+            // exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(),
+            // Activator.apiID);
+            exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), "receiveNotify");
+            exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
+            return;
+        } else if (exchange.getIn().getBody() instanceof ReceiveNotifyPartners) {
+
+            LOG.debug("Invoking plan after reception of ReceiveNotifyPartners");
+
+            final ReceiveNotifyPartners receiveNotifyRequest = (ReceiveNotifyPartners) exchange.getIn().getBody();
+
+            final QName serviceTemplateID = new QName(receiveNotifyRequest.getServiceTemplateIDNamespaceURI(),
+                receiveNotifyRequest.getServiceTemplateIDLocalPart());
+
+            // get plan ID from the boundary definitions
+            final QName planID = MBUtils.findPlanByOperation(
+                this.csarStorage.findById(new CsarId(receiveNotifyRequest.getCsarID())),
+                "OpenTOSCA-Lifecycle-Interface", "initiate");
+
+            // create plan invocation request from given parameters
+            exchange.getIn().setBody(createRequestBody(receiveNotifyRequest.getCsarID(), serviceTemplateID,
+                receiveNotifyRequest.getPlanCorrelationID()));
+
+            // add required header fields for the bus
+            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
+                receiveNotifyRequest.getPlanCorrelationID());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            exchange.getIn().setHeader(MBHeader.CSARID.toString(), receiveNotifyRequest.getCsarID());
+            exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
+            // exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(),
+            // Activator.apiID);
+            exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), "initiate");
+            exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
+
+            final String partner = receiveNotifyRequest.getParams().getParam().stream()
+                .filter(param -> param.getKey().equals("SendingPartner")).findFirst().map(param -> param.getValue())
+                .orElse(null);
+            LOG.debug("Adding partner: {}", partner);
+            this.managementBusService.addPartnerToReadyList(receiveNotifyRequest.getPlanCorrelationID(), partner);
+            //addPartnerToReadyList(receiveNotifyRequest.getPlanCorrelationID(), partner);
+            return;
         }
 
         final CsarId csarID = new CsarId(csarIDString);
@@ -282,5 +408,24 @@ public class RequestProcessor implements Processor {
         } else {
             exchange.getIn().setBody(null);
         }
+    }
+
+    private Map<String, String> createRequestBody(final String csarID, final QName serviceTemplateID,
+                                                  final String planCorrelationID) {
+
+        String str = Settings.CONTAINER_INSTANCEDATA_API.replace("{csarid}", csarID);
+        try {
+            str = str.replace("{servicetemplateid}",
+                URLEncoder.encode(URLEncoder.encode(serviceTemplateID.toString(), "UTF-8"), "UTF-8"));
+        } catch (final UnsupportedEncodingException e) {
+            LOG.error("Couldn't encode Service Template URL", e);
+        }
+
+        final HashMap<String, String> map = new HashMap<>();
+        map.put("instanceDataAPIUrl", str);
+        map.put("csarEntrypoint", Settings.CONTAINER_API_LEGACY + "/CSARs/" + csarID);
+        map.put("CorrelationID", planCorrelationID);
+        map.put("planCallbackAddress_invoker", "");
+        return map;
     }
 }

@@ -58,8 +58,8 @@ import org.springframework.stereotype.Service;
 @Service
 @NonNullByDefault
 /**
- * This class implements functionality for the deployment and undeployment of BPMN 2.0 Processes on
- * the Camunda BPMN Engine.<br>
+ * This class implements functionality for the deployment and undeployment of
+ * BPMN 2.0 Processes on the Camunda BPMN Engine.<br>
  * <br>
  *
  * Copyright 2019 IAAS University of Stuttgart <br>
@@ -81,7 +81,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
     private final IHTTPService httpService;
 
     @Inject
-    public CamundaPlanEnginePlugin(ICoreEndpointService endpointService, CsarStorageService storage, IHTTPService httpService) {
+    public CamundaPlanEnginePlugin(ICoreEndpointService endpointService, CsarStorageService storage,
+                                   IHTTPService httpService) {
         this.endpointService = endpointService;
         this.storage = storage;
         this.httpService = httpService;
@@ -100,7 +101,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
      * @param planPath the path to the zip file containing the plan and its artifacts
      * @param csarId   the ID of the CSAR to which the plan belongs
      * @param planId   the QName to identify the plan
-     * @return <code>true</code> if deployment is successful, <code>false</code> otherwise
+     * @return <code>true</code> if deployment is successful, <code>false</code>
+     * otherwise
      */
     private boolean deployPlanFile(final Path planPath, final CsarId csarId, final QName planId) {
         LOG.debug("Starting to deploy plan from retrieved file...");
@@ -116,7 +118,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         LOG.debug("Plan contains {} files.", planContents.size());
 
         // create Post request for the Camunda REST API
-        final HttpPost deploymentRequest = new HttpPost(Settings.ENGINE_PLAN_BPMN_URL + DEPLOYMENT_SUFFIX + CREATE_SUFFIX);
+        final HttpPost deploymentRequest = new HttpPost(
+            Settings.ENGINE_PLAN_BPMN_URL + DEPLOYMENT_SUFFIX + CREATE_SUFFIX);
 
         // only deploy if plan was not deployed before or files have changed
         final StringBody enableDuplicateFiltering = new StringBody("false", ContentType.TEXT_PLAIN);
@@ -162,7 +165,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             final HttpGet getProcessDefinition = new HttpGet(uriBuilder.build());
             response = httpClient.execute(getProcessDefinition);
 
-            final JSONArray processDefinitions = (JSONArray) jsonParser.parse(EntityUtils.toString(response.getEntity()));
+            final JSONArray processDefinitions = (JSONArray) jsonParser
+                .parse(EntityUtils.toString(response.getEntity()));
             if (processDefinitions.isEmpty()) {
                 LOG.error("No process definitions contained in created deployment!");
                 return false;
@@ -171,8 +175,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             // get the first process definition and create corresponding endpoint
             final JSONObject planProcessDefinition = (JSONObject) processDefinitions.get(0);
             final String planDefinitionID = planProcessDefinition.get("id").toString();
-            final URI endpoint = new URI(Settings.ENGINE_PLAN_BPMN_URL + PROCESS_DEFINITION_SUFFIX +
-                "/" + planDefinitionID + INSTANCE_CREATION_SUFFIX);
+            final URI endpoint = new URI(Settings.ENGINE_PLAN_BPMN_URL + PROCESS_DEFINITION_SUFFIX + "/"
+                + planDefinitionID + INSTANCE_CREATION_SUFFIX);
             final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, null, Settings.OPENTOSCA_CONTAINER_HOSTNAME,
                 Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, null, planId, null, null, Collections.emptyMap());
             endpointService.storeWSDLEndpoint(wsdlEndpoint);
@@ -196,65 +200,73 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
     public boolean undeployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
         LOG.debug("Trying to undeploy plan with ID {} from Camund BPMN engine...", planId);
 
-        // get endpoint related to the plan and extract process definition ID from the URI
-        final WSDLEndpoint endpoint = endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
-        final String[] endpointParts = endpoint.getURI().toString().split("/");
+        // get endpoint related to the plan and extract process definition ID from the
+        // URI
+        final List<WSDLEndpoint> endpoints = endpointService
+            .getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
 
-        if (endpointParts.length < 2) {
-            LOG.error("Unable to parse process definition ID for plan {} out of endpoint {}", planId, endpoint.getURI());
-            return false;
+        for (WSDLEndpoint endpoint : endpoints) {
+
+            final String[] endpointParts = endpoint.getURI().toString().split("/");
+
+            if (endpointParts.length < 2) {
+                LOG.error("Unable to parse process definition ID for plan {} out of endpoint {}", planId,
+                    endpoint.getURI());
+                return false;
+            }
+
+            final String processDefinitionID = endpointParts[endpointParts.length - 2];
+            LOG.debug("Extracted following process definition ID: {}", processDefinitionID);
+
+            try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                // get information for process definition to extract related deployment ID
+                final HttpGet getProcessDefinition = new HttpGet(
+                    Settings.ENGINE_PLAN_BPMN_URL + PROCESS_DEFINITION_SUFFIX + "/" + processDefinitionID);
+                final HttpResponse processDefinitionResponse = httpClient.execute(getProcessDefinition);
+
+                if (processDefinitionResponse.getStatusLine().getStatusCode() != 200) {
+                    LOG.error("Request to retrieve process definition returned invalid status code {}",
+                        processDefinitionResponse.getStatusLine().getStatusCode());
+                    return false;
+                }
+
+                // extract deployment ID from Json response
+                final String processDefinitionInformation = EntityUtils.toString(processDefinitionResponse.getEntity());
+                final JSONObject json = (JSONObject) jsonParser.parse(processDefinitionInformation);
+                if (!json.containsKey("deploymentId")) {
+                    LOG.error("Deployment response contains no ID for further processing!");
+                    return false;
+                }
+                final String deploymentID = json.get("deploymentId").toString();
+                LOG.debug("Extracted following deployment ID for deletion {}", deploymentID);
+
+                // delete the deployment and all related process definitions and instances
+                final URIBuilder uriBuilder = new URIBuilder(
+                    Settings.ENGINE_PLAN_BPMN_URL + DEPLOYMENT_SUFFIX + "/" + deploymentID);
+                uriBuilder.setParameter("cascade", "true");
+                final HttpDelete deleteDeployment = new HttpDelete(uriBuilder.build());
+                final HttpResponse deletionResponse = httpClient.execute(deleteDeployment);
+
+                // check success and reutrn to caller
+                if (deletionResponse.getStatusLine().getStatusCode() == 204) {
+                    LOG.debug("Deletion of plan deployment successful.");
+                } else {
+                    LOG.error("Deletion response returned invalid status code {}",
+                        deletionResponse.getStatusLine().getStatusCode());
+                    return false;
+                }
+            } catch (final IOException e) {
+                LOG.error("An IOException occured while sending post to the Camunda engine: ", e);
+                return false;
+            } catch (final ParseException e) {
+                LOG.error("A ParseException occured while parsing response to Json: ", e);
+                return false;
+            } catch (final URISyntaxException e) {
+                LOG.error("An URISyntaxException occured while building delete URL", e);
+                return false;
+            }
         }
-
-        final String processDefinitionID = endpointParts[endpointParts.length - 2];
-        LOG.debug("Extracted following process definition ID: {}", processDefinitionID);
-
-        try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // get information for process definition to extract related deployment ID
-            final HttpGet getProcessDefinition = new HttpGet(Settings.ENGINE_PLAN_BPMN_URL + PROCESS_DEFINITION_SUFFIX
-                + "/" + processDefinitionID);
-            final HttpResponse processDefinitionResponse = httpClient.execute(getProcessDefinition);
-
-            if (processDefinitionResponse.getStatusLine().getStatusCode() != 200) {
-                LOG.error("Request to retrieve process definition returned invalid status code {}",
-                    processDefinitionResponse.getStatusLine().getStatusCode());
-                return false;
-            }
-
-            // extract deployment ID from Json response
-            final String processDefinitionInformation = EntityUtils.toString(processDefinitionResponse.getEntity());
-            final JSONObject json = (JSONObject) jsonParser.parse(processDefinitionInformation);
-            if (!json.containsKey("deploymentId")) {
-                LOG.error("Deployment response contains no ID for further processing!");
-                return false;
-            }
-            final String deploymentID = json.get("deploymentId").toString();
-            LOG.debug("Extracted following deployment ID for deletion {}", deploymentID);
-
-            // delete the deployment and all related process definitions and instances
-            final URIBuilder uriBuilder = new URIBuilder(Settings.ENGINE_PLAN_BPMN_URL + DEPLOYMENT_SUFFIX + "/" + deploymentID);
-            uriBuilder.setParameter("cascade", "true");
-            final HttpDelete deleteDeployment = new HttpDelete(uriBuilder.build());
-            final HttpResponse deletionResponse = httpClient.execute(deleteDeployment);
-
-            // check success and reutrn to caller
-            if (deletionResponse.getStatusLine().getStatusCode() == 204) {
-                LOG.debug("Deletion of plan deployment successful.");
-                return true;
-            } else {
-                LOG.error("Deletion response returned invalid status code {}",
-                    deletionResponse.getStatusLine().getStatusCode());
-                return false;
-            }
-        } catch (final IOException e) {
-            LOG.error("An IOException occured while sending post to the Camunda engine: ", e);
-            return false;
-        } catch (final ParseException e) {
-            LOG.error("A ParseException occured while parsing response to Json: ", e);
-            return false;
-        } catch (final URISyntaxException e) {
-            LOG.error("An URISyntaxException occured while building delete URL", e);
-            return false;
-        }
+        return true;
     }
 
     @Nullable
@@ -274,15 +286,15 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         TServiceTemplate containingServiceTemplate = ToscaEngine.getContainingServiceTemplate(csar, toscaPlan);
         assert (containingServiceTemplate != null); // shouldn't be null, since we have a plan from it
 
-        // planRef.getReference() is overencoded. It's also not relative to the Csar root (but to one level below it)
+        // planRef.getReference() is overencoded. It's also not relative to the Csar
+        // root (but to one level below it)
         Path planLocation = ArtifactResolver.resolvePlan.apply(containingServiceTemplate, toscaPlan);
         // FIXME get rid of AbstractArtifact!
         AbstractArtifact planReference = ArtifactResolver.resolveArtifact(csar, planLocation,
             // just use the last segment, determining the filename.
             Paths.get(planRef.getReference().substring(planRef.getReference().lastIndexOf('/') + 1)));
         if (planReference == null) {
-            LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
-                planRef.getReference());
+            LOG.error("Plan reference '{}' resulted in a null ArtifactReference.", planRef.getReference());
             return null;
         }
         if (!planReference.isFileArtifact()) {

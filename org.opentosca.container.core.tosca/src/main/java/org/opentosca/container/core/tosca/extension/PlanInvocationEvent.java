@@ -11,8 +11,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.namespace.QName;
 
-import org.omg.Dynamic.Parameter;
-
 @XmlRootElement(name = "PlanInvocationEvent")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PlanInvocationEvent {
@@ -99,7 +97,7 @@ public class PlanInvocationEvent {
      *
      *
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link Parameter }
+     * Objects of the following type(s) are allowed in the list {@link TParameterDTO }
      */
     public List<TParameterDTO> getInputParameter() {
         if (this.inputParameter == null) {
@@ -125,7 +123,7 @@ public class PlanInvocationEvent {
      *
      *
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link Parameter }
+     * Objects of the following type(s) are allowed in the list {@link TParameterDTO }
      */
     public List<TParameterDTO> getOutputParameter() {
         if (this.outputParameter == null) {
@@ -297,14 +295,6 @@ public class PlanInvocationEvent {
         return this.planLanguage;
     }
 
-    public long getCalculatedWCET() {
-        return this.calculatedWCET;
-    }
-
-    public void setCalculatedWCET(final long calculatedWCET) {
-        this.calculatedWCET = calculatedWCET;
-    }
-
     /**
      * Sets the value of the planLanguage property.
      *
@@ -312,6 +302,14 @@ public class PlanInvocationEvent {
      */
     public void setPlanLanguage(final String value) {
         this.planLanguage = value;
+    }
+
+    public long getCalculatedWCET() {
+        return this.calculatedWCET;
+    }
+
+    public void setCalculatedWCET(final long calculatedWCET) {
+        this.calculatedWCET = calculatedWCET;
     }
 
     /**

@@ -1,6 +1,9 @@
 package org.opentosca.planbuilder.model.tosca;
 
 import java.util.List;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 /**
  * <p>
@@ -112,6 +115,9 @@ public abstract class AbstractNodeTemplate {
      */
     @Override
     public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
         if (o instanceof AbstractNodeTemplate) {
             final AbstractNodeTemplate node = (AbstractNodeTemplate) o;
             if (!node.getId().equals(this.getId())) {
@@ -125,4 +131,6 @@ public abstract class AbstractNodeTemplate {
             return false;
         }
     }
+
+    public abstract Map<QName, String> getOtherAttributes();
 }

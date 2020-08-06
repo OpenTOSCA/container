@@ -52,4 +52,9 @@ public class PropertyVariable extends Variable {
     public String getContent() {
         return this.nodeTemplate.getProperties().asMap().get(this.propertyName);
     }
+
+    public String toString() {
+        return ((this.isNodeTemplatePropertyVariable()) ? this.nodeTemplate.getId() : this.relationshipTemplate.getId())
+            + ":" + this.propertyName + ":" + this.getVariableName();
+    }
 }

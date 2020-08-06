@@ -2,7 +2,10 @@ package org.opentosca.planbuilder.importer.context.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
+
+import javax.xml.namespace.QName;
 
 import org.oasis_open.docs.tosca.ns._2011._12.TCapability;
 import org.oasis_open.docs.tosca.ns._2011._12.TDeploymentArtifact;
@@ -68,6 +71,11 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
         setUpRequirements();
         setUpDeploymentArtifacts();
         setUpPolicies();
+    }
+
+    @Override
+    public Map<QName, String> getOtherAttributes() {
+        return this.nodeTemplate.getOtherAttributes();
     }
 
     private void setUpPolicies() {

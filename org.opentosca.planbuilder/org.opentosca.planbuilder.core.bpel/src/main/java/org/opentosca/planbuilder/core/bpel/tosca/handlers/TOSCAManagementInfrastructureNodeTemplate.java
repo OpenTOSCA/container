@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -181,5 +182,10 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
     @Override
     public List<AbstractPolicy> getPolicies() {
         return new ArrayList<>();
+    }
+
+    @Override
+    public Map<QName, String> getOtherAttributes() {
+        return new HashMap<QName, String>();
     }
 }

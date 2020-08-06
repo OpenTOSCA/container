@@ -62,7 +62,7 @@ public interface ICoreEndpointService {
      * @param planId an id of type QName
      * @return a WSDLEndpoint representing a Plan stored in the endpoint db or null if nothing was found
      */
-    public WSDLEndpoint getWSDLEndpointForPlanId(String triggeringContainer, CsarId csarId, QName planId);
+    public List<WSDLEndpoint> getWSDLEndpointsForPlanId(String triggeringContainer, CsarId csarId, QName planId);
 
     /**
      * This method queries for a WSDLEndpoint identified by the given CSARID, NodeTypeImplementationId and

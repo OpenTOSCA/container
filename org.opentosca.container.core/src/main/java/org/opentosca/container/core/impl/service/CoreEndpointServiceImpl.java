@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.xml.namespace.QName;
 
@@ -43,7 +44,9 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
                                                final CsarId csarId) {
         final ArrayList<WSDLEndpoint> results = new ArrayList<>();
 
-        final TypedQuery<WSDLEndpoint> getWSDLEndpointsQuery = em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId and e.PortType = :portType", WSDLEndpoint.class);
+        final TypedQuery<WSDLEndpoint> getWSDLEndpointsQuery = em.createQuery(
+            "SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId and e.PortType = :portType",
+            WSDLEndpoint.class);
 
         // Set Parameters for the Query
         getWSDLEndpointsQuery.setParameter("portType", portType);
@@ -77,7 +80,8 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
      */
     public void storeWSDLEndpoint(final WSDLEndpoint endpoint) {
 
-        // TODO this check is a hack because of the problem with deploying of multiple deployment artifacts
+        // TODO this check is a hack because of the problem with deploying of multiple
+        // deployment artifacts
         if (!existsWSDLEndpoint(endpoint)) {
             if (!this.em.getTransaction().isActive()) {
                 this.em.getTransaction().begin();
@@ -97,10 +101,11 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
      * @return true, if the Endpoint already exists.
      */
     private boolean existsWSDLEndpoint(final WSDLEndpoint endpoint) {
-        TypedQuery<WSDLEndpoint> findQuery =
-            em.createQuery("SELECT e from WSDLEndpoint e where e.PortType = :portType " +
-                "and e.csarId = :csarId and e.managingContainer = :managingContainer " +
-                "and e.serviceTemplateInstanceID = :serviceTemplateInstanceID and e.PlanId = :planId", WSDLEndpoint.class);
+        TypedQuery<WSDLEndpoint> findQuery = em.createQuery(
+            "SELECT e from WSDLEndpoint e where e.PortType = :portType "
+                + "and e.csarId = :csarId and e.managingContainer = :managingContainer "
+                + "and e.serviceTemplateInstanceID = :serviceTemplateInstanceID and e.PlanId = :planId",
+            WSDLEndpoint.class);
         findQuery.setParameter("portType", endpoint.getPortType());
         findQuery.setParameter("csarId", endpoint.getCsarId());
         findQuery.setParameter("managingContainer", endpoint.getManagingContainer());
@@ -129,7 +134,8 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
          *
          * @see RESTEndpoint#getEndpointForPath
          **/
-        final TypedQuery<RESTEndpoint> getRestEndpointsQuery = this.em.createNamedQuery(RESTEndpoint.getEndpointForPath, RESTEndpoint.class);
+        final TypedQuery<RESTEndpoint> getRestEndpointsQuery = this.em.createNamedQuery(RESTEndpoint.getEndpointForPath,
+            RESTEndpoint.class);
 
         // Set Parameters
         getRestEndpointsQuery.setParameter("path", anyURI.getPath());
@@ -150,13 +156,15 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
     /**
      * {@Inheritdoc}
      */
-    public RESTEndpoint getRestEndpoint(final URI anyURI, final restMethod method, String triggeringContainer, final CsarId csarId) {
+    public RESTEndpoint getRestEndpoint(final URI anyURI, final restMethod method, String triggeringContainer,
+                                        final CsarId csarId) {
         /**
          * Create Query to retrieve a RestEndpoint
          *
          * @see RESTEndpoint#getEndpointForPathAndMethod
          */
-        final TypedQuery<RESTEndpoint> getRestEndpointQuery = this.em.createNamedQuery(RESTEndpoint.getEndpointForPathAndMethod, RESTEndpoint.class);
+        final TypedQuery<RESTEndpoint> getRestEndpointQuery = this.em
+            .createNamedQuery(RESTEndpoint.getEndpointForPathAndMethod, RESTEndpoint.class);
 
         // Set parameters
         getRestEndpointQuery.setParameter("path", anyURI.getPath());
@@ -183,28 +191,22 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
     }
 
     @Override
-    public WSDLEndpoint getWSDLEndpointForPlanId(String triggeringContainer, final CsarId csarId, final QName planId) {
-        WSDLEndpoint endpoint = null;
-        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.PlanId = :planId and e.triggeringContainer = :triggeringContainer", WSDLEndpoint.class);
-        queryWSDLEndpoint.setParameter("csarId", csarId);
+    public List<WSDLEndpoint> getWSDLEndpointsForPlanId(String triggeringContainer, final CsarId csarId, final QName planId) {
+        final Query queryWSDLEndpoint =
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId= :csarId and e.PlanId = :planId");
         queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
+        queryWSDLEndpoint.setParameter("csarId", csarId);
         queryWSDLEndpoint.setParameter("planId", planId);
 
-        try {
-            endpoint = queryWSDLEndpoint.getSingleResult();
-        } catch (final NoResultException e) {
-            LOG.error("Query in database didn't return a result", e);
-            return null;
-        }
-
-        return endpoint;
+        return queryWSDLEndpoint.getResultList();
     }
 
     @Override
     public WSDLEndpoint getWSDLEndpointForIa(final CsarId csarId, final QName nodeTypeImpl, final String iaName) {
         WSDLEndpoint endpoint = null;
         final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = em.createQuery(
-            "SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.IaName = :IaName and e.TypeImplementation = :nodeTypeImpl", WSDLEndpoint.class);
+            "SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.IaName = :IaName and e.TypeImplementation = :nodeTypeImpl",
+            WSDLEndpoint.class);
         queryWSDLEndpoint.setParameter("csarId", csarId);
         queryWSDLEndpoint.setParameter("IaName", iaName);
         queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
@@ -220,7 +222,9 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
     @Override
     public List<WSDLEndpoint> getWSDLEndpointsForCsarId(String triggeringContainer, final CsarId csarId) {
         final List<WSDLEndpoint> endpoints = new ArrayList<>();
-        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.triggeringContainer = :triggeringContainer", WSDLEndpoint.class);
+        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery(
+            "SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.triggeringContainer = :triggeringContainer",
+            WSDLEndpoint.class);
         queryWSDLEndpoint.setParameter("csarId", csarId);
         queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
 
@@ -233,10 +237,12 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
     }
 
     @Override
-    public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(String triggeringContainer, String managingContainer, final QName nodeTypeImpl, final String iaName) {
+    public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(String triggeringContainer, String managingContainer,
+                                                                 final QName nodeTypeImpl, final String iaName) {
         final List<WSDLEndpoint> endpoints = new ArrayList<>();
         final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery(
-            "SELECT e FROM WSDLEndpoint e where e.IaName = :IaName and e.TypeImplementation = :nodeTypeImpl and e.triggeringContainer = :triggeringContainer and e.managingContainer = :managingContainer", WSDLEndpoint.class);
+            "SELECT e FROM WSDLEndpoint e where e.IaName = :IaName and e.TypeImplementation = :nodeTypeImpl and e.triggeringContainer = :triggeringContainer and e.managingContainer = :managingContainer",
+            WSDLEndpoint.class);
         queryWSDLEndpoint.setParameter("IaName", iaName);
         queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
         queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
@@ -253,7 +259,8 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
     @Override
     public List<WSDLEndpoint> getWSDLEndpoints() {
         final List<WSDLEndpoint> endpoints = new ArrayList<>();
-        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e", WSDLEndpoint.class);
+        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e",
+            WSDLEndpoint.class);
 
         final List<WSDLEndpoint> queryResults = queryWSDLEndpoint.getResultList();
         for (final WSDLEndpoint endpoint : queryResults) {
@@ -266,7 +273,8 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
     @Override
     public void printPlanEndpoints() {
         List<WSDLEndpoint> endpoints = null;
-        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e", WSDLEndpoint.class);
+        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e",
+            WSDLEndpoint.class);
 
         endpoints = queryWSDLEndpoint.getResultList();
 
@@ -294,8 +302,9 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
     @Override
     public List<WSDLEndpoint> getWSDLEndpointsForSTID(String triggeringContainer, Long serviceTemplateInstanceID) {
         final List<WSDLEndpoint> endpoints = new ArrayList<>();
-        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint =
-            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.serviceTemplateInstanceID= :serviceTemplateInstanceID", WSDLEndpoint.class);
+        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery(
+            "SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.serviceTemplateInstanceID= :serviceTemplateInstanceID",
+            WSDLEndpoint.class);
         queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
         queryWSDLEndpoint.setParameter("serviceTemplateInstanceID", serviceTemplateInstanceID);
 

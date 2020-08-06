@@ -59,6 +59,12 @@ public class Route extends RouteBuilder {
     // Checks if invoking a Plan
     final Predicate IS_INVOKE_PLAN = header(CxfConstants.OPERATION_NAME).isEqualTo("invokePlan");
 
+    // Checks if notifying a partner
+    final Predicate IS_NOTIFY_PARTNER = header(CxfConstants.OPERATION_NAME).isEqualTo("notifyPartner");
+
+    // Checks if notifying partners
+    final Predicate IS_NOTIFY_PARTNERS = header(CxfConstants.OPERATION_NAME).isEqualTo("notifyPartners");
+
     private final CsarStorageService csarStorageService;
     private final IManagementBusService managementBusService;
     private final ICoreEndpointService endpointService;
@@ -112,7 +118,7 @@ public class Route extends RouteBuilder {
         responseJaxb.setPartClass("org.opentosca.bus.management.api.soaphttp.model.InvokeResponse");
         responseJaxb.setPartNamespace(new QName("http://siserver.org/schema", "invokeResponse"));
 
-        final Processor requestProcessor = new RequestProcessor(csarStorageService, containerEngine);
+        final Processor requestProcessor = new RequestProcessor(csarStorageService, containerEngine, managementBusService);
         final Processor responseProcessor = new ResponseProcessor();
 
         this.from(INVOKE_ENDPOINT)
@@ -122,6 +128,10 @@ public class Route extends RouteBuilder {
             .bean(managementBusService, "invokeIA")
             .when(IS_INVOKE_PLAN)
             .bean(managementBusService, "invokePlan")
+            .when(IS_NOTIFY_PARTNER)
+            .bean(managementBusService, "notifyPartner")
+            .when(IS_NOTIFY_PARTNERS)
+            .bean(managementBusService, "notifyPartners")
             .end();
 
         this.from("direct-vm:" + RequestProcessor.MB_MANAGEMENT_SOAPHTTP_API_ID).process(responseProcessor).marshal(responseJaxb).choice().when(ASYNC)
