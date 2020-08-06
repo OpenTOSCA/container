@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -250,6 +251,13 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         final WSDLEndpoint wsdlEndpoint =
             new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata);
         this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
+        
+        if (Objects.nonNull(callbackEndpoint)) {
+            final QName callbackPortType = QName.valueOf("{http://schemas.xmlsoap.org/wsdl/}CallbackPortType");
+            LOG.debug("Storing callback endpoint: {}", callbackEndpoint.toString());
+            this.endpointService.storeWSDLEndpoint(new WSDLEndpoint(callbackEndpoint, callbackPortType,
+                localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata));
+        }
 
         return true;
     }
