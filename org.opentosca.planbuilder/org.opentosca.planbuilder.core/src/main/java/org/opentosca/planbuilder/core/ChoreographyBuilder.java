@@ -34,8 +34,6 @@ public class ChoreographyBuilder {
             }
         }
 
-
-
         final Collection<Link> links = plan.getLinks();
 
         final Collection<AbstractNodeTemplate> managedConnectingNodes =
@@ -66,7 +64,6 @@ public class ChoreographyBuilder {
                 managedConnectingNodes.forEach(x -> {
                     plan.findNodeTemplateActivities(x).forEach(y -> linksToAdd.add(new Link(y, nodeActivity)));
                 });
-
             }
             if (managedConnectingNodes.contains(relation.getSource())
                 & !managedConnectingNodes.contains(relation.getTarget())) {
@@ -83,16 +80,13 @@ public class ChoreographyBuilder {
                     .forEach(x -> linksToAdd.add(new Link(nodeActivity, x)));
                 plan.findNodeTemplateActivities(relation.getTarget())
                     .forEach(x -> linksToAdd.add(new Link(x, nodeActivity)));
-
             }
-
         }
-
-
 
         // add base notify all partners activity
         final AbstractActivity notifyAllPartnersActivity =
-            new AbstractActivity("notifyAllPartners", ActivityType.NOTIFYALLPARTNERS) {};
+            new AbstractActivity("notifyAllPartners", ActivityType.NOTIFYALLPARTNERS) {
+            };
 
         for (final AbstractActivity activ : activitiesToAdd) {
             linksToAdd.add(new Link(notifyAllPartnersActivity, activ));
@@ -104,12 +98,11 @@ public class ChoreographyBuilder {
 
         activties.addAll(activitiesToAdd);
 
-
         links.addAll(linksToAdd);
 
         final AbstractPlan newChoregraphyPlan = new AbstractPlan(plan.getId(), plan.getType(), plan.getDefinitions(),
-            plan.getServiceTemplate(), activties, links) {};
-
+            plan.getServiceTemplate(), activties, links) {
+        };
 
         return newChoregraphyPlan;
     }
@@ -117,20 +110,17 @@ public class ChoreographyBuilder {
     private Collection<AbstractRelationshipTemplate> getUnmanagedRelation(final AbstractServiceTemplate serviceTemplate) {
         final Collection<AbstractRelationshipTemplate> unmanagedRelations = new HashSet<>();
 
-
         final Collection<AbstractNodeTemplate> unmanAbstractNodeTemplates =
             getUnmanagedChoreographyNodes(serviceTemplate);
 
         for (final AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate()
-                                                                          .getRelationshipTemplates()) {
+            .getRelationshipTemplates()) {
 
             if (unmanAbstractNodeTemplates.contains(relation.getTarget())
                 & unmanAbstractNodeTemplates.contains(relation.getSource())) {
                 unmanagedRelations.add(relation);
             }
         }
-
-
 
         return unmanagedRelations;
     }
@@ -159,7 +149,6 @@ public class ChoreographyBuilder {
                     connectingRelations.add(relation);
                 }
             }
-
         }
 
         return connectingRelations;
@@ -183,13 +172,11 @@ public class ChoreographyBuilder {
         }
 
         return connectingChoregraphyNodes;
-
     }
 
     private Collection<AbstractNodeTemplate> getManagedConnectingChoreographyNodes(final AbstractServiceTemplate serviceTemplate) {
         return getConnectingChoreographyNodes(serviceTemplate, this.getManagedChoreographyNodes(serviceTemplate));
     }
-
 
     public boolean isChoreographyPartner(final AbstractServiceTemplate serviceTemplate) {
         return getChoreographyTag(serviceTemplate) != null;
@@ -201,7 +188,7 @@ public class ChoreographyBuilder {
 
     private Collection<AbstractNodeTemplate> getManagedChoreographyNodes(final AbstractServiceTemplate serviceTemplate) {
         return this.getManagedChoreographyNodes(getChoreographyTag(serviceTemplate),
-                                                serviceTemplate.getTopologyTemplate().getNodeTemplates());
+            serviceTemplate.getTopologyTemplate().getNodeTemplates());
     }
 
     private Collection<AbstractNodeTemplate> getUnmanagedChoreographyNodes(final AbstractServiceTemplate serviceTemplate) {
@@ -217,7 +204,6 @@ public class ChoreographyBuilder {
         return unmanagedNodes;
     }
 
-
     private Collection<AbstractNodeTemplate> getManagedChoreographyNodes(final String choreographyTag,
                                                                          final Collection<AbstractNodeTemplate> nodeTemplates) {
         final Collection<AbstractNodeTemplate> choreoNodes = new HashSet<>();
@@ -230,5 +216,4 @@ public class ChoreographyBuilder {
         }
         return choreoNodes;
     }
-
 }

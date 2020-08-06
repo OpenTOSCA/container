@@ -135,7 +135,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             builder.addPart(file.getFileName().toString(), fileBody);
         }
 
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
             // send Post request to the engine
             final HttpEntity httpEntity = builder.build();
             deploymentRequest.setEntity(httpEntity);
