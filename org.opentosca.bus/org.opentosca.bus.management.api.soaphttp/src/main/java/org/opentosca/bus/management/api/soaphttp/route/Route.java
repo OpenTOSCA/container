@@ -58,10 +58,10 @@ public class Route extends RouteBuilder {
 
     // Checks if invoking a Plan
     final Predicate IS_INVOKE_PLAN = header(CxfConstants.OPERATION_NAME).isEqualTo("invokePlan");
-    
+
     // Checks if notifying a partner
     final Predicate IS_NOTIFY_PARTNER = header(CxfConstants.OPERATION_NAME).isEqualTo("notifyPartner");
-    
+
     // Checks if notifying partners
     final Predicate IS_NOTIFY_PARTNERS = header(CxfConstants.OPERATION_NAME).isEqualTo("notifyPartners");
 

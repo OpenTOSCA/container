@@ -151,8 +151,8 @@ public class BPELFinalizer {
 
         if (buildPlan.getBpelCorrelationSetsElement().getChildNodes().getLength() == 0) {
             buildPlan.getBpelProcessElement().removeChild(buildPlan.getBpelCorrelationSetsElement());
-        } 
-        
+        }
+
         if (buildPlan.getBpelFaultHandlersElement().getChildNodes().getLength() == 0) {
             buildPlan.getBpelDocument().removeChild(buildPlan.getBpelFaultHandlersElement());
         } else {

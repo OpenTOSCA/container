@@ -522,7 +522,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                 } else if (activity.getType().equals(ActivityType.TERMINATION)) {
                     final BPELPlanContext context = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope, sourceServiceTemplateMap,
                         sourceServiceTemplate, sourceServiceInstanceUrl, sourceServiceInstanceId,
-                        sourceServiceTemplateUrl,planInstanceURL, sourceCsarName);
+                        sourceServiceTemplateUrl, planInstanceURL, sourceCsarName);
                     this.bpelPluginHandler.handleActivity(context, bpelScope, bpelScope.getNodeTemplate());
                 } else if (activity.getType().equals(ActivityType.MIGRATION)) {
 

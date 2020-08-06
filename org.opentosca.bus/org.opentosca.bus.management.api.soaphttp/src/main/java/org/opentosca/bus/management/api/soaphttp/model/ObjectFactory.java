@@ -40,15 +40,14 @@ public class ObjectFactory {
         new QName("http://siserver.org/schema", "invokeOperationSync");
 
     /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for
-     * package: org.opentosca.bus.management.api.soaphttp.model
-     *
+     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package:
+     * org.opentosca.bus.management.api.soaphttp.model
      */
-    public ObjectFactory() {}
+    public ObjectFactory() {
+    }
 
     /**
      * Create an instance of {@link NotifyPartner }
-     *
      */
     public NotifyPartner createNotifyPartner() {
         return new NotifyPartner();
@@ -56,7 +55,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link NotifyPartners }
-     *
      */
     public NotifyPartners createNotifyPartners() {
         return new NotifyPartners();
@@ -64,7 +62,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ReceiveNotifyPartner }
-     *
      */
     public ReceiveNotifyPartner createReceiveNotifyPartner() {
         return new ReceiveNotifyPartner();
@@ -73,10 +70,9 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link ReceiveNotifyPartners }
      */
-      public ReceiveNotifyPartners createReceiveNotifyPartners() {
+    public ReceiveNotifyPartners createReceiveNotifyPartners() {
         return new ReceiveNotifyPartners();
-      }
-
+    }
 
     /**
      * Create an instance of {@link InvokeOperationAsync }
@@ -129,7 +125,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link NotifyPartner }{@code >}}
-     *
      */
     @XmlElementDecl(namespace = "http://siserver.org/schema", name = "notifyPartner")
     public JAXBElement<NotifyPartner> createNotifyPartner(final NotifyPartner value) {
@@ -138,7 +133,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link NotifyPartners }{@code >}}
-     *
      */
     @XmlElementDecl(namespace = "http://siserver.org/schema", name = "notifyPartners")
     public JAXBElement<NotifyPartners> createNotifyPartners(final NotifyPartners value) {
@@ -147,7 +141,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ReceiveNotifyPartner }{@code >}}
-     *
      */
     @XmlElementDecl(namespace = "http://siserver.org/schema", name = "receiveNotifyPartner")
     public JAXBElement<ReceiveNotifyPartner> createReceiveNotifyPartner(final ReceiveNotifyPartner value) {
@@ -156,7 +149,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ReceiveNotifyPartners }{@code >}}
-     *
      */
     @XmlElementDecl(namespace = "http://siserver.org/schema", name = "receiveNotifyPartners")
     public JAXBElement<ReceiveNotifyPartners> createReceiveNotifyPartners(final ReceiveNotifyPartners value) {

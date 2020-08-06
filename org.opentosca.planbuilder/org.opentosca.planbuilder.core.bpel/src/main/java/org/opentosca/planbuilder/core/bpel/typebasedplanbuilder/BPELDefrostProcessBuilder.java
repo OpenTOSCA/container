@@ -118,8 +118,8 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         final String planInstanceUrl = this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newDefreezePlan);
 
         this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newDefreezePlan, propMap, serviceInstanceUrl,
-                                                                 serviceInstanceId, serviceTemplateUrl, planInstanceUrl, serviceTemplate,
-                                                                 csarName);
+            serviceInstanceId, serviceTemplateUrl, planInstanceUrl, serviceTemplate,
+            csarName);
 
         runPlugins(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
 

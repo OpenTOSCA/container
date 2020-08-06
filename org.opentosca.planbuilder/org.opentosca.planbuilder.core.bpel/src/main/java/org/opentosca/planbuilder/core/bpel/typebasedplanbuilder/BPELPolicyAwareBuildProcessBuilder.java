@@ -185,7 +185,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
         String planInstanceUrl = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(newBuildPlan);
 
         this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap, serviceInstanceUrl,
-            serviceInstanceId, serviceTemplateUrl, planInstanceUrl, serviceTemplate, 
+            serviceInstanceId, serviceTemplateUrl, planInstanceUrl, serviceTemplate,
             csarName);
 
         runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);

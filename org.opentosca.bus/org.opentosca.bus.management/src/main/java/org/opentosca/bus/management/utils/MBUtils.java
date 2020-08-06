@@ -379,15 +379,15 @@ public class MBUtils {
             return null;
         }
     }
-    
+
     public static QName findPlanByOperation(Csar csar, String ifaceName, String opName) {
-      	TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().getInterface().stream().filter(iface -> iface.getName().equals(ifaceName)).collect(Collectors.toList())
-    	.stream().flatMap(iface -> iface.getOperation().stream()).filter(ope -> ope.getName().equals(opName)).findFirst().orElse(null);
-    	if(op != null) {
-    		return (QName) op.getPlan().getPlanRef();
-    	}
-    	
-    	return null;
+        TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().getInterface().stream().filter(iface -> iface.getName().equals(ifaceName)).collect(Collectors.toList())
+            .stream().flatMap(iface -> iface.getOperation().stream()).filter(ope -> ope.getName().equals(opName)).findFirst().orElse(null);
+        if (op != null) {
+            return (QName) op.getPlan().getPlanRef();
+        }
+
+        return null;
     }
 
     /**
@@ -426,13 +426,9 @@ public class MBUtils {
 
         return reponseMap;
     }
-    
+
     /**
      * Transfers the paramsMap into a Document.
-     *
-     * @param rootElementNamespaceURI
-     * @param rootElementName
-     * @param paramsMap
      *
      * @return the created Document.
      */
@@ -445,8 +441,7 @@ public class MBUtils {
         DocumentBuilder documentBuilder = null;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             LOG.error("Some error occured.");
             e.printStackTrace();
         }

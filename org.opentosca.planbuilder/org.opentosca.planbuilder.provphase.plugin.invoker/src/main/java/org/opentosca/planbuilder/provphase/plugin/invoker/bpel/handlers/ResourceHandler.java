@@ -223,13 +223,13 @@ public class ResourceHandler {
     public Node generateCorrelationSetsAsNode(final String correlationSetName,
                                               final Boolean initiate) throws SAXException, IOException {
         String initiateText = "";
-        
-        if(initiate == null) {
+
+        if (initiate == null) {
             initiateText = "join";
         } else {
             initiateText = (initiate ? "yes" : "no");
         }
-        
+
         final String correlationSetsString =
             "<bpel:correlations xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\"><bpel:correlation set=\""
                 + correlationSetName + "\" initiate=\"" + initiateText + "\"/></bpel:correlations>";
@@ -501,11 +501,10 @@ public class ResourceHandler {
         return doc.getFirstChild();
     }
 
-    
     public Node generaceOnMessagePickAsNode(final String pickName, final String partnerLinkName,
                                             final String operationName, final QName portType,
                                             final String variableName) throws SAXException, IOException {
- 
+
         final String receiveString =
             "<bpel:pick xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" ><bpel:onMessage partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName
                 + "\" portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\" variable=\""
@@ -520,17 +519,14 @@ public class ResourceHandler {
         is.setCharacterStream(new StringReader(receiveString));
         final Document doc = this.docBuilder.parse(is);
         return doc.getFirstChild();
-        
     }
-    
-    
-    public Node generateReceiveAsNode(final String receiveName, final String partnerLinkName,
-            final String operationName, final QName portType,
-            final String variableName) throws SAXException, IOException {
-return this.generateReceiveAsNode(receiveName, partnerLinkName, operationName, portType, variableName, null);
-}
 
-    
+    public Node generateReceiveAsNode(final String receiveName, final String partnerLinkName,
+                                      final String operationName, final QName portType,
+                                      final String variableName) throws SAXException, IOException {
+        return this.generateReceiveAsNode(receiveName, partnerLinkName, operationName, portType, variableName, null);
+    }
+
     /**
      * Generates a BPEL Receive Element
      *
@@ -546,13 +542,13 @@ return this.generateReceiveAsNode(receiveName, partnerLinkName, operationName, p
     public Node generateReceiveAsNode(final String receiveName, final String partnerLinkName,
                                       final String operationName, final QName portType,
                                       final String variableName, final String messageExchange) throws SAXException, IOException {
-        
+
         String messageExchangeString = "";
-        
-        if(messageExchange != null) {
-            messageExchangeString = "messageExchange=\""+messageExchange+"\"";
+
+        if (messageExchange != null) {
+            messageExchangeString = "messageExchange=\"" + messageExchange + "\"";
         }
-        
+
         final String receiveString =
             "<bpel:receive xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\""
                 + receiveName + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName
@@ -809,11 +805,11 @@ return this.generateReceiveAsNode(receiveName, partnerLinkName, operationName, p
     public String getServiceInvokerAsyncRequestMessagePart() {
         return "invokeOperationAsync";
     }
-    
+
     public String getServiceInvokerNotifyPartnerMessagePart() {
         return "notifyPartner";
     }
-    
+
     public String getServiceInvokerNotifyPartnersMessagePart() {
         return "notifyPartners";
     }
@@ -826,20 +822,19 @@ return this.generateReceiveAsNode(receiveName, partnerLinkName, operationName, p
     public QName getServiceInvokerAsyncRequestXSDType() {
         return new QName("http://siserver.org/schema", "invokeOperationAsync");
     }
-    
+
     public QName getServiceInvokerNotifyPartnerMessageXSDType() {
         return new QName("http://siserver.org/wsdl", "notifyPartnerMessage");
     }
-    
+
     public QName getServiceInvokerNotifyPartnersMessageXSDType() {
         return new QName("http://siserver.org/wsdl", "notifyPartnersMessage");
     }
-    
 
     public String getServiceInvokerAsyncResponseMessagePart() {
         return "invokeResponse";
     }
-    
+
     public String getServiceInvokerReceiveNotifyMessagePart() {
         return "receiveNotify";
     }
@@ -851,11 +846,11 @@ return this.generateReceiveAsNode(receiveName, partnerLinkName, operationName, p
     public QName getServiceInvokerAsyncResponseXSDType() {
         return new QName("http://siserver.org/schema", "invokeResponse");
     }
-    
+
     public QName getServiceInvokerReceiveNotifyMessageType() {
         return new QName("http://siserver.org/wsdl", "receiveNotifyMessage");
     }
-    
+
     public QName getServiceInvokerReceiveNotifyXSDType() {
         return new QName("http://siserver.org/schema", "receiveNotify");
     }
@@ -889,79 +884,73 @@ return this.generateReceiveAsNode(receiveName, partnerLinkName, operationName, p
         Files.copy(xsdFile, Files.newOutputStream(tempFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE));
         return tempFile;
     }
-    
-    public Node generateNotifyPlanRequestMessageInitAssignTemplate(final String csarName, final QName serviceTemplateId, final String messageId, 
-            final String requestVarName,
-            final String requestVarPartName,
-            final Map<String, Variable> internalExternalProps) throws IOException, SAXException {
-    	
-    	
-    	URL url = getClass().getClassLoader().getResource("invoker-plugin/assignNotifyMessage.xml");
-    	String assignTemplateString =  ResourceAccess.readResourceAsString(url);
-    	
+
+    public Node generateNotifyPlanRequestMessageInitAssignTemplate(final String csarName, final QName serviceTemplateId, final String messageId,
+                                                                   final String requestVarName,
+                                                                   final String requestVarPartName,
+                                                                   final Map<String, Variable> internalExternalProps) throws IOException, SAXException {
+
+        URL url = getClass().getClassLoader().getResource("invoker-plugin/assignNotifyMessage.xml");
+        String assignTemplateString = ResourceAccess.readResourceAsString(url);
 
 
 
-/*
-* String values must replace: {csarName}, {serviceTemplateNS}, {serviceTemplateLocalName},
-* {operationName}, {messageID}, {requestVarName}, {requestVarPartName}
-*
-* These must be xml snippets again -> more complicated: {copies} {interface}, {templateID},
-* {paramsMap},
-*/
+
+        /*
+         * String values must replace: {csarName}, {serviceTemplateNS}, {serviceTemplateLocalName},
+         * {operationName}, {messageID}, {requestVarName}, {requestVarPartName}
+         *
+         * These must be xml snippets again -> more complicated: {copies} {interface}, {templateID},
+         * {paramsMap},
+         */
 
 // first the easy ones
-assignTemplateString = assignTemplateString.replace("{csarName}", csarName);
-assignTemplateString = assignTemplateString.replace("{planCorrelation}", "");
+        assignTemplateString = assignTemplateString.replace("{csarName}", csarName);
+        assignTemplateString = assignTemplateString.replace("{planCorrelation}", "");
 
+        assignTemplateString = assignTemplateString.replace("{serviceTemplateNS}", serviceTemplateId.getNamespaceURI());
+        assignTemplateString =
+            assignTemplateString.replace("{serviceTemplateLocalName}", serviceTemplateId.getLocalPart());
+        assignTemplateString = assignTemplateString.replace("{messageID}", messageId);
+        assignTemplateString = assignTemplateString.replace("{requestVarName}", requestVarName);
+        assignTemplateString = assignTemplateString.replace("{requestVarPartName}", requestVarPartName);
 
-assignTemplateString = assignTemplateString.replace("{serviceTemplateNS}", serviceTemplateId.getNamespaceURI());
-assignTemplateString =
-assignTemplateString.replace("{serviceTemplateLocalName}", serviceTemplateId.getLocalPart());
-assignTemplateString = assignTemplateString.replace("{messageID}", messageId);
-assignTemplateString = assignTemplateString.replace("{requestVarName}", requestVarName);
-assignTemplateString = assignTemplateString.replace("{requestVarPartName}", requestVarPartName);
-
-
-
-assignTemplateString =
-assignTemplateString.replace("{paramsMap}", generateServiceInvokerParamsMap(internalExternalProps));
+        assignTemplateString =
+            assignTemplateString.replace("{paramsMap}", generateServiceInvokerParamsMap(internalExternalProps));
 
 // add copy elements to the assign according to the given map of
 // parameters
-for (final String propertyName : internalExternalProps.keySet()) {
-if (internalExternalProps.get(propertyName) == null) {
+        for (final String propertyName : internalExternalProps.keySet()) {
+            if (internalExternalProps.get(propertyName) == null) {
 // parameter is external, fetch value from plan input message
-String copyString =
-generateServiceInvokerExternalParamCopyString(requestVarName, requestVarPartName, propertyName);
-copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
-} else {
+                String copyString =
+                    generateServiceInvokerExternalParamCopyString(requestVarName, requestVarPartName, propertyName);
+                copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+                assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
+            } else {
 // parameter is internal, fetch value from bpel variable
-String copyString =
-generateServiceInvokerInternalParamCopyString(internalExternalProps.get(propertyName)
-                                 .getVariableName(),
-            requestVarName, requestVarPartName, propertyName);
-copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
-}
-}
+                String copyString =
+                    generateServiceInvokerInternalParamCopyString(internalExternalProps.get(propertyName)
+                            .getVariableName(),
+                        requestVarName, requestVarPartName, propertyName);
+                copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+                assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
+            }
+        }
 
 // assign correlation id
-String correlationIdCopyString = generateCorrelationIdCopy(requestVarName, requestVarPartName);
-correlationIdCopyString = correlationIdCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-assignTemplateString = assignTemplateString.replace("{copies}", correlationIdCopyString + "{copies}");
+        String correlationIdCopyString = generateCorrelationIdCopy(requestVarName, requestVarPartName);
+        correlationIdCopyString = correlationIdCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+        assignTemplateString = assignTemplateString.replace("{copies}", correlationIdCopyString + "{copies}");
 
+        assignTemplateString = assignTemplateString.replace("{copies}", "");
 
-assignTemplateString = assignTemplateString.replace("{copies}", "");
+        ResourceHandler.LOG.debug("Generated Notify Message:");
+        ResourceHandler.LOG.debug(assignTemplateString);
 
-
-ResourceHandler.LOG.debug("Generated Notify Message:");
-ResourceHandler.LOG.debug(assignTemplateString);
-
-final InputSource is = new InputSource();
-is.setCharacterStream(new StringReader(assignTemplateString));
-final Document doc = this.docBuilder.parse(is);
-return doc.getFirstChild();        
-}
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(assignTemplateString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
+    }
 }

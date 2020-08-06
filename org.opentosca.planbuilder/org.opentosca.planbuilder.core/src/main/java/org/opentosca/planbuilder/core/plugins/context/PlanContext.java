@@ -8,7 +8,6 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -64,7 +63,7 @@ public abstract class PlanContext {
     public String getServiceInstanceURLVarName() {
         return this.serviceInstanceURLVarName;
     }
-    
+
     public String getPlanInstanceURLVarName() {
         return this.planInstanceUrlVarName;
     }

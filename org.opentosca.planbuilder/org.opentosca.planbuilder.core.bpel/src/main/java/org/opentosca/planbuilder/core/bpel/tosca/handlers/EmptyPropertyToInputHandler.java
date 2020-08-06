@@ -121,15 +121,13 @@ public class EmptyPropertyToInputHandler {
     public void initializeEmptyPropertiesAsInputParam(final Collection<BPELScope> bpelActivities, final BPELPlan plan,
                                                       final Property2VariableMapping propMap, String serviceInstanceUrl,
                                                       String serviceInstanceId, String serviceTemplateUrl,
-                                                      AbstractServiceTemplate serviceTemplate,String planInstanceUrl, String csarName) {
+                                                      AbstractServiceTemplate serviceTemplate, String planInstanceUrl, String csarName) {
         for (final BPELScope templatePlan : bpelActivities) {
             if (templatePlan.getNodeTemplate() != null) {
                 final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 
-                
-                final BPELPlanContext context = new BPELPlanContext(scopeBuilder, plan,templatePlan, propMap, plan.getServiceTemplate(),
+                final BPELPlanContext context = new BPELPlanContext(scopeBuilder, plan, templatePlan, propMap, plan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
-
 
                 if (propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate).isEmpty()) {
                     // nodeTemplate doesn't have props defined

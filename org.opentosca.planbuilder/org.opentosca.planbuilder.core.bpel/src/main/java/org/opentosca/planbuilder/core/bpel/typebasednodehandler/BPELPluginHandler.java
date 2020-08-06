@@ -50,7 +50,6 @@ public class BPELPluginHandler {
         return result;
     }
 
-
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                   final AbstractNodeTemplate nodeTemplate) {
         boolean result = false;
@@ -145,7 +144,6 @@ public class BPELPluginHandler {
         return result;
     }
 
-
     private boolean handleTerminationActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                               final AbstractRelationshipTemplate relationshipTemplate) {
         boolean result = true;
@@ -237,7 +235,7 @@ public class BPELPluginHandler {
             }
         } else {
             LOG.info("Ignoring NodeTemplate {} with activityType {}", relationshipTemplate.getId(),
-                     bpelScope.getActivity().getType());
+                bpelScope.getActivity().getType());
         }
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             if (postPhasePlugin.canHandleCreate(context, bpelScope.getRelationshipTemplate())) {

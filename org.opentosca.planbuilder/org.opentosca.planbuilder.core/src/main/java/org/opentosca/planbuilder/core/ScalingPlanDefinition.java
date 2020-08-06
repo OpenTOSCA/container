@@ -110,10 +110,10 @@ public class ScalingPlanDefinition {
             return this.nodeTemplate.getPolicies();
         }
 
-		@Override
-		public Map<QName, String> getOtherAttributes() {
-			return this.nodeTemplate.getOtherAttributes();
-		}
+        @Override
+        public Map<QName, String> getOtherAttributes() {
+            return this.nodeTemplate.getOtherAttributes();
+        }
     }
 
     // recursive selections

@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,6 +12,9 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.opentosca.planbuilder.core.plugins.context.PlanContext;
+import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
+import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -21,16 +23,12 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
-import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
-import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
  * @author kalmankepes
- *
  */
 public class BPELNotifyHandler extends PluginHandler {
 
@@ -62,7 +60,6 @@ public class BPELNotifyHandler extends PluginHandler {
         return correlationPropertyName;
     }
 
-
     private String addNotifyCorrelationSet(final BPELPlanContext context, final String correlationPropertyName) {
         final String correlationSetName = correlationSetPrefix + context.getIdForNames();
         context.addGlobalCorrelationSet(correlationSetName, correlationPropertyName);
@@ -73,10 +70,7 @@ public class BPELNotifyHandler extends PluginHandler {
         return getGloblaNotifyCorrelationSetName(context) != null & getNotifcationProperty(context) != null;
     }
 
-
     public boolean handleNotifyPartners(final BPELPlanContext context) throws SAXException, IOException {
-
-
 
         final Path xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
         final Path wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
@@ -87,7 +81,6 @@ public class BPELNotifyHandler extends PluginHandler {
         // atleast the xsd should be imported now in the plan
         context.registerType(this.resHandler.getServiceInvokerNotifyPartnersMessageXSDType(), xsdFile);
 
-
         final QName InputMessageId =
             context.importQName(this.resHandler.getServiceInvokerNotifyPartnersMessageXSDType());
         final String InputMessagePartName = this.resHandler.getServiceInvokerNotifyPartnersMessagePart();
@@ -95,10 +88,8 @@ public class BPELNotifyHandler extends PluginHandler {
         // generate partnerlink from the two porttypes
         final String partnerLinkTypeName = invokerPortType.getLocalPart() + "PLT" + context.getIdForNames();
 
-
-
         context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee",
-                                   invokerPortType);
+            invokerPortType);
 
         final String partnerLinkName = invokerPortType.getLocalPart() + "PL" + context.getIdForNames();
 
@@ -115,7 +106,6 @@ public class BPELNotifyHandler extends PluginHandler {
             invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
         context.addVariable(requestVariableName, BPELPlan.VariableType.MESSAGE, InputMessageId);
 
-
         // setup a correlation set for the messages
         String correlationSetName = null;
         String correlationPropertyName = null;
@@ -123,21 +113,16 @@ public class BPELNotifyHandler extends PluginHandler {
         if (isNotifcationCorrelationSet(context)) {
             correlationPropertyName = getNotifcationProperty(context);
             correlationSetName = getGloblaNotifyCorrelationSetName(context);
-
         } else {
             correlationPropertyName = addNotifyCorrelationProperty(context);
             correlationSetName = addNotifyCorrelationSet(context, correlationPropertyName);
         }
-
-
 
         final String query =
             "//*[local-name()=\"PlanCorrelationID\" and namespace-uri()=\"http://siserver.org/schema\"]";
         // "/" + InputMessageId.getPrefix() + ":" + "MessageID"
         context.addPropertyAlias(correlationPropertyName, InputMessageId, InputMessagePartName, query);
         // register correlationsets
-
-
 
         // fetch serviceInstanceId
 
@@ -146,7 +131,6 @@ public class BPELNotifyHandler extends PluginHandler {
         if (serviceInstanceIdVarName == null) {
             return false;
         }
-
 
         // add request message assign to prov phase scope
 
@@ -162,11 +146,10 @@ public class BPELNotifyHandler extends PluginHandler {
         // components is needed
         assignNode =
             this.resHandler.generateNotifyPlanRequestMessageInitAssignTemplate(context.getCSARFileName(),
-                                                                               context.getServiceTemplateId(),
-                                                                               String.valueOf(System.currentTimeMillis()),
-                                                                               requestVariableName,
-                                                                               InputMessagePartName, params);
-
+                context.getServiceTemplateId(),
+                String.valueOf(System.currentTimeMillis()),
+                requestVariableName,
+                InputMessagePartName, params);
 
         assignNode = context.importNode(assignNode);
 
@@ -178,7 +161,6 @@ public class BPELNotifyHandler extends PluginHandler {
         addressingCopyNode = context.importNode(addressingCopyNode);
         assignNode.appendChild(addressingCopyNode);
 
-
         Node messageIdInit =
             this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, "notifyPartners_"
                 + context.getServiceTemplateId().getLocalPart());
@@ -187,8 +169,6 @@ public class BPELNotifyHandler extends PluginHandler {
 
         context.getProvisioningPhaseElement().appendChild(assignNode);
 
-
-
         this.appendLOGMessageActivity(context, "Executing notify all partners", context.getProvisioningPhaseElement());
 
         // invoke service invoker
@@ -196,7 +176,7 @@ public class BPELNotifyHandler extends PluginHandler {
 
         Node invokeNode =
             this.resHandler.generateInvokeAsNode("sendNotifyPartners_" + requestVariableName, partnerLinkName,
-                                                 "notifyPartners", invokerPortType, requestVariableName);
+                "notifyPartners", invokerPortType, requestVariableName);
         BPELInvokeOperationHandler.LOG.debug("Trying to ImportNode: " + invokeNode.toString());
         invokeNode = context.importNode(invokeNode);
 
@@ -206,16 +186,12 @@ public class BPELNotifyHandler extends PluginHandler {
 
         context.getProvisioningPhaseElement().appendChild(invokeNode);
 
-
         return true;
-
     }
 
     private String getMyPartnerId(final BPELPlanContext context) {
         return context.getServiceTemplate().getTags().get("participant");
     }
-
-
 
     public boolean addChoreographyParameters(final BPELPlanContext context, final Map<String, Variable> params) {
         final AbstractRelationshipTemplate connectingRelationshipTemplate =
@@ -236,12 +212,12 @@ public class BPELNotifyHandler extends PluginHandler {
         if (sendingPartner != null & receivingPartner != null) {
             final Variable sendingPartnerIdVar =
                 context.createGlobalStringVariable("partner_" + sendingPartner + "_IDVar_" + context.getIdForNames(),
-                                                   sendingPartner);
+                    sendingPartner);
             params.put("SendingPartner", sendingPartnerIdVar);
 
             final Variable recevingPartnerIdVar =
                 context.createGlobalStringVariable("partner_" + receivingPartner + "_IDVar_" + context.getIdForNames(),
-                                                   receivingPartner);
+                    receivingPartner);
             params.put("ReceivingPartner", recevingPartnerIdVar);
         } else {
             return false;
@@ -253,7 +229,6 @@ public class BPELNotifyHandler extends PluginHandler {
     public boolean handleReceiveNotify(final BPELPlanContext context,
                                        final Map<String, Variable> internalExternalPropsOutput,
                                        final Element elementToAppendTo) throws IOException, SAXException {
-
 
         // register wsdls and xsd
         final Path xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
@@ -271,10 +246,8 @@ public class BPELNotifyHandler extends PluginHandler {
         // generate partnerlink from the two porttypes
         final String partnerLinkTypeName = invokerCallbackPortType.getLocalPart() + "PLT" + context.getIdForNames();
 
-
-
         context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee",
-                                   invokerPortType);
+            invokerPortType);
 
         final String partnerLinkName = invokerCallbackPortType.getLocalPart() + "PL" + context.getIdForNames();
 
@@ -286,13 +259,9 @@ public class BPELNotifyHandler extends PluginHandler {
             + "Response" + context.getIdForNames();
         context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageId);
 
-
-
         // setup a correlation set for the messages
         String correlationSetName = null;
         String correlationPropertyName = null;
-
-
 
         if (isNotifcationCorrelationSet(context)) {
             correlationPropertyName = getNotifcationProperty(context);
@@ -302,12 +271,10 @@ public class BPELNotifyHandler extends PluginHandler {
             correlationSetName = addNotifyCorrelationSet(context, correlationPropertyName);
         }
 
-
         final String query =
             "//*[local-name()=\"PlanCorrelationID\" and namespace-uri()=\"http://siserver.org/schema\"]";
         // "/" + InputMessageId.getPrefix() + ":" + "MessageID" ageId, InputMessagePartName, query);
         context.addPropertyAlias(correlationPropertyName, OutputMessageId, OutputMessagePartName, query);
-
 
         // fetch serviceInstanceId
 
@@ -317,24 +284,21 @@ public class BPELNotifyHandler extends PluginHandler {
             return false;
         }
 
-
-
         if (context.isNodeTemplate()) {
 
             appendLOGMessageActivity(context,
-                                     "Executing receive of notify of NodeTemplate " + context.getNodeTemplate().getId(),
-                                     PlanContext.Phase.PROV);
+                "Executing receive of notify of NodeTemplate " + context.getNodeTemplate().getId(),
+                PlanContext.Phase.PROV);
         } else {
             appendLOGMessageActivity(context, "Executing receive of notify  of RelationshipTemplate "
                 + context.getRelationshipTemplate().getId() + "", PlanContext.Phase.PROV);
         }
 
-
         // add receive for service invoker callback
 
         Node receiveNode =
             this.resHandler.generateReceiveAsNode("receiveNotify_" + responseVariableName, partnerLinkName,
-                                                  "receiveNotify", invokerCallbackPortType, responseVariableName);
+                "receiveNotify", invokerCallbackPortType, responseVariableName);
         receiveNode = context.importNode(receiveNode);
 
         Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
@@ -343,44 +307,36 @@ public class BPELNotifyHandler extends PluginHandler {
 
         elementToAppendTo.appendChild(receiveNode);
 
-
-
         Node responseAssignNode = null;
-
 
         // process response message
         // add assign for response
 
-
         responseAssignNode =
             this.resHandler.generateResponseAssignAsNode(responseVariableName, OutputMessagePartName,
-                                                         internalExternalPropsOutput, "assign_" + responseVariableName,
-                                                         OutputMessageId, context.getPlanResponseMessageName(),
-                                                         "payload");
+                internalExternalPropsOutput, "assign_" + responseVariableName,
+                OutputMessageId, context.getPlanResponseMessageName(),
+                "payload");
         responseAssignNode = context.importNode(responseAssignNode);
 
         elementToAppendTo.appendChild(responseAssignNode);
 
-
-
         Node checkForFault =
             this.resHandler.generateBPELIfTrueThrowFaultAsNode("boolean($" + responseVariableName
-                + "//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\"Fault\"])",
-                                                               new QName("http://opentosca.org/plans/invocationfault",
-                                                                   "receiveNotifyFault",
-                                                                   "fault"
-                                                                       + String.valueOf(System.currentTimeMillis())),
-                                                               responseVariableName);
+                    + "//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\"Fault\"])",
+                new QName("http://opentosca.org/plans/invocationfault",
+                    "receiveNotifyFault",
+                    "fault"
+                        + String.valueOf(System.currentTimeMillis())),
+                responseVariableName);
 
         checkForFault = context.importNode(checkForFault);
         elementToAppendTo.insertBefore(checkForFault, responseAssignNode);
 
         // elementToAppendTo.appendChild(checkForFault);
 
-
         return true;
     }
-
 
     public boolean handleSendNotify(final BPELPlanContext context,
                                     final Map<String, Variable> internalExternalPropsInput,
@@ -388,7 +344,6 @@ public class BPELNotifyHandler extends PluginHandler {
         final boolean isNodeTemplate = context.isNodeTemplate();
         final String templateId =
             isNodeTemplate ? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId();
-
 
         final Path xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
         final Path wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
@@ -399,7 +354,6 @@ public class BPELNotifyHandler extends PluginHandler {
         // atleast the xsd should be imported now in the plan
         context.registerType(this.resHandler.getServiceInvokerNotifyPartnerMessageXSDType(), xsdFile);
 
-
         final QName InputMessageId =
             context.importQName(this.resHandler.getServiceInvokerNotifyPartnerMessageXSDType());
         final String InputMessagePartName = this.resHandler.getServiceInvokerNotifyPartnerMessagePart();
@@ -407,10 +361,8 @@ public class BPELNotifyHandler extends PluginHandler {
         // generate partnerlink from the two porttypes
         final String partnerLinkTypeName = invokerPortType.getLocalPart() + "PLT" + context.getIdForNames();
 
-
-
         context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee",
-                                   invokerPortType);
+            invokerPortType);
 
         final String partnerLinkName = invokerPortType.getLocalPart() + "PL" + context.getIdForNames();
 
@@ -420,7 +372,6 @@ public class BPELNotifyHandler extends PluginHandler {
         final String requestVariableName =
             invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
         context.addVariable(requestVariableName, BPELPlan.VariableType.MESSAGE, InputMessageId);
-
 
         // setup a correlation set for the messages
         String correlationSetName = null;
@@ -444,7 +395,6 @@ public class BPELNotifyHandler extends PluginHandler {
             return false;
         }
 
-
         // add request message assign to prov phase scope
 
         Node assignNode = null;
@@ -459,12 +409,11 @@ public class BPELNotifyHandler extends PluginHandler {
         // components is needed
         assignNode =
             this.resHandler.generateNotifyPlanRequestMessageInitAssignTemplate(context.getCSARFileName(),
-                                                                               context.getServiceTemplateId(),
-                                                                               String.valueOf(System.currentTimeMillis()),
-                                                                               requestVariableName,
-                                                                               InputMessagePartName,
-                                                                               internalExternalPropsInput);
-
+                context.getServiceTemplateId(),
+                String.valueOf(System.currentTimeMillis()),
+                requestVariableName,
+                InputMessagePartName,
+                internalExternalPropsInput);
 
         assignNode = context.importNode(assignNode);
 
@@ -476,22 +425,18 @@ public class BPELNotifyHandler extends PluginHandler {
         addressingCopyNode = context.importNode(addressingCopyNode);
         assignNode.appendChild(addressingCopyNode);
 
-
         Node messageIdInit =
             this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, "notify_ "
                 + templateId + "_" + context.getServiceTemplateId().getLocalPart());
         messageIdInit = context.importNode(messageIdInit);
         assignNode.appendChild(messageIdInit);
 
-
         elementToAppendTo.appendChild(assignNode);
-
-
 
         if (isNodeTemplate) {
 
             appendLOGMessageActivity(context, "Executing notify  of NodeTemplate " + context.getNodeTemplate().getId(),
-                                     PlanContext.Phase.PROV);
+                PlanContext.Phase.PROV);
         } else {
             appendLOGMessageActivity(context, "Executing notify RelationshipTemplate "
                 + context.getRelationshipTemplate().getId() + "", PlanContext.Phase.PROV);
@@ -500,7 +445,7 @@ public class BPELNotifyHandler extends PluginHandler {
         // add invoke
 
         Node invokeNode = this.resHandler.generateInvokeAsNode("sendNotify_" + requestVariableName, partnerLinkName,
-                                                               "notifyPartner", invokerPortType, requestVariableName);
+            "notifyPartner", invokerPortType, requestVariableName);
         BPELInvokeOperationHandler.LOG.debug("Trying to ImportNode: " + invokeNode.toString());
         invokeNode = context.importNode(invokeNode);
 
@@ -510,10 +455,8 @@ public class BPELNotifyHandler extends PluginHandler {
 
         elementToAppendTo.appendChild(invokeNode);
 
-
         return true;
     }
-
 
     public Collection<AbstractParameter> getAllOperationParameters(final BPELPlanContext context) {
         final Collection<AbstractParameter> parameters = new HashSet<>();
@@ -526,7 +469,6 @@ public class BPELNotifyHandler extends PluginHandler {
         }
         return parameters;
     }
-
 
     public Collection<PropertyVariable> getPartnerPropertyVariables(final BPELPlanContext context) {
         final List<AbstractNodeTemplate> nodes = new ArrayList<>();
@@ -548,7 +490,6 @@ public class BPELNotifyHandler extends PluginHandler {
         return props;
     }
 
-
     public boolean isValidForReceiveNotify(final BPELPlanContext context) {
         // basically we are always valid for receives as we only expect the properties of the partner's
         // nodes
@@ -557,7 +498,6 @@ public class BPELNotifyHandler extends PluginHandler {
         }
         return true;
     }
-
 
     public boolean isValidForSendNotify(final BPELPlanContext context) {
 
@@ -570,7 +510,6 @@ public class BPELNotifyHandler extends PluginHandler {
         // return parameters.size() == paramMacthing.size();
         return true;
     }
-
 
     public Map<String, Variable> mapToParamMap(final Collection<PropertyVariable> propertyVariables) {
         final Map<String, Variable> params = new HashMap<>();
@@ -593,8 +532,6 @@ public class BPELNotifyHandler extends PluginHandler {
         return null;
     }
 
-
-
     public Map<String, PropertyVariable> matchOperationParamertsToProperties(final BPELPlanContext context) {
         final Map<String, PropertyVariable> params = new HashMap<>();
 
@@ -611,5 +548,4 @@ public class BPELNotifyHandler extends PluginHandler {
         }
         return params;
     }
-
 }

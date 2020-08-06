@@ -48,8 +48,7 @@ public class Constants {
         QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}location");
 
     /**
-     * Operation names of the management bus SOAP API to receive notifications from other management
-     * busses.
+     * Operation names of the management bus SOAP API to receive notifications from other management busses.
      */
     public final static String RECEIVE_NOTIFY_PARTNER_OPERATION = "receiveNotifyPartner";
     public final static String RECEIVE_NOTIFY_PARTNERS_OPERATION = "receiveNotifyPartners";
@@ -65,8 +64,8 @@ public class Constants {
     public final static String PARAMS_PARAM = "Params";
 
     /**
-     * Parameter containing the template ID of the RelationshipTemplate to which a notify message
-     * belongs in a choreography.
+     * Parameter containing the template ID of the RelationshipTemplate to which a notify message belongs in a
+     * choreography.
      */
     public final static String RELATIONSHIP_TEMPLATE_PARAM = "ConnectingRelationshipTemplate";
 

@@ -77,7 +77,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     private final EmptyPropertyToInputHandler emptyPropInit;
-    
+
     private final ChoreographyBuilder choreoBuilder = new ChoreographyBuilder();
 
     /**
@@ -130,8 +130,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             AbstractPlan buildPlan =
                 AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
-            
-            if(this.choreoBuilder.isChoreographyPartner(serviceTemplate)) {
+
+            if (this.choreoBuilder.isChoreographyPartner(serviceTemplate)) {
                 LOG.debug("Transforming plan to be part of a choreography: ");
                 buildPlan = this.choreoBuilder.transformToChoreography(buildPlan);
             }

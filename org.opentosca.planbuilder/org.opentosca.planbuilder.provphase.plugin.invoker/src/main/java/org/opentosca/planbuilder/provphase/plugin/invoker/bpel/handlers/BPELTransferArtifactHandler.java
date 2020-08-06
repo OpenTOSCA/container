@@ -31,7 +31,7 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
      */
     public String fileReferenceToFolder(String ref) {
         LOG.debug("Getting ref to change to folder ref: " + ref);
-    
+
         final int lastIndexSlash = ref.lastIndexOf("/");
         final int lastIndexDot = ref.lastIndexOf(".");
         if (lastIndexSlash < lastIndexDot) {
@@ -43,7 +43,7 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
 
     public List<String> getRunScriptParams(final AbstractNodeTemplate nodeTemplate) {
         final List<String> inputParams = new ArrayList<>();
-    
+
         for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
             for (final AbstractOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)) {
@@ -53,13 +53,13 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
                 }
             }
         }
-    
+
         return inputParams;
     }
 
     public List<String> getTransferFileParams(final AbstractNodeTemplate nodeTemplate) {
         final List<String> inputParams = new ArrayList<>();
-    
+
         for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
             for (final AbstractOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
@@ -69,7 +69,7 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
                 }
             }
         }
-    
+
         return inputParams;
     }
 
@@ -79,12 +79,12 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
                                                  final AbstractNodeTemplate infraTemplate,
                                                  Element elementToAppendTo) throws Exception {
         BPELInvokeOperationHandler.LOG.debug("Handling DA " + ref.getReference());
-    
+
         if (Objects.isNull(serverIp)) {
             LOG.error("Unable to upload artifact with server IP equal to null.");
             return false;
         }
-    
+
         /*
          * Contruct all needed data (paths, url, scripts)
          */
@@ -102,30 +102,26 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
         /*
          * create a string variable with a complete URL to the file we want to upload
          */
-    
+
         final Variable containerAPIAbsoluteURIVar =
             templateContext.createGlobalStringVariable(containerAPIAbsoluteURIVarName, "");
-    
+
         try {
             Node assignNode =
                 loadAssignXpathQueryToStringVarFragmentAsNode("assign" + templateContext.getIdForNames(),
-                                                              containerAPIAbsoluteURIXPathQuery,
-                                                              containerAPIAbsoluteURIVar.getVariableName());
+                    containerAPIAbsoluteURIXPathQuery,
+                    containerAPIAbsoluteURIVar.getVariableName());
             assignNode = templateContext.importNode(assignNode);
-    
+
             elementToAppendTo.appendChild(assignNode);
-    
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             BPELInvokeOperationHandler.LOG.error("Couldn't read internal file", e);
             return false;
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             BPELInvokeOperationHandler.LOG.error("Couldn't parse internal xml file");
             return false;
         }
-    
-    
+
         // create the folder the file must be uploaded into and upload the file afterwards
         final String mkdirScriptVarName = "mkdirScript" + templateContext.getIdForNames();
         final Variable mkdirScriptVar =
@@ -133,30 +129,30 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
         final Map<String, Variable> runScriptRequestInputParams = new HashMap<>();
         runScriptRequestInputParams.put("Script", mkdirScriptVar);
         final List<String> runScriptInputParams = getRunScriptParams(infraTemplate);
-    
+
         final Map<String, Variable> transferFileRequestInputParams = new HashMap<>();
         transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
         transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
         final List<String> transferFileInputParams = getTransferFileParams(infraTemplate);
-    
+
         switch (serverIp.getPropertyName()) {
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_CONTAINERIP:
-    
+
                 // create the folder
                 if (runScriptInputParams.contains(serverIp.getPropertyName())) {
                     runScriptRequestInputParams.put(serverIp.getPropertyName(), serverIp);
                 }
                 this.handleInvokeOperation(templateContext, infraTemplate.getId(), true, "runScript", "ContainerManagementInterface",
-                            runScriptRequestInputParams, new HashMap<String, Variable>(), elementToAppendTo);
-    
+                    runScriptRequestInputParams, new HashMap<String, Variable>(), elementToAppendTo);
+
                 // transfer the file
                 if (transferFileInputParams.contains(serverIp.getPropertyName())) {
                     transferFileRequestInputParams.put(serverIp.getPropertyName(), serverIp);
                 }
                 this.handleInvokeOperation(templateContext, infraTemplate.getId(), true,
-                            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
-                            "ContainerManagementInterface", transferFileRequestInputParams,
-                            new HashMap<String, Variable>(), elementToAppendTo);
+                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
+                    "ContainerManagementInterface", transferFileRequestInputParams,
+                    new HashMap<String, Variable>(), elementToAppendTo);
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
@@ -171,9 +167,9 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
                     runScriptRequestInputParams.put("VMPrivateKey", sshKey);
                 }
                 this.handleInvokeOperation(templateContext, infraTemplate.getId(), true, "runScript",
-                            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
-                            new HashMap<String, Variable>(), elementToAppendTo);
-    
+                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
+                    new HashMap<String, Variable>(), elementToAppendTo);
+
                 // transfer the file
                 if (transferFileInputParams.contains(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)) {
                     transferFileRequestInputParams.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP, serverIp);
@@ -185,15 +181,14 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
                     transferFileRequestInputParams.put("VMPrivateKey", sshKey);
                 }
                 this.handleInvokeOperation(templateContext, infraTemplate.getId(), true,
-                            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
-                            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, transferFileRequestInputParams,
-                            new HashMap<String, Variable>(), elementToAppendTo);
+                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
+                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, transferFileRequestInputParams,
+                    new HashMap<String, Variable>(), elementToAppendTo);
                 break;
             default:
                 return false;
         }
-    
+
         return true;
     }
-
 }

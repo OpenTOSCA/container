@@ -7,15 +7,15 @@ public abstract class AbstractActivity {
 
     private final String id;
     private final ActivityType type;
-    private final Map<String,Object> metadata;
+    private final Map<String, Object> metadata;
 
     public AbstractActivity(final String id, final ActivityType type) {
         this.id = id;
         this.type = type;
-        this.metadata = new HashMap<String,Object>();
+        this.metadata = new HashMap<String, Object>();
     }
-    
-    public AbstractActivity(final String id, final ActivityType type, final Map<String,Object> metadata) {
+
+    public AbstractActivity(final String id, final ActivityType type, final Map<String, Object> metadata) {
         this.id = id;
         this.type = type;
         this.metadata = metadata;
@@ -28,11 +28,11 @@ public abstract class AbstractActivity {
     public ActivityType getType() {
         return this.type;
     }
-   
-    public Map<String,Object> getMetadata(){
+
+    public Map<String, Object> getMetadata() {
         return this.metadata;
     }
-    
+
     public Object addMetadata(final String name, final Object value) {
         return this.metadata.put(name, value);
     }

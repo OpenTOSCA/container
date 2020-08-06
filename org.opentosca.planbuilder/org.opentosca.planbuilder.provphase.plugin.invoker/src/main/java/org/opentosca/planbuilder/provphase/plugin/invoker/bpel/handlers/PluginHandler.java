@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -12,14 +11,13 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.FileUtils;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -40,13 +38,11 @@ public class PluginHandler {
             this.docFactory = DocumentBuilderFactory.newInstance();
             this.docFactory.setNamespaceAware(true);
             this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             BPELInvokeOperationHandler.LOG.error("Couldn't initialize ResourceHandler", e);
         }
     }
 
-    
     public Node appendLOGMessageActivity(final BPELPlanContext context, final String message) {
         String logMessageTempStringVarName = null;
         String logMessageContent = null;
@@ -62,31 +58,26 @@ public class PluginHandler {
 
         try {
 
-
             Node logPOSTNode =
                 new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(planInstanceURLVar,
-                                                                                          logMessageTempStringVarName,
-                                                                                          logMessageReqVarName);
+                    logMessageTempStringVarName,
+                    logMessageReqVarName);
             logPOSTNode = context.importNode(logPOSTNode);
 
             return logPOSTNode;
-
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
     }
-    
+
     public void appendLOGMessageActivity(final BPELPlanContext context, final String message,
                                          Element elementToAppendTo) {
         String logMessageTempStringVarName = null;
@@ -103,30 +94,25 @@ public class PluginHandler {
 
         try {
 
-
             Node logPOSTNode =
                 new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(planInstanceURLVar,
-                                                                                          logMessageTempStringVarName,
-                                                                                          logMessageReqVarName);
+                    logMessageTempStringVarName,
+                    logMessageReqVarName);
             logPOSTNode = context.importNode(logPOSTNode);
 
             elementToAppendTo.appendChild(logPOSTNode);
-
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
-    
+
     public void appendLOGMessageActivity(final BPELPlanContext context, final String message,
                                          final BPELPlanContext.Phase phase) {
         String logMessageTempStringVarName = null;
@@ -143,11 +129,10 @@ public class PluginHandler {
 
         try {
 
-
             Node logPOSTNode =
                 new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(planInstanceURLVar,
-                                                                                          logMessageTempStringVarName,
-                                                                                          logMessageReqVarName);
+                    logMessageTempStringVarName,
+                    logMessageReqVarName);
             logPOSTNode = context.importNode(logPOSTNode);
 
             switch (phase) {
@@ -160,20 +145,14 @@ public class PluginHandler {
                 case POST:
                     context.getPostPhaseElement().appendChild(logPOSTNode);
                     break;
-
             }
-
-
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -189,8 +168,7 @@ public class PluginHandler {
             logMsgRequestQName = context.importQName(logMsgRequestQName);
 
             context.addGlobalVariable(logMsgReqVarName, BPELPlan.VariableType.ELEMENT, logMsgRequestQName);
-        }
-        catch (final IOException e3) {
+        } catch (final IOException e3) {
             // TODO Auto-generated catch block
             e3.printStackTrace();
         }
@@ -217,7 +195,6 @@ public class PluginHandler {
             }
         }
         return null;
-
     }
 
     public Variable findVar(final BPELPlanContext context, final String propName) {
@@ -232,19 +209,18 @@ public class PluginHandler {
     }
 
     /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String
-     * variable.
+     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
      *
-     * @param assignName the name of the BPEL assign
+     * @param assignName          the name of the BPEL assign
      * @param csarEntryXpathQuery the csarEntryPoint XPath query
-     * @param stringVarName the variable to load the queries results into
+     * @param stringVarName       the variable to load the queries results into
      * @return a DOM Node representing a BPEL assign element
-     * @throws IOException is thrown when loading internal bpel fragments fails
+     * @throws IOException  is thrown when loading internal bpel fragments fails
      * @throws SAXException is thrown when parsing internal format into DOM fails
      */
     public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
                                                               final String stringVarName) throws IOException,
-                                                                                          SAXException {
+        SAXException {
         final String templateString =
             loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
         final InputSource is = new InputSource();
@@ -254,26 +230,23 @@ public class PluginHandler {
     }
 
     /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String
-     * variable.
+     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
      *
-     * @param assignName the name of the BPEL assign
-     * @param xpath2Query the csarEntryPoint XPath query
+     * @param assignName    the name of the BPEL assign
+     * @param xpath2Query   the csarEntryPoint XPath query
      * @param stringVarName the variable to load the queries results into
      * @return a String containing a BPEL Assign element
      * @throws IOException is thrown when reading the BPEL fragment form the resources fails
      */
     public String loadAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query,
                                                                   final String stringVarName) throws IOException {
-    	
-    	URL url = getClass().getClassLoader().getResource("invoker-plugin/assignStringVarWithXpath2Query.xml");
-    	String template =  ResourceAccess.readResourceAsString(url);
-    	
-   
+
+        URL url = getClass().getClassLoader().getResource("invoker-plugin/assignStringVarWithXpath2Query.xml");
+        String template = ResourceAccess.readResourceAsString(url);
+
         template = template.replace("{AssignName}", assignName);
         template = template.replace("{xpath2query}", xpath2Query);
         template = template.replace("{stringVarName}", stringVarName);
         return template;
     }
-
 }

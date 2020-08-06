@@ -11,6 +11,7 @@ import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTag;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.container.core.engine.ToscaEngine;
@@ -94,7 +95,7 @@ public class Util {
      *
      * @param serviceTemplate the ServiceTemplate for the choreography
      * @return a list of tags containing the partner name as key and the endpoints as value or
-     *         <code>null</code> if no tags are defined on the ServiceTemplate
+     * <code>null</code> if no tags are defined on the ServiceTemplate
      */
     public static List<TTag> getPartnerEndpoints(final TServiceTemplate serviceTemplate) {
 
@@ -109,9 +110,9 @@ public class Util {
         // endpoint
         final List<String> partnerNames =
             serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
-                           .filter(entity -> entity instanceof TNodeTemplate).map(entity -> entity.getOtherAttributes())
-                           .map(attributes -> attributes.get(Constants.LOCATION_ATTRIBUTE)).distinct()
-                           .collect(Collectors.toList());
+                .filter(entity -> entity instanceof TNodeTemplate).map(entity -> entity.getOtherAttributes())
+                .map(attributes -> attributes.get(Constants.LOCATION_ATTRIBUTE)).distinct()
+                .collect(Collectors.toList());
 
         // remove tags that do not specify a partner endpoint and get endpoints
         tags.removeIf(tag -> !partnerNames.contains(tag.getName()));

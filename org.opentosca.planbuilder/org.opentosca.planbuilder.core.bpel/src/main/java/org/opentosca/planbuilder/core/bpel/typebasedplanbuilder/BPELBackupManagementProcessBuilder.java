@@ -195,7 +195,6 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         final String serviceTemplateUrl = this.serviceInstanceVarsHandler.findServiceTemplateUrlVariableName(plan);
         final String planInstanceUrl = this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(plan);
 
-
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), plan, templatePlan, propMap, plan.getServiceTemplate(),
                 serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);

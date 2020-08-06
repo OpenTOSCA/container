@@ -229,18 +229,15 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.choreohandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
             return false;
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
         }
     }
-
 
     @Override
     public boolean handleReceiveNotify(final BPELPlanContext context) {
@@ -252,12 +249,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.choreohandler.handleReceiveNotify(context, params, context.getProvisioningPhaseElement());
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
             return false;
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
@@ -285,18 +280,16 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.choreohandler.handleNotifyPartners(context);
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return false;
     }
-    
+
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,

@@ -131,6 +131,4 @@ public interface ICoreEndpointService {
      */
     @Deprecated
     public void printPlanEndpoints();
-
-	
 }

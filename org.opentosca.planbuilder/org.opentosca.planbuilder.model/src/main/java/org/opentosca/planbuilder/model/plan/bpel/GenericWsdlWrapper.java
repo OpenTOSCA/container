@@ -464,11 +464,11 @@ public class GenericWsdlWrapper {
         final String property = this.generatePropertyString(propertyName, type);
         this.genericWsdlFileAsString =
             this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYS_TAG,
-                                                 property + GenericWsdlWrapper.WSDL_PROPERTYS_TAG);
+                property + GenericWsdlWrapper.WSDL_PROPERTYS_TAG);
         this.properties.add(propertyName);
         return true;
     }
-    
+
     public List<String> getProperties() {
         return this.properties;
     }

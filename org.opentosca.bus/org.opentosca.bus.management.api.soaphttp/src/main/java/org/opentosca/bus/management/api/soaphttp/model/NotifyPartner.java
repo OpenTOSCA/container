@@ -6,7 +6,6 @@
 // Generated on: 2018.07.16 at 01:55:00 PM CEST
 //
 
-
 package org.opentosca.bus.management.api.soaphttp.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,13 +13,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * Java class for NotifyPartner complex type.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "notifyPartner", propOrder = {"planCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
-                                              "serviceTemplateIDLocalPart", "messageID", "params", "doc"})
+    "serviceTemplateIDLocalPart", "messageID", "params", "doc"})
 public class NotifyPartner {
 
     @XmlElement(name = "PlanCorrelationID")
@@ -42,7 +40,6 @@ public class NotifyPartner {
      * Gets the value of the PlanCorrelationID property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getPlanCorrelationID() {
         return this.planCorrelation;
@@ -52,7 +49,6 @@ public class NotifyPartner {
      * Sets the value of the PlanCorrelationID property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setPlanCorrelationID(final String value) {
         this.planCorrelation = value;
@@ -62,7 +58,6 @@ public class NotifyPartner {
      * Gets the value of the csarID property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getCsarID() {
         return this.csarID;
@@ -72,7 +67,6 @@ public class NotifyPartner {
      * Sets the value of the csarID property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setCsarID(final String value) {
         this.csarID = value;
@@ -82,7 +76,6 @@ public class NotifyPartner {
      * Gets the value of the serviceTemplateIDNamespaceURI property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getServiceTemplateIDNamespaceURI() {
         return this.serviceTemplateIDNamespaceURI;
@@ -92,7 +85,6 @@ public class NotifyPartner {
      * Sets the value of the serviceTemplateIDNamespaceURI property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setServiceTemplateIDNamespaceURI(final String value) {
         this.serviceTemplateIDNamespaceURI = value;
@@ -102,7 +94,6 @@ public class NotifyPartner {
      * Gets the value of the serviceTemplateIDLocalPart property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getServiceTemplateIDLocalPart() {
         return this.serviceTemplateIDLocalPart;
@@ -112,7 +103,6 @@ public class NotifyPartner {
      * Sets the value of the serviceTemplateIDLocalPart property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setServiceTemplateIDLocalPart(final String value) {
         this.serviceTemplateIDLocalPart = value;
@@ -122,7 +112,6 @@ public class NotifyPartner {
      * Gets the value of the messageID property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getMessageID() {
         return this.messageID;
@@ -132,7 +121,6 @@ public class NotifyPartner {
      * Sets the value of the messageID property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setMessageID(final String value) {
         this.messageID = value;
@@ -142,7 +130,6 @@ public class NotifyPartner {
      * Gets the value of the params property.
      *
      * @return possible object is {@link ParamsMap }
-     *
      */
     public ParamsMap getParams() {
         return this.params;
@@ -152,7 +139,6 @@ public class NotifyPartner {
      * Sets the value of the params property.
      *
      * @param value allowed object is {@link ParamsMap }
-     *
      */
     public void setParams(final ParamsMap value) {
         this.params = value;
@@ -162,7 +148,6 @@ public class NotifyPartner {
      * Gets the value of the doc property.
      *
      * @return possible object is {@link Doc }
-     *
      */
     public Doc getDoc() {
         return this.doc;
@@ -172,7 +157,6 @@ public class NotifyPartner {
      * Sets the value of the doc property.
      *
      * @param value allowed object is {@link Doc }
-     *
      */
     public void setDoc(final Doc value) {
         this.doc = value;

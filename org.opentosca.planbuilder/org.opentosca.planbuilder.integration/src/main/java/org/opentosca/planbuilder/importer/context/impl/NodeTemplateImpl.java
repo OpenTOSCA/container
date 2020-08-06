@@ -71,9 +71,8 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
         setUpRequirements();
         setUpDeploymentArtifacts();
         setUpPolicies();
-               
     }
-    
+
     @Override
     public Map<QName, String> getOtherAttributes() {
         return this.nodeTemplate.getOtherAttributes();

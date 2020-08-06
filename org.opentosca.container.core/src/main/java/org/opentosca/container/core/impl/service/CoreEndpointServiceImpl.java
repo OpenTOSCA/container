@@ -192,13 +192,13 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
 
     @Override
     public List<WSDLEndpoint> getWSDLEndpointsForPlanId(String triggeringContainer, final CsarId csarId, final QName planId) {
-    	final Query queryWSDLEndpoint =
-                this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId= :csarId and e.PlanId = :planId");
-            queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
-            queryWSDLEndpoint.setParameter("csarId", csarId);
-            queryWSDLEndpoint.setParameter("planId", planId);
+        final Query queryWSDLEndpoint =
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId= :csarId and e.PlanId = :planId");
+        queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
+        queryWSDLEndpoint.setParameter("csarId", csarId);
+        queryWSDLEndpoint.setParameter("planId", planId);
 
-            return queryWSDLEndpoint.getResultList();
+        return queryWSDLEndpoint.getResultList();
     }
 
     @Override

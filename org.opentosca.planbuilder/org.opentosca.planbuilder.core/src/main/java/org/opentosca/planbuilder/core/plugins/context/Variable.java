@@ -36,5 +36,4 @@ public class Variable {
     public String toString() {
         return "Variable " + this.variableName;
     }
-
 }

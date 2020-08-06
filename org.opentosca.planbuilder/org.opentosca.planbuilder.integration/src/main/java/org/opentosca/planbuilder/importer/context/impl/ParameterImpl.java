@@ -51,39 +51,37 @@ public class ParameterImpl extends AbstractParameter {
     public String getType() {
         return this.parameter.getType();
     }
-    
+
     @Override
     public String toString() {
         return this.getName() + "_" + this.getType();
     }
-    
+
     @Override
-    public int hashCode() {        
+    public int hashCode() {
         return this.toString().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
-        if(this == o) {
+        if (this == o) {
             return true;
         }
-        
-        if(!(o instanceof AbstractParameter)) {
+
+        if (!(o instanceof AbstractParameter)) {
             return false;
         }
-        
+
         AbstractParameter oParam = (AbstractParameter) o;
-        
-        if(!oParam.getName().equals(this.getName())) {
+
+        if (!oParam.getName().equals(this.getName())) {
             return false;
         }
-        
-        if(!oParam.getType().equals(this.getType())) {
+
+        if (!oParam.getType().equals(this.getType())) {
             return false;
         }
-                
-        
+
         return true;
     }
-
 }

@@ -476,15 +476,15 @@ public class Fragments {
         final Node assignNode = doc.getFirstChild();
         for (final String propertyVarName : propertyVarToDomMapping.keySet()) {
             final Node propertyNode = propertyVarToDomMapping.get(propertyVarName);
-            if(propertyVarName != null & propertyNode != null) {
-                
-            Node copyNode =
-                generateCopyFromStringVarToAnyTypeVarAsNode(propertyVarName, nodeInstancePropertyRequestVarName,
-                    propertyNode.getLocalName(),
-                    propertyNode.getNamespaceURI());
+            if (propertyVarName != null & propertyNode != null) {
 
-            copyNode = doc.importNode(copyNode, true);
-            assignNode.appendChild(copyNode);
+                Node copyNode =
+                    generateCopyFromStringVarToAnyTypeVarAsNode(propertyVarName, nodeInstancePropertyRequestVarName,
+                        propertyNode.getLocalName(),
+                        propertyNode.getNamespaceURI());
+
+                copyNode = doc.importNode(copyNode, true);
+                assignNode.appendChild(copyNode);
             }
         }
 

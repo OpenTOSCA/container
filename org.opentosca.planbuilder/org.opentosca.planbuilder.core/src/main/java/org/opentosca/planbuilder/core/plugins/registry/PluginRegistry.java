@@ -109,8 +109,8 @@ public class PluginRegistry {
             policyAwarePrePhasePlugins.add((IPlanBuilderPolicyAwarePrePhasePlugin<?>) plugin);
         }
         if (plugin instanceof IPlanBuilderChoreographyPlugin<?>) {
-        	roles.add(IPlanBuilderChoreographyPlugin.class.getSimpleName());
-        	choreographyPlugins.add((IPlanBuilderChoreographyPlugin<?>) plugin);
+            roles.add(IPlanBuilderChoreographyPlugin.class.getSimpleName());
+            choreographyPlugins.add((IPlanBuilderChoreographyPlugin<?>) plugin);
         }
         if (roles.isEmpty()) {
             LOG.warn("Plugin {} could not be registered for any roles. It's not available from the PluginRegistry", plugin.getClass().getSimpleName());
@@ -188,10 +188,10 @@ public class PluginRegistry {
     public List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> getPolicyAwarePrePhasePlugins() {
         return policyAwarePrePhasePlugins;
     }
-    
-    public List<IPlanBuilderChoreographyPlugin<?>> getChoreographyPlugins(){
-    	return choreographyPlugins;        
-    }   
+
+    public List<IPlanBuilderChoreographyPlugin<?>> getChoreographyPlugins() {
+        return choreographyPlugins;
+    }
 
     public boolean canTypePluginHandleCreate(final AbstractNodeTemplate nodeTemplate) {
         return this.findTypePluginForCreation(nodeTemplate) != null;

@@ -115,7 +115,7 @@ public abstract class AbstractNodeTemplate {
      */
     @Override
     public boolean equals(final Object o) {
-        if(this == o) {
+        if (this == o) {
             return true;
         }
         if (o instanceof AbstractNodeTemplate) {
@@ -133,5 +133,4 @@ public abstract class AbstractNodeTemplate {
     }
 
     public abstract Map<QName, String> getOtherAttributes();
-
 }

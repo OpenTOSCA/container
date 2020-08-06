@@ -227,17 +227,15 @@ public class BPELScopeHandler {
         return check;
     }
 
-
     public BPELScope createTemplateBuildPlan(final AbstractActivity activity, final BPELPlan buildPlan,
                                              String namePrefix) {
         final BPELScope newTemplateBuildPlan = new BPELScope(activity);
         this.initializeXMLElements(newTemplateBuildPlan, buildPlan);
         this.setName(this.getNCNameFromString(((namePrefix == null || namePrefix.isEmpty()) ? "" : namePrefix + "_")
-            + activity.getId()) + "_" + activity.getType(),
-                     newTemplateBuildPlan);        
+                + activity.getId()) + "_" + activity.getType(),
+            newTemplateBuildPlan);
         return newTemplateBuildPlan;
     }
-    
 
     public BPELScope createTemplateBuildPlan(final NodeTemplateActivity nodeTemplateActivity, final BPELPlan buildPlan,
                                              String namePrefix) {

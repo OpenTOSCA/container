@@ -84,8 +84,8 @@ public class BPELPlanContext extends PlanContext {
     public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
                            final AbstractServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
                            String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, String csarFileName) {
-    	super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csarFileName);
-       
+        super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csarFileName);
+
         this.scopeBuilder = scopeBuilder;
         this.templateBuildPlan = templateBuildPlan;
         this.bpelTemplateHandler = new BPELScopeHandler();
@@ -101,7 +101,7 @@ public class BPELPlanContext extends PlanContext {
     public AbstractActivity getActivity() {
         return this.templateBuildPlan.getActivity();
     }
-    
+
     public void addUsedOperation(AbstractOperation operation, AbstractOperation compensationOperation) {
         this.templateBuildPlan.addUsedOperation(operation, compensationOperation);
     }
@@ -541,7 +541,7 @@ public class BPELPlanContext extends PlanContext {
                 chain.executeOperationProvisioning(context, opNames, param2propertyMapping, elementToAppendTo);
             } else {
                 chain.executeOperationProvisioning(context, opNames, param2propertyMapping, param2propertyOutputMapping,
-                                                   elementToAppendTo);
+                    elementToAppendTo);
             }
         }
 
@@ -592,7 +592,7 @@ public class BPELPlanContext extends PlanContext {
                 chain.executeOperationProvisioning(context, opNames, param2propertyMapping);
             } else {
                 chain.executeOperationProvisioning(context, opNames, param2propertyMapping,
-                                                   param2propertyOutputMapping);
+                    param2propertyOutputMapping);
             }
         }
 
@@ -689,17 +689,17 @@ public class BPELPlanContext extends PlanContext {
      * @param propertyName       the property to use inside the correlationSet
      * @return true if adding the correlation set was successful, else false
      */
-    public boolean addCorrelationSet(final String correlationSetName, final String propertyName) {    	
+    public boolean addCorrelationSet(final String correlationSetName, final String propertyName) {
         return this.bpelTemplateHandler.addCorrelationSet(correlationSetName, propertyName, this.templateBuildPlan);
     }
-    
-    public boolean addGlobalCorrelationSet(final String correlationSetName, final String propertyName) {    	
+
+    public boolean addGlobalCorrelationSet(final String correlationSetName, final String propertyName) {
         return this.buildPlanHandler.addCorrelationSet(correlationSetName, propertyName, this.templateBuildPlan.getBuildPlan());
     }
-    
+
     public Collection<String> getGlobalCorrelationSetNames() {
         return this.buildPlanHandler.getCorrelationSetNames(this.templateBuildPlan.getBuildPlan());
-     }
+    }
 
     public boolean addGlobalVariable(final String name, final BPELPlan.VariableType variableType, QName declarationId) {
         declarationId = importNamespace(declarationId);
@@ -842,8 +842,8 @@ public class BPELPlanContext extends PlanContext {
         this.templateBuildPlan.getBuildPlan().getWsdl().addProperty(propertyName, importedQName);
         return importedQName;
     }
-    
-    public List<String> getCorrelationProperties(){
+
+    public List<String> getCorrelationProperties() {
         return this.templateBuildPlan.getBuildPlan().getWsdl().getProperties();
     }
 

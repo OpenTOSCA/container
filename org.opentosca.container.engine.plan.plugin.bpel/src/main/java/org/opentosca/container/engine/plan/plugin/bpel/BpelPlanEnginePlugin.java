@@ -220,7 +220,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                     callbackEndpoint = endpoints.get(partnerLink);
                 }
             }
-        }        
+        }
 
         if (processId != null && endpoint != null && portType != null && this.endpointService != null) {
             BpelPlanEnginePlugin.LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
@@ -306,13 +306,12 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 LOG.warn("Couldn't remove endpoint for plan {}, because endpoint service didn't find any endpoint associated with the plan to remove",
                     planRef.getReference());
             } else {
-            	
-            	for(WSDLEndpoint endpoint : endpoints) {            		
-            		this.endpointService.removeWSDLEndpoint(endpoint);
-            		LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
-            				planRef.getReference());
-            	}
-            	
+
+                for (WSDLEndpoint endpoint : endpoints) {
+                    this.endpointService.removeWSDLEndpoint(endpoint);
+                    LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
+                        planRef.getReference());
+                }
             }
         } else {
             LOG.warn("Couldn't remove endpoint for plan {}, cause endpoint service is not available",

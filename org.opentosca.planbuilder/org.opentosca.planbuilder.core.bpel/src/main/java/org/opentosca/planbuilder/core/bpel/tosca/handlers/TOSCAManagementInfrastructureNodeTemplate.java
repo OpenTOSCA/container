@@ -184,8 +184,8 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
         return new ArrayList<>();
     }
 
-	@Override
-	public Map<QName, String> getOtherAttributes() {
-		return new HashMap<QName, String>();
-	}
+    @Override
+    public Map<QName, String> getOtherAttributes() {
+        return new HashMap<QName, String>();
+    }
 }

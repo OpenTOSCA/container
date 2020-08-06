@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -75,13 +74,10 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             internalExternalPropsOutput.put(para.getName(), propWrapper);
         }
 
-
         return this.handleInvokeOperation(context, templateId, isNodeTemplate, operationName, interfaceName,
-                                          internalExternalPropsInput, internalExternalPropsOutput,
-                                          context.getProvisioningPhaseElement());
+            internalExternalPropsInput, internalExternalPropsOutput,
+            context.getProvisioningPhaseElement());
     }
-
-
 
     public boolean handleInvokeOperation(final BPELPlanContext context, final String operationName,
                                          final String interfaceName, final String callbackAddressVarName,
@@ -100,7 +96,7 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             isNodeTemplate = false;
         }
         return this.handleInvokeOperation(context, templateId, isNodeTemplate, operationName, interfaceName,
-                                          internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
+            internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
     }
 
     public boolean handleInvokeOperation(final BPELPlanContext context, final String templateId,
@@ -128,7 +124,7 @@ public class BPELInvokeOperationHandler extends PluginHandler {
         // generate partnerlink from the two porttypes
         final String partnerLinkTypeName = invokerPortType.getLocalPart() + "PLT" + context.getIdForNames();
         context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee",
-                                   invokerPortType);
+            invokerPortType);
         final String partnerLinkName = invokerPortType.getLocalPart() + "PL" + context.getIdForNames();
 
         context.addPartnerLinkToTemplateScope(partnerLinkName, partnerLinkTypeName, "Requester", "Requestee", true);
@@ -172,7 +168,6 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             return false;
         }
 
-
         // add request message assign to prov phase scope
         try {
             Node assignNode = null;
@@ -187,16 +182,15 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             // components is needed
             assignNode =
                 this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
-                                                                                      context.getServiceTemplateId(),
-                                                                                      serviceInstanceIdVarName, null,
-                                                                                      operationName,
-                                                                                      String.valueOf(System.currentTimeMillis()),
-                                                                                      requestVariableName,
-                                                                                      InputMessagePartName,
-                                                                                      interfaceName, isNodeTemplate,
-                                                                                      templateId,
-                                                                                      internalExternalPropsInput);
-
+                    context.getServiceTemplateId(),
+                    serviceInstanceIdVarName, null,
+                    operationName,
+                    String.valueOf(System.currentTimeMillis()),
+                    requestVariableName,
+                    InputMessagePartName,
+                    interfaceName, isNodeTemplate,
+                    templateId,
+                    internalExternalPropsInput);
 
             assignNode = context.importNode(assignNode);
 
@@ -209,12 +203,10 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             addressingCopyNode = context.importNode(addressingCopyNode);
             assignNode.appendChild(addressingCopyNode);
 
-
             Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName,
-                                                                         InputMessagePartName, "ReplyTo");
+                InputMessagePartName, "ReplyTo");
             replyToCopy = context.importNode(replyToCopy);
             assignNode.appendChild(replyToCopy);
-
 
             Node messageIdInit =
                 this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, templateId + ":"
@@ -222,13 +214,10 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             messageIdInit = context.importNode(messageIdInit);
             assignNode.appendChild(messageIdInit);
 
-
             elementToAppendTo.appendChild(assignNode);
-
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             BPELInvokeOperationHandler.LOG.error("Couldn't generate DOM node for the request message assign element",
-                                                 e);
+                e);
             return false;
         }
 
@@ -238,16 +227,16 @@ public class BPELInvokeOperationHandler extends PluginHandler {
                 + context.getNodeTemplate().getId(), PlanContext.Phase.PROV);
         } else {
             appendLOGMessageActivity(context,
-                                     "Executing " + (operationName != null ? "operation " + operationName + " of " : "")
-                                         + "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "",
-                                     PlanContext.Phase.PROV);
+                "Executing " + (operationName != null ? "operation " + operationName + " of " : "")
+                    + "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "",
+                PlanContext.Phase.PROV);
         }
         // invoke service invoker
         // add invoke
         try {
             Node invokeNode =
                 this.resHandler.generateInvokeAsNode("invoke_" + requestVariableName, partnerLinkName,
-                                                     "invokeOperationAsync", invokerPortType, requestVariableName);
+                    "invokeOperationAsync", invokerPortType, requestVariableName);
             BPELInvokeOperationHandler.LOG.debug("Trying to ImportNode: " + invokeNode.toString());
             invokeNode = context.importNode(invokeNode);
 
@@ -256,13 +245,10 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             invokeNode.appendChild(correlationSetsNode);
 
             elementToAppendTo.appendChild(invokeNode);
-
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             BPELInvokeOperationHandler.LOG.error("Error reading/writing XML File", e);
             return false;
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             BPELInvokeOperationHandler.LOG.error("Error reading/writing File", e);
             return false;
         }
@@ -271,7 +257,7 @@ public class BPELInvokeOperationHandler extends PluginHandler {
         try {
             Node receiveNode =
                 this.resHandler.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName, "callback",
-                                                      invokerCallbackPortType, responseVariableName);
+                    invokerCallbackPortType, responseVariableName);
             receiveNode = context.importNode(receiveNode);
 
             Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
@@ -279,19 +265,15 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             receiveNode.appendChild(correlationSetsNode);
 
             elementToAppendTo.appendChild(receiveNode);
-        }
-        catch (final SAXException e1) {
+        } catch (final SAXException e1) {
             BPELInvokeOperationHandler.LOG.error("Error reading/writing XML File", e1);
             return false;
-        }
-        catch (final IOException e1) {
+        } catch (final IOException e1) {
             BPELInvokeOperationHandler.LOG.error("Error reading/writing File", e1);
             return false;
         }
 
-
         Node responseAssignNode = null;
-
 
         // process response message
         // add assign for response
@@ -299,43 +281,37 @@ public class BPELInvokeOperationHandler extends PluginHandler {
 
             responseAssignNode =
                 this.resHandler.generateResponseAssignAsNode(responseVariableName, OutputMessagePartName,
-                                                             internalExternalPropsOutput,
-                                                             "assign_" + responseVariableName, OutputMessageId,
-                                                             context.getPlanResponseMessageName(), "payload");
+                    internalExternalPropsOutput,
+                    "assign_" + responseVariableName, OutputMessageId,
+                    context.getPlanResponseMessageName(), "payload");
             responseAssignNode = context.importNode(responseAssignNode);
 
             elementToAppendTo.appendChild(responseAssignNode);
-
-
-        }
-        catch (final SAXException e) {
+        } catch (final SAXException e) {
             BPELInvokeOperationHandler.LOG.error("Error reading/writing XML File", e);
             return false;
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             BPELInvokeOperationHandler.LOG.error("Error reading/writing File", e);
             return false;
         }
 
-
         try {
             Node checkForFault =
                 this.resHandler.generateBPELIfTrueThrowFaultAsNode("boolean($" + responseVariableName
-                    + "//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\"Fault\"])",
-                                                                   new QName(
-                                                                       "http://opentosca.org/plans/invocationfault",
-                                                                       templateId + "_" + interfaceName + "_"
-                                                                           + operationName,
-                                                                       "fault"
-                                                                           + String.valueOf(System.currentTimeMillis())),
-                                                                   responseVariableName);
+                        + "//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\"Fault\"])",
+                    new QName(
+                        "http://opentosca.org/plans/invocationfault",
+                        templateId + "_" + interfaceName + "_"
+                            + operationName,
+                        "fault"
+                            + String.valueOf(System.currentTimeMillis())),
+                    responseVariableName);
 
             checkForFault = context.importNode(checkForFault);
             elementToAppendTo.insertBefore(checkForFault, responseAssignNode);
 
             // elementToAppendTo.appendChild(checkForFault);
-        }
-        catch (final SAXException e1) {
+        } catch (final SAXException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
