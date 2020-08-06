@@ -190,7 +190,6 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             LOG.error("An URISyntaxException occured while creating URI to retrieve the process ID: ", e);
             return false;
         }
-        // ignore
     }
 
     @Override
