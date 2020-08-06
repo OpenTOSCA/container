@@ -132,9 +132,6 @@ public abstract class AbstractNodeTemplate {
         }
     }
 
-    public Map<QName, String> getOtherAttributes() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public abstract Map<QName, String> getOtherAttributes();
 
 }
