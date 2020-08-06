@@ -135,8 +135,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             builder.addPart(file.getFileName().toString(), fileBody);
         }
 
-        final CloseableHttpClient httpClient = HttpClients.createDefault();
-        try {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             // send Post request to the engine
             final HttpEntity httpEntity = builder.build();
             deploymentRequest.setEntity(httpEntity);
@@ -191,14 +190,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             LOG.error("An URISyntaxException occured while creating URI to retrieve the process ID: ", e);
             return false;
         }
-        finally {
-            try {
-                httpClient.close();
-            }
-            catch (final IOException e) {
-                // ignore
-            }
-        }
+        // ignore
     }
 
     @Override
