@@ -150,7 +150,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 }
             }
 
-            document = mapToDoc(messagePayloadType.getNamespaceURI(), messagePayloadType.getLocalPart(), paramsMap);
+            document = MBUtils.mapToDoc(messagePayloadType.getNamespaceURI(), messagePayloadType.getLocalPart(), paramsMap);
         }
 
         if (params instanceof Document) {
@@ -322,7 +322,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                     return MessagingPattern.REQUEST_RESPONSE;
                 } else {
                     return MessagingPattern.CALLBACK;
-                }      
+                }
             }
             return null;
         } else {
@@ -338,34 +338,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 return MessagingPattern.REQUEST_ONLY;
             }
         }
-    }
-
-    /**
-     * Transfers the paramsMap into a Document.
-     */
-    private Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
-                              final Map<String, String> paramsMap) {
-        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = null;
-        try {
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
-            LOG.error("Some error occured.");
-            e.printStackTrace();
-            // return null to avoid NRE in this method
-            return null;
-        }
-        Document document = documentBuilder.newDocument();
-
-        final Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
-        document.appendChild(rootElement);
-        for (final Entry<String, String> entry : paramsMap.entrySet()) {
-            Element mapElement = document.createElement(entry.getKey());
-            mapElement.setTextContent(entry.getValue());
-            rootElement.appendChild(mapElement);
-        }
-
-        return document;
     }
 
     /**
