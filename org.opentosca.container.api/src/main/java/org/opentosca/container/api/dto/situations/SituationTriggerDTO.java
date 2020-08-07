@@ -167,6 +167,7 @@ public class SituationTriggerDTO extends ResourceSupport {
             dto.setId(object.getId());
             dto.setOnActivation(object.isTriggerOnActivation());
             dto.setIsSingleInstance(object.isSingleInstance());
+            dto.setCsarId(object.getCsarId().csarName());
 
             final Collection<Long> situationIds = Lists.newArrayList();
 
