@@ -31,10 +31,10 @@
   </filter-mapping>
 
   <!-- enforce logging configuration to be the first thing that happens -->
-  <listener>
+  <!-- <listener>
     <description>Logging configuration listener</description>
     <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>
-  </listener>
+  </listener> -->
 
   <!-- Spring context context loader listener -->
   <listener>
