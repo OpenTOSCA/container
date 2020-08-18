@@ -30,6 +30,12 @@
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
+  <!-- enforce logging configuration to be the first thing that happens -->
+  <listener>
+    <description>Logging configuration listener</description>
+    <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>
+  </listener>
+
   <!-- Spring context context loader listener -->
   <listener>
     <description>Spring Controller injection listener</description>
