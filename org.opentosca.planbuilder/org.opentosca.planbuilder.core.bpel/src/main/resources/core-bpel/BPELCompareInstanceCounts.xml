@@ -32,7 +32,6 @@
 		<bpel:sequence>
 			<!-- assign last nodeInstance from list -->
 			<bpel:assign validate="no" name="{AssignName}">
-				<!-- {AssignName},{xpath2query}, {stringVarName} -->
 				<bpel:copy>
 					<bpel:from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
 			<![CDATA[{xpath2query}]]>
