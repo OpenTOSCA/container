@@ -1,5 +1,4 @@
 <bpel:copy>
-	<!-- {requestVarName}, {requestVarPartName}, {messageIdPrefix} -->
 	<bpel:from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
 		<![CDATA[concat('{messageIdPrefix}',current-dateTime())]]>
 	</bpel:from>

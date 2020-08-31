@@ -1,7 +1,6 @@
 <bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
 	validate="no" name="$assignName">
 	<bpel:copy>
-		<!-- $stringVarName, $NodeInstanceResponseVarName -->
 		<bpel:from variable="$NodeInstanceResponseVarName">
 			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string(//*[local-name()='url']/text())]]></bpel:query>
 		</bpel:from>
