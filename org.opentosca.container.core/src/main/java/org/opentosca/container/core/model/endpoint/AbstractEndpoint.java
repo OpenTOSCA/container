@@ -29,7 +29,7 @@ public abstract class AbstractEndpoint {
      * The URI which can be used to access the endpoint that is represented by this class.
      */
     @Convert(converter = UriConverter.class)
-    @Column(name = "uri", nullable = false)
+    @Column(name = "uri", nullable = false, length = 512)
     private URI uri;
 
     /**
