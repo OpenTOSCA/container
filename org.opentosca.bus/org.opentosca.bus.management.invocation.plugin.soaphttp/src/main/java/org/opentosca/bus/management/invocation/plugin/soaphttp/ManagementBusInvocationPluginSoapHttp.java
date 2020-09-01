@@ -94,10 +94,12 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         headers.put("operationName", operationName);
 
         Document document = null;
+        Definition wsdl = pullWsdlDefinitions(endpoint);
+        BindingOperation operation = findOperation(wsdl, operationName);
         LOG.info("Creating invocation message.");
         if (params instanceof HashMap) {
-            Definition wsdl = pullWsdlDefinitions(endpoint);
-            BindingOperation operation = findOperation(wsdl, operationName);
+            
+            
             if (operation == null) {
                 LOG.error("Invoked operation was not exposed on the given endpoint. Aborting invocation!");
                 return null;
@@ -150,7 +152,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
         if (params instanceof Document) {
             document = (Document) params;
-            messagingPattern = determineMP(message, operationName, null, hasOutputParams);
+            messagingPattern = determineMP(message, operationName, operation, hasOutputParams);
         }
 
         if (messagingPattern == null) {

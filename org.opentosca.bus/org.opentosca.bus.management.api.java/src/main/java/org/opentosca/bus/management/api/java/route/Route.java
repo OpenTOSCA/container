@@ -42,9 +42,15 @@ public class Route extends RouteBuilder {
             .to("direct:invokeIA")
             .when(header("OPERATION").isEqualTo(ExposedManagementBusOperations.INVOKE_PLAN.getHeaderValue()))
             .to("direct:invokePlan")
+            .when(header("OPERATION").isEqualTo(ExposedManagementBusOperations.NOTIFY_PARTNER.getHeaderValue()))
+            .to("direct:invokeNotifyPartner")
+            .when(header("OPERATION").isEqualTo(ExposedManagementBusOperations.NOTIFY_PARTNERS.getHeaderValue()))
+            .to("direct:invokeNotifyPartners")            
             .end();
 
         this.from("direct:invokeIA").to("stream:out").bean(managementBusService, "invokeIA").end();
         this.from("direct:invokePlan").to("stream:out").bean(managementBusService, "invokePlan").end();
+        this.from("direct:invokeNotifyPartner").to("stream:out").bean(managementBusService, "notifyPartner").end();
+        this.from("direct:invokeNotifyPartners").to("stream:out").bean(managementBusService, "notifyPartners").end();
     }
 }
