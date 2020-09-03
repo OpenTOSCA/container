@@ -54,18 +54,19 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
     // Supported types defined in messages.properties.
     private static final String TYPES = "SOAP/HTTP";
-
-    private enum MessagingPattern {
-        CALLBACK, REQUEST_RESPONSE, REQUEST_ONLY
-    }
-
     private static Map<String, Exchange> EXCHANGE_MAP = Collections.synchronizedMap(new HashMap<String, Exchange>());
-
     private final CamelContext camelContext;
 
     @Inject
     public ManagementBusInvocationPluginSoapHttp(CamelContext camelContext) {
         this.camelContext = camelContext;
+    }
+
+    /**
+     * @return the keys of the map containing stored messageIds and exchange objects.
+     */
+    public static Set<String> getMessageIDs() {
+        return EXCHANGE_MAP.keySet();
     }
 
     @Override
@@ -90,16 +91,13 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             }
         }
         headers.put("endpoint", endpoint.replace("?wsdl", ""));
-//    headers.put("SOAPAction", operationName);
-        headers.put("operationName", operationName);
 
         Document document = null;
         Definition wsdl = pullWsdlDefinitions(endpoint);
         BindingOperation operation = findOperation(wsdl, operationName);
-        LOG.info("Creating invocation message.");
+
         if (params instanceof HashMap) {
-            
-            
+
             if (operation == null) {
                 LOG.error("Invoked operation was not exposed on the given endpoint. Aborting invocation!");
                 return null;
@@ -337,13 +335,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         }
     }
 
-    /**
-     * @return the keys of the map containing stored messageIds and exchange objects.
-     */
-    public static Set<String> getMessageIDs() {
-        return EXCHANGE_MAP.keySet();
-    }
-
     @Override
     public List<String> getSupportedTypes() {
         LOG.debug("Getting Types: {}.",
@@ -354,6 +345,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             types.add(type.trim());
         }
         return types;
+    }
+
+    private enum MessagingPattern {
+        CALLBACK, REQUEST_RESPONSE, REQUEST_ONLY
     }
 
     private static class VariableMap implements XPathVariableResolver {
