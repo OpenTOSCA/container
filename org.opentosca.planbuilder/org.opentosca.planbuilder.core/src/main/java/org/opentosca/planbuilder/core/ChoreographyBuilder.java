@@ -84,15 +84,15 @@ public class ChoreographyBuilder {
         }
 
         // add base notify all partners activity
-        final AbstractActivity notifyAllPartnersActivity =
-            new AbstractActivity("notifyAllPartners", ActivityType.NOTIFYALLPARTNERS) {
-            };
+        //final AbstractActivity notifyAllPartnersActivity =
+        //    new AbstractActivity("notifyAllPartners", ActivityType.NOTIFYALLPARTNERS) {
+        //    };
 
-        for (final AbstractActivity activ : activitiesToAdd) {
-            linksToAdd.add(new Link(notifyAllPartnersActivity, activ));
-        }
+        //for (final AbstractActivity activ : activitiesToAdd) {
+        //    linksToAdd.add(new Link(notifyAllPartnersActivity, activ));
+        //}
 
-        activitiesToAdd.add(notifyAllPartnersActivity);
+        //activitiesToAdd.add(notifyAllPartnersActivity);
 
         // connect the notifyAll to be the activity which has to be started before all else
 
