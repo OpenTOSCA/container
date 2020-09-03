@@ -24,4 +24,11 @@ public interface IManagementBus {
      * @param eventValues A Map containing the event values required to adapt the artifact
      */
     void situationAdaption(Map<String, Object> eventValues);
+
+    /**
+     * Handles the initial notification of all partners for a choreography.
+     *
+     * @param eventValues A Map containing the event values required to adapt the artifact
+     */
+    void notifyPartners(Map<String, Object> eventValues);
 }

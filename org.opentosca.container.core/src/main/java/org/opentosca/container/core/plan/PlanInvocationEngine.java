@@ -45,14 +45,17 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     private final IManagementBus managementBus;
     private final CsarStorageService csarStorage;
     private final RulesChecker rulesChecker;
+    private final ChoreographyHandler choreographyHandler;
 
     @Inject
     public PlanInvocationEngine(IManagementBus managementBus,
                                 CsarStorageService csarStorage,
-                                RulesChecker rulesChecker) {
+                                RulesChecker rulesChecker,
+                                ChoreographyHandler choreographyHandler) {
         this.managementBus = managementBus;
         this.csarStorage = csarStorage;
         this.rulesChecker = rulesChecker;
+        this.choreographyHandler = choreographyHandler;
     }
 
     @Override
@@ -101,6 +104,13 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
                 LOG.debug("Deployment Rules are not fulfilled. Aborting the provisioning.");
                 return;
             }
+        }
+
+        if (choreographyHandler.isChoreography(serviceTemplate)) {
+            LOG.debug("ServiceTemplate is part of choreography!");
+            Map<String, Object> eventValues = new HashMap<>();
+            managementBus.notifyPartners(eventValues);
+            return;
         }
 
         LOG.info("Invoke the Plan {} of type {} of CSAR {}", givenPlan.getId(), givenPlan.getPlanType(), csarID);

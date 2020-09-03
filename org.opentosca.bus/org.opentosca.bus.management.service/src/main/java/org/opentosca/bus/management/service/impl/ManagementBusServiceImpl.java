@@ -120,7 +120,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
 
     private final static Map<String, Object> locks = new HashMap<>();
-
+    private static ConcurrentHashMap<String, List<String>> activePartners = new ConcurrentHashMap<>();
     private final DeploymentDistributionDecisionMaker decisionMaker;
     private final CollaborationContext collaborationContext;
     private final ICoreEndpointService endpointService;
@@ -129,10 +129,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final PluginRegistry pluginRegistry;
     private final DeploymentPluginCapabilityChecker capabilityChecker;
     private final ContainerEngine containerEngine;
-
     private final CsarStorageService storage;
-
-    private static ConcurrentHashMap<String, List<String>> activePartners = new ConcurrentHashMap<>();
 
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
@@ -153,6 +150,42 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         this.capabilityChecker = capabilityChecker;
         this.storage = storage;
         this.containerEngine = containerEngine;
+    }
+
+    /**
+     * Creates a unique String which identifies an IA on a certain OpenTOSCA Container node. The String can be used to
+     * synchronize the access to the management infrastructure (e.g. tomcat).
+     *
+     * @param triggeringContainer OpenTOSCA Container that triggered the deployment
+     * @param deploymentLocation  OpenTOSCA Container where the IA is managed
+     * @param typeImpl            QName of the NodeType/RelationshipType the IA belongs to
+     * @param iaName              the name of the IA
+     * @return a unique String consisting of the given information or <tt>null</tt> if some needed information is
+     * missing
+     */
+    public static String getUniqueSynchronizationString(final String triggeringContainer,
+                                                        final String deploymentLocation, final QName typeImpl,
+                                                        final String iaName, final String serviceInstanceId) {
+
+        if (Objects.isNull(triggeringContainer) || Objects.isNull(deploymentLocation) || Objects.isNull(typeImpl)
+            || Objects.isNull(iaName) || Objects.isNull(serviceInstanceId)) {
+            return null;
+        }
+
+        return String.join("/", triggeringContainer, deploymentLocation, typeImpl.toString(), iaName, serviceInstanceId);
+    }
+
+    /**
+     * Returns an Object which can be used to synchronize all actions related to a certain String value.
+     *
+     * @return the object which can be used for synchronization
+     */
+    public static Object getLockForString(final String lockString) {
+        Objects.requireNonNull(lockString);
+
+        synchronized (locks) {
+            return locks.computeIfAbsent(lockString, (i) -> new Object());
+        }
     }
 
     @Override
@@ -647,6 +680,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Message message = exchange.getIn();
         String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
         LOG.trace("Correlation ID: {}", correlationID);
+
         // generate new unique correlation ID if no ID is passed
         if (Objects.isNull(correlationID)) {
             correlationID = PlanInstanceHandler.createCorrelationId();
@@ -786,7 +820,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             return;
         }
 
-        // get the tags enpoints of the partners
+        // get the tags endpoints of the partners
         final List<TTag> partnerTags = Util.getPartnerEndpoints(serviceTemplate);
         if (Objects.isNull(partnerTags)) {
             LOG.error("Unable to retrieve partners for ServiceTemplate with ID {}.", serviceTemplate.getId());
@@ -904,8 +938,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     Settings.OPENTOSCA_CONTAINER_HOSTNAME);
             }
 
-            // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
-            // was executed.
+            // Undeploy IAs for the related ServiceTemplateInstance if a termination plan was executed.
             if (plan.getType().equals(PlanType.TERMINATION)) {
                 LOG.debug("Executed plan was a termination plan. Removing endpoints...");
 
@@ -940,12 +973,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         final SituationTriggerInstanceListener instanceListener = new SituationTriggerInstanceListener();
         final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan);
+
         // if total duration larger than calculatedWCET, use duration
         if (calculatedWCET > 0 && calculatedWCET < duration) {
             currentPlan.getOtherAttributes().put(new QName("http://opentosca.org", "WCET"), String.valueOf(duration));
         }
-        // if newly calculated WCET is larger than previous WCET, update
 
+        // if newly calculated WCET is larger than previous WCET, update
         long currentPlanWCET = Long.valueOf(currentPlan.getOtherAttributes().getOrDefault(new QName("http://opentosca.org", "WCET"), String.valueOf(0)));
 
         if (calculatedWCET > currentPlanWCET) {
@@ -958,8 +992,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         plan.addEvent(event);
         repo.update(plan);
 
-        // Undeploy IAs for the related ServiceTemplateInstance if a termination plan
-        // was executed.
+        // Undeploy IAs for the related ServiceTemplateInstance if a termination plan was executed.
         if (plan.getType().equals(PlanType.TERMINATION)) {
             LOG.debug("Executed plan was a termination plan. Removing endpoints...");
             final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
@@ -974,19 +1007,16 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.info("Plan execution duration: {}ms", event.getDuration());
 
         // update plan in repository with new log event
-
         plan = repo.findByCorrelationId(arguments.correlationId);
         plan.addEvent(event);
         repo.update(plan);
 
-        
-        if(exchange != null) {
-        	// update the output parameters in the plan instance           
+        if (exchange != null) {
+            // update the output parameters in the plan instance
             PlanInstanceHandler.updatePlanInstanceOutput(plan, arguments.csar, exchange.getIn().getBody());
 
             handleResponse(exchange);
         }
-        
     }
 
     private boolean iaProvidesRequestedOperation(Csar csar, TImplementationArtifact ia, TEntityType type, String neededInterface, String neededOperation) {
@@ -1121,42 +1151,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         LOG.debug("Endpoint deletion terminated.");
-    }
-
-    /**
-     * Creates a unique String which identifies an IA on a certain OpenTOSCA Container node. The String can be used to
-     * synchronize the access to the management infrastructure (e.g. tomcat).
-     *
-     * @param triggeringContainer OpenTOSCA Container that triggered the deployment
-     * @param deploymentLocation  OpenTOSCA Container where the IA is managed
-     * @param typeImpl            QName of the NodeType/RelationshipType the IA belongs to
-     * @param iaName              the name of the IA
-     * @return a unique String consisting of the given information or <tt>null</tt> if some needed information is
-     * missing
-     */
-    public static String getUniqueSynchronizationString(final String triggeringContainer,
-                                                        final String deploymentLocation, final QName typeImpl,
-                                                        final String iaName, final String serviceInstanceId) {
-
-        if (Objects.isNull(triggeringContainer) || Objects.isNull(deploymentLocation) || Objects.isNull(typeImpl)
-            || Objects.isNull(iaName) || Objects.isNull(serviceInstanceId)) {
-            return null;
-        }
-
-        return String.join("/", triggeringContainer, deploymentLocation, typeImpl.toString(), iaName, serviceInstanceId);
-    }
-
-    /**
-     * Returns an Object which can be used to synchronize all actions related to a certain String value.
-     *
-     * @return the object which can be used for synchronization
-     */
-    public static Object getLockForString(final String lockString) {
-        Objects.requireNonNull(lockString);
-
-        synchronized (locks) {
-            return locks.computeIfAbsent(lockString, (i) -> new Object());
-        }
     }
 
     /**

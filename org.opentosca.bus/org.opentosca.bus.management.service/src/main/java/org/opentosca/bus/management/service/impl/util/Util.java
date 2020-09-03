@@ -107,8 +107,7 @@ public class Util {
         final List<TTag> tags = serviceTemplate.getTags().getTag();
         LOG.debug("Number of tags: {}", tags.size());
 
-        // get the provider names defined in the NodeTemplates to check which tag names specify a partner
-        // endpoint
+        // get the provider names defined in the NodeTemplates to check which tag names specify a partner endpoint
         final List<String> partnerNames =
             serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
                 .filter(entity -> entity instanceof TNodeTemplate).map(entity -> entity.getOtherAttributes())
