@@ -3,7 +3,6 @@ package org.opentosca.container.core.plan;
 import java.util.Objects;
 
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.model.tosca.TTag;
 
 import org.springframework.stereotype.Service;
 
