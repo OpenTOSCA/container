@@ -108,7 +108,12 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
 
         if (choreographyHandler.isChoreography(serviceTemplate)) {
             LOG.debug("ServiceTemplate is part of choreography!");
+
             Map<String, Object> eventValues = new HashMap<>();
+            eventValues.put("CSARID", csarID);
+            eventValues.put("SERVICETEMPLATEID", QName.valueOf(serviceTemplate.getId()));
+            eventValues.put("PLANCORRELATIONID_STRING", createCorrelationId());
+
             managementBus.notifyPartners(eventValues);
             return;
         }
