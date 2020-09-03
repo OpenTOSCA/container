@@ -409,7 +409,7 @@ public class RequestProcessor implements Processor {
         String str = Settings.CONTAINER_INSTANCEDATA_API.replace("{csarid}", csarID);
         try {
             str = str.replace("{servicetemplateid}",
-                URLEncoder.encode(URLEncoder.encode(serviceTemplateID.toString(), "UTF-8"), "UTF-8"));
+                URLEncoder.encode(URLEncoder.encode(serviceTemplateID.getLocalPart(), "UTF-8"), "UTF-8"));
         } catch (final UnsupportedEncodingException e) {
             LOG.error("Couldn't encode Service Template URL", e);
         }
