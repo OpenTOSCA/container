@@ -979,10 +979,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         plan.addEvent(event);
         repo.update(plan);
 
-        // update the output parameters in the plan instance
-        PlanInstanceHandler.updatePlanInstanceOutput(plan, arguments.csar, exchange.getIn().getBody());
+        
+        if(exchange != null) {
+        	// update the output parameters in the plan instance           
+            PlanInstanceHandler.updatePlanInstanceOutput(plan, arguments.csar, exchange.getIn().getBody());
 
-        handleResponse(exchange);
+            handleResponse(exchange);
+        }
+        
     }
 
     private boolean iaProvidesRequestedOperation(Csar csar, TImplementationArtifact ia, TEntityType type, String neededInterface, String neededOperation) {
