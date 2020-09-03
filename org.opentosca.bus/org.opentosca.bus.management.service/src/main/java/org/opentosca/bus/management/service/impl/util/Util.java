@@ -105,6 +105,7 @@ public class Util {
             return null;
         }
         final List<TTag> tags = serviceTemplate.getTags().getTag();
+        LOG.debug("Number of tags: {}", tags.size());
 
         // get the provider names defined in the NodeTemplates to check which tag names specify a partner
         // endpoint
@@ -113,9 +114,11 @@ public class Util {
                 .filter(entity -> entity instanceof TNodeTemplate).map(entity -> entity.getOtherAttributes())
                 .map(attributes -> attributes.get(Constants.LOCATION_ATTRIBUTE)).distinct()
                 .collect(Collectors.toList());
+        LOG.debug("Number of partners: {}", partnerNames.size());
 
         // remove tags that do not specify a partner endpoint and get endpoints
         tags.removeIf(tag -> !partnerNames.contains(tag.getName()));
+        LOG.debug("Number of tags after filtering for partners: {}", tags.size());
         return tags;
     }
 }

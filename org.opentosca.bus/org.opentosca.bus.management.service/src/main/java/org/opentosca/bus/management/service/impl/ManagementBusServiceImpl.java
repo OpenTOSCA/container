@@ -795,6 +795,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
 
         // notify all partners
+        LOG.error("Number of partners to notify: {}", partnerTags.size());
         for (final TTag endpointTag : partnerTags) {
             LOG.debug("Notifying partner {} on endpoint: {}", endpointTag.getName(), endpointTag.getValue());
 
