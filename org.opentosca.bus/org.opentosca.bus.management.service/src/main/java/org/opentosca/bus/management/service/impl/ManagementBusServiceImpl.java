@@ -247,6 +247,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         if (outputParameters == null || outputParameters.getOutputParameter().isEmpty()) {
+            handleResponse(exchange);
             return;
         }
 
