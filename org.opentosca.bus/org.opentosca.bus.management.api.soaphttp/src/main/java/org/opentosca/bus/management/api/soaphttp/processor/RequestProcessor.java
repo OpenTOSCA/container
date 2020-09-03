@@ -278,9 +278,7 @@ public class RequestProcessor implements Processor {
             planCorrelationID = notifyPartnersRequest.getPlanCorrelationID();
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
 
-            final QName serviceTemplateID = new QName(notifyPartnersRequest.getServiceTemplateIDNamespaceURI(),
-                notifyPartnersRequest.getServiceTemplateIDLocalPart());
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), notifyPartnersRequest.getServiceTemplateIDLocalPart());
 
             csarIDString = notifyPartnersRequest.getCsarID();
             paramsMap = notifyPartnersRequest.getParams();
@@ -297,9 +295,7 @@ public class RequestProcessor implements Processor {
             planCorrelationID = notifyPartnerRequest.getPlanCorrelationID();
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
 
-            final QName serviceTemplateID = new QName(notifyPartnerRequest.getServiceTemplateIDNamespaceURI(),
-                notifyPartnerRequest.getServiceTemplateIDLocalPart());
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), notifyPartnerRequest.getServiceTemplateIDLocalPart());
 
             csarIDString = notifyPartnerRequest.getCsarID();
             paramsMap = notifyPartnerRequest.getParams();
@@ -311,9 +307,6 @@ public class RequestProcessor implements Processor {
             LOG.debug("Invoking plan after reception of ReceiveNotifyPartner");
 
             final ReceiveNotifyPartner receiveNotifyRequest = (ReceiveNotifyPartner) exchange.getIn().getBody();
-
-            final QName serviceTemplateID = new QName(receiveNotifyRequest.getServiceTemplateIDNamespaceURI(),
-                receiveNotifyRequest.getServiceTemplateIDLocalPart());
 
             // get plan ID from the boundary definitions
 
@@ -334,7 +327,7 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
                 receiveNotifyRequest.getPlanCorrelationID());
             exchange.getIn().setHeader(MBHeader.CALLBACK_BOOLEAN.toString(), true);
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), receiveNotifyRequest.getServiceTemplateIDLocalPart());
             exchange.getIn().setHeader(MBHeader.CSARID.toString(), receiveNotifyRequest.getCsarID());
             exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
             // exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(),
@@ -363,7 +356,7 @@ public class RequestProcessor implements Processor {
             // add required header fields for the bus
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
                 receiveNotifyRequest.getPlanCorrelationID());
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), receiveNotifyRequest.getServiceTemplateIDLocalPart());
             exchange.getIn().setHeader(MBHeader.CSARID.toString(), receiveNotifyRequest.getCsarID());
             exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
             // exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(),
