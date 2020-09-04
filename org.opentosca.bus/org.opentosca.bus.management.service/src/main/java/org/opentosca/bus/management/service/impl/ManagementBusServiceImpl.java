@@ -832,7 +832,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // filter not activated partners
-        partnerTags = partnerTags.stream().filter(partnerTag -> partnerTagNames.contains(partnerTag.getName())).collect(Collectors.toList());
+        LOG.debug("Number of partners before filtering based on selected participants: {}", partnerTags.size());
+        partnerTags = partnerTags.stream().filter(partnerTag -> !partnerTagNames.contains(partnerTag.getName())).collect(Collectors.toList());
+        LOG.debug("Number of partners after filtering based on selected participants: {}", partnerTags.size());
 
         @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
         params.put("SendingPartner", this.choreographyHandler.getInitiator(serviceTemplate));
