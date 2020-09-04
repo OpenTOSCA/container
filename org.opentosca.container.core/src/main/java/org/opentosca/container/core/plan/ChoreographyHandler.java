@@ -92,7 +92,7 @@ public class ChoreographyHandler {
      */
     public List<TTag> getPartnerEndpoints(final TServiceTemplate serviceTemplate) {
 
-        // get the tags containing the enpoints of the partners
+        // get the tags containing the endpoints of the partners
         if (Objects.isNull(serviceTemplate.getTags())) {
             LOG.error("Unable to retrieve tags for ServiceTemplate with ID {}.", serviceTemplate.getId());
             return null;

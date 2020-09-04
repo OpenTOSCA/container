@@ -947,6 +947,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             if (choreographyHandler.isChoreography(serviceTemplate)) {
 
                 HashMap<String, Object> headers = new HashMap<>();
+                headers.put(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString()));
                 headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), arguments.correlationId);
                 headers.put(MBHeader.CSARID.toString(), arguments.csar.id());
                 headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), arguments.serviceTemplateId);
