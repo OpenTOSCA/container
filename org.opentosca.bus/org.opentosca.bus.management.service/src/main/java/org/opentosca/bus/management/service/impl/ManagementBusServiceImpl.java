@@ -70,6 +70,7 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.trigger.SituationTriggerInstanceListener;
+import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.tosca.convention.Types;
@@ -130,6 +131,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final DeploymentPluginCapabilityChecker capabilityChecker;
     private final ContainerEngine containerEngine;
     private final CsarStorageService storage;
+    private final ChoreographyHandler choreographyHandler;
 
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
@@ -139,7 +141,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     PluginHandler pluginHandler,
                                     PluginRegistry pluginRegistry,
                                     DeploymentPluginCapabilityChecker capabilityChecker,
-                                    ContainerEngine containerEngine, CsarStorageService storage) {
+                                    ContainerEngine containerEngine, CsarStorageService storage,
+                                    ChoreographyHandler choreographyHandler) {
         LOG.info("Instantiating ManagementBus Service");
         this.decisionMaker = decisionMaker;
         this.collaborationContext = collaborationContext;
@@ -150,6 +153,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         this.capabilityChecker = capabilityChecker;
         this.storage = storage;
         this.containerEngine = containerEngine;
+        this.choreographyHandler = choreographyHandler;
     }
 
     /**
@@ -707,6 +711,21 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Csar csar = storage.findById(csarID);
 
         internalInvokePlan(new PlanInvocationArguments(csar, serviceTemplateID, serviceTemplateInstanceID, planID, operationName, correlationID), exchange);
+
+        // check if we are the initiator and if not send multicast to all participants - Overmind
+        TServiceTemplate serviceTemplate = storage.findById(csarID).entryServiceTemplate();
+        if (choreographyHandler.isChoreography(serviceTemplate)) {
+
+            HashMap<String, Object> headers = new HashMap<>();
+            headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationID);
+            headers.put(MBHeader.CSARID.toString(), csarID);
+            headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+
+            final Exchange requestExchange = new DefaultExchange(exchange.getContext());
+            requestExchange.getIn().setBody(new HashMap<>());
+            requestExchange.getIn().setHeaders(headers);
+            notifyPartners(requestExchange);
+        }
     }
 
     @Override
