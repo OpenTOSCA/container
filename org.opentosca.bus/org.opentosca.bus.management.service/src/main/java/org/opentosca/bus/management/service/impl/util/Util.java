@@ -21,6 +21,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.google.common.collect.Lists;
+
 public class Util {
 
     private final static Logger LOG = LoggerFactory.getLogger(Util.class);
@@ -104,7 +106,8 @@ public class Util {
             LOG.error("Unable to retrieve tags for ServiceTemplate with ID {}.", serviceTemplate.getId());
             return null;
         }
-        final List<TTag> tags = serviceTemplate.getTags().getTag();
+        
+        List<TTag> tags = Lists.newArrayList(serviceTemplate.getTags().getTag().iterator());        
         LOG.debug("Number of tags: {}", tags.size());
 
         // get the provider names defined in the NodeTemplates to check which tag names specify a partner endpoint
@@ -115,8 +118,12 @@ public class Util {
                 .collect(Collectors.toList());
         LOG.debug("Number of partners: {}", partnerNames.size());
 
+        
+        
         // remove tags that do not specify a partner endpoint and get endpoints
         tags.removeIf(tag -> !partnerNames.contains(tag.getName()));
+        
+        
         LOG.debug("Number of tags after filtering for partners: {}", tags.size());
         return tags;
     }

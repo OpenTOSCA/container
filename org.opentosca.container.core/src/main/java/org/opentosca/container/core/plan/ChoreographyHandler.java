@@ -27,7 +27,9 @@ public class ChoreographyHandler {
     public String getInitiator(final TServiceTemplate serviceTemplate) {
         if (Objects.isNull(serviceTemplate.getTags())) {
             return null;
-        }    for (TTag tag : serviceTemplate.getTags().getTag()){
+        }    
+        
+        for (TTag tag : serviceTemplate.getTags().getTag()){
             if (tag.getName().equals("participant")) {
                 return tag.getValue();
             }
