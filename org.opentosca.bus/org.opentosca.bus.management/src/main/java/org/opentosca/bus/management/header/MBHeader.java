@@ -185,5 +185,10 @@ public enum MBHeader {
      * <b>REMOTEOPERATION_STRING</b> This header field contains the name of the operation that shall
      * be executed on a remote OpenTOSCA Container.
      */
-    REMOTEOPERATION_STRING
+    REMOTEOPERATION_STRING,
+
+    /**
+     * <b>CHOREOGRAPHY_PARTNERS</b> List of partners taking part in a choreography
+     */
+    CHOREOGRAPHY_PARTNERS
 }

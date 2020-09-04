@@ -42,12 +42,6 @@ public class Constants {
     public final static String REMOTE_TYPE = "remote";
 
     /**
-     * QName of the location attribute utilized to assign NodeTemplates to partners for choreographies.
-     */
-    public final static QName LOCATION_ATTRIBUTE =
-        QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}location");
-
-    /**
      * Operation names of the management bus SOAP API to receive notifications from other management busses.
      */
     public final static String RECEIVE_NOTIFY_PARTNER_OPERATION = "receiveNotifyPartner";

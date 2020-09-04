@@ -91,40 +91,4 @@ public class Util {
         }
         return null;
     }
-
-    /**
-     * Get the endpoints of all choreography partners from the ServiceTemplate.
-     *
-     * @param serviceTemplate the ServiceTemplate for the choreography
-     * @return a list of tags containing the partner name as key and the endpoints as value or
-     * <code>null</code> if no tags are defined on the ServiceTemplate
-     */
-    public static List<TTag> getPartnerEndpoints(final TServiceTemplate serviceTemplate) {
-
-        // get the tags containing the enpoints of the partners
-        if (Objects.isNull(serviceTemplate.getTags())) {
-            LOG.error("Unable to retrieve tags for ServiceTemplate with ID {}.", serviceTemplate.getId());
-            return null;
-        }
-        
-        List<TTag> tags = Lists.newArrayList(serviceTemplate.getTags().getTag().iterator());        
-        LOG.debug("Number of tags: {}", tags.size());
-
-        // get the provider names defined in the NodeTemplates to check which tag names specify a partner endpoint
-        final List<String> partnerNames =
-            serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
-                .filter(entity -> entity instanceof TNodeTemplate).map(entity -> entity.getOtherAttributes())
-                .map(attributes -> attributes.get(Constants.LOCATION_ATTRIBUTE)).distinct()
-                .collect(Collectors.toList());
-        LOG.debug("Number of partners: {}", partnerNames.size());
-
-        
-        
-        // remove tags that do not specify a partner endpoint and get endpoints
-        tags.removeIf(tag -> !partnerNames.contains(tag.getName()));
-        
-        
-        LOG.debug("Number of tags after filtering for partners: {}", tags.size());
-        return tags;
-    }
 }

@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
@@ -12,6 +13,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TTag;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.common.NotFoundException;
@@ -111,15 +113,24 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         if (choreographyHandler.isChoreography(serviceTemplate)) {
             LOG.debug("ServiceTemplate is part of choreography!");
 
-            // select the participating partners of the choreography based on the available situation rules
-            List<SituationRule> situationRules = choreographyHandler.getSituationRules(serviceTemplate);
-            LOG.debug("Found {} situation rules for choreography. Selecting partners by rules...", situationRules.size());
-            // TODO: make decision for participants, add decision to body
-
+            // add general header fields which are required to notify partners
             Map<String, Object> eventValues = new HashMap<>();
             eventValues.put("CSARID", csarID);
             eventValues.put("SERVICETEMPLATEID_QNAME", new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()));
             eventValues.put("PLANCORRELATIONID_STRING", createCorrelationId());
+
+            // select the participating partners of the choreography based on the available situation rules
+            List<SituationRule> situationRules = choreographyHandler.getSituationRules(serviceTemplate);
+
+            if (situationRules.isEmpty()) {
+                // notify all defined partners for choreographies without selection rules
+                LOG.debug("No situation rules defined. Processing choreography with all partners!");
+                eventValues.put("CHOREOGRAPHY_PARTNERS", choreographyHandler.getPartnerEndpoints(serviceTemplate).stream().map(TTag::getValue).collect(Collectors.toList()));
+            } else{
+                LOG.debug("Found {} situation rules for choreography. Selecting partners by rules...", situationRules.size());
+                // TODO: make decision for participants
+                eventValues.put("CHOREOGRAPHY_PARTNERS", choreographyHandler.getPartnerEndpoints(serviceTemplate).stream().map(TTag::getValue).collect(Collectors.toList()));
+            }
 
             managementBus.notifyPartners(eventValues);
             return;

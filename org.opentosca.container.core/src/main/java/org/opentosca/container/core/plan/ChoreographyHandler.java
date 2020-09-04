@@ -5,10 +5,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import javax.xml.namespace.QName;
+
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTag;
 
+import com.google.common.collect.Lists;
 import org.opentosca.container.core.model.choreography.SituationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +23,8 @@ import org.springframework.stereotype.Service;
 public class ChoreographyHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(ChoreographyHandler.class);
+
+    private final static QName LOCATION_ATTRIBUTE = QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}location");
 
     /**
      * Check if the given ServiceTemplate is part of a choreographed application deployment
@@ -74,6 +81,39 @@ public class ChoreographyHandler {
         }
 
         return situationRules;
+    }
+
+    /**
+     * Get the endpoints of all choreography partners from the ServiceTemplate.
+     *
+     * @param serviceTemplate the ServiceTemplate for the choreography
+     * @return a list of tags containing the partner name as key and the endpoints as value or
+     * <code>null</code> if no tags are defined on the ServiceTemplate
+     */
+    public List<TTag> getPartnerEndpoints(final TServiceTemplate serviceTemplate) {
+
+        // get the tags containing the enpoints of the partners
+        if (Objects.isNull(serviceTemplate.getTags())) {
+            LOG.error("Unable to retrieve tags for ServiceTemplate with ID {}.", serviceTemplate.getId());
+            return null;
+        }
+
+        List<TTag> tags = Lists.newArrayList(serviceTemplate.getTags().getTag().iterator());
+        LOG.debug("Number of tags: {}", tags.size());
+
+        // get the provider names defined in the NodeTemplates to check which tag names specify a partner endpoint
+        final List<String> partnerNames =
+            serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
+                .filter(entity -> entity instanceof TNodeTemplate).map(entity -> entity.getOtherAttributes())
+                .map(attributes -> attributes.get(LOCATION_ATTRIBUTE)).distinct()
+                .collect(Collectors.toList());
+        LOG.debug("Number of partners: {}", partnerNames.size());
+
+        // remove tags that do not specify a partner endpoint and get endpoints
+        tags.removeIf(tag -> !partnerNames.contains(tag.getName()));
+
+        LOG.debug("Number of tags after filtering for partners: {}", tags.size());
+        return tags;
     }
 
     /**

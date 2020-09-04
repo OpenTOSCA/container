@@ -760,7 +760,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // get tag defining the endpoint of the partner
         final Optional<TTag> endpointTagOptional =
-            Util.getPartnerEndpoints(serviceTemplate).stream().filter(tag -> tag.getName().equals(receivingPartner))
+            choreographyHandler.getPartnerEndpoints(serviceTemplate).stream().filter(tag -> tag.getName().equals(receivingPartner))
                 .findFirst();
         if (!endpointTagOptional.isPresent()) {
             LOG.error("No endpoint tag available for partner {}", receivingPartner);
@@ -813,6 +813,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
         final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
+        final List<String> partnerTagNames = message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), List.class);
 
         LOG.debug("Notifying partners to start their plans for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
             correlationID, csarID, serviceTemplateID);
@@ -824,16 +825,18 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             return;
         }
 
-        // get the tags endpoints of the partners
-        final List<TTag> partnerTags = Util.getPartnerEndpoints(serviceTemplate);
+        List<TTag> partnerTags = choreographyHandler.getPartnerEndpoints(serviceTemplate);
         if (Objects.isNull(partnerTags)) {
             LOG.error("Unable to retrieve partners for ServiceTemplate with ID {}.", serviceTemplate.getId());
             return;
         }
 
-        @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
+        // filter not activated partners
+        partnerTags = partnerTags.stream().filter(partnerTag -> partnerTagNames.contains(partnerTag.getName())).collect(Collectors.toList());
 
+        @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
         params.put("SendingPartner", this.choreographyHandler.getInitiator(serviceTemplate));
+
         // notify all partners
         LOG.error("Number of partners to notify: {}", partnerTags.size());
         for (final TTag endpointTag : partnerTags) {
