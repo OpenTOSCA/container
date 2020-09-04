@@ -850,7 +850,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             input.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
             input.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
             input.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
-            
+
 
             // parse to doc and add input parameters
             final Document inputDoc =
@@ -929,7 +929,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         if (WSDLendpoint != null) {
 
-           
+
             final URI endpoint = WSDLendpoint.getURI();
             LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
 
@@ -951,7 +951,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 requestExchange.getIn().setHeaders(headers);
                 notifyPartners(requestExchange);
             }
-            
+
             if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
                 exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "REST",
                     Settings.OPENTOSCA_CONTAINER_HOSTNAME);
@@ -959,10 +959,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 exchange = pluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP",
                     Settings.OPENTOSCA_CONTAINER_HOSTNAME);
             }
-            
-            
-
-            
 
             // Undeploy IAs for the related ServiceTemplateInstance if a termination plan was executed.
             if (plan.getType().equals(PlanType.TERMINATION)) {

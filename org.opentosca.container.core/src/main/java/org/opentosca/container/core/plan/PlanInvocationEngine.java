@@ -2,6 +2,7 @@ package org.opentosca.container.core.plan;
 
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -16,6 +17,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.management.IManagementBus;
+import org.opentosca.container.core.model.choreography.SituationRule;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -109,6 +111,9 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         if (choreographyHandler.isChoreography(serviceTemplate)) {
             LOG.debug("ServiceTemplate is part of choreography!");
 
+            // select the participating partners of the choreography based on the available situation rules
+            List<SituationRule> situationRules = choreographyHandler.getSituationRules(serviceTemplate);
+            LOG.debug("Found {} situation rules for choreography. Selecting partners by rules...", situationRules.size());
             // TODO: make decision for participants, add decision to body
 
             Map<String, Object> eventValues = new HashMap<>();
