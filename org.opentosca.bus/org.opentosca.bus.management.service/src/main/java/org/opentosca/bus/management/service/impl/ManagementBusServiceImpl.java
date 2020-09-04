@@ -856,7 +856,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             input.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
             input.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
 
-
             // parse to doc and add input parameters
             final Document inputDoc =
                 MBUtils.mapToDoc(Constants.BUS_WSDL_NAMESPACE, Constants.RECEIVE_NOTIFY_PARTNERS_OPERATION, input);

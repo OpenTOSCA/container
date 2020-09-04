@@ -11,7 +11,11 @@ public class SituationRule {
 
     private URL situationRuleUrl;
 
-    private URL situationCompliantPartner;
+    private String situationCompliantPartnerName;
 
-    private URL alternativePartner;
+    private URL situationCompliantPartnerUrl;
+
+    private String alternativePartnerName;
+
+    private URL alternativePartnerUrl;
 }
