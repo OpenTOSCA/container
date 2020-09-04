@@ -711,21 +711,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Csar csar = storage.findById(csarID);
 
         internalInvokePlan(new PlanInvocationArguments(csar, serviceTemplateID, serviceTemplateInstanceID, planID, operationName, correlationID), exchange);
-
-        // check if we are the initiator and if not send multicast to all participants - Overmind
-        TServiceTemplate serviceTemplate = storage.findById(csarID).entryServiceTemplate();
-        if (choreographyHandler.isChoreography(serviceTemplate)) {
-
-            HashMap<String, Object> headers = new HashMap<>();
-            headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationID);
-            headers.put(MBHeader.CSARID.toString(), csarID);
-            headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
-
-            final Exchange requestExchange = new DefaultExchange(exchange.getContext());
-            requestExchange.getIn().setBody(new HashMap<>());
-            requestExchange.getIn().setHeaders(headers);
-            notifyPartners(requestExchange);
-        }
     }
 
     @Override
@@ -1029,6 +1014,21 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         plan = repo.findByCorrelationId(arguments.correlationId);
         plan.addEvent(event);
         repo.update(plan);
+
+        // check if we are the initiator and if not send multicast to all participants - Overmind
+        TServiceTemplate serviceTemplate = arguments.csar.entryServiceTemplate();
+        if (choreographyHandler.isChoreography(serviceTemplate)) {
+
+            HashMap<String, Object> headers = new HashMap<>();
+            headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), arguments.correlationId);
+            headers.put(MBHeader.CSARID.toString(), arguments.csar.id());
+            headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), arguments.serviceTemplateId);
+
+            final Exchange requestExchange = new DefaultExchange(exchange.getContext());
+            requestExchange.getIn().setBody(new HashMap<>());
+            requestExchange.getIn().setHeaders(headers);
+            notifyPartners(requestExchange);
+        }
 
         if (exchange != null) {
             // update the output parameters in the plan instance
