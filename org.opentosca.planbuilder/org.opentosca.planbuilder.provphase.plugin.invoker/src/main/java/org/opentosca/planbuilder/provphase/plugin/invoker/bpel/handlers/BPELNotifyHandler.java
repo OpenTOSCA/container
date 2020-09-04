@@ -301,7 +301,7 @@ public class BPELNotifyHandler extends PluginHandler {
                 "receiveNotify", invokerCallbackPortType, responseVariableName);
         receiveNode = context.importNode(receiveNode);
 
-        Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
+        Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, null);
         correlationSetsNode = context.importNode(correlationSetsNode);
         receiveNode.appendChild(correlationSetsNode);
 
