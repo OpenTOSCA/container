@@ -693,7 +693,7 @@ public class BPELPlanContext extends PlanContext {
         return this.bpelTemplateHandler.addCorrelationSet(correlationSetName, propertyName, this.templateBuildPlan);
     }
 
-    public boolean addGlobalCorrelationSet(final String correlationSetName, final String propertyName) {
+    public boolean addGlobalCorrelationSet(final String correlationSetName, final Collection<String> propertyName) {
         return this.buildPlanHandler.addCorrelationSet(correlationSetName, propertyName, this.templateBuildPlan.getBuildPlan());
     }
 
@@ -1150,4 +1150,48 @@ public class BPELPlanContext extends PlanContext {
             this.templateBuildPlan.getBuildPlan());
         return check;
     }
+
+	public void addCorrelationSetToInputReceive(String correlationSetName, Boolean b) {
+		
+		BPELPlan plan = this.templateBuildPlan.getBuildPlan();
+		Element mainReceiveElement = plan.getBpelMainSequenceReceiveElement();
+		
+		
+		Element correlationsElement = null;
+		if(mainReceiveElement.getElementsByTagName("correlations").getLength() != 0) {
+			correlationsElement= (Element) mainReceiveElement.getElementsByTagName("correlations").item(0);
+		} else {
+			correlationsElement = plan.getBpelDocument().createElementNS(plan.bpelNamespace, "correlations");
+			mainReceiveElement.appendChild(correlationsElement);
+		}
+		
+		 
+		Element correlationElement = plan.getBpelDocument().createElementNS(plan.bpelNamespace, "correlation");
+		correlationElement.setAttribute("set", correlationSetName);
+		
+		if(b != null) {
+			if(b) {
+				correlationElement.setAttribute("initiate", "yes");
+			} else {
+				correlationElement.setAttribute("initiate", "no");
+			}
+		} else {
+			correlationElement.setAttribute("initiate", "join");			
+		}
+		
+			
+		correlationsElement.appendChild(correlationElement);
+		
+		// 
+		/*
+		 * <bpel:correlations>
+                                        <bpel:correlation initiate="yes" set="InvokePortTypeCorrelationSet17"/>
+                                    </bpel:correlations>
+		 */
+		
+	}
+
+	public QName getPlanRequestMessageType() {
+		return this.templateBuildPlan.getBuildPlan().getWsdl().getRequestMessageTypeId();
+	}
 }
