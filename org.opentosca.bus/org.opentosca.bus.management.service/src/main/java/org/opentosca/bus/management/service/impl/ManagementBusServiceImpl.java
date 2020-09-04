@@ -3,6 +3,7 @@ package org.opentosca.bus.management.service.impl;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -813,7 +814,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
         final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
-        final List<String> partnerTagNames = message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), List.class);
+        final String partnerTagHeader = message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), String.class);
 
         LOG.debug("Notifying partners to start their plans for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
             correlationID, csarID, serviceTemplateID);
@@ -832,6 +833,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // filter not activated partners
+        List<String> partnerTagNames = Arrays.asList(partnerTagHeader.split(","));
         LOG.debug("Number of partners before filtering based on selected participants: {}", partnerTags.size());
         partnerTags = partnerTags.stream().filter(partnerTag -> partnerTagNames.contains(partnerTag.getName())).collect(Collectors.toList());
         LOG.debug("Number of partners after filtering based on selected participants: {}", partnerTags.size());
