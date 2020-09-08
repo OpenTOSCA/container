@@ -118,6 +118,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
             eventValues.put("CSARID", csarID);
             eventValues.put("SERVICETEMPLATEID_QNAME", new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()));
             eventValues.put("PLANCORRELATIONID_STRING", createCorrelationId());
+            eventValues.put("APP_CHOREO_ID", choreographyHandler.getAppChorId(serviceTemplate));
 
             // select the participating partners of the choreography based on the available situation rules
             List<SituationRule> situationRules = choreographyHandler.getSituationRules(serviceTemplate);

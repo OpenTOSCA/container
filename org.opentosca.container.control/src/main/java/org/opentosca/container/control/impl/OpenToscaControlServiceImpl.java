@@ -110,7 +110,7 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
     @Override
     public String invokePlanInvocation(CsarId csarId, TServiceTemplate serviceTemplate, long instanceId,
                                        TPlanDTO plan) {
-        LOGGER.info("Invoking Plan [{}]", plan.getName());
+        LOGGER.info("Invoking Plan [{}]", plan.getId());
         final String correlationId = planInvocationEngine.createCorrelationId();
         planInvocationEngine.invokePlan(csarId, serviceTemplate, instanceId, plan, correlationId);
         if (correlationId != null) {

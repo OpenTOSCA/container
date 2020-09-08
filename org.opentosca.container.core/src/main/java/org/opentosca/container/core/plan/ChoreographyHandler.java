@@ -3,12 +3,14 @@ package org.opentosca.container.core.plan;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TExtensibleElements;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTag;
@@ -34,10 +36,17 @@ public class ChoreographyHandler {
     }
 
     /**
-     * Check if the given ServiceTemplate is part of a choreographed application deployment
+     * Get the participant tag of the given ServiceTemplate
      */
     public String getInitiator(final TServiceTemplate serviceTemplate) {
        return getTagWithName(serviceTemplate,"participant");
+    }
+
+    /**
+     * Get the app_chor_id tag of the given ServiceTemplate
+     */
+    public String getAppChorId(final TServiceTemplate serviceTemplate) {
+        return getTagWithName(serviceTemplate,"app_chor_id");
     }
 
     /**
@@ -47,10 +56,10 @@ public class ChoreographyHandler {
         List<SituationRule> situationRules = new ArrayList<>();
 
         // get tag containing the situation rules
-        String situationRuleTag = getTagWithName(serviceTemplate, "rules");
+        String situationRuleTag = getTagWithName(serviceTemplate, "partnerselection_rules");
         if (Objects.nonNull(situationRuleTag)) {
             String[] situationRuleCandidates = situationRuleTag.split(";");
-            LOG.debug("Found {} situation rule candidates!", situationRuleCandidates.length);
+            LOG.debug("Found {} situation rule candidate(s)!", situationRuleCandidates.length);
 
             // check validity of rules and parse to rules object
             for (String situationRuleCandidate : situationRuleCandidates) {
@@ -104,8 +113,10 @@ public class ChoreographyHandler {
         // get the provider names defined in the NodeTemplates to check which tag names specify a partner endpoint
         final List<String> partnerNames =
             serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
-                .filter(entity -> entity instanceof TNodeTemplate).map(entity -> entity.getOtherAttributes())
-                .map(attributes -> attributes.get(LOCATION_ATTRIBUTE)).distinct()
+                .filter(entity -> entity instanceof TNodeTemplate).map(TExtensibleElements::getOtherAttributes)
+                .map(attributes -> attributes.get(LOCATION_ATTRIBUTE))
+                .flatMap(locationString -> Arrays.stream(locationString.split(",")))
+                .distinct()
                 .collect(Collectors.toList());
         LOG.debug("Number of partners: {}", partnerNames.size());
 
