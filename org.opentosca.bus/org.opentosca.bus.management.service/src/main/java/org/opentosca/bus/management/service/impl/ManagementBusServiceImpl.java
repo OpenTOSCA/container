@@ -918,20 +918,32 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Boolean callbackInvocation = message.getHeader(MBHeader.CALLBACK_BOOLEAN.toString(), Boolean.class);
         LOG.debug("CallbackInvocation: {}", callbackInvocation);
 
-        if(arguments.chorCorrelationId != null && new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId) != null) {
+        boolean isReceiveNotify = arguments.operationName.equals("receiveNotify");
+        
+        PlanInstance plan = null;
+        synchronized (this) {
+			
+        if(!isReceiveNotify && arguments.chorCorrelationId != null && new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId) != null) {
             LOG.warn("Skipping the plan invocation of choreography build plan with choreography id {}",arguments.chorCorrelationId);
         	return;
         }
 
-        PlanInstance plan = null;
-        try {
-            plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
-                arguments.serviceTemplateInstanceId, arguments.planId, arguments.operationName, arguments.correlationId,
-                arguments.chorCorrelationId, arguments.chorPartners, exchange.getIn().getBody());
-        } catch (CorrelationIdAlreadySetException e) {
-            LOG.warn(e.getMessage() + " Skipping the plan invocation!");
-            return;
+        
+        if(isReceiveNotify) {        	
+        	plan = new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId);
+        } else {
+        	try {
+                plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
+                    arguments.serviceTemplateInstanceId, arguments.planId, arguments.operationName, arguments.correlationId,
+                    arguments.chorCorrelationId, arguments.chorPartners, exchange.getIn().getBody());
+            } catch (CorrelationIdAlreadySetException e) {
+                LOG.warn(e.getMessage() + " Skipping the plan invocation!");
+                return;
+            }
         }
+        }
+     
+        
 
         if (plan == null) {
             LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", arguments.correlationId);
@@ -974,7 +986,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             // check if we are the initiator and if not send multicast to all participants - Overmind
             TServiceTemplate serviceTemplate = arguments.csar.entryServiceTemplate();
-            if (choreographyHandler.isChoreography(serviceTemplate)) {
+            if (!isReceiveNotify && choreographyHandler.isChoreography(serviceTemplate)) {
 
                 HashMap<String, Object> headers = new HashMap<>();
                 headers.put(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString()));

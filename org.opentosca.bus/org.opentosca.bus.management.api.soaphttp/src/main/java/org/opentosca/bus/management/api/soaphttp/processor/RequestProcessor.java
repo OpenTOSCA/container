@@ -316,6 +316,7 @@ public class RequestProcessor implements Processor {
             LOG.debug("Invoking plan after reception of ReceiveNotifyPartner");
 
             final ReceiveNotifyPartner receiveNotifyRequest = (ReceiveNotifyPartner) exchange.getIn().getBody();
+                        
 
             String receivingPartner = this.getParamByName(receiveNotifyRequest.getParams(), Constants.RECEIVING_PARTNER_PARAM);
                 String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());
@@ -334,6 +335,9 @@ public class RequestProcessor implements Processor {
 
             final QName planID = MBUtils.findPlanByOperation(choreoCsar,
                 "OpenTOSCA-Lifecycle-Interface", "initiate");
+            
+            String planCorrelationId = new PlanInstanceRepository().findByChoreographyCorrelationId(receiveNotifyRequest.getPlanChorCorrelation(), planID).getCorrelationId();
+            receiveNotifyRequest.setPlanCorrelationID(planCorrelationId);
             // create the body for the receiveNotify request that must be send to the plan
             final JAXBContext jc = JAXBContext.newInstance(ReceiveNotifyPartner.class);
             final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -348,7 +352,6 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(),
                 receiveNotifyRequest.getPlanChorCorrelation());
 
-            String planCorrelationId = new PlanInstanceRepository().findByChoreographyCorrelationId(receiveNotifyRequest.getPlanChorCorrelation(), planID).getCorrelationId();
 
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
                 planCorrelationId);

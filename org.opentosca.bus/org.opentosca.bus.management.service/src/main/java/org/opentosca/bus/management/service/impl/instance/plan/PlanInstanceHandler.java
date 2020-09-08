@@ -87,14 +87,9 @@ public class PlanInstanceHandler {
         // check if plan instance with that correlation ID is already present
         final Optional<PlanInstance> planOptional =
             planRepo.findAll().stream().filter(p -> p.getCorrelationId().equals(correlationId)).findFirst();
-        if (planOptional.isPresent()) {
-            if (operationName.equals("receiveNotify")) {
-                LOG.debug("Processing receiveNotify and plan instance already exists!");
-                return planOptional.get();
-            } else {
+        if (planOptional.isPresent()) {      
                 throw new CorrelationIdAlreadySetException(
-                    "Plan instance with correlation ID " + correlationId + " is already existing.");
-            }
+                    "Plan instance with correlation ID " + correlationId + " is already existing.");           
         }
 
         // cast input parameters for the plan invocation
