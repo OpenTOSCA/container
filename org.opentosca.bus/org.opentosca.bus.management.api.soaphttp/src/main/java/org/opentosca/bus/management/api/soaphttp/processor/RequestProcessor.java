@@ -304,10 +304,6 @@ public class RequestProcessor implements Processor {
             PlanInstance planInstance = new PlanInstanceRepository().findByCorrelationId(notifyPartnerRequest.getPlanCorrelationID());
             exchange.getIn().setHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), planInstance.getChoreographyPartners());
             exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), planInstance.getChoreographyCorrelationId());
-
-            planCorrelationID = notifyPartnerRequest.getPlanChorCorrelation();
-            exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), planCorrelationID);
-
             exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), notifyPartnerRequest.getServiceTemplateIDLocalPart());
 
             csarIDString = notifyPartnerRequest.getCsarID();

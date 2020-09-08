@@ -748,6 +748,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // retrieve parameters defining the partner and RelationshipTemplate from the exchange body
         @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
         final String connectingRelationshipTemplate = params.get(Constants.RELATIONSHIP_TEMPLATE_PARAM);
+        params.put(MBHeader.APP_CHOREO_ID.toString(), choreographyHandler.getAppChorId(serviceTemplate));
 
         final TNodeTemplate nodeTemplate = serviceTemplate.getTopologyTemplate().getNodeTemplate(serviceTemplate.getTopologyTemplate().getRelationshipTemplate(connectingRelationshipTemplate).getSourceElement().getRef().getId());
 
