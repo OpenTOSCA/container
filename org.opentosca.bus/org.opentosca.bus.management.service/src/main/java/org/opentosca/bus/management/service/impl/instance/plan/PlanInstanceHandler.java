@@ -58,7 +58,7 @@ public class PlanInstanceHandler {
      */
     public static PlanInstance createPlanInstance(final Csar csar, final QName serviceTemplateId,
                                                   final long serviceTemplateInstanceId, final QName planId,
-                                                  final String operationName, final String correlationId,
+                                                  final String operationName, final String correlationId, final String chorCorrelationId,
                                                   final Object input) throws CorrelationIdAlreadySetException {
 
         if (Objects.isNull(planId)) {
@@ -77,6 +77,7 @@ public class PlanInstanceHandler {
         // create a new plan instance
         final PlanInstance plan = new PlanInstance();
         plan.setCorrelationId(correlationId);
+        plan.setChoreographyCorrelationId(chorCorrelationId);
         plan.setLanguage(PlanLanguage.fromString(storedPlan.getPlanLanguage()));
         plan.setType(PlanType.fromString(storedPlan.getPlanType()));
         plan.setState(PlanInstanceState.RUNNING);

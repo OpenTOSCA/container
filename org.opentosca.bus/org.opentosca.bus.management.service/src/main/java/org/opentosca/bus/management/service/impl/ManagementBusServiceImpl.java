@@ -874,7 +874,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             input.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
             input.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
             input.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
-            input.put(Constants.RECEIVING_PARTNER_PARAM, endpointTag.getName());
+
+            params.put(Constants.RECEIVING_PARTNER_PARAM, endpointTag.getName());
 
             // parse to doc and add input parameters
             final Document inputDoc =
@@ -913,7 +914,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Boolean callbackInvocation = message.getHeader(MBHeader.CALLBACK_BOOLEAN.toString(), Boolean.class);
         LOG.debug("CallbackInvocation: {}", callbackInvocation);
 
-
         if(arguments.chorCorrelationId != null && new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId) != null) {
         	 LOG.warn("Skipping the plan invocation of choreography build plan with choreography id {}",arguments.chorCorrelationId);
         	return;
@@ -922,7 +922,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         PlanInstance plan = null;
         try {
             plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
-                arguments.serviceTemplateInstanceId, arguments.planId, arguments.operationName, arguments.correlationId, exchange.getIn().getBody());
+                arguments.serviceTemplateInstanceId, arguments.planId, arguments.operationName, arguments.correlationId, arguments.chorCorrelationId,exchange.getIn().getBody());
         } catch (CorrelationIdAlreadySetException e) {
             LOG.warn(e.getMessage() + " Skipping the plan invocation!");
             return;
