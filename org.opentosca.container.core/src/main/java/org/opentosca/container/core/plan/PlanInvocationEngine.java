@@ -130,7 +130,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
                 eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partnerTags));
             } else{
                 LOG.debug("Found {} situation rules for choreography. Selecting partners by rules...", situationRules.size());
-                eventValues.put("CHOREOGRAPHY_PARTNERS", choreographyHandler.getPartnersBasedOnSelectionRule(situationRules, partnerTags));
+                eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", choreographyHandler.getPartnersBasedOnSelectionRule(situationRules, partnerTags)));
             }
 
             managementBus.notifyPartners(eventValues);
