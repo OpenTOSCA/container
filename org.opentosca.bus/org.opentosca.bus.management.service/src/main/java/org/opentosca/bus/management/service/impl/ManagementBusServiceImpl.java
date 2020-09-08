@@ -692,6 +692,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (Objects.isNull(correlationID)) {
             correlationID = PlanInstanceHandler.createCorrelationId();
             message.setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationID);
+
+            // update message body with correlation id
+            if (message.getBody() instanceof HashMap) {
+                HashMap body = (HashMap) message.getBody();
+                body.put("CorrelationID", correlationID);
+                message.setBody(body);
+            }
         }
 
         final CsarId csarID = new CsarId(message.getHeader(MBHeader.CSARID.toString(), String.class));
@@ -915,7 +922,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("CallbackInvocation: {}", callbackInvocation);
 
         if(arguments.chorCorrelationId != null && new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId) != null) {
-        	 LOG.warn("Skipping the plan invocation of choreography build plan with choreography id {}",arguments.chorCorrelationId);
+            LOG.warn("Skipping the plan invocation of choreography build plan with choreography id {}",arguments.chorCorrelationId);
         	return;
         }
 
