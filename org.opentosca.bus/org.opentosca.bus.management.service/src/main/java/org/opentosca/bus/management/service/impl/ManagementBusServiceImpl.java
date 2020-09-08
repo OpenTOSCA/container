@@ -777,8 +777,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             e.printStackTrace();
         }
 
-
-
         // get tag defining the endpoint of the partner
         final Optional<TTag> endpointTagOptional =
             choreographyHandler.getPartnerEndpoints(serviceTemplate).stream().filter(tag -> tag.getName().equals(receivingPartner))

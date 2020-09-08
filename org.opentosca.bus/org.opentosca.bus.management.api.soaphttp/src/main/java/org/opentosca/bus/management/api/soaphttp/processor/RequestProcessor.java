@@ -47,6 +47,7 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -299,8 +300,10 @@ public class RequestProcessor implements Processor {
 
             final NotifyPartner notifyPartnerRequest = (NotifyPartner) exchange.getIn().getBody();
 
-            // set selected partner in headers
-            exchange.getIn().setHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), new PlanInstanceRepository().findByCorrelationId(notifyPartnerRequest.getPlanCorrelationID()).getChoreographyPartners());
+            // set choreography headers
+            PlanInstance planInstance = new PlanInstanceRepository().findByCorrelationId(notifyPartnerRequest.getPlanCorrelationID())
+            exchange.getIn().setHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), planInstance.getChoreographyPartners());
+            exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), planInstance.getChoreographyCorrelationId());
 
             planCorrelationID = notifyPartnerRequest.getPlanChorCorrelation();
             exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), planCorrelationID);
