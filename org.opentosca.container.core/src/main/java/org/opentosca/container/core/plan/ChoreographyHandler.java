@@ -105,7 +105,7 @@ public class ChoreographyHandler {
     /**
      * Get the list of involved partners based on available selection rules
      *
-     * @param situationRules a list of situation rules to filter the required partners
+     * @param situationRules   a list of situation rules to filter the required partners
      * @param possiblePartners a list of possible partners from the ServiceTemplate tags
      * @return a list of filtered partners
      */
@@ -197,16 +197,16 @@ public class ChoreographyHandler {
         LOG.debug("Number of tags after filtering for partners: {}", tags.size());
         return tags;
     }
-    
+
     public String getPossiblePartners(final TNodeTemplate nodeTemplate, Collection<String> participants) {
-    	if(nodeTemplate.getOtherAttributes().get(LOCATION_ATTRIBUTE) != null) {
-    		for(String participant : nodeTemplate.getOtherAttributes().get(LOCATION_ATTRIBUTE).split(",")) {
-    			if(participants.contains(participant)) {
-    				return participant;
-    			}
-    		}
-    	}
-    	return null;
+        if (nodeTemplate.getOtherAttributes().get(LOCATION_ATTRIBUTE) != null) {
+            for (String participant : nodeTemplate.getOtherAttributes().get(LOCATION_ATTRIBUTE).split(",")) {
+                if (participants.contains(participant)) {
+                    return participant;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -224,18 +224,17 @@ public class ChoreographyHandler {
         }
         return null;
     }
-    
 
-    
-    public Csar getChoreographyCsar(String appChoreoId, Collection<Csar> csars) {
-    	for(Csar csar : csars) {
-    		TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
-    		String tagAppChorId = new ChoreographyHandler().getAppChorId(serviceTemplate);
-    		
-    		if(Objects.nonNull(tagAppChorId) && tagAppChorId.equals(appChoreoId)) {
-    			return csar;    			
-    		}   		
-    	} 
-    	return null;
+    public Csar getChoreographyCsar(String appChoreoId, Collection<Csar> csars, String receivingPartner) {
+        for (Csar csar : csars) {
+            TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
+            String tagAppChorId = new ChoreographyHandler().getAppChorId(serviceTemplate);
+
+            String participantName = getTagWithName(serviceTemplate, "participant");
+            if (Objects.nonNull(tagAppChorId) && tagAppChorId.equals(appChoreoId) && Objects.nonNull(participantName) && participantName.equals(receivingPartner)) {
+                return csar;
+            }
+        }
+        return null;
     }
 }

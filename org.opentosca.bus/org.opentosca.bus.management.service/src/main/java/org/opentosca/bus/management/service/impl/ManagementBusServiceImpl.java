@@ -720,37 +720,37 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     public void notifyPartner(final Exchange exchange) {
 
         final Message message = exchange.getIn();
-            
+
         final String chorCorrelationID = message.getHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), String.class);
         final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
      // retrieve ServiceTemplate related to the notification request
         final TServiceTemplate serviceTemplate = this.storage.findById(csarID).entryServiceTemplate();
-        
-                
+
+
         if (!(exchange.getIn().getBody() instanceof HashMap)) {
             LOG.error("Message to notify partner with Correlation ID {}, CSARID {} and ServiceTemplate ID {} contains no parameters. Aborting!",
                 chorCorrelationID, csarID, serviceTemplateID);
             return;
         }
 
-        
+
         if (Objects.isNull(serviceTemplate)) {
             LOG.error("Unable to retrieve ServiceTemplate for the notification request.");
             return;
         }
-        
-     
+
+
         final String partnerTagHeader = message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), String.class);
 
 
         // retrieve parameters defining the partner and RelationshipTemplate from the exchange body
         @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
         final String connectingRelationshipTemplate = params.get(Constants.RELATIONSHIP_TEMPLATE_PARAM);
-        
+
         final TNodeTemplate nodeTemplate = serviceTemplate.getTopologyTemplate().getNodeTemplate(serviceTemplate.getTopologyTemplate().getRelationshipTemplate(connectingRelationshipTemplate).getSourceElement().getRef().getId());
-  
-        
+
+
         final String receivingPartner = this.choreographyHandler.getPossiblePartners(nodeTemplate, Arrays.asList(partnerTagHeader.split(",")));
 
         LOG.debug("Notifying partner {} for connectsTo with ID {} for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
@@ -772,7 +772,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             e.printStackTrace();
         }
 
-        
+
 
         // get tag defining the endpoint of the partner
         final Optional<TTag> endpointTagOptional =
@@ -874,7 +874,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             input.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
             input.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
             input.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
-            
+            input.put(Constants.RECEIVING_PARTNER_PARAM, endpointTag.getName());
 
             // parse to doc and add input parameters
             final Document inputDoc =
@@ -913,12 +913,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Boolean callbackInvocation = message.getHeader(MBHeader.CALLBACK_BOOLEAN.toString(), Boolean.class);
         LOG.debug("CallbackInvocation: {}", callbackInvocation);
 
-        
+
         if(arguments.chorCorrelationId != null && new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId) != null) {
         	 LOG.warn("Skipping the plan invocation of choreography build plan with choreography id {}",arguments.chorCorrelationId);
         	return;
         }
-        
+
         PlanInstance plan = null;
         try {
             plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,

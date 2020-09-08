@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -40,6 +38,7 @@ import org.opentosca.bus.management.api.soaphttp.model.ReceiveNotifyPartner;
 import org.opentosca.bus.management.api.soaphttp.model.ReceiveNotifyPartners;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
+import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
@@ -316,19 +315,19 @@ public class RequestProcessor implements Processor {
 
             final ReceiveNotifyPartner receiveNotifyRequest = (ReceiveNotifyPartner) exchange.getIn().getBody();
 
-            
-            String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());     
-            if(appChoreoId == null) {
-            	LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
-            	return;
-            }          	
-            Csar choreoCsar = this.choreoHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll());
-            if(choreoCsar == null) {
-            	LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
-            	return;
-            }            	
+            String receivingPartner = this.getParamByName(receiveNotifyRequest.getParams(), Constants.RECEIVING_PARTNER_PARAM);
+                String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());
+            if (appChoreoId == null) {
+                LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+                return;
+            }
+            Csar choreoCsar = this.choreoHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll(), receivingPartner);
+            if (choreoCsar == null) {
+                LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+                return;
+            }
             TServiceTemplate choreoServiceTemplate = choreoCsar.entryServiceTemplate();
-            
+
             // get plan ID from the boundary definitions
 
             final QName planID = MBUtils.findPlanByOperation(choreoCsar,
@@ -346,12 +345,12 @@ public class RequestProcessor implements Processor {
             // add required header fields for the bus
             exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(),
                 receiveNotifyRequest.getPlanChorCorrelation());
-            
+
             String planCorrelationId = new PlanInstanceRepository().findByChoreographyCorrelationId(receiveNotifyRequest.getPlanChorCorrelation(), planID).getCorrelationId();
-            
+
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
-            		planCorrelationId);
-            
+                planCorrelationId);
+
             exchange.getIn().setHeader(MBHeader.CALLBACK_BOOLEAN.toString(), true);
             exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), choreoServiceTemplate.getId());
             exchange.getIn().setHeader(MBHeader.CSARID.toString(), choreoCsar.id().csarName());
@@ -366,22 +365,22 @@ public class RequestProcessor implements Processor {
             LOG.debug("Invoking plan after reception of ReceiveNotifyPartners");
 
             final ReceiveNotifyPartners receiveNotifyRequest = (ReceiveNotifyPartners) exchange.getIn().getBody();
-  	
-            String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());     
-            if(appChoreoId == null) {
-            	LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
-            	return;
-            }          	
-            Csar choreoCsar = this.choreoHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll());
-            if(choreoCsar == null) {
-            	LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
-            	return;
-            }            	
+
+            String receivingPartner = this.getParamByName(receiveNotifyRequest.getParams(), Constants.RECEIVING_PARTNER_PARAM);
+            String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());
+            if (appChoreoId == null) {
+                LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+                return;
+            }
+            Csar choreoCsar = this.choreoHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll(), receivingPartner);
+            if (choreoCsar == null) {
+                LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+                return;
+            }
             TServiceTemplate choreoServiceTemplate = choreoCsar.entryServiceTemplate();
-            		                                 
-            
+
             final QName serviceTemplateID = new QName(choreoServiceTemplate.getTargetNamespace(),
-            		choreoServiceTemplate.getId());
+                choreoServiceTemplate.getId());
 
             // get plan ID from the boundary definitions
             final QName planID = MBUtils.findPlanByOperation(choreoCsar, "OpenTOSCA-Lifecycle-Interface", "initiate");
@@ -439,19 +438,23 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setBody(null);
         }
     }
-    
+
     public String getAppChoreoId(ParamsMap params) {
-    	Iterator<?> iter = params.getParam().iterator();
-    	String appChoreoId = null;
-    	while(iter.hasNext()) {
-    		ParamsMapItemType item = (ParamsMapItemType)iter.next();
-    		if(item.getKey().equals(MBHeader.APP_CHOREO_ID.toString())) {
-    			appChoreoId = item.getValue();
-    			break;
-    		}  		
-    	}
-    	
-    	return appChoreoId;
+        return getParamByName(params, MBHeader.APP_CHOREO_ID.toString());
+    }
+
+    public String getParamByName(ParamsMap params, String name) {
+        Iterator<?> iter = params.getParam().iterator();
+        String appChoreoId = null;
+        while (iter.hasNext()) {
+            ParamsMapItemType item = (ParamsMapItemType) iter.next();
+            if (item.getKey().equals(name)) {
+                appChoreoId = item.getValue();
+                break;
+            }
+        }
+
+        return appChoreoId;
     }
 
     private Map<String, String> createRequestBody(final String csarID, final QName serviceTemplateID,
