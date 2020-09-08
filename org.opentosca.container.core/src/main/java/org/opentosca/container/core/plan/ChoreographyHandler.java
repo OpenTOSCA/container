@@ -1,13 +1,18 @@
 package org.opentosca.container.core.plan;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.HttpMethod;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TExtensibleElements;
@@ -15,7 +20,10 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTag;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpHeaders;
 import org.opentosca.container.core.model.choreography.SituationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +47,14 @@ public class ChoreographyHandler {
      * Get the participant tag of the given ServiceTemplate
      */
     public String getInitiator(final TServiceTemplate serviceTemplate) {
-       return getTagWithName(serviceTemplate,"participant");
+        return getTagWithName(serviceTemplate, "participant");
     }
 
     /**
      * Get the app_chor_id tag of the given ServiceTemplate
      */
     public String getAppChorId(final TServiceTemplate serviceTemplate) {
-        return getTagWithName(serviceTemplate,"app_chor_id");
+        return getTagWithName(serviceTemplate, "app_chor_id");
     }
 
     /**
@@ -66,7 +74,7 @@ public class ChoreographyHandler {
 
                 // each rule requires a situation and two alternative partners
                 String[] situationRuleParts = situationRuleCandidate.split(",");
-                if (situationRuleParts.length != 3){
+                if (situationRuleParts.length != 3) {
                     continue;
                 }
 
@@ -74,7 +82,7 @@ public class ChoreographyHandler {
                 String situationCompliantPartnerUrl = getTagWithName(serviceTemplate, situationRuleParts[1]);
                 String alternativePartnerUrl = getTagWithName(serviceTemplate, situationRuleParts[2]);
 
-                if (Objects.nonNull(situationUrl) && Objects.nonNull(situationCompliantPartnerUrl) && Objects.nonNull(alternativePartnerUrl)){
+                if (Objects.nonNull(situationUrl) && Objects.nonNull(situationCompliantPartnerUrl) && Objects.nonNull(alternativePartnerUrl)) {
                     try {
                         situationRules.add(new SituationRule(new URL(situationUrl), situationRuleParts[1], new URL(situationCompliantPartnerUrl), situationRuleParts[2], new URL(alternativePartnerUrl)));
                     } catch (MalformedURLException e) {
@@ -90,6 +98,67 @@ public class ChoreographyHandler {
         }
 
         return situationRules;
+    }
+
+    /**
+     * Get the list of involved partners based on available selection rules
+     *
+     * @param situationRules a list of situation rules to filter the required partners
+     * @param possiblePartners a list of possible partners from the ServiceTemplate tags
+     * @return a list of filtered partners
+     */
+    public List<String> getPartnersBasedOnSelectionRule(List<SituationRule> situationRules, List<String> possiblePartners) {
+        List<String> partners = new ArrayList<>();
+
+        // check all situation rules and add the corresponding partners
+        for (SituationRule situationRule : situationRules) {
+            possiblePartners.remove(situationRule.getSituationCompliantPartnerName());
+            possiblePartners.remove(situationRule.getAlternativePartnerName());
+
+            if (isSituationRuleActive(situationRule.getSituationRuleUrl())) {
+                LOG.debug("Adding compliant partner '{}' for situation with URL: {}", situationRule.getSituationCompliantPartnerName(), situationRule.getSituationRuleUrl());
+                partners.add(situationRule.getSituationCompliantPartnerName());
+            } else {
+                LOG.debug("Adding alternative partner '{}' for situation with URL: {}", situationRule.getAlternativePartnerName(), situationRule.getSituationRuleUrl());
+                partners.add(situationRule.getAlternativePartnerName());
+            }
+        }
+
+        LOG.debug("Number of situation independent partners: {}", possiblePartners.size());
+        LOG.debug("Number of situation dependent partners: {}", partners.size());
+        partners.addAll(possiblePartners);
+
+        return partners;
+    }
+
+    /**
+     * Check if the situation on the given URL is active
+     *
+     * @param situationUrl the URL to the situation rule to evaluate
+     * @return <code>true</code> if the referenced situation rule is active, <code>false</code> otherwise
+     */
+    private boolean isSituationRuleActive(URL situationUrl) {
+        try {
+            // retrieve situation
+            HttpURLConnection connection = (HttpURLConnection) situationUrl.openConnection();
+            connection.setDoOutput(true);
+            connection.setInstanceFollowRedirects(false);
+            connection.setRequestMethod(HttpMethod.GET);
+            connection.setRequestProperty(HttpHeaders.ACCEPT, "application/json");
+            connection.connect();
+            String json = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+
+            // read active part and parse to boolean to check if situation is active
+            Map<String, Object> map = new ObjectMapper().readValue(json, Map.class);
+            if (!map.containsKey("active")) {
+                LOG.warn("Situation at URL '{}' is invalid!", situationUrl);
+                return false;
+            }
+            return Boolean.parseBoolean(map.get("active").toString());
+        } catch (IOException e) {
+            LOG.debug("Unable to parse situation from URL {}: {}", situationUrl, e.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -130,12 +199,12 @@ public class ChoreographyHandler {
     /**
      * Get the tag with the given name
      */
-    private String getTagWithName(final TServiceTemplate serviceTemplate, String tagName){
+    private String getTagWithName(final TServiceTemplate serviceTemplate, String tagName) {
         if (Objects.isNull(serviceTemplate.getTags())) {
             return null;
         }
 
-        for (TTag tag : serviceTemplate.getTags().getTag()){
+        for (TTag tag : serviceTemplate.getTags().getTag()) {
             if (tag.getName().equals(tagName)) {
                 return tag.getValue();
             }

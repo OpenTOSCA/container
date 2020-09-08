@@ -123,14 +123,14 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
             // select the participating partners of the choreography based on the available situation rules
             List<SituationRule> situationRules = choreographyHandler.getSituationRules(serviceTemplate);
 
+            List<String> partnerTags = choreographyHandler.getPartnerEndpoints(serviceTemplate).stream().map(TTag::getName).collect(Collectors.toList());
             if (situationRules.isEmpty()) {
                 // notify all defined partners for choreographies without selection rules
                 LOG.debug("No situation rules defined. Processing choreography with all partners!");
-                eventValues.put("CHOREOGRAPHY_PARTNERS",  choreographyHandler.getPartnerEndpoints(serviceTemplate).stream().map(TTag::getName).collect(Collectors.joining(",")));
+                eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partnerTags));
             } else{
                 LOG.debug("Found {} situation rules for choreography. Selecting partners by rules...", situationRules.size());
-                // TODO: make decision for participants
-                eventValues.put("CHOREOGRAPHY_PARTNERS", choreographyHandler.getPartnerEndpoints(serviceTemplate).stream().map(TTag::getName).collect(Collectors.joining(",")));
+                eventValues.put("CHOREOGRAPHY_PARTNERS", choreographyHandler.getPartnersBasedOnSelectionRule(situationRules, partnerTags));
             }
 
             managementBus.notifyPartners(eventValues);
