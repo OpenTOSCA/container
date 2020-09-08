@@ -301,7 +301,7 @@ public class RequestProcessor implements Processor {
             final NotifyPartner notifyPartnerRequest = (NotifyPartner) exchange.getIn().getBody();
 
             // set choreography headers
-            PlanInstance planInstance = new PlanInstanceRepository().findByCorrelationId(notifyPartnerRequest.getPlanCorrelationID())
+            PlanInstance planInstance = new PlanInstanceRepository().findByCorrelationId(notifyPartnerRequest.getPlanCorrelationID());
             exchange.getIn().setHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), planInstance.getChoreographyPartners());
             exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), planInstance.getChoreographyCorrelationId());
 
