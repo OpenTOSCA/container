@@ -190,5 +190,10 @@ public enum MBHeader {
     /**
      * <b>CHOREOGRAPHY_PARTNERS</b> List of partners taking part in a choreography
      */
-    CHOREOGRAPHY_PARTNERS
+    CHOREOGRAPHY_PARTNERS,
+    
+    /**
+     * <b>APP_CHOREO_ID</b> Correlation ID used to correlate models within a choreography
+     */
+    APP_CHOREO_ID
 }

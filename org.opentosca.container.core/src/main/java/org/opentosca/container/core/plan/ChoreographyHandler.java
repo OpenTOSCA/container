@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,6 +26,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHeaders;
 import org.opentosca.container.core.model.choreography.SituationRule;
+import org.opentosca.container.core.model.csar.Csar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -210,5 +212,19 @@ public class ChoreographyHandler {
             }
         }
         return null;
+    }
+    
+
+    
+    public Csar getChoreographyCsar(String appChoreoId, Collection<Csar> csars) {
+    	for(Csar csar : csars) {
+    		TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
+    		String tagAppChorId = new ChoreographyHandler().getAppChorId(serviceTemplate);
+    		
+    		if(Objects.nonNull(tagAppChorId) && tagAppChorId.equals(appChoreoId)) {
+    			return csar;    			
+    		}   		
+    	} 
+    	return null;
     }
 }

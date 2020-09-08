@@ -815,6 +815,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
         final String partnerTagHeader = message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), String.class);
+        final String applicationChoreographyId = message.getHeader(MBHeader.APP_CHOREO_ID.toString(), String.class);
 
         LOG.debug("Notifying partners to start their plans for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
             correlationID, csarID, serviceTemplateID);
@@ -840,6 +841,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
         params.put("SendingPartner", this.choreographyHandler.getInitiator(serviceTemplate));
+        params.put(MBHeader.APP_CHOREO_ID.toString(), applicationChoreographyId);
 
         // notify all partners
         LOG.error("Number of partners to notify: {}", partnerTags.size());
@@ -857,6 +859,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             input.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
             input.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
             input.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
+            
 
             // parse to doc and add input parameters
             final Document inputDoc =
@@ -952,6 +955,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), arguments.correlationId);
                 headers.put(MBHeader.CSARID.toString(), arguments.csar.id());
                 headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), arguments.serviceTemplateId);
+                headers.put(MBHeader.APP_CHOREO_ID.toString(), message.getHeader(MBHeader.APP_CHOREO_ID.toString(), String.class));
 
                 final Exchange requestExchange = new DefaultExchange(exchange.getContext());
                 requestExchange.getIn().setBody(new HashMap<>());

@@ -6,8 +6,11 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -16,6 +19,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.gson.Gson;
 import org.apache.camel.Exchange;
@@ -44,6 +48,7 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,13 +76,15 @@ public class RequestProcessor implements Processor {
     private final CsarStorageService csarStorage;
     private final ContainerEngine containerEngine;
     private final IManagementBusService managementBusService;
+    private final ChoreographyHandler choreoHandler;
 
     // manually instantiated from within the Route definition. Therefore no @Inject
     // annotation
-    public RequestProcessor(CsarStorageService csarStorage, ContainerEngine containerEngine, IManagementBusService managementBusService) {
+    public RequestProcessor(CsarStorageService csarStorage, ContainerEngine containerEngine, IManagementBusService managementBusService, ChoreographyHandler choreoHandler) {
         this.csarStorage = csarStorage;
         this.containerEngine = containerEngine;
         this.managementBusService = managementBusService;
+        this.choreoHandler = choreoHandler;
     }
 
     @Override
@@ -308,10 +315,22 @@ public class RequestProcessor implements Processor {
 
             final ReceiveNotifyPartner receiveNotifyRequest = (ReceiveNotifyPartner) exchange.getIn().getBody();
 
+            
+            String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());     
+            if(appChoreoId == null) {
+            	LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+            	return;
+            }          	
+            Csar choreoCsar = this.choreoHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll());
+            if(choreoCsar == null) {
+            	LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+            	return;
+            }            	
+            TServiceTemplate choreoServiceTemplate = choreoCsar.entryServiceTemplate();
+            
             // get plan ID from the boundary definitions
 
-            final QName planID = MBUtils.findPlanByOperation(
-                this.csarStorage.findById(new CsarId(receiveNotifyRequest.getCsarID())),
+            final QName planID = MBUtils.findPlanByOperation(choreoCsar,
                 "OpenTOSCA-Lifecycle-Interface", "initiate");
             // create the body for the receiveNotify request that must be send to the plan
             final JAXBContext jc = JAXBContext.newInstance(ReceiveNotifyPartner.class);
@@ -327,8 +346,8 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
                 receiveNotifyRequest.getPlanCorrelationID());
             exchange.getIn().setHeader(MBHeader.CALLBACK_BOOLEAN.toString(), true);
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), receiveNotifyRequest.getServiceTemplateIDLocalPart());
-            exchange.getIn().setHeader(MBHeader.CSARID.toString(), receiveNotifyRequest.getCsarID());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), choreoServiceTemplate.getId());
+            exchange.getIn().setHeader(MBHeader.CSARID.toString(), choreoCsar.id().csarName());
             exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
             // exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(),
             // Activator.apiID);
@@ -340,24 +359,35 @@ public class RequestProcessor implements Processor {
             LOG.debug("Invoking plan after reception of ReceiveNotifyPartners");
 
             final ReceiveNotifyPartners receiveNotifyRequest = (ReceiveNotifyPartners) exchange.getIn().getBody();
-
-            final QName serviceTemplateID = new QName(receiveNotifyRequest.getServiceTemplateIDNamespaceURI(),
-                receiveNotifyRequest.getServiceTemplateIDLocalPart());
+  	
+            String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());     
+            if(appChoreoId == null) {
+            	LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+            	return;
+            }          	
+            Csar choreoCsar = this.choreoHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll());
+            if(choreoCsar == null) {
+            	LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+            	return;
+            }            	
+            TServiceTemplate choreoServiceTemplate = choreoCsar.entryServiceTemplate();
+            		                                 
+            
+            final QName serviceTemplateID = new QName(choreoServiceTemplate.getTargetNamespace(),
+            		choreoServiceTemplate.getId());
 
             // get plan ID from the boundary definitions
-            final QName planID = MBUtils.findPlanByOperation(
-                this.csarStorage.findById(new CsarId(receiveNotifyRequest.getCsarID())),
-                "OpenTOSCA-Lifecycle-Interface", "initiate");
+            final QName planID = MBUtils.findPlanByOperation(choreoCsar, "OpenTOSCA-Lifecycle-Interface", "initiate");
 
             // create plan invocation request from given parameters
-            exchange.getIn().setBody(createRequestBody(receiveNotifyRequest.getCsarID(), serviceTemplateID,
+            exchange.getIn().setBody(createRequestBody(choreoCsar.id().csarName(), serviceTemplateID,
                 receiveNotifyRequest.getPlanCorrelationID()));
 
             // add required header fields for the bus
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
                 receiveNotifyRequest.getPlanCorrelationID());
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), receiveNotifyRequest.getServiceTemplateIDLocalPart());
-            exchange.getIn().setHeader(MBHeader.CSARID.toString(), receiveNotifyRequest.getCsarID());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), choreoServiceTemplate.getId());
+            exchange.getIn().setHeader(MBHeader.CSARID.toString(), choreoCsar.id().csarName());
             exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
             // exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(),
             // Activator.apiID);
@@ -401,6 +431,20 @@ public class RequestProcessor implements Processor {
         } else {
             exchange.getIn().setBody(null);
         }
+    }
+    
+    public String getAppChoreoId(ParamsMap params) {
+    	Iterator<?> iter = params.getParam().iterator();
+    	String appChoreoId = null;
+    	while(iter.hasNext()) {
+    		ParamsMapItemType item = (ParamsMapItemType)iter.next();
+    		if(item.getKey().equals(MBHeader.APP_CHOREO_ID.toString())) {
+    			appChoreoId = item.getValue();
+    			break;
+    		}  		
+    	}
+    	
+    	return appChoreoId;
     }
 
     private Map<String, String> createRequestBody(final String csarID, final QName serviceTemplateID,
