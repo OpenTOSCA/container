@@ -37,6 +37,9 @@ public class PlanInstance extends PersistenceObject {
     @Column(nullable = true)
     private String choreographyCorrelationId;
 
+    @Column(nullable = true)
+    private String choreographyPartners;
+
 	@Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PlanInstanceState state;
@@ -71,7 +74,7 @@ public class PlanInstance extends PersistenceObject {
     private QName templateId;
 
     public PlanInstance() {
-    	
+
     }
 
     public String getCorrelationId() {
@@ -81,7 +84,7 @@ public class PlanInstance extends PersistenceObject {
     public void setCorrelationId(final String correlationId) {
         this.correlationId = correlationId;
     }
-    
+
     public String getChoreographyCorrelationId() {
  		return this.choreographyCorrelationId;
  	}
@@ -89,6 +92,14 @@ public class PlanInstance extends PersistenceObject {
  	public void setChoreographyCorrelationId(String choreographyCorrelationId) {
  		this.choreographyCorrelationId = choreographyCorrelationId;
  	}
+
+    public String getChoreographyPartners() {
+        return this.choreographyPartners;
+    }
+
+    public void setChoreographyPartners(String choreographyPartners) {
+        this.choreographyPartners = choreographyPartners;
+    }
 
     public PlanInstanceState getState() {
         return this.state;

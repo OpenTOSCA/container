@@ -687,6 +687,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.trace("Correlation ID: {}", correlationID);
         String chorCorrelationID = message.getHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), String.class);
         LOG.trace("Choreography Correlation ID: {}", chorCorrelationID);
+        final String partnerTagHeader = message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), String.class);
+        LOG.trace("Choreography Partners: {}", partnerTagHeader);
 
         // generate new unique correlation ID if no ID is passed
         if (Objects.isNull(correlationID)) {
@@ -720,20 +722,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Long serviceTemplateInstanceID = Util.determineServiceTemplateInstanceId(serviceInstanceID);
         final Csar csar = storage.findById(csarID);
 
-        internalInvokePlan(new PlanInvocationArguments(csar, serviceTemplateID, serviceTemplateInstanceID, planID, operationName, correlationID, chorCorrelationID), exchange);
+        internalInvokePlan(new PlanInvocationArguments(csar, serviceTemplateID, serviceTemplateInstanceID, planID, operationName, correlationID, chorCorrelationID, partnerTagHeader), exchange);
     }
 
     @Override
     public void notifyPartner(final Exchange exchange) {
 
         final Message message = exchange.getIn();
-
         final String chorCorrelationID = message.getHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), String.class);
         final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
-     // retrieve ServiceTemplate related to the notification request
         final TServiceTemplate serviceTemplate = this.storage.findById(csarID).entryServiceTemplate();
-
 
         if (!(exchange.getIn().getBody() instanceof HashMap)) {
             LOG.error("Message to notify partner with Correlation ID {}, CSARID {} and ServiceTemplate ID {} contains no parameters. Aborting!",
@@ -741,15 +740,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             return;
         }
 
-
         if (Objects.isNull(serviceTemplate)) {
             LOG.error("Unable to retrieve ServiceTemplate for the notification request.");
             return;
         }
-
-
-        final String partnerTagHeader = message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), String.class);
-
 
         // retrieve parameters defining the partner and RelationshipTemplate from the exchange body
         @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
@@ -757,7 +751,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         final TNodeTemplate nodeTemplate = serviceTemplate.getTopologyTemplate().getNodeTemplate(serviceTemplate.getTopologyTemplate().getRelationshipTemplate(connectingRelationshipTemplate).getSourceElement().getRef().getId());
 
-
+        final String partnerTagHeader = message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), String.class);
+        if (Objects.isNull(partnerTagHeader)) {
+            LOG.error("Unable to retrieve choreo partners from header!");
+            return;
+        }
         final String receivingPartner = this.choreographyHandler.getPossiblePartners(nodeTemplate, Arrays.asList(partnerTagHeader.split(",")));
 
         LOG.debug("Notifying partner {} for connectsTo with ID {} for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
@@ -929,7 +927,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         PlanInstance plan = null;
         try {
             plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
-                arguments.serviceTemplateInstanceId, arguments.planId, arguments.operationName, arguments.correlationId, arguments.chorCorrelationId,exchange.getIn().getBody());
+                arguments.serviceTemplateInstanceId, arguments.planId, arguments.operationName, arguments.correlationId,
+                arguments.chorCorrelationId, arguments.chorPartners, exchange.getIn().getBody());
         } catch (CorrelationIdAlreadySetException e) {
             LOG.warn(e.getMessage() + " Skipping the plan invocation!");
             return;
@@ -1318,9 +1317,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         public final QName planId;
         public final String correlationId;
         public final String chorCorrelationId;
+        public final String chorPartners;
         public final String operationName;
 
-        public PlanInvocationArguments(Csar csar, QName serviceTemplateID, Long serviceTemplateInstanceID, QName planID, String operationName, String correlationID, String chorCorrelationId) {
+        public PlanInvocationArguments(Csar csar, QName serviceTemplateID, Long serviceTemplateInstanceID, QName planID,
+                                       String operationName, String correlationID, String chorCorrelationId, String chorPartners) {
             this.csar = csar;
             this.serviceTemplateId = serviceTemplateID;
             this.serviceTemplateInstanceId = serviceTemplateInstanceID;
@@ -1328,6 +1329,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             this.operationName = operationName;
             this.correlationId = correlationID;
             this.chorCorrelationId = chorCorrelationId;
+            this.chorPartners = chorPartners;
         }
     }
 

@@ -59,7 +59,7 @@ public class PlanInstanceHandler {
     public static PlanInstance createPlanInstance(final Csar csar, final QName serviceTemplateId,
                                                   final long serviceTemplateInstanceId, final QName planId,
                                                   final String operationName, final String correlationId, final String chorCorrelationId,
-                                                  final Object input) throws CorrelationIdAlreadySetException {
+                                                  final String choreographyPartners, final Object input) throws CorrelationIdAlreadySetException {
 
         if (Objects.isNull(planId)) {
             LOG.error("Plan ID is null! Unable to create PlanInstance!");
@@ -78,6 +78,7 @@ public class PlanInstanceHandler {
         final PlanInstance plan = new PlanInstance();
         plan.setCorrelationId(correlationId);
         plan.setChoreographyCorrelationId(chorCorrelationId);
+        plan.setChoreographyPartners(choreographyPartners);
         plan.setLanguage(PlanLanguage.fromString(storedPlan.getPlanLanguage()));
         plan.setType(PlanType.fromString(storedPlan.getPlanType()));
         plan.setState(PlanInstanceState.RUNNING);
