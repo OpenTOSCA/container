@@ -685,6 +685,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Message message = exchange.getIn();
         String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
         LOG.trace("Correlation ID: {}", correlationID);
+        String chorCorrelationID = message.getHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), String.class);
+        LOG.trace("Choreography Correlation ID: {}", chorCorrelationID);
 
         // generate new unique correlation ID if no ID is passed
         if (Objects.isNull(correlationID)) {
@@ -711,33 +713,51 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Long serviceTemplateInstanceID = Util.determineServiceTemplateInstanceId(serviceInstanceID);
         final Csar csar = storage.findById(csarID);
 
-        internalInvokePlan(new PlanInvocationArguments(csar, serviceTemplateID, serviceTemplateInstanceID, planID, operationName, correlationID), exchange);
+        internalInvokePlan(new PlanInvocationArguments(csar, serviceTemplateID, serviceTemplateInstanceID, planID, operationName, correlationID, chorCorrelationID), exchange);
     }
 
     @Override
     public void notifyPartner(final Exchange exchange) {
 
         final Message message = exchange.getIn();
-        final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+            
+        final String chorCorrelationID = message.getHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), String.class);
         final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
-
+     // retrieve ServiceTemplate related to the notification request
+        final TServiceTemplate serviceTemplate = this.storage.findById(csarID).entryServiceTemplate();
+        
+                
         if (!(exchange.getIn().getBody() instanceof HashMap)) {
             LOG.error("Message to notify partner with Correlation ID {}, CSARID {} and ServiceTemplate ID {} contains no parameters. Aborting!",
-                correlationID, csarID, serviceTemplateID);
+                chorCorrelationID, csarID, serviceTemplateID);
             return;
         }
+
+        
+        if (Objects.isNull(serviceTemplate)) {
+            LOG.error("Unable to retrieve ServiceTemplate for the notification request.");
+            return;
+        }
+        
+     
+        final String partnerTagHeader = message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), String.class);
+
 
         // retrieve parameters defining the partner and RelationshipTemplate from the exchange body
         @SuppressWarnings("unchecked") final HashMap<String, String> params = (HashMap<String, String>) exchange.getIn().getBody();
         final String connectingRelationshipTemplate = params.get(Constants.RELATIONSHIP_TEMPLATE_PARAM);
-        final String receivingPartner = params.get(Constants.RECEIVING_PARTNER_PARAM);
+        
+        final TNodeTemplate nodeTemplate = serviceTemplate.getTopologyTemplate().getNodeTemplate(serviceTemplate.getTopologyTemplate().getRelationshipTemplate(connectingRelationshipTemplate).getSourceElement().getRef().getId());
+  
+        
+        final String receivingPartner = this.choreographyHandler.getPossiblePartners(nodeTemplate, Arrays.asList(partnerTagHeader.split(",")));
 
         LOG.debug("Notifying partner {} for connectsTo with ID {} for choreography with correlation ID {}, CsarID {}, and ServiceTemplateID {}",
-            receivingPartner, connectingRelationshipTemplate, correlationID, csarID, serviceTemplateID);
+            receivingPartner, connectingRelationshipTemplate, chorCorrelationID, csarID, serviceTemplateID);
 
         // wait until other partner is ready to receive notify
-        while (!this.isPartnerAvailable(correlationID, receivingPartner)) {
+        while (!this.isPartnerAvailable(chorCorrelationID, receivingPartner)) {
             LOG.debug("Waiting for partner: {}", receivingPartner);
             try {
                 Thread.sleep(10000);
@@ -752,12 +772,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             e.printStackTrace();
         }
 
-        // retrieve ServiceTemplate related to the notification request
-        final TServiceTemplate serviceTemplate = this.storage.findById(csarID).entryServiceTemplate();
-        if (Objects.isNull(serviceTemplate)) {
-            LOG.error("Unable to retrieve ServiceTemplate for the notification request.");
-            return;
-        }
+        
 
         // get tag defining the endpoint of the partner
         final Optional<TTag> endpointTagOptional =
@@ -777,7 +792,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // create message body
         final HashMap<String, String> inputMap = new HashMap<>();
-        inputMap.put(Constants.PLAN_CORRELATION_PARAM, correlationID);
+        inputMap.put(Constants.PLAN_CHOR_CORRELATION_PARAM, chorCorrelationID);
         inputMap.put(Constants.CSARID_PARAM, csarID.toString());
         inputMap.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
         inputMap.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
@@ -811,7 +826,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     public void notifyPartners(final Exchange exchange) {
 
         final Message message = exchange.getIn();
-        final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+        final String correlationID = message.getHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), String.class);
         final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
         final String partnerTagHeader = message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), String.class);
@@ -854,7 +869,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             // create message body
             final HashMap<String, String> input = new HashMap<>();
-            input.put(Constants.PLAN_CORRELATION_PARAM, correlationID);
+            input.put(Constants.PLAN_CHOR_CORRELATION_PARAM, correlationID);
             input.put(Constants.CSARID_PARAM, csarID.toString());
             input.put(Constants.SERVICE_TEMPLATE_NAMESPACE_PARAM, serviceTemplateID.getNamespaceURI());
             input.put(Constants.SERVICE_TEMPLATE_LOCAL_PARAM, serviceTemplateID.getLocalPart());
@@ -898,6 +913,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Boolean callbackInvocation = message.getHeader(MBHeader.CALLBACK_BOOLEAN.toString(), Boolean.class);
         LOG.debug("CallbackInvocation: {}", callbackInvocation);
 
+        
+        if(arguments.chorCorrelationId != null && new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId) != null) {
+        	 LOG.warn("Skipping the plan invocation of choreography build plan with choreography id {}",arguments.chorCorrelationId);
+        	return;
+        }
+        
         PlanInstance plan = null;
         try {
             plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
@@ -952,7 +973,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                 HashMap<String, Object> headers = new HashMap<>();
                 headers.put(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), message.getHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString()));
-                headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), arguments.correlationId);
+                headers.put(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), arguments.chorCorrelationId);
                 headers.put(MBHeader.CSARID.toString(), arguments.csar.id());
                 headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), arguments.serviceTemplateId);
                 headers.put(MBHeader.APP_CHOREO_ID.toString(), message.getHeader(MBHeader.APP_CHOREO_ID.toString(), String.class));
@@ -1289,15 +1310,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         public final Long serviceTemplateInstanceId;
         public final QName planId;
         public final String correlationId;
+        public final String chorCorrelationId;
         public final String operationName;
 
-        public PlanInvocationArguments(Csar csar, QName serviceTemplateID, Long serviceTemplateInstanceID, QName planID, String operationName, String correlationID) {
+        public PlanInvocationArguments(Csar csar, QName serviceTemplateID, Long serviceTemplateInstanceID, QName planID, String operationName, String correlationID, String chorCorrelationId) {
             this.csar = csar;
             this.serviceTemplateId = serviceTemplateID;
             this.serviceTemplateInstanceId = serviceTemplateInstanceID;
             this.planId = planID;
             this.operationName = operationName;
             this.correlationId = correlationID;
+            this.chorCorrelationId = chorCorrelationId;
         }
     }
 

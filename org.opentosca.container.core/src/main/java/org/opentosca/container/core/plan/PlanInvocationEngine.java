@@ -62,6 +62,25 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         this.choreographyHandler = choreographyHandler;
     }
 
+    public String createChoreographyCorrelationId() {
+    	// generate CorrelationId for the plan execution
+        while (true) {
+            final String correlationId = String.valueOf(System.currentTimeMillis());
+
+            try {
+            	
+                PlanInstance instance = planRepo.findByChoreographyCorrelationId(correlationId);
+                if (instance == null) {
+                    return correlationId;
+                }
+                this.LOG.debug("CorrelationId {} already in use.", correlationId);
+            } catch (final NoResultException e) {
+                return correlationId;
+            }
+        }
+    	
+    }
+    
     @Override
     public String createCorrelationId() {
         // generate CorrelationId for the plan execution
@@ -117,7 +136,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
             Map<String, Object> eventValues = new HashMap<>();
             eventValues.put("CSARID", csarID);
             eventValues.put("SERVICETEMPLATEID_QNAME", new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()));
-            eventValues.put("PLANCORRELATIONID_STRING", createCorrelationId());
+            eventValues.put("PLANCHORCORRELATIONID_STRING", createChoreographyCorrelationId());
             eventValues.put("APP_CHOREO_ID", choreographyHandler.getAppChorId(serviceTemplate));
 
             // select the participating partners of the choreography based on the available situation rules

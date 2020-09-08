@@ -48,6 +48,7 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
@@ -282,8 +283,8 @@ public class RequestProcessor implements Processor {
 
             final NotifyPartners notifyPartnersRequest = (NotifyPartners) exchange.getIn().getBody();
 
-            planCorrelationID = notifyPartnersRequest.getPlanCorrelationID();
-            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
+            planCorrelationID = notifyPartnersRequest.getPlanChorCorrelation();
+            exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), planCorrelationID);
 
             exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), notifyPartnersRequest.getServiceTemplateIDLocalPart());
 
@@ -299,8 +300,8 @@ public class RequestProcessor implements Processor {
 
             final NotifyPartner notifyPartnerRequest = (NotifyPartner) exchange.getIn().getBody();
 
-            planCorrelationID = notifyPartnerRequest.getPlanCorrelationID();
-            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
+            planCorrelationID = notifyPartnerRequest.getPlanChorCorrelation();
+            exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), planCorrelationID);
 
             exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), notifyPartnerRequest.getServiceTemplateIDLocalPart());
 
@@ -343,8 +344,14 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setBody(document);
 
             // add required header fields for the bus
+            exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(),
+                receiveNotifyRequest.getPlanChorCorrelation());
+            
+            String planCorrelationId = new PlanInstanceRepository().findByChoreographyCorrelationId(receiveNotifyRequest.getPlanChorCorrelation(), planID).getCorrelationId();
+            
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
-                receiveNotifyRequest.getPlanCorrelationID());
+            		planCorrelationId);
+            
             exchange.getIn().setHeader(MBHeader.CALLBACK_BOOLEAN.toString(), true);
             exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), choreoServiceTemplate.getId());
             exchange.getIn().setHeader(MBHeader.CSARID.toString(), choreoCsar.id().csarName());
@@ -381,11 +388,11 @@ public class RequestProcessor implements Processor {
 
             // create plan invocation request from given parameters
             exchange.getIn().setBody(createRequestBody(choreoCsar.id().csarName(), serviceTemplateID,
-                receiveNotifyRequest.getPlanCorrelationID()));
+                receiveNotifyRequest.getPlanChorCorrelation()));
 
             // add required header fields for the bus
-            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
-                receiveNotifyRequest.getPlanCorrelationID());
+            exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(),
+                receiveNotifyRequest.getPlanChorCorrelation());
             exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), choreoServiceTemplate.getId());
             exchange.getIn().setHeader(MBHeader.CSARID.toString(), choreoCsar.id().csarName());
             exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
@@ -398,7 +405,7 @@ public class RequestProcessor implements Processor {
                 .filter(param -> param.getKey().equals("SendingPartner")).findFirst().map(param -> param.getValue())
                 .orElse(null);
             LOG.debug("Adding partner: {}", partner);
-            this.managementBusService.addPartnerToReadyList(receiveNotifyRequest.getPlanCorrelationID(), partner);
+            this.managementBusService.addPartnerToReadyList(receiveNotifyRequest.getPlanChorCorrelation(), partner);
             //addPartnerToReadyList(receiveNotifyRequest.getPlanCorrelationID(), partner);
             return;
         }

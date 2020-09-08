@@ -19,13 +19,15 @@ import lombok.ToString;
  * Java class for ReceiveNotifyPartners complex type.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "receiveNotifyPartners", propOrder = {"planCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
+@XmlType(name = "receiveNotifyPartners", propOrder = {"planCorrelation", "planChorCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
     "serviceTemplateIDLocalPart", "messageID", "params", "doc"})
 @ToString
 public class ReceiveNotifyPartners {
 
     @XmlElement(name = "PlanCorrelationID")
     protected String planCorrelation;
+    @XmlElement(name = "PlanChorCorrelationID")
+    protected String planChorCorrelation;
     @XmlElement(name = "CsarID", required = true)
     protected String csarID;
     @XmlElement(name = "ServiceTemplateIDNamespaceURI", required = true)
@@ -164,4 +166,18 @@ public class ReceiveNotifyPartners {
     public void setDoc(final Doc value) {
         this.doc = value;
     }
+
+	/**
+	 * @return the planChorCorrelation
+	 */
+	public String getPlanChorCorrelation() {
+		return planChorCorrelation;
+	}
+
+	/**
+	 * @param planChorCorrelation the planChorCorrelation to set
+	 */
+	public void setPlanChorCorrelation(String planChorCorrelation) {
+		this.planChorCorrelation = planChorCorrelation;
+	}
 }

@@ -73,6 +73,12 @@ public enum MBHeader {
      * identifies a PlanInstance.
      */
     PLANCORRELATIONID_STRING,
+    
+    /**
+     * <b>PLANCHORCORRELATIONID_STRING</b> This header field contains the correlation ID which uniquely
+     * identifies a choreographed planinstance.
+     */
+    PLANCHORCORRELATIONID_STRING,
 
     /**
      * <b>ENDPOINT_URI</b> This header field contains the endpoint of an Implementation Artifact or

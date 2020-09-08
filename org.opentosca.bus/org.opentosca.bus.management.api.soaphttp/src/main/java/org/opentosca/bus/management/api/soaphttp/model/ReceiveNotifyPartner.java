@@ -18,13 +18,15 @@ import javax.xml.bind.annotation.XmlType;
  * Java class for ReceiveNotifyPartner complex type.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ReceiveNotifyPartner", propOrder = {"planCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
+@XmlType(name = "ReceiveNotifyPartner", propOrder = {"planCorrelation", "planChorCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
     "serviceTemplateIDLocalPart", "messageID", "params", "doc"})
 @XmlRootElement
 public class ReceiveNotifyPartner {
 
     @XmlElement(name = "PlanCorrelationID")
     protected String planCorrelation;
+    @XmlElement(name = "PlanChorCorrelationID")
+    protected String planChorCorrelation;
     @XmlElement(name = "CsarID", required = true)
     protected String csarID;
     @XmlElement(name = "ServiceTemplateIDNamespaceURI", required = true)
@@ -57,6 +59,20 @@ public class ReceiveNotifyPartner {
     }
 
     /**
+	 * @return the planChorCorrelation
+	 */
+	public String getPlanChorCorrelation() {
+		return planChorCorrelation;
+	}
+
+	/**
+	 * @param planChorCorrelation the planChorCorrelation to set
+	 */
+	public void setPlanChorCorrelation(String planChorCorrelation) {
+		this.planChorCorrelation = planChorCorrelation;
+	}
+
+	/**
      * Gets the value of the csarID property.
      *
      * @return possible object is {@link String }

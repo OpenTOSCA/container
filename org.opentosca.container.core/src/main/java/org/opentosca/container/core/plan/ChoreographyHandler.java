@@ -197,6 +197,17 @@ public class ChoreographyHandler {
         LOG.debug("Number of tags after filtering for partners: {}", tags.size());
         return tags;
     }
+    
+    public String getPossiblePartners(final TNodeTemplate nodeTemplate, Collection<String> participants) {
+    	if(nodeTemplate.getOtherAttributes().get(LOCATION_ATTRIBUTE) != null) {
+    		for(String participant : nodeTemplate.getOtherAttributes().get(LOCATION_ATTRIBUTE).split(",")) {
+    			if(participants.contains(participant)) {
+    				return participant;
+    			}
+    		}
+    	}
+    	return null;
+    }
 
     /**
      * Get the tag with the given name

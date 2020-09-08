@@ -17,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,7 +34,10 @@ public class PlanInstance extends PersistenceObject {
     @Column(nullable = false, unique = true)
     private String correlationId;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
+    private String choreographyCorrelationId;
+
+	@Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PlanInstanceState state;
 
@@ -67,7 +71,7 @@ public class PlanInstance extends PersistenceObject {
     private QName templateId;
 
     public PlanInstance() {
-
+    	
     }
 
     public String getCorrelationId() {
@@ -77,6 +81,14 @@ public class PlanInstance extends PersistenceObject {
     public void setCorrelationId(final String correlationId) {
         this.correlationId = correlationId;
     }
+    
+    public String getChoreographyCorrelationId() {
+ 		return this.choreographyCorrelationId;
+ 	}
+
+ 	public void setChoreographyCorrelationId(String choreographyCorrelationId) {
+ 		this.choreographyCorrelationId = choreographyCorrelationId;
+ 	}
 
     public PlanInstanceState getState() {
         return this.state;

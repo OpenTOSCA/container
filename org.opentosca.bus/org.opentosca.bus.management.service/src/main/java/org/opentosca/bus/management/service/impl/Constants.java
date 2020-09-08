@@ -53,6 +53,7 @@ public class Constants {
     public final static String SERVICE_TEMPLATE_NAMESPACE_PARAM = "ServiceTemplateIDNamespaceURI";
     public final static String SERVICE_TEMPLATE_LOCAL_PARAM = "ServiceTemplateIDLocalPart";
     public final static String PLAN_CORRELATION_PARAM = "PlanCorrelationID";
+    public final static String PLAN_CHOR_CORRELATION_PARAM = "PlanChorCorrelationID";
     public final static String CSARID_PARAM = "CsarID";
     public final static String MESSAGE_ID_PARAM = "MessageID";
     public final static String PARAMS_PARAM = "Params";
