@@ -387,7 +387,7 @@ public class RequestProcessor implements Processor {
 
             // create plan invocation request from given parameters
             exchange.getIn().setBody(createRequestBody(choreoCsar.id().csarName(), serviceTemplateID,
-                receiveNotifyRequest.getPlanChorCorrelation()));
+                receiveNotifyRequest.getPlanCorrelationID()));
 
             // add required header fields for the bus
             exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(),
