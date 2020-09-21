@@ -118,7 +118,7 @@ public class CsarController {
             TServiceTemplate entryServiceTemplate = csarContent.entryServiceTemplate();
             // double encoding, otherwise the link breaks
             final String namespaceSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getTargetNamespace()));
-            final String nameSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getName()));
+            final String nameSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getId()));
             final String baseUri = this.uriInfo.getBaseUri().toString();
             if (csar.getIconUrl() != null) {
                 final String iconUrl =
