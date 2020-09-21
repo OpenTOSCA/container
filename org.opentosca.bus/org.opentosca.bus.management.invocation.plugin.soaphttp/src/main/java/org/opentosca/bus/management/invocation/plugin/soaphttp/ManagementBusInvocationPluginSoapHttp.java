@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -108,6 +109,11 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             // getting the port name involves this mess
 //      String portName = getPortName(wsdl, operation);
             headers.put("SOAPEndpoint", endpoint);
+
+            // add the operation header for the cxf endpoint explicitly if invoking an IA
+            if (Objects.nonNull(message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), String.class))){
+                headers.put("operationName", operationName);
+            }
 
             messagingPattern = determineMP(message, operationName, operation, hasOutputParams);
             if (messagingPattern == null) {
