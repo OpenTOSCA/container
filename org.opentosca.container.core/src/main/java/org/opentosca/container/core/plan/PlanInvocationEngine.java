@@ -157,8 +157,10 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
                 	LOG.debug("No situation rules defined. Processing choreography with all partners!");
                 	eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partnerTags));
                 } else {
+                	LOG.debug("Found {} situation expressions for choreography. Selecting partners by expressions...", situationRules.size());
                 	Collection<String> partners2 = choreographyHandler.getPartnersBasedOnSelectionExpression(situationExpressions, partnerTags);
                 	 if(partners2.isEmpty()) {
+                		 LOG.warn("No configuration was acceptable to be deployed with the given expressions, no deployment will be started by a choreography");
                      	return;
                      }
                      eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partners2));
@@ -168,6 +170,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
                 Collection<String> partners = choreographyHandler.getPartnersBasedOnSelectionRule(situationRules, partnerTags);
                 
                 if(partners.isEmpty()) {
+                	LOG.warn("No configuration was acceptable to be deployed with the given rules, no deployment will be started by a choreography");
                 	return;
                 }
                 eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partners));
