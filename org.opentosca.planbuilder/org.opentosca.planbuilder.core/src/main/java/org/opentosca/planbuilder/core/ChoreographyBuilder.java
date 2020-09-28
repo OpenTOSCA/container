@@ -11,8 +11,12 @@ import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ChoreographyBuilder {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ChoreographyBuilder.class);
 
     public AbstractPlan transformToChoreography(final AbstractPlan plan) {
         final AbstractServiceTemplate serviceTemplate = plan.getServiceTemplate();
@@ -22,13 +26,19 @@ public class ChoreographyBuilder {
         }
         final Collection<AbstractActivity> activties = plan.getActivites();
 
-        for (final AbstractNodeTemplate unmanagedNode : getUnmanagedChoreographyNodes(serviceTemplate)) {
+        Collection<AbstractNodeTemplate> unmanagedNodes = getUnmanagedChoreographyNodes(serviceTemplate);
+        LOG.debug("Found following unmanaged nodes: ");
+        for (final AbstractNodeTemplate unmanagedNode : unmanagedNodes) {
+            LOG.debug("Unmanaged Node: " + unmanagedNode.getId());
             for (final AbstractActivity activity : plan.findNodeTemplateActivities(unmanagedNode)) {
                 activity.addMetadata("ignoreProvisioning", true);
             }
         }
 
-        for (final AbstractRelationshipTemplate unmanagedRelation : getUnmanagedRelation(serviceTemplate)) {
+        Collection<AbstractRelationshipTemplate> unmanagedRelations = getUnmanagedRelation(serviceTemplate);
+        LOG.debug("Found following unmanaged relations: ");
+        for (final AbstractRelationshipTemplate unmanagedRelation : unmanagedRelations) {
+            LOG.debug("Unmanaged Relation: " + unmanagedRelation.getId());
             for (final AbstractActivity act : plan.findRelationshipTemplateActivities(unmanagedRelation)) {
                 act.addMetadata("ignoreProvisioning", true);
             }
