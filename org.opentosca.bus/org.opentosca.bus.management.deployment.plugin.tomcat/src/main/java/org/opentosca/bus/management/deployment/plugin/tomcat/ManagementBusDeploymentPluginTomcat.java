@@ -26,6 +26,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.IHTTPService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
         final Message message = exchange.getIn();
         @SuppressWarnings("unchecked") final List<String> artifactReferences =
             message.getHeader(MBHeader.ARTIFACTREFERENCES_LISTSTRING.toString(), List.class);
+        CsarId csarId = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
 
         // get URL of the WAR-File that has to be deployed
         final URL warURL = getWARFileReference(artifactReferences);
@@ -156,7 +158,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
                 message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
 
             // perform deployment on management infrastructure
-            endpoint = deployWAROnTomcat(warFile, triggeringContainer, typeImplementation, fileName);
+            endpoint = deployWAROnTomcat(csarId, warFile, triggeringContainer, typeImplementation, fileName);
 
             if (endpoint != null) {
                 // add endpoint suffix to endpoint of deployed WAR
@@ -332,13 +334,14 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
      * the WAR-File (without ".war") is used:
      * <tt>/[Container-Hostname]/[TypeImplementationID]/[File-Name]</tt>
      *
+     * @param csarId              the name of the CSAR the IA belongs to
      * @param warFile             the WAR artifact that has to be deployed
      * @param triggeringContainer the host name of the OpenTOSCA Container that triggered the IA deployment
      * @param typeImplementation  the NodeTypeImplementation or RelationshipTypeImplementation which is used to create a
      *                            unique path where the WAR is deployed
      * @param fileName            the file name which is part of the deployment path
      */
-    private String deployWAROnTomcat(final File warFile, final String triggeringContainer,
+    private String deployWAROnTomcat(final CsarId csarId, final File warFile, final String triggeringContainer,
                                      final QName typeImplementation, final String fileName) {
 
         if (triggeringContainer == null) {
@@ -350,7 +353,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             return null;
         }
         // path where the WAR is deployed on the Tomcat
-        final String deployPath = "/" + getConvertedString(triggeringContainer) + "/"
+        final String deployPath = "/" + getConvertedString(triggeringContainer) + "/" + csarId.csarName() + "/"
             + getConvertedString(typeImplementation.toString()) + "/" + fileName;
 
         // command to perform deployment on Tomcat from local file
