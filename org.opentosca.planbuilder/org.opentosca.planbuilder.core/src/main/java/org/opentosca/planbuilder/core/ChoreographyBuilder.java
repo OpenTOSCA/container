@@ -2,7 +2,10 @@ package org.opentosca.planbuilder.core;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
+import org.dom4j.tree.AbstractNode;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
@@ -11,6 +14,7 @@ import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,11 +89,22 @@ public class ChoreographyBuilder {
                 nodeActivity.addMetadata("ConnectingRelationshipTemplate", relation);
                 activitiesToAdd.add(nodeActivity);
 
-                // we receive before creating this relation but after the target of this relation
+                // connect the receive activity so that it is started before the partners infrastructure will be handled, i.e., creating instance data (without provisioning!)
+
+                AbstractNodeTemplate targetNode = relation.getTarget();
+                Collection<AbstractNodeTemplate> targetNodeHosts = Lists.newArrayList();
+                ModelUtils.getNodesFromNodeToSink(targetNode, targetNodeHosts);
+
+                Collection<AbstractNodeTemplate> sinks = targetNodeHosts.stream().filter(x -> x.getOutgoingRelations().isEmpty()).collect(Collectors.toList());
+
+                // we receive before creating this relation and before the target stack of this relation
                 plan.findRelationshipTemplateActivities(relation)
                     .forEach(x -> linksToAdd.add(new Link(nodeActivity, x)));
-                plan.findNodeTemplateActivities(relation.getTarget())
-                    .forEach(x -> linksToAdd.add(new Link(x, nodeActivity)));
+
+                sinks.forEach(x -> plan.findNodeTemplateActivities(x).forEach(y -> linksToAdd.add(new Link(y, nodeActivity))));
+
+                //plan.findNodeTemplateActivities(relation.getTarget())
+                //    .forEach(x -> linksToAdd.add(new Link(x, nodeActivity)));
             }
         }
 

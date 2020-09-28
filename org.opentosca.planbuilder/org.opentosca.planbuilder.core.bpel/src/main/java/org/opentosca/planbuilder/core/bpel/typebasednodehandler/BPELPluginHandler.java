@@ -194,12 +194,10 @@ public class BPELPluginHandler {
 			final AbstractNodeTemplate nodeTemplate) {
 		boolean result = true;
 
-        if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") != null) {
+        if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
             LOG.info("Ignoring NodeTemplate {} with activityType {}", nodeTemplate.getId(),
                 bpelScope.getActivity().getType());
-            return result;
 
-        }
 
 		// generate code for the pre handling, e.g., upload DAs
 		for (final IPlanBuilderPrePhasePlugin prePlugin : this.pluginRegistry.getPrePlugins()) {
@@ -219,6 +217,8 @@ public class BPELPluginHandler {
 			LOG.info("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
 		}
 
+
+        }
 		// generate code the post handling, e.g., update instance data, logs etc.
 		for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
 			if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
@@ -233,15 +233,10 @@ public class BPELPluginHandler {
 			final AbstractRelationshipTemplate relationshipTemplate) {
 		boolean result = true;
 
-        if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") != null) {
+        if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
 
                 LOG.info("Ignoring RelationshipTemplate {} with activityType {}", relationshipTemplate.getId(),
                     bpelScope.getActivity().getType());
-           return result;
-        }
-
-
-
 
 			if (this.pluginRegistry.canTypePluginHandleCreate(relationshipTemplate)) {
 				final IPlanBuilderTypePlugin plugin = this.pluginRegistry
@@ -251,6 +246,8 @@ public class BPELPluginHandler {
 			} else {
 				LOG.debug("Couldn't handle RelationshipTemplate {}", relationshipTemplate.getId());
 			}
+
+        }
 
 		for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
 			if (postPhasePlugin.canHandleCreate(context, bpelScope.getRelationshipTemplate())) {
