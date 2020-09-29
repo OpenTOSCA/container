@@ -78,7 +78,7 @@ public class WineryConnector {
 
             return resp.getStatusLine().getStatusCode() < 400;
         } catch (URISyntaxException | IOException e) {
-            LOG.error("Exception while checking for availability of Container Repository: ", e);
+            LOG.error("Exception while checking for availability of Container Repository: ");
             return false;
         }
     }
