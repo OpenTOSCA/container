@@ -273,6 +273,20 @@ public class MBJavaApi implements IManagementBus {
             requestBody, instance.getCsarId(), planId, BPELNS);
     }
 
+    @Override
+    public void notifyPartners(Map<String, Object> eventValues) {
+        final ProducerTemplate template = camelContext.createProducerTemplate();
+
+        // invoke notify partners method from managment bus
+        eventValues.put("OPERATION", ExposedManagementBusOperations.NOTIFY_PARTNERS.getHeaderValue());
+
+        final Exchange requestExchange = new DefaultExchange(camelContext);
+        requestExchange.getIn().setBody(new HashMap<>());
+        requestExchange.getIn().setHeaders(eventValues);
+
+        template.asyncSend("direct:invoke", requestExchange);
+    }
+
     private WSDLEndpoint getAdaptationPlanEndpoint(final Collection<String> sourceNodeIDs,
                                                    final Collection<String> sourceRelationIDs,
                                                    final Collection<String> targetNodeIDs,

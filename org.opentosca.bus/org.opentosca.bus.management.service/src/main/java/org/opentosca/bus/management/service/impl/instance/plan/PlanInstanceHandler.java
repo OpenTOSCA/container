@@ -58,8 +58,8 @@ public class PlanInstanceHandler {
      */
     public static PlanInstance createPlanInstance(final Csar csar, final QName serviceTemplateId,
                                                   final long serviceTemplateInstanceId, final QName planId,
-                                                  final String operationName, final String correlationId,
-                                                  final Object input) throws CorrelationIdAlreadySetException {
+                                                  final String operationName, final String correlationId, final String chorCorrelationId,
+                                                  final String choreographyPartners, final Object input) throws CorrelationIdAlreadySetException {
 
         if (Objects.isNull(planId)) {
             LOG.error("Plan ID is null! Unable to create PlanInstance!");
@@ -77,6 +77,8 @@ public class PlanInstanceHandler {
         // create a new plan instance
         final PlanInstance plan = new PlanInstance();
         plan.setCorrelationId(correlationId);
+        plan.setChoreographyCorrelationId(chorCorrelationId);
+        plan.setChoreographyPartners(choreographyPartners);
         plan.setLanguage(PlanLanguage.fromString(storedPlan.getPlanLanguage()));
         plan.setType(PlanType.fromString(storedPlan.getPlanType()));
         plan.setState(PlanInstanceState.RUNNING);
@@ -86,13 +88,8 @@ public class PlanInstanceHandler {
         final Optional<PlanInstance> planOptional =
             planRepo.findAll().stream().filter(p -> p.getCorrelationId().equals(correlationId)).findFirst();
         if (planOptional.isPresent()) {
-            if (operationName.equals("receiveNotify")) {
-                LOG.debug("Processing receiveNotify and plan instance already exists!");
-                return planOptional.get();
-            } else {
-                throw new CorrelationIdAlreadySetException(
-                    "Plan instance with correlation ID " + correlationId + " is already existing.");
-            }
+            throw new CorrelationIdAlreadySetException(
+                "Plan instance with correlation ID " + correlationId + " is already existing.");
         }
 
         // cast input parameters for the plan invocation

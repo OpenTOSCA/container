@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
@@ -60,7 +61,7 @@ public class BPELNotifyHandler extends PluginHandler {
         return correlationPropertyName;
     }
 
-    private String addNotifyCorrelationSet(final BPELPlanContext context, final String correlationPropertyName) {
+    private String addNotifyCorrelationSet(final BPELPlanContext context, final Collection<String> correlationPropertyName) {
         final String correlationSetName = correlationSetPrefix + context.getIdForNames();
         context.addGlobalCorrelationSet(correlationSetName, correlationPropertyName);
         return correlationSetName;
@@ -115,7 +116,9 @@ public class BPELNotifyHandler extends PluginHandler {
             correlationSetName = getGloblaNotifyCorrelationSetName(context);
         } else {
             correlationPropertyName = addNotifyCorrelationProperty(context);
-            correlationSetName = addNotifyCorrelationSet(context, correlationPropertyName);
+            Collection<String> propertyNames = Lists.newArrayList();
+            propertyNames.add(correlationPropertyName);
+            correlationSetName = addNotifyCorrelationSet(context, propertyNames);
         }
 
         final String query =
@@ -240,7 +243,7 @@ public class BPELNotifyHandler extends PluginHandler {
         // atleast the xsd should be imported now in the plan
         context.registerType(this.resHandler.getServiceInvokerReceiveNotifyXSDType(), xsdFile);
 
-        final QName OutputMessageId = context.importQName(this.resHandler.getServiceInvokerReceiveNotifyMessageType());
+        final QName OutputMessageTypeId = context.importQName(this.resHandler.getServiceInvokerReceiveNotifyMessageType());
         final String OutputMessagePartName = this.resHandler.getServiceInvokerReceiveNotifyMessagePart();
 
         // generate partnerlink from the two porttypes
@@ -255,9 +258,9 @@ public class BPELNotifyHandler extends PluginHandler {
 
         // register request and response message
 
-        final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart()
+        final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageTypeId.getLocalPart()
             + "Response" + context.getIdForNames();
-        context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageId);
+        context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageTypeId);
 
         // setup a correlation set for the messages
         String correlationSetName = null;
@@ -268,13 +271,19 @@ public class BPELNotifyHandler extends PluginHandler {
             correlationSetName = getGloblaNotifyCorrelationSetName(context);
         } else {
             correlationPropertyName = addNotifyCorrelationProperty(context);
-            correlationSetName = addNotifyCorrelationSet(context, correlationPropertyName);
+            Collection<String> propertyNames = Lists.newArrayList();
+            propertyNames.add(correlationPropertyName);
+            correlationSetName = addNotifyCorrelationSet(context, propertyNames);
         }
 
         final String query =
             "//*[local-name()=\"PlanCorrelationID\" and namespace-uri()=\"http://siserver.org/schema\"]";
         // "/" + InputMessageId.getPrefix() + ":" + "MessageID" ageId, InputMessagePartName, query);
-        context.addPropertyAlias(correlationPropertyName, OutputMessageId, OutputMessagePartName, query);
+        context.addPropertyAlias(correlationPropertyName, OutputMessageTypeId, OutputMessagePartName, query);
+
+        QName planRequestMessageType = context.getPlanRequestMessageType();
+        final String inputQuery = "//*[local-name()=\"CorrelationID\"]";
+        context.addPropertyAlias(correlationPropertyName, planRequestMessageType, "payload", inputQuery);
 
         // fetch serviceInstanceId
 
@@ -305,6 +314,8 @@ public class BPELNotifyHandler extends PluginHandler {
         correlationSetsNode = context.importNode(correlationSetsNode);
         receiveNode.appendChild(correlationSetsNode);
 
+        context.addCorrelationSetToInputReceive(correlationSetName, true);
+
         elementToAppendTo.appendChild(receiveNode);
 
         Node responseAssignNode = null;
@@ -315,7 +326,7 @@ public class BPELNotifyHandler extends PluginHandler {
         responseAssignNode =
             this.resHandler.generateResponseAssignAsNode(responseVariableName, OutputMessagePartName,
                 internalExternalPropsOutput, "assign_" + responseVariableName,
-                OutputMessageId, context.getPlanResponseMessageName(),
+                OutputMessageTypeId, context.getPlanResponseMessageName(),
                 "payload");
         responseAssignNode = context.importNode(responseAssignNode);
 

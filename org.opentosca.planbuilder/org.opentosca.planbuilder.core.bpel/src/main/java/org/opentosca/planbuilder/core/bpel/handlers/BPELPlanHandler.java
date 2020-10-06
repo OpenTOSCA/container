@@ -1359,7 +1359,7 @@ public class BPELPlanHandler {
         return varName;
     }
 
-    public boolean addCorrelationSet(String correlationSetName, String propertyName, BPELPlan buildPlan) {
+    public boolean addCorrelationSet(String correlationSetName, Collection<String> propertyName, BPELPlan buildPlan) {
 
         if (this.hasCorrelationSet(correlationSetName, buildPlan)) {
 
@@ -1369,7 +1369,14 @@ public class BPELPlanHandler {
         final Element correlationSetElement =
             buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "correlationSet");
         correlationSetElement.setAttribute("name", correlationSetName);
-        correlationSetElement.setAttribute("properties", "tns:" + propertyName);
+
+        String properties = "";
+
+        for (String prop : propertyName) {
+            properties += "tns:" + prop + " ";
+        }
+
+        correlationSetElement.setAttribute("properties", properties);
         correlationSetsElement.appendChild(correlationSetElement);
         return true;
     }

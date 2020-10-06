@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -54,18 +55,19 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
     // Supported types defined in messages.properties.
     private static final String TYPES = "SOAP/HTTP";
-
-    private enum MessagingPattern {
-        CALLBACK, REQUEST_RESPONSE, REQUEST_ONLY
-    }
-
     private static Map<String, Exchange> EXCHANGE_MAP = Collections.synchronizedMap(new HashMap<String, Exchange>());
-
     private final CamelContext camelContext;
 
     @Inject
     public ManagementBusInvocationPluginSoapHttp(CamelContext camelContext) {
         this.camelContext = camelContext;
+    }
+
+    /**
+     * @return the keys of the map containing stored messageIds and exchange objects.
+     */
+    public static Set<String> getMessageIDs() {
+        return EXCHANGE_MAP.keySet();
     }
 
     @Override
@@ -90,14 +92,13 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             }
         }
         headers.put("endpoint", endpoint.replace("?wsdl", ""));
-//    headers.put("SOAPAction", operationName);
-        headers.put("operationName", operationName);
 
         Document document = null;
-        LOG.info("Creating invocation message.");
+        Definition wsdl = pullWsdlDefinitions(endpoint);
+        BindingOperation operation = findOperation(wsdl, operationName);
+
         if (params instanceof HashMap) {
-            Definition wsdl = pullWsdlDefinitions(endpoint);
-            BindingOperation operation = findOperation(wsdl, operationName);
+
             if (operation == null) {
                 LOG.error("Invoked operation was not exposed on the given endpoint. Aborting invocation!");
                 return null;
@@ -108,6 +109,11 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             // getting the port name involves this mess
 //      String portName = getPortName(wsdl, operation);
             headers.put("SOAPEndpoint", endpoint);
+
+            // add the operation header for the cxf endpoint explicitly if invoking an IA
+            if (Objects.nonNull(message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), String.class))) {
+                headers.put("operationName", operationName);
+            }
 
             messagingPattern = determineMP(message, operationName, operation, hasOutputParams);
             if (messagingPattern == null) {
@@ -150,7 +156,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
         if (params instanceof Document) {
             document = (Document) params;
-            messagingPattern = determineMP(message, operationName, null, hasOutputParams);
+            messagingPattern = determineMP(message, operationName, operation, hasOutputParams);
         }
 
         if (messagingPattern == null) {
@@ -335,13 +341,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         }
     }
 
-    /**
-     * @return the keys of the map containing stored messageIds and exchange objects.
-     */
-    public static Set<String> getMessageIDs() {
-        return EXCHANGE_MAP.keySet();
-    }
-
     @Override
     public List<String> getSupportedTypes() {
         LOG.debug("Getting Types: {}.",
@@ -352,6 +351,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             types.add(type.trim());
         }
         return types;
+    }
+
+    private enum MessagingPattern {
+        CALLBACK, REQUEST_RESPONSE, REQUEST_ONLY
     }
 
     private static class VariableMap implements XPathVariableResolver {

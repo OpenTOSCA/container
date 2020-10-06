@@ -23,6 +23,7 @@ import org.eclipse.winery.model.tosca.TInterfaces;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
+import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -384,7 +385,7 @@ public class MBUtils {
         TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().getInterface().stream().filter(iface -> iface.getName().equals(ifaceName)).collect(Collectors.toList())
             .stream().flatMap(iface -> iface.getOperation().stream()).filter(ope -> ope.getName().equals(opName)).findFirst().orElse(null);
         if (op != null) {
-            return (QName) op.getPlan().getPlanRef();
+            return new QName(csar.entryServiceTemplate().getTargetNamespace(), ((TPlan) op.getPlan().getPlanRef()).getId());
         }
 
         return null;

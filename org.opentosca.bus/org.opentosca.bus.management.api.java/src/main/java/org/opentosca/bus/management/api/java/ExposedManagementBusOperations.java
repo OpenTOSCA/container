@@ -6,7 +6,7 @@ package org.opentosca.bus.management.api.java;
  */
 public enum ExposedManagementBusOperations {
 
-    INVOKE_PLAN("invokePlan"), INVOKE_IA("invokeIA");
+    INVOKE_PLAN("invokePlan"), INVOKE_IA("invokeIA"), NOTIFY_PARTNER("notifyPartner"), NOTIFY_PARTNERS("notifyPartners");
 
     private final String headerValue;
 

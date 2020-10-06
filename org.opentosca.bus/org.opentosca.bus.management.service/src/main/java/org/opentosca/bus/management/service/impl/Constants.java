@@ -42,12 +42,6 @@ public class Constants {
     public final static String REMOTE_TYPE = "remote";
 
     /**
-     * QName of the location attribute utilized to assign NodeTemplates to partners for choreographies.
-     */
-    public final static QName LOCATION_ATTRIBUTE =
-        QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}location");
-
-    /**
      * Operation names of the management bus SOAP API to receive notifications from other management busses.
      */
     public final static String RECEIVE_NOTIFY_PARTNER_OPERATION = "receiveNotifyPartner";
@@ -59,6 +53,7 @@ public class Constants {
     public final static String SERVICE_TEMPLATE_NAMESPACE_PARAM = "ServiceTemplateIDNamespaceURI";
     public final static String SERVICE_TEMPLATE_LOCAL_PARAM = "ServiceTemplateIDLocalPart";
     public final static String PLAN_CORRELATION_PARAM = "PlanCorrelationID";
+    public final static String PLAN_CHOR_CORRELATION_PARAM = "PlanChorCorrelationID";
     public final static String CSARID_PARAM = "CsarID";
     public final static String MESSAGE_ID_PARAM = "MessageID";
     public final static String PARAMS_PARAM = "Params";

@@ -60,7 +60,7 @@ public class NodeTemplateService {
         final Csar csar = storage.findById(new CsarId(csarId));
 
         List<TNodeTemplate> nodeTemplates = csar.serviceTemplates().stream()
-            .filter(st -> st.getName().equals(serviceTemplateQName))
+            .filter(st -> st.getId().equals(serviceTemplateQName))
             .findFirst()
             .get()
             .getTopologyTemplate()

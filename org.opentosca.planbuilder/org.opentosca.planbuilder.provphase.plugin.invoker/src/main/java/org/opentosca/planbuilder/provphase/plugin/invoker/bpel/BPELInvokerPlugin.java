@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderCompensationOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
@@ -24,6 +25,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokerPluginHandler;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELNotifyHandler;
 import org.slf4j.Logger;
@@ -222,7 +224,13 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             this.choreohandler.matchOperationParamertsToProperties(context);
 
         final Collection<PropertyVariable> propertiesToSend = new HashSet<>();
-        context.getNodeTemplates().forEach(x -> propertiesToSend.addAll(context.getPropertyVariables(x)));
+
+        // fetch nodes of the stack of the node inside context
+        AbstractNodeTemplate nodeTemplate = context.getNodeTemplate();
+        Collection<AbstractNodeTemplate> nodes = Lists.newArrayList();
+        ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodes);
+
+        nodes.forEach(x -> propertiesToSend.addAll(context.getPropertyVariables(x)));
         final Map<String, Variable> params = this.choreohandler.mapToParamMap(propertiesToSend);
 
         this.choreohandler.addChoreographyParameters(context, params);

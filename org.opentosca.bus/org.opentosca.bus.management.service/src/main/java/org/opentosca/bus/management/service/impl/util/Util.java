@@ -1,19 +1,13 @@
 package org.opentosca.bus.management.service.impl.util;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
-import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.model.tosca.TTag;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,34 +82,5 @@ public class Util {
             LOG.warn("PortType property can not be parsed to QName.");
         }
         return null;
-    }
-
-    /**
-     * Get the endpoints of all choreography partners from the ServiceTemplate.
-     *
-     * @param serviceTemplate the ServiceTemplate for the choreography
-     * @return a list of tags containing the partner name as key and the endpoints as value or
-     * <code>null</code> if no tags are defined on the ServiceTemplate
-     */
-    public static List<TTag> getPartnerEndpoints(final TServiceTemplate serviceTemplate) {
-
-        // get the tags containing the enpoints of the partners
-        if (Objects.isNull(serviceTemplate.getTags())) {
-            LOG.error("Unable to retrieve tags for ServiceTemplate with ID {}.", serviceTemplate.getId());
-            return null;
-        }
-        final List<TTag> tags = serviceTemplate.getTags().getTag();
-
-        // get the provider names defined in the NodeTemplates to check which tag names specify a partner
-        // endpoint
-        final List<String> partnerNames =
-            serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
-                .filter(entity -> entity instanceof TNodeTemplate).map(entity -> entity.getOtherAttributes())
-                .map(attributes -> attributes.get(Constants.LOCATION_ATTRIBUTE)).distinct()
-                .collect(Collectors.toList());
-
-        // remove tags that do not specify a partner endpoint and get endpoints
-        tags.removeIf(tag -> !partnerNames.contains(tag.getName()));
-        return tags;
     }
 }

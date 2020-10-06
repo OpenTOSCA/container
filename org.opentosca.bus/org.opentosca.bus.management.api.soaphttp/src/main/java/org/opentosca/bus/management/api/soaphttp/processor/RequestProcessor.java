@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.gson.Gson;
 import org.apache.camel.Exchange;
@@ -36,6 +38,7 @@ import org.opentosca.bus.management.api.soaphttp.model.ReceiveNotifyPartner;
 import org.opentosca.bus.management.api.soaphttp.model.ReceiveNotifyPartners;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
+import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
@@ -44,6 +47,9 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.repository.PlanInstanceRepository;
+import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,13 +77,15 @@ public class RequestProcessor implements Processor {
     private final CsarStorageService csarStorage;
     private final ContainerEngine containerEngine;
     private final IManagementBusService managementBusService;
+    private final ChoreographyHandler choreoHandler;
 
     // manually instantiated from within the Route definition. Therefore no @Inject
     // annotation
-    public RequestProcessor(CsarStorageService csarStorage, ContainerEngine containerEngine, IManagementBusService managementBusService) {
+    public RequestProcessor(CsarStorageService csarStorage, ContainerEngine containerEngine, IManagementBusService managementBusService, ChoreographyHandler choreoHandler) {
         this.csarStorage = csarStorage;
         this.containerEngine = containerEngine;
         this.managementBusService = managementBusService;
+        this.choreoHandler = choreoHandler;
     }
 
     @Override
@@ -275,12 +283,10 @@ public class RequestProcessor implements Processor {
 
             final NotifyPartners notifyPartnersRequest = (NotifyPartners) exchange.getIn().getBody();
 
-            planCorrelationID = notifyPartnersRequest.getPlanCorrelationID();
-            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
+            planCorrelationID = notifyPartnersRequest.getPlanChorCorrelation();
+            exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), planCorrelationID);
 
-            final QName serviceTemplateID = new QName(notifyPartnersRequest.getServiceTemplateIDNamespaceURI(),
-                notifyPartnersRequest.getServiceTemplateIDLocalPart());
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), notifyPartnersRequest.getServiceTemplateIDLocalPart());
 
             csarIDString = notifyPartnersRequest.getCsarID();
             paramsMap = notifyPartnersRequest.getParams();
@@ -294,12 +300,11 @@ public class RequestProcessor implements Processor {
 
             final NotifyPartner notifyPartnerRequest = (NotifyPartner) exchange.getIn().getBody();
 
-            planCorrelationID = notifyPartnerRequest.getPlanCorrelationID();
-            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), planCorrelationID);
-
-            final QName serviceTemplateID = new QName(notifyPartnerRequest.getServiceTemplateIDNamespaceURI(),
-                notifyPartnerRequest.getServiceTemplateIDLocalPart());
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            // set choreography headers
+            PlanInstance planInstance = new PlanInstanceRepository().findByCorrelationId(notifyPartnerRequest.getPlanCorrelationID());
+            exchange.getIn().setHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(), planInstance.getChoreographyPartners());
+            exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(), planInstance.getChoreographyCorrelationId());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), notifyPartnerRequest.getServiceTemplateIDLocalPart());
 
             csarIDString = notifyPartnerRequest.getCsarID();
             paramsMap = notifyPartnerRequest.getParams();
@@ -312,14 +317,26 @@ public class RequestProcessor implements Processor {
 
             final ReceiveNotifyPartner receiveNotifyRequest = (ReceiveNotifyPartner) exchange.getIn().getBody();
 
-            final QName serviceTemplateID = new QName(receiveNotifyRequest.getServiceTemplateIDNamespaceURI(),
-                receiveNotifyRequest.getServiceTemplateIDLocalPart());
+            String receivingPartner = this.getParamByName(receiveNotifyRequest.getParams(), Constants.RECEIVING_PARTNER_PARAM);
+            String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());
+            if (appChoreoId == null) {
+                LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+                return;
+            }
+            Csar choreoCsar = this.choreoHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll(), receivingPartner);
+            if (choreoCsar == null) {
+                LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+                return;
+            }
+            TServiceTemplate choreoServiceTemplate = choreoCsar.entryServiceTemplate();
 
             // get plan ID from the boundary definitions
 
-            final QName planID = MBUtils.findPlanByOperation(
-                this.csarStorage.findById(new CsarId(receiveNotifyRequest.getCsarID())),
+            final QName planID = MBUtils.findPlanByOperation(choreoCsar,
                 "OpenTOSCA-Lifecycle-Interface", "initiate");
+
+            String planCorrelationId = new PlanInstanceRepository().findByChoreographyCorrelationId(receiveNotifyRequest.getPlanChorCorrelation(), planID).getCorrelationId();
+            receiveNotifyRequest.setPlanCorrelationID(planCorrelationId);
             // create the body for the receiveNotify request that must be send to the plan
             final JAXBContext jc = JAXBContext.newInstance(ReceiveNotifyPartner.class);
             final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -331,11 +348,15 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setBody(document);
 
             // add required header fields for the bus
+            exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(),
+                receiveNotifyRequest.getPlanChorCorrelation());
+
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
-                receiveNotifyRequest.getPlanCorrelationID());
+                planCorrelationId);
+
             exchange.getIn().setHeader(MBHeader.CALLBACK_BOOLEAN.toString(), true);
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
-            exchange.getIn().setHeader(MBHeader.CSARID.toString(), receiveNotifyRequest.getCsarID());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), choreoServiceTemplate.getId());
+            exchange.getIn().setHeader(MBHeader.CSARID.toString(), choreoCsar.id().csarName());
             exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
             // exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(),
             // Activator.apiID);
@@ -348,23 +369,34 @@ public class RequestProcessor implements Processor {
 
             final ReceiveNotifyPartners receiveNotifyRequest = (ReceiveNotifyPartners) exchange.getIn().getBody();
 
-            final QName serviceTemplateID = new QName(receiveNotifyRequest.getServiceTemplateIDNamespaceURI(),
-                receiveNotifyRequest.getServiceTemplateIDLocalPart());
+            String receivingPartner = this.getParamByName(receiveNotifyRequest.getParams(), Constants.RECEIVING_PARTNER_PARAM);
+            String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());
+            if (appChoreoId == null) {
+                LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+                return;
+            }
+            Csar choreoCsar = this.choreoHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll(), receivingPartner);
+            if (choreoCsar == null) {
+                LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
+                return;
+            }
+            TServiceTemplate choreoServiceTemplate = choreoCsar.entryServiceTemplate();
+
+            final QName serviceTemplateID = new QName(choreoServiceTemplate.getTargetNamespace(),
+                choreoServiceTemplate.getId());
 
             // get plan ID from the boundary definitions
-            final QName planID = MBUtils.findPlanByOperation(
-                this.csarStorage.findById(new CsarId(receiveNotifyRequest.getCsarID())),
-                "OpenTOSCA-Lifecycle-Interface", "initiate");
+            final QName planID = MBUtils.findPlanByOperation(choreoCsar, "OpenTOSCA-Lifecycle-Interface", "initiate");
 
             // create plan invocation request from given parameters
-            exchange.getIn().setBody(createRequestBody(receiveNotifyRequest.getCsarID(), serviceTemplateID,
+            exchange.getIn().setBody(createRequestBody(choreoCsar.id().csarName(), serviceTemplateID,
                 receiveNotifyRequest.getPlanCorrelationID()));
 
             // add required header fields for the bus
-            exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
-                receiveNotifyRequest.getPlanCorrelationID());
-            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
-            exchange.getIn().setHeader(MBHeader.CSARID.toString(), receiveNotifyRequest.getCsarID());
+            exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(),
+                receiveNotifyRequest.getPlanChorCorrelation());
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), choreoServiceTemplate.getId());
+            exchange.getIn().setHeader(MBHeader.CSARID.toString(), choreoCsar.id().csarName());
             exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
             // exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(),
             // Activator.apiID);
@@ -375,7 +407,7 @@ public class RequestProcessor implements Processor {
                 .filter(param -> param.getKey().equals("SendingPartner")).findFirst().map(param -> param.getValue())
                 .orElse(null);
             LOG.debug("Adding partner: {}", partner);
-            this.managementBusService.addPartnerToReadyList(receiveNotifyRequest.getPlanCorrelationID(), partner);
+            this.managementBusService.addPartnerToReadyList(receiveNotifyRequest.getPlanChorCorrelation(), partner);
             //addPartnerToReadyList(receiveNotifyRequest.getPlanCorrelationID(), partner);
             return;
         }
@@ -410,13 +442,31 @@ public class RequestProcessor implements Processor {
         }
     }
 
+    public String getAppChoreoId(ParamsMap params) {
+        return getParamByName(params, MBHeader.APP_CHOREO_ID.toString());
+    }
+
+    public String getParamByName(ParamsMap params, String name) {
+        Iterator<?> iter = params.getParam().iterator();
+        String appChoreoId = null;
+        while (iter.hasNext()) {
+            ParamsMapItemType item = (ParamsMapItemType) iter.next();
+            if (item.getKey().equals(name)) {
+                appChoreoId = item.getValue();
+                break;
+            }
+        }
+
+        return appChoreoId;
+    }
+
     private Map<String, String> createRequestBody(final String csarID, final QName serviceTemplateID,
                                                   final String planCorrelationID) {
 
         String str = Settings.CONTAINER_INSTANCEDATA_API.replace("{csarid}", csarID);
         try {
             str = str.replace("{servicetemplateid}",
-                URLEncoder.encode(URLEncoder.encode(serviceTemplateID.toString(), "UTF-8"), "UTF-8"));
+                URLEncoder.encode(URLEncoder.encode(serviceTemplateID.getLocalPart(), "UTF-8"), "UTF-8"));
         } catch (final UnsupportedEncodingException e) {
             LOG.error("Couldn't encode Service Template URL", e);
         }

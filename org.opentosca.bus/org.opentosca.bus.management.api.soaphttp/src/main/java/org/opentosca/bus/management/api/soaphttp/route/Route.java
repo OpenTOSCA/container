@@ -22,6 +22,7 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.springframework.stereotype.Component;
@@ -69,14 +70,16 @@ public class Route extends RouteBuilder {
     private final IManagementBusService managementBusService;
     private final ICoreEndpointService endpointService;
     private final ContainerEngine containerEngine;
+    private final ChoreographyHandler choreoHandler;
 
     @Inject
     public Route(CsarStorageService csarStorageService, IManagementBusService managementBusService,
-                 ICoreEndpointService endpointService, ContainerEngine containerEngine) {
+                 ICoreEndpointService endpointService, ContainerEngine containerEngine, ChoreographyHandler choreoHandler) {
         this.csarStorageService = csarStorageService;
         this.managementBusService = managementBusService;
         this.endpointService = endpointService;
         this.containerEngine = containerEngine;
+        this.choreoHandler = choreoHandler;
 
         storeManagementEndpoint();
     }
@@ -118,7 +121,7 @@ public class Route extends RouteBuilder {
         responseJaxb.setPartClass("org.opentosca.bus.management.api.soaphttp.model.InvokeResponse");
         responseJaxb.setPartNamespace(new QName("http://siserver.org/schema", "invokeResponse"));
 
-        final Processor requestProcessor = new RequestProcessor(csarStorageService, containerEngine, managementBusService);
+        final Processor requestProcessor = new RequestProcessor(csarStorageService, containerEngine, managementBusService, choreoHandler);
         final Processor responseProcessor = new ResponseProcessor();
 
         this.from(INVOKE_ENDPOINT)

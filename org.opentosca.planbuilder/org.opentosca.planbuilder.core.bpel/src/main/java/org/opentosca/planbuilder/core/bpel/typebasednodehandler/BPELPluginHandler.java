@@ -147,10 +147,12 @@ public class BPELPluginHandler {
     private boolean handleTerminationActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                               final AbstractRelationshipTemplate relationshipTemplate) {
         boolean result = true;
-        // generate code for the termination, e.g., call install, start or create methods
+        // generate code for the termination, e.g., call install, start or create
+        // methods
         final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForTermination(relationshipTemplate);
         if (plugin != null) {
-            LOG.info("Handling RelationshipTemplate {} with type plugin {}", relationshipTemplate.getId(), plugin.getID());
+            LOG.info("Handling RelationshipTemplate {} with type plugin {}", relationshipTemplate.getId(),
+                plugin.getID());
             result &= plugin.handleTerminate(context, relationshipTemplate);
         } else {
             LOG.warn("Couldn't handle RelationshipTemplate {} with type plugin", relationshipTemplate.getId());
@@ -191,24 +193,29 @@ public class BPELPluginHandler {
     private boolean handleProvisioningActivity(final BPELPlanContext context, final BPELScope bpelScope,
                                                final AbstractNodeTemplate nodeTemplate) {
         boolean result = true;
-        // generate code for the pre handling, e.g., upload DAs
-        for (final IPlanBuilderPrePhasePlugin prePlugin : this.pluginRegistry.getPrePlugins()) {
-            if (prePlugin.canHandleCreate(nodeTemplate)) {
-                LOG.info("Handling NodeTemplate {} with pre plugin {}", nodeTemplate.getId(), prePlugin.getID());
-                result &= prePlugin.handleCreate(context, nodeTemplate);
+
+        if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
+            LOG.info("Ignoring NodeTemplate {} with activityType {}", nodeTemplate.getId(),
+                bpelScope.getActivity().getType());
+
+            // generate code for the pre handling, e.g., upload DAs
+            for (final IPlanBuilderPrePhasePlugin prePlugin : this.pluginRegistry.getPrePlugins()) {
+                if (prePlugin.canHandleCreate(nodeTemplate)) {
+                    LOG.info("Handling NodeTemplate {} with pre plugin {}", nodeTemplate.getId(), prePlugin.getID());
+                    result &= prePlugin.handleCreate(context, nodeTemplate);
+                }
+            }
+
+            // generate code for the provisioning, e.g., call install, start or create
+            // methods
+            final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
+            if (plugin != null) {
+                LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
+                result &= plugin.handleCreate(context, nodeTemplate);
+            } else {
+                LOG.info("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
             }
         }
-
-        // generate code for the provisioning, e.g., call install, start or create
-        // methods
-        final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
-        if (plugin != null) {
-            LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
-            result &= plugin.handleCreate(context, nodeTemplate);
-        } else {
-            LOG.info("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
-        }
-
         // generate code the post handling, e.g., update instance data, logs etc.
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
@@ -225,18 +232,19 @@ public class BPELPluginHandler {
 
         if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
 
+            LOG.info("Ignoring RelationshipTemplate {} with activityType {}", relationshipTemplate.getId(),
+                bpelScope.getActivity().getType());
+
             if (this.pluginRegistry.canTypePluginHandleCreate(relationshipTemplate)) {
-                final IPlanBuilderTypePlugin plugin =
-                    this.pluginRegistry.findTypePluginForCreation(relationshipTemplate);
+                final IPlanBuilderTypePlugin plugin = this.pluginRegistry
+                    .findTypePluginForCreation(relationshipTemplate);
                 LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
                 result &= this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);
             } else {
                 LOG.debug("Couldn't handle RelationshipTemplate {}", relationshipTemplate.getId());
             }
-        } else {
-            LOG.info("Ignoring NodeTemplate {} with activityType {}", relationshipTemplate.getId(),
-                bpelScope.getActivity().getType());
         }
+
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             if (postPhasePlugin.canHandleCreate(context, bpelScope.getRelationshipTemplate())) {
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getRelationshipTemplate());
@@ -251,13 +259,14 @@ public class BPELPluginHandler {
 
         final Map<AbstractParameter, Variable> param2propertyMapping = new HashMap<>();
 
-        // retrieve input parameters from all nodes which are downwards in the same topology stack
+        // retrieve input parameters from all nodes which are downwards in the same
+        // topology stack
         final List<AbstractNodeTemplate> nodesForMatching = new ArrayList<>();
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching);
 
-        final AbstractOperation defrostOp =
-            ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE);
+        final AbstractOperation defrostOp = ModelUtils.getOperationOfNode(nodeTemplate,
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE);
 
         // generate code for the pre handling, e.g., upload DAs
         for (final IPlanBuilderPrePhasePlugin prePlugin : this.pluginRegistry.getPrePlugins()) {
@@ -284,8 +293,7 @@ public class BPELPluginHandler {
             defrostOp.getInputParameters().size());
 
         result &= context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE,
-            param2propertyMapping, null);
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE, param2propertyMapping, null);
 
         // generate code the post handling, e.g., update instance data, logs etc.
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {

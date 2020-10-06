@@ -35,7 +35,7 @@ public class SituationDTO extends ResourceSupport {
     private boolean active;
 
     @XmlElement(name = "EventProbability", required = false)
-    private float eventProbability = -1.0f;
+    private float eventProbability;
 
     @XmlElement(name = "EventTime", required = false)
     private String eventTime;

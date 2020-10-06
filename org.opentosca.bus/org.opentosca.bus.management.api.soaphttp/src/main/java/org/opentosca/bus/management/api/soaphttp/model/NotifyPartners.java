@@ -17,12 +17,14 @@ import javax.xml.bind.annotation.XmlType;
  * Java class for notifyPartners complex type.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "notifyPartners", propOrder = {"planCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
+@XmlType(name = "notifyPartners", propOrder = {"planCorrelation", "planChorCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
     "serviceTemplateIDLocalPart", "messageID", "params", "doc"})
 public class NotifyPartners {
 
     @XmlElement(name = "PlanCorrelationID")
     protected String planCorrelation;
+    @XmlElement(name = "PlanChorCorrelationID")
+    protected String planChorCorrelation;
     @XmlElement(name = "CsarID", required = true)
     protected String csarID;
     @XmlElement(name = "ServiceTemplateIDNamespaceURI", required = true)
@@ -52,6 +54,14 @@ public class NotifyPartners {
      */
     public void setPlanCorrelationID(final String value) {
         this.planCorrelation = value;
+    }
+
+    public String getPlanChorCorrelation() {
+        return planChorCorrelation;
+    }
+
+    public void setPlanChorCorrelation(String planChorCorrelation) {
+        this.planChorCorrelation = planChorCorrelation;
     }
 
     /**
