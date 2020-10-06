@@ -167,17 +167,17 @@ public class ReceiveNotifyPartners {
         this.doc = value;
     }
 
-	/**
-	 * @return the planChorCorrelation
-	 */
-	public String getPlanChorCorrelation() {
-		return planChorCorrelation;
-	}
+    /**
+     * @return the planChorCorrelation
+     */
+    public String getPlanChorCorrelation() {
+        return planChorCorrelation;
+    }
 
-	/**
-	 * @param planChorCorrelation the planChorCorrelation to set
-	 */
-	public void setPlanChorCorrelation(String planChorCorrelation) {
-		this.planChorCorrelation = planChorCorrelation;
-	}
+    /**
+     * @param planChorCorrelation the planChorCorrelation to set
+     */
+    public void setPlanChorCorrelation(String planChorCorrelation) {
+        this.planChorCorrelation = planChorCorrelation;
+    }
 }

@@ -111,7 +111,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             headers.put("SOAPEndpoint", endpoint);
 
             // add the operation header for the cxf endpoint explicitly if invoking an IA
-            if (Objects.nonNull(message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), String.class))){
+            if (Objects.nonNull(message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), String.class))) {
                 headers.put("operationName", operationName);
             }
 

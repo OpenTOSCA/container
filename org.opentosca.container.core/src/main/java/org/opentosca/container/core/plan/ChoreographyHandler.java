@@ -61,10 +61,10 @@ public class ChoreographyHandler {
     public String getAppChorId(final TServiceTemplate serviceTemplate) {
         return getTagWithName(serviceTemplate, "app_chor_id");
     }
-    
+
     public Collection<SituationExpression> getSituationExpressions(final TServiceTemplate serviceTemplate) {
-    	List<SituationExpression> situationRules = new ArrayList<>();
-    	Map<String,String> tags = this.getTags(serviceTemplate);
+        List<SituationExpression> situationRules = new ArrayList<>();
+        Map<String, String> tags = this.getTags(serviceTemplate);
         // get tag containing the situation rules
         String situationRuleTag = tags.get("partnerselection_rules");
         if (Objects.nonNull(situationRuleTag)) {
@@ -82,9 +82,9 @@ public class ChoreographyHandler {
 
                 String expression = situationRuleParts[0];
                 String partner = situationRuleParts[1];
-                
-                if (Objects.nonNull(partner)) {                    
-                        situationRules.add(new SituationExpression(expression.trim(), partner.trim(), tags));                    
+
+                if (Objects.nonNull(partner)) {
+                    situationRules.add(new SituationExpression(expression.trim(), partner.trim(), tags));
                 } else {
                     LOG.warn("Unable to retrieve required URLs for rule with name '{}', situation compliant partner '{}', and alternative partner '{}'!",
                         situationRuleParts[0], situationRuleParts[1]);
@@ -139,7 +139,7 @@ public class ChoreographyHandler {
 
         return situationRules;
     }
-    
+
     /**
      * Get the list of involved partners based on available selection rules
      *
@@ -148,29 +148,29 @@ public class ChoreographyHandler {
      * @return a list of filtered partners
      */
     public List<String> getPartnersBasedOnSelectionExpression(Collection<SituationExpression> situationRules, List<String> possiblePartners) {
-        List<String> partners = new ArrayList<>();        
+        List<String> partners = new ArrayList<>();
 
         // check all situation rules and add the corresponding partners
-        for (SituationExpression situationRule : situationRules) {            
-        	possiblePartners.remove(situationRule.partner);
+        for (SituationExpression situationRule : situationRules) {
+            possiblePartners.remove(situationRule.partner);
             try {
-				if (situationRule.evaluateExpression()) {                
-				    partners.add(situationRule.partner);
-				}
-			} catch (ScriptException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
+                if (situationRule.evaluateExpression()) {
+                    partners.add(situationRule.partner);
+                }
+            } catch (ScriptException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
         LOG.debug("Number of situation independent partners: {}", possiblePartners.size());
         LOG.debug("Number of situation dependent partners: {}", partners.size());
-        
+
         // assumption if at the end no dependent partners are selected => no deployment possible
-        if(partners.isEmpty()) {
-        	return new ArrayList<String>();
+        if (partners.isEmpty()) {
+            return new ArrayList<String>();
         }
-        
+
         partners.addAll(possiblePartners);
 
         return partners;
@@ -185,13 +185,13 @@ public class ChoreographyHandler {
      */
     public List<String> getPartnersBasedOnSelectionRule(List<SituationRule> situationRules, List<String> possiblePartners) {
         List<String> partners = new ArrayList<>();
-        Map<String, String> partnerAlternatives = new HashMap<String,String>();
+        Map<String, String> partnerAlternatives = new HashMap<String, String>();
 
         // check all situation rules and add the corresponding partners
         for (SituationRule situationRule : situationRules) {
             possiblePartners.remove(situationRule.getSituationCompliantPartnerName());
             possiblePartners.remove(situationRule.getAlternativePartnerName());
-            
+
             partnerAlternatives.put(situationRule.getSituationCompliantPartnerName(), situationRule.getAlternativePartnerName());
 
             if (isSituationRuleActive(situationRule.getSituationRuleUrl())) {
@@ -205,30 +205,30 @@ public class ChoreographyHandler {
 
         LOG.debug("Number of situation independent partners: {}", possiblePartners.size());
         LOG.debug("Number of situation dependent partners: {}", partners.size());
-        
+
         // check if some partners are both valid but therefore introduce ambiguity => remove ambiguity
         // what we'll do is the following:
-        // - iterate overall partner alternatives that were collected from the situationRule, 
+        // - iterate overall partner alternatives that were collected from the situationRule,
         // - make sure from an alternative there is exactly (!) one partner in the set of dependent partners
         // - if there is more than one partner in the set -> remove one randomly(sure if randomly?)
         // - if there is none of the partners availabel -> return an empty list as we didn't find a valid configuration of partners
-        
-        for(String partner1 : partnerAlternatives.keySet()) {
-        	String partner2 = partnerAlternatives.get(partner1);
-        	boolean partner1Available = false;
-        	boolean partner2Available = false;
-        	if(partners.contains(partner1)) partner1Available = true;
-        	if(partners.contains(partner2)) partner2Available = true;
-        	
-        	if(partner1Available && partner2Available) {
-        		// both partners of a rule are valid = ambiguity => remove one partner
-        		partners.remove(partner2);
-        	} else if(!partner1Available && !partner2Available) {
-        		// both partners of a rule are not valid => deployment not valid
-        		return new ArrayList<String>();
-        	}
+
+        for (String partner1 : partnerAlternatives.keySet()) {
+            String partner2 = partnerAlternatives.get(partner1);
+            boolean partner1Available = false;
+            boolean partner2Available = false;
+            if (partners.contains(partner1)) partner1Available = true;
+            if (partners.contains(partner2)) partner2Available = true;
+
+            if (partner1Available && partner2Available) {
+                // both partners of a rule are valid = ambiguity => remove one partner
+                partners.remove(partner2);
+            } else if (!partner1Available && !partner2Available) {
+                // both partners of a rule are not valid => deployment not valid
+                return new ArrayList<String>();
+            }
         }
-        
+
         partners.addAll(possiblePartners);
 
         return partners;
@@ -310,18 +310,18 @@ public class ChoreographyHandler {
         return null;
     }
 
-    private Map<String,String> getTags(final TServiceTemplate serviceTemplate) {
-    	Map<String,String> tags= new HashMap<String,String>(); 
-    	 if (Objects.isNull(serviceTemplate.getTags())) {
-             return tags;
-         }
+    private Map<String, String> getTags(final TServiceTemplate serviceTemplate) {
+        Map<String, String> tags = new HashMap<String, String>();
+        if (Objects.isNull(serviceTemplate.getTags())) {
+            return tags;
+        }
 
-         for (TTag tag : serviceTemplate.getTags().getTag()) {
-        	 tags.put(tag.getName(), tag.getValue());             
-         }
-         return tags;
+        for (TTag tag : serviceTemplate.getTags().getTag()) {
+            tags.put(tag.getName(), tag.getValue());
+        }
+        return tags;
     }
-    
+
     /**
      * Get the tag with the given name
      */

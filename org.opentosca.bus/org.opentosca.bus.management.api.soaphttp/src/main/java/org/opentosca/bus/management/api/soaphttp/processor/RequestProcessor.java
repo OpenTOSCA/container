@@ -316,10 +316,9 @@ public class RequestProcessor implements Processor {
             LOG.debug("Invoking plan after reception of ReceiveNotifyPartner");
 
             final ReceiveNotifyPartner receiveNotifyRequest = (ReceiveNotifyPartner) exchange.getIn().getBody();
-                        
 
             String receivingPartner = this.getParamByName(receiveNotifyRequest.getParams(), Constants.RECEIVING_PARTNER_PARAM);
-                String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());
+            String appChoreoId = this.getAppChoreoId(receiveNotifyRequest.getParams());
             if (appChoreoId == null) {
                 LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}", receiveNotifyRequest);
                 return;
@@ -335,7 +334,7 @@ public class RequestProcessor implements Processor {
 
             final QName planID = MBUtils.findPlanByOperation(choreoCsar,
                 "OpenTOSCA-Lifecycle-Interface", "initiate");
-            
+
             String planCorrelationId = new PlanInstanceRepository().findByChoreographyCorrelationId(receiveNotifyRequest.getPlanChorCorrelation(), planID).getCorrelationId();
             receiveNotifyRequest.setPlanCorrelationID(planCorrelationId);
             // create the body for the receiveNotify request that must be send to the plan
@@ -351,7 +350,6 @@ public class RequestProcessor implements Processor {
             // add required header fields for the bus
             exchange.getIn().setHeader(MBHeader.PLANCHORCORRELATIONID_STRING.toString(),
                 receiveNotifyRequest.getPlanChorCorrelation());
-
 
             exchange.getIn().setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(),
                 planCorrelationId);

@@ -59,20 +59,20 @@ public class ReceiveNotifyPartner {
     }
 
     /**
-	 * @return the planChorCorrelation
-	 */
-	public String getPlanChorCorrelation() {
-		return planChorCorrelation;
-	}
+     * @return the planChorCorrelation
+     */
+    public String getPlanChorCorrelation() {
+        return planChorCorrelation;
+    }
 
-	/**
-	 * @param planChorCorrelation the planChorCorrelation to set
-	 */
-	public void setPlanChorCorrelation(String planChorCorrelation) {
-		this.planChorCorrelation = planChorCorrelation;
-	}
+    /**
+     * @param planChorCorrelation the planChorCorrelation to set
+     */
+    public void setPlanChorCorrelation(String planChorCorrelation) {
+        this.planChorCorrelation = planChorCorrelation;
+    }
 
-	/**
+    /**
      * Gets the value of the csarID property.
      *
      * @return possible object is {@link String }

@@ -919,31 +919,28 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("CallbackInvocation: {}", callbackInvocation);
 
         boolean isReceiveNotify = arguments.operationName.equals("receiveNotify");
-        
+
         PlanInstance plan = null;
         synchronized (this) {
-			
-        if(!isReceiveNotify && arguments.chorCorrelationId != null && new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId) != null) {
-            LOG.warn("Skipping the plan invocation of choreography build plan with choreography id {}",arguments.chorCorrelationId);
-        	return;
-        }
 
-        
-        if(isReceiveNotify) {        	
-        	plan = new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId);
-        } else {
-        	try {
-                plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
-                    arguments.serviceTemplateInstanceId, arguments.planId, arguments.operationName, arguments.correlationId,
-                    arguments.chorCorrelationId, arguments.chorPartners, exchange.getIn().getBody());
-            } catch (CorrelationIdAlreadySetException e) {
-                LOG.warn(e.getMessage() + " Skipping the plan invocation!");
+            if (!isReceiveNotify && arguments.chorCorrelationId != null && new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId) != null) {
+                LOG.warn("Skipping the plan invocation of choreography build plan with choreography id {}", arguments.chorCorrelationId);
                 return;
             }
+
+            if (isReceiveNotify) {
+                plan = new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId, arguments.planId);
+            } else {
+                try {
+                    plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
+                        arguments.serviceTemplateInstanceId, arguments.planId, arguments.operationName, arguments.correlationId,
+                        arguments.chorCorrelationId, arguments.chorPartners, exchange.getIn().getBody());
+                } catch (CorrelationIdAlreadySetException e) {
+                    LOG.warn(e.getMessage() + " Skipping the plan invocation!");
+                    return;
+                }
+            }
         }
-        }
-     
-        
 
         if (plan == null) {
             LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!", arguments.correlationId);
@@ -975,7 +972,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         if (WSDLendpoint != null) {
-
 
             final URI endpoint = WSDLendpoint.getURI();
             LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);

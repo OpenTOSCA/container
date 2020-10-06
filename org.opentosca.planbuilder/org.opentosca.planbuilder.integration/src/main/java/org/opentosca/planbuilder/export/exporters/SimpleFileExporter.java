@@ -206,8 +206,8 @@ public class SimpleFileExporter {
 
     private void rewriteServiceNames(final Deploy deploy, final List<Path> referencedFiles,
                                      final String csarName) throws WSDLException, IOException {
-        final WSDLFactory factory = WSDLFactory.newInstance();        
-        final WSDLReader reader = factory.newWSDLReader();       
+        final WSDLFactory factory = WSDLFactory.newInstance();
+        final WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
         final WSDLWriter writer = factory.newWSDLWriter();
 

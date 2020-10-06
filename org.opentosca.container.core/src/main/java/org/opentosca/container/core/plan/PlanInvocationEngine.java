@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
-import javax.script.ScriptException;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TExportedOperation;
@@ -35,7 +34,6 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 
 /**
  * The Implementation of the Engine. Also deals with OSGI events for communication with the mock-up Servicebus.
@@ -68,12 +66,12 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     }
 
     public String createChoreographyCorrelationId() {
-    	// generate CorrelationId for the plan execution
+        // generate CorrelationId for the plan execution
         while (true) {
             final String correlationId = String.valueOf(System.currentTimeMillis());
 
             try {
-            	
+
                 PlanInstance instance = planRepo.findByChoreographyCorrelationId(correlationId);
                 if (instance == null) {
                     return correlationId;
@@ -83,9 +81,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
                 return correlationId;
             }
         }
-    	
     }
-    
+
     @Override
     public String createCorrelationId() {
         // generate CorrelationId for the plan execution
@@ -147,31 +144,31 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
             // select the participating partners of the choreography based on the available situation rules
             List<SituationRule> situationRules = choreographyHandler.getSituationRules(serviceTemplate);
             Collection<SituationExpression> situationExpressions = choreographyHandler.getSituationExpressions(serviceTemplate);
-            
+
             Iterator<SituationExpression> iter = situationExpressions.iterator();
-           
+
             List<String> partnerTags = choreographyHandler.getPartnerEndpoints(serviceTemplate).stream().map(TTag::getName).collect(Collectors.toList());
             if (situationRules.isEmpty()) {
                 // notify all defined partners for choreographies without selection rules
-                if(situationExpressions.isEmpty()) {                	
-                	LOG.debug("No situation rules defined. Processing choreography with all partners!");
-                	eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partnerTags));
+                if (situationExpressions.isEmpty()) {
+                    LOG.debug("No situation rules defined. Processing choreography with all partners!");
+                    eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partnerTags));
                 } else {
-                	LOG.debug("Found {} situation expressions for choreography. Selecting partners by expressions...", situationRules.size());
-                	Collection<String> partners2 = choreographyHandler.getPartnersBasedOnSelectionExpression(situationExpressions, partnerTags);
-                	 if(partners2.isEmpty()) {
-                		 LOG.warn("No configuration was acceptable to be deployed with the given expressions, no deployment will be started by a choreography");
-                     	return;
-                     }
-                     eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partners2));
+                    LOG.debug("Found {} situation expressions for choreography. Selecting partners by expressions...", situationRules.size());
+                    Collection<String> partners2 = choreographyHandler.getPartnersBasedOnSelectionExpression(situationExpressions, partnerTags);
+                    if (partners2.isEmpty()) {
+                        LOG.warn("No configuration was acceptable to be deployed with the given expressions, no deployment will be started by a choreography");
+                        return;
+                    }
+                    eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partners2));
                 }
-            } else{
+            } else {
                 LOG.debug("Found {} situation rules for choreography. Selecting partners by rules...", situationRules.size());
                 Collection<String> partners = choreographyHandler.getPartnersBasedOnSelectionRule(situationRules, partnerTags);
-                
-                if(partners.isEmpty()) {
-                	LOG.warn("No configuration was acceptable to be deployed with the given rules, no deployment will be started by a choreography");
-                	return;
+
+                if (partners.isEmpty()) {
+                    LOG.warn("No configuration was acceptable to be deployed with the given rules, no deployment will be started by a choreography");
+                    return;
                 }
                 eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partners));
             }

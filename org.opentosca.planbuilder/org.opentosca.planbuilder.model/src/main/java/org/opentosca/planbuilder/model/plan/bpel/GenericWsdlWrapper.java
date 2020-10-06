@@ -346,15 +346,15 @@ public class GenericWsdlWrapper {
         }
         this.namespace = namespace;
     }
-    
+
     public QName getRequestMessageTypeId() {
-    	return new QName(this.getTargetNamespace(), this.processName + "RequestMessage");
+        return new QName(this.getTargetNamespace(), this.processName + "RequestMessage");
     }
-    
+
     public QName getResponseMessageTypeId() {
-    	return new QName(this.getTargetNamespace(), this.processName + "ResponseMessage");
+        return new QName(this.getTargetNamespace(), this.processName + "ResponseMessage");
     }
- 
+
     /**
      * Returns the targetNamespace of this WSDL
      *

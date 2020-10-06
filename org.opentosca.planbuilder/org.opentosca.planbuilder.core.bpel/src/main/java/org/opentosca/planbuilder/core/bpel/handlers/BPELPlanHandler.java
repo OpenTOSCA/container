@@ -1369,13 +1369,13 @@ public class BPELPlanHandler {
         final Element correlationSetElement =
             buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "correlationSet");
         correlationSetElement.setAttribute("name", correlationSetName);
-        
+
         String properties = "";
-        
-        for(String prop : propertyName) {
-        	properties += "tns:" + prop + " ";
+
+        for (String prop : propertyName) {
+            properties += "tns:" + prop + " ";
         }
-        
+
         correlationSetElement.setAttribute("properties", properties);
         correlationSetsElement.appendChild(correlationSetElement);
         return true;

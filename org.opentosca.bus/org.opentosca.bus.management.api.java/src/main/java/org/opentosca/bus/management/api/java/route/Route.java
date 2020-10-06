@@ -45,7 +45,7 @@ public class Route extends RouteBuilder {
             .when(header("OPERATION").isEqualTo(ExposedManagementBusOperations.NOTIFY_PARTNER.getHeaderValue()))
             .to("direct:invokeNotifyPartner")
             .when(header("OPERATION").isEqualTo(ExposedManagementBusOperations.NOTIFY_PARTNERS.getHeaderValue()))
-            .to("direct:invokeNotifyPartners")            
+            .to("direct:invokeNotifyPartners")
             .end();
 
         this.from("direct:invokeIA").to("stream:out").bean(managementBusService, "invokeIA").end();

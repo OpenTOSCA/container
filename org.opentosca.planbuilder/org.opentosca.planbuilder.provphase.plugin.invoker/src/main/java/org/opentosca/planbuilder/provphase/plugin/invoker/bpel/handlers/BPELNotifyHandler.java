@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
@@ -26,8 +27,6 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-
-import com.google.common.collect.Lists;
 
 /**
  * @author kalmankepes
@@ -116,7 +115,7 @@ public class BPELNotifyHandler extends PluginHandler {
             correlationPropertyName = getNotifcationProperty(context);
             correlationSetName = getGloblaNotifyCorrelationSetName(context);
         } else {
-            correlationPropertyName = addNotifyCorrelationProperty(context);            
+            correlationPropertyName = addNotifyCorrelationProperty(context);
             Collection<String> propertyNames = Lists.newArrayList();
             propertyNames.add(correlationPropertyName);
             correlationSetName = addNotifyCorrelationSet(context, propertyNames);
@@ -262,7 +261,7 @@ public class BPELNotifyHandler extends PluginHandler {
         final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageTypeId.getLocalPart()
             + "Response" + context.getIdForNames();
         context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageTypeId);
-        
+
         // setup a correlation set for the messages
         String correlationSetName = null;
         String correlationPropertyName = null;
@@ -273,7 +272,7 @@ public class BPELNotifyHandler extends PluginHandler {
         } else {
             correlationPropertyName = addNotifyCorrelationProperty(context);
             Collection<String> propertyNames = Lists.newArrayList();
-            propertyNames.add(correlationPropertyName);            
+            propertyNames.add(correlationPropertyName);
             correlationSetName = addNotifyCorrelationSet(context, propertyNames);
         }
 
@@ -281,9 +280,8 @@ public class BPELNotifyHandler extends PluginHandler {
             "//*[local-name()=\"PlanCorrelationID\" and namespace-uri()=\"http://siserver.org/schema\"]";
         // "/" + InputMessageId.getPrefix() + ":" + "MessageID" ageId, InputMessagePartName, query);
         context.addPropertyAlias(correlationPropertyName, OutputMessageTypeId, OutputMessagePartName, query);
-        
-           
-        QName planRequestMessageType = context.getPlanRequestMessageType();        
+
+        QName planRequestMessageType = context.getPlanRequestMessageType();
         final String inputQuery = "//*[local-name()=\"CorrelationID\"]";
         context.addPropertyAlias(correlationPropertyName, planRequestMessageType, "payload", inputQuery);
 
@@ -315,7 +313,7 @@ public class BPELNotifyHandler extends PluginHandler {
         Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
         correlationSetsNode = context.importNode(correlationSetsNode);
         receiveNode.appendChild(correlationSetsNode);
-        
+
         context.addCorrelationSetToInputReceive(correlationSetName, true);
 
         elementToAppendTo.appendChild(receiveNode);

@@ -21,20 +21,19 @@ public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
     }
 
     public PlanInstance findByCorrelationId(final String correlationId) {
-    	return this.findPlanByColumnValue("correlationId", correlationId);        
+        return this.findPlanByColumnValue("correlationId", correlationId);
     }
-    
-    public PlanInstance findByChoreographyCorrelationId(final String choreographyCorrelationId, QName planId) {    	
-    	return this.findAllPlansByColumnValue("choreographyCorrelationId", choreographyCorrelationId).stream().filter(plan -> plan.getTemplateId().equals(planId)).findFirst().orElse(null);    	
+
+    public PlanInstance findByChoreographyCorrelationId(final String choreographyCorrelationId, QName planId) {
+        return this.findAllPlansByColumnValue("choreographyCorrelationId", choreographyCorrelationId).stream().filter(plan -> plan.getTemplateId().equals(planId)).findFirst().orElse(null);
     }
-    
-    public PlanInstance findByChoreographyCorrelationId(final String choreographyCorrelationId) {    	
-    	return this.findAllPlansByColumnValue("choreographyCorrelationId", choreographyCorrelationId).stream().findFirst().orElse(null);    	
+
+    public PlanInstance findByChoreographyCorrelationId(final String choreographyCorrelationId) {
+        return this.findAllPlansByColumnValue("choreographyCorrelationId", choreographyCorrelationId).stream().findFirst().orElse(null);
     }
-       
-    
+
     public Collection<PlanInstance> findAllPlansByColumnValue(final String columnName, final String columnValue) {
-    	try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
+        try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
             final CriteriaBuilder cb = em.getCriteriaBuilder();
             // Parameters
             final ParameterExpression<String> correlationIdParameter = cb.parameter(String.class);
@@ -52,9 +51,8 @@ public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
         }
     }
 
-    
     public PlanInstance findPlanByColumnValue(final String columnName, final String columnValue) {
-    	try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
+        try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
             final CriteriaBuilder cb = em.getCriteriaBuilder();
             // Parameters
             final ParameterExpression<String> correlationIdParameter = cb.parameter(String.class);
@@ -78,8 +76,8 @@ public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
         Hibernate.initialize(instance.getInputs());
         Hibernate.initialize(instance.getOutputs());
     }
-    
+
     protected void initializeInstance(Collection<PlanInstance> instance) {
-    	instance.forEach(i -> initializeInstance(i));        
+        instance.forEach(i -> initializeInstance(i));
     }
 }

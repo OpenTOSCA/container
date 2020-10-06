@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
-import org.dom4j.tree.AbstractNode;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;

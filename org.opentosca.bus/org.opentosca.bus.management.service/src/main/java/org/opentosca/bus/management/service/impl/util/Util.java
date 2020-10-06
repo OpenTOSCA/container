@@ -1,27 +1,19 @@
 package org.opentosca.bus.management.service.impl.util;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
-import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.model.tosca.TTag;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.google.common.collect.Lists;
 
 public class Util {
 

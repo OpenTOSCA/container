@@ -17,8 +17,8 @@ public class LoggingExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(Throwable exception) {
-        logger.error("An exception was not handled: ",exception);
-        
+        logger.error("An exception was not handled: ", exception);
+
         if (exception instanceof NotFoundException) {
             return Response.status(Status.NOT_FOUND).build();
         } else if (exception instanceof NotAcceptableException) {
