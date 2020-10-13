@@ -11,6 +11,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.gson.Gson;
 import org.apache.camel.Exchange;
@@ -34,6 +37,7 @@ import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -119,7 +123,20 @@ public class RequestProcessor implements Processor {
             final List<ResolvedDeploymentArtifact> resolvedDAs = new ArrayList<>();
             if (nodeTemplateID != null) {
                 final Csar csar = csarStorage.findById(new CsarId(csarIDString));
+                final TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateID);
+
                 final TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(csar, serviceTemplateID, nodeTemplateID);
+
+                if (Types.openStackTrainNodeType.getLocalPart().equals(nodeTemplateID)) {
+                    TNodeTemplate relatedSourceNodeTemplate = ToscaEngine.getRelatedSourceNodeTemplate(serviceTemplate, nodeTemplate, Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType);
+                    if (relatedSourceNodeTemplate.getName().startsWith("Ubuntu")) {
+                        final TNodeType nodeType = ToscaEngine.resolveNodeTypeReference(csar, relatedSourceNodeTemplate.getType());
+                        final List<TNodeTypeImplementation> ubuntuNodeTypeImpls = ToscaEngine.getNodeTypeImplementations(csar, nodeType);
+
+                        ResolvedArtifacts resolvedArtifacts = containerEngine.resolvedDeploymentArtifactsOfNodeTypeImpl(csar, ubuntuNodeTypeImpls.get(0));
+                        resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
+                    }
+                }
 
                 final ResolvedArtifacts resolvedArtifacts = containerEngine.resolvedDeploymentArtifacts(csar, nodeTemplate);
                 resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());

@@ -18,6 +18,7 @@ import org.eclipse.winery.model.tosca.TDeploymentArtifacts;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TInterfaces;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
@@ -55,6 +56,20 @@ public final class ContainerEngine {
         return result;
     }
 
+
+    public ResolvedArtifacts resolvedDeploymentArtifactsOfNodeTypeImpl(Csar context, TNodeTypeImplementation nodeTemplate) {
+        LOG.debug("Trying to fetch DAs of NodeTypeImplementation {}", nodeTemplate.getName());
+        final ResolvedArtifacts result = new ResolvedArtifacts();
+
+        List<ResolvedArtifacts.ResolvedDeploymentArtifact> collect = nodeTemplate.getDeploymentArtifacts().getDeploymentArtifact().stream()
+            .map(da -> resolveDA(context, da))
+            .collect(Collectors.toList());
+
+        result.setDeploymentArtifacts(collect);
+        return result;
+    }
+
+
     public List<ResolvedArtifacts.ResolvedDeploymentArtifact> resolvedDeploymentArtifactsForNodeTemplate(Csar context, TNodeTemplate nodeTemplate) {
         LOG.debug("Trying to fetch DAs of NodeTemplate {}", nodeTemplate.getName());
         if (nodeTemplate.getDeploymentArtifacts() == null
@@ -64,12 +79,11 @@ public final class ContainerEngine {
         }
 
         return nodeTemplate.getDeploymentArtifacts().getDeploymentArtifact().stream()
-            .map(da -> resolveDA(context, nodeTemplate, da))
+            .map(da -> resolveDA(context, da))
             .collect(Collectors.toList());
     }
 
-    private ResolvedArtifacts.ResolvedDeploymentArtifact resolveDA(Csar context, TNodeTemplate nodeTemplate, TDeploymentArtifact da) {
-        LOG.debug("Trying to fetch DA of NodeTemplate {}", nodeTemplate.getName());
+    private ResolvedArtifacts.ResolvedDeploymentArtifact resolveDA(Csar context, TDeploymentArtifact da) {
 
         final ResolvedArtifacts.ResolvedDeploymentArtifact result = new ResolvedArtifacts.ResolvedDeploymentArtifact();
         result.setName(da.getName());

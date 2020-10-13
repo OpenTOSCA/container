@@ -84,6 +84,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         } else if (nodeType.equals(Types.ubuntu1604ServerVmNodeType)) {
             return "ubuntu-16.04";
         } else if (nodeType.equals(Types.ubuntu1804ServerVmNodeType)
+            || nodeType.equals(Types.ubuntu1804ServerVmNodeTypeDepInc)
             || nodeType.getNamespaceURI().equals(Types.ubuntu1804ServerVmNodeTypeGenerated.getNamespaceURI())
             && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart())) {
             return "ubuntu-18.04";
