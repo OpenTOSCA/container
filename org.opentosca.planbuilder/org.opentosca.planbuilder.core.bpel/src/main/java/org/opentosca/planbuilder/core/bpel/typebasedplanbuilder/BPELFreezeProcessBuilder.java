@@ -23,7 +23,9 @@ import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
+import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
+import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
@@ -57,6 +59,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     private final BPELFinalizer finalizer;
     // handler for abstract buildplan operations
     public BPELPlanHandler planHandler;
+
+    private BPELPluginHandler bpelPluginHandler;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
     private SimplePlanBuilderServiceInstanceHandler serviceInstanceVarsHandler;
     // adds nodeInstanceIDs to each templatePlan
@@ -73,6 +77,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     public BPELFreezeProcessBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);
         try {
+            this.bpelPluginHandler = new BPELPluginHandler(pluginRegistry);
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceVarsHandler = new SimplePlanBuilderServiceInstanceHandler();
             this.instanceVarsHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
@@ -389,52 +394,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                     context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
                 }
+                this.bpelPluginHandler.handleActivity(context, templatePlan, nodeTemplate);
 
-                if (org.opentosca.container.core.tosca.convention.Utils.isSupportedVMNodeType(templatePlan.getNodeTemplate()
-                    .getType()
-                    .getId())) {
-
-                    // fetch infrastructure node (cloud provider)
-                    final List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
-                    for (final AbstractNodeTemplate infraNode : infraNodes) {
-                        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(infraNode.getType()
-                            .getId())) {
-                            // append logic to call terminateVM method on the node
-
-                            context.executeOperation(infraNode,
-                                org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
-                                org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
-                                null);
-
-                            changedActivities.add(templatePlan);
-                        }
-                    }
-                } else {
-
-                    if (!isDockerContainer(context.getNodeTemplate())) {
-                        continue;
-                    }
-
-                    // fetch infrastructure node (cloud provider)
-                    final List<AbstractNodeTemplate> nodes = new ArrayList<>();
-                    ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
-
-                    for (final AbstractNodeTemplate node : nodes) {
-                        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
-                            .getId())) {
-                            context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
-                                null);
-                            changedActivities.add(templatePlan);
-                        }
-                    }
-                }
-
-                for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                    if (postPhasePlugin.canHandleCreate(context, nodeTemplate)) {
-                        postPhasePlugin.handleCreate(context, nodeTemplate);
-                    }
-                }
             }
         }
 
