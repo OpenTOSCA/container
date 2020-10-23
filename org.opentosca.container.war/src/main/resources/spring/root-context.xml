@@ -33,7 +33,6 @@
   <import resource="classpath:/spring/context-container-core.xml" />
   <import resource="classpath:/spring/context-deployment-checks.xml" />
   <import resource="classpath:/spring/context-planbuilder.xml" />
-  <import resource="classpath:/spring/context-legacy.xml" />
   <import resource="classpath:/spring/context-control.xml" />
   <import resource="classpath:/spring/context-bus-management-service.xml" />
   <import resource="classpath:/spring/context-bus-application-service.xml" />

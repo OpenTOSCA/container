@@ -678,8 +678,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                                                                                   String csarName,
                                                                                   String targetServiceInstancesUrlVar) {
         String xpathQuery1 = "concat(substring-before(string($" + availableServiceInstanceUrlVar
-            + "),'csars'),'csars/','" + csarName + "','/servicetemplates/','"
-            + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.toString())) + "','/instances')";
+            + "),'csars'),'csars/','" + csarName + "','/servicetemplates/','"+serviceTemplateId.getLocalPart()+"','/instances')";
         try {
             Node assignServiceInstancesUrl =
                 this.fragments.createAssignVarToVarWithXpathQueryAsNode("createTargetServiceInstancesUrl",

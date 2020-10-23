@@ -43,7 +43,7 @@ import org.opentosca.container.core.next.repository.SituationRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
-import org.opentosca.planbuilder.export.Exporter;
+import org.opentosca.planbuilder.export.WineryExporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -77,12 +77,12 @@ public class MBJavaApi implements IManagementBus {
 
     private final CamelContext camelContext;
     private final Importer importer;
-    private final Exporter exporter;
+    private final WineryExporter exporter;
     private final ICoreEndpointService endpointService;
     private final BpelPlanEnginePlugin bpelDeployPlugin;
 
     @Inject
-    public MBJavaApi(CamelContext camelContext, Importer importer, Exporter exporter,
+    public MBJavaApi(CamelContext camelContext, Importer importer, WineryExporter exporter,
                      ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin) {
         this.camelContext = camelContext;
         this.importer = importer;

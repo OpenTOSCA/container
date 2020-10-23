@@ -205,6 +205,25 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
     }
 
     @Override
+    public boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, TPlans plans, TPlan plan) {
+        final List<TPlan> undeployedPlans = new ArrayList<>();
+
+        // fallback to serviceTemplate NamespaceURI
+        final String namespace = plans.getTargetNamespace() == null
+            ? serviceTemplate.getTargetNamespace()
+            : plans.getTargetNamespace();
+
+        if (!planEngine.deployPlan(plan, namespace, csar)) {
+                undeployedPlans.add(plan);
+        }
+
+        if (!undeployedPlans.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate) {
         deploymentTracker.storeDeploymentState(csar, PLAN_DEPLOYMENT_ACTIVE);
         final List<TPlan> undeployedPlans = new ArrayList<>();
@@ -227,13 +246,8 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
             return true;
         }
 
-        // fallback to serviceTemplate NamespaceURI
-        final String namespace = plans.getTargetNamespace() == null
-            ? serviceTemplate.getTargetNamespace()
-            : plans.getTargetNamespace();
-
         for (final TPlan plan : plans.getPlan()) {
-            if (!planEngine.deployPlan(plan, namespace, csar)) {
+            if (!this.invokePlanDeployment(csar, serviceTemplate,plans, plan)) {
                 undeployedPlans.add(plan);
             }
         }

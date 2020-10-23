@@ -7,6 +7,8 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.model.csar.CsarId;
@@ -63,6 +65,8 @@ public interface OpenToscaControlService {
      */
     @Deprecated
     boolean invokePlanDeployment(CsarId csarId, QName serviceTemplateId);
+
+    boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, TPlans plans, TPlan plan);
 
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate);
 

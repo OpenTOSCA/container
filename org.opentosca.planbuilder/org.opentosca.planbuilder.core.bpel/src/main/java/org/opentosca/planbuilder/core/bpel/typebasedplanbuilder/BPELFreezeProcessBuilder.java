@@ -384,6 +384,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
                     final Map<AbstractParameter, Variable> inputs = new HashMap<>();
 
+
                     inputs.put(getSaveStateParameter(getSaveStateOperation(nodeTemplate)), saveStateUrlVar);
 
                     context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,

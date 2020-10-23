@@ -22,12 +22,6 @@
       <artifactId>org.opentosca.container.engine.plan</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.container.legacy</artifactId>
-      <version>${project.version}</version>
-      <scope>compile</scope>
-    </dependency>
 
     <dependency>
       <groupId>com.github.opentosca.winery</groupId>
