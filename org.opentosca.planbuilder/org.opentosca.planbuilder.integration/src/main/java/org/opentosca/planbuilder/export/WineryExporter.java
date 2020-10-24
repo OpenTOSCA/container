@@ -41,7 +41,6 @@ import org.apache.tika.mime.MediaType;
 import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.export.exporters.SimpleFileExporter;
@@ -80,7 +79,7 @@ public class WineryExporter extends AbstractExporter {
         this.simpleExporter.export(destination, (BPELPlan) buildPlan);
     }
 
-    public PlanExportResult exportToCSAR(final List<AbstractPlan> plans, final CSARID csarId, IRepository repository, CsarStorageService storage) {
+    public PlanExportResult exportToCSAR(final List<AbstractPlan> plans, final CsarId csarId, IRepository repository, CsarStorageService storage) {
         final List<BPELPlan> bpelPlans = new ArrayList<>();
 
         for (final AbstractPlan plan : plans) {
@@ -107,12 +106,12 @@ public class WineryExporter extends AbstractExporter {
         return null;
     }
 
-    public PlanExportResult exportBPELToCSAR(final List<BPELPlan> plans, final CSARID csarId, IRepository repository, CsarStorageService storage) {
-        Csar csar = storage.findById(new CsarId(csarId));
+    public PlanExportResult exportBPELToCSAR(final List<BPELPlan> plans, final CsarId csarId, IRepository repository, CsarStorageService storage) {
+        Csar csar = storage.findById(csarId);
         Collection<String> exportedBpelPlanIds = new ArrayList<String>();
         final Definitions defs = this.getEntryDefs(csar, repository);
         final TServiceTemplate serviceTemplate = defs.getServiceTemplates().get(0);
-        final String csarName = csarId.getFileName();
+        final String csarName = csarId.csarName();
         final Path tempDir = FileSystem.getTemporaryFolder();
         final Path pathToRepackagedCsar = FileSystem.getTemporaryFolder();
         final Path repackagedCsar = pathToRepackagedCsar.resolve(csarName);

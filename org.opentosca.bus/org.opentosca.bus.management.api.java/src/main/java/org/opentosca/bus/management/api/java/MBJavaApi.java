@@ -192,7 +192,7 @@ public class MBJavaApi implements IManagementBus {
         @SuppressWarnings("unchecked") final Map<String, Collection<Long>> nodeIds2situationIds = (Map<String, Collection<Long>>) eventValues.get("NODE2SITUATIONS");
 
         final AbstractTopologyTemplate topology =
-            importer.getMainDefinitions(instance.getCsarId().toOldCsarId()).getServiceTemplates().get(0).getTopologyTemplate();
+            importer.getMainDefinitions(instance.getCsarId()).getServiceTemplates().get(0).getTopologyTemplate();
 
         final ServiceTemplateInstanceConfiguration currentConfig =
             getCurrentServiceTemplateInstanceConfiguration(topology, instance);
@@ -235,7 +235,7 @@ public class MBJavaApi implements IManagementBus {
             try {
                 // FIXME the QName conversion of the instance is probably a bad idea
                 final BPELPlan adaptationPlan =
-                    (BPELPlan) importer.generateAdaptationPlan(instance.getCsarId().toOldCsarId(), QName.valueOf(instance.getTemplateId()),
+                    (BPELPlan) importer.generateAdaptationPlan(instance.getCsarId(), QName.valueOf(instance.getTemplateId()),
                         currentConfigNodeIds, currentConfigRelationIds,
                         targetConfigNodeIds, targetConfigRelationIds);
 

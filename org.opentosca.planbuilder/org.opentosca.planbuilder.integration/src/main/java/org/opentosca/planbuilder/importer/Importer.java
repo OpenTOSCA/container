@@ -21,7 +21,6 @@ import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.integration.layer.AbstractImporter;
@@ -60,23 +59,23 @@ public class Importer extends AbstractImporter {
      * @param csarId the CSARID for the CSAR the BuildPlans should be generated
      * @return a List of BuildPlan
      */
-    public List<AbstractPlan> generatePlans(final CSARID csarId) {
-            final AbstractDefinitions defs = this.createContext(new CsarId(csarId));
-            final List<AbstractPlan> plans = this.buildPlans(defs, csarId.getFileName());
+    public List<AbstractPlan> generatePlans(final CsarId csarId) {
+            final AbstractDefinitions defs = this.createContext(csarId);
+            final List<AbstractPlan> plans = this.buildPlans(defs, csarId.csarName());
             return plans;
     }
 
-    public AbstractPlan generateAdaptationPlan(CSARID csarId, QName serviceTemplateId,
+    public AbstractPlan generateAdaptationPlan(CsarId csarId, QName serviceTemplateId,
                                                Collection<String> sourceNodeTemplateIds,
                                                Collection<String> sourceRelationshipTemplateIds,
                                                Collection<String> targetNodeTemplateId,
                                                Collection<String> targetRelationshipTemplateId) throws SystemException {
 
 
-            AbstractDefinitions defs = this.createContext(new CsarId(csarId));
+            AbstractDefinitions defs = this.createContext(csarId);
             AbstractTopologyTemplate topology = defs.getServiceTemplates().get(0).getTopologyTemplate();
 
-            return this.buildAdaptationPlan(csarId.getFileName(), defs, serviceTemplateId,
+            return this.buildAdaptationPlan(csarId.csarName(), defs, serviceTemplateId,
                 this.getNodes(topology, sourceNodeTemplateIds),
                 this.getRelations(topology, sourceRelationshipTemplateIds),
                 this.getNodes(topology, targetNodeTemplateId),
@@ -108,14 +107,14 @@ public class Importer extends AbstractImporter {
         return result;
     }
 
-    public List<AbstractPlan> generateTransformationPlans(final CSARID sourceCsarId, final CSARID targetCsarId) {
+    public List<AbstractPlan> generateTransformationPlans(final CsarId sourceCsarId, final CsarId targetCsarId) {
         final List<AbstractPlan> plans = new ArrayList<>();
-            this.createContext(new CsarId(sourceCsarId));
-            final AbstractDefinitions sourceDefs = this.createContext(new CsarId(sourceCsarId));
-            final AbstractDefinitions targetDefs = this.createContext(new CsarId(targetCsarId));
+            this.createContext(sourceCsarId);
+            final AbstractDefinitions sourceDefs = this.createContext(sourceCsarId);
+            final AbstractDefinitions targetDefs = this.createContext(targetCsarId);
 
-            plans.addAll(this.buildTransformationPlans(sourceCsarId.getFileName(), sourceDefs,
-                targetCsarId.getFileName(), targetDefs));
+            plans.addAll(this.buildTransformationPlans(sourceCsarId.csarName(), sourceDefs,
+                targetCsarId.csarName(), targetDefs));
             return plans;
     }
 
@@ -125,8 +124,8 @@ public class Importer extends AbstractImporter {
      * @param csarId an ID of a CSAR
      * @return an AbstractDefinitions object
      */
-    public AbstractDefinitions getMainDefinitions(final CSARID csarId) {
-            return this.createContext(new CsarId(csarId));
+    public AbstractDefinitions getMainDefinitions(final CsarId csarId) {
+            return this.createContext(csarId);
     }
 
     /**

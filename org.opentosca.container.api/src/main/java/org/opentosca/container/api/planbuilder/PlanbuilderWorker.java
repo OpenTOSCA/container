@@ -154,7 +154,7 @@ public class PlanbuilderWorker {
         state.currentMessage = "Generating Plan";
         LOG.debug("Starting to generate Plan");
 
-        final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csarId.toOldCsarId());
+        final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csarId);
 
         if (buildPlans.size() <= 0) {
             state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;
