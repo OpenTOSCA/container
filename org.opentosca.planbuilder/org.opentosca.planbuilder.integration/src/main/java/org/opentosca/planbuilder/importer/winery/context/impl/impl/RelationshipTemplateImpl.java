@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
  * <p>
  * This class implements a TOSCA RelationshipTemplate, in particular an AbstractRelationshipTemplate
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2020 IAAS University of Stuttgart <br>
  * <br>
  *
- * @author Kalman Kepes - kepeskn@sutdi.informatik.uni-stuttgart.de
+ * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
 public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
@@ -42,6 +42,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
 
     private final org.eclipse.winery.model.tosca.TRelationshipTemplate relationshipTemplate;
     private final DefinitionsImpl definitions;
+    private final TopologyTemplateImpl topology;
     private AbstractProperties properties = null;
 
     /**
@@ -51,9 +52,10 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
      * @param definitions a DefinitionsImpl
      */
     public RelationshipTemplateImpl(final org.eclipse.winery.model.tosca.TRelationshipTemplate relationshipTemplate,
-                                    final DefinitionsImpl definitions) {
+                                    final DefinitionsImpl definitions, TopologyTemplateImpl topology) {
         this.relationshipTemplate = relationshipTemplate;
         this.definitions = definitions;
+        this.topology = topology;
         if (this.relationshipTemplate.getProperties() != null && this.relationshipTemplate.getProperties().getInternalAny() != null) {
             this.properties = new PropertiesImpl(this.relationshipTemplate.getProperties().getInternalAny());
         }
@@ -65,7 +67,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
      */
     @Override
     public AbstractNodeTemplate getSource() {
-        return new NodeTemplateImpl(ModelUtilities.getSourceNodeTemplateOfRelationshipTemplate(definitions.definitions.getServiceTemplates().get(0).getTopologyTemplate(), this.relationshipTemplate), this.definitions);
+        return new NodeTemplateImpl(ModelUtilities.getSourceNodeTemplateOfRelationshipTemplate(this.topology.topologyTemplate, this.relationshipTemplate), this.definitions, this.topology);
     }
 
     /**
@@ -73,7 +75,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
      */
     @Override
     public AbstractNodeTemplate getTarget() {
-        return new NodeTemplateImpl(ModelUtilities.getTargetNodeTemplateOfRelationshipTemplate(definitions.definitions.getServiceTemplates().get(0).getTopologyTemplate(), this.relationshipTemplate), this.definitions);
+        return new NodeTemplateImpl(ModelUtilities.getTargetNodeTemplateOfRelationshipTemplate(this.topology.topologyTemplate, this.relationshipTemplate), this.definitions, this.topology);
     }
 
 

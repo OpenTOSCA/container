@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
@@ -11,6 +12,7 @@ import org.eclipse.winery.model.tosca.TCapability;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRequirement;
+import org.eclipse.winery.model.tosca.utils.ModelUtilities;
 
 import org.opentosca.planbuilder.model.tosca.AbstractCapability;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -40,6 +42,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 
     private final org.eclipse.winery.model.tosca.TNodeTemplate nodeTemplate;
     private final DefinitionsImpl definitions;
+    private final TopologyTemplateImpl topology;
     private final List<AbstractRelationshipTemplate> ingoingRelations;
     private final List<AbstractRelationshipTemplate> outgoingRelations;
     private final List<AbstractRequirement> requirements;
@@ -54,11 +57,10 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
      * @param nodeTemplate a JAXB TNodeTemplate
      * @param definitions  a DefinitionsImpl
      */
-    public NodeTemplateImpl(final org.eclipse.winery.model.tosca.TNodeTemplate nodeTemplate, final DefinitionsImpl definitions) {
+    public NodeTemplateImpl(final org.eclipse.winery.model.tosca.TNodeTemplate nodeTemplate, final DefinitionsImpl definitions, final TopologyTemplateImpl topology) {
         this.nodeTemplate = nodeTemplate;
         this.definitions = definitions;
-        this.ingoingRelations = new ArrayList<>();
-        this.outgoingRelations = new ArrayList<>();
+        this.topology = topology;
         this.requirements = new ArrayList<>();
         this.capabilities = new ArrayList<>();
         this.das = new ArrayList<>();
@@ -66,6 +68,9 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
         if (this.nodeTemplate.getProperties() != null && this.nodeTemplate.getProperties().getInternalAny() != null) {
             this.properties = new PropertiesImpl(this.nodeTemplate.getProperties().getInternalAny());
         }
+
+        this.ingoingRelations = ModelUtilities.getIncomingRelationshipTemplates(this.topology.topologyTemplate, this.nodeTemplate).stream().map(val -> new RelationshipTemplateImpl(val, definitions, this.topology)).collect(Collectors.toList());
+        this.outgoingRelations = ModelUtilities.getOutgoingRelationshipTemplates(this.topology.topologyTemplate, this.nodeTemplate).stream().map(val -> new RelationshipTemplateImpl(val, definitions, this.topology)).collect(Collectors.toList());
 
         setUpCapabilities();
         setUpRequirements();
@@ -138,24 +143,6 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
     @Override
     public List<AbstractRelationshipTemplate> getIngoingRelations() {
         return this.ingoingRelations;
-    }
-
-    /**
-     * Adds a Relationship as an ingoing relation
-     *
-     * @param relationshipTemplate an AbstractRelationshipTemplate
-     */
-    protected void addIngoingRelation(final AbstractRelationshipTemplate relationshipTemplate) {
-        this.ingoingRelations.add(relationshipTemplate);
-    }
-
-    /**
-     * Adds RelationshipTemplate as an outgoing relation
-     *
-     * @param relationshipTemplate an AbstractRelationshipTemplate
-     */
-    protected void addOutgoingRelation(final AbstractRelationshipTemplate relationshipTemplate) {
-        this.outgoingRelations.add(relationshipTemplate);
     }
 
     /**

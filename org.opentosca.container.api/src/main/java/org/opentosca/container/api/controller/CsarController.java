@@ -54,7 +54,6 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.backwards.FileSystemDirectory;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.slf4j.Logger;
@@ -167,7 +166,7 @@ public class CsarController {
     public DirectoryController getContent(@PathParam("csar") final String id) {
         logger.debug("Invoking getContent");
         try {
-            return new DirectoryController(new FileSystemDirectory(storage.findById(new CsarId(id)).getSaveLocation()));
+            return new DirectoryController(storage.findById(new CsarId(id)).getSaveLocation());
         } catch (NoSuchElementException e) {
             throw new javax.ws.rs.NotFoundException(e);
         }

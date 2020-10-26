@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,9 +48,6 @@ import org.eclipse.winery.repository.export.CsarExporter;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opentosca.container.core.model.AbstractFile;
-import org.opentosca.container.core.model.csar.backwards.FileSystemFile;
-import org.opentosca.container.core.model.csar.backwards.ToscaMetaFileReplacement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,12 +192,6 @@ public class CsarImpl implements Csar {
     }
 
     @Override
-    public AbstractFile topologyPicture() {
-        final String imageUrl = selfserviceMetadata().getImageUrl();
-        return new FileSystemFile(Paths.get(imageUrl));
-    }
-
-    @Override
     public void exportTo(Path targetPath) throws IOException {
         CsarExporter exporter = new CsarExporter();
         Map<String, Object> exportConfiguration = new HashMap<>();
@@ -214,11 +204,6 @@ public class CsarImpl implements Csar {
                 throw new IOException("Failed to export CSAR", e);
             }
         }
-    }
-
-    @Override
-    public ToscaMetaFileReplacement metafileReplacement() {
-        return new ToscaMetaFileReplacement(this);
     }
 
     @Override

@@ -5,6 +5,7 @@
              xmlns="http://schemas.xmlsoap.org/wsdl/"
              xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype"
              xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:vprop="http://docs.oasis-open.org/wsbpel/2.0/varprop"
     {wsdlnamespaceprefix}
         >
 

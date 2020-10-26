@@ -24,7 +24,7 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
 
     private final static Logger LOG = LoggerFactory.getLogger(TopologyTemplateImpl.class);
 
-    private org.eclipse.winery.model.tosca.TTopologyTemplate topologyTemplate = null;
+    protected final org.eclipse.winery.model.tosca.TTopologyTemplate topologyTemplate;
     private QName serviceTemplateId;
     private final List<AbstractNodeTemplate> nodeTemplates;
     private final List<AbstractRelationshipTemplate> relationshipTemplates;
@@ -35,8 +35,8 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
         this.topologyTemplate = topologyTemplate;
         this.definitions = definitions;
         this.serviceTemplateId = serviceTemplateId;
-        this.nodeTemplates = this.topologyTemplate.getNodeTemplates().stream().map(x -> new NodeTemplateImpl(x, this.definitions)).collect(Collectors.toList());
-        this.relationshipTemplates = this.topologyTemplate.getRelationshipTemplates().stream().map(x -> new RelationshipTemplateImpl(x, this.definitions)).collect(Collectors.toList());
+        this.nodeTemplates = this.topologyTemplate.getNodeTemplates().stream().map(x -> new NodeTemplateImpl(x, this.definitions, this)).collect(Collectors.toList());
+        this.relationshipTemplates = this.topologyTemplate.getRelationshipTemplates().stream().map(x -> new RelationshipTemplateImpl(x, this.definitions, this)).collect(Collectors.toList());
     }
 
     /**
@@ -53,24 +53,6 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
     @Override
     public List<AbstractRelationshipTemplate> getRelationshipTemplates() {
         return this.relationshipTemplates;
-    }
-
-    /**
-     * Adds a NodeTemplate to this TopologyTemplate
-     *
-     * @param nodeTemplate an AbstractNodeTemplate
-     */
-    public void addNodeTemplate(final AbstractNodeTemplate nodeTemplate) {
-        this.nodeTemplates.add(nodeTemplate);
-    }
-
-    /**
-     * Adds a RelationshipTemplate to this TopologyTemplate
-     *
-     * @param relationshipTemplate an AbstractRelationshipTemplate
-     */
-    public void addRelationshipTemplate(final AbstractRelationshipTemplate relationshipTemplate) {
-        this.relationshipTemplates.add(relationshipTemplate);
     }
 
     @Override
