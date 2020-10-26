@@ -951,7 +951,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Plan language: {}", plan.getLanguage().toString());
 
         LOG.debug("Getting endpoint for the plan...");
-        endpointService.printPlanEndpoints();
         final List<WSDLEndpoint> WSDLendpoints =
             endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, arguments.csar.id(),
                 plan.getTemplateId());

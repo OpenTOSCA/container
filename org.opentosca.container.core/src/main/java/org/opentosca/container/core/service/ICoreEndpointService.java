@@ -125,10 +125,4 @@ public interface ICoreEndpointService {
      * @return true if removing the endpoint was successful, else false
      */
     public boolean removeWSDLEndpoint(WSDLEndpoint endpoint);
-
-    /**
-     * Debug print of plan endpoints.
-     */
-    @Deprecated
-    public void printPlanEndpoints();
 }

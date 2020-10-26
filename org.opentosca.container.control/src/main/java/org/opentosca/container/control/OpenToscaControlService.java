@@ -51,25 +51,11 @@ public interface OpenToscaControlService {
 
     DeploymentProcessState currentDeploymentProcessState(CsarId csar);
 
-    /**
-     * @deprecated {@link #invokePlanInvocation(CsarId, TServiceTemplate, int, TPlanDTO)}
-     */
-    @Deprecated
-    String invokePlanInvocation(CsarId csar, QName serviceTemplateID, int instanceId, TPlanDTO plan) throws UnsupportedEncodingException;
-
     // FIXME evaluate using winery's TPlan instead
     String invokePlanInvocation(CsarId csar, TServiceTemplate serviceTemplate, long instanceId, TPlanDTO plan);
-
-    /**
-     * @deprecated {@link #invokePlanDeployment(CsarId, TServiceTemplate)}
-     */
-    @Deprecated
-    boolean invokePlanDeployment(CsarId csarId, QName serviceTemplateId);
 
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, TPlans plans, TPlan plan);
 
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate);
 
-    @Deprecated
-    List<QName> getAllContainedServiceTemplates(CsarId csarid);
 }

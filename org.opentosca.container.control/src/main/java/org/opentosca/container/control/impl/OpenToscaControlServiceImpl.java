@@ -262,33 +262,5 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
         deploymentTracker.storeDeploymentState(csar, PLANS_DEPLOYED);
         return true;
     }
-
-    @Deprecated
-    @Override
-    public String invokePlanInvocation(CsarId csarId, QName qname, int instanceId, TPlanDTO plan) throws UnsupportedEncodingException {
-        Csar csar = storage.findById(csarId);
-        final Optional<TServiceTemplate> serviceTemplate = csar.serviceTemplates().stream()
-            .filter(st -> st.getId().equals(qname.toString()))
-            .findFirst();
-        return serviceTemplate.isPresent() ? invokePlanInvocation(csarId, serviceTemplate.get(), instanceId, plan) : "";
-    }
-
-    @Deprecated
-    @Override
-    public boolean invokePlanDeployment(CsarId csarId, QName qname) {
-        Csar csar = storage.findById(csarId);
-        final Optional<TServiceTemplate> serviceTemplate = csar.serviceTemplates().stream()
-            .filter(st -> st.getId().equals(qname.toString()))
-            .findFirst();
-        return serviceTemplate.isPresent() ? invokePlanDeployment(csarId, serviceTemplate.get()) : false;
-    }
-
-    @Deprecated
-    @Override
-    public List<QName> getAllContainedServiceTemplates(CsarId csarid) {
-        return storage.findById(csarid).serviceTemplates().stream()
-            .map(TServiceTemplate::getId)
-            .map(QName::new).collect(Collectors.toList());
-    }
 }
 

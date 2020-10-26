@@ -271,25 +271,6 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
     }
 
     @Override
-    public void printPlanEndpoints() {
-        List<WSDLEndpoint> endpoints = null;
-        final TypedQuery<WSDLEndpoint> queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e",
-            WSDLEndpoint.class);
-
-        endpoints = queryWSDLEndpoint.getResultList();
-
-        final StringBuilder builder = new StringBuilder();
-        final String ls = System.getProperty("line.separator");
-        builder.append(
-            "debug output for stored endpoints of management plans, flags: csarid, planid, ianame, porttype " + ls);
-        for (final WSDLEndpoint endpoint : endpoints) {
-            builder.append("endpoint: " + endpoint.getCsarId() + " " + endpoint.getPlanId() + " " + endpoint.getIaName()
-                + " " + endpoint.getPortType() + ls);
-        }
-        LOG.debug(builder.toString());
-    }
-
-    @Override
     public boolean removeWSDLEndpoint(final WSDLEndpoint endpoint) {
         if (!this.em.getTransaction().isActive()) {
             this.em.getTransaction().begin();
