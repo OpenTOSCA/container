@@ -8,9 +8,11 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -35,7 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
-import org.opentosca.container.core.impl.service.ZipManager;
+import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
@@ -173,8 +175,15 @@ public class SimpleFileExporter {
             return false;
         }
 
+
+        Collection<Path> files = Files.walk(tempFolder, 1)
+            .filter(Files::isRegularFile)
+            .collect(Collectors.toList());
+
+        FileSystem.zip(new File(destination).toPath(), files.toArray(new Path[files.size()]));
+
         // package temp dir and move to destination URI
-        ZipManager.getInstance().zip(tempFolder.toFile(), new File(destination));
+        //ZipManager.getInstance().zip(tempFolder.toFile(), new File(destination));
         return true;
     }
 

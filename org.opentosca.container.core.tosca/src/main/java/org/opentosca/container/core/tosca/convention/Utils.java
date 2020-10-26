@@ -69,18 +69,6 @@ public class Utils {
     }
 
     /**
-     * Checks whether the given property name represents a special case property: the instanceId property of an virtual
-     * machine
-     *
-     * @param name a String containing some property name
-     * @return true iff the given name equals to the predefined InstanceId property names of the plugins
-     */
-    public static boolean isSupportedVirtualMachineInstanceIdProperty(final String name) {
-        return name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID)
-            || name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID);
-    }
-
-    /**
      * Checks whether the given NodeType is a cloud provider nodeType that can be handled by the set of plugins used by
      * the PlanBuilder.
      *

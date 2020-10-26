@@ -8,20 +8,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.xml.namespace.QName;
 
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TDeploymentArtifacts;
-import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TInterfaces;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import org.opentosca.container.core.engine.NodeTemplateInstanceCounts;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.model.csar.Csar;
@@ -139,32 +135,5 @@ public final class ContainerEngine {
         } else {
             return relationshipInstance.getTarget();
         }
-    }
-
-    public static NodeTemplateInstanceCounts getInstanceCounts(TServiceTemplate serviceTemplate) {
-        final List<TEntityTemplate> nodeTemplateOrRelationshipTemplate =
-            serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate();
-
-        // store nodeTemplates in own list so we dont alter the jaxb object
-        final List<TNodeTemplate> nodeTemplates = new ArrayList<>();
-        for (final TEntityTemplate tEntityTemplate : nodeTemplateOrRelationshipTemplate) {
-            // only add it if its a nodeTemplate
-            if (tEntityTemplate instanceof TNodeTemplate) {
-                nodeTemplates.add((TNodeTemplate) tEntityTemplate);
-            }
-        }
-
-        // construct result object (getMin and MaxInstance from JAXB and store
-        // them in result object)
-        final NodeTemplateInstanceCounts counts = new NodeTemplateInstanceCounts();
-        for (final TNodeTemplate tNodeTemplate : nodeTemplates) {
-            final QName nodeTemplateQName = new QName(serviceTemplate.getTargetNamespace(), tNodeTemplate.getId());
-            final int minInstances = tNodeTemplate.getMinInstances();
-            // in xml the maxInstances attribute is a String because it also can
-            // contain "unbounded"
-            final String maxInstances = tNodeTemplate.getMaxInstances();
-            counts.addInstanceCount(nodeTemplateQName, minInstances, maxInstances);
-        }
-        return counts;
     }
 }
