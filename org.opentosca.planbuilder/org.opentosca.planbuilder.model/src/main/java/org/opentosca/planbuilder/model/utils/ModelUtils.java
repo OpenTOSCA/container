@@ -339,7 +339,6 @@ public class ModelUtils {
      * @param nodeTemplate an AbstractNodeTemplate
      * @return a QName which represents the baseType of the given NodeTemplate
      */
-    @Deprecated
     public static QName getNodeBaseType(final AbstractNodeTemplate nodeTemplate) {
         ModelUtils.LOG.debug("Beginning search for basetype of: " + nodeTemplate.getId());
         final List<QName> typeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType());

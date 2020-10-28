@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.core.AbstractSimplePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBuildProcessBuilder;
@@ -21,7 +22,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
  * <p>
@@ -36,9 +36,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 public abstract class AbstractImporter {
 
     private final PluginRegistry pluginRegistry;
+    protected final CsarStorageService storage;
 
-    protected AbstractImporter(PluginRegistry pluginRegistry) {
+    protected AbstractImporter(PluginRegistry pluginRegistry, CsarStorageService storage) {
         this.pluginRegistry = pluginRegistry;
+        this.storage = storage;
     }
 
     protected AbstractPlan buildAdaptationPlan(final String csarName, final AbstractDefinitions definitions,
@@ -119,16 +121,5 @@ public abstract class AbstractImporter {
         plans.addAll(testPlanBuilder.buildPlans(csarName, defs));
 
         return plans;
-    }
-
-    private boolean hasPolicies(final AbstractDefinitions defs) {
-        for (final AbstractServiceTemplate serv : defs.getServiceTemplates()) {
-            for (final AbstractNodeTemplate nodeTemplate : serv.getTopologyTemplate().getNodeTemplates()) {
-                if (!nodeTemplate.getPolicies().isEmpty()) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }

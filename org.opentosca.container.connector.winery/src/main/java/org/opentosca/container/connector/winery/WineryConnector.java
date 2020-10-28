@@ -83,10 +83,6 @@ public class WineryConnector {
         }
     }
 
-    public String getWineryPath() {
-        return this.wineryPath;
-    }
-
     public URI getServiceTemplateURI(final QName serviceTemplateId) {
         try {
             LOG.debug("Trying to fetch URI to Service Template" + serviceTemplateId.toString());
@@ -98,10 +94,6 @@ public class WineryConnector {
             LOG.warn("URI created from serviceTemplateId {} was malformed", serviceTemplateId, e);
             return null;
         }
-    }
-
-    public QName uploadCSAR(final File file) throws URISyntaxException, IOException {
-        return uploadCSAR(file, false);
     }
 
     private String uploadCSARToWinery(final File file, final boolean overwrite) throws URISyntaxException, IOException {
@@ -147,87 +139,6 @@ public class WineryConnector {
         final String namespace = URLDecoder.decode(URLDecoder.decode(namespaceDblEnc));
 
         return new QName(namespace, localPart);
-    }
-
-    public QName createServiceTemplateFromXaaSPackage(final File file, final QName artifactType,
-                                                      final Set<QName> nodeTypes, final QName infrastructureNodeType,
-                                                      final Map<String, String> tags) throws URISyntaxException,
-        IOException {
-        final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-
-        // file
-        final ContentBody fileBody = new FileBody(file);
-        final FormBodyPart filePart = FormBodyPartBuilder.create("file", fileBody).build();
-        builder.addPart(filePart);
-
-        // artefactType
-        final ContentBody artefactTypeBody = new StringBody(artifactType.toString(), ContentType.TEXT_PLAIN);
-        final FormBodyPart artefactTypePart = FormBodyPartBuilder.create("artefactType", artefactTypeBody).build();
-        builder.addPart(artefactTypePart);
-
-        // nodeTypes
-        if (!nodeTypes.isEmpty()) {
-            String nodeTypesAsString = "";
-            for (final QName nodeType : nodeTypes) {
-                nodeTypesAsString += nodeType.toString() + ",";
-            }
-
-            final ContentBody nodeTypesBody =
-                new StringBody(nodeTypesAsString.substring(0, nodeTypesAsString.length() - 1), ContentType.TEXT_PLAIN);
-            final FormBodyPart nodeTypesPart = FormBodyPartBuilder.create("nodeTypes", nodeTypesBody).build();
-            builder.addPart(nodeTypesPart);
-        }
-
-        // infrastructureNodeType
-        if (infrastructureNodeType != null) {
-            final ContentBody infrastructureNodeTypeBody =
-                new StringBody(infrastructureNodeType.toString(), ContentType.TEXT_PLAIN);
-            final FormBodyPart infrastructureNodeTypePart =
-                FormBodyPartBuilder.create("infrastructureNodeType", infrastructureNodeTypeBody).build();
-            builder.addPart(infrastructureNodeTypePart);
-        }
-
-        // tags
-        if (!tags.isEmpty()) {
-            String tagsString = "";
-            for (final String key : tags.keySet()) {
-                if (tags.get(key) == null) {
-                    tagsString += key + ",";
-                } else {
-                    tagsString += key + ":" + tags.get(key) + ",";
-                }
-            }
-
-            final ContentBody tagsBody =
-                new StringBody(tagsString.substring(0, tagsString.length() - 1), ContentType.TEXT_PLAIN);
-            final FormBodyPart tagsPart = FormBodyPartBuilder.create("tags", tagsBody).build();
-            builder.addPart(tagsPart);
-        }
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // POST to XaaSPackager
-            final HttpPost xaasPOST = new HttpPost();
-            xaasPOST.setURI(new URI(this.wineryPath + "servicetemplates/"));
-            xaasPOST.setEntity(builder.build());
-            final CloseableHttpResponse xaasResp = httpClient.execute(xaasPOST);
-            xaasResp.close();
-
-            // create QName of the created serviceTemplate resource
-            String location = getHeaderValue(xaasResp, HttpHeaders.LOCATION);
-
-            if (location.endsWith("/")) {
-                location = location.substring(0, location.length() - 1);
-            }
-
-            final String localPart = getLastPathFragment(location);
-            final String namespaceDblEnc = getLastPathFragment(location.substring(0, location.lastIndexOf("/")));
-            final String namespace = URLDecoder.decode(URLDecoder.decode(namespaceDblEnc));
-
-            return new QName(namespace, localPart);
-        } catch (final IOException e) {
-            LOG.error("Exception while calling Xaas packager: ", e);
-            return null;
-        }
     }
 
     private String getLastPathFragment(final String url) {

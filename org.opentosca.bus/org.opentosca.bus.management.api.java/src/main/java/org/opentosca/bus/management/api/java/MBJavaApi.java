@@ -43,7 +43,7 @@ import org.opentosca.container.core.next.repository.SituationRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
-import org.opentosca.planbuilder.export.Exporter;
+import org.opentosca.planbuilder.export.WineryExporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -77,12 +77,12 @@ public class MBJavaApi implements IManagementBus {
 
     private final CamelContext camelContext;
     private final Importer importer;
-    private final Exporter exporter;
+    private final WineryExporter exporter;
     private final ICoreEndpointService endpointService;
     private final BpelPlanEnginePlugin bpelDeployPlugin;
 
     @Inject
-    public MBJavaApi(CamelContext camelContext, Importer importer, Exporter exporter,
+    public MBJavaApi(CamelContext camelContext, Importer importer, WineryExporter exporter,
                      ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin) {
         this.camelContext = camelContext;
         this.importer = importer;
@@ -192,7 +192,7 @@ public class MBJavaApi implements IManagementBus {
         @SuppressWarnings("unchecked") final Map<String, Collection<Long>> nodeIds2situationIds = (Map<String, Collection<Long>>) eventValues.get("NODE2SITUATIONS");
 
         final AbstractTopologyTemplate topology =
-            importer.getMainDefinitions(instance.getCsarId().toOldCsarId()).getServiceTemplates().get(0).getTopologyTemplate();
+            importer.getMainDefinitions(instance.getCsarId()).getServiceTemplates().get(0).getTopologyTemplate();
 
         final ServiceTemplateInstanceConfiguration currentConfig =
             getCurrentServiceTemplateInstanceConfiguration(topology, instance);
@@ -235,7 +235,7 @@ public class MBJavaApi implements IManagementBus {
             try {
                 // FIXME the QName conversion of the instance is probably a bad idea
                 final BPELPlan adaptationPlan =
-                    (BPELPlan) importer.generateAdaptationPlan(instance.getCsarId().toOldCsarId(), QName.valueOf(instance.getTemplateId()),
+                    (BPELPlan) importer.generateAdaptationPlan(instance.getCsarId(), QName.valueOf(instance.getTemplateId()),
                         currentConfigNodeIds, currentConfigRelationIds,
                         targetConfigNodeIds, targetConfigRelationIds);
 

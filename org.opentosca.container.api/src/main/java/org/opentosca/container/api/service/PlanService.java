@@ -45,6 +45,10 @@ public class PlanService {
         this.deploymentTestService = deploymentTestService;
     }
 
+    public PlanInstance getPlanInstance(Long id) {
+        return this.planInstanceRepository.find(id).orElse(null);
+    }
+
     public List<PlanInstance> getPlanInstances(final Csar csar, final PlanType... planTypes) {
         final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
         final Collection<ServiceTemplateInstance> serviceInstances = repo.findByCsarId(csar.id());
@@ -79,28 +83,28 @@ public class PlanService {
         return planInstanceRepository.findByCorrelationId(correlationId);
     }
 
-    public PlanInstance resolvePlanInstance(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, String planInstanceId, PlanType... planTypes) {
+    public PlanInstance resolvePlanInstance(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, String correlationId, PlanType... planTypes) {
         TPlan plan = csar.plans().stream()
             .filter(tplan -> tplan.getId().equals(planId) && Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Plan \"" + planId + "\" could not be found"));
 
         final PlanInstanceRepository repository = new PlanInstanceRepository();
-        final PlanInstance pi = repository.findByCorrelationId(planInstanceId);
+        final PlanInstance pi = repository.findByCorrelationId(correlationId);
 
         if (pi == null) {
-            final String msg = "Plan instance '" + planInstanceId + "' not found";
+            final String msg = "Plan instance with correlationId '" + correlationId + "' not found";
             logger.info(msg);
             throw new NotFoundException(msg);
         }
         if (!pi.getTemplateId().getLocalPart().equals(plan.getId())) {
-            throw new NotFoundException(String.format("The passed plan instance <%s> does not belong to the passed plan template: %s", planInstanceId, plan));
+            throw new NotFoundException(String.format("The passed plan instance <%s> does not belong to the passed plan template: %s", correlationId, plan));
         }
 
         final Long id = pi.getServiceTemplateInstance().getId();
         if (serviceTemplateInstanceId != null && serviceTemplateInstanceId != id) {
             throw new NotFoundException(String.format("The passed service template instance id <%s> does not match the service template instance id that is associated with the plan instance <%s> ",
-                serviceTemplateInstanceId, id, planInstanceId));
+                serviceTemplateInstanceId, id, correlationId));
         }
         return pi;
     }

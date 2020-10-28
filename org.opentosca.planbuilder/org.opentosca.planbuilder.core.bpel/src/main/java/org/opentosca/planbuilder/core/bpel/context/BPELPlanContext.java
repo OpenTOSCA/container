@@ -1043,10 +1043,8 @@ public class BPELPlanContext extends PlanContext {
      *
      * @param qname a QName to import
      * @return the QName with set prefix
-     * @deprecated Use {@link org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler#importNamespace(org.opentosca.planbuilder.core.bpel.context.BPELPlanContext,
-     * QName)} instead
+     *
      */
-    @Deprecated
     public QName importNamespace(final QName qname) {
         return this.bpelProcessHandler.importNamespace(qname, this.templateBuildPlan.getBuildPlan());
     }

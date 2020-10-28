@@ -1,10 +1,10 @@
 package org.opentosca.bus.application.service.impl;
 
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
@@ -23,10 +23,11 @@ import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.instance.NodeInstance;
-import org.opentosca.container.core.model.instance.ServiceInstance;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.opentosca.container.core.service.IInstanceDataService;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +43,8 @@ import org.w3c.dom.NodeList;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @TODO prototype: refactoring needed, integrate new methods into the ToscaEngineService and use them instead of xml
  * parsing here.
- * @deprecated Instead of proxying to the services here, the services should be injected directly!
  */
 @Service
-@Deprecated
 public class ContainerProxy {
 
     static final private String NAMESPACE = "http://www.uni-stuttgart.de/opentosca";
@@ -61,52 +60,33 @@ public class ContainerProxy {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContainerProxy.class);
 
-    private final IInstanceDataService instanceDataService;
+    private final NodeTemplateInstanceRepository nodeInstanceRepo;
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     private final CsarStorageService storageService;
 
     @Inject
-    public ContainerProxy(IInstanceDataService instanceDataService, CsarStorageService storageService) {
-        this.instanceDataService = instanceDataService;
+    public ContainerProxy(CsarStorageService storageService) {
         this.storageService = storageService;
+        this.nodeInstanceRepo = new NodeTemplateInstanceRepository();
+        this.serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
     }
 
     /**
      * @return NodeInstance with specified ID
      */
     @Nullable
-    public NodeInstance getNodeInstance(final Integer serviceInstanceID, final Integer nodeInstanceID,
-                                        final String nodeTemplateID) {
+    public NodeTemplateInstance getNodeInstance(final Integer serviceInstanceID, final Integer nodeInstanceID,
+                                                         final String nodeTemplateID) {
         LOG.debug("Searching NodeInstance with serviceInstanceID: " + serviceInstanceID + " nodeInstanceID: "
             + nodeInstanceID + " nodeTemplateID: " + nodeTemplateID);
         if (nodeInstanceID == null) {
-            final String namespace = getServiceInstance(serviceInstanceID).getServiceTemplateID().getNamespaceURI();
-            URI serviceInstanceUri;
-            try {
-                serviceInstanceUri = new URI(serviceInstanceID.toString());
-            } catch (URISyntaxException e) {
-                LOG.warn("No matching NodeInstance found.", e);
-                return null;
-            }
-            List<NodeInstance> nodeInstances = instanceDataService.getNodeInstances(null, nodeTemplateID, null,
-                serviceInstanceUri);
+            List<NodeTemplateInstance> nodeInstances =
+            this.nodeInstanceRepo.findByTemplateId(nodeTemplateID).stream().filter(node -> node.getServiceTemplateInstance().getId().equals(Long.valueOf(serviceInstanceID))).collect(Collectors.toList());
             if (nodeInstances.size() > 0) {
                 return nodeInstances.get(0);
             }
         } else {
-            URI nodeInstanceUri;
-            try {
-                nodeInstanceUri = new URI(nodeInstanceID.toString());
-            } catch (URISyntaxException e) {
-                LOG.warn("No matching NodeInstance found.", e);
-                return null;
-            }
-            List<NodeInstance> nodeInstances =
-                instanceDataService.getNodeInstances(nodeInstanceUri, null, null, null);
-            for (final NodeInstance nodeInstance : nodeInstances) {
-                if (nodeInstance.getId() == nodeInstanceID) {
-                    return nodeInstance;
-                }
-            }
+            return this.nodeInstanceRepo.find(Long.valueOf(nodeInstanceID)).orElse(null);
         }
         LOG.warn("No matching NodeInstance found.");
         return null;
@@ -116,24 +96,10 @@ public class ContainerProxy {
      * @return ServiceInstance with specified ID
      */
     @Nullable
-    protected ServiceInstance getServiceInstance(final Integer id) {
+    protected ServiceTemplateInstance getServiceInstance(final Integer id) {
         LOG.trace("Searching ServiceInstance with ID: {}", id);
-        final URI serviceInstanceID;
-        try {
-            serviceInstanceID = new URI(id.toString());
-        } catch (final URISyntaxException e) {
-            LOG.warn("No ServiceInstance with matching ID found.", e);
-            return null;
-        }
-        final List<ServiceInstance> instances = instanceDataService.getServiceInstances(serviceInstanceID, null, null);
-        for (final ServiceInstance instance : instances) {
-            if (instance.getDBId() == id) {
-                LOG.trace("ServiceInstance with matching ID found.");
-                return instance;
-            }
-        }
-        LOG.warn("No ServiceInstance with matching ID found.");
-        return null;
+        return this.serviceTemplateInstanceRepository.find(Long.valueOf(id)).orElse(null);
+
     }
 
     /**
@@ -455,14 +421,15 @@ public class ContainerProxy {
      * @return IP property
      */
     @Nullable
-    public URL getIpFromInstanceDataProperties(final URI serviceInstanceID, final String nodeTemplateID) {
+    public URL getIpFromInstanceDataProperties(final Long serviceInstanceID, final String nodeTemplateID) {
 
         LOG.debug("Getting IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateID + " of ServiceInstanceID: " + serviceInstanceID + ".");
 
-        final List<NodeInstance> nodeInstances = instanceDataService.getNodeInstances(null, nodeTemplateID, null, serviceInstanceID);
-        for (final NodeInstance nodeInstance : nodeInstances) {
-            final Document props = nodeInstance.getProperties();
-            final String ip = getIpProperty(props);
+
+        final List<NodeTemplateInstance> nodeInstances = this.nodeInstanceRepo.findAll().stream().filter(x -> x.getServiceTemplateInstance().getId().equals(Long.valueOf(serviceInstanceID.toString())) && x.getTemplateId().equals(nodeTemplateID)).collect(Collectors.toList());
+        for (final NodeTemplateInstance nodeInstance : nodeInstances) {
+
+            final String ip = getIpProperty(nodeInstance.getPropertiesAsMap());
             if (ip != null) {
                 LOG.debug("IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateID + " ServiceInstanceID: " + serviceInstanceID + " found: " + ip);
                 try {
@@ -476,6 +443,17 @@ public class ContainerProxy {
         return null;
     }
 
+    private static String getIpProperty(Map<String,String> props) {
+        final List<String> knownIpProperties = Utils.getSupportedVirtualMachineIPPropertyNames();
+        for (final String ipProperty : knownIpProperties) {
+            final String list = props.get(ipProperty);
+            if (list != null) {
+                LOG.debug("Property: {} is defined: {}", ipProperty, list);
+                return list;
+            }
+        }
+        return null;
+    }
     /**
      * @param props to check
      * @return IP property, if exist. Otherwise null.

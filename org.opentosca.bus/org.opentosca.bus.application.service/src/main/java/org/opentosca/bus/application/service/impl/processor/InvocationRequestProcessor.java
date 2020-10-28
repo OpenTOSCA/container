@@ -17,8 +17,9 @@ import org.opentosca.bus.application.service.impl.ContainerProxy;
 import org.opentosca.bus.application.service.impl.route.InvokeOperationRoute;
 import org.opentosca.bus.application.service.impl.servicehandler.ApplicationBusPluginRegistry;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.instance.NodeInstance;
-import org.opentosca.container.core.model.instance.ServiceInstance;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -43,11 +44,13 @@ public class InvocationRequestProcessor implements Processor {
 
     private final ContainerProxy containerProxy;
     private final ApplicationBusPluginRegistry pluginRegistry;
+    private final CsarStorageService csarStorageService;
 
     @Inject
-    public InvocationRequestProcessor(ContainerProxy containerProxy, ApplicationBusPluginRegistry pluginRegistry) {
+    public InvocationRequestProcessor(ContainerProxy containerProxy, ApplicationBusPluginRegistry pluginRegistry, CsarStorageService csarStorageService) {
         this.containerProxy = containerProxy;
         this.pluginRegistry = pluginRegistry;
+        this.csarStorageService = csarStorageService;
     }
 
     @Override
@@ -73,22 +76,22 @@ public class InvocationRequestProcessor implements Processor {
         @Nullable final String operationName = message.getHeader(ApplicationBusConstants.OPERATION_NAME.toString(), String.class);
         LOG.trace("operationName: {}", operationName);
 
-        final NodeInstance nodeInstance =
+        final NodeTemplateInstance nodeInstance =
             containerProxy.getNodeInstance(serviceInstanceID, nodeInstanceID, nodeTemplateID);
         if (nodeInstance == null) {
             throw new ApplicationBusInternalException("NodeInstance could not be found");
         }
 
-        final QName nodeType = nodeInstance.getNodeType();
-        final ServiceInstance serviceInstance = nodeInstance.getServiceInstance();
-        final CsarId csarID = serviceInstance.getCsarID();
-        final QName serviceTemplateID = serviceInstance.getServiceTemplateID();
+        final QName nodeType = nodeInstance.getTemplateType();
+        final ServiceTemplateInstance serviceInstance = nodeInstance.getServiceTemplateInstance();
+        final CsarId csarID = serviceInstance.getCsarId();
+        final QName serviceTemplateID = new QName(this.csarStorageService.findById(csarID).entryServiceTemplate().getTargetNamespace(),this.csarStorageService.findById(csarID).entryServiceTemplate().getId());
 
         if (nodeTemplateID == null) {
-            nodeTemplateID = nodeInstance.getNodeTemplateID().getLocalPart();
+            nodeTemplateID = nodeInstance.getTemplateId();
         }
 
-        LOG.trace("Matching NodeInstance found: ID: " + nodeInstance.getNodeInstanceID()
+        LOG.trace("Matching NodeInstance found: ID: " + nodeInstance.getId()
             + " CSAR-ID: " + csarID + " ServiceTemplateID: " + serviceTemplateID + " NodeTemplateID: "
             + nodeTemplateID + " of type: " + nodeType);
 
@@ -111,7 +114,7 @@ public class InvocationRequestProcessor implements Processor {
         }
 
         // get the Namespace from the serviceTemplate
-        final URL hostedOnNodeURL = containerProxy.getIpFromInstanceDataProperties(serviceInstance.getServiceInstanceID(), hostedOnNodeTemplateID);
+        final URL hostedOnNodeURL = containerProxy.getIpFromInstanceDataProperties(serviceInstance.getId(), hostedOnNodeTemplateID);
         if (hostedOnNodeURL == null) {
             throw new ApplicationBusInternalException("Could not find node URL in instanceDataProperties");
         }

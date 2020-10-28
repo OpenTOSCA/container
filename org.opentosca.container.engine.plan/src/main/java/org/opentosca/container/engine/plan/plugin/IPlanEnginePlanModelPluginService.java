@@ -2,7 +2,7 @@ package org.opentosca.container.engine.plan.plugin;
 
 import org.eclipse.winery.model.tosca.TPlan.PlanModel;
 
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 
 /**
  * This is a subinterface of {@link org.opentosca.container.engine.plan.plugin.IPlanEnginePluginService} and specifies
@@ -27,7 +27,7 @@ public interface IPlanEnginePlanModelPluginService extends IPlanEnginePluginServ
      * @param csarId    the identifier of the CSAR this PlanModel element belongs to
      * @return true if deployment was successful, else false
      */
-    public boolean deployPlan(PlanModel planModel, CSARID csarId);
+    public boolean deployPlan(PlanModel planModel, CsarId csarId);
 
     /**
      * <p>
@@ -42,5 +42,5 @@ public interface IPlanEnginePlanModelPluginService extends IPlanEnginePluginServ
      * @param csarId    the identifier of the CSAR this PlanModel element belongs to
      * @return true if undeployment was successful, else false
      */
-    public boolean undeployPlan(PlanModel planModel, CSARID csarId);
+    public boolean undeployPlan(PlanModel planModel, CsarId csarId);
 }

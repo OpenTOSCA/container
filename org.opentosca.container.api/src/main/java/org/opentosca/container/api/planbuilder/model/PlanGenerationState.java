@@ -6,7 +6,7 @@ import java.net.URL;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
@@ -30,7 +30,7 @@ public class PlanGenerationState {
     @XmlElement
     private final URL csarUrl;
 
-    private final CSARID csarId = null;
+    private final CsarId csarId = null;
 
     @XmlElement
     private final URL planPostUrl;

@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,22 +20,22 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 
-import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.common.RepositoryFileReference;
+import org.eclipse.winery.common.ids.XmlId;
+import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.common.ids.elements.PlanId;
+import org.eclipse.winery.common.ids.elements.PlansId;
 import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.repository.backend.IRepository;
+import org.eclipse.winery.repository.backend.RepositoryFactory;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.connector.ode.OdeConnector;
-import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.impl.service.FileSystem;
-import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.backwards.ArtifactResolver;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -331,45 +331,24 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         if (storage == null) {
             return null;
         }
-        @SuppressWarnings("null") // ignore MT implications
-            Csar csar = storage.findById(csarId);
-        TPlan toscaPlan;
-        try {
-            toscaPlan = ToscaEngine.resolvePlanReference(csar, planId);
-        } catch (NotFoundException e) {
-            LOG.error("Plan [{}] could not be found in csar {}", planId, csarId.csarName());
-            return null;
-        }
-        TServiceTemplate containingServiceTemplate = ToscaEngine.getContainingServiceTemplate(csar, toscaPlan);
-        assert (containingServiceTemplate != null); // shouldn't be null, since we have a plan from it
 
-        // planRef.getReference() is overencoded. It's also not relative to the Csar root (but to one level below it)
-        Path planLocation = ArtifactResolver.resolvePlan.apply(containingServiceTemplate, toscaPlan);
-        // FIXME get rid of AbstractArtifact!
-        AbstractArtifact planReference = ArtifactResolver.resolveArtifact(csar, planLocation,
-            // just use the last segment, determining the filename.
-            Paths.get(planRef.getReference().substring(planRef.getReference().lastIndexOf('/') + 1)));
-        if (planReference == null) {
-            LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
-                planRef.getReference());
-            return null;
+        Csar csar = storage.findById(csarId);
+
+        IRepository repository = RepositoryFactory.getRepository(csar.getSaveLocation());
+
+        PlanId plan = new PlanId(new PlansId(new ServiceTemplateId(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId(), false)), new XmlId(planId.toString(), false));
+
+        Collection<RepositoryFileReference> fileRefs = repository.getContainedFiles(plan);
+
+        Path planPath = null;
+
+        for (RepositoryFileReference ref : fileRefs) {
+            if (ref.getFileName().endsWith(".zip")) {
+                planPath = repository.ref2AbsolutePath(ref);
+            }
         }
-        if (!planReference.isFileArtifact()) {
-            LOG.warn("Only plan references pointing to a file are supported!");
-            return null;
-        }
-        Path artifact;
-        try {
-            artifact = planReference.getFile("").getFile();
-        } catch (SystemException e) {
-            LOG.warn("ugh... SystemException when getting a path we already had", e);
-            return null;
-        }
-        if (!artifact.getFileName().toString().endsWith(".zip")) {
-            LOG.debug("Plan reference is not a ZIP file. It was '{}'.", artifact.getFileName());
-            return null;
-        }
-        return artifact;
+
+        return planPath;
     }
 
     @Override

@@ -227,7 +227,9 @@ public class ManagementPlanController {
             LOGGER.info("Log entry is empty!");
             return Response.status(Status.BAD_REQUEST).build();
         }
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
+
+
+        PlanInstance pi = planService.getPlanInstanceByCorrelationId(instance);
         final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
         planService.addLogToPlanInstance(pi, event);
 

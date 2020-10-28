@@ -19,8 +19,6 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opentosca.container.core.model.AbstractFile;
-import org.opentosca.container.core.model.csar.backwards.ToscaMetaFileReplacement;
 
 @NonNullByDefault
 public interface Csar {
@@ -50,18 +48,12 @@ public interface Csar {
 
     public String description();
 
-    // FIXME decide on Path / File / Binary Representation / ??
-    public AbstractFile topologyPicture();
-
     public Application selfserviceMetadata();
 
     @Nullable
     public TExtensibleElements queryRepository(DefinitionsChildId definitionId);
 
     void exportTo(Path targetPath) throws IOException;
-
-    @Deprecated
-    ToscaMetaFileReplacement metafileReplacement();
 
     @Deprecated
     Path getSaveLocation();
