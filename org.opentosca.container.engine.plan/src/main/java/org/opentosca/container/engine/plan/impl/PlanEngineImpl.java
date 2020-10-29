@@ -136,12 +136,6 @@ public class PlanEngineImpl implements IPlanEngineService {
             namespace = "";
         }
 
-        if (namespace == null) {
-            LOG.error("No namespace for Plans {} defined. Plugins communication with toscaEngine may be wrong",
-                plans.toString());
-            return p;
-        }
-
         for (final TPlan plan : p) {
             if (!this.deployPlan(plan, namespace, csarId)) {
                 nonDeployedPlans.add(plan);
