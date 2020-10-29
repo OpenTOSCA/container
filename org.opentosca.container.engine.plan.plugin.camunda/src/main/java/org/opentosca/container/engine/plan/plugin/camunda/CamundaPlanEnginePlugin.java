@@ -288,6 +288,11 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         for (RepositoryFileReference ref : fileRefs) {
             if (ref.getFileName().endsWith(".war")) {
                 planPath = repository.ref2AbsolutePath(ref);
+                break;
+            }
+            if (ref.getFileName().endsWith(".zip")) {
+                planPath = repository.ref2AbsolutePath(ref);
+                break;
             }
         }
 

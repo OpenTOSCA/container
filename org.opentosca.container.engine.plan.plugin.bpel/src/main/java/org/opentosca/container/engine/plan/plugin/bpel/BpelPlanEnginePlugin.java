@@ -269,7 +269,13 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             return false;
         }
 
-        Path planLocation = planLocationOnDisk(csarId, planId, planRef);
+        String namespace = planId.getNamespaceURI();
+
+        if(!(namespace != null && !namespace.isEmpty())){
+            namespace = storage.findById(csarId).entryServiceTemplate().getTargetNamespace();
+        }
+
+        Path planLocation = planLocationOnDisk(csarId, new QName(namespace, planId.getLocalPart()), planRef);
         if (planLocation == null) {
             // diagnostics already in planLocationOnDisk
             return false;

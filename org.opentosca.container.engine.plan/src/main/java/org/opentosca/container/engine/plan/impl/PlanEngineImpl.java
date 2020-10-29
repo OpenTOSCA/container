@@ -133,13 +133,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 
         String namespace = plans.getTargetNamespace();
         if (namespace == null) {
-            namespace = targetNamespace;
-        }
-
-        if (namespace == null) {
-            LOG.error("No namespace for Plans {} defined. Plugins communication with toscaEngine may be wrong",
-                plans.toString());
-            return p;
+            namespace = "";
         }
 
         for (final TPlan plan : p) {
