@@ -133,7 +133,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 
         String namespace = plans.getTargetNamespace();
         if (namespace == null) {
-            namespace = targetNamespace;
+            namespace = "";
         }
 
         if (namespace == null) {
