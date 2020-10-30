@@ -281,7 +281,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             return false;
         }
 
-        return this.deployPlanFile(planLocation, csarId, planId, new HashMap<String, String>());
+        return this.deployPlanFile(planLocation, csarId, new QName(namespace, planId.getLocalPart()), new HashMap<String, String>());
     }
 
     /**
