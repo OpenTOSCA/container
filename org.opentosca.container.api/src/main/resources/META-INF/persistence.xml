@@ -32,6 +32,7 @@
     <class>org.opentosca.container.core.next.model.DeploymentTestResult</class>
 
     <class>org.opentosca.container.core.next.model.Situation</class>
+    <class>org.opentosca.container.core.next.model.AggregatedSituation</class>
     <class>org.opentosca.container.core.next.model.SituationTrigger</class>
     <class>org.opentosca.container.core.next.model.SituationTriggerProperty</class>
     <class>org.opentosca.container.core.next.model.SituationTriggerInstance</class>

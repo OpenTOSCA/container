@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.next.model.Situation;
+import org.opentosca.container.core.next.model.AggregatedSituation;
 import org.opentosca.container.core.next.model.SituationTrigger;
 
 @XmlRootElement(name = "SituationTrigger")
@@ -28,6 +29,10 @@ public class SituationTriggerDTO extends ResourceSupport {
     @XmlElement(name = "SituationId")
     @XmlElementWrapper(name = "Situations")
     private Collection<Long> situationIds;
+    
+    @XmlElement(name = "AggregatedSituationId")
+    @XmlElementWrapper(name = "AggregatedSituations")
+    private Collection<Long> aggregatedsituationIds;
 
     @XmlElement(name = "CsarId")
     @ApiModelProperty(name = "csar_id")
@@ -79,6 +84,15 @@ public class SituationTriggerDTO extends ResourceSupport {
     public void setSituationIds(final Collection<Long> situationIds) {
         this.situationIds = situationIds;
     }
+    
+    public Collection<Long> getAggregatedSituationIds() {
+        return this.aggregatedsituationIds;
+    }
+
+    public void setAggregatedSituationIds(final Collection<Long> aggregatedsituationIds) {
+        this.aggregatedsituationIds = aggregatedsituationIds;
+    }
+
 
     public String getCsarId() {
         return csarId;
@@ -170,11 +184,16 @@ public class SituationTriggerDTO extends ResourceSupport {
             dto.setCsarId(object.getCsarId().csarName());
 
             final Collection<Long> situationIds = Lists.newArrayList();
+            final Collection<Long> aggregatedsituationIds = Lists.newArrayList();
 
             for (final Situation situation : object.getSituations()) {
                 situationIds.add(situation.getId());
             }
-
+            for (final AggregatedSituation aggregatedsituation : object.getAggregatedSituations()) {
+            	aggregatedsituationIds.add(aggregatedsituation.getId());
+            	
+            }
+            dto.setAggregatedSituationIds(aggregatedsituationIds);
             dto.setSituationIds(situationIds);
 
             if (object.getServiceInstance() != null) {

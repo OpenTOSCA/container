@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -28,6 +29,11 @@ public class SituationTrigger extends PersistenceObject {
     @OneToMany()
     @JoinColumn(name = "SITUATION_ID")
     private Collection<Situation> situations;
+    
+    @OneToMany()
+    @JoinColumn(name = "AGGREGATEDSITUATION_ID", nullable = true)
+    private Collection<AggregatedSituation> aggregatedsituations;
+
 
     @Column(nullable = false)
     private boolean triggerOnActivation;
@@ -77,6 +83,15 @@ public class SituationTrigger extends PersistenceObject {
     public void setSituations(final Collection<Situation> situation) {
         this.situations = situation;
     }
+    
+    public Collection<AggregatedSituation> getAggregatedSituations() {
+        return this.aggregatedsituations;
+    }
+
+    public void setAggregatedSituations(final Collection<AggregatedSituation> aggregatedsituation) {
+        this.aggregatedsituations = aggregatedsituation;
+    }
+
 
     public boolean isSingleInstance() {
         return this.isSingleInstance;
