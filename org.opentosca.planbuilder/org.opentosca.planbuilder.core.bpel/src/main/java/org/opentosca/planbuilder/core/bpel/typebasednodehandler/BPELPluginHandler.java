@@ -58,6 +58,7 @@ public class BPELPluginHandler {
                 result = this.handleProvisioningActivity(context, bpelScope, nodeTemplate);
                 break;
             case TERMINATION:
+            case FREEZE:
                 result = this.handleTerminationActivity(context, bpelScope, nodeTemplate);
                 break;
             case DEFROST:
