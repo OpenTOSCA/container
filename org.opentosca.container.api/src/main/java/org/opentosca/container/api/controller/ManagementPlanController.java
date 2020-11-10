@@ -113,7 +113,7 @@ public class ManagementPlanController {
 
         final PlanInstanceListDTO list = new PlanInstanceListDTO();
         planInstances.stream()
-            .filter(planInstance -> planInstance.getTemplateId().getLocalPart().equals(plan))
+            .filter(planInstance -> planInstance.getTemplateId().getLocalPart().equals(plan) && (planInstance.getServiceTemplateInstance().getId() == this.serviceTemplateInstanceId))
             .map(pi -> {
                 PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
                 if (pi.getServiceTemplateInstance() != null) {
