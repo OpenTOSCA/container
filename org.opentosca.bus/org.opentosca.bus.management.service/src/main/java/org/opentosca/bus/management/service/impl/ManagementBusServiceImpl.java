@@ -953,21 +953,26 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Getting endpoint for the plan...");
         final List<WSDLEndpoint> WSDLendpoints =
             endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, arguments.csar.id(),
-                plan.getTemplateId());
+                new QName("", plan.getTemplateId().getLocalPart()));
 
         // choose WSDL endpoint depending on the invokation of the invoker or callback port type
         WSDLEndpoint WSDLendpoint = null;
-        if (Objects.isNull(callbackInvocation) || !callbackInvocation) {
-            WSDLendpoint =
-                WSDLendpoints.stream()
-                    .filter(endpoint -> !endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
-                    .findFirst().orElse(null);
+
+        if(plan.getLanguage().equals(PlanLanguage.BPEL)){
+            if (Objects.isNull(callbackInvocation) || !callbackInvocation) {
+                WSDLendpoint =
+                    WSDLendpoints.stream()
+                        .filter(endpoint -> endpoint.getPortType() != null  && !endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+                        .findFirst().orElse(null);
+            } else {
+                LOG.debug("Invocation using callback.");
+                WSDLendpoint =
+                    WSDLendpoints.stream()
+                        .filter(endpoint -> endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+                        .findFirst().orElse(null);
+            }
         } else {
-            LOG.debug("Invokation using callback.");
-            WSDLendpoint =
-                WSDLendpoints.stream()
-                    .filter(endpoint -> endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
-                    .findFirst().orElse(null);
+            WSDLendpoint = WSDLendpoints.get(0);
         }
 
         if (WSDLendpoint != null) {
