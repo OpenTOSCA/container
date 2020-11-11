@@ -558,7 +558,7 @@ public class ODEEndpointUpdater {
                 port.getBinding().getPortType().getQName().toString());
             final List<WSDLEndpoint> temp = endpointService.getWSDLEndpoints();
             for (final WSDLEndpoint endpoint : temp) {
-                if (endpoint.getPortType().equals(port.getBinding().getPortType().getQName())
+                if (endpoint.getPortType() != null && endpoint.getPortType().equals(port.getBinding().getPortType().getQName())
                     && endpoint.getManagingContainer().equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
                     LOG.debug("Found endpoint: {}", endpoint.getURI().toString());
                     endpoints.add(endpoint);
