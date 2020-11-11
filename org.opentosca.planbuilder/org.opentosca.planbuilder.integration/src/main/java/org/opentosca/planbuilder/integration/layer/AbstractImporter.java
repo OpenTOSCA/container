@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.core.AbstractSimplePlanBuilder;
+import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELUpdateProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBuildProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELDefrostProcessBuilder;
@@ -112,6 +113,8 @@ public abstract class AbstractImporter {
         final AbstractSimplePlanBuilder backupPlanBuilder = new BPELBackupManagementProcessBuilder(pluginRegistry);
         final AbstractSimplePlanBuilder testPlanBuilder = new BPELTestManagementProcessBuilder(pluginRegistry);
 
+        final AbstractSimplePlanBuilder updatePlanBuilder = new BPELUpdateProcessBuilder(pluginRegistry);
+
         plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
@@ -119,6 +122,7 @@ public abstract class AbstractImporter {
         plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
         plans.addAll(backupPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(testPlanBuilder.buildPlans(csarName, defs));
+        plans.addAll(updatePlanBuilder.buildPlans(csarName, defs));
 
         return plans;
     }
