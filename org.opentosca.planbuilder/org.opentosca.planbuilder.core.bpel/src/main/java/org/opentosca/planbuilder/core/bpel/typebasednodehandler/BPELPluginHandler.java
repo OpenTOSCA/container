@@ -70,6 +70,8 @@ public class BPELPluginHandler {
             case RECEIVENODENOTIFY:
                 result = handleReceiveNotifyActivity(context, bpelScope, nodeTemplate);
                 break;
+            case UPDATE:
+                handleUpdateActivity(context, bpelScope, nodeTemplate);
             default:
                 result = false;
                 break;
@@ -251,6 +253,19 @@ public class BPELPluginHandler {
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getRelationshipTemplate());
             }
         }
+        return result;
+    }
+
+    private boolean handleUpdateActivity(final BPELPlanContext context, final BPELScope bpelScope,
+                                              final AbstractNodeTemplate nodeTemplate) {
+        boolean result = true;
+
+        for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+            if (postPhasePlugin.canHandleUpgrade(context, nodeTemplate)) {
+                result &= postPhasePlugin.handleUpgrade(context, nodeTemplate);
+            }
+        }
+
         return result;
     }
 

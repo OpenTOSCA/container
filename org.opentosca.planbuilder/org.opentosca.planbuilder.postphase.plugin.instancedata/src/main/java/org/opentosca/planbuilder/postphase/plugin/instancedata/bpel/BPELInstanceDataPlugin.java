@@ -143,4 +143,24 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
                                    AbstractRelationshipTemplate targetRelationshipTemplate) {
         return sourceRelationshipTemplate.getType().equals(targetRelationshipTemplate.getType());
     }
+
+    @Override
+    public boolean handleUpgrade(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+        return this.handler.handleUpgrade(context, nodeTemplate);
+    }
+
+    @Override
+    public boolean handleUpgrade(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpgrade(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+        return true;
+    }
+
+    @Override
+    public boolean canHandleUpgrade(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+        return false;
+    }
 }
