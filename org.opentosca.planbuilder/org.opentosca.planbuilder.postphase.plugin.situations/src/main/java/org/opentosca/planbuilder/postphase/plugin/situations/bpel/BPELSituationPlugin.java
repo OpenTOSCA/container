@@ -251,4 +251,24 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
                                    AbstractRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
+
+    @Override
+    public boolean handleUpgrade(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean handleUpgrade(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpgrade(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpgrade(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+        return false;
+    }
 }
