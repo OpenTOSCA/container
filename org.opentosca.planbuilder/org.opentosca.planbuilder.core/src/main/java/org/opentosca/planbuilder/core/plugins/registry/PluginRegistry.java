@@ -236,6 +236,14 @@ public class PluginRegistry {
             .findFirst()
             .orElse(null);
     }
+    public IPlanBuilderTypePlugin<?> findTypePluginForUpdate(final AbstractNodeTemplate nodeTemplate) {
+        return getTypePlugins().stream()
+            .filter(p -> p.canHandleUpdate(nodeTemplate))
+            // sort highest priority first
+            .sorted(Comparator.comparingInt(IPlanBuilderPlugin::getPriority).reversed())
+            .findFirst()
+            .orElse(null);
+    }
 
     public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractRelationshipTemplate relationshipTemplate) {
         for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {

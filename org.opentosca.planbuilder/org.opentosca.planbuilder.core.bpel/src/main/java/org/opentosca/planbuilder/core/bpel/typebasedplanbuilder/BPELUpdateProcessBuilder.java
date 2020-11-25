@@ -117,7 +117,6 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
         this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newUpdatePlan, propMap,
             serviceTemplate);
 
-
         runPlugins(newUpdatePlan, propMap, csarName);
 
         final String serviceInstanceURLVarName =
@@ -182,12 +181,12 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
      * This Methods Finds out if a Service Template Container a update method and then creates a update plan out of this
      * method
      *
-     * @param plan            the plan to execute the plugins on
-     * @param propMap         a PropertyMapping from NodeTemplate to Properties to BPELVariables
-     * @param csarName        name of csar
+     * @param plan     the plan to execute the plugins on
+     * @param propMap  a PropertyMapping from NodeTemplate to Properties to BPELVariables
+     * @param csarName name of csar
      */
     private void runPlugins(final BPELPlan plan, final Property2VariableMapping propMap,
-                                       final String csarName) {
+                            final String csarName) {
 
         final String serviceInstanceUrl = this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(plan);
         final String serviceInstanceId = this.serviceInstanceVarsHandler.findServiceInstanceIdVarName(plan);
@@ -235,13 +234,9 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
                     }
 
                     LOG.debug("Found {} of {} input parameters.", inputs.size(), updateOp.getInputParameters().size());
-
-                    context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE_RUNUPDATE, inputs);
                 }
                 this.bpelPluginHandler.handleActivity(context, templatePlan, nodeTemplate);
             }
         }
-
     }
 }

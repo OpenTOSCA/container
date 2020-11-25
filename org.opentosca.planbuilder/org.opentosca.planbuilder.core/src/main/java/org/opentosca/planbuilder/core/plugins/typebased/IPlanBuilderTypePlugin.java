@@ -84,7 +84,30 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param relationshipTemplate the RelationshipTemplate to be handled by this plugin
      * @return true iff this can handle the given relationshipTemplate
      */
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate);
+     public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate);
+
+
+    /**
+     * This method should generate and add a fragment which handle the update of the Template inside the
+     * TemplateContext
+     *
+     * @param templateContext a TemplateContext of a Template
+     * @return true iff when generating and adding fragment that handles the template completely
+     */
+    default boolean handleUpdate(T templateContext, AbstractNodeTemplate nodeTemplate) {
+        return false;
+    }
+
+    /**
+     * This method should return true if the plugin can handle update of the given nodeTemplate
+     *
+     * @param nodeTemplate the NodeTemplate to be handled by this plugin
+     * @return true iff this plugin can handle the given nodeTemplate
+     */
+    default boolean canHandleUpdate(AbstractNodeTemplate nodeTemplate){
+        return false;
+    };
+
 
     /**
      * May be implemented by Type Plugins to give the planbuilder more information about needed dependencies to handle

@@ -260,6 +260,16 @@ public class BPELPluginHandler {
                                               final AbstractNodeTemplate nodeTemplate) {
         boolean result = true;
 
+        // generate code for the provisioning, e.g., call install, start or create
+        // methods
+        final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForUpdate(nodeTemplate);
+        if (plugin != null) {
+            LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
+            result &= plugin.handleUpdate(context, nodeTemplate);
+        } else {
+            LOG.info("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
+        }
+
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             if (postPhasePlugin.canHandleUpgrade(context, nodeTemplate)) {
                 result &= postPhasePlugin.handleUpgrade(context, nodeTemplate);

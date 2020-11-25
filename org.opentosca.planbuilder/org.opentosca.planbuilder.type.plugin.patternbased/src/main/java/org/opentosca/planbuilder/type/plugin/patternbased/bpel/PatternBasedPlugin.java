@@ -333,6 +333,17 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     }
 
     @Override
+    public boolean canHandleUpdate(AbstractNodeTemplate nodeTemplate) {
+        return true;
+    }
+
+    @Override
+    public boolean handleUpdate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+        return lifecyclePatternHandler.handleUpdate(templateContext, nodeTemplate,
+            templateContext.getProvisioningPhaseElement());
+    }
+
+    @Override
     public int getPriority() {
         return 1;
     }
