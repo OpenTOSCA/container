@@ -667,7 +667,9 @@ public class InstanceService {
         newInstance.setCsarId(csarId);
         newInstance.setTriggerOnActivation(triggerOnActivation);
         newInstance.setSingleInstance(isSingleInstance);
-        newInstance.setServiceInstance(serviceInstance);
+        if(serviceInstance != null) {
+            newInstance.setServiceInstance(serviceInstance);
+        }
         newInstance.setInterfaceName(interfaceName);
         newInstance.setOperationName(operationName);
         if (nodeInstance != null) {
@@ -704,7 +706,14 @@ public class InstanceService {
     }
 
     public void removeSituationTrigger(Long situationTriggerId) {
+
+        this.sitTrigInst.findBySituationTriggerId(situationTriggerId).forEach(x -> this.sitTrigInst.remove(x));
+
         this.sitTrig.find(situationTriggerId).ifPresent(x -> this.sitTrig.remove(x));
+    }
+
+    public void removeSituationTriggerInstance(Long situationTriggerInstanceId) {
+        this.sitTrigInst.find(situationTriggerInstanceId).ifPresent(x -> this.sitTrigInst.remove(x));
     }
 
     public Collection<SituationTriggerInstance> geSituationTriggerInstances(final SituationTrigger trigger) {

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -124,6 +125,14 @@ public class SituationsController {
         return Response.ok(SituationDTO.Converter.convert(this.instanceService.getSituation(situationId))).build();
     }
 
+    @DELETE
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Path("/situations/{situation}")
+    public Response deleteSituation(@PathParam("situation") final Long situationId) {
+        this.instanceService.removeSituation(situationId);
+        return Response.ok().build();
+    }
+
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/triggers")
@@ -151,12 +160,15 @@ public class SituationsController {
             sits.add(situation);
         }
 
-        ServiceTemplateInstance serviceInstance;
-        try {
-            serviceInstance = this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId(), false);
-        } catch (final NotFoundException e) {
-            serviceInstance = null;
+        ServiceTemplateInstance serviceInstance = null;
+        if(situationTrigger.getServiceInstanceId() != null){
+            try {
+                serviceInstance = this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId(), false);
+            } catch (final NotFoundException e) {
+                serviceInstance = null;
+            }
         }
+
         NodeTemplateInstance nodeInstance = null;
         if (situationTrigger.getNodeInstanceId() != null) {
             nodeInstance = this.instanceService.getNodeTemplateInstance(situationTrigger.getNodeInstanceId());
@@ -183,6 +195,17 @@ public class SituationsController {
 
         final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);
         return Response.ok(instanceURI).build();
+    }
+
+    @DELETE
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Path("/triggers/{situationtrigger}")
+    public Response deleteSituationTrigger(@PathParam("situationtrigger") final Long situationTriggerId) {
+
+        this.instanceService.removeSituationTrigger(situationTriggerId);
+        return Response
+            .ok()
+            .build();
     }
 
     @GET

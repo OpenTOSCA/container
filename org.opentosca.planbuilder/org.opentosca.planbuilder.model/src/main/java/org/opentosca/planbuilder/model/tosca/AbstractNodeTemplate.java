@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.model.tosca;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +94,7 @@ public abstract class AbstractNodeTemplate {
      *
      * @return a List of AbstractDeploymentArtifact
      */
-    public abstract List<AbstractDeploymentArtifact> getDeploymentArtifacts();
+    public abstract Collection<AbstractDeploymentArtifact> getDeploymentArtifacts();
 
     /**
      * Returns the minInstances attribute of this NodeTemplate

@@ -1,7 +1,9 @@
 package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -165,8 +167,8 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
      * @see org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate# getDeploymentArtifacts()
      */
     @Override
-    public List<AbstractDeploymentArtifact> getDeploymentArtifacts() {
-        return new ArrayList<>();
+    public Collection<AbstractDeploymentArtifact> getDeploymentArtifacts() {
+        return new HashSet<>();
     }
 
     /*

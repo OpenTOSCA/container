@@ -84,4 +84,24 @@ public abstract class AbstractNodeTypeImplementation {
      * @return an AbstractNodeType this NodeTypeImplementation implements
      */
     public abstract AbstractNodeType getNodeType();
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if(!(obj instanceof AbstractNodeTypeImplementation)){
+            return false;
+        }
+
+        AbstractNodeTypeImplementation nodeImpl = (AbstractNodeTypeImplementation) obj;
+
+        if(!nodeImpl.getName().equals(this.getName())){
+            return false;
+        }
+
+        if(!nodeImpl.getNodeType().equals(this.getNodeType())){
+            return false;
+        }
+
+        return super.equals(obj);
+    }
 }

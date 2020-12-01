@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.core.bpel.artifactbasednodehandler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -867,7 +868,7 @@ public class BPELScopeBuilder {
         final List<AbstractDeploymentArtifact> effectiveDAs = new ArrayList<>();
 
         final List<AbstractDeploymentArtifact> nodeImplDAs = nodeImpl.getDeploymentArtifacts();
-        final List<AbstractDeploymentArtifact> nodeTemplateDAs = nodeTemplate.getDeploymentArtifacts();
+        final Collection<AbstractDeploymentArtifact> nodeTemplateDAs = nodeTemplate.getDeploymentArtifacts();
 
         for (final AbstractDeploymentArtifact templateDa : nodeTemplateDAs) {
             boolean overridesDA = false;
