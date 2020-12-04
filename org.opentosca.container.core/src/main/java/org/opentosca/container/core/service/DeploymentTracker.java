@@ -36,12 +36,6 @@ public interface DeploymentTracker {
     public void storeIADeploymentInfo(IADeploymentInfo info);
 
     /**
-     * @deprecated see {@link #storeIADeploymentInfo(IADeploymentInfo)}
-     */
-    @Deprecated
-    public void storeIADeploymentInfo(CsarId csar, String iaRelPath, IADeploymentState deploymentState);
-
-    /**
      * Retrieve the stored deployment information for a specific implementation artifact identified by it's relative
      * path within the Csar and it's parent Csar.
      *
@@ -66,12 +60,6 @@ public interface DeploymentTracker {
      * @param info The information to store in the database
      */
     public void storePlanDeploymentInfo(PlanDeploymentInfo info);
-
-    /**
-     * @deprecated see {@link #storePlanDeploymentInfo(PlanDeploymentInfo)}
-     */
-    @Deprecated
-    public void storePlanDeploymentInfo(CsarId csar, String planRelPath, PlanDeploymentState deploymentState);
 
     /**
      * Retrieves the plan deployment information stored for a given plan belonging to a given Csar.

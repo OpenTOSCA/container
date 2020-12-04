@@ -110,11 +110,6 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
         LOGGER.debug("Stored deployment state {} for IA [{}] of CSAR [{}].", info.getDeploymentState(), info.getRelPath(), info.getCsarID().csarName());
     }
 
-    @Override
-    public synchronized void storeIADeploymentInfo(CsarId csar, String iaRelPath, IADeploymentState deploymentState) {
-        storeIADeploymentInfo(new IADeploymentInfo(csar, iaRelPath, deploymentState));
-    }
-
     // FIXME do not return IADeploymentInfo. Attempts are only used internally.
     //  Instead return the DeploymentState of a compound key encapsulating CsarId and RelPath
     @Override
@@ -177,11 +172,6 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
         this.em.getTransaction().commit();
 
         LOGGER.info("Stored deployment state {} for Plan [{}] of Csar [{}].", info.getDeploymentState(), info.getRelPath(), info.getCsarID().csarName());
-    }
-
-    @Override
-    public synchronized void storePlanDeploymentInfo(CsarId csar, String planRelPath, PlanDeploymentState deploymentState) {
-        storePlanDeploymentInfo(new PlanDeploymentInfo(csar, planRelPath, deploymentState));
     }
 
     @Override

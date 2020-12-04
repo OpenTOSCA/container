@@ -339,7 +339,6 @@ public class ModelUtils {
      * @param nodeTemplate an AbstractNodeTemplate
      * @return a QName which represents the baseType of the given NodeTemplate
      */
-    @Deprecated
     public static QName getNodeBaseType(final AbstractNodeTemplate nodeTemplate) {
         ModelUtils.LOG.debug("Beginning search for basetype of: " + nodeTemplate.getId());
         final List<QName> typeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType());
@@ -383,7 +382,7 @@ public class ModelUtils {
      * @param nodes        a List of AbstractNodeTemplate to add the result to
      */
     public static void getNodesFromNodeToSink(final AbstractNodeTemplate nodeTemplate,
-                                              final List<AbstractNodeTemplate> nodes) {
+                                              final Collection<AbstractNodeTemplate> nodes) {
         nodes.add(nodeTemplate);
         for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
             if (outgoingTemplate.getType().equals(Types.connectsToRelationType)) {

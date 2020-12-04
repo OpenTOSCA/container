@@ -191,7 +191,7 @@ public class ServiceTemplateInstanceController {
     public ManagementPlanController getManagementPlans(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getManagementPlans");
         final ServiceTemplateInstance instance = resolveInstance(id, serviceTemplate.getId());
-        return new ManagementPlanController(csar, serviceTemplate, id, this.planService, PlanType.TERMINATION, PlanType.MANAGEMENT);
+        return new ManagementPlanController(csar, serviceTemplate, id, this.planService, PlanType.TERMINATION, PlanType.MANAGEMENT, PlanType.TRANSFORMATION);
     }
 
     @GET

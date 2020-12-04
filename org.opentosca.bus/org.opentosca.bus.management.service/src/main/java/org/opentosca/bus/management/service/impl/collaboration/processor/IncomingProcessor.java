@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueMap;
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueType;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -79,7 +79,7 @@ public class IncomingProcessor implements Processor {
                     message.setHeader(header.getKey(), Boolean.parseBoolean(header.getValue()));
                     break;
                 case "CSARID":
-                    message.setHeader(header.getKey(), new CSARID(header.getValue()));
+                    message.setHeader(header.getKey(), new CsarId(header.getValue()));
                     break;
                 case "QNAME":
                     try {

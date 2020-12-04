@@ -30,7 +30,6 @@ import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueTyp
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
@@ -176,7 +175,7 @@ public class RequestReceiver {
         final QName typeImplementationID = message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
         final String implementationArtifactName = message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), String.class);
         final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
-        final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
+        final CsarId csarID = message.getHeader(MBHeader.CSARID.toString(), CsarId.class);
         final QName portType = message.getHeader(MBHeader.PORT_TYPE_QNAME.toString(), QName.class);
         final String artifactType = message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), String.class);
         final Long serviceTemplateInstanceID = Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
@@ -221,7 +220,7 @@ public class RequestReceiver {
 
                     // store new endpoint for the IA
                     final WSDLEndpoint endpoint =
-                        new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, new CsarId(csarID),
+                        new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, csarID,
                             serviceTemplateInstanceID, null, typeImplementationID, implementationArtifactName, new HashMap<>());
                     endpointService.storeWSDLEndpoint(endpoint);
                 } else {
@@ -516,23 +515,5 @@ public class RequestReceiver {
 
         return ManagementBusServiceImpl.getUniqueSynchronizationString(triggeringContainer, deploymentLocation,
             typeImplementationID, implementationArtifactName, serviceInstanceId);
-    }
-
-    /**
-     * Log the provided information.
-     */
-    private void logInformation(final String triggeringContainer, final String deploymentLocation,
-                                final QName typeImplementationID, final String implementationArtifactName,
-                                final CSARID csarID, final QName portType, final String artifactType,
-                                final Long serviceTemplateInstanceID) {
-
-        LOG.debug("Triggering Container: {}", triggeringContainer);
-        LOG.debug("CSARID: {}", csarID);
-        LOG.debug("ServiceTemplateInstance ID: {}", serviceTemplateInstanceID);
-        LOG.debug("Deployment location: {}", deploymentLocation);
-        LOG.debug("TypeImplementation: {}", typeImplementationID);
-        LOG.debug("IA name: {}", implementationArtifactName);
-        LOG.debug("ArtifactType: {}", artifactType);
-        LOG.debug("Port type: {}", portType);
     }
 }

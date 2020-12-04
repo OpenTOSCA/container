@@ -347,6 +347,14 @@ public class GenericWsdlWrapper {
         this.namespace = namespace;
     }
 
+    public QName getRequestMessageTypeId() {
+        return new QName(this.getTargetNamespace(), this.processName + "RequestMessage");
+    }
+
+    public QName getResponseMessageTypeId() {
+        return new QName(this.getTargetNamespace(), this.processName + "ResponseMessage");
+    }
+
     /**
      * Returns the targetNamespace of this WSDL
      *
@@ -465,7 +473,12 @@ public class GenericWsdlWrapper {
         this.genericWsdlFileAsString =
             this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYS_TAG,
                 property + GenericWsdlWrapper.WSDL_PROPERTYS_TAG);
+        this.properties.add(propertyName);
         return true;
+    }
+
+    public List<String> getProperties() {
+        return this.properties;
     }
 
     /**

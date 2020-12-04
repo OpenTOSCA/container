@@ -1,7 +1,7 @@
 <bpel:copy>
             	<bpel:from partnerLink="{partnerLinkName}" endpointReference="myRole"></bpel:from>
             	<bpel:to variable="{requestVarName}" header="ReplyTo">
-            	                    <bpel:query xmlns:wsa="http://www.w3.org/2005/08/addressing" queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[/*[local-name()='Address']]]></bpel:query>
+                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[/*[local-name()='Address']]]></bpel:query>
 
             	</bpel:to>
             </bpel:copy>

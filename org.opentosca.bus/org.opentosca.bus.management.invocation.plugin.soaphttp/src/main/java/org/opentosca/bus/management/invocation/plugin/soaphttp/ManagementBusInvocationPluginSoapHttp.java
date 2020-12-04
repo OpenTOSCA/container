@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -18,9 +18,6 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathVariableResolver;
 
 import org.apache.camel.CamelContext;
@@ -37,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * Management Bus-Plug-in for invoking a service with a SOAP message over HTTP. <br>
@@ -59,13 +55,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
     // Supported types defined in messages.properties.
     private static final String TYPES = "SOAP/HTTP";
-
-    private enum MessagingPattern {
-        CALLBACK, REQUEST_RESPONSE, REQUEST_ONLY
-    }
-
     private static Map<String, Exchange> EXCHANGE_MAP = Collections.synchronizedMap(new HashMap<String, Exchange>());
-
     private final CamelContext camelContext;
 
     @Inject
@@ -73,8 +63,18 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         this.camelContext = camelContext;
     }
 
+    /**
+     * @return the keys of the map containing stored messageIds and exchange objects.
+     */
+    public static Set<String> getMessageIDs() {
+        return EXCHANGE_MAP.keySet();
+    }
+
     @Override
     public Exchange invoke(Exchange exchange) {
+
+        MessagingPattern messagingPattern = null;
+
         final Message message = exchange.getIn();
 
         final Object params = message.getBody();
@@ -92,15 +92,13 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             }
         }
         headers.put("endpoint", endpoint.replace("?wsdl", ""));
-//    headers.put("SOAPAction", operationName);
-        headers.put("operationName", operationName);
 
         Document document = null;
-        MessagingPattern messagingPattern = null;
-        LOG.info("Creating invocation message.");
+        Definition wsdl = pullWsdlDefinitions(endpoint);
+        BindingOperation operation = findOperation(wsdl, operationName);
+
         if (params instanceof HashMap) {
-            Definition wsdl = pullWsdlDefinitions(endpoint);
-            BindingOperation operation = findOperation(wsdl, operationName);
+
             if (operation == null) {
                 LOG.error("Invoked operation was not exposed on the given endpoint. Aborting invocation!");
                 return null;
@@ -111,6 +109,11 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             // getting the port name involves this mess
 //      String portName = getPortName(wsdl, operation);
             headers.put("SOAPEndpoint", endpoint);
+
+            // add the operation header for the cxf endpoint explicitly if invoking an IA
+            if (Objects.nonNull(message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), String.class))) {
+                headers.put("operationName", operationName);
+            }
 
             messagingPattern = determineMP(message, operationName, operation, hasOutputParams);
             if (messagingPattern == null) {
@@ -148,12 +151,12 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 }
             }
 
-            document = mapToDoc(messagePayloadType.getNamespaceURI(), messagePayloadType.getLocalPart(), paramsMap);
+            document = MBUtils.mapToDoc(messagePayloadType.getNamespaceURI(), messagePayloadType.getLocalPart(), paramsMap);
         }
 
         if (params instanceof Document) {
             document = (Document) params;
-            messagingPattern = determineMP(message, operationName, null, hasOutputParams);
+            messagingPattern = determineMP(message, operationName, operation, hasOutputParams);
         }
 
         if (messagingPattern == null) {
@@ -311,6 +314,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 }
             } else if (operationName != null) {
                 // Plug-in needs to determine with wsdl.
+                if (operationName.equals("receiveNotify")) {
+                    LOG.debug("ReceiveNotify is executed. Using Request_Only MP!");
+                    return MessagingPattern.REQUEST_ONLY;
+                }
                 final boolean hasOutputDefinedInWSDL = hasOutputDefined(operation);
                 if (hasOutputDefinedInWSDL) {
                     return MessagingPattern.REQUEST_RESPONSE;
@@ -334,41 +341,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         }
     }
 
-    /**
-     * Transfers the paramsMap into a Document.
-     */
-    private Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
-                              final Map<String, String> paramsMap) {
-        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = null;
-        try {
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
-            LOG.error("Some error occured.");
-            e.printStackTrace();
-            // return null to avoid NRE in this method
-            return null;
-        }
-        Document document = documentBuilder.newDocument();
-
-        final Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
-        document.appendChild(rootElement);
-        for (final Entry<String, String> entry : paramsMap.entrySet()) {
-            Element mapElement = document.createElement(entry.getKey());
-            mapElement.setTextContent(entry.getValue());
-            rootElement.appendChild(mapElement);
-        }
-
-        return document;
-    }
-
-    /**
-     * @return the keys of the map containing stored messageIds and exchange objects.
-     */
-    public static Set<String> getMessageIDs() {
-        return EXCHANGE_MAP.keySet();
-    }
-
     @Override
     public List<String> getSupportedTypes() {
         LOG.debug("Getting Types: {}.",
@@ -379,6 +351,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             types.add(type.trim());
         }
         return types;
+    }
+
+    private enum MessagingPattern {
+        CALLBACK, REQUEST_RESPONSE, REQUEST_ONLY
     }
 
     private static class VariableMap implements XPathVariableResolver {

@@ -15,6 +15,7 @@ import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.repository.backend.RepositoryFactory;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.control.OpenToscaControlService;
@@ -110,7 +111,7 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
     @Override
     public String invokePlanInvocation(CsarId csarId, TServiceTemplate serviceTemplate, long instanceId,
                                        TPlanDTO plan) {
-        LOGGER.info("Invoking Plan [{}]", plan.getName());
+        LOGGER.info("Invoking Plan [{}]", plan.getId());
         final String correlationId = planInvocationEngine.createCorrelationId();
         planInvocationEngine.invokePlan(csarId, serviceTemplate, instanceId, plan, correlationId);
         if (correlationId != null) {
@@ -205,7 +206,25 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
     }
 
     @Override
+    public boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, TPlans plans, TPlan plan) {
+        final List<TPlan> undeployedPlans = new ArrayList<>();
+
+        // fallback to serviceTemplate NamespaceURI
+        final String namespace = plans.getTargetNamespace() == null ? "" : plans.getTargetNamespace();
+        if (!planEngine.deployPlan(plan, namespace, csar)) {
+                undeployedPlans.add(plan);
+        }
+
+        if (!undeployedPlans.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate) {
+
+
         deploymentTracker.storeDeploymentState(csar, PLAN_DEPLOYMENT_ACTIVE);
         final List<TPlan> undeployedPlans = new ArrayList<>();
         LOGGER.trace("Invoking PlanEngine to process Plans");
@@ -227,13 +246,8 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
             return true;
         }
 
-        // fallback to serviceTemplate NamespaceURI
-        final String namespace = plans.getTargetNamespace() == null
-            ? serviceTemplate.getTargetNamespace()
-            : plans.getTargetNamespace();
-
         for (final TPlan plan : plans.getPlan()) {
-            if (!planEngine.deployPlan(plan, namespace, csar)) {
+            if (!this.invokePlanDeployment(csar, serviceTemplate,plans, plan)) {
                 undeployedPlans.add(plan);
             }
         }
@@ -247,34 +261,6 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
         LOGGER.trace("The deployment of management plans for ServiceTemplate \"{}\" inside CSAR [{}] was successful", serviceTemplate.getId(), csar.csarName());
         deploymentTracker.storeDeploymentState(csar, PLANS_DEPLOYED);
         return true;
-    }
-
-    @Deprecated
-    @Override
-    public String invokePlanInvocation(CsarId csarId, QName qname, int instanceId, TPlanDTO plan) throws UnsupportedEncodingException {
-        Csar csar = storage.findById(csarId);
-        final Optional<TServiceTemplate> serviceTemplate = csar.serviceTemplates().stream()
-            .filter(st -> st.getId().equals(qname.toString()))
-            .findFirst();
-        return serviceTemplate.isPresent() ? invokePlanInvocation(csarId, serviceTemplate.get(), instanceId, plan) : "";
-    }
-
-    @Deprecated
-    @Override
-    public boolean invokePlanDeployment(CsarId csarId, QName qname) {
-        Csar csar = storage.findById(csarId);
-        final Optional<TServiceTemplate> serviceTemplate = csar.serviceTemplates().stream()
-            .filter(st -> st.getId().equals(qname.toString()))
-            .findFirst();
-        return serviceTemplate.isPresent() ? invokePlanDeployment(csarId, serviceTemplate.get()) : false;
-    }
-
-    @Deprecated
-    @Override
-    public List<QName> getAllContainedServiceTemplates(CsarId csarid) {
-        return storage.findById(csarid).serviceTemplates().stream()
-            .map(TServiceTemplate::getId)
-            .map(QName::new).collect(Collectors.toList());
     }
 }
 

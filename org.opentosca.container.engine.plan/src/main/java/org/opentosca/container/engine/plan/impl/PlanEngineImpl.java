@@ -81,7 +81,7 @@ public class PlanEngineImpl implements IPlanEngineService {
                 return false;
             }
             LOG.info("Found PlanModelPlugin for plan {}", plan.getId());
-            return plugin.deployPlan(plan.getPlanModel(), csarId.toOldCsarId());
+            return plugin.deployPlan(plan.getPlanModel(), csarId);
         }
         final QName planId = new QName(targetNamespace, plan.getId());
         LOG.debug("Created new management plan id " + planId);
@@ -109,7 +109,7 @@ public class PlanEngineImpl implements IPlanEngineService {
                 return false;
             }
             LOG.info("Found PlanModelPlugin for plan {}", plan.getId());
-            return plugin.undeployPlan(plan.getPlanModel(), csarId.toOldCsarId());
+            return plugin.undeployPlan(plan.getPlanModel(), csarId);
         }
         final QName planId = new QName(targetNamespace, plan.getId());
         LOG.debug("Created new management plan id" + planId);
@@ -133,13 +133,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 
         String namespace = plans.getTargetNamespace();
         if (namespace == null) {
-            namespace = targetNamespace;
-        }
-
-        if (namespace == null) {
-            LOG.error("No namespace for Plans {} defined. Plugins communication with toscaEngine may be wrong",
-                plans.toString());
-            return p;
+            namespace = "";
         }
 
         for (final TPlan plan : p) {

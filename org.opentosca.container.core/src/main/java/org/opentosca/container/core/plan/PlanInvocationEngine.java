@@ -1,9 +1,13 @@
 package org.opentosca.container.core.plan;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
@@ -11,11 +15,14 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TTag;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.management.IManagementBus;
+import org.opentosca.container.core.model.choreography.SituationExpression;
+import org.opentosca.container.core.model.choreography.SituationRule;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -45,14 +52,35 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
     private final IManagementBus managementBus;
     private final CsarStorageService csarStorage;
     private final RulesChecker rulesChecker;
+    private final ChoreographyHandler choreographyHandler;
 
     @Inject
     public PlanInvocationEngine(IManagementBus managementBus,
                                 CsarStorageService csarStorage,
-                                RulesChecker rulesChecker) {
+                                RulesChecker rulesChecker,
+                                ChoreographyHandler choreographyHandler) {
         this.managementBus = managementBus;
         this.csarStorage = csarStorage;
         this.rulesChecker = rulesChecker;
+        this.choreographyHandler = choreographyHandler;
+    }
+
+    public String createChoreographyCorrelationId() {
+        // generate CorrelationId for the plan execution
+        while (true) {
+            final String correlationId = String.valueOf(System.currentTimeMillis());
+
+            try {
+
+                PlanInstance instance = planRepo.findByChoreographyCorrelationId(correlationId);
+                if (instance == null) {
+                    return correlationId;
+                }
+                this.LOG.debug("CorrelationId {} already in use.", correlationId);
+            } catch (final NoResultException e) {
+                return correlationId;
+            }
+        }
     }
 
     @Override
@@ -101,6 +129,52 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
                 LOG.debug("Deployment Rules are not fulfilled. Aborting the provisioning.");
                 return;
             }
+        }
+
+        if (choreographyHandler.isChoreography(serviceTemplate)) {
+            LOG.debug("ServiceTemplate is part of choreography!");
+
+            // add general header fields which are required to notify partners
+            Map<String, Object> eventValues = new HashMap<>();
+            eventValues.put("CSARID", csarID);
+            eventValues.put("SERVICETEMPLATEID_QNAME", new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()));
+            eventValues.put("PLANCHORCORRELATIONID_STRING", createChoreographyCorrelationId());
+            eventValues.put("APP_CHOREO_ID", choreographyHandler.getAppChorId(serviceTemplate));
+
+            // select the participating partners of the choreography based on the available situation rules
+            List<SituationRule> situationRules = choreographyHandler.getSituationRules(serviceTemplate);
+            Collection<SituationExpression> situationExpressions = choreographyHandler.getSituationExpressions(serviceTemplate);
+
+            Iterator<SituationExpression> iter = situationExpressions.iterator();
+
+            List<String> partnerTags = choreographyHandler.getPartnerEndpoints(serviceTemplate).stream().map(TTag::getName).collect(Collectors.toList());
+            if (situationRules.isEmpty()) {
+                // notify all defined partners for choreographies without selection rules
+                if (situationExpressions.isEmpty()) {
+                    LOG.debug("No situation rules defined. Processing choreography with all partners!");
+                    eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partnerTags));
+                } else {
+                    LOG.debug("Found {} situation expressions for choreography. Selecting partners by expressions...", situationRules.size());
+                    Collection<String> partners2 = choreographyHandler.getPartnersBasedOnSelectionExpression(situationExpressions, partnerTags);
+                    if (partners2.isEmpty()) {
+                        LOG.warn("No configuration was acceptable to be deployed with the given expressions, no deployment will be started by a choreography");
+                        return;
+                    }
+                    eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partners2));
+                }
+            } else {
+                LOG.debug("Found {} situation rules for choreography. Selecting partners by rules...", situationRules.size());
+                Collection<String> partners = choreographyHandler.getPartnersBasedOnSelectionRule(situationRules, partnerTags);
+
+                if (partners.isEmpty()) {
+                    LOG.warn("No configuration was acceptable to be deployed with the given rules, no deployment will be started by a choreography");
+                    return;
+                }
+                eventValues.put("CHOREOGRAPHY_PARTNERS", String.join(",", partners));
+            }
+
+            managementBus.notifyPartners(eventValues);
+            return;
         }
 
         LOG.info("Invoke the Plan {} of type {} of CSAR {}", givenPlan.getId(), givenPlan.getPlanType(), csarID);

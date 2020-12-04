@@ -5,18 +5,25 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TInterfaces;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
+import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -374,6 +381,16 @@ public class MBUtils {
         }
     }
 
+    public static QName findPlanByOperation(Csar csar, String ifaceName, String opName) {
+        TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().getInterface().stream().filter(iface -> iface.getName().equals(ifaceName)).collect(Collectors.toList())
+            .stream().flatMap(iface -> iface.getOperation().stream()).filter(ope -> ope.getName().equals(opName)).findFirst().orElse(null);
+        if (op != null) {
+            return new QName(csar.entryServiceTemplate().getTargetNamespace(), ((TPlan) op.getPlan().getPlanRef()).getId());
+        }
+
+        return null;
+    }
+
     /**
      * Transfers the properties document to a map.
      *
@@ -409,5 +426,39 @@ public class MBUtils {
         }
 
         return reponseMap;
+    }
+
+    /**
+     * Transfers the paramsMap into a Document.
+     *
+     * @return the created Document.
+     */
+    public static Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
+                                    final HashMap<String, String> paramsMap) {
+        LOG.debug("Mapping to doc for element {} and namespace {}.", rootElementName, rootElementNamespaceURI);
+        Document document;
+
+        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder = null;
+        try {
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        } catch (final ParserConfigurationException e) {
+            LOG.error("Some error occured.");
+            e.printStackTrace();
+        }
+
+        document = documentBuilder.newDocument();
+
+        final Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
+        document.appendChild(rootElement);
+
+        Element mapElement;
+        for (final Entry<String, String> entry : paramsMap.entrySet()) {
+            mapElement = document.createElement(entry.getKey());
+            mapElement.setTextContent(entry.getValue());
+            rootElement.appendChild(mapElement);
+        }
+
+        return document;
     }
 }

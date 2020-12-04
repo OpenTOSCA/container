@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -95,7 +96,7 @@ public class ScalingPlanDefinition {
         }
 
         @Override
-        public List<AbstractDeploymentArtifact> getDeploymentArtifacts() {
+        public Collection<AbstractDeploymentArtifact> getDeploymentArtifacts() {
             return this.nodeTemplate.getDeploymentArtifacts();
         }
 
@@ -107,6 +108,11 @@ public class ScalingPlanDefinition {
         @Override
         public List<AbstractPolicy> getPolicies() {
             return this.nodeTemplate.getPolicies();
+        }
+
+        @Override
+        public Map<QName, String> getOtherAttributes() {
+            return this.nodeTemplate.getOtherAttributes();
         }
     }
 

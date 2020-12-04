@@ -5,12 +5,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -19,22 +20,22 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 
-import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.common.RepositoryFileReference;
+import org.eclipse.winery.common.ids.XmlId;
+import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.common.ids.elements.PlanId;
+import org.eclipse.winery.common.ids.elements.PlansId;
 import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.repository.backend.IRepository;
+import org.eclipse.winery.repository.backend.RepositoryFactory;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.connector.ode.OdeConnector;
-import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.impl.service.FileSystem;
-import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.backwards.ArtifactResolver;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -205,6 +206,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         // this will be the endpoint the container can use to instantiate the
         // BPEL Process
         URI endpoint = null;
+        URI callbackEndpoint = null;
         if (endpoints.keySet().size() == 1) {
             endpoint = (URI) endpoints.values().toArray()[0];
         } else {
@@ -212,39 +214,47 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 if (partnerLink.equals("client")) {
                     endpoint = endpoints.get(partnerLink);
                 }
+
+                // retrieve callback endpoint for the choreography execution
+                if (endpoints.get(partnerLink).toString().contains("CallbackService")) {
+                    callbackEndpoint = endpoints.get(partnerLink);
+                }
             }
         }
 
-        if (endpoint == null) {
-            return false;
-        }
+        if (processId != null && endpoint != null && portType != null && this.endpointService != null) {
+            BpelPlanEnginePlugin.LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
+            BpelPlanEnginePlugin.LOG.info("Deployment of Plan was successfull: {}", planId);
 
-        if (processId == null || endpoint == null || portType == null || this.endpointService == null) {
-            LOG.error("Error while processing plan");
+            // save endpoint
+            final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType, localContainer, localContainer,
+                csarId, null, planId, null, null, endpointMetadata);
+            this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
+
+            if (Objects.nonNull(callbackEndpoint)) {
+                final QName callbackPortType = QName.valueOf("{http://schemas.xmlsoap.org/wsdl/}CallbackPortType");
+                LOG.debug("Storing callback endpoint: {}", callbackEndpoint.toString());
+                this.endpointService.storeWSDLEndpoint(new WSDLEndpoint(callbackEndpoint, callbackPortType,
+                    localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata));
+            }
+        } else {
+            BpelPlanEnginePlugin.LOG.error("Error while processing plan");
             if (processId == null) {
-                LOG.error("ProcessId is null");
+                BpelPlanEnginePlugin.LOG.error("ProcessId is null");
             }
             if (endpoint == null) {
-                LOG.error("Endpoint for process is null");
+                BpelPlanEnginePlugin.LOG.error("Endpoint for process is null");
             }
             if (portType == null) {
-                LOG.error("PortType of process is null");
+                BpelPlanEnginePlugin.LOG.error("PortType of process is null");
             }
 
             if (this.endpointService == null) {
-                LOG.error("Endpoint Service is null");
+                BpelPlanEnginePlugin.LOG.error("Endpoint Service is null");
             }
             return false;
         }
-        LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
-        LOG.info("Deployment of Plan was successfull: {}", tempPlan.getFileName().toString());
-
-        // save endpoint
-        final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-        final WSDLEndpoint wsdlEndpoint =
-            new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata);
-        this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-
         return true;
     }
 
@@ -259,13 +269,19 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             return false;
         }
 
-        Path planLocation = planLocationOnDisk(csarId, planId, planRef);
+        String namespace = planId.getNamespaceURI();
+
+        if(!(namespace != null && !namespace.isEmpty())){
+            namespace = storage.findById(csarId).entryServiceTemplate().getTargetNamespace();
+        }
+
+        Path planLocation = planLocationOnDisk(csarId, new QName(namespace, planId.getLocalPart()), planRef);
         if (planLocation == null) {
             // diagnostics already in planLocationOnDisk
             return false;
         }
 
-        return this.deployPlanFile(planLocation, csarId, planId, new HashMap<String, String>());
+        return this.deployPlanFile(planLocation, csarId, new QName(namespace, planId.getLocalPart()), new HashMap<String, String>());
     }
 
     /**
@@ -291,13 +307,17 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         // remove endpoint from core
         if (this.endpointService != null) {
             LOG.debug("Starting to remove endpoint!");
-            WSDLEndpoint endpoint = this.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
-            if (endpoint == null) {
+            List<WSDLEndpoint> endpoints = this.endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
+            if (endpoints.isEmpty()) {
                 LOG.warn("Couldn't remove endpoint for plan {}, because endpoint service didn't find any endpoint associated with the plan to remove",
                     planRef.getReference());
-            } else if (this.endpointService.removeWSDLEndpoint(endpoint)) {
-                LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
-                    planRef.getReference());
+            } else {
+
+                for (WSDLEndpoint endpoint : endpoints) {
+                    this.endpointService.removeWSDLEndpoint(endpoint);
+                    LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
+                        planRef.getReference());
+                }
             }
         } else {
             LOG.warn("Couldn't remove endpoint for plan {}, cause endpoint service is not available",
@@ -317,45 +337,24 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         if (storage == null) {
             return null;
         }
-        @SuppressWarnings("null") // ignore MT implications
-            Csar csar = storage.findById(csarId);
-        TPlan toscaPlan;
-        try {
-            toscaPlan = ToscaEngine.resolvePlanReference(csar, planId);
-        } catch (NotFoundException e) {
-            LOG.error("Plan [{}] could not be found in csar {}", planId, csarId.csarName());
-            return null;
-        }
-        TServiceTemplate containingServiceTemplate = ToscaEngine.getContainingServiceTemplate(csar, toscaPlan);
-        assert (containingServiceTemplate != null); // shouldn't be null, since we have a plan from it
 
-        // planRef.getReference() is overencoded. It's also not relative to the Csar root (but to one level below it)
-        Path planLocation = ArtifactResolver.resolvePlan.apply(containingServiceTemplate, toscaPlan);
-        // FIXME get rid of AbstractArtifact!
-        AbstractArtifact planReference = ArtifactResolver.resolveArtifact(csar, planLocation,
-            // just use the last segment, determining the filename.
-            Paths.get(planRef.getReference().substring(planRef.getReference().lastIndexOf('/') + 1)));
-        if (planReference == null) {
-            LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
-                planRef.getReference());
-            return null;
+        Csar csar = storage.findById(csarId);
+
+        IRepository repository = RepositoryFactory.getRepository(csar.getSaveLocation());
+
+        PlanId plan = new PlanId(new PlansId(new ServiceTemplateId(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId(), false)), new XmlId(planId.toString(), false));
+
+        Collection<RepositoryFileReference> fileRefs = repository.getContainedFiles(plan);
+
+        Path planPath = null;
+
+        for (RepositoryFileReference ref : fileRefs) {
+            if (ref.getFileName().endsWith(".zip")) {
+                planPath = repository.ref2AbsolutePath(ref);
+            }
         }
-        if (!planReference.isFileArtifact()) {
-            LOG.warn("Only plan references pointing to a file are supported!");
-            return null;
-        }
-        Path artifact;
-        try {
-            artifact = planReference.getFile("").getFile();
-        } catch (SystemException e) {
-            LOG.warn("ugh... SystemException when getting a path we already had", e);
-            return null;
-        }
-        if (!artifact.getFileName().toString().endsWith(".zip")) {
-            LOG.debug("Plan reference is not a ZIP file. It was '{}'.", artifact.getFileName());
-            return null;
-        }
-        return artifact;
+
+        return planPath;
     }
 
     @Override

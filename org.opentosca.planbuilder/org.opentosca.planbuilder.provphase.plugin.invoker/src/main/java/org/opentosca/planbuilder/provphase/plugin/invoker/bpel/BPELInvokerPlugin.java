@@ -4,15 +4,19 @@
 package org.opentosca.planbuilder.provphase.plugin.invoker.bpel;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderCompensationOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
+import org.opentosca.planbuilder.core.plugins.choreography.IPlanBuilderChoreographyPlugin;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
@@ -21,11 +25,14 @@ import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokerPluginHandler;
+import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELNotifyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 /**
  * Copyright 2014 IAAS University of Stuttgart <br>
@@ -37,12 +44,14 @@ import org.w3c.dom.Element;
 @Component
 public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<BPELPlanContext>,
     IPlanBuilderProvPhaseParamOperationPlugin<BPELPlanContext>,
-    IPlanBuilderCompensationOperationPlugin<BPELPlanContext> {
+    IPlanBuilderCompensationOperationPlugin<BPELPlanContext>,
+    IPlanBuilderChoreographyPlugin<BPELPlanContext> {
 
     private static final Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
     private static final String PLUGIN_ID = "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
 
     private final BPELInvokerPluginHandler handler = new BPELInvokerPluginHandler();
+    private final BPELNotifyHandler choreohandler = new BPELNotifyHandler();
 
     public void addLogActivity(final BPELPlanContext context, final String message, final BPELPlanContext.Phase phase) {
         this.handler.appendLOGMessageActivity(context, message, phase);
@@ -204,6 +213,89 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             LOG.error("Couldn't load internal files", e);
             return false;
         }
+    }
+
+    @Override
+    public boolean handleSendNotify(final BPELPlanContext context) {
+
+        // Currently stuff like storeSaveEndpoint for freezing is breaking the matching of all possible
+        // operations here, therefore we send all available properties -> TODO/FIXME
+        final Map<String, PropertyVariable> propMatching =
+            this.choreohandler.matchOperationParamertsToProperties(context);
+
+        final Collection<PropertyVariable> propertiesToSend = new HashSet<>();
+
+        // fetch nodes of the stack of the node inside context
+        AbstractNodeTemplate nodeTemplate = context.getNodeTemplate();
+        Collection<AbstractNodeTemplate> nodes = Lists.newArrayList();
+        ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodes);
+
+        nodes.forEach(x -> propertiesToSend.addAll(context.getPropertyVariables(x)));
+        final Map<String, Variable> params = this.choreohandler.mapToParamMap(propertiesToSend);
+
+        this.choreohandler.addChoreographyParameters(context, params);
+
+        try {
+            return this.choreohandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
+        } catch (final IOException e) {
+            e.printStackTrace();
+            return false;
+        } catch (final SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean handleReceiveNotify(final BPELPlanContext context) {
+        final Collection<PropertyVariable> properties = this.choreohandler.getPartnerPropertyVariables(context);
+
+        final Map<String, Variable> params = this.choreohandler.mapToParamMap(properties);
+
+        this.choreohandler.addChoreographyParameters(context, params);
+
+        try {
+            return this.choreohandler.handleReceiveNotify(context, params, context.getProvisioningPhaseElement());
+        } catch (final IOException e) {
+            e.printStackTrace();
+            return false;
+        } catch (final SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean canHandleSendNotify(final BPELPlanContext context) {
+        return this.choreohandler.isValidForSendNotify(context);
+    }
+
+    @Override
+    public boolean canHandleReceiveNotify(final BPELPlanContext context) {
+        return this.choreohandler.isValidForReceiveNotify(context);
+    }
+
+    @Override
+    public boolean canHandleNotifyPartners(final BPELPlanContext context) {
+        // we can do this always, basically
+        return true;
+    }
+
+    @Override
+    public boolean handleNotifyPartners(final BPELPlanContext context) {
+
+        try {
+            return this.choreohandler.handleNotifyPartners(context);
+        } catch (final SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (final IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override

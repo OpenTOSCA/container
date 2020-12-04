@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -29,6 +30,8 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.selfservice.Application;
+import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 
@@ -51,8 +54,8 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.backwards.FileSystemDirectory;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -118,7 +121,7 @@ public class CsarController {
             TServiceTemplate entryServiceTemplate = csarContent.entryServiceTemplate();
             // double encoding, otherwise the link breaks
             final String namespaceSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getTargetNamespace()));
-            final String nameSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getName()));
+            final String nameSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getId()));
             final String baseUri = this.uriInfo.getBaseUri().toString();
             if (csar.getIconUrl() != null) {
                 final String iconUrl =
@@ -163,7 +166,7 @@ public class CsarController {
     public DirectoryController getContent(@PathParam("csar") final String id) {
         logger.debug("Invoking getContent");
         try {
-            return new DirectoryController(new FileSystemDirectory(storage.findById(new CsarId(id)).getSaveLocation()));
+            return new DirectoryController(storage.findById(new CsarId(id)).getSaveLocation());
         } catch (NoSuchElementException e) {
             throw new javax.ws.rs.NotFoundException(e);
         }
@@ -373,11 +376,38 @@ public class CsarController {
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
-        logger.debug("Invoking transformCsar");
+        logger.debug("Invoking transform Csar");
         final CsarId sourceCsar = new CsarId(request.getSourceCsarName());
         final CsarId targetCsar = new CsarId(request.getTargetCsarName());
 
-        CsarId csarId = this.csarService.generateTransformationPlans(sourceCsar, targetCsar);
+        Collection<AbstractPlan> plansGenerated = this.csarService.generateTransformationPlans(sourceCsar, targetCsar);
+        AbstractPlan planGenerated;
+        if(plansGenerated.isEmpty()){
+            return Response.serverError().entity("Couldn't generate transformation plan").build();
+        } else {
+            // we should only have one plan here
+            planGenerated = plansGenerated.iterator().next();
+        }
+
+        Csar storedCsar = storage.findById(sourceCsar);
+
+        TPlans plans = this.storage.findById(sourceCsar).entryServiceTemplate().getPlans();
+        TPlan plan = null;
+
+        for (TPlan tPlan : plans.getPlan()) {
+            if(tPlan.getId().equals(planGenerated.getId())){
+                plan = tPlan;
+                break;
+            }
+        }
+
+        if(plan == null) {
+            return Response.serverError().entity("Couldn't generate transformation plan").build();
+        }
+
+        this.controlService.invokePlanDeployment(sourceCsar, storedCsar.entryServiceTemplate(), plans, plan);
+
+        /*
         this.controlService.declareStored(csarId);
 
         boolean success = this.controlService.invokeToscaProcessing(csarId);
@@ -391,10 +421,8 @@ public class CsarController {
                     success = false;
                 }
             }
-        }
+        }*/
 
-        return success
-            ? Response.ok().build()
-            : Response.serverError().build();
+        return Response.ok().build();
     }
 }

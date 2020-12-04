@@ -18,6 +18,7 @@ public class SituationTriggerRepository extends JpaRepository<SituationTrigger> 
         findAll().forEach(x -> {
             for (final Situation situation : x.getSituations()) {
                 if (situation.getId().equals(situationId)) {
+                    this.initializeInstance(x);
                     result.add(x);
                 }
             }
@@ -27,6 +28,7 @@ public class SituationTriggerRepository extends JpaRepository<SituationTrigger> 
 
     @Override
     protected void initializeInstance(SituationTrigger instance) {
+        Hibernate.initialize(instance);
         Hibernate.initialize(instance.getInputs());
         Hibernate.initialize(instance.getSituations());
         Hibernate.initialize(instance.getSituationTriggerInstances());

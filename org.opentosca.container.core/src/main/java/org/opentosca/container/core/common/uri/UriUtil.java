@@ -43,14 +43,6 @@ public abstract class UriUtil {
         }
     }
 
-    public static String decodePathSegment(final String pathSegment) {
-        try {
-            return URLDecoder.decode(pathSegment, "UTF-8");
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static Link generateSelfLink(final UriInfo uriInfo) {
         return Link.fromUri(uriInfo.getAbsolutePath()).rel("self").build();
     }

@@ -10,6 +10,29 @@
 				schemaLocation="invoker.xsd" />
 		</xsd:schema>
 	</wsdl:types>
+	
+	
+	<wsdl:message name="notifyPartnerMessage">
+		<wsdl:part element="ns:notifyPartner" name="notifyPartner">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="notifyPartnersMessage">
+		<wsdl:part element="ns:notifyPartners" name="notifyPartners">
+		</wsdl:part>
+	</wsdl:message>
+    <wsdl:message name="receiveNotifyMessage">
+		<wsdl:part element="ns:receiveNotify" name="receiveNotify">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="receiveNotifyPartnerMessage">
+		<wsdl:part element="ns:receiveNotifyPartner" name="receiveNotifyPartner">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="receiveNotifyPartnersMessage">
+		<wsdl:part element="ns:receiveNotifyPartners" name="receiveNotifyPartners">
+		</wsdl:part>
+	</wsdl:message>
+	
 	<wsdl:message name="invokeOperationMessage">
 		<wsdl:part element="ns:invokeOperation" name="invokeOperation">
 		</wsdl:part>
@@ -49,10 +72,30 @@
 			<wsdl:input message="tns:invokePlanMessage">
 			</wsdl:input>
 		</wsdl:operation>
+		<wsdl:operation name="notifyPartner">
+			<wsdl:input message="tns:notifyPartnerMessage">
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="notifyPartners">
+			<wsdl:input message="tns:notifyPartnersMessage">
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="receiveNotifyPartner">
+			<wsdl:input message="tns:receiveNotifyPartnerMessage">
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="receiveNotifyPartners">
+			<wsdl:input message="tns:receiveNotifyPartnersMessage">
+			</wsdl:input>
+		</wsdl:operation>
 	</wsdl:portType>
 	<wsdl:portType name="CallbackPortType">
 		<wsdl:operation name="callback">
 			<wsdl:input message="tns:invokeResponse">
+			</wsdl:input>
+		</wsdl:operation>
+			<wsdl:operation name="receiveNotify">
+			<wsdl:input message="tns:receiveNotifyMessage">
 			</wsdl:input>
 		</wsdl:operation>
 	</wsdl:portType>
@@ -90,11 +133,46 @@
 				<soap:body use="literal" />
 			</wsdl:input>
 		</wsdl:operation>
+		<wsdl:operation name="notifyPartner">
+			<soap:operation soapAction="http://siserver.org/notifyPartner"
+				style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="notifyPartners">
+			<soap:operation soapAction="http://siserver.org/notifyPartners"
+				style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>	
+		<wsdl:operation name="receiveNotifyPartner">
+		    <soap:operation soapAction="http://siserver.org/receiveNotifyPartner"
+				style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="receiveNotifyPartners">
+		    <soap:operation soapAction="http://siserver.org/receiveNotifyPartners"
+				style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
 	</wsdl:binding>
 	<wsdl:binding name="CallbackBinding" type="tns:CallbackPortType">
 		<soap:binding style="document"
 			transport="http://schemas.xmlsoap.org/soap/http" />
 		<wsdl:operation name="callback">
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="receiveNotify">
+		    <soap:operation soapAction="http://siserver.org/receiveNotify"
+				style="document" />
 			<wsdl:input>
 				<soap:body use="literal" />
 			</wsdl:input>

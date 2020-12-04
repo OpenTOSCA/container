@@ -26,7 +26,6 @@
   </bpel:assign>
   <bpel:extensionActivity
     xmlns:bpel4RestLight="http://www.apache.org/ode/bpel/extensions/bpel4restlight">
-    <!-- $urlVarName, $requestVar, $correlationId -->
     <bpel4RestLight:POST uri="$bpelvar[$urlVarName]/situationsmonitors"
       request="$requestVar" contenttype="application/xml" accept="application/xml"></bpel4RestLight:POST>
   </bpel:extensionActivity>

@@ -1,4 +1,3 @@
-<!--{partnerLinkName} {requestVarName}  {requestVarPartName} {invokerParamName}-->
 <bpel:copy>
 	<bpel:from partnerLink="{partnerLinkName}" endpointReference="myRole"></bpel:from>
 	<bpel:to variable="{requestVarName}" part="{requestVarPartName}">

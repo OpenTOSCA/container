@@ -13,8 +13,8 @@ import org.eclipse.winery.model.selfservice.ApplicationOption;
 
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.opentosca.container.core.impl.service.FileSystem;
-import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.export.VinothekKnownParameters;
+import org.opentosca.planbuilder.export.WineryExporter;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 
@@ -69,7 +69,7 @@ public class Util {
      * @return a File denoting the export location
      */
     public static File writePlan2TmpFolder(final BPELPlan buildPlan) {
-        final Exporter planBuilderExporter = new Exporter();
+        final WineryExporter planBuilderExporter = new WineryExporter();
 
         try {
             final File tmpDir = FileSystem.getTemporaryFolder().toFile();
