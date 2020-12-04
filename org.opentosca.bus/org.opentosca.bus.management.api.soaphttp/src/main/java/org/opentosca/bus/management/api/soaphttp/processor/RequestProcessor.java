@@ -127,14 +127,17 @@ public class RequestProcessor implements Processor {
 
                 final TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(csar, serviceTemplateID, nodeTemplateID);
 
-                if (Types.openStackTrainNodeType.getLocalPart().equals(nodeTemplateID)) {
-                    TNodeTemplate relatedSourceNodeTemplate = ToscaEngine.getRelatedSourceNodeTemplate(serviceTemplate, nodeTemplate, Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType);
-                    if (relatedSourceNodeTemplate.getName().startsWith("Ubuntu")) {
-                        final TNodeType nodeType = ToscaEngine.resolveNodeTypeReference(csar, relatedSourceNodeTemplate.getType());
-                        final List<TNodeTypeImplementation> ubuntuNodeTypeImpls = ToscaEngine.getNodeTypeImplementations(csar, nodeType);
+                if (Types.openStackTrainNodeType.getLocalPart().equals(nodeTemplate.getType().getLocalPart())) {
+                    List<TNodeTemplate> relatedSourceNodeTemplate = ToscaEngine.getRelatedSourceNodeTemplate(serviceTemplate, nodeTemplate, Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType);
+                    for (TNodeTemplate nodeTemplate1 : relatedSourceNodeTemplate) {
+                        if (nodeTemplate1.getName().startsWith("Ubuntu")) {
+                            final TNodeType nodeType = ToscaEngine.resolveNodeTypeReference(csar, nodeTemplate1.getType());
 
-                        ResolvedArtifacts resolvedArtifacts = containerEngine.resolvedDeploymentArtifactsOfNodeTypeImpl(csar, ubuntuNodeTypeImpls.get(0));
-                        resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
+                            final List<TNodeTypeImplementation> ubuntuNodeTypeImpls = ToscaEngine.getNodeTypeImplementations(csar, nodeType);
+
+                            ResolvedArtifacts resolvedArtifacts = containerEngine.resolvedDeploymentArtifactsOfNodeTypeImpl(csar, ubuntuNodeTypeImpls.get(0));
+                            resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
+                        }
                     }
                 }
 
