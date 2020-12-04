@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.provphase.plugin.ansibleoperation.bpel.handler
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FilenameUtils;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.tosca.convention.Interfaces;
@@ -211,7 +213,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
             templateContext.getNodeTemplate().getImplementations();
 
         for (final AbstractNodeTypeImplementation abstractNodeTypeImpl : abstractNodeTypeImpls) {
-            final List<AbstractImplementationArtifact> abstractIAs = abstractNodeTypeImpl.getImplementationArtifacts();
+            final Collection<AbstractImplementationArtifact> abstractIAs = abstractNodeTypeImpl.getImplementationArtifacts();
             for (final AbstractImplementationArtifact abstractIA : abstractIAs) {
                 final NodeList nodeList =
                     abstractIA.getArtifactRef().getProperties().getDOMElement().getElementsByTagName("Playbook");

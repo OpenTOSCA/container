@@ -4,7 +4,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
@@ -41,18 +43,18 @@ public class DefinitionsImpl extends AbstractDefinitions {
 
     private final IRepository repository;
     protected final org.eclipse.winery.model.tosca.Definitions definitions;
-    private final List<AbstractDefinitions> referencedDefinitions;
-    private final Collection<org.eclipse.winery.model.tosca.Definitions> allDefs;
-    private final Collection<Path> filesInCsar;
-    private final List<AbstractServiceTemplate> serviceTemplates = new ArrayList<>();
-    private final List<AbstractNodeType> nodeTypes = new ArrayList<>();
-    private final List<AbstractNodeTypeImplementation> nodeTypeImpls = new ArrayList<>();
-    private final List<AbstractRelationshipType> relationshipTypes = new ArrayList<>();
-    private final List<AbstractRelationshipTypeImplementation> relationshipTypeImpls= new ArrayList<>();
-    private final List<AbstractArtifactTemplate> artifactTemplates= new ArrayList<>();
-    private final List<AbstractArtifactType> artifactTypes= new ArrayList<>();
-    private final List<AbstractPolicyType> policyTypes= new ArrayList<>();
-    private final List<AbstractPolicyTemplate> policyTemlates= new ArrayList<>();
+    private final Set<AbstractDefinitions> referencedDefinitions;
+    private final Set<org.eclipse.winery.model.tosca.Definitions> allDefs;
+    private final Set<Path> filesInCsar;
+    private final Set<AbstractServiceTemplate> serviceTemplates = new HashSet<>();
+    private final Set<AbstractNodeType> nodeTypes = new HashSet<>();
+    private final Set<AbstractNodeTypeImplementation> nodeTypeImpls = new HashSet<>();
+    private final Set<AbstractRelationshipType> relationshipTypes = new HashSet<>();
+    private final Set<AbstractRelationshipTypeImplementation> relationshipTypeImpls= new HashSet<>();
+    private final Set<AbstractArtifactTemplate> artifactTemplates= new HashSet<>();
+    private final Set<AbstractArtifactType> artifactTypes= new HashSet<>();
+    private final Set<AbstractPolicyType> policyTypes= new HashSet<>();
+    private final Set<AbstractPolicyTemplate> policyTemlates= new HashSet<>();
 
 
 
@@ -66,16 +68,16 @@ public class DefinitionsImpl extends AbstractDefinitions {
         DefinitionsImpl.LOG.debug("Initializing DefinitionsImpl");
         this.repository = repository;
         this.definitions = mainDef;
-        this.filesInCsar = filesInCsar;
-        this.allDefs = allDefs;
+        this.filesInCsar = new HashSet<>(filesInCsar);
+        this.allDefs = new HashSet<>(allDefs);
 
 
 
         // HUGE assumption
         if(this.definitions.getServiceTemplates().isEmpty()){
-            this.referencedDefinitions = new ArrayList<>();
+            this.referencedDefinitions = new HashSet<>();
         } else {
-            this.referencedDefinitions = this.repository.getReferencedDefinitionsChildIds(new ServiceTemplateId(new QName(this.definitions.getServiceTemplates().get(0).getTargetNamespace(), this.definitions.getServiceTemplates().get(0).getId()))).stream().map(x -> new DefinitionsImpl(this.repository.getDefinitions(x), allDefs, filesInCsar, this.repository)).collect(Collectors.toList());
+            this.referencedDefinitions = new HashSet<>(this.repository.getReferencedDefinitionsChildIds(new ServiceTemplateId(new QName(this.definitions.getServiceTemplates().get(0).getTargetNamespace(), this.definitions.getServiceTemplates().get(0).getId()))).stream().map(x -> new DefinitionsImpl(this.repository.getDefinitions(x), allDefs, filesInCsar, this.repository)).collect(Collectors.toList()));
         }
 
         allDefs.forEach(definitions ->{
@@ -99,7 +101,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractServiceTemplate> getServiceTemplates() {
+    public Collection<AbstractServiceTemplate> getServiceTemplates() {
         return this.serviceTemplates;
     }
 
@@ -116,7 +118,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractNodeType> getNodeTypes() {
+    public Collection<AbstractNodeType> getNodeTypes() {
         return this.nodeTypes;
     }
 
@@ -124,7 +126,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractRelationshipType> getRelationshipTypes() {
+    public Collection<AbstractRelationshipType> getRelationshipTypes() {
         return this.relationshipTypes;
     }
 
@@ -140,7 +142,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public List<? extends AbstractDefinitions> getImportedDefinitions() {
+    public Collection<? extends AbstractDefinitions> getImportedDefinitions() {
         return this.referencedDefinitions;
     }
 
@@ -166,7 +168,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractNodeTypeImplementation> getNodeTypeImplementations() {
+    public Collection<AbstractNodeTypeImplementation> getNodeTypeImplementations() {
         return this.nodeTypeImpls;
     }
 
@@ -174,7 +176,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractRelationshipTypeImplementation> getRelationshipTypeImplementations() {
+    public Collection<AbstractRelationshipTypeImplementation> getRelationshipTypeImplementations() {
         return this.relationshipTypeImpls;
     }
 
@@ -182,7 +184,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractArtifactTemplate> getArtifactTemplates() {
+    public Collection<AbstractArtifactTemplate> getArtifactTemplates() {
         return this.artifactTemplates;
     }
 
@@ -271,17 +273,17 @@ public class DefinitionsImpl extends AbstractDefinitions {
     }
 
     @Override
-    public List<AbstractArtifactType> getArtifactTypes() {
+    public Collection<AbstractArtifactType> getArtifactTypes() {
         return this.artifactTypes;
     }
 
     @Override
-    public List<AbstractPolicyType> getPolicyTypes() {
+    public Collection<AbstractPolicyType> getPolicyTypes() {
         return this.policyTypes;
     }
 
     @Override
-    public List<AbstractPolicyTemplate> getPolicyTemplates() {
+    public Collection<AbstractPolicyTemplate> getPolicyTemplates() {
         return this.policyTemlates;
     }
 }

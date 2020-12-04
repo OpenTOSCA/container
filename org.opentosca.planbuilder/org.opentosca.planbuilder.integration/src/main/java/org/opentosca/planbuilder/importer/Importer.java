@@ -18,6 +18,7 @@ import org.eclipse.winery.model.tosca.Definitions;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 
+import com.google.common.collect.Lists;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
@@ -73,7 +74,7 @@ public class Importer extends AbstractImporter {
 
 
             AbstractDefinitions defs = this.createContext(csarId);
-            AbstractTopologyTemplate topology = defs.getServiceTemplates().get(0).getTopologyTemplate();
+            AbstractTopologyTemplate topology = Lists.newArrayList(defs.getServiceTemplates()).get(0).getTopologyTemplate();
 
             return this.buildAdaptationPlan(csarId.csarName(), defs, serviceTemplateId,
                 this.getNodes(topology, sourceNodeTemplateIds),

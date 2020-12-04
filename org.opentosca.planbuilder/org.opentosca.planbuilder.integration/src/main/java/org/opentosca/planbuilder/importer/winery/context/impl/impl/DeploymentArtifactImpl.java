@@ -83,11 +83,16 @@ public class DeploymentArtifactImpl extends AbstractDeploymentArtifact {
         } else if (!this.artifact.equals(other.artifact)) {
             return false;
         }
-        if (this.def == null) {
-            if (other.def != null) {
-                return false;
-            }
-        } else if (!this.def.equals(other.def)) {
+
+        if(!(this.artifact == other.artifact)){
+            return false;
+        }
+
+        if(!(this.artifact.getName().equals(other.artifact.getName()))){
+            return false;
+        }
+
+        if(!(this.artifact.getArtifactType().equals(other.artifact.getArtifactType()))){
             return false;
         }
 

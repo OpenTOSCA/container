@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.model.tosca;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -69,14 +70,14 @@ public abstract class AbstractNodeTypeImplementation {
      *
      * @return a List of AbstractImplementationArtifacts of this NodeTypeImplementation
      */
-    public abstract List<AbstractImplementationArtifact> getImplementationArtifacts();
+    public abstract Collection<AbstractImplementationArtifact> getImplementationArtifacts();
 
     /**
      * Returns the TOSCA DeploymentArtifacts in this NodeTypeImplementation
      *
      * @return a List of AbstractDeployomentArtifacts of this NodeTypeImplementation
      */
-    public abstract List<AbstractDeploymentArtifact> getDeploymentArtifacts();
+    public abstract Collection<AbstractDeploymentArtifact> getDeploymentArtifacts();
 
     /**
      * Returns the TOSCA NodeType this NodeTypeImplementation implements
@@ -85,23 +86,5 @@ public abstract class AbstractNodeTypeImplementation {
      */
     public abstract AbstractNodeType getNodeType();
 
-    @Override
-    public boolean equals(Object obj) {
 
-        if(!(obj instanceof AbstractNodeTypeImplementation)){
-            return false;
-        }
-
-        AbstractNodeTypeImplementation nodeImpl = (AbstractNodeTypeImplementation) obj;
-
-        if(!nodeImpl.getName().equals(this.getName())){
-            return false;
-        }
-
-        if(!nodeImpl.getNodeType().equals(this.getNodeType())){
-            return false;
-        }
-
-        return super.equals(obj);
-    }
 }

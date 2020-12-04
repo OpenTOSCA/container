@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.core.AbstractSimplePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
@@ -65,9 +66,9 @@ public abstract class AbstractImporter {
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder(pluginRegistry);
 
         plans.add(transformPlanBuilder.buildPlan(sourceCsarName, sourceDefinitions,
-            sourceDefinitions.getServiceTemplates().get(0).getQName(),
+            Lists.newArrayList(sourceDefinitions.getServiceTemplates()).get(0).getQName(),
             targetCsarName, targetDefinitions,
-            targetDefinitions.getServiceTemplates().get(0).getQName()));
+            Lists.newArrayList(targetDefinitions.getServiceTemplates()).get(0).getQName()));
 
         return plans;
     }
