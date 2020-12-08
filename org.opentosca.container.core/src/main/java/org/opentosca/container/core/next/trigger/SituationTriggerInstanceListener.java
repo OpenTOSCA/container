@@ -87,9 +87,10 @@ public class SituationTriggerInstanceListener {
             long timeAvailableInSeconds = Long.MAX_VALUE;
 
             for (Situation sit : this.instance.getSituationTrigger().getSituations()) {
-                long duration = Long.parseLong(sit.getEventTime());
+                if(sit.getEventTime() != null){ long duration = Long.parseLong(sit.getEventTime());
                 if (duration < timeAvailableInSeconds) {
                     timeAvailableInSeconds = duration;
+                }
                 }
             }
 
@@ -157,9 +158,8 @@ public class SituationTriggerInstanceListener {
                     final String correlationId = planInvocEngine.createCorrelationId();
                     // FIXME QName natural key migration to string leftover
                     if (servInstance != null) {
-                        planInvocEngine.invokePlan(servInstance.getCsarId(),
-                            QName.valueOf(servInstance.getTemplateId()), servInstance.getId(), planDTO,
-                            correlationId);
+                        planInvocEngine.invokePlan(instance.getSituationTrigger().getCsarId(), new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()), servInstance.getId(),
+                            planDTO, correlationId);
                     } else {
                         planInvocEngine.invokePlan(instance.getSituationTrigger().getCsarId(), new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()), -1,
                             planDTO, correlationId);

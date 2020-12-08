@@ -98,8 +98,10 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
     @Override
     public Collection<T> findAll() {
         try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
-            return em.createQuery(String.format("SELECT e FROM %s e", this.clazz.getSimpleName()), this.clazz)
+            Collection<T> result = em.createQuery(String.format("SELECT e FROM %s e", this.clazz.getSimpleName()), this.clazz)
                 .getResultList();
+            result.forEach(x -> this.initializeInstance(x));
+            return result;
         }
     }
 

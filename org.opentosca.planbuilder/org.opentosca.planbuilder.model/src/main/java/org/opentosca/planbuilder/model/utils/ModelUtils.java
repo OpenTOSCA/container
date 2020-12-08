@@ -84,27 +84,6 @@ public class ModelUtils {
     }
 
     /**
-     * Returns true if the given QName type denotes to a RelationshipType in the type hierarchy of the given
-     * RelationshipTemplate
-     *
-     * @param relationshipTemplate an AbstractRelationshipTemplate
-     * @param type                 the Type as a QName to check against
-     * @return true iff the given RelationshipTemplate contains the given type in its type hierarchy
-     */
-    public static boolean checkForTypeInHierarchy(final AbstractRelationshipTemplate relationshipTemplate,
-                                                  final QName type) {
-        final List<QName> typeHierarchy =
-            ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType());
-        // as somehow contains won't work here, we must cycle trough
-        for (final QName qname : typeHierarchy) {
-            if (qname.equals(type)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Removes duplicates from the given List
      *
      * @param nodeTemplates a List of AbstractNodeTemplate
@@ -175,19 +154,6 @@ public class ModelUtils {
         }
         relationshipTemplates.clear();
         relationshipTemplates.addAll(list);
-    }
-
-    public static Set<AbstractDeploymentArtifact> computeEffectiveDeploymentArtifacts(final AbstractNodeTemplate nodeTemplate,
-                                                                                      final AbstractNodeTypeImplementation nodeImpl) {
-        final Set<AbstractDeploymentArtifact> effectiveDAs = new HashSet<>();
-        effectiveDAs.addAll(nodeTemplate.getDeploymentArtifacts());
-        for (final AbstractDeploymentArtifact da : nodeImpl.getDeploymentArtifacts()) {
-            if (!effectiveDAs.contains(da)) {
-                effectiveDAs.add(da);
-            }
-        }
-
-        return effectiveDAs;
     }
 
     public static List<QName> getArtifactTypeHierarchy(final AbstractArtifactTemplate artifactTemplate) {
@@ -449,22 +415,6 @@ public class ModelUtils {
         ModelUtils.cleanDuplciates(nodes);
     }
 
-    public static void getNodesFromRelationToSink(final AbstractRelationshipTemplate relationshipTemplate,
-                                                  final QName relationshipType,
-                                                  final List<AbstractNodeTemplate> nodes) {
-        final AbstractNodeTemplate nodeTemplate = relationshipTemplate.getTarget();
-        nodes.add(nodeTemplate);
-        for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
-
-            if (ModelUtils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType())
-                .contains(relationshipType)) {
-
-                ModelUtils.getNodesFromRelationToSink(outgoingTemplate, relationshipType, nodes);
-            }
-        }
-        ModelUtils.cleanDuplciates(nodes);
-    }
-
     private static void getNodesFromRelationToSources(final AbstractRelationshipTemplate ingoingTemplate,
                                                       final List<AbstractNodeTemplate> nodes) {
         final AbstractNodeTemplate nodeTemplate = ingoingTemplate.getSource();
@@ -662,14 +612,6 @@ public class ModelUtils {
         is.setCharacterStream(new StringReader(xmlString));
         final Document doc = docBuilder.parse(is);
         return doc.getFirstChild();
-    }
-
-    public static Node string2domQuietly(final String xmlString) {
-        try {
-            return string2dom(xmlString);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**

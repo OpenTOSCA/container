@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.model.tosca;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -69,14 +70,14 @@ public abstract class AbstractNodeTypeImplementation {
      *
      * @return a List of AbstractImplementationArtifacts of this NodeTypeImplementation
      */
-    public abstract List<AbstractImplementationArtifact> getImplementationArtifacts();
+    public abstract Collection<AbstractImplementationArtifact> getImplementationArtifacts();
 
     /**
      * Returns the TOSCA DeploymentArtifacts in this NodeTypeImplementation
      *
      * @return a List of AbstractDeployomentArtifacts of this NodeTypeImplementation
      */
-    public abstract List<AbstractDeploymentArtifact> getDeploymentArtifacts();
+    public abstract Collection<AbstractDeploymentArtifact> getDeploymentArtifacts();
 
     /**
      * Returns the TOSCA NodeType this NodeTypeImplementation implements
@@ -84,4 +85,6 @@ public abstract class AbstractNodeTypeImplementation {
      * @return an AbstractNodeType this NodeTypeImplementation implements
      */
     public abstract AbstractNodeType getNodeType();
+
+
 }

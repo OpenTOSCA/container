@@ -96,7 +96,7 @@ public class ScalingPlanDefinition {
         }
 
         @Override
-        public List<AbstractDeploymentArtifact> getDeploymentArtifacts() {
+        public Collection<AbstractDeploymentArtifact> getDeploymentArtifacts() {
             return this.nodeTemplate.getDeploymentArtifacts();
         }
 

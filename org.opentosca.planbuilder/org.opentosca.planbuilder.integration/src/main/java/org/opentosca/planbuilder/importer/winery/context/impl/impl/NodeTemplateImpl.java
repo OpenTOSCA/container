@@ -1,8 +1,11 @@
 package org.opentosca.planbuilder.importer.winery.context.impl.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -47,7 +50,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
     private final List<AbstractRelationshipTemplate> outgoingRelations;
     private final List<AbstractRequirement> requirements;
     private final List<AbstractCapability> capabilities;
-    private final List<AbstractDeploymentArtifact> das;
+    private final Set<AbstractDeploymentArtifact> das;
     private final List<AbstractPolicy> policies;
     private AbstractProperties properties;
 
@@ -63,7 +66,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
         this.topology = topology;
         this.requirements = new ArrayList<>();
         this.capabilities = new ArrayList<>();
-        this.das = new ArrayList<>();
+        this.das = new HashSet<>();
         this.policies = new ArrayList<>();
         if (this.nodeTemplate.getProperties() != null && this.nodeTemplate.getProperties().getInternalAny() != null) {
             this.properties = new PropertiesImpl(this.nodeTemplate.getProperties().getInternalAny());
@@ -102,7 +105,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
             }
         }
 
-        for (final AbstractNodeTypeImplementation nodeTypeImpl : findNodeTypeImpls(this.definitions)) {
+        for (final AbstractNodeTypeImplementation nodeTypeImpl : this.getImplementations()) {
             this.das.addAll(nodeTypeImpl.getDeploymentArtifacts());
         }
     }
@@ -205,7 +208,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
     public List<AbstractNodeTypeImplementation> getImplementations() {
         final List<AbstractNodeTypeImplementation> impls = new ArrayList<>();
 
-        final List<AbstractNodeTypeImplementation> foundImpls = findNodeTypeImpls(this.definitions);
+        final Set<AbstractNodeTypeImplementation> foundImpls = findNodeTypeImpls(this.definitions);
 
         for (final AbstractNodeTypeImplementation impl : foundImpls) {
 
@@ -238,14 +241,14 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
         return impls;
     }
 
-    private List<AbstractNodeTypeImplementation> findNodeTypeImpls(final AbstractDefinitions def) {
-        final List<AbstractNodeTypeImplementation> impls = new ArrayList<>();
+    private Set<AbstractNodeTypeImplementation> findNodeTypeImpls(final AbstractDefinitions def) {
+        final Set<AbstractNodeTypeImplementation> impls = new HashSet<>();
 
         AbstractDefinitions currentDef = def;
         final Stack<AbstractDefinitions> defsToSearchIn = new Stack<>();
 
         while (currentDef != null) {
-            impls.addAll(currentDef.getNodeTypeImplementations());
+            currentDef.getNodeTypeImplementations().forEach(x -> impls.add(x));
             for (final AbstractDefinitions importedDef : currentDef.getImportedDefinitions()) {
                 defsToSearchIn.push(importedDef);
             }
@@ -268,7 +271,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
     }
 
     @Override
-    public List<AbstractDeploymentArtifact> getDeploymentArtifacts() {
+    public Collection<AbstractDeploymentArtifact> getDeploymentArtifacts() {
         return this.das;
     }
 

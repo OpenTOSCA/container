@@ -15,6 +15,7 @@ import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.repository.backend.RepositoryFactory;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.control.OpenToscaControlService;
@@ -210,7 +211,6 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
 
         // fallback to serviceTemplate NamespaceURI
         final String namespace = plans.getTargetNamespace() == null ? "" : plans.getTargetNamespace();
-
         if (!planEngine.deployPlan(plan, namespace, csar)) {
                 undeployedPlans.add(plan);
         }
@@ -223,6 +223,8 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
 
     @Override
     public boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate) {
+
+
         deploymentTracker.storeDeploymentState(csar, PLAN_DEPLOYMENT_ACTIVE);
         final List<TPlan> undeployedPlans = new ArrayList<>();
         LOGGER.trace("Invoking PlanEngine to process Plans");
