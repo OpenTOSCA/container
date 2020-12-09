@@ -39,34 +39,38 @@ public class ChoreographyHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(ChoreographyHandler.class);
 
-    private final static QName LOCATION_ATTRIBUTE = QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}location");
+    private final static QName PARTICIPANT_ATTRIBUTE = QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}participant");
+    private static final String PARTICIPANT = "participant";
+    private static final String APP_CHOR_ID = "app_chor_id";
+    private static final String PARTNERSELECTION_RULES = "partnerselection_rules";
+    private static final String CHOREOGRAPHY = "choreography";
 
     /**
      * Check if the given ServiceTemplate is part of a choreographed application deployment
      */
     public boolean isChoreography(final TServiceTemplate serviceTemplate) {
-        return Objects.nonNull(getTagWithName(serviceTemplate, "choreography"));
+        return Objects.nonNull(getTagWithName(serviceTemplate, CHOREOGRAPHY));
     }
 
     /**
      * Get the participant tag of the given ServiceTemplate
      */
     public String getInitiator(final TServiceTemplate serviceTemplate) {
-        return getTagWithName(serviceTemplate, "participant");
+        return getTagWithName(serviceTemplate, PARTICIPANT);
     }
 
     /**
      * Get the app_chor_id tag of the given ServiceTemplate
      */
     public String getAppChorId(final TServiceTemplate serviceTemplate) {
-        return getTagWithName(serviceTemplate, "app_chor_id");
+        return getTagWithName(serviceTemplate, APP_CHOR_ID);
     }
 
     public Collection<SituationExpression> getSituationExpressions(final TServiceTemplate serviceTemplate) {
         List<SituationExpression> situationRules = new ArrayList<>();
         Map<String, String> tags = this.getTags(serviceTemplate);
         // get tag containing the situation rules
-        String situationRuleTag = tags.get("partnerselection_rules");
+        String situationRuleTag = tags.get(PARTNERSELECTION_RULES);
         if (Objects.nonNull(situationRuleTag)) {
             String[] situationRuleCandidates = situationRuleTag.split(";");
             LOG.debug("Found {} situation rule candidate(s)!", situationRuleCandidates.length);
@@ -104,7 +108,7 @@ public class ChoreographyHandler {
         List<SituationRule> situationRules = new ArrayList<>();
 
         // get tag containing the situation rules
-        String situationRuleTag = getTagWithName(serviceTemplate, "partnerselection_rules");
+        String situationRuleTag = getTagWithName(serviceTemplate, PARTNERSELECTION_RULES);
         if (Objects.nonNull(situationRuleTag)) {
             String[] situationRuleCandidates = situationRuleTag.split(";");
             LOG.debug("Found {} situation rule candidate(s)!", situationRuleCandidates.length);
@@ -286,22 +290,33 @@ public class ChoreographyHandler {
         final List<String> partnerNames =
             serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
                 .filter(entity -> entity instanceof TNodeTemplate).map(TExtensibleElements::getOtherAttributes)
-                .map(attributes -> attributes.get(LOCATION_ATTRIBUTE))
+                .map(attributes -> attributes.get(PARTICIPANT_ATTRIBUTE))
                 .flatMap(locationString -> Arrays.stream(locationString.split(",")))
                 .distinct()
                 .collect(Collectors.toList());
         LOG.debug("Number of partners: {}", partnerNames.size());
 
         // remove tags that do not specify a partner endpoint and get endpoints
-        tags.removeIf(tag -> !partnerNames.contains(tag.getName()));
+        //tags.removeIf(tag -> !partnerNames.contains(tag.getName()));
+
+        List<TTag> partnerTags = Lists.newArrayList();
+
+        tags.forEach(tag -> {
+            if (tag.getName().startsWith("participant:")) {
+                String participantName = tag.getName().replace("participant:", "");
+                if(partnerNames.contains(participantName)){
+                    partnerTags.add(new TTag.Builder().setName(participantName).setValue(tag.getValue()).build());
+                }
+
+            }});
 
         LOG.debug("Number of tags after filtering for partners: {}", tags.size());
-        return tags;
+        return partnerTags;
     }
 
     public String getPossiblePartners(final TNodeTemplate nodeTemplate, Collection<String> participants) {
-        if (nodeTemplate.getOtherAttributes().get(LOCATION_ATTRIBUTE) != null) {
-            for (String participant : nodeTemplate.getOtherAttributes().get(LOCATION_ATTRIBUTE).split(",")) {
+        if (nodeTemplate.getOtherAttributes().get(PARTICIPANT_ATTRIBUTE) != null) {
+            for (String participant : nodeTemplate.getOtherAttributes().get(PARTICIPANT_ATTRIBUTE).split(",")) {
                 if (participants.contains(participant)) {
                     return participant;
                 }
@@ -343,7 +358,7 @@ public class ChoreographyHandler {
             TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
             String tagAppChorId = new ChoreographyHandler().getAppChorId(serviceTemplate);
 
-            String participantName = getTagWithName(serviceTemplate, "participant");
+            String participantName = getTagWithName(serviceTemplate, PARTICIPANT);
             if (Objects.nonNull(tagAppChorId) && tagAppChorId.equals(appChoreoId) && Objects.nonNull(participantName) && participantName.equals(receivingPartner)) {
                 return csar;
             }
