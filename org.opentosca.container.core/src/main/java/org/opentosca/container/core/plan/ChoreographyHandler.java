@@ -39,14 +39,11 @@ public class ChoreographyHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(ChoreographyHandler.class);
 
-   @Deprecated
-    private final static QName LOCATION_ATTRIBUTE = QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}location");
-
-   private final static QName PARTICIPANT_ATTRIBUTE = QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}participant");
-    public static final String PARTICIPANT = "participant";
-    public static final String APP_CHOR_ID = "app_chor_id";
-    public static final String PARTNERSELECTION_RULES = "partnerselection_rules";
-    public static final String CHOREOGRAPHY = "choreography";
+    private final static QName PARTICIPANT_ATTRIBUTE = QName.valueOf("{http://www.opentosca.org/winery/extensions/tosca/2013/02/12}participant");
+    private static final String PARTICIPANT = "participant";
+    private static final String APP_CHOR_ID = "app_chor_id";
+    private static final String PARTNERSELECTION_RULES = "partnerselection_rules";
+    private static final String CHOREOGRAPHY = "choreography";
 
     /**
      * Check if the given ServiceTemplate is part of a choreographed application deployment
