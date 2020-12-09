@@ -35,7 +35,7 @@ public class BPELNotifyHandler extends PluginHandler {
 
     private static final String correlationSetPrefix = "NotificationCorrelation";
     private static final String correlationPropertyPrefix = "notifcationProperty";
-    public static final String LOCATION = "participant";
+    private static final String LOCATION = "participant";
 
     private String getGloblaNotifyCorrelationSetName(final BPELPlanContext context) {
         for (final String name : context.getGlobalCorrelationSetNames()) {
