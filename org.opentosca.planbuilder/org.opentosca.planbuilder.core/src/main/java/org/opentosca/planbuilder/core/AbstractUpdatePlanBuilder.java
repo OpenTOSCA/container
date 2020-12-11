@@ -48,8 +48,8 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
-        final Map<AbstractNodeTemplate, AbstractActivity> mappingStop = new HashMap<>();
-        final Map<AbstractNodeTemplate, AbstractActivity> mappingStart = new HashMap<>();
+        final Map<AbstractNodeTemplate, AbstractActivity> mappingStop = new HashMap<AbstractNodeTemplate, AbstractActivity>();
+        final Map<AbstractNodeTemplate, AbstractActivity> mappingStart = new HashMap<AbstractNodeTemplate, AbstractActivity>();
 
         final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
@@ -144,6 +144,41 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
             }
         }
 
+        final Collection<AbstractActivity> sinks = new HashSet<>();
+        for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
+            boolean isSink = true;
+            for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
+                if (relationshipTemplate.getSource().equals(nodeTemplate)) {
+                    isSink = false;
+                    break;
+                }
+            }
+            if (isSink) {
+                sinks.add(mappingStop.get(nodeTemplate));
+            }
+        }
+
+        final Collection<AbstractActivity> sources = new HashSet<>();
+        for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
+            boolean isSource = true;
+            for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
+                if (relationshipTemplate.getTarget().equals(nodeTemplate)) {
+                    isSource = false;
+                    break;
+                }
+            }
+            if (isSource) {
+                sinks.add(mappingStart.get(nodeTemplate));
+            }
+        }
+
+
+        // naively we connect each sink with each source
+        for (AbstractActivity sink : sinks) {
+            for (AbstractActivity source : sources) {
+                links.add(new Link(sink, source));
+            }
+        }
 
         return new AbstractPlan(id, PlanType.MANAGEMENT, definitions, serviceTemplate, activities, links) {
         };
