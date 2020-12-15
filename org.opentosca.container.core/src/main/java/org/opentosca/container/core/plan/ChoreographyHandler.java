@@ -276,38 +276,20 @@ public class ChoreographyHandler {
      * <code>null</code> if no tags are defined on the ServiceTemplate
      */
     public List<TTag> getPartnerEndpoints(final TServiceTemplate serviceTemplate) {
-
         // get the tags containing the endpoints of the partners
         if (Objects.isNull(serviceTemplate.getTags())) {
             LOG.error("Unable to retrieve tags for ServiceTemplate with ID {}.", serviceTemplate.getId());
             return null;
         }
-
-        List<TTag> tags = Lists.newArrayList(serviceTemplate.getTags().getTag().iterator());
+        List<TTag> tags = serviceTemplate.getTags().getTag();
         LOG.debug("Number of tags: {}", tags.size());
-
-        // get the provider names defined in the NodeTemplates to check which tag names specify a partner endpoint
-        final List<String> partnerNames =
-            serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
-                .filter(entity -> entity instanceof TNodeTemplate).map(TExtensibleElements::getOtherAttributes)
-                .map(attributes -> attributes.get(PARTICIPANT_ATTRIBUTE))
-                .flatMap(locationString -> Arrays.stream(locationString.split(",")))
-                .distinct()
-                .collect(Collectors.toList());
-        LOG.debug("Number of partners: {}", partnerNames.size());
-
-        // remove tags that do not specify a partner endpoint and get endpoints
-        //tags.removeIf(tag -> !partnerNames.contains(tag.getName()));
 
         List<TTag> partnerTags = Lists.newArrayList();
 
         tags.forEach(tag -> {
             if (tag.getName().startsWith("participant:")) {
                 String participantName = tag.getName().replace("participant:", "");
-                if(partnerNames.contains(participantName)){
-                    partnerTags.add(new TTag.Builder().setName(participantName).setValue(tag.getValue()).build());
-                }
-
+                partnerTags.add(new TTag.Builder().setName(participantName).setValue(tag.getValue()).build());
             }});
 
         LOG.debug("Number of tags after filtering for partners: {}", tags.size());
