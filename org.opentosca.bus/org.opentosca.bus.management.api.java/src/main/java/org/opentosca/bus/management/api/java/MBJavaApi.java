@@ -510,7 +510,7 @@ public class MBJavaApi implements IManagementBus {
                 map.put(para, csarID.toString());
             } else if (para.equalsIgnoreCase("serviceTemplateID")) {
                 LOG.debug("Found serviceTemplateID Element! Put in serviceTemplateID \"" + serviceTemplateID + "\".");
-                map.put(para, serviceTemplateID.toString());
+                map.put(para, serviceTemplateID);
             } else if (para.equalsIgnoreCase("OpenTOSCAContainerAPIServiceInstanceURL")
                 & serviceTemplateInstanceId != null) {
                 final String serviceTemplateInstanceUrl = createServiceInstanceURI(csarID, serviceTemplateID, serviceTemplateInstanceId);
@@ -526,7 +526,7 @@ public class MBJavaApi implements IManagementBus {
                 str = str.replace("{csarid}", csarID.csarName());
                 try {
                     str = str.replace("{servicetemplateid}",
-                        URLEncoder.encode(URLEncoder.encode(serviceTemplateID.toString(), "UTF-8"),
+                        URLEncoder.encode(URLEncoder.encode(serviceTemplateID, "UTF-8"),
                             "UTF-8"));
                 } catch (UnsupportedEncodingException e) {
                     LOG.error("Couldn't encode Service Template URL", e);

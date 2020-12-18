@@ -175,7 +175,7 @@ public class WineryConnector {
                 return;
             }
 
-            LOG.debug("Stored CSAR at location: {}", location.toString());
+            LOG.debug("Stored CSAR at location: {}", location);
 
             // get all available features for the given CSAR
             final HttpGet get = new HttpGet();
