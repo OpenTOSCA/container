@@ -4,9 +4,7 @@ import java.util.Collection;
 
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.ia.IADeploymentInfo;
-import org.opentosca.container.core.model.deployment.ia.IADeploymentState;
 import org.opentosca.container.core.model.deployment.plan.PlanDeploymentInfo;
-import org.opentosca.container.core.model.deployment.plan.PlanDeploymentState;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
 
 public interface DeploymentTracker {

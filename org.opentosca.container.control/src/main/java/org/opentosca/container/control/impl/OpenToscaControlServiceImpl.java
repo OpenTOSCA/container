@@ -1,21 +1,16 @@
 package org.opentosca.container.control.impl;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.xml.namespace.QName;
 
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.repository.backend.RepositoryFactory;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.control.OpenToscaControlService;

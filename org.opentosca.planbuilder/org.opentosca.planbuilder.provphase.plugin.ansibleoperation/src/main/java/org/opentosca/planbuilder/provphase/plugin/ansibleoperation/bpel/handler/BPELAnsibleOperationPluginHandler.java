@@ -12,7 +12,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.io.FilenameUtils;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.tosca.convention.Interfaces;

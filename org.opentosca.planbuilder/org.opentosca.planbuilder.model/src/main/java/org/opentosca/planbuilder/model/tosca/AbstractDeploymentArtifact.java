@@ -1,7 +1,5 @@
 package org.opentosca.planbuilder.model.tosca;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
 /**
