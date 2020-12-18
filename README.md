@@ -28,6 +28,12 @@ Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 2. Add created war file of project `org.opentosca.container.war` to suitable server configured within your eclipse, e.g., Tomcat
 3. (AdditionalInfo) Usually the application runs on port 1337 and without a prefix in the path -> change port of tomcat to 1337 and remove the path of the added WAR project
 
+## Run via embedded Tomcat
+
+1. Switch to folder org.opentosca.container.war
+2. Run the following command: 'org.apache.tomcat.maven:tomcat7-maven-plugin:2.0:run'
+3. Be sure to use Java 8
+
 ## Haftungsausschluss
 
 Dies ist ein Forschungsprototyp.
