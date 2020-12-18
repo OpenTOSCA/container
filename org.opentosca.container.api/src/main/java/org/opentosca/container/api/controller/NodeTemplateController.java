@@ -1,12 +1,15 @@
 package org.opentosca.container.api.controller;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -19,6 +22,8 @@ import javax.ws.rs.core.UriInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.NodeTemplateListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
@@ -153,5 +158,28 @@ public class NodeTemplateController {
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
         return child;
+    }
+
+    @POST
+    @Path("/{nodetemplate}/uploadDA")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response uploadStatefulDA(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
+                                     @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
+                                     @ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId,
+                                     @FormDataParam("file") final InputStream is,
+                                     @FormDataParam("file") final FormDataContentDisposition file){
+
+
+
+        NodeTemplateDTO result;
+        try {
+            result = this.nodeTemplateService.getNodeTemplateById(csarId, serviceTemplateId, nodeTemplateId);
+        } catch (org.opentosca.container.core.common.NotFoundException e) {
+            throw new NotFoundException(e.getMessage(), e);
+        }
+
+        return Response.ok("fubar").build();
+
     }
 }
