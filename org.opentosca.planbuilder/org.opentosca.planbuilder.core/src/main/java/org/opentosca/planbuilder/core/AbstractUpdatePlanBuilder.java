@@ -122,7 +122,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
             activities.add(activityStop);
 
             final RelationshipTemplateActivity activityStart = new RelationshipTemplateActivity(
-                relationshipTemplate.getId() + "_update_activity", ActivityType.UPDATE, relationshipTemplate);
+                relationshipTemplate.getId() + "_update_activity", ActivityType.PROVISIONING, relationshipTemplate);
             activities.add(activityStart);
 
             final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
@@ -168,7 +168,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
                 }
             }
             if (isSource) {
-                sinks.add(mappingStart.get(nodeTemplate));
+                sources.add(mappingStart.get(nodeTemplate));
             }
         }
 
