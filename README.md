@@ -18,15 +18,17 @@ Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
 ## Setup in IntelliJ
 
-1. Open the project using `File` > `Open` and navigate to the container folder.
-2. Right click the [pom.xml](pom.xml) and select `Add as Maven project`.
-3. Run the `Container` run configuration.
+1. [Install Lombok](https://projectlombok.org/setup/intellij).
+2. Open the project using `File` > `Open` and navigate to the container folder.
+3. Right click the [pom.xml](pom.xml) and select `Add as Maven project`.
+4. Run the `Container` run configuration.
 
 ## Setup in Eclipse
 
-1. Import project via `Import existing maven projects..`
-2. Add created war file of project `org.opentosca.container.war` to suitable server configured within your eclipse, e.g., Tomcat
-3. (AdditionalInfo) Usually the application runs on port 1337 and without a prefix in the path -> change port of tomcat to 1337 and remove the path of the added WAR project
+1. [Install Lombok](https://projectlombok.org/setup/eclipse).
+2. Import project via `Import existing maven projects..`
+3. Add created war file of project `org.opentosca.container.war` to suitable server configured within your eclipse, e.g., Tomcat
+4. (AdditionalInfo) Usually the application runs on port 1337 and without a prefix in the path -> change port of tomcat to 1337 and remove the path of the added WAR project
 
 ## Run via embedded Tomcat
 
