@@ -121,9 +121,22 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
             "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 
         // fetch all node instances that are running
-        this.instanceVarsHandler.addNodeInstanceFindLogic(newUpdatePlan,
-            "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
-            serviceTemplate);
+
+//        this.instanceVarsHandler.addNodeInstanceFindLogic(newUpdatePlan,
+//            "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
+//            serviceTemplate);
+
+        for (BPELScope scope : newUpdatePlan.getTemplateBuildPlans()) {
+            if (scope.getNodeTemplate() != null) {
+                if (!(scope.getActivity().getType().equals(ActivityType.PROVISIONING) ||
+                    scope.getActivity().getType().equals(ActivityType.DEFROST))) {
+                    this.instanceVarsHandler.addNodeInstanceFindLogic(scope, serviceTemplateURLVarName,
+                        "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
+                        serviceTemplate);
+                }
+            }
+        }
+
         this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newUpdatePlan, propMap,
             serviceTemplate);
 
