@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.AbstractUpdatePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
@@ -24,9 +26,12 @@ import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.ActivityType;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
@@ -34,6 +39,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
     private final static Logger LOG = LoggerFactory.getLogger(BPELUpdateProcessBuilder.class);
@@ -53,6 +60,8 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
     private CorrelationIDInitializer correlationHandler;
 
+    private BPELProcessFragments bpelFragments;
+
     public BPELUpdateProcessBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);
         try {
@@ -61,6 +70,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
             this.serviceInstanceVarsHandler = new SimplePlanBuilderServiceInstanceHandler();
             this.instanceVarsHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
             this.correlationHandler = new CorrelationIDInitializer();
+            this.bpelFragments = new BPELProcessFragments();
         } catch (final ParserConfigurationException e) {
             LOG.error("Error while initializing UpdatePlanHandler", e);
         }
@@ -177,6 +187,31 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
         return plans;
     }
 
+    private AbstractInterface getSaveStateInterface(final AbstractNodeTemplate nodeTemplate) {
+        return nodeTemplate.getType().getInterfaces().stream()
+            .filter(iface -> iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE))
+            .findFirst().orElse(null);
+    }
+
+    private AbstractOperation getSaveStateOperation(final AbstractNodeTemplate nodeTemplate) {
+        final AbstractInterface iface = getSaveStateInterface(nodeTemplate);
+        if (iface != null) {
+            for (final AbstractOperation op : iface.getOperations()) {
+                if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE)) {
+                    return op;
+                }
+            }
+        }
+        return null;
+    }
+
+    private AbstractParameter getSaveStateParameter(final AbstractOperation op) {
+        return op.getInputParameters().stream()
+            .filter(param -> param.getName()
+                .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT))
+            .findFirst().orElse(null);
+    }
+
     /**
      * This Methods Finds out if a Service Template Container a update method and then creates a update plan out of this
      * method
@@ -201,6 +236,41 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
                 // create a context for the node
 
                 final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+
+                if (templatePlan.getActivity().getType().equals(ActivityType.FREEZE)) {
+                    final String targetServiceTemplateUrlVar = context.getServiceTemplateURLVar();
+
+                    final String saveStateUrlVarName =
+                        this.planHandler.addGlobalStringVariable("nodeTemplateStateSaveURL", plan);
+
+                    final String xpathQuery = "concat($" + targetServiceTemplateUrlVar
+                        + ",'/nodetemplates/" + nodeTemplate.getId() + "/uploadDA')";
+                    try {
+                        Node assignSaveStateURL =
+                            this.bpelFragments.createAssignVarToVarWithXpathQueryAsNode("assignNodeTemplate"
+                                    + nodeTemplate.getId() + "state" + System.currentTimeMillis(),
+                                targetServiceTemplateUrlVar,
+                                saveStateUrlVarName,
+                                xpathQuery);
+                        assignSaveStateURL = context.importNode(assignSaveStateURL);
+                        context.getPrePhaseElement().appendChild(assignSaveStateURL);
+                    } catch (final IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (final SAXException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+
+                    final Variable saveStateUrlVar = BPELPlanContext.getVariable(saveStateUrlVarName);
+
+                    final Map<AbstractParameter, Variable> inputs = new HashMap<>();
+
+                    inputs.put(getSaveStateParameter(getSaveStateOperation(nodeTemplate)), saveStateUrlVar);
+
+                    context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
+                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
+                }
 
                 // TODO add termination logic
 
