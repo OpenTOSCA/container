@@ -19,6 +19,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -31,8 +34,12 @@ import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.core.common.uri.UriUtil;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.model.csar.CsarImpl;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.xml.PropertyParser;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -52,12 +59,15 @@ public class NodeTemplateController {
 
     private final NodeTemplateService nodeTemplateService;
     private final InstanceService instanceService;
+    private final CsarStorageService storage;
 
     // can't be injected because this is instantiated by the parent resource
     public NodeTemplateController(final NodeTemplateService nodeTemplateService,
-                                  final InstanceService instanceService) {
+                                  final InstanceService instanceService,
+                                  final CsarStorageService storage) {
         this.nodeTemplateService = nodeTemplateService;
         this.instanceService = instanceService;
+        this.storage = storage;
     }
 
     @GET
@@ -171,11 +181,15 @@ public class NodeTemplateController {
                                      @FormDataParam("file") final FormDataContentDisposition file){
 
 
+        final CsarImpl csar = (CsarImpl) storage.findById(new CsarId(csarId));
+        TServiceTemplate tServiceTemplate = csar.serviceTemplates().stream()
+            .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
+            .findFirst().orElseThrow(NotFoundException::new);
 
-        NodeTemplateDTO result;
         try {
-            result = this.nodeTemplateService.getNodeTemplateById(csarId, serviceTemplateId, nodeTemplateId);
-        } catch (org.opentosca.container.core.common.NotFoundException e) {
+            csar.addArtifactTemplate(is, new ServiceTemplateId(tServiceTemplate.getTargetNamespace(), tServiceTemplate.getId(), false), nodeTemplateId);
+
+        } catch (Exception e) {
             throw new NotFoundException(e.getMessage(), e);
         }
 

@@ -151,7 +151,7 @@ public class ServiceTemplateController {
             .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
-        final NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.instanceService);
+        final NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.instanceService, this.storage);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
