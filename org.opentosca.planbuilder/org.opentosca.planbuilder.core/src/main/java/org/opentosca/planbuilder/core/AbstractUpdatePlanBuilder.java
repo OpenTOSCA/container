@@ -96,7 +96,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
                 NodeTemplateActivity activityStart = new NodeTemplateActivity(
                     nodeTemplate.getId() + "_update_activity", ActivityType.UPDATE, nodeTemplate);
                 activities.add(activityStart);
-                mappingStart.put(nodeTemplate, activityStop);
+                mappingStart.put(nodeTemplate, activityStart);
             } else {
                 // Cant be updated and doesnt depend on any updatable.
                 // No need to do anything. Just add None Activities.
@@ -144,7 +144,8 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
             }
         }
 
-        final Collection<AbstractActivity> sinks = new HashSet<>();
+        final Collection<AbstractActivity> sinksStart = new HashSet<>();
+        final Collection<AbstractActivity> sinksStop = new HashSet<>();
         for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
             boolean isSink = true;
             for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
@@ -154,29 +155,16 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
                 }
             }
             if (isSink) {
-                sinks.add(mappingStop.get(nodeTemplate));
-            }
-        }
-
-        final Collection<AbstractActivity> sources = new HashSet<>();
-        for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-            boolean isSource = true;
-            for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
-                if (relationshipTemplate.getTarget().equals(nodeTemplate)) {
-                    isSource = false;
-                    break;
-                }
-            }
-            if (isSource) {
-                sources.add(mappingStart.get(nodeTemplate));
+                sinksStop.add(mappingStop.get(nodeTemplate));
+                sinksStart.add(mappingStart.get(nodeTemplate));
             }
         }
 
 
         // naively we connect each sink with each source
-        for (AbstractActivity sink : sinks) {
-            for (AbstractActivity source : sources) {
-                links.add(new Link(sink, source));
+        for (AbstractActivity from : sinksStop) {
+            for (AbstractActivity to : sinksStart) {
+                links.add(new Link(from, to));
             }
         }
 
