@@ -1,7 +1,6 @@
 package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;

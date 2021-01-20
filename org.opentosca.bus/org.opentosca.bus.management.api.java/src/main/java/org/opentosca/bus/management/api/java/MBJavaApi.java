@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
@@ -192,7 +193,7 @@ public class MBJavaApi implements IManagementBus {
         @SuppressWarnings("unchecked") final Map<String, Collection<Long>> nodeIds2situationIds = (Map<String, Collection<Long>>) eventValues.get("NODE2SITUATIONS");
 
         final AbstractTopologyTemplate topology =
-            importer.getMainDefinitions(instance.getCsarId()).getServiceTemplates().get(0).getTopologyTemplate();
+            Lists.newArrayList(importer.getMainDefinitions(instance.getCsarId()).getServiceTemplates()).get(0).getTopologyTemplate();
 
         final ServiceTemplateInstanceConfiguration currentConfig =
             getCurrentServiceTemplateInstanceConfiguration(topology, instance);
@@ -509,7 +510,7 @@ public class MBJavaApi implements IManagementBus {
                 map.put(para, csarID.toString());
             } else if (para.equalsIgnoreCase("serviceTemplateID")) {
                 LOG.debug("Found serviceTemplateID Element! Put in serviceTemplateID \"" + serviceTemplateID + "\".");
-                map.put(para, serviceTemplateID.toString());
+                map.put(para, serviceTemplateID);
             } else if (para.equalsIgnoreCase("OpenTOSCAContainerAPIServiceInstanceURL")
                 & serviceTemplateInstanceId != null) {
                 final String serviceTemplateInstanceUrl = createServiceInstanceURI(csarID, serviceTemplateID, serviceTemplateInstanceId);
@@ -525,7 +526,7 @@ public class MBJavaApi implements IManagementBus {
                 str = str.replace("{csarid}", csarID.csarName());
                 try {
                     str = str.replace("{servicetemplateid}",
-                        URLEncoder.encode(URLEncoder.encode(serviceTemplateID.toString(), "UTF-8"),
+                        URLEncoder.encode(URLEncoder.encode(serviceTemplateID, "UTF-8"),
                             "UTF-8"));
                 } catch (UnsupportedEncodingException e) {
                     LOG.error("Couldn't encode Service Template URL", e);

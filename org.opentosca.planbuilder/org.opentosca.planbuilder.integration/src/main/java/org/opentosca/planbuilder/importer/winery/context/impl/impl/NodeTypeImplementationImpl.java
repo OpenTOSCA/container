@@ -1,6 +1,8 @@
 package org.opentosca.planbuilder.importer.winery.context.impl.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -34,8 +36,8 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
     private final DefinitionsImpl definitions;
     private final org.eclipse.winery.model.tosca.TNodeTypeImplementation nodeTypeImpl;
     private final List<AbstractTag> tags;
-    private final List<AbstractImplementationArtifact> ias;
-    private final List<AbstractDeploymentArtifact> das;
+    private final Collection<AbstractImplementationArtifact> ias;
+    private final Collection<AbstractDeploymentArtifact> das;
 
     /**
      * Constructor
@@ -48,13 +50,13 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
         this.definitions = definitionsImpl;
         this.nodeTypeImpl = nodeTypeImpl;
         this.tags = new ArrayList<>();
-        this.ias = new ArrayList<>();
-        this.das = new ArrayList<>();
+        this.ias = new HashSet<>();
+        this.das = new HashSet<>();
         LOG.debug("Initializing NodeTypeImplementation {" + this.nodeTypeImpl.getTargetNamespace() + "}"
             + this.nodeTypeImpl.getName());
         this.initTags();
-        this.initIas();
         this.initDas();
+        this.initIas();
     }
 
     /**
@@ -159,7 +161,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractImplementationArtifact> getImplementationArtifacts() {
+    public Collection<AbstractImplementationArtifact> getImplementationArtifacts() {
         return this.ias;
     }
 
@@ -167,7 +169,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractDeploymentArtifact> getDeploymentArtifacts() {
+    public Collection<AbstractDeploymentArtifact> getDeploymentArtifacts() {
         return this.das;
     }
 
@@ -186,5 +188,26 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if(!(obj instanceof AbstractNodeTypeImplementation)){
+            return false;
+        }
+
+        NodeTypeImplementationImpl nodeImpl = (NodeTypeImplementationImpl) obj;
+
+        if(!(this.nodeTypeImpl.equals(nodeImpl.nodeTypeImpl))){
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.nodeTypeImpl.hashCode();
     }
 }

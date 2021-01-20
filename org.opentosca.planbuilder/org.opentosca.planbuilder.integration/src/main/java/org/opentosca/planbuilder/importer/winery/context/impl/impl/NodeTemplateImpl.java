@@ -248,7 +248,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
         final Stack<AbstractDefinitions> defsToSearchIn = new Stack<>();
 
         while (currentDef != null) {
-            impls.addAll(currentDef.getNodeTypeImplementations());
+            currentDef.getNodeTypeImplementations().forEach(x -> impls.add(x));
             for (final AbstractDefinitions importedDef : currentDef.getImportedDefinitions()) {
                 defsToSearchIn.push(importedDef);
             }

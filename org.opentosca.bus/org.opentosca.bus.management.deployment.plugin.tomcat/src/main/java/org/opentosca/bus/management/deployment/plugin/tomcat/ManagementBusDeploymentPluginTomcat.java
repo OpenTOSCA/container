@@ -122,8 +122,8 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
         final String placeholderBegin = "/PLACEHOLDER_";
         final String placeholderEnd = "_PLACEHOLDER/";
         String endpoint = null;
-        if (endpointSuffix.toString().contains(placeholderBegin)
-            && endpointSuffix.toString().contains(placeholderEnd)) {
+        if (endpointSuffix.contains(placeholderBegin)
+            && endpointSuffix.contains(placeholderEnd)) {
 
             // just return a created endpoint and do not perform deployment
             final String placeholder =

@@ -35,6 +35,7 @@ public class BPELNotifyHandler extends PluginHandler {
 
     private static final String correlationSetPrefix = "NotificationCorrelation";
     private static final String correlationPropertyPrefix = "notifcationProperty";
+    private static final String LOCATION = "participant";
 
     private String getGloblaNotifyCorrelationSetName(final BPELPlanContext context) {
         for (final String name : context.getGlobalCorrelationSetNames()) {
@@ -536,7 +537,7 @@ public class BPELNotifyHandler extends PluginHandler {
 
     public String getPartnerLocation(final AbstractNodeTemplate node) {
         for (final QName qName : node.getOtherAttributes().keySet()) {
-            if (qName.getLocalPart().equals("location")) {
+            if (qName.getLocalPart().equals(LOCATION)) {
                 return node.getOtherAttributes().get(qName);
             }
         }

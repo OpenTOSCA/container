@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.model.tosca;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -35,35 +36,35 @@ public abstract class AbstractDefinitions {
      *
      * @return a List of AbstractServiceTemplates
      */
-    public abstract List<AbstractServiceTemplate> getServiceTemplates();
+    public abstract Collection<AbstractServiceTemplate> getServiceTemplates();
 
     /**
      * Returns a List of the NodeTypes this TOSCA Definitions has declared
      *
      * @return a List of AbstractNodeType
      */
-    public abstract List<AbstractNodeType> getNodeTypes();
+    public abstract Collection<AbstractNodeType> getNodeTypes();
 
     /**
      * Returns a List of the NodeTypeImplementation this TOSCA Definitions has declared
      *
      * @return a List of AbstractNodeTypeImplementation
      */
-    public abstract List<AbstractNodeTypeImplementation> getNodeTypeImplementations();
+    public abstract Collection<AbstractNodeTypeImplementation> getNodeTypeImplementations();
 
     /**
      * Returns a List of the RelationshipTypes this TOSCA Definitions has declared
      *
      * @return a List of AbstractRelationshipType
      */
-    public abstract List<AbstractRelationshipType> getRelationshipTypes();
+    public abstract Collection<AbstractRelationshipType> getRelationshipTypes();
 
     /**
      * Return a List of the ArtifactTemplates this TOSCA Definitions has declared
      *
      * @return a List of AbstractArtifactTemplates
      */
-    public abstract List<AbstractArtifactTemplate> getArtifactTemplates();
+    public abstract Collection<AbstractArtifactTemplate> getArtifactTemplates();
 
     /**
      * Returns the targetNamespace of this TOSCA Definitions
@@ -77,7 +78,7 @@ public abstract class AbstractDefinitions {
      *
      * @return a List of AbstractDefinitions
      */
-    public abstract List<? extends AbstractDefinitions> getImportedDefinitions();
+    public abstract Collection<? extends AbstractDefinitions> getImportedDefinitions();
 
     /**
      * Returns an absolute Path for the given AbstractArtifactReference
@@ -168,26 +169,26 @@ public abstract class AbstractDefinitions {
      *
      * @return a List of AbstractRelationshipTypeImplementation
      */
-    public abstract List<AbstractRelationshipTypeImplementation> getRelationshipTypeImplementations();
+    public abstract Collection<AbstractRelationshipTypeImplementation> getRelationshipTypeImplementations();
 
     /**
      * Returns all {@link AbstractArtifactType} objects of this {@link AbstractDefinitions} obj.
      *
      * @return a {@link List} of {@link AbstractArtifactType}
      */
-    public abstract List<AbstractArtifactType> getArtifactTypes();
+    public abstract Collection<AbstractArtifactType> getArtifactTypes();
 
     /**
      * Returns all {@link AbstractPolicyType} objects of this {@link AbstractDefinitions} object.
      *
      * @return a {@link List} of {@link AbstractPolicyType}
      */
-    public abstract List<AbstractPolicyType> getPolicyTypes();
+    public abstract Collection<AbstractPolicyType> getPolicyTypes();
 
     /**
      * Returns all {@link AbstractPolicyTemplate} objects of this {@link AbstractDefinitions} object.
      *
      * @return a {@link List} of {@link AbstractPolicyTemplate}
      */
-    public abstract List<AbstractPolicyTemplate> getPolicyTemplates();
+    public abstract Collection<AbstractPolicyTemplate> getPolicyTemplates();
 }

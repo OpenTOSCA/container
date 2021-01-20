@@ -1,10 +1,7 @@
 package org.opentosca.container.control;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Set;
-
-import javax.xml.namespace.QName;
 
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;

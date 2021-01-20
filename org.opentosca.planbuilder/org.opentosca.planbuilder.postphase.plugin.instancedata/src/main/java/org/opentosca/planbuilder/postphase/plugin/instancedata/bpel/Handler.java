@@ -1605,7 +1605,7 @@ public class Handler {
      * </p>
      *
      * @param context    BPELPlanContext
-     * @param properties AbstractProperties with proper DOM Element
+     * @param nodeTemplate nodeTemplate of the context
      * @return a Map<String,Node> of BpelVariableName to DOM Node. Maybe null if the mapping is not complete, e.g. some
      * bpel variable was not found or the properties weren't parsed right.
      */
@@ -1623,7 +1623,11 @@ public class Handler {
             if (child.getNodeType() == Node.ELEMENT_NODE) {
                 final String propertyName = child.getLocalName();
                 final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
+
                 if (propVarName != null) {
+                    if(child.getNamespaceURI() == null){
+                        throw new RuntimeException("Property "+ propertyName + " of NodeTemplate " + nodeTemplate.getId() + " has no namespace. Properties must have a valid namespace");
+                    }
                     mapping.put(propVarName, child);
                 }
             }
