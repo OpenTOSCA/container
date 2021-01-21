@@ -31,12 +31,22 @@
             <id>central</id>
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
-        <!-- for resthttp management bus api -->
         <repository>
-            <name>Spring Plugins Public Repository</name>
-            <id>spring-plugins</id>
-            <url>https://repo.spring.io/plugins-release/</url>
+             <name>JCenter Public Repository</name>
+             <id>jcenter</id>
+             <url>https://jcenter.bintray.com/</url>
         </repository>
+        <!--<repository>
+             <name>Spring Plugins Public Repository</name>
+             <id>spring-plugins</id>
+             <url>https://repo.spring.io/plugins-release/</url>
+        </repository>
+        <repository>
+            <name>Redhat General Access Public Repository</name>
+            <id>redhat-ga</id>
+            <url>https://maven.repository.redhat.com/ga/</url>
+        </repository>-->
+        <!-- for resthttp management bus api -->
         <!-- pulling latest winery as just-in-time build -->
         <repository>
             <id>jitpack</id>

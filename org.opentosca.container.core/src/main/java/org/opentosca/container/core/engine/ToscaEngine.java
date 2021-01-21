@@ -167,6 +167,17 @@ public final class ToscaEngine {
             .map(TNodeTemplate.class::cast);
     }
 
+    public static List<TNodeTemplate> getRelatedSourceNodeTemplate(TServiceTemplate serviceTemplate, TNodeTemplate template, QName... relationshipType) {
+        return serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
+            .filter(candidate -> candidate instanceof TRelationshipTemplate)
+            .map(relation -> (TRelationshipTemplate) relation)
+            .filter(relation -> Arrays.stream(relationshipType).anyMatch(Predicate.isEqual(relation.getType())))
+            .map(relation -> relation.getSourceElement().getRef())
+            .filter((target) -> target instanceof TNodeTemplate)
+            .map(TNodeTemplate.class::cast)
+            .collect(Collectors.toList());
+    }
+
     public static List<TInterface> getInterfaces(TNodeTemplate nodeTemplate, Csar csar) {
         TNodeType nodeType = resolveNodeType(csar, nodeTemplate);
         TInterfaces nullable = nodeType.getInterfaces();
