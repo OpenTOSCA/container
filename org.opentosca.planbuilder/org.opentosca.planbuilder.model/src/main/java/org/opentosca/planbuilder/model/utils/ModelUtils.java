@@ -234,10 +234,17 @@ public class ModelUtils {
         ModelUtils.LOG.debug("BaseType of NodeTemplate " + nodeTemplate.getId() + " is "
             + ModelUtils.getNodeBaseType(nodeTemplate));
 
-        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(ModelUtils.getNodeBaseType(nodeTemplate))
-            || org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(ModelUtils.getNodeBaseType(nodeTemplate))) {
-            infrastructureNodes.add(nodeTemplate);
-        }
+        List<QName> nodeTypeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType());
+        nodeTypeHierarchy.stream()
+            .filter(type ->
+                org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(type)
+                    || org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(type)
+            )
+            .findFirst()
+            .ifPresent(type -> {
+                LOG.debug("Identified supported Infrastructure Type: {}", type);
+                infrastructureNodes.add(nodeTemplate);
+            });
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
             ModelUtils.LOG.debug("Checking if relation is infrastructure edge, relation: " + relation.getId());
