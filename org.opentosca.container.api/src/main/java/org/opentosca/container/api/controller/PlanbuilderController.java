@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
-@Path("containerapi/planbuilder")
+@Path("planbuilder")
 @Component
 @NonNullByDefault
 public class PlanbuilderController {
