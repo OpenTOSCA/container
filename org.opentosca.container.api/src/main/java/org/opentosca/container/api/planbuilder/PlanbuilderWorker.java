@@ -191,9 +191,6 @@ public class PlanbuilderWorker {
             final List<String> inputParameters = ((BPELPlan) buildPlan).getWsdl().getInputMessageLocalNames();
             final List<String> outputParameters = ((BPELPlan) buildPlan).getWsdl().getOuputMessageLocalNames();
 
-            TPlan plan = new TPlan();
-
-
             final JsonObject obj = new JsonObject();
             obj.addProperty("name", QName.valueOf(buildPlan.getId()).getLocalPart());
             obj.addProperty("id", QName.valueOf(buildPlan.getId()).getLocalPart());
@@ -214,20 +211,8 @@ public class PlanbuilderWorker {
             outputParametersJson.add("outputParameter", outputParamList);
             obj.add("outputParameters", outputParametersJson);
 
-            System.out.println(obj.toString());
-
-            plan.setId(QName.valueOf(buildPlan.getId()).getLocalPart());
-            plan.setName(QName.valueOf(buildPlan.getId()).getLocalPart());
-            plan.setPlanType(buildPlan.getType().toString());
-            plan.setPlanLanguage(BPELPlan.bpelNamespace);
-
-            // TODO INPUT AND OUTPUT PARAMS
-
-
             final HttpEntity ent =
-               // EntityBuilder.create().setSerializable(plan).setContentType(ContentType.APPLICATION_JSON).build();
                 EntityBuilder.create().setText(obj.toString()).setContentType(ContentType.APPLICATION_JSON).build();
-
 
 
             HttpResponse createPlanResponse = null;
@@ -251,13 +236,6 @@ public class PlanbuilderWorker {
                 LOG.error("[{}] {}", state.currentState, state.currentMessage);
                 forceDelete(csarId);
                 return;
-            }
-
-            try{
-                String response = IOUtils.toString(createPlanResponse.getEntity().getContent(),"UTF-8");
-                System.out.println(response);
-            } catch (IOException e) {
-                e.printStackTrace();
             }
 
             String planLocation = state.getPostUrl() + "/" + QName.valueOf(buildPlan.getId()).getLocalPart();
