@@ -356,7 +356,7 @@ public class WineryExporter extends AbstractExporter {
 
 
 
-        PlanId planId = new PlanId(plansId, new XmlId("{"+ servId.getNamespace()+"}" +QName.valueOf(generatedPlan.getId()).getLocalPart(), false));
+        PlanId planId = new PlanId(plansId, new XmlId(QName.valueOf(generatedPlan.getId()).getLocalPart(), false));
         RepositoryFileReference fileRef = new RepositoryFileReference(planId, planPath.getFileName().toString());
         repo.putContentToFile(fileRef, Files.newInputStream(planPath), MediaType.APPLICATION_ZIP);
 

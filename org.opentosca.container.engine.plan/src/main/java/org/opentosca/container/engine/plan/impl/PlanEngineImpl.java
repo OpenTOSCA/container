@@ -83,7 +83,7 @@ public class PlanEngineImpl implements IPlanEngineService {
             LOG.info("Found PlanModelPlugin for plan {}", plan.getId());
             return plugin.deployPlan(plan.getPlanModel(), csarId);
         }
-        final QName planId = new QName(targetNamespace, plan.getId());
+        final QName planId = QName.valueOf(plan.getId());
         LOG.debug("Created new management plan id " + planId);
         LOG.info("Searching PlanReferencePlugin for plan {} written in language {}", plan.getId(), language);
         final IPlanEnginePlanRefPluginService plugin = this.getRefPlugin(language);
@@ -111,7 +111,7 @@ public class PlanEngineImpl implements IPlanEngineService {
             LOG.info("Found PlanModelPlugin for plan {}", plan.getId());
             return plugin.undeployPlan(plan.getPlanModel(), csarId);
         }
-        final QName planId = new QName(targetNamespace, plan.getId());
+        final QName planId = QName.valueOf(plan.getId());
         LOG.debug("Created new management plan id" + planId);
         LOG.info("Searching PlanReferencePlugin for plan {}", plan.getId());
         final IPlanEnginePlanRefPluginService plugin = this.getRefPlugin(language);

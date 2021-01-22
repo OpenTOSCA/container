@@ -14,9 +14,12 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TPlan;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -82,6 +85,7 @@ public class PlanbuilderWorker {
         state.currentState = PlanGenerationState.PlanGenerationStates.CSARDOWNLOADING;
         LOG.debug("Downloading CSAR " + state.getCsarUrl());
 
+        CsarId csarId = null;
         try {
             final HttpResponse csarResponse = httpService.Get(state.getCsarUrl().toString(), Collections.singletonMap("Accept", "application/zip"));
             final InputStream csarInputStream = csarResponse.getEntity().getContent();
@@ -133,15 +137,16 @@ public class PlanbuilderWorker {
             fileName = fileName.replace(".csar", "") + ".planbuilder" + System.currentTimeMillis() + ".csar";
             // generate plan (assumption: the send csar contains only one topologytemplate => only one buildPlan will be generated)
             LOG.debug("Storing CSAR");
+
             Path tempCsarLocation = csarStorage.storeCSARTemporarily(fileName, csarInputStream);
-        } catch (final IOException e) {
+            csarId = csarStorage.storeCSAR(tempCsarLocation);
+        } catch (final IOException|SystemException|UserException e) {
             state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
             state.currentMessage = "Couldn't download CSAR";
             LOG.error("Couldn't download CSAR");
             return;
         }
 
-        CsarId csarId = null;
         if (csarId == null) {
             state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
             state.currentMessage = "Couldn't store CSAR";
@@ -182,24 +187,48 @@ public class PlanbuilderWorker {
             // write to tmp dir, only generating one plan
             final File planTmpFile = plansToUpload.get(buildPlan);
 
+
             final List<String> inputParameters = ((BPELPlan) buildPlan).getWsdl().getInputMessageLocalNames();
             final List<String> outputParameters = ((BPELPlan) buildPlan).getWsdl().getOuputMessageLocalNames();
 
+            TPlan plan = new TPlan();
+
+
             final JsonObject obj = new JsonObject();
             obj.addProperty("name", QName.valueOf(buildPlan.getId()).getLocalPart());
+            obj.addProperty("id", QName.valueOf(buildPlan.getId()).getLocalPart());
             obj.addProperty("planType", buildPlan.getType().toString());
             obj.addProperty("planLanguage", BPELPlan.bpelNamespace);
 
             JsonArray inputParamList = new JsonArray();
             createParameters(inputParameters).forEach(inputParamList::add);
-            obj.add("inputParameters", inputParamList);
+
+            JsonObject inputParametersJson = new JsonObject();
+            inputParametersJson.add("inputParameter",inputParamList);
+            obj.add("inputParameters", inputParametersJson);
 
             JsonArray outputParamList = new JsonArray();
             createParameters(outputParameters).forEach(outputParamList::add);
-            obj.add("outputParameters", outputParamList);
+
+            JsonObject outputParametersJson = new JsonObject();
+            outputParametersJson.add("outputParameter", outputParamList);
+            obj.add("outputParameters", outputParametersJson);
+
+            System.out.println(obj.toString());
+
+            plan.setId(QName.valueOf(buildPlan.getId()).getLocalPart());
+            plan.setName(QName.valueOf(buildPlan.getId()).getLocalPart());
+            plan.setPlanType(buildPlan.getType().toString());
+            plan.setPlanLanguage(BPELPlan.bpelNamespace);
+
+            // TODO INPUT AND OUTPUT PARAMS
+
 
             final HttpEntity ent =
-                EntityBuilder.create().setText(obj.getAsString()).setContentType(ContentType.APPLICATION_JSON).build();
+               // EntityBuilder.create().setSerializable(plan).setContentType(ContentType.APPLICATION_JSON).build();
+                EntityBuilder.create().setText(obj.toString()).setContentType(ContentType.APPLICATION_JSON).build();
+
+
 
             HttpResponse createPlanResponse = null;
             try {
@@ -215,13 +244,23 @@ public class PlanbuilderWorker {
                 return;
             }
 
-            final org.apache.http.Header planLocationHeader = createPlanResponse.getHeaders("Location")[0];
-
-            String planLocation = planLocationHeader.getValue();
-            // Remove trailing slash
-            if (planLocation.endsWith("/")) {
-                planLocation = planLocation.substring(0, planLocation.length() - 1);
+            if(createPlanResponse.getStatusLine().getStatusCode() >= 300){
+                state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
+                state.currentMessage =
+                    "Couldn't send plan. Server send status " + createPlanResponse.getStatusLine();
+                LOG.error("[{}] {}", state.currentState, state.currentMessage);
+                forceDelete(csarId);
+                return;
             }
+
+            try{
+                String response = IOUtils.toString(createPlanResponse.getEntity().getContent(),"UTF-8");
+                System.out.println(response);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String planLocation = state.getPostUrl() + "/" + QName.valueOf(buildPlan.getId()).getLocalPart();
 
             try {
                 state.currentState = PlanGenerationStates.PLANSENDING;

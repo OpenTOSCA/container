@@ -132,10 +132,10 @@ public class PlanService {
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Plan \"" + planId + "\" could not be found"));
 
-        final String namespace = serviceTemplate.getTargetNamespace();
+
         final PlanDTO dto = new PlanDTO(plan);
 
-        dto.setId(new QName(namespace, plan.getId()).toString());
+        dto.setId(plan.getId());
         enhanceInputParameters(csar, serviceTemplate, serviceTemplateInstanceId, parameters);
         dto.setInputParameters(parameters);
 
