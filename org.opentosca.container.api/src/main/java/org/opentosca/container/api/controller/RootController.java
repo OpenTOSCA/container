@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.opentosca.container.api.controller;
 
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,7 +27,6 @@ import io.swagger.annotations.Info;
 import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 import org.opentosca.container.api.dto.ResourceSupport;
-import org.opentosca.deployment.checks.DeploymentTestService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 
