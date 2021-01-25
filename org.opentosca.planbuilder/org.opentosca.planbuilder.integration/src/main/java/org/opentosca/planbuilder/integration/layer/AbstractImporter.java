@@ -23,6 +23,7 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
  * <p>
@@ -113,13 +114,19 @@ public abstract class AbstractImporter {
         final AbstractSimplePlanBuilder backupPlanBuilder = new BPELBackupManagementProcessBuilder(pluginRegistry);
         final AbstractSimplePlanBuilder testPlanBuilder = new BPELTestManagementProcessBuilder(pluginRegistry);
 
-        plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
-        plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
-        plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
-        plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
-        plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
-        plans.addAll(backupPlanBuilder.buildPlans(csarName, defs));
-        plans.addAll(testPlanBuilder.buildPlans(csarName, defs));
+
+        AbstractServiceTemplate servTemplate = defs.getServiceTemplates().iterator().next();
+
+
+        if(!servTemplate.hasBuildPlan() | !servTemplate.hasTerminationPlan()) {
+            plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
+            plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
+            plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
+            plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
+            plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
+            plans.addAll(backupPlanBuilder.buildPlans(csarName, defs));
+            plans.addAll(testPlanBuilder.buildPlans(csarName, defs));
+        }
 
         return plans;
     }
