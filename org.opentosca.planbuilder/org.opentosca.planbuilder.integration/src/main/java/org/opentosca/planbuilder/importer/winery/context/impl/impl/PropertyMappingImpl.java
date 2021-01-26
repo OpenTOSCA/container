@@ -1,7 +1,7 @@
 package org.opentosca.planbuilder.importer.winery.context.impl.impl;
 
-import org.oasis_open.docs.tosca.ns._2011._12.TNodeTemplate;
-import org.oasis_open.docs.tosca.ns._2011._12.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPropertyMapping;
 
 /**
