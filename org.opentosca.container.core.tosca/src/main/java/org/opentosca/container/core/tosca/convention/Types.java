@@ -14,6 +14,7 @@ public class Types {
     // virtual machine nodeTypes (old)
     public final static QName vmNodeType = new QName("http://opentosca.org/types/declarative", "VM");
     public final static QName ubuntuNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu");
+
     public final static QName ubuntu1310ServerNodeType =
         new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
     public final static QName ubuntu1310ServerVmNodeType =
@@ -55,6 +56,8 @@ public class Types {
 
     public final static QName ubuntu1804ServerVmNodeType =
         new QName("http://opentosca.org/nodetypes", "Ubuntu-VM_18.04-w1");
+
+    public final static QName ubuntu2004ServerVmNodeType = new QName("http://opentosca.org/nodetypes", "Ubuntu-VM_20.04-w1");
 
     // FIXME: find a better way to support generated NodeTypes
     public final static QName ubuntu1804ServerVmNodeTypeGenerated =
