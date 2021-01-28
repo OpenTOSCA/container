@@ -441,16 +441,13 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             if (functionPart.trim().startsWith("'")) {
                 // string function part, just add to list
                 augmentedFunctionParts.add(functionPart);
-            } else if (functionPart.trim().split("\\.").length == 3) {
+            } else if (functionPart.trim().split("\\.Properties\\.").length == 2) {
                 // "DSL" Query
-                final String[] queryParts = functionPart.trim().split("\\.");
-                // fast check for validity
-                if (!queryParts[1].equals("Properties")) {
-                    return null;
-                }
+                final String[] queryParts = functionPart.trim().split("\\.Properties\\.");
+
 
                 final String nodeTemplateName = queryParts[0];
-                final String propertyName = queryParts[2];
+                final String propertyName = queryParts[1];
 
                 boolean addedVar = false;
                 for (PropertyVariable var : propMap.getPropertyVariables(serviceTemplate, nodeTemplateName)) {
