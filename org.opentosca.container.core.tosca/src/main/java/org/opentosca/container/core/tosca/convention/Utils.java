@@ -188,6 +188,7 @@ public class Utils {
         return nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
             || nodeType.equals(Types.ubuntu1404ServerVmNodeType3) || nodeType.equals(Types.ubuntu1604ServerVmNodeType)
             || nodeType.equals(Types.ubuntu1804ServerVmNodeType)
+            || nodeType.equals(Types.ubuntu2004ServerVmNodeType)
             || nodeType.getNamespaceURI().equals(Types.ubuntu1804ServerVmNodeTypeGenerated.getNamespaceURI())
             && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart());
     }

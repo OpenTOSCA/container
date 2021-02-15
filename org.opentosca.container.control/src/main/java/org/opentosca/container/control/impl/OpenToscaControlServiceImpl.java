@@ -205,7 +205,12 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
         final List<TPlan> undeployedPlans = new ArrayList<>();
 
         // fallback to serviceTemplate NamespaceURI
-        final String namespace = plans.getTargetNamespace() == null ? "" : plans.getTargetNamespace();
+        String namespace = plans.getTargetNamespace();
+
+        if(namespace == null) {
+            namespace = serviceTemplate.getTargetNamespace();
+        }
+
         if (!planEngine.deployPlan(plan, namespace, csar)) {
                 undeployedPlans.add(plan);
         }

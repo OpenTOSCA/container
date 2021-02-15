@@ -52,7 +52,9 @@ public class PlanbuilderController {
     @Context
     UriInfo uriInfo;
 
-    private final CsarStorageService csarStorage;
+    @Inject
+    private CsarStorageService csarStorage;
+
     private final Importer importer;
     private final IHTTPService httpService;
 
@@ -60,7 +62,7 @@ public class PlanbuilderController {
     public PlanbuilderController(Importer importer, IHTTPService httpService) {
         this.httpService = httpService;
         this.importer = importer;
-        csarStorage = new CsarStorageServiceImpl(Settings.CONTAINER_STORAGE_BASEPATH.resolveSibling("planbuilder-application"));
+        //csarStorage = new CsarStorageServiceImpl(Settings.CONTAINER_STORAGE_BASEPATH.resolveSibling("planbuilder-application"));
     }
 
     @GET
