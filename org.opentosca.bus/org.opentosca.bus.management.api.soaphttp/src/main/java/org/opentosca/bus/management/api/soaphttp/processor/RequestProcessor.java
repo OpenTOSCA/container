@@ -150,7 +150,8 @@ public class RequestProcessor implements Processor {
                 final TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(csar, serviceTemplateID,
                     nodeTemplateID);
 
-                if (Types.openStackTrainNodeType.getLocalPart().equals(nodeTemplate.getType().getLocalPart())) {
+                if (Types.openStackTrainNodeType.getLocalPart().equals(nodeTemplate.getType().getLocalPart())
+                    || Types.openStackTrainNodeType_legacy.getLocalPart().equals(nodeTemplate.getType().getLocalPart())) {
                     List<TNodeTemplate> relatedSourceNodeTemplate = ToscaEngine.getRelatedSourceNodeTemplate(serviceTemplate, nodeTemplate, Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType);
                     for (TNodeTemplate nodeTemplate1 : relatedSourceNodeTemplate) {
                         if (nodeTemplate1.getName().startsWith("Ubuntu")) {

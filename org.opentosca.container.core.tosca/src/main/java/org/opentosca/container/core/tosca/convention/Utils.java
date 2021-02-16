@@ -76,16 +76,23 @@ public class Utils {
      * @return a boolean. True if the given nodeType is a cloud provider nodeType
      */
     public static boolean isSupportedCloudProviderNodeType(final QName nodeType) {
-        return nodeType.equals(Types.amazonEc2NodeType)
-            || nodeType.equals(Types.openStackNodeType)
-            || nodeType.equals(Types.openStackLiberty12NodeType)
-            || nodeType.equals(Types.vmWareVsphere55NodeType)
-            || nodeType.equals(Types.localHypervisor)
+        return nodeType.equals(Types.localHypervisor)
             || nodeType.equals(Types.KVM_QEMU_HYPERVISOR_TYPE)
+            || isCloudProvider(nodeType);
+    }
+
+    public static boolean isCloudProvider(QName nodeType) {
+        return nodeType.equals(Types.amazonEc2NodeType)
+            || nodeType.equals(Types.vmWareVsphere55NodeType)
+            || nodeType.equals(Types.openStackLiberty12NodeType)
+            || nodeType.equals(Types.openStackTrainNodeType_legacy)
             || nodeType.equals(Types.openStackTrainNodeType)
-            || nodeType.getNamespaceURI().equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
-            && (nodeType.getLocalPart().startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
-            || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart()));
+            || (
+            nodeType.getNamespaceURI().equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
+                && (nodeType.getLocalPart().startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
+                || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart())
+                || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType_legacy.getLocalPart()))
+        );
     }
 
     /**
@@ -189,8 +196,9 @@ public class Utils {
             || nodeType.equals(Types.ubuntu1404ServerVmNodeType3) || nodeType.equals(Types.ubuntu1604ServerVmNodeType)
             || nodeType.equals(Types.ubuntu1804ServerVmNodeType)
             || nodeType.equals(Types.ubuntu2004ServerVmNodeType)
-            || nodeType.getNamespaceURI().equals(Types.ubuntu1804ServerVmNodeTypeGenerated.getNamespaceURI())
-            && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart());
+            || (
+            nodeType.getNamespaceURI().equals(Types.ubuntu1804ServerVmNodeTypeGenerated.getNamespaceURI())
+                && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart()));
     }
 
     public static boolean isSupportedOSNodeType(final QName nodeType) {
