@@ -107,45 +107,55 @@ public class CsarImpl implements Csar {
             .collect(Collectors.toList());
     }
 
-    public void addArtifactTemplate(InputStream inputStream, ServiceTemplateId servId, String nodeTEmplateId) throws IOException {
-        // ArtifactType handling
-        TArtifactType artType = new TArtifactType();
-        artType.setId("someId");
-        artType.setTargetNamespace("someNamespace");
-        ArtifactTypeId artTypeId = new ArtifactTypeId(new QName ("artTypeNamesapce", "artTypeLocalName"));
+    public void addArtifactTemplate(InputStream inputStream, ServiceTemplateId serviceTemplateId, String nodeTemplateId) throws IOException {
 
-        this.wineryRepo.setElement(artTypeId,artType);
+        final String artifactTypeNamespace = "http://opentosca.org/artifacttypes";
+        final String artifactTypeName = "State";
+        //final QName artifactTypeQName = new QName (artifactTypeNamespace, artifactTypeName);
+
+        final String artifactTemplateNamespace = "http://opentosca.org/stateartifacttemplates";
+        final String artifactTemplateName = serviceTemplateId.getQName().getLocalPart() + "_" + nodeTemplateId + "_StateArtifactTemplate";
+        final QName artifactTemplateQName = new QName(artifactTemplateNamespace, artifactTemplateName);
+
+        // ArtifactType handling
+        TArtifactType artifactType = new TArtifactType();
+        artifactType.setId(artifactTypeName);
+        artifactType.setTargetNamespace(artifactTypeNamespace);
+        ArtifactTypeId artTypeId = new ArtifactTypeId(artifactType.getQName());
+
+        this.wineryRepo.setElement(artTypeId, artifactType);
 
         // ArtifactTemplate handling
         TArtifactTemplate artifactTemplate = new TArtifactTemplate();
-        ArtifactTemplateId artId = new ArtifactTemplateId(new QName("artifactTemplateNamesace", "artifactTemplateLocalName"));
-        artifactTemplate.setId("someId");
-        artifactTemplate.setName("someId");
 
-        // hier artType verwenden
-        artifactTemplate.setType(new QName("namespaceOfStatefulType","localNameOfStatefulType"));
+        artifactTemplate.setId(artifactTemplateName);
+        artifactTemplate.setName(artifactTemplateName);
+        ArtifactTemplateId artTemplateId = new ArtifactTemplateId(artifactTemplateQName);
 
-        this.wineryRepo.setElement(artId, artifactTemplate);
-        ArtifactTemplateFilesDirectoryId artFileId = new ArtifactTemplateFilesDirectoryId(artId);
-        RepositoryFileReference fileRef = new RepositoryFileReference(artFileId,"stateArtifact.state");
+        // hier artifactType verwenden
+        artifactTemplate.setType(new QName(artifactTypeNamespace, artifactTypeName));
+
+        this.wineryRepo.setElement(artTemplateId, artifactTemplate);
+        ArtifactTemplateFilesDirectoryId artFileId = new ArtifactTemplateFilesDirectoryId(artTemplateId);
+        RepositoryFileReference fileRef = new RepositoryFileReference(artFileId, "stateArtifact.state");
         this.wineryRepo.putContentToFile(fileRef, inputStream, MediaType.parse("application/x-state"));
-        BackendUtils.synchronizeReferences(this.wineryRepo, artId);
+        BackendUtils.synchronizeReferences(this.wineryRepo, artTemplateId);
 
-        TServiceTemplate servTemp = this.wineryRepo.getElement(servId);
+        TServiceTemplate servTemp = this.wineryRepo.getElement(serviceTemplateId);
         for (TNodeTemplate allNestedNodeTemplate : BackendUtils.getAllNestedNodeTemplates(servTemp)) {
-            if(allNestedNodeTemplate.getId().equals(nodeTEmplateId)){
+            if (allNestedNodeTemplate.getId().equals(nodeTemplateId)) {
                 TDeploymentArtifact deplArt = new TDeploymentArtifact();
                 // von oben
-                deplArt.setArtifactType(artType.getQName());
-                deplArt.setArtifactRef(artId.getQName());
+                deplArt.setArtifactType(artifactType.getQName());
+                deplArt.setArtifactRef(artTemplateId.getQName());
 
-                deplArt.setId("someId");
+                deplArt.setId(nodeTemplateId + "_StateArtifact");
                 allNestedNodeTemplate.getDeploymentArtifacts().getDeploymentArtifact().add(deplArt);
 
-                this.wineryRepo.setElement(servId, servTemp);
+                this.wineryRepo.setElement(serviceTemplateId, servTemp);
+                break;
             }
         }
-
     }
 
     @Override

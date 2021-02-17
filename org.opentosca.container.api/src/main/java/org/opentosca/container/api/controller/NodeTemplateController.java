@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -34,7 +35,6 @@ import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.core.common.uri.UriUtil;
-import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.CsarImpl;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
@@ -190,7 +190,7 @@ public class NodeTemplateController {
             csar.addArtifactTemplate(is, new ServiceTemplateId(tServiceTemplate.getTargetNamespace(), tServiceTemplate.getId(), false), nodeTemplateId);
 
         } catch (Exception e) {
-            throw new NotFoundException(e.getMessage(), e);
+            throw new InternalServerErrorException(e.getMessage(), e);
         }
 
         return Response.ok("fubar").build();
