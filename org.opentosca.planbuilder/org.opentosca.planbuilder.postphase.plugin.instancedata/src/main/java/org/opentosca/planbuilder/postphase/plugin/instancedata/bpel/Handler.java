@@ -909,7 +909,6 @@ public class Handler {
 
         this.appendStateUpdateToPrePhase(context, nodeInstanceURLVarName, stateVarName, lastSetState);
 
-
         // needs property update only if the node has properties
         if (hasProps) {
             final Element postPhaseElement = context.getPostPhaseElement();
@@ -1681,7 +1680,7 @@ public class Handler {
      * This method is initializing a Map from BpelVariableName to a DomElement of the given Properties and Context.
      * </p>
      *
-     * @param context    BPELPlanContext
+     * @param context      BPELPlanContext
      * @param nodeTemplate nodeTemplate of the context
      * @return a Map<String,Node> of BpelVariableName to DOM Node. Maybe null if the mapping is not complete, e.g. some
      * bpel variable was not found or the properties weren't parsed right.
@@ -1702,8 +1701,8 @@ public class Handler {
                 final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
 
                 if (propVarName != null) {
-                    if(child.getNamespaceURI() == null){
-                        throw new RuntimeException("Property "+ propertyName + " of NodeTemplate " + nodeTemplate.getId() + " has no namespace. Properties must have a valid namespace");
+                    if (child.getNamespaceURI() == null) {
+                        throw new RuntimeException("Property " + propertyName + " of NodeTemplate " + nodeTemplate.getId() + " has no namespace. Properties must have a valid namespace");
                     }
                     mapping.put(propVarName, child);
                 }

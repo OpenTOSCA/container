@@ -236,6 +236,7 @@ public class PluginRegistry {
             .findFirst()
             .orElse(null);
     }
+
     public IPlanBuilderTypePlugin<?> findTypePluginForUpdate(final AbstractNodeTemplate nodeTemplate) {
         return getTypePlugins().stream()
             .filter(p -> p.canHandleUpdate(nodeTemplate))

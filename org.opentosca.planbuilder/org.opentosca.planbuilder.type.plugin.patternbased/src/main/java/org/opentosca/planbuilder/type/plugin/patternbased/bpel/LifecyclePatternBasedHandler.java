@@ -86,7 +86,6 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
         if (updateOperation == null) return false;
 
-
         Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
 
         return invokeWithMatching(context, nodeTemplate, iface, updateOperation, nodesForMatching, elementToAppendTo);

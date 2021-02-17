@@ -31,8 +31,8 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilder {
 
-    QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes", "StatefulComponent");
-    QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
+    private QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes", "StatefulComponent");
+    private QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
 
     public AbstractUpdatePlanBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);
@@ -174,7 +174,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
 
     protected boolean isUpdatableComponent(final AbstractNodeTemplate nodeTemplate) {
         return nodeTemplate.getType().getInterfaces().stream()
-            .anyMatch(abstractInterface -> abstractInterface.getName().toLowerCase().equals("UpdateManagementInterface".toLowerCase()));
+            .anyMatch(abstractInterface -> abstractInterface.getName().equalsIgnoreCase("UpdateManagementInterface".toLowerCase()));
     }
 
     protected boolean hasUpdatableAncestor(final List<AbstractNodeTemplate> nodeTemplates, final List<AbstractRelationshipTemplate> relationshipTemplates, final AbstractNodeTemplate nodeTemplate) {

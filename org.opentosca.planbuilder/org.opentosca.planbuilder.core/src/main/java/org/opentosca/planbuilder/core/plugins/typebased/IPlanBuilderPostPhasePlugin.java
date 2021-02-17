@@ -100,9 +100,7 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
     public boolean canHandleUpdate(AbstractRelationshipTemplate sourceRelationshipTemplate,
                                    AbstractRelationshipTemplate targetRelationshipTemplate);
 
-
     /**
-     *
      * @param context      a TemplatePlanContext for accessing data inside the BuildPlan
      * @param nodeTemplate the NodeTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
@@ -110,7 +108,6 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
     public boolean handleUpgrade(T context, AbstractNodeTemplate nodeTemplate);
 
     /**
-     *
      * @param context              a TemplatePlanContext for accessing data inside the BuildPlan
      * @param relationshipTemplate the RelationshipTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false

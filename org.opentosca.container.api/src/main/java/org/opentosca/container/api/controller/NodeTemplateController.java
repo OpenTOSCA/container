@@ -178,8 +178,7 @@ public class NodeTemplateController {
                                      @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
                                      @ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId,
                                      @FormDataParam("file") final InputStream is,
-                                     @FormDataParam("file") final FormDataContentDisposition file){
-
+                                     @FormDataParam("file") final FormDataContentDisposition file) {
 
         final CsarImpl csar = (CsarImpl) storage.findById(new CsarId(csarId));
         TServiceTemplate tServiceTemplate = csar.serviceTemplates().stream()
@@ -188,12 +187,10 @@ public class NodeTemplateController {
 
         try {
             csar.addArtifactTemplate(is, new ServiceTemplateId(tServiceTemplate.getTargetNamespace(), tServiceTemplate.getId(), false), nodeTemplateId);
-
         } catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage(), e);
         }
 
         return Response.ok("fubar").build();
-
     }
 }

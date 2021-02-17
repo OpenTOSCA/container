@@ -54,11 +54,9 @@ import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataI
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.eclipse.winery.repository.export.CsarExporter;
 
-import io.github.edmm.model.Artifact;
 import org.apache.tika.mime.MediaType;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
