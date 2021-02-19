@@ -3,7 +3,7 @@ package org.opentosca.container.core.next.model;
 import javax.xml.namespace.QName;
 
 import com.google.common.collect.Iterables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

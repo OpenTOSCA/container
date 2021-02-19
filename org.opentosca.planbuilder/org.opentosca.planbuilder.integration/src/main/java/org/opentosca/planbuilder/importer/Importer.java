@@ -148,9 +148,9 @@ public class Importer extends AbstractImporter {
 
         IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
         Collection<DefinitionsChildId> ids = repo.getAllDefinitionsChildIds();
-        Collection<RepositoryFileReference> allRefs = new HashSet<RepositoryFileReference>();
-        Collection<RepositoryFileReference> entryDefRefs = new HashSet<RepositoryFileReference>();
-        Collection<Path> allPaths = new HashSet<Path>();
+        Collection<RepositoryFileReference> allRefs = new HashSet<>();
+        Collection<RepositoryFileReference> entryDefRefs = new HashSet<>();
+        Collection<Path> allPaths = new HashSet<>();
         for(DefinitionsChildId id : ids){
             allRefs.addAll(repo.getContainedFiles(id));
         }

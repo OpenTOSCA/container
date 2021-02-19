@@ -7,8 +7,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -17,7 +17,7 @@ public class CreateServiceTemplateInstanceRequestTest {
 
     private JAXBContext context;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         this.context = JAXBContext.newInstance(CreateServiceTemplateInstanceRequest.class);
     }
