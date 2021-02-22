@@ -27,7 +27,6 @@ import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
-import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -43,14 +42,16 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
+
+    // handler for abstract buildplan operations
+    public BPELPlanHandler planHandler;
+
     private final static Logger LOG = LoggerFactory.getLogger(BPELUpdateProcessBuilder.class);
     // class for initializing properties inside the build plan
     private final PropertyVariableHandler propertyInitializer;
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
-    // handler for abstract buildplan operations
-    public BPELPlanHandler planHandler;
 
     private BPELPluginHandler bpelPluginHandler;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
@@ -124,16 +125,15 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
 //        this.instanceVarsHandler.addNodeInstanceFindLogic(newUpdatePlan,
 //            "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
-//            serviceTemplate);
+//            serviceTemplate);AbstractUpdatePlanBuilder
 
         for (BPELScope scope : newUpdatePlan.getTemplateBuildPlans()) {
-            if (scope.getNodeTemplate() != null) {
-                if (!(scope.getActivity().getType().equals(ActivityType.PROVISIONING) ||
+            if (scope.getNodeTemplate() != null &&
+                !(scope.getActivity().getType().equals(ActivityType.PROVISIONING) ||
                     scope.getActivity().getType().equals(ActivityType.DEFROST))) {
-                    this.instanceVarsHandler.addNodeInstanceFindLogic(scope, serviceTemplateURLVarName,
-                        "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
-                        serviceTemplate);
-                }
+                this.instanceVarsHandler.addNodeInstanceFindLogic(scope, serviceTemplateURLVarName,
+                    "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
+                    serviceTemplate);
             }
         }
 
@@ -267,19 +267,20 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
                                 xpathQuery);
                         assignSaveStateURL = context.importNode(assignSaveStateURL);
                         context.getPrePhaseElement().appendChild(assignSaveStateURL);
-                    } catch (final IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (final SAXException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                    } catch (final IOException | SAXException e) {
+                        LOG.error("Error while assinging save URL...", e);
                     }
 
                     final Variable saveStateUrlVar = BPELPlanContext.getVariable(saveStateUrlVarName);
 
                     final Map<AbstractParameter, Variable> inputs = new HashMap<>();
 
-                    inputs.put(getSaveStateParameter(getSaveStateOperation(nodeTemplate)), saveStateUrlVar);
+                    AbstractOperation saveStateOperation = getSaveStateOperation(nodeTemplate);
+                    if (saveStateOperation != null) {
+                        inputs.put(getSaveStateParameter(saveStateOperation), saveStateUrlVar);
+                    } else {
+                        LOG.warn("Could not determine save state operation for Node Template {}", nodeTemplate.getId());
+                    }
 
                     context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);

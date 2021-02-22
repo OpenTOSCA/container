@@ -48,8 +48,8 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
-        final Map<AbstractNodeTemplate, AbstractActivity> mappingStop = new HashMap<AbstractNodeTemplate, AbstractActivity>();
-        final Map<AbstractNodeTemplate, AbstractActivity> mappingStart = new HashMap<AbstractNodeTemplate, AbstractActivity>();
+        final Map<AbstractNodeTemplate, AbstractActivity> mappingStop = new HashMap<>();
+        final Map<AbstractNodeTemplate, AbstractActivity> mappingStart = new HashMap<>();
 
         final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
@@ -160,7 +160,6 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
             }
         }
 
-
         // naively we connect each sink with each source
         for (AbstractActivity from : sinksStop) {
             for (AbstractActivity to : sinksStart) {
@@ -174,11 +173,11 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
 
     protected boolean isUpdatableComponent(final AbstractNodeTemplate nodeTemplate) {
         return nodeTemplate.getType().getInterfaces().stream()
-            .anyMatch(abstractInterface -> abstractInterface.getName().equalsIgnoreCase("UpdateManagementInterface".toLowerCase()));
+            .anyMatch(abstractInterface -> abstractInterface.getName().equalsIgnoreCase("UpdateManagementInterface"));
     }
 
     protected boolean hasUpdatableAncestor(final List<AbstractNodeTemplate> nodeTemplates, final List<AbstractRelationshipTemplate> relationshipTemplates, final AbstractNodeTemplate nodeTemplate) {
-        Queue<AbstractNodeTemplate> ancestorQueue = new LinkedList<AbstractNodeTemplate>();
+        Queue<AbstractNodeTemplate> ancestorQueue = new LinkedList<>();
         ancestorQueue.add(nodeTemplate);
         while (!ancestorQueue.isEmpty()) {
             AbstractNodeTemplate ancestor = ancestorQueue.remove();
@@ -203,7 +202,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
     }
 
     private boolean hasPolicy(final AbstractNodeTemplate nodeTemplate, final QName policyType) {
-        return nodeTemplate.getPolicies().stream().filter(policy -> policy.getType().getId().equals(policyType))
-            .findFirst().isPresent();
+        return nodeTemplate.getPolicies().stream()
+            .anyMatch(policy -> policy.getType().getId().equals(policyType));
     }
 }
