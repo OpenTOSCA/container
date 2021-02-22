@@ -31,8 +31,8 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilder {
 
-    private QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes", "StatefulComponent");
-    private QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
+    private final QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes", "StatefulComponent");
+    private final QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
 
     public AbstractUpdatePlanBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);
@@ -55,7 +55,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
 
         // Get all node templates which are sources only --> that don't
         for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-            if (hasUpdatableAncestor(topology.getNodeTemplates(), topology.getRelationshipTemplates(), nodeTemplate)) {
+            if (hasUpdatableAncestor(topology.getRelationshipTemplates(), nodeTemplate)) {
                 // node has updatable ancestors.
                 // Needs to be stopped in stopping phase and restarted in starting phase.
 
@@ -176,7 +176,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
             .anyMatch(abstractInterface -> abstractInterface.getName().equalsIgnoreCase("UpdateManagementInterface"));
     }
 
-    protected boolean hasUpdatableAncestor(final List<AbstractNodeTemplate> nodeTemplates, final List<AbstractRelationshipTemplate> relationshipTemplates, final AbstractNodeTemplate nodeTemplate) {
+    protected boolean hasUpdatableAncestor(final List<AbstractRelationshipTemplate> relationshipTemplates, final AbstractNodeTemplate nodeTemplate) {
         Queue<AbstractNodeTemplate> ancestorQueue = new LinkedList<>();
         ancestorQueue.add(nodeTemplate);
         while (!ancestorQueue.isEmpty()) {

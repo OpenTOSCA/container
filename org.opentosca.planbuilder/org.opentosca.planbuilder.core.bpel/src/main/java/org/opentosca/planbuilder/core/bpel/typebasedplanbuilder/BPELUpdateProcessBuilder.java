@@ -43,10 +43,11 @@ import org.xml.sax.SAXException;
 
 public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
+    private final static Logger LOG = LoggerFactory.getLogger(BPELUpdateProcessBuilder.class);
+
     // handler for abstract buildplan operations
     public BPELPlanHandler planHandler;
 
-    private final static Logger LOG = LoggerFactory.getLogger(BPELUpdateProcessBuilder.class);
     // class for initializing properties inside the build plan
     private final PropertyVariableHandler propertyInitializer;
     // class for finalizing build plans (e.g when some template didn't receive
