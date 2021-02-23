@@ -1,6 +1,5 @@
 # OpenTOSCA Documentation
 
-- [Overview](https://github.com/OpenTOSCA/container/blob/master/docs/PITCHME.md)
 - [DeveloperGuide](DeveloperGuide.md) - outlines how to develop the OpenTOSCA container
 
 ## Description of components
