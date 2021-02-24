@@ -352,7 +352,8 @@ public class BPELPlanContext extends PlanContext {
         if (param2variableMapping == null) {
             chain.executeOperationProvisioning(context, opNames);
         } else {
-            chain.executeOperationProvisioning(context, opNames, param2variableMapping);
+            boolean executeProvOps = chain.executeOperationProvisioning(context, opNames, param2variableMapping);
+            LOG.debug("Execute Operation Provisioning successful: {}", executeProvOps);
         }
 
         // re-set the orginal configuration of the templateBuildPlan

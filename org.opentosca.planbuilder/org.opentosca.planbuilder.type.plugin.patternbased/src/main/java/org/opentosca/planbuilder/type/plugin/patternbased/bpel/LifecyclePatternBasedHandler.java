@@ -67,6 +67,30 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         return result;
     }
 
+    public boolean handleUpdate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
+
+        AbstractInterface iface = null;
+        for (final AbstractInterface ifacei : nodeTemplate.getType().getInterfaces()) {
+            if (ifacei.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE)) {
+                iface = ifacei;
+            }
+        }
+        if (iface == null) return false;
+
+        AbstractOperation updateOperation = null;
+        for (final AbstractOperation op : iface.getOperations()) {
+            if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE_RUNUPDATE)) {
+                updateOperation = op;
+            }
+        }
+
+        if (updateOperation == null) return false;
+
+        Set<AbstractNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate);
+
+        return invokeWithMatching(context, nodeTemplate, iface, updateOperation, nodesForMatching, elementToAppendTo);
+    }
+
     private boolean isImplementedAsScript(AbstractInterface iface, AbstractOperation op,
                                           AbstractNodeTemplate nodeTemplate) {
         for (AbstractNodeTypeImplementation impl : nodeTemplate.getImplementations()) {

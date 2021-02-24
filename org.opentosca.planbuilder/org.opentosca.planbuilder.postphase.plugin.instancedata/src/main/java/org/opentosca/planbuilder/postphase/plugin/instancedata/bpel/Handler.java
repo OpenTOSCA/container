@@ -848,6 +848,82 @@ public class Handler {
         return true;
     }
 
+    /**
+     * Appends BPEL Code that updates InstanceData for the given NodeTemplate.
+     *
+     * @param context      the TemplateContext of the NodeTemplate
+     * @param nodeTemplate the NodeTemplate to handle
+     * @return true iff appending all BPEL code was successful
+     */
+    public boolean handleUpgrade(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+
+        final boolean hasProps = checkProperties(nodeTemplate.getProperties());
+
+        final String serviceInstanceVarName = context.getServiceInstanceURLVarName();
+        if (serviceInstanceVarName == null) {
+            return false;
+        }
+
+        final String serviceInstanceIDVarName = context.getServiceInstanceIDVarName();
+        if (serviceInstanceIDVarName == null) {
+            return false;
+        }
+
+        final String serviceTemplateUrlVarName = context.getServiceTemplateURLVar();
+        if (serviceTemplateUrlVarName == null) {
+            return false;
+        }
+
+        /*
+         * Pre Phase code
+         */
+
+        // create variable for all responses
+        final String restCallResponseVarName = createRESTResponseVar(context);
+
+        if (restCallResponseVarName == null) {
+            return false;
+        }
+
+        // create state variable inside scope
+        final String stateVarName = createStateVar(context, context.getNodeTemplate().getId());
+
+        if (stateVarName == null) {
+            return false;
+        }
+
+        String nodeInstanceURLVarName = "";
+
+        if (context.findInstanceURLVar(context.getNodeTemplate().getId(), true) == null) {
+            // generate String var for nodeInstance URL
+            nodeInstanceURLVarName = createInstanceURLVar(context, context.getNodeTemplate().getId());
+        } else {
+            nodeInstanceURLVarName = context.findInstanceURLVar(context.getNodeTemplate().getId(), true);
+        }
+
+        if (nodeInstanceURLVarName == null) {
+            return false;
+        }
+
+        String lastSetState = "UPDATING";
+
+        this.appendStateUpdateToPrePhase(context, nodeInstanceURLVarName, stateVarName, lastSetState);
+
+        // needs property update only if the node has properties
+        if (hasProps) {
+            final Element postPhaseElement = context.getPostPhaseElement();
+            // make a GET on the nodeInstance properties
+            appendUpdateProperties(context, nodeTemplate, nodeInstanceURLVarName, restCallResponseVarName,
+                postPhaseElement);
+        }
+        lastSetState = "UPDATED";
+
+        this.appendStateUpdateToPostPhase(context, nodeInstanceURLVarName, stateVarName, lastSetState);
+        this.appendFailedStateToFaultHandler(context, nodeInstanceURLVarName);
+
+        return true;
+    }
+
     private void appendGetStateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName, String stateVarName) {
         this.appendGetStateToElement(context, nodeInstanceURLVarName, stateVarName, context.getPrePhaseElement());
     }
@@ -1604,7 +1680,7 @@ public class Handler {
      * This method is initializing a Map from BpelVariableName to a DomElement of the given Properties and Context.
      * </p>
      *
-     * @param context    BPELPlanContext
+     * @param context      BPELPlanContext
      * @param nodeTemplate nodeTemplate of the context
      * @return a Map<String,Node> of BpelVariableName to DOM Node. Maybe null if the mapping is not complete, e.g. some
      * bpel variable was not found or the properties weren't parsed right.
@@ -1625,8 +1701,8 @@ public class Handler {
                 final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
 
                 if (propVarName != null) {
-                    if(child.getNamespaceURI() == null){
-                        throw new RuntimeException("Property "+ propertyName + " of NodeTemplate " + nodeTemplate.getId() + " has no namespace. Properties must have a valid namespace");
+                    if (child.getNamespaceURI() == null) {
+                        throw new RuntimeException("Property " + propertyName + " of NodeTemplate " + nodeTemplate.getId() + " has no namespace. Properties must have a valid namespace");
                     }
                     mapping.put(propVarName, child);
                 }

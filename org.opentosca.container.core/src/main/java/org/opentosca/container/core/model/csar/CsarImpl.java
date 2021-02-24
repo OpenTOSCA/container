@@ -1,6 +1,7 @@
 package org.opentosca.container.core.model.csar;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -18,7 +19,9 @@ import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.common.RepositoryFileReference;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
+import org.eclipse.winery.common.ids.definitions.ArtifactTypeId;
 import org.eclipse.winery.common.ids.definitions.DefinitionsChildId;
 import org.eclipse.winery.common.ids.definitions.NodeTypeId;
 import org.eclipse.winery.common.ids.definitions.NodeTypeImplementationId;
@@ -27,11 +30,14 @@ import org.eclipse.winery.common.ids.definitions.RelationshipTypeImplementationI
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
+import org.eclipse.winery.model.tosca.TArtifactType;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TExtensibleElements;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPlan;
@@ -39,13 +45,16 @@ import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TPolicyTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.repository.backend.BackendUtils;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.backend.SelfServiceMetaDataUtils;
+import org.eclipse.winery.repository.datatypes.ids.elements.ArtifactTemplateFilesDirectoryId;
 import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataId;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.eclipse.winery.repository.export.CsarExporter;
 
+import org.apache.tika.mime.MediaType;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
@@ -94,6 +103,57 @@ public class CsarImpl implements Csar {
         return wineryRepo.getAllDefinitionsChildIds(ArtifactTemplateId.class).stream()
             .map(wineryRepo::getElement)
             .collect(Collectors.toList());
+    }
+
+    public void addArtifactTemplate(InputStream inputStream, ServiceTemplateId serviceTemplateId, String nodeTemplateId) throws IOException {
+
+        final String artifactTypeNamespace = "http://opentosca.org/artifacttypes";
+        final String artifactTypeName = "State";
+        //final QName artifactTypeQName = new QName (artifactTypeNamespace, artifactTypeName);
+
+        final String artifactTemplateNamespace = "http://opentosca.org/stateartifacttemplates";
+        final String artifactTemplateName = serviceTemplateId.getQName().getLocalPart() + "_" + nodeTemplateId + "_StateArtifactTemplate";
+        final QName artifactTemplateQName = new QName(artifactTemplateNamespace, artifactTemplateName);
+
+        // ArtifactType handling
+        TArtifactType artifactType = new TArtifactType();
+        artifactType.setId(artifactTypeName);
+        artifactType.setTargetNamespace(artifactTypeNamespace);
+        ArtifactTypeId artTypeId = new ArtifactTypeId(artifactType.getQName());
+
+        this.wineryRepo.setElement(artTypeId, artifactType);
+
+        // ArtifactTemplate handling
+        TArtifactTemplate artifactTemplate = new TArtifactTemplate();
+
+        artifactTemplate.setId(artifactTemplateName);
+        artifactTemplate.setName(artifactTemplateName);
+        ArtifactTemplateId artTemplateId = new ArtifactTemplateId(artifactTemplateQName);
+
+        // hier artifactType verwenden
+        artifactTemplate.setType(new QName(artifactTypeNamespace, artifactTypeName));
+
+        this.wineryRepo.setElement(artTemplateId, artifactTemplate);
+        ArtifactTemplateFilesDirectoryId artFileId = new ArtifactTemplateFilesDirectoryId(artTemplateId);
+        RepositoryFileReference fileRef = new RepositoryFileReference(artFileId, "stateArtifact.state");
+        this.wineryRepo.putContentToFile(fileRef, inputStream, MediaType.parse("application/x-state"));
+        BackendUtils.synchronizeReferences(this.wineryRepo, artTemplateId);
+
+        TServiceTemplate servTemp = this.wineryRepo.getElement(serviceTemplateId);
+        for (TNodeTemplate allNestedNodeTemplate : BackendUtils.getAllNestedNodeTemplates(servTemp)) {
+            if (allNestedNodeTemplate.getId().equals(nodeTemplateId)) {
+                TDeploymentArtifact deplArt = new TDeploymentArtifact();
+                // von oben
+                deplArt.setArtifactType(artifactType.getQName());
+                deplArt.setArtifactRef(artTemplateId.getQName());
+
+                deplArt.setId(nodeTemplateId + "_StateArtifact");
+                allNestedNodeTemplate.getDeploymentArtifacts().getDeploymentArtifact().add(deplArt);
+
+                this.wineryRepo.setElement(serviceTemplateId, servTemp);
+                break;
+            }
+        }
     }
 
     @Override
