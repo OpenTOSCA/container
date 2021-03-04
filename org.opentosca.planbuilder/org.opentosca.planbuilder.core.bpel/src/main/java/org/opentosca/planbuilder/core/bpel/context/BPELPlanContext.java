@@ -65,13 +65,9 @@ public class BPELPlanContext extends PlanContext {
 
     private final BPELScope templateBuildPlan;
     private final BPELScopeBuilder scopeBuilder;
-
-    private BPELPlanHandler buildPlanHandler;
-
-    private BPELPlanHandler bpelProcessHandler;
-
     private final BPELScopeHandler bpelTemplateHandler;
-
+    private BPELPlanHandler buildPlanHandler;
+    private BPELPlanHandler bpelProcessHandler;
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     /**
@@ -98,6 +94,10 @@ public class BPELPlanContext extends PlanContext {
         }
     }
 
+    public static Variable getVariable(String varName) {
+        return new Variable(varName);
+    }
+
     public AbstractActivity getActivity() {
         return this.templateBuildPlan.getActivity();
     }
@@ -117,11 +117,11 @@ public class BPELPlanContext extends PlanContext {
         }
     }
 
+    // TODO Refactor methods up to the BPEL specific methods
+
     public Map<AbstractOperation, AbstractOperation> getUsedOperations() {
         return this.templateBuildPlan.getUsedOperations();
     }
-
-    // TODO Refactor methods up to the BPEL specific methods
 
     /**
      * Looks for a Property with the same localName as the given String. The search is on either the Infrastructure on
@@ -206,10 +206,6 @@ public class BPELPlanContext extends PlanContext {
      */
     public boolean isRelationshipTemplate() {
         return this.templateBuildPlan.getRelationshipTemplate() != null;
-    }
-
-    public static Variable getVariable(String varName) {
-        return new Variable(varName);
     }
 
     public String findInstanceURLVar(final String templateId, final boolean isNode) {
@@ -1044,7 +1040,6 @@ public class BPELPlanContext extends PlanContext {
      *
      * @param qname a QName to import
      * @return the QName with set prefix
-     *
      */
     public QName importNamespace(final QName qname) {
         return this.bpelProcessHandler.importNamespace(qname, this.templateBuildPlan.getBuildPlan());

@@ -21,11 +21,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
  */
 class DANodeTypeImplCandidate {
 
+    private final AbstractNodeTemplate nodeTemplate;
     AbstractNodeTypeImplementation impl;
     List<AbstractDeploymentArtifact> das = new ArrayList<>();
     List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
     List<IPlanBuilderPrePhaseDAPlugin> plugins = new ArrayList<>();
-    private final AbstractNodeTemplate nodeTemplate;
 
     /**
      * Constructor determines which NodeTypeImplementation is used

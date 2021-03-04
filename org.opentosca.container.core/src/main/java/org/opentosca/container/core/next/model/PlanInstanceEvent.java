@@ -48,6 +48,22 @@ public class PlanInstanceEvent extends PersistenceObject {
 
     @Column(nullable = true)
     private long executionDuration;
+    @ManyToOne
+    @JoinColumn(name = "PLAN_INSTANCE_ID")
+    @JsonIgnore
+    private PlanInstance planInstance;
+
+    public PlanInstanceEvent() {
+        this.startTimestamp = new Date();
+        this.endTimestamp = startTimestamp;
+    }
+
+    public PlanInstanceEvent(final String status, final String type, final String message) {
+        this();
+        this.status = status;
+        this.type = type;
+        this.message = message;
+    }
 
     public String getNodeTemplateID() {
         return this.nodeTemplateID;
@@ -79,23 +95,6 @@ public class PlanInstanceEvent extends PersistenceObject {
 
     public void setExecutionDuration(final long executionDuration) {
         this.executionDuration = executionDuration;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "PLAN_INSTANCE_ID")
-    @JsonIgnore
-    private PlanInstance planInstance;
-
-    public PlanInstanceEvent() {
-        this.startTimestamp = new Date();
-        this.endTimestamp = startTimestamp;
-    }
-
-    public PlanInstanceEvent(final String status, final String type, final String message) {
-        this();
-        this.status = status;
-        this.type = type;
-        this.message = message;
     }
 
     @Override

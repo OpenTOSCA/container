@@ -15,19 +15,13 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 public abstract class PlanContext {
 
-    public enum Phase {
-        PRE, PROV, POST
-    }
-
     protected final AbstractPlan plan;
     protected final AbstractServiceTemplate serviceTemplate;
     protected final String serviceInstanceURLVarName;
     protected final String serviceInstanceIDVarName;
     protected final String serviceTemplateURLVarName;
     protected final String planInstanceUrlVarName;
-
     protected final String csarFileName;
-
     protected final Property2VariableMapping propertyMap;
 
     public PlanContext(final AbstractPlan plan, final AbstractServiceTemplate serviceTemplate,
@@ -194,5 +188,9 @@ public abstract class PlanContext {
         return this.propertyMap.getRelationPropertyVariables(this.serviceTemplate, templateId).stream()
             .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
             .map(var -> var.getVariableName()).orElse(null);
+    }
+
+    public enum Phase {
+        PRE, PROV, POST
     }
 }

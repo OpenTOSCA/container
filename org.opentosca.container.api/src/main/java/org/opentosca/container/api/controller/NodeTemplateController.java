@@ -50,16 +50,13 @@ import org.w3c.dom.Document;
 public class NodeTemplateController {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeTemplateController.class);
-
-    @Context
-    UriInfo uriInfo;
-
-    @Context
-    ResourceContext resourceContext;
-
     private final NodeTemplateService nodeTemplateService;
     private final InstanceService instanceService;
     private final CsarStorageService storage;
+    @Context
+    UriInfo uriInfo;
+    @Context
+    ResourceContext resourceContext;
 
     // can't be injected because this is instantiated by the parent resource
     public NodeTemplateController(final NodeTemplateService nodeTemplateService,

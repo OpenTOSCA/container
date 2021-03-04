@@ -54,5 +54,4 @@ public interface OpenToscaControlService {
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, TPlans plans, TPlan plan);
 
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate);
-
 }

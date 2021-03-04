@@ -228,7 +228,6 @@ public class ManagementPlanController {
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-
         PlanInstance pi = planService.getPlanInstanceByCorrelationId(instance);
         final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
         planService.addLogToPlanInstance(pi, event);

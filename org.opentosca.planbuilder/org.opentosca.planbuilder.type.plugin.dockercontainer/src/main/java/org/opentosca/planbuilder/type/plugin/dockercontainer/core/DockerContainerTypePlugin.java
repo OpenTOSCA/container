@@ -88,8 +88,7 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
             return false;
         }
 
-
-        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
 
         if (!propertiesMap.containsKey("ContainerID")) {
             return false;
@@ -135,8 +134,7 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
             return false;
         }
 
-
-        final Map<String,String> propMap = nodeTemplate.getProperties().asMap();
+        final Map<String, String> propMap = nodeTemplate.getProperties().asMap();
         int check = 0;
         boolean foundDockerImageProp = false;
 

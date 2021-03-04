@@ -70,7 +70,7 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
         }
 
         // Input properties
-        final Map<String, String> inputProperties = (Map<String,String>) policyTemplate.getProperties();
+        final Map<String, String> inputProperties = (Map<String, String>) policyTemplate.getProperties();
         logger.debug("Input properties: {}", inputProperties);
 
         /*

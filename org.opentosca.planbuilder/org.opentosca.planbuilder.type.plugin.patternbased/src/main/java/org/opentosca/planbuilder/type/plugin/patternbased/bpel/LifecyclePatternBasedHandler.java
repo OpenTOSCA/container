@@ -287,8 +287,8 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
     private boolean hasLifecycleProvisioningMethods(AbstractNodeTemplate nodeTemplate) {
         return this.getLifecyclePatternInstallMethod(nodeTemplate) != null
-                || this.getLifecyclePatternConfigureMethod(nodeTemplate) != null
-                || this.getLifecyclePatternStartMethod(nodeTemplate) != null;
+            || this.getLifecyclePatternConfigureMethod(nodeTemplate) != null
+            || this.getLifecyclePatternStartMethod(nodeTemplate) != null;
     }
 
     protected AbstractInterface getLifecyclePatternInterface(final AbstractNodeTemplate nodeTemplate) {

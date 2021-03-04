@@ -559,7 +559,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
         // really weak and messy check incoming!
         return this.mappingEquals(rel1.getSource(), rel2.getSource())
-                && this.mappingEquals(rel1.getTarget(), rel2.getTarget());
+            && this.mappingEquals(rel1.getTarget(), rel2.getTarget());
     }
 
     private boolean mappingEquals(AbstractNodeTemplate node1, AbstractNodeTemplate node2) {

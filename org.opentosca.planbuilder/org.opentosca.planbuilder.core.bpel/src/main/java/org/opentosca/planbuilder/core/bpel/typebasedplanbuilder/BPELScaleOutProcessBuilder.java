@@ -62,25 +62,17 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     private final PropertyVariableHandler propertyInitializer;
 
     // adds serviceInstance Variable and instanceDataAPIUrl to Plans
-
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
-
-    private NodeRelationInstanceVariablesHandler instanceInitializer;
-
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
-
-    private BPELPlanHandler planHandler;
-
     private final EmptyPropertyToInputHandler emptyPropInit;
-
     // accepted operations for provisioning
     private final List<String> opNames = new ArrayList<>();
-
-    private CorrelationIDInitializer correlationHandler;
-
     private final BPELScopeBuilder scopeBuilder;
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
+    private NodeRelationInstanceVariablesHandler instanceInitializer;
+    private BPELPlanHandler planHandler;
+    private CorrelationIDInitializer correlationHandler;
 
     public BPELScaleOutProcessBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);

@@ -59,7 +59,6 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
         if (this.relationshipTemplate.getProperties() != null && this.relationshipTemplate.getProperties() != null) {
             this.properties = new PropertiesImpl(this.relationshipTemplate.getProperties());
         }
-
     }
 
     /**
@@ -77,7 +76,6 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
     public AbstractNodeTemplate getTarget() {
         return new NodeTemplateImpl(ModelUtilities.getTargetNodeTemplateOfRelationshipTemplate(this.topology.topologyTemplate, this.relationshipTemplate), this.definitions, this.topology);
     }
-
 
     @Override
     public AbstractRequirement getSourceRequirement() {
@@ -97,7 +95,6 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
         }
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -113,7 +110,6 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
     public String getName() {
         return this.relationshipTemplate.getName();
     }
-
 
     /**
      * {@inheritDoc}

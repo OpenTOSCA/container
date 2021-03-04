@@ -154,7 +154,9 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
             }
 
             @Override
-            public String getNamespace() {return null;}
+            public String getNamespace() {
+                return null;
+            }
 
             @Override
             public String getElementName() {

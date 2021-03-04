@@ -27,7 +27,6 @@ public class DirectoryController {
 
     private static final Logger logger = LoggerFactory.getLogger(DirectoryController.class);
 
-
     private final java.nio.file.Path dirPath;
 
     public DirectoryController(java.nio.file.Path directory) {

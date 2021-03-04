@@ -38,8 +38,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  */
 public abstract class AbstractImporter {
 
-    private final PluginRegistry pluginRegistry;
     protected final CsarStorageService storage;
+    private final PluginRegistry pluginRegistry;
 
     protected AbstractImporter(PluginRegistry pluginRegistry, CsarStorageService storage) {
         this.pluginRegistry = pluginRegistry;

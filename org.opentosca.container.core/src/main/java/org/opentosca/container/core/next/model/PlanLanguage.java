@@ -10,11 +10,6 @@ public enum PlanLanguage {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return this.name;
-    }
-
     public static PlanLanguage fromString(final String name) {
         if (name != null) {
             for (final PlanLanguage o : PlanLanguage.values()) {
@@ -24,5 +19,10 @@ public enum PlanLanguage {
             }
         }
         throw new IllegalArgumentException("Parameter 'name' does not match an Enum type");
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 }

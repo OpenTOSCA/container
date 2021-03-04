@@ -23,15 +23,11 @@ import org.slf4j.LoggerFactory;
 
 public class SituationExpression {
 
-    public String expression;
-
-    public String partner;
-
-    public Map<String, URL> situationToUrlMap;
-
-    public Collection<String> usedSituations;
-
     private final static Logger LOG = LoggerFactory.getLogger(SituationExpression.class);
+    public String expression;
+    public String partner;
+    public Map<String, URL> situationToUrlMap;
+    public Collection<String> usedSituations;
 
     public SituationExpression(String expression, String partner, Map<String, String> tags) {
         this.expression = expression;

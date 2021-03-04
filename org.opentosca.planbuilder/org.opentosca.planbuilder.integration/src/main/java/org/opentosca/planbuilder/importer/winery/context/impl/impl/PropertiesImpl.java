@@ -25,7 +25,6 @@ public class PropertiesImpl extends AbstractProperties {
     private boolean isDOM = false;
     private boolean isWineryKV = false;
 
-
     /**
      * Constructor
      *
@@ -41,7 +40,7 @@ public class PropertiesImpl extends AbstractProperties {
             this.isDOM = true;
         }
 
-        if(properties.getClass().getName().equals(TEntityTemplate.WineryKVProperties.class.getName())) {
+        if (properties.getClass().getName().equals(TEntityTemplate.WineryKVProperties.class.getName())) {
             this.isWineryKV = true;
         }
     }
@@ -56,12 +55,12 @@ public class PropertiesImpl extends AbstractProperties {
 
     @Override
     public String getElementName() {
-        if(this.isDOM) {
+        if (this.isDOM) {
             return this.getDOMElement().getLocalName();
         }
 
-        if(this.isWineryKV) {
-            return ((TEntityTemplate.WineryKVProperties)this.props).getElementName();
+        if (this.isWineryKV) {
+            return ((TEntityTemplate.WineryKVProperties) this.props).getElementName();
         }
 
         return null;
@@ -69,12 +68,12 @@ public class PropertiesImpl extends AbstractProperties {
 
     @Override
     public String getNamespace() {
-        if(this.isDOM) {
+        if (this.isDOM) {
             return this.getDOMElement().getNamespaceURI();
         }
 
-        if(this.isWineryKV) {
-            return ((TEntityTemplate.WineryKVProperties)this.props).getNamespace();
+        if (this.isWineryKV) {
+            return ((TEntityTemplate.WineryKVProperties) this.props).getNamespace();
         }
 
         return null;
@@ -82,7 +81,7 @@ public class PropertiesImpl extends AbstractProperties {
 
     @Override
     public Map<String, String> asMap() {
-        if(this.isDOM) {
+        if (this.isDOM) {
             final PropertyParser parser = new PropertyParser();
             Map<String, String> properties = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             final Element element = getDOMElement();
@@ -91,8 +90,8 @@ public class PropertiesImpl extends AbstractProperties {
             }
             return properties;
         }
-        if(this.isWineryKV) {
-            return ((TEntityTemplate.WineryKVProperties)this.props).getKVProperties();
+        if (this.isWineryKV) {
+            return ((TEntityTemplate.WineryKVProperties) this.props).getKVProperties();
         }
         return new HashMap<>();
     }

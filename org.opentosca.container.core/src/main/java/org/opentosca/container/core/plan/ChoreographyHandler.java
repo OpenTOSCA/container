@@ -287,7 +287,8 @@ public class ChoreographyHandler {
             if (tag.getName().startsWith("participant:")) {
                 String participantName = tag.getName().replace("participant:", "");
                 partnerTags.add(new TTag.Builder().setName(participantName).setValue(tag.getValue()).build());
-            }});
+            }
+        });
 
         LOG.debug("Number of tags after filtering for partners: {}", tags.size());
         return partnerTags;

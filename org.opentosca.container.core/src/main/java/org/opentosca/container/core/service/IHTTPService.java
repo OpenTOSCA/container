@@ -7,7 +7,6 @@ import java.util.Map;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.cookie.Cookie;
 
 /**
@@ -60,10 +59,10 @@ public interface IHTTPService {
     HttpResponse Post(String uri, HttpEntity httpEntity) throws IOException;
 
     HttpResponse Post(String uri, HttpEntity httpEntity, Header... header) throws
-            IOException;
+        IOException;
 
     HttpResponse Post(String uri, HttpEntity httpEntity, List<Cookie> cookies) throws
-            IOException;
+        IOException;
 
     List<Cookie> PostCookies(String uri, HttpEntity httpEntity) throws IOException;
 

@@ -38,6 +38,25 @@ public class HeaderProcessor implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(HeaderProcessor.class);
 
+    public static Document readXml(final Reader is) throws SAXException, IOException, ParserConfigurationException {
+        final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        dbf.setValidating(false);
+        dbf.setIgnoringComments(false);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setNamespaceAware(true);
+        // dbf.setCoalescing(true);
+        // dbf.setExpandEntityReferences(true);
+
+        DocumentBuilder db = null;
+        db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new NullResolver());
+
+        // db.setErrorHandler( new MyErrorHandler());
+        final InputSource ips = new InputSource(is);
+        return db.parse(ips);
+    }
+
     @Override
     public void process(final Exchange exchange) throws Exception {
         final CxfPayload<SoapHeader> payload = exchange.getIn().getBody(CxfPayload.class);
@@ -87,25 +106,6 @@ public class HeaderProcessor implements Processor {
             LOG.warn("Failed to read SOAP Header {} -> {} with exception", key, content, e);
         }
         return null;
-    }
-
-    public static Document readXml(final Reader is) throws SAXException, IOException, ParserConfigurationException {
-        final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-        dbf.setValidating(false);
-        dbf.setIgnoringComments(false);
-        dbf.setIgnoringElementContentWhitespace(true);
-        dbf.setNamespaceAware(true);
-        // dbf.setCoalescing(true);
-        // dbf.setExpandEntityReferences(true);
-
-        DocumentBuilder db = null;
-        db = dbf.newDocumentBuilder();
-        db.setEntityResolver(new NullResolver());
-
-        // db.setErrorHandler( new MyErrorHandler());
-        final InputSource ips = new InputSource(is);
-        return db.parse(ips);
     }
 
     public static class NullResolver implements EntityResolver {

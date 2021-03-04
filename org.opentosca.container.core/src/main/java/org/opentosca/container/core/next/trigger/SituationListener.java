@@ -29,15 +29,13 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 public class SituationListener {
 
     final private static Logger LOG = LoggerFactory.getLogger(SituationListener.class);
-
-    // injection crutch to enable managementBus adaption
-    @Autowired
-    private IManagementBus managementBus;
-
     final SituationRepository sitRepo = new SituationRepository();
     final SituationTriggerRepository sitTrigRepo = new SituationTriggerRepository();
     final SituationTriggerInstanceRepository sitTrigInstRepo = new SituationTriggerInstanceRepository();
     final SituationsMonitorRepository sitMonRepo = new SituationsMonitorRepository();
+    // injection crutch to enable managementBus adaption
+    @Autowired
+    private IManagementBus managementBus;
 
     @PostUpdate
     void situationAfterUpdate(final Situation situation) {

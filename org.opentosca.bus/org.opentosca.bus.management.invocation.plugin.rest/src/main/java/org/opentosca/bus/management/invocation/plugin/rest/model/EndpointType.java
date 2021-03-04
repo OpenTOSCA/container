@@ -42,10 +42,6 @@ public enum EndpointType {
         this.value = v;
     }
 
-    public String value() {
-        return this.value;
-    }
-
     public static EndpointType fromValue(final String v) {
         for (final EndpointType c : EndpointType.values()) {
             if (c.value.equals(v)) {
@@ -53,5 +49,9 @@ public enum EndpointType {
             }
         }
         throw new IllegalArgumentException(v);
+    }
+
+    public String value() {
+        return this.value;
     }
 }

@@ -157,7 +157,7 @@ public class HttpTest implements org.opentosca.deployment.checks.test.TestExecut
     public boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate) {
 
         return policyTemplate.getType().equals(ANNOTATION_HTTP_TEST)
-                || policyTemplate.getType().equals(ANNOTATION_HTTPS_TEST);
+            || policyTemplate.getType().equals(ANNOTATION_HTTPS_TEST);
     }
 
     // --- Helper classes

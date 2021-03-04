@@ -117,7 +117,6 @@ public class WineryExporter extends AbstractExporter {
 
         try {
 
-
             final List<BPELPlan> plansToExport = new ArrayList<>();
 
             // add plans element to servicetemplates
@@ -353,12 +352,9 @@ public class WineryExporter extends AbstractExporter {
 
         PlansId plansId = new PlansId(servId);
 
-
-
         PlanId planId = new PlanId(plansId, new XmlId(QName.valueOf(generatedPlan.getId()).getLocalPart(), false));
         RepositoryFileReference fileRef = new RepositoryFileReference(planId, planPath.getFileName().toString());
         repo.putContentToFile(fileRef, Files.newInputStream(planPath), MediaType.APPLICATION_ZIP);
-
 
         ref.setReference(repo.id2RelativePath(planId).resolve(planPath.getFileName()).toString());
 

@@ -111,7 +111,7 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
         int check = 0;
         boolean foundDockerImageProp = false;
 
-        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
 
         if (propertiesMap.containsKey("ContainerPort")) {
             check++;
@@ -120,7 +120,6 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
         } else if (propertiesMap.containsKey("ImageID")) {
             foundDockerImageProp = true;
         }
-
 
         if (check != 2) {
             return false;
@@ -142,7 +141,7 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     }
 
     public boolean canHandleGateway(final AbstractNodeTemplate nodeTemplate) {
-        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
 
         int check = 0;
         if (propertiesMap.containsKey("TenantID")) {

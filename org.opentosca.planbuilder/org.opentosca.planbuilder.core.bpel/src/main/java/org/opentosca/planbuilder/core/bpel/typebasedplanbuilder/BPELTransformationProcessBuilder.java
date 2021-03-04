@@ -49,21 +49,14 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
     private final ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
     private final BPELScopeBuilder scopeBuilder;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
-
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
-
-    private BPELPlanHandler planHandler;
-
     private final BPELPluginHandler bpelPluginHandler;
-
-    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
-
     private final EmptyPropertyToInputHandler emptyPropInit;
-
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
+    private BPELPlanHandler planHandler;
+    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
     private CorrelationIDInitializer correlationHandler;
 
     @Inject

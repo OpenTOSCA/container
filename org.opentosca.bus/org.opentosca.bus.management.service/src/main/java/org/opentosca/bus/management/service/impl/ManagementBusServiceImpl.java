@@ -955,8 +955,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, arguments.csar.id(),
                 plan.getTemplateId());
 
-
-
         // choose WSDL endpoint depending on the invokation of the invoker or callback port type
         WSDLEndpoint WSDLendpoint = null;
         if (Objects.isNull(callbackInvocation) || !callbackInvocation) {

@@ -667,7 +667,7 @@ public class InstanceService {
         newInstance.setCsarId(csarId);
         newInstance.setTriggerOnActivation(triggerOnActivation);
         newInstance.setSingleInstance(isSingleInstance);
-        if(serviceInstance != null) {
+        if (serviceInstance != null) {
             newInstance.setServiceInstance(serviceInstance);
         }
         newInstance.setInterfaceName(interfaceName);

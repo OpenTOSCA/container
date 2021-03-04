@@ -415,16 +415,13 @@ public class NodeRelationInstanceVariablesHandler {
         // create mapping from property dom nodes to bpelvariable
         final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-
-        Map<String,String> propertiesMap = relationshipTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = relationshipTemplate.getProperties().asMap();
 
         for (PropertyVariable var : propMap.getRelationPropertyVariables(serviceTemplate, relationshipTemplate)) {
             if (propertiesMap.containsKey(var.getPropertyName())) {
                 string2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
             }
         }
-
-
 
         try {
             Node assignPropertiesToVariables =
@@ -495,14 +492,13 @@ public class NodeRelationInstanceVariablesHandler {
         // create mapping from property dom nodes to bpelvariable
         final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
 
         for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
             if (propertiesMap.containsKey(var.getPropertyName())) {
                 string2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
             }
         }
-
 
         try {
             Node assignPropertiesToVariables =
@@ -557,9 +553,9 @@ public class NodeRelationInstanceVariablesHandler {
         // create mapping from property dom nodes to bpelvariable
         final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
 
-        for(String propertyName : propertiesMap.keySet()) {
+        for (String propertyName : propertiesMap.keySet()) {
             final String bpelVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
             if (bpelVarName != null) {
                 string2BpelVarNameMap.put(propertyName, bpelVarName);

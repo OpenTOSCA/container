@@ -67,12 +67,12 @@ public class SituationsMonitorDTO extends ResourceSupport {
         @XmlElement(name = "situationId")
         private Collection<Long> situationIds;
 
-        public void setSituationId(Collection<Long> situationId) {
-            this.situationIds = situationId;
-        }
-
         public Collection<Long> getSituationId() {
             return this.situationIds;
+        }
+
+        public void setSituationId(Collection<Long> situationId) {
+            this.situationIds = situationId;
         }
     }
 }

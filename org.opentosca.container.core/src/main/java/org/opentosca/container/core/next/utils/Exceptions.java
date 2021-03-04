@@ -6,26 +6,6 @@ import java.util.function.Supplier;
 
 public abstract class Exceptions {
 
-    @FunctionalInterface
-    public interface Consumer_WithExceptions<T> {
-        void accept(T t) throws Exception;
-    }
-
-    @FunctionalInterface
-    public interface Function_WithExceptions<T, R> {
-        R apply(T t) throws Exception;
-    }
-
-    @FunctionalInterface
-    public interface Supplier_WithExceptions<T> {
-        T get() throws Exception;
-    }
-
-    @FunctionalInterface
-    public interface Runnable_WithExceptions {
-        void accept() throws Exception;
-    }
-
     /**
      * Rethrows an exception as unchecked.
      * <p>
@@ -146,5 +126,25 @@ public abstract class Exceptions {
     @SuppressWarnings("unchecked")
     private static <E extends Throwable> void throwAsUnchecked(final Exception exception) throws E {
         throw (E) exception;
+    }
+
+    @FunctionalInterface
+    public interface Consumer_WithExceptions<T> {
+        void accept(T t) throws Exception;
+    }
+
+    @FunctionalInterface
+    public interface Function_WithExceptions<T, R> {
+        R apply(T t) throws Exception;
+    }
+
+    @FunctionalInterface
+    public interface Supplier_WithExceptions<T> {
+        T get() throws Exception;
+    }
+
+    @FunctionalInterface
+    public interface Runnable_WithExceptions {
+        void accept() throws Exception;
     }
 }

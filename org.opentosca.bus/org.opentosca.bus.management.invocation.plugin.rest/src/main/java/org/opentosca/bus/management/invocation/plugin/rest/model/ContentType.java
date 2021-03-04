@@ -43,10 +43,6 @@ public enum ContentType {
         this.value = v;
     }
 
-    public String value() {
-        return this.value;
-    }
-
     public static ContentType fromValue(final String v) {
         for (final ContentType c : ContentType.values()) {
             if (c.value.equals(v)) {
@@ -54,5 +50,9 @@ public enum ContentType {
             }
         }
         throw new IllegalArgumentException(v);
+    }
+
+    public String value() {
+        return this.value;
     }
 }

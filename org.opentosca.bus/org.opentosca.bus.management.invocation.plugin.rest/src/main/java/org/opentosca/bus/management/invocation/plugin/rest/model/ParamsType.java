@@ -42,10 +42,6 @@ public enum ParamsType {
         this.value = v;
     }
 
-    public String value() {
-        return this.value;
-    }
-
     public static ParamsType fromValue(final String v) {
         for (final ParamsType c : ParamsType.values()) {
             if (c.value.equals(v)) {
@@ -53,5 +49,9 @@ public enum ParamsType {
             }
         }
         throw new IllegalArgumentException(v);
+    }
+
+    public String value() {
+        return this.value;
     }
 }

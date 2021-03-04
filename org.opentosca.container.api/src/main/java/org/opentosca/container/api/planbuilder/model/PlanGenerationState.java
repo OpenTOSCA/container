@@ -17,25 +17,16 @@ import org.opentosca.container.core.model.csar.CsarId;
 @XmlRootElement
 public class PlanGenerationState {
 
-    public enum PlanGenerationStates {
-        INITIALIZED, CSARDOWNLOADING, CSARDOWNLOADFAILED, CSARDOWNLOADED, PLANGENERATING, PLANGENERATIONFAILED, PLANSGENERATED, PLANSENDING, PLANSENDINGFAILED, PLANSSENT, OPTIONSENDING, OPTIONSENDINGFAILED, OPTIONSENT, FINISHED, FAILED
-    }
-
-    @XmlElement
-    public String currentMessage = "Task is initializing";
-
-    @XmlElement
-    public PlanGenerationStates currentState = PlanGenerationStates.INITIALIZED;
-
     @XmlElement
     private final URL csarUrl;
-
     private final CsarId csarId = null;
-
     @XmlElement
     private final URL planPostUrl;
-
     private final File planTmpFile = null;
+    @XmlElement
+    public String currentMessage = "Task is initializing";
+    @XmlElement
+    public PlanGenerationStates currentState = PlanGenerationStates.INITIALIZED;
 
     public PlanGenerationState() {
         this.csarUrl = null;
@@ -53,5 +44,9 @@ public class PlanGenerationState {
 
     public URL getPostUrl() {
         return this.planPostUrl;
+    }
+
+    public enum PlanGenerationStates {
+        INITIALIZED, CSARDOWNLOADING, CSARDOWNLOADFAILED, CSARDOWNLOADED, PLANGENERATING, PLANGENERATIONFAILED, PLANSGENERATED, PLANSENDING, PLANSENDINGFAILED, PLANSSENT, OPTIONSENDING, OPTIONSENDINGFAILED, OPTIONSENT, FINISHED, FAILED
     }
 }

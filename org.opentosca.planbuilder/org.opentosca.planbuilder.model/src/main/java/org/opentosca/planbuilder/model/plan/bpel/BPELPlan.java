@@ -33,69 +33,25 @@ import org.w3c.dom.Element;
  */
 public class BPELPlan extends AbstractPlan {
 
-    /**
-     * <p>
-     * Defines which variables the model allows to define
-     * <p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
-     * <br>
-     *
-     * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
-     */
-    public enum VariableType {
-        MESSAGE, TYPE, ELEMENT
-    }
-
-    /**
-     * <p>
-     * Defines which imports the model allows to define
-     * <p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
-     * <br>
-     *
-     * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
-     */
-    public enum ImportType {
-        WSDL, XSD;
-
-        @Override
-        public String toString() {
-            switch (this) {
-                case XSD:
-                    return "http://www.w3.org/2001/XMLSchema";
-                case WSDL:
-                    return "http://schemas.xmlsoap.org/wsdl/";
-                default:
-                    return null;
-            }
-        }
-    }
-
     public static final String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
     public static final String xpath2Namespace = "urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0";
-
     public Map<String, String> namespaceMap = new HashMap<>();
-
     // xml document
     private Document bpelProcessDocument;
-    // variables associated with the bpel xml document itself
-
     private Element bpelProcessElement;
     private Element bpelExtensionsElement;
+    // variables associated with the bpel xml document itself
     private List<Element> bpelImportElements;
     private Element bpelPartnerLinksElement;
     private Element bpelProcessVariablesElement;
-
     private Element bpelCorrelationSetsElement;
-
     private Element bpelFaultHandlersElement;
-
-    // variables associated with the bpel orchestration
-    // the main sequence element of this process
-
     private Element bpelMainSequenceElement;
     // assign element for property assigns
     private Element bpelMainSequencePropertyAssignElement;
+
+    // variables associated with the bpel orchestration
+    // the main sequence element of this process
     // assign element for output
     private Element bpelMainSequenceOutputAssignElement;
     // the main receive element of this process
@@ -106,36 +62,26 @@ public class BPELPlan extends AbstractPlan {
     // will work on
     private Element bpelMainFlowElement;
     private Element bpelMainFlowLinksElement;
-    // variable for TemplateBuildPlans, makes it easier or handlers and
-    // planbuilder to hold it here extra
-
     private List<BPELScope> templateBuildPlans = new ArrayList<>();
     // imported files of the whole buildplan, to keep track for export
     private Set<Path> importedFiles;
-    // var for apache ode deployment deskriptor
-
+    // variable for TemplateBuildPlans, makes it easier or handlers and
+    // planbuilder to hold it here extra
     private Deploy deploymentDeskriptor;
+    private String csarName = null;
+    // var for apache ode deployment deskriptor
+    private GenericWsdlWrapper processWsdl = null;
     // the file name of the csar the serviceTemplate and this buildPlan belongs
     // to
-
-    private String csarName = null;
-    // wsdl related stuff
-
-    private GenericWsdlWrapper processWsdl = null;
     private Map<AbstractActivity, BPELScope> abstract2bpelMap;
-
+    // wsdl related stuff
     private String toscaInterfaceName = null;
-
     private String toscaOperationName = null;
 
     public BPELPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
                     final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
                     final Collection<Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
-    }
-
-    public void setTOSCAInterfaceName(final String name) {
-        this.toscaInterfaceName = name;
     }
 
     public void setTOSCAOperationname(final String name) {
@@ -148,6 +94,10 @@ public class BPELPlan extends AbstractPlan {
         } else {
             return this.bpelProcessElement.getAttribute("name");
         }
+    }
+
+    public void setTOSCAInterfaceName(final String name) {
+        this.toscaInterfaceName = name;
     }
 
     public String getProcessNamespace() {
@@ -233,6 +183,15 @@ public class BPELPlan extends AbstractPlan {
         return this.templateBuildPlans;
     }
 
+    /**
+     * Sets the TemplateBuildPlans of this BuildPlan
+     *
+     * @param templateBuildPlans a List of TemplateBuildPlan
+     */
+    public void setTemplateBuildPlans(final List<BPELScope> templateBuildPlans) {
+        this.templateBuildPlans = templateBuildPlans;
+    }
+
     public BPELScope getTemplateBuildPlan(AbstractNodeTemplate nodeTemplate) {
         for (BPELScope scope : this.getTemplateBuildPlans()) {
             if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate)) {
@@ -260,15 +219,6 @@ public class BPELPlan extends AbstractPlan {
      */
     public boolean addTemplateBuildPlan(final BPELScope template) {
         return this.templateBuildPlans.add(template);
-    }
-
-    /**
-     * Sets the TemplateBuildPlans of this BuildPlan
-     *
-     * @param templateBuildPlans a List of TemplateBuildPlan
-     */
-    public void setTemplateBuildPlans(final List<BPELScope> templateBuildPlans) {
-        this.templateBuildPlans = templateBuildPlans;
     }
 
     /**
@@ -353,6 +303,15 @@ public class BPELPlan extends AbstractPlan {
     }
 
     /**
+     * Sets the BPEL imports of this BuildPlan
+     *
+     * @param bpelImportElements a List of DOM Element
+     */
+    public void setBpelImportElements(final List<Element> bpelImportElements) {
+        this.bpelImportElements = bpelImportElements;
+    }
+
+    /**
      * Adds a import element to this BuildPlan
      *
      * @param bpelImportsElement a DOM Element
@@ -360,15 +319,6 @@ public class BPELPlan extends AbstractPlan {
      */
     public boolean addBpelImportElement(final Element bpelImportsElement) {
         return this.bpelImportElements.add(bpelImportsElement);
-    }
-
-    /**
-     * Sets the BPEL imports of this BuildPlan
-     *
-     * @param bpelImportElements a List of DOM Element
-     */
-    public void setBpelImportElements(final List<Element> bpelImportElements) {
-        this.bpelImportElements = bpelImportElements;
     }
 
     /**
@@ -557,5 +507,43 @@ public class BPELPlan extends AbstractPlan {
 
     public Map<AbstractActivity, BPELScope> getAbstract2BPEL() {
         return this.abstract2bpelMap;
+    }
+
+    /**
+     * <p>
+     * Defines which variables the model allows to define
+     * <p>
+     * Copyright 2013 IAAS University of Stuttgart <br>
+     * <br>
+     *
+     * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+     */
+    public enum VariableType {
+        MESSAGE, TYPE, ELEMENT
+    }
+
+    /**
+     * <p>
+     * Defines which imports the model allows to define
+     * <p>
+     * Copyright 2013 IAAS University of Stuttgart <br>
+     * <br>
+     *
+     * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+     */
+    public enum ImportType {
+        WSDL, XSD;
+
+        @Override
+        public String toString() {
+            switch (this) {
+                case XSD:
+                    return "http://www.w3.org/2001/XMLSchema";
+                case WSDL:
+                    return "http://schemas.xmlsoap.org/wsdl/";
+                default:
+                    return null;
+            }
+        }
     }
 }

@@ -42,15 +42,13 @@ import org.xml.sax.SAXException;
  */
 public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<BPELPlanContext> {
 
-    private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePluginHandler.class);
-
     public static final QName noPublicAccessPolicyType =
         new QName("http://opentosca.org/policytypes", "NoPublicAccessPolicy");
     public static final QName publicAccessPolicyType =
         new QName("http://opentosca.org/policytypes", "PublicAccessPolicy");
     public static final QName onlyModeledPortsPolicyType =
         new QName("http://opentosca.org/policytypes", "OnlyModeledPortsPolicyType");
-
+    private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePluginHandler.class);
     // create method external input parameters without CorrelationId (old)
     private final static String[] createEC2InstanceExternalInputParams =
         {"securityGroup", "keyPairName", "secretKey", "accessKey", "regionEndpoint", "AMIid", "instanceType"};
@@ -615,7 +613,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             if (policy.getType().getId().equals(noPublicAccessPolicyType)
                 | policy.getType().getId().equals(publicAccessPolicyType)) {
 
-                if(policy.getProperties().asMap().get("SecurityGroup") != null){
+                if (policy.getProperties().asMap().get("SecurityGroup") != null) {
                     String securityGroup = policy.getProperties().asMap().get("SecurityGroup");
                     final Variable secGroupVar =
                         context.createGlobalStringVariable("policyAwareSecurityGroup", securityGroup);

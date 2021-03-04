@@ -131,7 +131,6 @@ public class PlanService {
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Plan \"" + planId + "\" could not be found"));
 
-
         final PlanDTO dto = new PlanDTO(plan);
 
         dto.setId(plan.getId());

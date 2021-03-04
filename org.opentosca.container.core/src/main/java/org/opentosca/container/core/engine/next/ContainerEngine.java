@@ -46,12 +46,26 @@ public final class ContainerEngine {
         this.xmlSerializerService = xmlSerializerService;
     }
 
+    public static NodeTemplateInstance resolveRelationshipOperationTarget(RelationshipTemplateInstance relationshipInstance,
+                                                                          TRelationshipType relationshipType,
+                                                                          String interfaceName, String operationName) {
+        boolean operationIsAttachedToSource = Optional.ofNullable(relationshipType.getSourceInterfaces()).map(TInterfaces::getInterface)
+            .orElse(Collections.emptyList()).stream()
+            .filter(iface -> interfaceName == null || iface.getName().equals(interfaceName))
+            .flatMap(iface -> iface.getOperation().stream())
+            .anyMatch(op -> op.getName().equals(operationName));
+        if (operationIsAttachedToSource) {
+            return relationshipInstance.getSource();
+        } else {
+            return relationshipInstance.getTarget();
+        }
+    }
+
     public ResolvedArtifacts resolvedDeploymentArtifacts(Csar context, TNodeTemplate nodeTemplate) {
         final ResolvedArtifacts result = new ResolvedArtifacts();
         result.setDeploymentArtifacts(resolvedDeploymentArtifactsForNodeTemplate(context, nodeTemplate));
         return result;
     }
-
 
     public ResolvedArtifacts resolvedDeploymentArtifactsOfNodeTypeImpl(Csar context, TNodeTypeImplementation nodeTemplate) {
         LOG.debug("Trying to fetch DAs of NodeTypeImplementation {}", nodeTemplate.getName());
@@ -64,7 +78,6 @@ public final class ContainerEngine {
         result.setDeploymentArtifacts(collect);
         return result;
     }
-
 
     public List<ResolvedArtifacts.ResolvedDeploymentArtifact> resolvedDeploymentArtifactsForNodeTemplate(Csar context, TNodeTemplate nodeTemplate) {
         LOG.debug("Trying to fetch DAs of NodeTemplate {}", nodeTemplate.getName());
@@ -134,20 +147,5 @@ public final class ContainerEngine {
             }
         }
         return xmlSerializerService.getXmlSerializer().elementsIntoDocument(listOfAnyElements, "DeploymentArtifactSpecificContent");
-    }
-
-    public static NodeTemplateInstance resolveRelationshipOperationTarget(RelationshipTemplateInstance relationshipInstance,
-                                                                          TRelationshipType relationshipType,
-                                                                          String interfaceName, String operationName) {
-        boolean operationIsAttachedToSource = Optional.ofNullable(relationshipType.getSourceInterfaces()).map(TInterfaces::getInterface)
-            .orElse(Collections.emptyList()).stream()
-            .filter(iface -> interfaceName == null || iface.getName().equals(interfaceName))
-            .flatMap(iface -> iface.getOperation().stream())
-            .anyMatch(op -> op.getName().equals(operationName));
-        if (operationIsAttachedToSource) {
-            return relationshipInstance.getSource();
-        } else {
-            return relationshipInstance.getTarget();
-        }
     }
 }

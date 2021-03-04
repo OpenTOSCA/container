@@ -46,15 +46,12 @@ public class PlanbuilderController {
 
     private static final ExecutorService backgroundWorker = Executors.newCachedThreadPool(r -> new Thread(r, "planbuilder-api-worker"));
     private static final Logger LOG = LoggerFactory.getLogger(PlanbuilderController.class);
-
-    @Context
-    UriInfo uriInfo;
-
-    @Inject
-    private CsarStorageService csarStorage;
-
     private final Importer importer;
     private final IHTTPService httpService;
+    @Context
+    UriInfo uriInfo;
+    @Inject
+    private CsarStorageService csarStorage;
 
     @Inject
     public PlanbuilderController(Importer importer, IHTTPService httpService) {

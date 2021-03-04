@@ -193,7 +193,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
     @Override
     public boolean equals(Object obj) {
 
-        if(!(obj instanceof AbstractNodeTypeImplementation)){
+        if (!(obj instanceof AbstractNodeTypeImplementation)) {
             return false;
         }
 

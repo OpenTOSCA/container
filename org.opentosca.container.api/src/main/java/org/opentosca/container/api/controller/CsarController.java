@@ -251,7 +251,6 @@ public class CsarController {
 
         Csar storedCsar = storage.findById(csarId);
 
-
         // TODO this is such a brutal hack, won't go through reviews....
         final boolean repoAvailable = wc.isWineryRepositoryAvailable();
         final StringBuilder strB = new StringBuilder();
@@ -384,7 +383,7 @@ public class CsarController {
 
         Collection<AbstractPlan> plansGenerated = this.csarService.generateTransformationPlans(sourceCsar, targetCsar);
         AbstractPlan planGenerated;
-        if(plansGenerated.isEmpty()){
+        if (plansGenerated.isEmpty()) {
             return Response.serverError().entity("Couldn't generate transformation plan").build();
         } else {
             // we should only have one plan here
@@ -397,13 +396,13 @@ public class CsarController {
         TPlan plan = null;
 
         for (TPlan tPlan : plans.getPlan()) {
-            if(tPlan.getId().equals(planGenerated.getId())){
+            if (tPlan.getId().equals(planGenerated.getId())) {
                 plan = tPlan;
                 break;
             }
         }
 
-        if(plan == null) {
+        if (plan == null) {
             return Response.serverError().entity("Couldn't generate transformation plan").build();
         }
 

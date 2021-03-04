@@ -345,8 +345,8 @@ public final class ToscaEngine {
                 try {
                     TNodeType implementationNodeType = resolveNodeTypeReference(csar, impl.getNodeType());
 
-                    for(TNodeType nodeType : hierarchy) {
-                        if(nodeType.getQName().equals(implementationNodeType.getQName())) {
+                    for (TNodeType nodeType : hierarchy) {
+                        if (nodeType.getQName().equals(implementationNodeType.getQName())) {
                             return true;
                         }
                     }
@@ -455,7 +455,7 @@ public final class ToscaEngine {
         try {
             Document doc = documentBuilderFactory.newDocumentBuilder().newDocument();
 
-            if(template.getProperties() instanceof TEntityTemplate.WineryKVProperties){
+            if (template.getProperties() instanceof TEntityTemplate.WineryKVProperties) {
                 TEntityTemplate.WineryKVProperties props = (TEntityTemplate.WineryKVProperties) template.getProperties();
                 Map<String, String> propMap = props.getKVProperties();
 
@@ -487,15 +487,14 @@ public final class ToscaEngine {
                 TODO: FIXME in winery!
                  */
 
-                Element rootElement = doc.createElementNS(props.getNamespace(),props.getElementName() != null ? props.getElementName() : "Properties");
+                Element rootElement = doc.createElementNS(props.getNamespace(), props.getElementName() != null ? props.getElementName() : "Properties");
                 doc.appendChild(rootElement);
 
-                for(String propName : propMap.keySet()) {
+                for (String propName : propMap.keySet()) {
                     Element propElement = doc.createElementNS(props.getNamespace(), propName);
                     propElement.setTextContent(propMap.get(propName));
                     rootElement.appendChild(propElement);
                 }
-
             }
 
             return doc;

@@ -52,12 +52,10 @@ import org.xml.sax.SAXException;
 public class Handler {
 
     private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
-
+    private final XPathFactory xPathfactory = XPathFactory.newInstance();
     private Fragments fragments;
     private BPELProcessFragments bpelFrags;
     private BPELInvokerPlugin invoker;
-
-    private final XPathFactory xPathfactory = XPathFactory.newInstance();
 
     public Handler() {
 
@@ -1686,11 +1684,11 @@ public class Handler {
      * bpel variable was not found or the properties weren't parsed right.
      */
     private Map<String, QName> buildMappingsFromVarNameToDomElement(final PlanContext context,
-                                                                   AbstractNodeTemplate nodeTemplate) {
-        final Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+                                                                    AbstractNodeTemplate nodeTemplate) {
+        final Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
         final Map<String, QName> mapping = new HashMap<>();
 
-        for(String propertyName : propertiesMap.keySet()) {
+        for (String propertyName : propertiesMap.keySet()) {
             final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
             mapping.put(propVarName, new QName(nodeTemplate.getProperties().getNamespace(), propertyName));
         }
@@ -1699,11 +1697,11 @@ public class Handler {
     }
 
     private Map<String, QName> buildMappingsFromVarNameToDomElement(final PlanContext context,
-                                                                   AbstractRelationshipTemplate relationshipTemplate) {
-        final Map<String,String> propertiesMap = relationshipTemplate.getProperties().asMap();
+                                                                    AbstractRelationshipTemplate relationshipTemplate) {
+        final Map<String, String> propertiesMap = relationshipTemplate.getProperties().asMap();
         final Map<String, QName> mapping = new HashMap<>();
 
-        for(String propertyName : propertiesMap.keySet()) {
+        for (String propertyName : propertiesMap.keySet()) {
             final String propVarName = context.getVariableNameOfProperty(relationshipTemplate, propertyName);
             mapping.put(propVarName, new QName(relationshipTemplate.getProperties().getNamespace(), propertyName));
         }

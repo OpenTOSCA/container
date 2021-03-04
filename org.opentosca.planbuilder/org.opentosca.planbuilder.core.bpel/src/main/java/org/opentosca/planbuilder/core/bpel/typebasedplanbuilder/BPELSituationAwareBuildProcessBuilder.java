@@ -55,32 +55,22 @@ import org.xml.sax.SAXException;
 public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
     final static Logger LOG = LoggerFactory.getLogger(BPELSituationAwareBuildProcessBuilder.class);
-
-    // class for initializing properties inside the plan
-    private PropertyVariableHandler propertyInitializer;
     // class for initializing output with boundarydefinitions of a
     // serviceTemplate
     private final ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
-    // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
-
-    private CorrelationIDInitializer correlationHandler;
-
-    private SituationTriggerRegistration sitRegistrationPlugin;
-
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
-
-    private BPELPlanHandler planHandler;
-
+    // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
     private final BPELPluginHandler bpelPluginHandler;
-
-    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
-
     private final EmptyPropertyToInputHandler emptyPropInit;
-
+    // class for initializing properties inside the plan
+    private PropertyVariableHandler propertyInitializer;
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
+    private CorrelationIDInitializer correlationHandler;
+    private SituationTriggerRegistration sitRegistrationPlugin;
+    private BPELPlanHandler planHandler;
+    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
     private BPELProcessFragments fragments;
 
     /**

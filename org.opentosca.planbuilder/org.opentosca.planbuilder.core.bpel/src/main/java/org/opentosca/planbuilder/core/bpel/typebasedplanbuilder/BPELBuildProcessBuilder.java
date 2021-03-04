@@ -59,26 +59,17 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private final ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
     private final BPELScopeBuilder scopeBuilder;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
-
-    private CorrelationIDInitializer correlationHandler;
-
-    private SituationTriggerRegistration sitRegistrationPlugin;
-
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
-
-    private BPELPlanHandler planHandler;
-
     private final BPELPluginHandler bpelPluginHandler;
-
-    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
-
     private final EmptyPropertyToInputHandler emptyPropInit;
-
     private final ChoreographyBuilder choreoBuilder = new ChoreographyBuilder();
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
+    private CorrelationIDInitializer correlationHandler;
+    private SituationTriggerRegistration sitRegistrationPlugin;
+    private BPELPlanHandler planHandler;
+    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     /**
      * <p>

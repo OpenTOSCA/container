@@ -220,8 +220,7 @@ public class NodeInstanceSelector {
 
         final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-
-        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
 
         for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
             if (propertiesMap.containsKey(var.getPropertyName())) {

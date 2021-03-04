@@ -411,7 +411,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
 
             final Map<String, String> propName2BpelVarNameMap = new HashMap<>();
 
-            Map<String,String> propertiesMap = templatePlan.getNodeTemplate().getProperties().asMap();
+            Map<String, String> propertiesMap = templatePlan.getNodeTemplate().getProperties().asMap();
 
             for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate,
                 templatePlan.getNodeTemplate())) {
@@ -420,11 +420,10 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 }
             }
 
-
             try {
                 Node assignPropertiesToVariables =
                     this.fragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                        + System.currentTimeMillis(), restCallResponseVarName, propName2BpelVarNameMap,templatePlan.getNodeTemplate().getProperties().getNamespace());
+                        + System.currentTimeMillis(), restCallResponseVarName, propName2BpelVarNameMap, templatePlan.getNodeTemplate().getProperties().getNamespace());
                 assignPropertiesToVariables =
                     templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(assignPropertiesToVariables,
@@ -673,7 +672,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                                                                                   String csarName,
                                                                                   String targetServiceInstancesUrlVar) {
         String xpathQuery1 = "concat(substring-before(string($" + availableServiceInstanceUrlVar
-            + "),'csars'),'csars/','" + csarName + "','/servicetemplates/','"+serviceTemplateId.getLocalPart()+"','/instances')";
+            + "),'csars'),'csars/','" + csarName + "','/servicetemplates/','" + serviceTemplateId.getLocalPart() + "','/instances')";
         try {
             Node assignServiceInstancesUrl =
                 this.fragments.createAssignVarToVarWithXpathQueryAsNode("createTargetServiceInstancesUrl",

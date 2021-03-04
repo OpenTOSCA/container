@@ -327,9 +327,9 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
      * This Methods Finds out if a Service Template Container a freeze method and then creats a freeze plan out of this
      * method
      *
-     * @param plan            the plan to execute the plugins on*
-     * @param propMap         a PropertyMapping from NodeTemplate to Properties to BPELVariables
-     * @param csarName          the name of csar in the context
+     * @param plan     the plan to execute the plugins on*
+     * @param propMap  a PropertyMapping from NodeTemplate to Properties to BPELVariables
+     * @param csarName the name of csar in the context
      */
     private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap,
                                        final String csarName) {
@@ -385,18 +385,15 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
                     final Map<AbstractParameter, Variable> inputs = new HashMap<>();
 
-
                     inputs.put(getSaveStateParameter(getSaveStateOperation(nodeTemplate)), saveStateUrlVar);
 
                     context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
                 }
                 this.bpelPluginHandler.handleActivity(context, templatePlan, nodeTemplate);
-
             }
         }
 
         return changedActivities;
     }
-
 }

@@ -19,42 +19,6 @@ import org.w3c.dom.Element;
 
 public abstract class PatternBasedHandler {
 
-    class OperationMatching {
-
-        AbstractInterface interfaceName;
-        AbstractOperation operationName;
-
-        Map<AbstractParameter, String> inputMatching;
-        Map<AbstractParameter, String> outputMatching;
-
-        Set<AbstractNodeTemplate> matchedNodes;
-
-        public OperationMatching(final AbstractInterface iface, final AbstractOperation op) {
-            this.interfaceName = iface;
-            this.operationName = op;
-            this.inputMatching = new HashMap<>();
-            this.outputMatching = new HashMap<>();
-            this.matchedNodes = new HashSet<>();
-        }
-    }
-
-    class ConcreteOperationMatching {
-
-        AbstractInterface interfaceName;
-        AbstractOperation operationName;
-        Map<AbstractParameter, Variable> inputMatching = new HashMap<>();
-        Map<AbstractParameter, Variable> outputMatching = new HashMap<>();
-        Set<AbstractNodeTemplate> matchedNodes;
-
-        public ConcreteOperationMatching(final AbstractInterface iface, final AbstractOperation op) {
-            this.interfaceName = iface;
-            this.operationName = op;
-            this.inputMatching = new HashMap<>();
-            this.outputMatching = new HashMap<>();
-            this.matchedNodes = new HashSet<>();
-        }
-    }
-
     protected static final BPELInvokerPlugin invoker = new BPELInvokerPlugin();
 
     protected boolean invokeOperation(final BPELPlanContext context, final ConcreteOperationMatching matching,
@@ -177,5 +141,41 @@ public abstract class PatternBasedHandler {
 
         matching.matchedNodes = matchedNodes;
         return matching;
+    }
+
+    class OperationMatching {
+
+        AbstractInterface interfaceName;
+        AbstractOperation operationName;
+
+        Map<AbstractParameter, String> inputMatching;
+        Map<AbstractParameter, String> outputMatching;
+
+        Set<AbstractNodeTemplate> matchedNodes;
+
+        public OperationMatching(final AbstractInterface iface, final AbstractOperation op) {
+            this.interfaceName = iface;
+            this.operationName = op;
+            this.inputMatching = new HashMap<>();
+            this.outputMatching = new HashMap<>();
+            this.matchedNodes = new HashSet<>();
+        }
+    }
+
+    class ConcreteOperationMatching {
+
+        AbstractInterface interfaceName;
+        AbstractOperation operationName;
+        Map<AbstractParameter, Variable> inputMatching = new HashMap<>();
+        Map<AbstractParameter, Variable> outputMatching = new HashMap<>();
+        Set<AbstractNodeTemplate> matchedNodes;
+
+        public ConcreteOperationMatching(final AbstractInterface iface, final AbstractOperation op) {
+            this.interfaceName = iface;
+            this.operationName = op;
+            this.inputMatching = new HashMap<>();
+            this.outputMatching = new HashMap<>();
+            this.matchedNodes = new HashSet<>();
+        }
     }
 }

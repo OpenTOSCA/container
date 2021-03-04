@@ -51,6 +51,31 @@ public class RulesChecker {
         this.serializer = service.getXmlSerializer();
     }
 
+    private static Map<String, String> getPropertiesFromDoc(final Document doc) {
+
+        final Map<String, String> propertiesMap = new HashMap<>();
+
+        final NodeList nodeList = doc.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            final Node node = nodeList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                final NodeList nodeList2 = node.getChildNodes();
+                for (int i2 = 0; i2 < nodeList2.getLength(); i2++) {
+                    final Node node2 = nodeList2.item(i2);
+                    if (node2.getNodeType() == Node.ELEMENT_NODE) {
+                        final String propName = node2.getNodeName();
+                        final String propValue = node2.getTextContent();
+                        LOG.debug("Property: " + propName + " has Value: " + propValue);
+                        if (propName != null && propValue != null) {
+                            propertiesMap.put(node2.getNodeName(), node2.getTextContent());
+                        }
+                    }
+                }
+            }
+        }
+        return propertiesMap;
+    }
+
     boolean check(final Csar csar, final TServiceTemplate serviceTemplate, final InputParameters inputParameters) {
         LOG.debug("Checking Rules");
         List<TServiceTemplate> stWhiteRuleList;
@@ -255,31 +280,6 @@ public class RulesChecker {
         final Element element = (Element) any;
         final Document doc = element.getOwnerDocument();
         return getPropertiesFromDoc(doc);
-    }
-
-    private static Map<String, String> getPropertiesFromDoc(final Document doc) {
-
-        final Map<String, String> propertiesMap = new HashMap<>();
-
-        final NodeList nodeList = doc.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            final Node node = nodeList.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                final NodeList nodeList2 = node.getChildNodes();
-                for (int i2 = 0; i2 < nodeList2.getLength(); i2++) {
-                    final Node node2 = nodeList2.item(i2);
-                    if (node2.getNodeType() == Node.ELEMENT_NODE) {
-                        final String propName = node2.getNodeName();
-                        final String propValue = node2.getTextContent();
-                        LOG.debug("Property: " + propName + " has Value: " + propValue);
-                        if (propName != null && propValue != null) {
-                            propertiesMap.put(node2.getNodeName(), node2.getTextContent());
-                        }
-                    }
-                }
-            }
-        }
-        return propertiesMap;
     }
 
     private boolean arePropertiesMatching(final TNodeTemplate relatedNodeTemplate,

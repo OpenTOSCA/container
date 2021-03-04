@@ -22,6 +22,18 @@ public class ServiceTransformRequest {
     @XmlElement(name = "NodeTemplate")
     @XmlElementWrapper(name = "SourceNodeTemplates")
     private final List<String> sourceNodeTemplates = Lists.newArrayList();
+    @JsonProperty
+    @XmlElement(name = "RelationshipTemplate")
+    @XmlElementWrapper(name = "SourceRelationshipTemplates")
+    private final List<String> sourceRelationshipTemplates = Lists.newArrayList();
+    @JsonProperty
+    @XmlElement(name = "NodeTemplate")
+    @XmlElementWrapper(name = "TargetNodeTemplates")
+    private final List<String> targetNodeTemplates = Lists.newArrayList();
+    @JsonProperty
+    @XmlElement(name = "RelationshipTemplate")
+    @XmlElementWrapper(name = "TargetRelationshipTemplates")
+    private final List<String> targetRelationshipTemplates = Lists.newArrayList();
 
     public List<String> getSourceNodeTemplates() {
         return this.sourceNodeTemplates;
@@ -31,11 +43,6 @@ public class ServiceTransformRequest {
         this.sourceNodeTemplates.addAll(Arrays.asList(nodeTemplates));
     }
 
-    @JsonProperty
-    @XmlElement(name = "RelationshipTemplate")
-    @XmlElementWrapper(name = "SourceRelationshipTemplates")
-    private final List<String> sourceRelationshipTemplates = Lists.newArrayList();
-
     public List<String> getSourceRelationshipTemplates() {
         return this.sourceRelationshipTemplates;
     }
@@ -44,11 +51,6 @@ public class ServiceTransformRequest {
         this.sourceRelationshipTemplates.addAll(Arrays.asList(relationshipTemplates));
     }
 
-    @JsonProperty
-    @XmlElement(name = "NodeTemplate")
-    @XmlElementWrapper(name = "TargetNodeTemplates")
-    private final List<String> targetNodeTemplates = Lists.newArrayList();
-
     public List<String> getTargetNodeTemplates() {
         return this.targetNodeTemplates;
     }
@@ -56,11 +58,6 @@ public class ServiceTransformRequest {
     public void addTargetNodeTemplates(final String... nodeTemplates) {
         this.targetNodeTemplates.addAll(Arrays.asList(nodeTemplates));
     }
-
-    @JsonProperty
-    @XmlElement(name = "RelationshipTemplate")
-    @XmlElementWrapper(name = "TargetRelationshipTemplates")
-    private final List<String> targetRelationshipTemplates = Lists.newArrayList();
 
     public List<String> getTargetRelationshipTemplates() {
         return this.targetRelationshipTemplates;

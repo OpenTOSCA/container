@@ -41,6 +41,20 @@ public class InvocationRequestProcessor implements Processor {
 
     final private static Logger LOG = LoggerFactory.getLogger(InvocationRequestProcessor.class);
 
+    private static Document convertStringToDocument(final String xmlString) throws SAXException {
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder;
+
+        try {
+            builder = factory.newDocumentBuilder();
+            final Document doc = builder.parse(new InputSource(new StringReader(xmlString)));
+            return doc;
+        } catch (ParserConfigurationException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     @Override
     public void process(final Exchange exchange) throws ParseException, ApplicationBusExternalException, SAXException {
 
@@ -151,19 +165,5 @@ public class InvocationRequestProcessor implements Processor {
         }
 
         return params;
-    }
-
-    private static Document convertStringToDocument(final String xmlString) throws SAXException {
-        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-
-        try {
-            builder = factory.newDocumentBuilder();
-            final Document doc = builder.parse(new InputSource(new StringReader(xmlString)));
-            return doc;
-        } catch (ParserConfigurationException | IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

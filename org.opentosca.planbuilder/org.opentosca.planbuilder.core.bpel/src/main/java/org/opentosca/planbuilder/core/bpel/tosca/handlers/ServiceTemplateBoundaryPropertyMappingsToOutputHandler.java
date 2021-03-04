@@ -45,138 +45,6 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
 
     /**
      * <p>
-     * This class is a wrapper, which holds a mapping from ServiceTemplate Property, Template and Template Property
-     * </p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
-     * <br>
-     *
-     * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
-     */
-    private class ServiceTemplatePropertyToPropertyMapping {
-
-        // internal array, basically n rows 3 columns
-        private String[][] internalArray = new String[1][3];
-
-        /**
-         * Adds a mapping from ServiceTemplate Property, Template and Template Property
-         *
-         * @param serviceTemplatePropertyLocalName the localName of a serviceTemplate property
-         * @param templateId                       the template Id
-         * @param templatePropertyLocalName        the localName of a template id
-         */
-        protected void addMapping(final String serviceTemplatePropertyLocalName, final String templateId,
-                                  final String templatePropertyLocalName) {
-            ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("Adding ServiceTemplate Property Mapping, serviceTemplate property localName {}, templateId {} and template property localName {}",
-                serviceTemplatePropertyLocalName,
-                templateId, templatePropertyLocalName);
-            if (this.internalArray.length == 1) {
-                // nothing stored inside array yet
-                this.internalArray[0][0] = serviceTemplatePropertyLocalName;
-                this.internalArray[0][1] = templateId;
-                this.internalArray[0][2] = templatePropertyLocalName;
-                increaseArraySize();
-            } else {
-                this.internalArray[this.internalArray.length - 1][0] = serviceTemplatePropertyLocalName;
-                this.internalArray[this.internalArray.length - 1][1] = templateId;
-                this.internalArray[this.internalArray.length - 1][2] = templatePropertyLocalName;
-                increaseArraySize();
-            }
-            printInternalArray();
-        }
-
-        private void printInternalArray() {
-            for (int index_1 = 0; index_1 < this.internalArray.length; index_1++) {
-                for (int index_2 = 0; index_2 < this.internalArray[index_1].length; index_2++) {
-                    ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("index1: " + index_1 + " index2: "
-                        + index_2 + " value: " + this.internalArray[index_1][index_2]);
-                }
-            }
-        }
-
-        /**
-         * Removes a SericeTemplate Property Mapping
-         *
-         * @param serviceTemplatePropertyName a localName of serviceTemplate property
-         */
-        protected void removeServiceTemplatePropertyMapping(final String serviceTemplatePropertyName) {
-            ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("Removin ServiceTemplate Property Mapping for serviceTemplate Property {}",
-                serviceTemplatePropertyName);
-            for (int index = 0; index < this.internalArray.length; index++) {
-                if (this.internalArray[index][0] != null
-                    && this.internalArray[index][0].equals(serviceTemplatePropertyName)) {
-                    // TODO pretty ugly, but should work
-                    this.internalArray[index][0] = null;
-                    this.internalArray[index][1] = null;
-                    this.internalArray[index][2] = null;
-                }
-            }
-        }
-
-        /**
-         * Returns all ServiceTemplate Property localName inside this wrapper
-         *
-         * @return a List of Strings which are ServiceTemplate property localNames
-         */
-        protected List<String> getServiceTemplatePropertyNames() {
-            final List<String> names = new ArrayList<>();
-            for (final String[] element : this.internalArray) {
-                if (element[0] != null) {
-                    names.add(element[0]);
-                }
-            }
-            return names;
-        }
-
-        /**
-         * Returns the templateId of the ServiceTemplate Property Mapping
-         *
-         * @param serviceTemplateLocalName a localName of a ServiceTemplate property
-         * @return a String which is a templateId else null
-         */
-        protected String getTemplateId(final String serviceTemplateLocalName) {
-            for (final String[] element : this.internalArray) {
-                if (element[0] != null && element[0].equals(serviceTemplateLocalName)) {
-                    return element[1];
-                }
-            }
-            return null;
-        }
-
-        /**
-         * Returns a Template property localName for the given serviceTemplate property localName
-         *
-         * @param serviceTemplateLocalName a localName of a serviceTemplate Property
-         * @return a String which is a localName of a Template property, else null
-         */
-        protected String getTemplatePropertyName(final String serviceTemplateLocalName) {
-            for (final String[] element : this.internalArray) {
-                if (element[0] != null && element[0].equals(serviceTemplateLocalName)) {
-                    return element[2];
-                }
-            }
-            return null;
-        }
-
-        /**
-         * Increases the size of the internal array by 1 row
-         */
-        private void increaseArraySize() {
-            final int arrayLength = this.internalArray.length;
-            final String[][] newArray = new String[arrayLength + 1][3];
-            for (int index = 0; index < arrayLength; index++) {
-                // copy serviceTemplatePropertyName
-                newArray[index][0] = this.internalArray[index][0];
-                // copy templateId
-                newArray[index][1] = this.internalArray[index][1];
-                // copy templatePropLocalName
-                newArray[index][2] = this.internalArray[index][2];
-            }
-            this.internalArray = newArray;
-        }
-    }
-
-    /**
-     * <p>
      * Initializes the response message of the given BuildPlan according to the given BoundaryDefinitions inside the
      * given Definitions document
      * </p>
@@ -349,9 +217,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             final String targetPropertyRef = propertyMapping.getTargetPropertyRef();
 
             // this will be a localName in the output
-            final String serviceTemplatePropLocalName = getTemplatePropertyLocalName(propElement, propertyMapping.getServiceTemplatePropertyRef())
-                ;
-
+            final String serviceTemplatePropLocalName = getTemplatePropertyLocalName(propElement, propertyMapping.getServiceTemplatePropertyRef());
 
             String templatePropLocalName = null;
             boolean isConcatQuery = false;
@@ -446,7 +312,6 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             } else if (functionPart.trim().split("\\.Properties\\.").length == 2) {
                 // "DSL" Query
                 final String[] queryParts = functionPart.trim().split("\\.Properties\\.");
-
 
                 final String nodeTemplateName = queryParts[0];
                 final String propertyName = queryParts[1];
@@ -560,5 +425,137 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             }
         }
         return null;
+    }
+
+    /**
+     * <p>
+     * This class is a wrapper, which holds a mapping from ServiceTemplate Property, Template and Template Property
+     * </p>
+     * Copyright 2013 IAAS University of Stuttgart <br>
+     * <br>
+     *
+     * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+     */
+    private class ServiceTemplatePropertyToPropertyMapping {
+
+        // internal array, basically n rows 3 columns
+        private String[][] internalArray = new String[1][3];
+
+        /**
+         * Adds a mapping from ServiceTemplate Property, Template and Template Property
+         *
+         * @param serviceTemplatePropertyLocalName the localName of a serviceTemplate property
+         * @param templateId                       the template Id
+         * @param templatePropertyLocalName        the localName of a template id
+         */
+        protected void addMapping(final String serviceTemplatePropertyLocalName, final String templateId,
+                                  final String templatePropertyLocalName) {
+            ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("Adding ServiceTemplate Property Mapping, serviceTemplate property localName {}, templateId {} and template property localName {}",
+                serviceTemplatePropertyLocalName,
+                templateId, templatePropertyLocalName);
+            if (this.internalArray.length == 1) {
+                // nothing stored inside array yet
+                this.internalArray[0][0] = serviceTemplatePropertyLocalName;
+                this.internalArray[0][1] = templateId;
+                this.internalArray[0][2] = templatePropertyLocalName;
+                increaseArraySize();
+            } else {
+                this.internalArray[this.internalArray.length - 1][0] = serviceTemplatePropertyLocalName;
+                this.internalArray[this.internalArray.length - 1][1] = templateId;
+                this.internalArray[this.internalArray.length - 1][2] = templatePropertyLocalName;
+                increaseArraySize();
+            }
+            printInternalArray();
+        }
+
+        private void printInternalArray() {
+            for (int index_1 = 0; index_1 < this.internalArray.length; index_1++) {
+                for (int index_2 = 0; index_2 < this.internalArray[index_1].length; index_2++) {
+                    ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("index1: " + index_1 + " index2: "
+                        + index_2 + " value: " + this.internalArray[index_1][index_2]);
+                }
+            }
+        }
+
+        /**
+         * Removes a SericeTemplate Property Mapping
+         *
+         * @param serviceTemplatePropertyName a localName of serviceTemplate property
+         */
+        protected void removeServiceTemplatePropertyMapping(final String serviceTemplatePropertyName) {
+            ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("Removin ServiceTemplate Property Mapping for serviceTemplate Property {}",
+                serviceTemplatePropertyName);
+            for (int index = 0; index < this.internalArray.length; index++) {
+                if (this.internalArray[index][0] != null
+                    && this.internalArray[index][0].equals(serviceTemplatePropertyName)) {
+                    // TODO pretty ugly, but should work
+                    this.internalArray[index][0] = null;
+                    this.internalArray[index][1] = null;
+                    this.internalArray[index][2] = null;
+                }
+            }
+        }
+
+        /**
+         * Returns all ServiceTemplate Property localName inside this wrapper
+         *
+         * @return a List of Strings which are ServiceTemplate property localNames
+         */
+        protected List<String> getServiceTemplatePropertyNames() {
+            final List<String> names = new ArrayList<>();
+            for (final String[] element : this.internalArray) {
+                if (element[0] != null) {
+                    names.add(element[0]);
+                }
+            }
+            return names;
+        }
+
+        /**
+         * Returns the templateId of the ServiceTemplate Property Mapping
+         *
+         * @param serviceTemplateLocalName a localName of a ServiceTemplate property
+         * @return a String which is a templateId else null
+         */
+        protected String getTemplateId(final String serviceTemplateLocalName) {
+            for (final String[] element : this.internalArray) {
+                if (element[0] != null && element[0].equals(serviceTemplateLocalName)) {
+                    return element[1];
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Returns a Template property localName for the given serviceTemplate property localName
+         *
+         * @param serviceTemplateLocalName a localName of a serviceTemplate Property
+         * @return a String which is a localName of a Template property, else null
+         */
+        protected String getTemplatePropertyName(final String serviceTemplateLocalName) {
+            for (final String[] element : this.internalArray) {
+                if (element[0] != null && element[0].equals(serviceTemplateLocalName)) {
+                    return element[2];
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Increases the size of the internal array by 1 row
+         */
+        private void increaseArraySize() {
+            final int arrayLength = this.internalArray.length;
+            final String[][] newArray = new String[arrayLength + 1][3];
+            for (int index = 0; index < arrayLength; index++) {
+                // copy serviceTemplatePropertyName
+                newArray[index][0] = this.internalArray[index][0];
+                // copy templateId
+                newArray[index][1] = this.internalArray[index][1];
+                // copy templatePropLocalName
+                newArray[index][2] = this.internalArray[index][2];
+            }
+            this.internalArray = newArray;
+        }
     }
 }

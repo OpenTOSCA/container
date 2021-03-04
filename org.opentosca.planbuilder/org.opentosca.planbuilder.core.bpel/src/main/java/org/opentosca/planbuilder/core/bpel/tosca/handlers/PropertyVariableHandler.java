@@ -99,9 +99,9 @@ public class PropertyVariableHandler {
         final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
         if (relationshipTemplate.getProperties() != null) {
 
-            Map<String,String> propMap = relationshipTemplate.getProperties().asMap();
+            Map<String, String> propMap = relationshipTemplate.getProperties().asMap();
 
-            for(String propName : propMap.keySet()) {
+            for (String propName : propMap.keySet()) {
 
                 String propVarName = this.createPropertyVariableName(serviceTemplate, relationshipTemplate, propName);
 
@@ -123,7 +123,6 @@ public class PropertyVariableHandler {
                     this.planHandler.assignInitValueToVariable(propVarName, "", templatePlan.getBuildPlan());
                 }
             }
-
         }
     }
 
@@ -152,8 +151,8 @@ public class PropertyVariableHandler {
                                        final AbstractServiceTemplate serviceTemplate) {
         final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         if (nodeTemplate.getProperties() != null) {
-            Map<String,String> propMap = nodeTemplate.getProperties().asMap();
-            for(String propName : propMap.keySet()){
+            Map<String, String> propMap = nodeTemplate.getProperties().asMap();
+            for (String propName : propMap.keySet()) {
                 String propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);
 
                 while (!this.planHandler.addStringVariable(propVarName, templatePlan.getBuildPlan())) {
@@ -169,9 +168,6 @@ public class PropertyVariableHandler {
 
                 this.planHandler.assignInitValueToVariable(propVarName, value, templatePlan.getBuildPlan());
             }
-
-
         }
     }
-
 }

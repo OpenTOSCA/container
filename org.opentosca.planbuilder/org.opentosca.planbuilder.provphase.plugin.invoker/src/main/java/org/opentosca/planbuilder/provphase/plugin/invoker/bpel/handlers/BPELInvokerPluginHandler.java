@@ -46,9 +46,8 @@ public class BPELInvokerPluginHandler {
 
     private final ResourceHandler resHandler;
     private final BPELProcessFragments bpelFrags;
-    private DocumentBuilderFactory docFactory;
-
     private final DocumentBuilder docBuilder;
+    private DocumentBuilderFactory docFactory;
 
     public BPELInvokerPluginHandler() {
         try {
