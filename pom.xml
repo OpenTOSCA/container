@@ -13,7 +13,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <winery.version>ustutt-dfbf547957-1</winery.version>
+        <winery.version>ustutt-SNAPSHOT</winery.version>
 
         <apache.cxf.version>3.1.10</apache.cxf.version>
         <camel.version>2.18.3</camel.version>
