@@ -12,7 +12,6 @@ import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 import org.eclipse.winery.model.tosca.utils.ModelUtilities;
-import org.eclipse.winery.repository.backend.BackendUtils;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.w3c.dom.Document;

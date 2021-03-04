@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.importer.winery.context.impl.impl;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.planbuilder.model.tosca.AbstractPropertyMapping;
 
 /**

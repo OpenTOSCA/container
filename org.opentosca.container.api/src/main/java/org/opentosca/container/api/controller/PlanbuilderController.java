@@ -23,8 +23,6 @@ import org.opentosca.container.api.planbuilder.PlanbuilderWorker;
 import org.opentosca.container.api.planbuilder.RunningTasks;
 import org.opentosca.container.api.planbuilder.model.GeneratePlanForTopology;
 import org.opentosca.container.api.planbuilder.model.PlanGenerationState;
-import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.impl.service.CsarStorageServiceImpl;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.planbuilder.importer.Importer;

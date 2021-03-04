@@ -2,7 +2,6 @@ package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;

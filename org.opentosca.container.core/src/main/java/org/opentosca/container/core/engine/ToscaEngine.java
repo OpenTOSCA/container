@@ -48,7 +48,6 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.core.common.NotFoundException;
-import org.opentosca.container.core.common.xml.XMLHelper;
 import org.opentosca.container.core.model.csar.Csar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
