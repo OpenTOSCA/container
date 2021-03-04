@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
-import org.eclipse.winery.model.tosca.xml.XTBoolean;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tParameterDTO")
@@ -19,7 +18,7 @@ public class TParameterDTO {
     @XmlAttribute(name = "type", required = true)
     protected String type;
     @XmlAttribute(name = "required")
-    protected XTBoolean required;
+    protected boolean required;
 
     public TParameterDTO() {
 
@@ -28,7 +27,7 @@ public class TParameterDTO {
     public TParameterDTO(final org.eclipse.winery.model.tosca.TParameter param) {
         this.name = param.getName();
         this.type = param.getType();
-        this.required = XTBoolean.fromValue(String.valueOf(param.getRequired()));
+        this.required = param.getRequired();
     }
 
     public TParameterDTO(final org.opentosca.container.core.tosca.extension.TParameter param) {
@@ -85,22 +84,18 @@ public class TParameterDTO {
     /**
      * Gets the value of the required property.
      *
-     * @return possible object is {@link XTBoolean }
+     * @return possible object is {@link boolean }
      */
-    public XTBoolean getRequired() {
-        if (this.required == null) {
-            return XTBoolean.YES;
-        } else {
-            return this.required;
-        }
+    public boolean getRequired() {
+        return this.required;
     }
 
     /**
      * Sets the value of the required property.
      *
-     * @param value allowed object is {@link XTBoolean }
+     * @param value allowed object is {@link boolean }
      */
-    public void setRequired(final XTBoolean value) {
+    public void setRequired(final boolean value) {
         this.required = value;
     }
 
@@ -108,7 +103,7 @@ public class TParameterDTO {
         public static org.eclipse.winery.model.tosca.TParameter toToscaElement(TParameterDTO dto) {
             org.eclipse.winery.model.tosca.TParameter element = new org.eclipse.winery.model.tosca.TParameter();
             element.setName(dto.name);
-            element.setRequired(Boolean.valueOf(dto.required.value()));
+            element.setRequired(dto.required);
             element.setType(dto.type);
             return element;
         }

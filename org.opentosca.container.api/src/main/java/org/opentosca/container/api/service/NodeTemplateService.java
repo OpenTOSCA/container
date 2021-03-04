@@ -14,7 +14,6 @@ import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.model.tosca.xml.XTBoolean;
 
 import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
@@ -179,7 +178,7 @@ public class NodeTemplateService {
             final TParameter tParam = new TParameter();
             tParam.setName(param.getName());
             tParam.setType(param.getType());
-            tParam.setRequired(XTBoolean.fromValue(param.getRequired() ? "yes" : "no"));
+            tParam.setRequired(param.getRequired());
             wrapped.add(tParam);
         }
         return wrapped;
