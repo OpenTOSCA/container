@@ -463,7 +463,7 @@ public class Fragments {
     }
 
     public Node generateAssignFromPropertyVarToDomMapping(final String nodeInstancePropertyRequestVarName,
-                                                          final Map<String, Node> propertyVarToDomMapping) throws SAXException,
+                                                          final Map<String, QName> propertyVarToDomMapping) throws SAXException,
         IOException {
         // create empty bpel:assign
         final String bpelAssignString =
@@ -475,13 +475,13 @@ public class Fragments {
 
         final Node assignNode = doc.getFirstChild();
         for (final String propertyVarName : propertyVarToDomMapping.keySet()) {
-            final Node propertyNode = propertyVarToDomMapping.get(propertyVarName);
-            if (propertyVarName != null & propertyNode != null) {
+            final QName propertyId = propertyVarToDomMapping.get(propertyVarName);
+            if (propertyVarName != null & propertyId != null) {
 
                 Node copyNode =
                     generateCopyFromStringVarToAnyTypeVarAsNode(propertyVarName, nodeInstancePropertyRequestVarName,
-                        propertyNode.getLocalName(),
-                        propertyNode.getNamespaceURI());
+                        propertyId.getLocalPart(),
+                        propertyId.getNamespaceURI());
 
                 copyNode = doc.importNode(copyNode, true);
                 assignNode.appendChild(copyNode);

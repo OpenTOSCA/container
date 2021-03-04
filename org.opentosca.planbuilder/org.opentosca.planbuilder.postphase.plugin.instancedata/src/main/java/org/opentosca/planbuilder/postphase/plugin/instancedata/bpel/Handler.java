@@ -35,13 +35,9 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.UserDataHandler;
 import org.xml.sax.SAXException;
 
 /**
@@ -289,7 +285,7 @@ public class Handler {
             // Request
             // and send
             // first build a mapping from property variable names to dom element
-            final Map<String, Node> propertyVarNameToDOMMapping =
+            final Map<String, QName> propertyVarNameToDOMMapping =
                 buildMappingsFromVarNameToDomElement(context, nodeTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
@@ -459,7 +455,7 @@ public class Handler {
             // Request
             // and send
             // first build a mapping from property variable names to dom element
-            final Map<String, Node> propertyVarNameToDOMMapping =
+            final Map<String, QName> propertyVarNameToDOMMapping =
                 buildMappingsFromVarNameToDomElement(context, relationshipTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
@@ -1053,7 +1049,7 @@ public class Handler {
         // Request
         // and send
         // first build a mapping from property variable names to dom element
-        final Map<String, Node> propertyVarNameToDOMMapping =
+        final Map<String, QName> propertyVarNameToDOMMapping =
             buildMappingsFromVarNameToDomElement(sourceNodeContext, nodeTemplate);
         try {
             // then generate an assign to have code that writes the runtime
@@ -1111,7 +1107,7 @@ public class Handler {
         // Request
         // and send
         // first build a mapping from property variable names to dom element
-        final Map<String, Node> propertyVarNameToDOMMapping =
+        final Map<String, QName> propertyVarNameToDOMMapping =
             buildMappingsFromVarNameToDomElement(context, nodeTemplate);
         try {
             // then generate an assign to have code that writes the runtime
@@ -1273,7 +1269,7 @@ public class Handler {
             // Request
             // and send
             // first build a mapping from property variable names to dom element
-            final Map<String, Node> propertyVarNameToDOMMapping =
+            final Map<String, QName> propertyVarNameToDOMMapping =
                 buildMappingsFromVarNameToDomElement(targetContext, sourceRelationshipTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
@@ -1555,7 +1551,7 @@ public class Handler {
             // Request
             // and send
             // first build a mapping from property variable names to dom element
-            final Map<String, Node> propertyVarNameToDOMMapping =
+            final Map<String, QName> propertyVarNameToDOMMapping =
                 buildMappingsFromVarNameToDomElement(context, relationshipTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
@@ -1689,27 +1685,27 @@ public class Handler {
      * @return a Map<String,Node> of BpelVariableName to DOM Node. Maybe null if the mapping is not complete, e.g. some
      * bpel variable was not found or the properties weren't parsed right.
      */
-    private Map<String, Node> buildMappingsFromVarNameToDomElement(final PlanContext context,
+    private Map<String, QName> buildMappingsFromVarNameToDomElement(final PlanContext context,
                                                                    AbstractNodeTemplate nodeTemplate) {
         final Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
-        final Map<String, Node> mapping = new HashMap<>();
+        final Map<String, QName> mapping = new HashMap<>();
 
         for(String propertyName : propertiesMap.keySet()) {
             final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
-            mapping.put(propVarName, this.createDummyNode(propertyName, nodeTemplate.getProperties().getNamespace()));
+            mapping.put(propVarName, new QName(nodeTemplate.getProperties().getNamespace(), propertyName));
         }
 
         return mapping;
     }
 
-    private Map<String, Node> buildMappingsFromVarNameToDomElement(final PlanContext context,
+    private Map<String, QName> buildMappingsFromVarNameToDomElement(final PlanContext context,
                                                                    AbstractRelationshipTemplate relationshipTemplate) {
         final Map<String,String> propertiesMap = relationshipTemplate.getProperties().asMap();
-        final Map<String, Node> mapping = new HashMap<>();
+        final Map<String, QName> mapping = new HashMap<>();
 
         for(String propertyName : propertiesMap.keySet()) {
             final String propVarName = context.getVariableNameOfProperty(relationshipTemplate, propertyName);
-            mapping.put(propVarName, this.createDummyNode(propertyName, relationshipTemplate.getProperties().getNamespace()));
+            mapping.put(propVarName, new QName(relationshipTemplate.getProperties().getNamespace(), propertyName));
         }
 
         return mapping;
@@ -1886,198 +1882,5 @@ public class Handler {
             }
         }
         return null;
-    }
-
-    private Node createDummyNode(final String localName, final String namespace) {
-        return new Node() {
-
-            final String internalLocalName = localName;
-            final String internalNamespace = namespace;
-
-            @Override
-            public String getNodeName() {
-                return null;
-            }
-
-            @Override
-            public String getNodeValue() throws DOMException {
-                return null;
-            }
-
-            @Override
-            public void setNodeValue(String nodeValue) throws DOMException {
-
-            }
-
-            @Override
-            public short getNodeType() {
-                return 0;
-            }
-
-            @Override
-            public Node getParentNode() {
-                return null;
-            }
-
-            @Override
-            public NodeList getChildNodes() {
-                return null;
-            }
-
-            @Override
-            public Node getFirstChild() {
-                return null;
-            }
-
-            @Override
-            public Node getLastChild() {
-                return null;
-            }
-
-            @Override
-            public Node getPreviousSibling() {
-                return null;
-            }
-
-            @Override
-            public Node getNextSibling() {
-                return null;
-            }
-
-            @Override
-            public NamedNodeMap getAttributes() {
-                return null;
-            }
-
-            @Override
-            public Document getOwnerDocument() {
-                return null;
-            }
-
-            @Override
-            public Node insertBefore(Node newChild, Node refChild) throws DOMException {
-                return null;
-            }
-
-            @Override
-            public Node replaceChild(Node newChild, Node oldChild) throws DOMException {
-                return null;
-            }
-
-            @Override
-            public Node removeChild(Node oldChild) throws DOMException {
-                return null;
-            }
-
-            @Override
-            public Node appendChild(Node newChild) throws DOMException {
-                return null;
-            }
-
-            @Override
-            public boolean hasChildNodes() {
-                return false;
-            }
-
-            @Override
-            public Node cloneNode(boolean deep) {
-                return null;
-            }
-
-            @Override
-            public void normalize() {
-
-            }
-
-            @Override
-            public boolean isSupported(String feature, String version) {
-                return false;
-            }
-
-            @Override
-            public String getNamespaceURI() {
-                return this.internalNamespace;
-            }
-
-            @Override
-            public String getPrefix() {
-                return null;
-            }
-
-            @Override
-            public void setPrefix(String prefix) throws DOMException {
-
-            }
-
-            @Override
-            public String getLocalName() {
-                return this.internalLocalName;
-            }
-
-            @Override
-            public boolean hasAttributes() {
-                return false;
-            }
-
-            @Override
-            public String getBaseURI() {
-                return null;
-            }
-
-            @Override
-            public short compareDocumentPosition(Node other) throws DOMException {
-                return 0;
-            }
-
-            @Override
-            public String getTextContent() throws DOMException {
-                return null;
-            }
-
-            @Override
-            public void setTextContent(String textContent) throws DOMException {
-
-            }
-
-            @Override
-            public boolean isSameNode(Node other) {
-                return false;
-            }
-
-            @Override
-            public String lookupPrefix(String namespaceURI) {
-                return null;
-            }
-
-            @Override
-            public boolean isDefaultNamespace(String namespaceURI) {
-                return false;
-            }
-
-            @Override
-            public String lookupNamespaceURI(String prefix) {
-                return null;
-            }
-
-            @Override
-            public boolean isEqualNode(Node arg) {
-                return false;
-            }
-
-            @Override
-            public Object getFeature(String feature, String version) {
-                return null;
-            }
-
-            @Override
-            public Object setUserData(String key, Object data, UserDataHandler handler) {
-                return null;
-            }
-
-            @Override
-            public Object getUserData(String key) {
-                return null;
-            }
-        };
     }
 }
