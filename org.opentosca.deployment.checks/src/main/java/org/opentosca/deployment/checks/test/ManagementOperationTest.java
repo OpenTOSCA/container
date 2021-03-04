@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.common.ids.definitions.NodeTypeId;
+import org.eclipse.winery.model.ids.definitions.NodeTypeId;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TInterfaces;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -70,7 +70,7 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
         }
 
         // Input properties
-        final Map<String, String> inputProperties = policyTemplate.getProperties().getKVProperties();
+        final Map<String, String> inputProperties = (Map<String,String>) policyTemplate.getProperties();
         logger.debug("Input properties: {}", inputProperties);
 
         /*

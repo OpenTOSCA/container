@@ -63,7 +63,7 @@
     </dependency>
     <dependency>
       <groupId>com.github.opentosca.winery</groupId>
-      <artifactId>org.eclipse.winery.model.tosca</artifactId>
+      <artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
     </dependency>
 
     <dependency>

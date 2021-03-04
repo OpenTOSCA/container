@@ -115,7 +115,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
      */
     @Override
     public boolean isAbstract() {
-        return this.nodeTypeImpl.getAbstract().value().equals("yes") ? true : false;
+        return this.nodeTypeImpl.getAbstract();
     }
 
     /**
@@ -123,7 +123,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
      */
     @Override
     public boolean isFinal() {
-        return this.nodeTypeImpl.getFinal().value().equals("yes") ? true : false;
+        return this.nodeTypeImpl.getFinal();
     }
 
     /**

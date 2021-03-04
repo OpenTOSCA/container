@@ -219,25 +219,22 @@ public class NodeInstanceSelector {
 
         // assign bpel variables from the requested properties
         // create mapping from property dom nodes to bpelvariable
-        final Map<Element, String> element2BpelVarNameMap = new HashMap<>();
-        final NodeList propChildNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
-        for (int index = 0; index < propChildNodes.getLength(); index++) {
-            if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
-                final Element childElement = (Element) propChildNodes.item(index);
-                // find bpelVariable
 
-                for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
-                    if (var.getPropertyName().equals(childElement.getLocalName())) {
-                        element2BpelVarNameMap.put(childElement, var.getVariableName());
-                    }
-                }
+        final Map<String, String> string2BpelVarNameMap = new HashMap<>();
+
+
+        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+
+        for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
+            if (propertiesMap.containsKey(var.getPropertyName())) {
+                string2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
             }
         }
 
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, nodeTemplate.getProperties().getNamespace());
             assignPropertiesToVariables = plan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             plan.getBpelMainSequenceElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException e) {

@@ -56,8 +56,8 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
         this.relationshipTemplate = relationshipTemplate;
         this.definitions = definitions;
         this.topology = topology;
-        if (this.relationshipTemplate.getProperties() != null && this.relationshipTemplate.getProperties().getInternalAny() != null) {
-            this.properties = new PropertiesImpl(this.relationshipTemplate.getProperties().getInternalAny());
+        if (this.relationshipTemplate.getProperties() != null && this.relationshipTemplate.getProperties() != null) {
+            this.properties = new PropertiesImpl(this.relationshipTemplate.getProperties());
         }
 
     }

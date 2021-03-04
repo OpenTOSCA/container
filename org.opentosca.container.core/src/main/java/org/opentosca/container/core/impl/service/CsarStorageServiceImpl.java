@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.configuration.FileBasedRepositoryConfiguration;
-import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.eclipse.winery.repository.importing.CsarImportOptions;
@@ -33,6 +33,7 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.CsarImpl;
+import org.opentosca.container.core.next.repository.Repository;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,7 +135,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 // That configuration must not be changed in a different thread during the import process
                 RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(permanentLocation));
 
-                CsarImporter importer = new CsarImporter();
+                CsarImporter importer = new CsarImporter(RepositoryFactory.getRepository());
                 final CsarImportOptions importOptions = new CsarImportOptions();
                 importOptions.setValidate(false); // avoid triggering accountability meddling with this
                 importOptions.setAsyncWPDParsing(true);

@@ -3,6 +3,8 @@
  */
 package org.opentosca.planbuilder.type.plugin.dockercontainer.core;
 
+import java.util.Map;
+
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -113,24 +115,19 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
         if (nodeTemplate.getProperties() == null) {
             return false;
         }
-
-        final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
-        final NodeList childNodeList = propertyElement.getChildNodes();
-
         int check = 0;
         boolean foundDockerImageProp = false;
-        for (int index = 0; index < childNodeList.getLength(); index++) {
-            if (childNodeList.item(index).getNodeType() != Node.ELEMENT_NODE) {
-                continue;
-            }
-            if (childNodeList.item(index).getLocalName().equals("ContainerPort")) {
-                check++;
-            } else if (childNodeList.item(index).getLocalName().equals("Port")) {
-                check++;
-            } else if (childNodeList.item(index).getLocalName().equals("ImageID")) {
-                foundDockerImageProp = true;
-            }
+
+        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+
+        if (propertiesMap.containsKey("ContainerPort")) {
+            check++;
+        } else if (propertiesMap.containsKey("Port")) {
+            check++;
+        } else if (propertiesMap.containsKey("ImageID")) {
+            foundDockerImageProp = true;
         }
+
 
         if (check != 2) {
             return false;
@@ -152,20 +149,13 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     }
 
     public boolean canHandleGateway(final AbstractNodeTemplate nodeTemplate) {
-
-        final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
-        final NodeList childNodeList = propertyElement.getChildNodes();
+        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
 
         int check = 0;
-        for (int index = 0; index < childNodeList.getLength(); index++) {
-            if (childNodeList.item(index).getNodeType() != Node.ELEMENT_NODE) {
-                continue;
-            }
-            if (childNodeList.item(index).getLocalName().equals("TenantID")) {
-                check++;
-            } else if (childNodeList.item(index).getLocalName().equals("InstanceID")) {
-                check++;
-            }
+        if (propertiesMap.containsKey("TenantID")) {
+            check++;
+        } else if (propertiesMap.containsKey("InstanceID")) {
+            check++;
         }
 
         if (check != 2) {

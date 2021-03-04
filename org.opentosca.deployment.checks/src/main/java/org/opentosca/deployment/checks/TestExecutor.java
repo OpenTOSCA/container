@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.eclipse.winery.common.ids.definitions.PolicyTemplateId;
+import org.eclipse.winery.model.ids.definitions.PolicyTemplateId;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPolicyTemplate;
 

@@ -11,6 +11,8 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
+import org.eclipse.winery.model.tosca.utils.ModelUtilities;
+import org.eclipse.winery.repository.backend.BackendUtils;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.w3c.dom.Document;
@@ -36,8 +38,8 @@ public abstract class ModelUtil {
             for (final TRelationshipTemplate relationship : relationshipTemplates) {
                 RelationshipSourceOrTarget src = relationship.getSourceElement().getRef();
                 RelationshipSourceOrTarget target = relationship.getTargetElement().getRef();
-                if ((src instanceof TNodeTemplate && nodeTemplate.equals((TNodeTemplate) src))
-                    || (target instanceof TNodeTemplate && nodeTemplate.equals((TNodeTemplate) target))) {
+                if ((nodeTemplate.equals(ModelUtilities.getNodeTemplateFromRelationshipSourceOrTarget(topology, src)))
+                    || (nodeTemplate.equals(ModelUtilities.getNodeTemplateFromRelationshipSourceOrTarget(topology, target)))) {
                     foundRelations++;
                 }
             }

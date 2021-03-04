@@ -47,7 +47,7 @@ public class TcpPingTest implements TestExecutionPlugin {
         Set<NodeTemplateInstance> nodes;
 
         // Input properties
-        final Map<String, String> inputProperties = policyTemplate.getProperties().getKVProperties();
+        final Map<String, String> inputProperties = (Map<String, String>) policyTemplate.getProperties();
         logger.debug("Input properties: {}", inputProperties);
 
         final String hostnameProperty = "VMIP";

@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.common.RepositoryFileReference;
-import org.eclipse.winery.common.ids.definitions.DefinitionsChildId;
-import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
-import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.ids.definitions.DefinitionsChildId;
+import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
+import org.eclipse.winery.repository.common.RepositoryFileReference;
 
 import com.google.common.collect.Lists;
 import org.opentosca.container.core.common.SystemException;
@@ -162,7 +162,7 @@ public class Importer extends AbstractImporter {
         }
 
         entryDefRefs.addAll(repo.getContainedFiles(new ServiceTemplateId(new QName (csar.entryServiceTemplate().getTargetNamespace(),csar.entryServiceTemplate().getId()))));
-        Definitions entryDef = null;
+        TDefinitions entryDef = null;
         for( RepositoryFileReference ref: entryDefRefs) {
             if(ref.getFileName().endsWith(".tosca")){
                 try {

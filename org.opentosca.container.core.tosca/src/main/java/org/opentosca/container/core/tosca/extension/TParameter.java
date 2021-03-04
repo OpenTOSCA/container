@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
-import org.eclipse.winery.model.tosca.TBoolean;
+import org.eclipse.winery.model.tosca.xml.XTBoolean;
 
 @XmlRootElement(name = "Parameter")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,7 +19,7 @@ public class TParameter {
     protected String type;
 
     @XmlAttribute(name = "required")
-    protected TBoolean required;
+    protected XTBoolean required;
 
     @XmlValue
     protected String value;
@@ -30,7 +30,7 @@ public class TParameter {
 
     public TParameter(final org.eclipse.winery.model.tosca.TParameter p) {
         this.name = p.getName();
-        this.required = p.getRequired();
+        this.required = XTBoolean.fromValue(p.getRequired() ? "yes" : "no");
         this.type = p.getType();
     }
 
@@ -57,11 +57,11 @@ public class TParameter {
         this.type = type;
     }
 
-    public TBoolean getRequired() {
+    public XTBoolean getRequired() {
         return this.required;
     }
 
-    public void setRequired(final TBoolean required) {
+    public void setRequired(final XTBoolean required) {
         this.required = required;
     }
 

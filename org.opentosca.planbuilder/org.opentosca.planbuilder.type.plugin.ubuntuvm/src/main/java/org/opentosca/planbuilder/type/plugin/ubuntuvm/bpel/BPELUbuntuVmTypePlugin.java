@@ -115,7 +115,7 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
             if (policy.getType().getId().equals(this.noPublicAccessPolicyType)
                 | policy.getType().getId().equals(this.publicAccessPolicyType)) {
                 if (policy.getProperties() != null
-                    && policy.getProperties().getDOMElement().getLocalName().equals("SecurityGroup")) {
+                    && policy.getProperties().asMap().containsKey("SecurityGroup")) {
                     canHandle &= true;
                 }
             } else if (policy.getType().getId().equals(this.onlyModeledPortsPolicyType)) {

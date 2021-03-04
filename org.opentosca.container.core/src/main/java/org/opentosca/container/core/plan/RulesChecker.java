@@ -15,7 +15,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TEntityTemplate.Properties;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -222,7 +222,7 @@ public class RulesChecker {
             for (Iterator<Path> rulesFilesIt = rulesFiles.iterator(); rulesFilesIt.hasNext(); ) {
                 Path rulesFile = rulesFilesIt.next();
                 LOG.trace("Rules File: {}", rulesFile.toAbsolutePath().toString());
-                final Definitions definitions = serializer.unmarshal(Files.newInputStream(rulesFile));
+                final TDefinitions definitions = serializer.unmarshal(Files.newInputStream(rulesFile));
                 definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()
                     .stream().map(TServiceTemplate.class::cast)
                     .forEach(rulesList::add);
@@ -246,7 +246,7 @@ public class RulesChecker {
             LOG.debug("Properties are not set.");
             return null;
         }
-        final Object any = properties.getInternalAny();
+        final Object any = properties;
         if (!(any instanceof Element)) {
             LOG.debug("Properties is not of class Element.");
             return null;

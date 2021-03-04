@@ -354,7 +354,7 @@ public class NodeRelationInstanceVariablesHandler {
         boolean check = true;
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null
-                && templatePlan.getNodeTemplate().getProperties().getDOMElement() != null) {
+                && !templatePlan.getNodeTemplate().getProperties().asMap().isEmpty()) {
                 check &= this.addPropertyVariableUpdateBasedOnNodeInstanceID(templatePlan, propMap, serviceTemplate);
             }
         }
@@ -365,7 +365,7 @@ public class NodeRelationInstanceVariablesHandler {
         boolean check = true;
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getRelationshipTemplate() != null && templatePlan.getRelationshipTemplate().getProperties() != null
-                && templatePlan.getRelationshipTemplate().getProperties().getDOMElement() != null) {
+                && !templatePlan.getRelationshipTemplate().getProperties().asMap().isEmpty()) {
                 check &= this.addPropertyVariableUpdateBasedOnRelationInstanceID(templatePlan, propMap, serviceTemplate);
             }
         }
@@ -414,25 +414,23 @@ public class NodeRelationInstanceVariablesHandler {
 
         // assign bpel variables from the requested properties
         // create mapping from property dom nodes to bpelvariable
-        final Map<Element, String> element2BpelVarNameMap = new HashMap<>();
-        final NodeList propChildNodes = relationshipTemplate.getProperties().getDOMElement().getChildNodes();
-        for (int index = 0; index < propChildNodes.getLength(); index++) {
-            if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
-                final Element childElement = (Element) propChildNodes.item(index);
-                // find bpelVariable
+        final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-                for (PropertyVariable var : propMap.getRelationPropertyVariables(serviceTemplate, relationshipTemplate)) {
-                    if (var.getPropertyName().equals(childElement.getLocalName())) {
-                        element2BpelVarNameMap.put(childElement, var.getVariableName());
-                    }
-                }
+
+        Map<String,String> propertiesMap = relationshipTemplate.getProperties().asMap();
+
+        for (PropertyVariable var : propMap.getRelationPropertyVariables(serviceTemplate, relationshipTemplate)) {
+            if (propertiesMap.containsKey(var.getPropertyName())) {
+                string2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
             }
         }
+
+
 
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, relationshipTemplate.getProperties().getNamespace());
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException e) {
@@ -496,25 +494,21 @@ public class NodeRelationInstanceVariablesHandler {
 
         // assign bpel variables from the requested properties
         // create mapping from property dom nodes to bpelvariable
-        final Map<Element, String> element2BpelVarNameMap = new HashMap<>();
-        final NodeList propChildNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
-        for (int index = 0; index < propChildNodes.getLength(); index++) {
-            if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
-                final Element childElement = (Element) propChildNodes.item(index);
-                // find bpelVariable
+        final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-                for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
-                    if (var.getPropertyName().equals(childElement.getLocalName())) {
-                        element2BpelVarNameMap.put(childElement, var.getVariableName());
-                    }
-                }
+        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+
+        for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
+            if (propertiesMap.containsKey(var.getPropertyName())) {
+                string2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
             }
         }
+
 
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, nodeTemplate.getProperties().getNamespace());
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException e) {
@@ -562,23 +556,21 @@ public class NodeRelationInstanceVariablesHandler {
 
         // assign bpel variables from the requested properties
         // create mapping from property dom nodes to bpelvariable
-        final Map<Element, String> element2BpelVarNameMap = new HashMap<>();
-        final NodeList propChildNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
-        for (int index = 0; index < propChildNodes.getLength(); index++) {
-            if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
-                final Element childElement = (Element) propChildNodes.item(index);
-                // find bpelVariable
-                final String bpelVarName = context.getVariableNameOfProperty(nodeTemplate, childElement.getLocalName());
-                if (bpelVarName != null) {
-                    element2BpelVarNameMap.put(childElement, bpelVarName);
-                }
+        final Map<String, String> string2BpelVarNameMap = new HashMap<>();
+
+        Map<String,String> propertiesMap = nodeTemplate.getProperties().asMap();
+
+        for(String propertyName : propertiesMap.keySet()) {
+            final String bpelVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
+            if (bpelVarName != null) {
+                string2BpelVarNameMap.put(propertyName, bpelVarName);
             }
         }
 
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, nodeTemplate.getProperties().getNamespace());
             assignPropertiesToVariables = context.importNode(assignPropertiesToVariables);
             context.getPrePhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException e) {

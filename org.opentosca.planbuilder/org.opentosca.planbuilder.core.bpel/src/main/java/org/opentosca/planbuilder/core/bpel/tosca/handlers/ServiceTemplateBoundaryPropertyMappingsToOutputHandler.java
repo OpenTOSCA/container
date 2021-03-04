@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -321,9 +322,8 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
         }
 
         final List<AbstractPropertyMapping> propertyMappings = serviceTemplateProps.getPropertyMappings();
-        final Element propElement = serviceTemplateProperties.getDOMElement();
 
-        if (propElement == null) {
+        if (serviceTemplateProperties.asMap().isEmpty()) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("ServiceTemplate has no Properties defined");
             return null;
         }
@@ -348,8 +348,8 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             final String targetPropertyRef = propertyMapping.getTargetPropertyRef();
 
             // this will be a localName in the output
-            final String serviceTemplatePropLocalName =
-                getTemplatePropertyLocalName(propElement, propertyMapping.getServiceTemplatePropertyRef());
+            final String serviceTemplatePropLocalName = serviceTemplateProperties.asMap().get(propertyMapping.getServiceTemplatePropertyRef());
+
 
             String templatePropLocalName = null;
             boolean isConcatQuery = false;
@@ -358,17 +358,17 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
                 templatePropLocalName =
                     injectBPELVariables(propertyMapping.getTargetPropertyRef(), propMap, buildPlanServiceTemplate);
             } else {
-                Element templateElement = null;
+                AbstractProperties props = null;
 
                 if (getNodeTemplate(buildPlanServiceTemplate, templateId) != null) {
-                    templateElement =
-                        getNodeTemplate(buildPlanServiceTemplate, templateId).getProperties().getDOMElement();
+                    props =
+                        getNodeTemplate(buildPlanServiceTemplate, templateId).getProperties();
                 } else if (getRelationshipTemplate(buildPlanServiceTemplate, templateId) != null) {
-                    templateElement =
-                        getRelationshipTemplate(buildPlanServiceTemplate, templateId).getProperties().getDOMElement();
+                    props =
+                        getRelationshipTemplate(buildPlanServiceTemplate, templateId).getProperties();
                 }
 
-                if (templateElement == null) {
+                if (props != null && props.asMap().isEmpty()) {
                     ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("Referenced Template {} in ServiceTemplate {} has no Properties defined, continueing with other PropertyMapping",
                         templateId,
                         buildPlanServiceTemplate.getQName()
@@ -379,10 +379,9 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
                 ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.debug("Adding Mapping for ServiceTemplateProperty {}, TemplateId {} and TemplateProperty {}",
                     serviceTemplatePropLocalName,
                     templateId,
-                    templateElement.getLocalName());
+                    props.getElementName());
 
-                templatePropLocalName =
-                    getTemplatePropertyLocalName(templateElement, propertyMapping.getTargetPropertyRef());
+                templatePropLocalName = props.asMap().get(propertyMapping.getTargetPropertyRef());
             }
 
             if (templatePropLocalName == null) {

@@ -13,7 +13,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <winery.version>v2.4.0-M1</winery.version>
+        <winery.version>ustutt-dfbf547957-1</winery.version>
 
         <apache.cxf.version>3.1.10</apache.cxf.version>
         <camel.version>2.18.3</camel.version>
@@ -136,6 +136,13 @@
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.16</version>
+            <!--<scope>provided</scope>-->
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -153,7 +160,7 @@
 
             <dependency>
                 <groupId>com.github.opentosca.winery</groupId>
-                <artifactId>org.eclipse.winery.model.tosca</artifactId>
+                <artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
                 <version>${winery.version}</version>
             </dependency>
             <dependency>

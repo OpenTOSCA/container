@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -12,14 +13,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
-import org.eclipse.winery.common.ids.definitions.ArtifactTypeId;
-import org.eclipse.winery.common.ids.definitions.NodeTypeId;
-import org.eclipse.winery.common.ids.definitions.NodeTypeImplementationId;
-import org.eclipse.winery.common.ids.definitions.RelationshipTypeId;
-import org.eclipse.winery.common.ids.definitions.RelationshipTypeImplementationId;
-import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.ids.definitions.ArtifactTemplateId;
+import org.eclipse.winery.model.ids.definitions.ArtifactTypeId;
+import org.eclipse.winery.model.ids.definitions.NodeTypeId;
+import org.eclipse.winery.model.ids.definitions.NodeTypeImplementationId;
+import org.eclipse.winery.model.ids.definitions.RelationshipTypeId;
+import org.eclipse.winery.model.ids.definitions.RelationshipTypeImplementationId;
+import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactType;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
@@ -337,17 +340,26 @@ public final class ToscaEngine {
         }
         // FIXME this is a bit weird, because it resolves the implementations of the whole type hierarchy,
         //  but that matches the previous implementation, soo ...
-        return csar.nodeTypeImplementations().stream()
+
+        List<TNodeTypeImplementation> result = csar.nodeTypeImplementations().stream()
             .filter(impl -> {
                 try {
                     TNodeType implementationNodeType = resolveNodeTypeReference(csar, impl.getNodeType());
-                    return hierarchy.contains(implementationNodeType);
+
+                    for(TNodeType nodeType : hierarchy) {
+                        if(nodeType.getQName().equals(implementationNodeType.getQName())) {
+                            return true;
+                        }
+                    }
+                    return false;
                 } catch (NotFoundException e) {
                     LOG.warn("Could not find NodeType of a known NodeTypeImplementation");
                     return false;
                 }
             })
             .collect(Collectors.toList());
+
+        return result;
     }
 
     public static List<TImplementationArtifacts.ImplementationArtifact> implementationArtifacts(TEntityTypeImplementation impl) {
@@ -439,14 +451,58 @@ public final class ToscaEngine {
 
     @Nullable
     public static Document getEntityTemplateProperties(TEntityTemplate template) {
-        return Optional.of(template)
-            .map(TEntityTemplate::getProperties)
-            // map via internal any to deal with HashMap property code in winery
-            .map(TEntityTemplate.Properties::getInternalAny)
-            .filter(p -> p instanceof Element)
-            .map(Element.class::cast)
-            .map(XMLHelper::fromRootNode)
-            .orElse(null);
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+        try {
+            Document doc = documentBuilderFactory.newDocumentBuilder().newDocument();
+
+            if(template.getProperties() instanceof TEntityTemplate.WineryKVProperties){
+                TEntityTemplate.WineryKVProperties props = (TEntityTemplate.WineryKVProperties) template.getProperties();
+                Map<String, String> propMap = props.getKVProperties();
+
+                // So just that people understand:
+                /*
+                <Properties>
+                    <Properties xmlns="http://opentosca.org/nodetypes/propertiesdefinition/winery">
+                        <ContainerPort>80</ContainerPort>
+                        <Port>get_input: ApplicationPort</Port>
+                        <ContainerID/>
+                        <ContainerIP/>
+                    </Properties>
+                </Properties>
+
+                <Properties>
+                    <DockerEngine_Properties xmlns="http://opentosca.org/nodetypes/properties">
+                        <DockerEngineURL>get_input: DockerEngineURL</DockerEngineURL>
+                        <DockerEngineCertificate/>
+                        <State>Running</State>
+                    </DockerEngine_Properties>
+                </Properties>
+
+                In case of the  DockerEngine Properties props.getElementName() returns DockerEngine_Properties
+
+                But
+
+                in case of the MyTinyToDoDocker Container Properties props.getElementName() returns NULL!!
+
+                TODO: FIXME in winery!
+                 */
+
+                Element rootElement = doc.createElementNS(props.getNamespace(),props.getElementName() != null ? props.getElementName() : "Properties");
+                doc.appendChild(rootElement);
+
+                for(String propName : propMap.keySet()) {
+                    Element propElement = doc.createElementNS(props.getNamespace(), propName);
+                    propElement.setTextContent(propMap.get(propName));
+                    rootElement.appendChild(propElement);
+                }
+
+            }
+
+            return doc;
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static Stream<TExportedOperation> listOperations(TServiceTemplate serviceTemplate) {

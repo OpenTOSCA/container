@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -447,13 +448,19 @@ public class SituationTriggerRegistration {
 
     private List<SituationTrigger> parseSituationTriggers(final AbstractServiceTemplate serviceTemplate) throws XPathExpressionException {
         final List<SituationTrigger> situationTriggers = new ArrayList<>();
-        final Element properties = getPropertiesSafely(serviceTemplate);
+        final Map<String,String> properties = getPropertiesSafely(serviceTemplate);
 
         if (properties == null) {
             return situationTriggers;
         }
 
-        final NodeList list = queryNodeSet(properties, xpath_query_situationtriggers);
+
+
+        return new ArrayList<>();
+
+        // Thx to the fact that winery is unable to work with namespaces and complex types in properties this feature is now dead, for a while. thx winery
+        // TODO: FIXME
+        /*final NodeList list = queryNodeSet(properties, xpath_query_situationtriggers);
 
         for (int i = 0; i < list.getLength(); i++) {
             if (list.item(i).getNodeType() == Node.ELEMENT_NODE) {
@@ -462,16 +469,15 @@ public class SituationTriggerRegistration {
             }
         }
 
-        return situationTriggers;
+        return situationTriggers;*/
     }
 
-    private Element getPropertiesSafely(final AbstractServiceTemplate serviceTemplate) {
+    private Map<String, String> getPropertiesSafely(final AbstractServiceTemplate serviceTemplate) {
         if (serviceTemplate.getBoundaryDefinitions() != null) {
             if (serviceTemplate.getBoundaryDefinitions().getProperties() != null) {
                 if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties() != null) {
-                    if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties()
-                        .getDOMElement() != null) {
-                        return serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().getDOMElement();
+                    if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties() != null && !serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().asMap().isEmpty()) {
+                        return serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().asMap();
                     }
                 }
             }

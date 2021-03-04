@@ -59,7 +59,7 @@ public class HttpTest implements org.opentosca.deployment.checks.test.TestExecut
         Set<NodeTemplateInstance> nodes;
 
         // Input properties
-        final Map<String, String> inputProperties = policyTemplate.getProperties().getKVProperties();
+        final Map<String, String> inputProperties = (Map<String, String>) policyTemplate.getProperties();
         logger.debug("Input properties: {}", inputProperties);
         // TODO String testMethod = inputProperties.get("TestMethod");
         final String testPath = inputProperties.get("TestPath");

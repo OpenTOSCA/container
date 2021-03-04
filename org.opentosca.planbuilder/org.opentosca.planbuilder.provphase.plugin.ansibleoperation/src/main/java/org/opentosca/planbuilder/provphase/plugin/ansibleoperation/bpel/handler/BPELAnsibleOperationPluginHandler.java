@@ -214,10 +214,10 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         for (final AbstractNodeTypeImplementation abstractNodeTypeImpl : abstractNodeTypeImpls) {
             final Collection<AbstractImplementationArtifact> abstractIAs = abstractNodeTypeImpl.getImplementationArtifacts();
             for (final AbstractImplementationArtifact abstractIA : abstractIAs) {
-                final NodeList nodeList =
-                    abstractIA.getArtifactRef().getProperties().getDOMElement().getElementsByTagName("Playbook");
-                if (nodeList.getLength() > 0) {
-                    return nodeList.item(0).getTextContent();
+                final String value =
+                    abstractIA.getArtifactRef().getProperties().asMap().get("Playbook");
+                if (value != null && !value.isEmpty()) {
+                    return value;
                 }
             }
         }

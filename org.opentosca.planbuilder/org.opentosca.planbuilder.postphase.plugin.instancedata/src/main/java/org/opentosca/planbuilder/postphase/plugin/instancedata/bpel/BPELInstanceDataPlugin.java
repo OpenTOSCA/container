@@ -84,17 +84,7 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
         if (!policy.getType().getId().equals(this.securePasswordPolicyType)) {
             return false;
         }
-
-        final NodeList nodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
-
-        for (int index = 0; index < nodes.getLength(); index++) {
-            if (nodes.item(index).getNodeType() == Node.ELEMENT_NODE
-                && nodes.item(index).getLocalName().contains("Password")) {
-                return true;
-            }
-        }
-
-        return false;
+        return nodeTemplate.getProperties().asMap().containsKey("Password");
     }
 
     @Override

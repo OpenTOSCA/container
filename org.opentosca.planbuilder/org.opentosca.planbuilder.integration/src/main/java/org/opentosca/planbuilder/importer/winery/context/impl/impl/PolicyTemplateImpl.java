@@ -47,7 +47,7 @@ public class PolicyTemplateImpl extends AbstractPolicyTemplate {
     @Override
     public AbstractProperties getProperties() {
         if (this.policyTemplate.getProperties() != null) {
-            return new PropertiesImpl(this.policyTemplate.getProperties().getInternalAny());
+            return new PropertiesImpl(this.policyTemplate.getProperties());
         } else {
             return null;
         }

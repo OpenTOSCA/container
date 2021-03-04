@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.repository.backend.IRepository;
 
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -42,9 +42,9 @@ public class DefinitionsImpl extends AbstractDefinitions {
     private final static Logger LOG = LoggerFactory.getLogger(DefinitionsImpl.class);
 
     private final IRepository repository;
-    protected final org.eclipse.winery.model.tosca.Definitions definitions;
+    protected final org.eclipse.winery.model.tosca.TDefinitions definitions;
     private final Set<AbstractDefinitions> referencedDefinitions;
-    private final Set<org.eclipse.winery.model.tosca.Definitions> allDefs;
+    private final Set<org.eclipse.winery.model.tosca.TDefinitions> allDefs;
     private final Set<Path> filesInCsar;
     private final Set<AbstractServiceTemplate> serviceTemplates = new HashSet<>();
     private final Set<AbstractNodeType> nodeTypes = new HashSet<>();
@@ -64,7 +64,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * @param mainDef        the File of the TOSCA Definitions to load as DefinitionsImpl
      * @param filesInCsar        a list of Files referenced by the given Definitions
      */
-    public DefinitionsImpl(final org.eclipse.winery.model.tosca.Definitions mainDef, final Collection<org.eclipse.winery.model.tosca.Definitions> allDefs, Collection<Path> filesInCsar, IRepository repository) {
+    public DefinitionsImpl(final org.eclipse.winery.model.tosca.TDefinitions mainDef, final Collection<org.eclipse.winery.model.tosca.TDefinitions> allDefs, Collection<Path> filesInCsar, IRepository repository) {
         DefinitionsImpl.LOG.debug("Initializing DefinitionsImpl");
         this.repository = repository;
         this.definitions = mainDef;
@@ -110,7 +110,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      *
      * @return the TOSCA Definitions of this DefinitionsImpl as JAXB class
      */
-    protected org.eclipse.winery.model.tosca.Definitions getDefinitions() {
+    protected org.eclipse.winery.model.tosca.TDefinitions getDefinitions() {
         return this.definitions;
     }
 

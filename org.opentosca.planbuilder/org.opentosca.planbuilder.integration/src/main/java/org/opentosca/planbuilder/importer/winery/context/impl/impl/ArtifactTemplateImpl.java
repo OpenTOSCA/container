@@ -39,7 +39,7 @@ public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
         this.defs = definitions;
         this.template = artifactTemplate;
         if (this.template.getProperties() != null) {
-            this.props = new PropertiesImpl(this.template.getProperties().getInternalAny());
+            this.props = new PropertiesImpl(this.template.getProperties());
         }
         this.references = new ArrayList<>();
         this.setUp();

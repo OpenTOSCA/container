@@ -614,10 +614,9 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
             if (policy.getType().getId().equals(this.noPublicAccessPolicyType)
                 | policy.getType().getId().equals(this.publicAccessPolicyType)) {
-                final Element policyPropertyRootElement = policy.getProperties().getDOMElement();
-                if (policyPropertyRootElement.getLocalName().equals("SecurityGroup")) {
-                    final String securityGroup = policyPropertyRootElement.getTextContent();
 
+                if(policy.getProperties().asMap().get("SecurityGroup") != null){
+                    String securityGroup = policy.getProperties().asMap().get("SecurityGroup");
                     final Variable secGroupVar =
                         context.createGlobalStringVariable("policyAwareSecurityGroup", securityGroup);
 

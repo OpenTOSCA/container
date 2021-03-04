@@ -20,7 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.repository.JAXBSupport;
 
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
@@ -123,7 +123,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
         // Check if the given object is in the same package as the JAXB Element
         // Definitions. This is done to reduce the amount of classes passing
         // this if which would cause a JAXB failure.
-        if (Definitions.class.getPackage().equals(objToMarshal.getClass().getPackage())) {
+        if (TDefinitions.class.getPackage().equals(objToMarshal.getClass().getPackage())) {
 
             final JAXBElement<?> elementToMarshal = this.createJAXBElement(objToMarshal);
 
@@ -148,7 +148,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
      * {@inheritDoc}
      */
     @Override
-    public Document marshalToDocument(final Definitions definitions) {
+    public Document marshalToDocument(final TDefinitions definitions) {
 
         this.LOG.debug("Marshal the Definitions \"" + definitions.getId() + "\".");
 
@@ -177,7 +177,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
         // Check if the given object is in the same package as the JAXB Element
         // Definitions. This is done to reduce the amount of classes passing
         // this if which would cause a JAXB failure.
-        if (Definitions.class.getPackage().equals(objToMarshal.getClass().getPackage())) {
+        if (TDefinitions.class.getPackage().equals(objToMarshal.getClass().getPackage())) {
 
             final JAXBElement<?> elementToMarshal = this.createJAXBElement(objToMarshal);
 
@@ -201,12 +201,12 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
      * {@inheritDoc}
      */
     @Override
-    public Definitions unmarshal(final File fileToUnmarshal) {
+    public TDefinitions unmarshal(final File fileToUnmarshal) {
 
         this.LOG.debug("Start the unmarshalling of file \"" + fileToUnmarshal.toString() + "\".");
         try {
             // return the unmarshaled data
-            return (Definitions) JAXBSupport.createUnmarshaller().unmarshal(fileToUnmarshal);
+            return (TDefinitions) JAXBSupport.createUnmarshaller().unmarshal(fileToUnmarshal);
         } catch (final JAXBException e) {
         } finally {
             this.printErrorsWhileSerialization();
@@ -219,12 +219,12 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
      * {@inheritDoc}
      */
     @Override
-    public Definitions unmarshal(final InputStream streamToUnmarshal) {
+    public TDefinitions unmarshal(final InputStream streamToUnmarshal) {
 
         this.LOG.debug("Start the unmarshalling of an InputStream.");
         try {
             // return the unmarshaled data
-            return (Definitions) JAXBSupport.createUnmarshaller().unmarshal(streamToUnmarshal);
+            return (TDefinitions) JAXBSupport.createUnmarshaller().unmarshal(streamToUnmarshal);
         } catch (final JAXBException e) {
         } finally {
             this.printErrorsWhileSerialization();
@@ -237,12 +237,12 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
      * {@inheritDoc}
      */
     @Override
-    public Definitions unmarshal(final Document doc) {
+    public TDefinitions unmarshal(final Document doc) {
 
         this.LOG.debug("Start the unmarshalling of a DOM Document.");
         this.LOG.trace(this.docToString(doc.getFirstChild(), true));
         try {
-            return (Definitions) JAXBSupport.createUnmarshaller().unmarshal(doc.getFirstChild());
+            return (TDefinitions) JAXBSupport.createUnmarshaller().unmarshal(doc.getFirstChild());
         } catch (final JAXBException e) {
         } finally {
             this.printErrorsWhileSerialization();
@@ -284,7 +284,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
         // Check if the given object is in the same package as the JAXB Element
         // Definitions. This is done to reduce the amount of classes passing
         // this if which would cause a JAXB failure.
-        if (Definitions.class.getPackage().equals(obj.getClass().getPackage())) {
+        if (TDefinitions.class.getPackage().equals(obj.getClass().getPackage())) {
 
             // get the name of the element
             String elementName = obj.getClass().getSimpleName();

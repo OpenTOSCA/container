@@ -2,7 +2,7 @@ package org.opentosca.container.core.engine.xml.impl;
 
 import java.net.URL;
 
-import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TDefinitions;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
@@ -35,10 +35,10 @@ class XMLSerializerServiceImpl implements IXMLSerializerService {
         final boolean trueForCreateValidation = false;
         if (trueForCreateValidation) {
             this.LOG.debug("Create TOSCA XML Serialization with schema validation.");
-            this.xmlSerializer = new XMLSerializerFactory().createSerializer(Definitions.class, schemaFile);
+            this.xmlSerializer = new XMLSerializerFactory().createSerializer(TDefinitions.class, schemaFile);
         } else {
             this.LOG.debug("Create TOSCA XML Serialization without schema validation.");
-            this.xmlSerializer = new XMLSerializerFactory().createSerializer(Definitions.class, null);
+            this.xmlSerializer = new XMLSerializerFactory().createSerializer(TDefinitions.class, null);
         }
         this.xmlSerializer.setValidation(true);
     }

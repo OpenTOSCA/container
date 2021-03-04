@@ -329,9 +329,9 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
      * This Methods Finds out if a Service Template Container a freeze method and then creats a freeze plan out of this
      * method
      *
-     * @param plan            the plan to execute the plugins on
-     * @param serviceTemplate the serviceTemplate the plan belongs to
+     * @param plan            the plan to execute the plugins on*
      * @param propMap         a PropertyMapping from NodeTemplate to Properties to BPELVariables
+     * @param csarName          the name of csar in the context
      */
     private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap,
                                        final String csarName) {
@@ -401,31 +401,4 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         return changedActivities;
     }
 
-    private boolean isDockerContainer(final AbstractNodeTemplate nodeTemplate) {
-        if (nodeTemplate.getProperties() == null) {
-            return false;
-        }
-        final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
-        final NodeList childNodeList = propertyElement.getChildNodes();
-
-        int check = 0;
-        boolean foundDockerImageProp = false;
-        for (int index = 0; index < childNodeList.getLength(); index++) {
-            if (childNodeList.item(index).getNodeType() != Node.ELEMENT_NODE) {
-                continue;
-            }
-            if (childNodeList.item(index).getLocalName().equals("ContainerPort")) {
-                check++;
-            } else if (childNodeList.item(index).getLocalName().equals("Port")) {
-                check++;
-            } else if (childNodeList.item(index).getLocalName().equals("ImageID")) {
-                foundDockerImageProp = true;
-            }
-        }
-
-        if (check != 2) {
-            return false;
-        }
-        return true;
-    }
 }

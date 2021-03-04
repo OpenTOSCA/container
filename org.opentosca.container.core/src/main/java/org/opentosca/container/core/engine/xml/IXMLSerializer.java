@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
-import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TDefinitions;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,7 +41,7 @@ public interface IXMLSerializer {
      * @param objToMarshal The root element to serialize into a DOM representation.
      * @return The DOM Document representation of the element.
      */
-    public Document marshalToDocument(Definitions definitions);
+    public Document marshalToDocument(TDefinitions definitions);
 
     /**
      * This method marshals a passed JAXBElement into a String.
@@ -58,7 +58,7 @@ public interface IXMLSerializer {
      * @return ServiceTemplate The ServiceTemplate which contains the xml data of the File. The method returns null if
      * the file is empty or one or more errors occurs.
      */
-    public abstract Definitions unmarshal(File fileToUnmarshal);
+    public abstract TDefinitions unmarshal(File fileToUnmarshal);
 
     /**
      * This method unmarshals a ServiceTemplate of a passed InputStream. <br>
@@ -67,7 +67,7 @@ public interface IXMLSerializer {
      * @return The ServiceTemplate which contains the xml data. The method returns null if the stream is empty or one or
      * more errors occurs.
      */
-    public abstract Definitions unmarshal(InputStream streamToUnmarshal);
+    public abstract TDefinitions unmarshal(InputStream streamToUnmarshal);
 
     /**
      * This method unmarshals a ServiceTemplate of a passed DOM document. <br>
@@ -76,7 +76,7 @@ public interface IXMLSerializer {
      * @return ServiceTemplate The ServiceTemplate which contains the xml data. The method returns a null if the file is
      * empty or one or more errors occurs.
      */
-    public abstract Definitions unmarshal(Document doc);
+    public abstract TDefinitions unmarshal(Document doc);
 
     /**
      * This method unmarshals a object of a passed DOM Node. For the mapping you need to provide the destination class

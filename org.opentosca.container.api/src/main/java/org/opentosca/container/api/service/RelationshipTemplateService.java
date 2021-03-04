@@ -110,7 +110,6 @@ public class RelationshipTemplateService {
             final TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateName);
             return ToscaEngine.getRelationshipTemplate(serviceTemplate, relationshipTemplateId)
                 .map(TRelationshipTemplate::getProperties)
-                .map(TEntityTemplate.Properties::getInternalAny)
                 .filter(Element.class::isInstance)
                 .map(Element.class::cast)
                 .map(Element::getOwnerDocument)

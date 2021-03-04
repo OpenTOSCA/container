@@ -101,7 +101,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
      */
     @Override
     public boolean isAbstract() {
-        return this.relationshipTypeImpl.getAbstract().value().equals("yes") ? true : false;
+        return this.relationshipTypeImpl.getAbstract();
     }
 
     /**
@@ -109,7 +109,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
      */
     @Override
     public boolean isFinal() {
-        return this.relationshipTypeImpl.getFinal().value().equals("yes") ? true : false;
+        return this.relationshipTypeImpl.getFinal();
     }
 
     /**
