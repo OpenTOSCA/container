@@ -15,6 +15,8 @@ import org.w3c.dom.Element;
  */
 public abstract class AbstractProperties {
 
+    public abstract Element getDOMElement();
+
     public abstract String getElementName();
 
     public abstract String getNamespace();

@@ -323,7 +323,9 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
 
         final List<AbstractPropertyMapping> propertyMappings = serviceTemplateProps.getPropertyMappings();
 
-        if (serviceTemplateProperties.asMap().isEmpty()) {
+        final Element propElement = serviceTemplateProperties.getDOMElement();
+
+        if (propElement == null) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("ServiceTemplate has no Properties defined");
             return null;
         }
@@ -348,7 +350,8 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             final String targetPropertyRef = propertyMapping.getTargetPropertyRef();
 
             // this will be a localName in the output
-            final String serviceTemplatePropLocalName = serviceTemplateProperties.asMap().get(propertyMapping.getServiceTemplatePropertyRef());
+            final String serviceTemplatePropLocalName = getTemplatePropertyLocalName(propElement, propertyMapping.getServiceTemplatePropertyRef())
+                ;
 
 
             String templatePropLocalName = null;
@@ -359,6 +362,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
                     injectBPELVariables(propertyMapping.getTargetPropertyRef(), propMap, buildPlanServiceTemplate);
             } else {
                 AbstractProperties props = null;
+                Element templateElement = null;
 
                 if (getNodeTemplate(buildPlanServiceTemplate, templateId) != null) {
                     props =

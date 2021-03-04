@@ -49,6 +49,7 @@ public class PropertiesImpl extends AbstractProperties {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Element getDOMElement() {
         return this.isDOM ? (Element) this.props : null;
     }

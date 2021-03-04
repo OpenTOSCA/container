@@ -313,8 +313,6 @@ public class BPELProcessFragments {
         for (final String propElement : propElement2BpelVarNameMap.keySet()) {
             String copyString = template.replace("$PropertyVarName", propElement2BpelVarNameMap.get(propElement));
             copyString = copyString.replace("$NodeInstancePropertyRequestVarName", nodeInstancePropertyResponseVarName);
-            // this shit was done because the latest model change in the winery doesn't like namespaces, and in a simple world everything is only key/value....
-            // TODO: FIXME
             copyString = copyString.replace("$NodeInstancePropertyLocalName", propElement);
             copyString = copyString.replace("$NodeInstancePropertyNamespace", namespace);
             assignString += copyString;
