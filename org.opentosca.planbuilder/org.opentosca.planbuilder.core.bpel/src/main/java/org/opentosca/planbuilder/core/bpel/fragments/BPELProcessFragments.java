@@ -145,7 +145,7 @@ public class BPELProcessFragments {
                 String inputLocalName = policy2IdMap.get(policy);
 
                 situationIdRequestBody += "<situationId/>";
-                copyFromInputToRequestBody += "<bpel:copy><bpel:from part=\"payload\" variable=\"input\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()='" + inputLocalName + "']/text()]]></bpel:query></bpel:from><bpel:to variable=\"$anyVar\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0\"><![CDATA[//*[local-name()='SituationsMonitor']/*[local-name()='NodeIds2SituationIds']/*[local-name()='entry' and ./*[local-name()='key' and text()='" + nodeTemplateId + "']]/*[local-name()='value']/*[local-name()='SituationIdsList']/*[local-name()='situationId'][" + String.valueOf(i + 1) + "]]]></bpel:query></bpel:to></bpel:copy>";
+                copyFromInputToRequestBody += "<bpel:copy><bpel:from part=\"payload\" variable=\"input\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()='" + inputLocalName + "']/text()]]></bpel:query></bpel:from><bpel:to variable=\"$anyVar\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0\"><![CDATA[//*[local-name()='SituationsMonitor']/*[local-name()='NodeIds2SituationIds']/*[local-name()='entry' and ./*[local-name()='key' and text()='" + nodeTemplateId + "']]/*[local-name()='value']/*[local-name()='SituationIdsList']/*[local-name()='situationId'][" + (i + 1) + "]]]></bpel:query></bpel:to></bpel:copy>";
             }
             situationIdRequestBody += "</SituationIdsList></value></entry>";
         }

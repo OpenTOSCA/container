@@ -25,7 +25,7 @@ public class ResponseProcessor implements Processor {
 
     final private static Logger LOG = LoggerFactory.getLogger(ResponseProcessor.class);
 
-    private static ObjectFactory objectFactory = new ObjectFactory();
+    private static final ObjectFactory objectFactory = new ObjectFactory();
 
     @Override
     public void process(final Exchange exchange) throws Exception {

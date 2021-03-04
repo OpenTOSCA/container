@@ -57,7 +57,7 @@ public class SituationExpression {
 
     private Collection<String> findUsedSituations(String expression) {
         Collection<String> usedSituations = Lists.newArrayList();
-        String workingCopy = new String(expression);
+        String workingCopy = expression;
         workingCopy = workingCopy.replace("NOT", " ");
         workingCopy = workingCopy.replace("AND", " ");
         workingCopy = workingCopy.replace("OR", " ");
@@ -73,7 +73,7 @@ public class SituationExpression {
     public boolean evaluateExpression() throws ScriptException {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("js");
-        String workingCopy = new String(this.expression);
+        String workingCopy = this.expression;
 
         for (String usedSituation : this.usedSituations) {
             Boolean value = this.isSituationRuleActive(this.situationToUrlMap.get(usedSituation));

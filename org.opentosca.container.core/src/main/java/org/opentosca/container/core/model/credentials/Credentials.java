@@ -225,11 +225,7 @@ public class Credentials {
             return false;
         }
 
-        if (!Objects.equals(this.getDescription(), credentials.getDescription())) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(this.getDescription(), credentials.getDescription());
     }
 
     @Override

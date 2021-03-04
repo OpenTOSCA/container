@@ -82,7 +82,7 @@ public class NodeTemplateInstanceController {
                 continue;
             }
 
-            if (!i.getServiceTemplateInstance().getTemplateId().toString().equals(this.servicetemplate)) {
+            if (!i.getServiceTemplateInstance().getTemplateId().equals(this.servicetemplate)) {
                 continue;
             }
 

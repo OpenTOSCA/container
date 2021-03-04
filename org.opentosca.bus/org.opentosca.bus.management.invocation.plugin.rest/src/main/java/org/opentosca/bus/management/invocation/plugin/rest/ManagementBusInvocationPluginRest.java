@@ -106,7 +106,7 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
 
         final Map<String, Object> headers = new HashMap<>();
         headers.put(Exchange.HTTP_URI, endpoint);
-        headers.put(Exchange.HTTP_METHOD, this.METHOD);
+        headers.put(Exchange.HTTP_METHOD, METHOD);
         headers.put(Exchange.CONTENT_TYPE, "application/json");
 
         final ContentType contentTypeParam = ContentType.JSON;
@@ -115,7 +115,7 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
 
         // ...as xml
         final Object body;
-        if (contentTypeParam != null && !contentTypeParam.value().equalsIgnoreCase(this.CONTENTTYPE)) {
+        if (contentTypeParam != null && !contentTypeParam.value().equalsIgnoreCase(CONTENTTYPE)) {
             LOG.debug("ContenttypeParam set: params into payload as {}.", contentTypeParam);
             body = mapToJSON(paramsMap);
         } else {

@@ -128,7 +128,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
 
         final AbstractPlan buildPlan =
-            this.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+            generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 
         LOG.debug("Generated the following abstract prov plan: ");
         LOG.debug(buildPlan.toString());

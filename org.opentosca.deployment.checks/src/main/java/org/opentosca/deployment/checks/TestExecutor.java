@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class TestExecutor {
 
-    private static Logger logger = LoggerFactory.getLogger(TestExecutor.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestExecutor.class);
 
     private final List<TestExecutionPlugin> plugins;
 

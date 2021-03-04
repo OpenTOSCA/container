@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ResultMap {
 
-    private static ConcurrentHashMap<String, Object> invocations = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Object> invocations = new ConcurrentHashMap<>();
 
     /**
      * @param id  of the request

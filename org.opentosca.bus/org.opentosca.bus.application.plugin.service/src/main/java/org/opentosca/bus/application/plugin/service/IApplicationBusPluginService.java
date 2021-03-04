@@ -17,10 +17,10 @@ public interface IApplicationBusPluginService {
     /**
      * @return supported invocation-types of the plugin.
      */
-    public List<String> getSupportedInvocationTypes();
+    List<String> getSupportedInvocationTypes();
 
     /**
      * @return the routing endpoint of this bundle
      */
-    public String getRoutingEndpoint();
+    String getRoutingEndpoint();
 }

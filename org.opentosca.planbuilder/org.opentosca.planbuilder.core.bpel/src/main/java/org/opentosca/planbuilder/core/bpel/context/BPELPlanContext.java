@@ -196,7 +196,7 @@ public class BPELPlanContext extends PlanContext {
      * @return true if this context is for a nodeTemplate, else false
      */
     public boolean isNodeTemplate() {
-        return this.templateBuildPlan.getNodeTemplate() != null ? true : false;
+        return this.templateBuildPlan.getNodeTemplate() != null;
     }
 
     /**
@@ -205,7 +205,7 @@ public class BPELPlanContext extends PlanContext {
      * @return true if this context is for a relationshipTemplate, else false
      */
     public boolean isRelationshipTemplate() {
-        return this.templateBuildPlan.getRelationshipTemplate() != null ? true : false;
+        return this.templateBuildPlan.getRelationshipTemplate() != null;
     }
 
     public static Variable getVariable(String varName) {
@@ -1159,11 +1159,11 @@ public class BPELPlanContext extends PlanContext {
         if (mainReceiveElement.getElementsByTagName("correlations").getLength() != 0) {
             correlationsElement = (Element) mainReceiveElement.getElementsByTagName("correlations").item(0);
         } else {
-            correlationsElement = plan.getBpelDocument().createElementNS(plan.bpelNamespace, "correlations");
+            correlationsElement = plan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "correlations");
             mainReceiveElement.appendChild(correlationsElement);
         }
 
-        Element correlationElement = plan.getBpelDocument().createElementNS(plan.bpelNamespace, "correlation");
+        Element correlationElement = plan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "correlation");
         correlationElement.setAttribute("set", correlationSetName);
 
         if (b != null) {

@@ -124,10 +124,7 @@ public abstract class AbstractNodeTemplate {
             if (!node.getId().equals(this.getId())) {
                 return false;
             }
-            if (!node.getType().equals(this.getType())) {
-                return false;
-            }
-            return true;
+            return node.getType().equals(this.getType());
         } else {
             return false;
         }

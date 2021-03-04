@@ -12,5 +12,5 @@ public interface IXMLSerializerFactory {
      * @param schemaFile   A File object which provides the Schema file of TOSCA.
      * @return An instance of the XML Serializer of the TOSCA universe.
      */
-    public abstract IXMLSerializer createSerializer(Class<?> classContext, URL schemaFile);
+    IXMLSerializer createSerializer(Class<?> classContext, URL schemaFile);
 }

@@ -49,9 +49,6 @@ public abstract class AbstractRequirement {
         if (!requirement.getId().equals(this.getId())) {
             return false;
         }
-        if (!requirement.getType().equals(this.getType())) {
-            return false;
-        }
-        return true;
+        return requirement.getType().equals(this.getType());
     }
 }

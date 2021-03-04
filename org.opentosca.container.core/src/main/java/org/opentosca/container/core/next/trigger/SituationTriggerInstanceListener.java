@@ -139,7 +139,7 @@ public class SituationTriggerInstanceListener {
                         String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + servInstance.getId();
                         url = url.replace("{csarid}", csar.id().csarName());
                         url = url.replace("{servicetemplateid}", UriComponent
-                            .encode(servInstance.getTemplateId().toString(), UriComponent.Type.PATH_SEGMENT));
+                            .encode(servInstance.getTemplateId(), UriComponent.Type.PATH_SEGMENT));
 
                         final URI uri = URI.create(UriComponent.encode(url, UriComponent.Type.PATH));
                         param.setValue(uri.toString());

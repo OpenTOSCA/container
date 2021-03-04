@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class DirectoryController {
 
-    private static Logger logger = LoggerFactory.getLogger(DirectoryController.class);
+    private static final Logger logger = LoggerFactory.getLogger(DirectoryController.class);
 
 
     private final java.nio.file.Path dirPath;

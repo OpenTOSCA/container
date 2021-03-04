@@ -23,9 +23,9 @@ public interface UbuntuVmTypePluginHandler<T extends PlanContext> {
      * @param nodeTemplate the NodeTemplate on which the fragments are used
      * @return true iff adding the fragments was successful
      */
-    public boolean handle(final T context, final AbstractNodeTemplate nodeTemplate);
+    boolean handle(final T context, final AbstractNodeTemplate nodeTemplate);
 
-    public boolean handleCreateWithCloudProviderInterface(final T context, final AbstractNodeTemplate nodeTemplate);
+    boolean handleCreateWithCloudProviderInterface(final T context, final AbstractNodeTemplate nodeTemplate);
 
     /**
      * Provisions a Docker Ubuntu Container on a DockerEngine
@@ -34,5 +34,5 @@ public interface UbuntuVmTypePluginHandler<T extends PlanContext> {
      * @param nodeTemplate the NodeTemplate on which the fragments are used
      * @return true iff provisioning the container was successful
      */
-    public boolean handleWithDockerEngineInterface(final T context, final AbstractNodeTemplate nodeTemplate);
+    boolean handleWithDockerEngineInterface(final T context, final AbstractNodeTemplate nodeTemplate);
 }

@@ -612,8 +612,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // check if there is an access policy attached
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().equals(this.noPublicAccessPolicyType)
-                | policy.getType().getId().equals(this.publicAccessPolicyType)) {
+            if (policy.getType().getId().equals(noPublicAccessPolicyType)
+                | policy.getType().getId().equals(publicAccessPolicyType)) {
 
                 if(policy.getProperties().asMap().get("SecurityGroup") != null){
                     String securityGroup = policy.getProperties().asMap().get("SecurityGroup");
@@ -681,7 +681,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         this.handleTerminateWithCloudProviderInterface(context, ubuntuNodeTemplate, context.getProvisioningCompensationPhaseElement());
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().equals(this.onlyModeledPortsPolicyType)) {
+            if (policy.getType().getId().equals(onlyModeledPortsPolicyType)) {
                 final List<Variable> modeledPortsVariables = fetchModeledPortsOfInfrastructure(context, nodeTemplate);
                 modeledPortsVariables.add(context.createGlobalStringVariable("vmSshPort", "22"));
                 addIpTablesScriptLogic(context, modeledPortsVariables, serverIpPropWrapper, sshUserVariable,

@@ -89,7 +89,7 @@ public class BPELScopeHandler {
                                   final BPELScope templateBuildPlan) {
         BPELScopeHandler.LOG.debug("Trying to add partnerLink {} with partnerLinkType {}, myRole {}, partnerRole {} and initializePartnerRole {} on TemplateBuildPlan {}",
             partnerLinkName, partnerLinkType.toString(), myRole, partnerRole,
-            String.valueOf(initializePartnerRole),
+                initializePartnerRole,
             templateBuildPlan.getBpelScopeElement().getAttribute("name"));
         if (this.hasPartnerlink(partnerLinkName, templateBuildPlan)) {
             BPELScopeHandler.LOG.warn("Failed to add partnerLink");

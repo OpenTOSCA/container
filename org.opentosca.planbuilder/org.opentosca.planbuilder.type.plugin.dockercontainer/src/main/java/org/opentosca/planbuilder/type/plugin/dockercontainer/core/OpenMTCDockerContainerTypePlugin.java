@@ -70,11 +70,7 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
             return true;
         }
 
-        if (this.canHandleProtocolAdapter(nodeTemplate)) {
-            return true;
-        }
-
-        return false;
+        return this.canHandleProtocolAdapter(nodeTemplate);
     }
 
     @Override
@@ -174,11 +170,7 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
             return false;
         }
 
-        if (!this.canHandleGateway(gatewayNodeTemplate)) {
-            return false;
-        }
-
-        return true;
+        return this.canHandleGateway(gatewayNodeTemplate);
     }
 
     @Override

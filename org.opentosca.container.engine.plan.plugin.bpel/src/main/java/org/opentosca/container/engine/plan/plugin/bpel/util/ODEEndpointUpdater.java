@@ -69,10 +69,10 @@ public class ODEEndpointUpdater {
 
     private CsarId csarId;
     private final String servicesRoot;
-    private ICoreEndpointService endpointService;
+    private final ICoreEndpointService endpointService;
 
     // @hahnml: The type of plan engine used (BPS or ODE)
-    private String engineType;
+    private final String engineType;
 
     // private static IToscaEngineService toscaEngineService = null;
 

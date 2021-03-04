@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 @Provider
 public class JAXBContextProvider implements ContextResolver<JAXBContext> {
 
-    private static Logger logger = LoggerFactory.getLogger(JAXBContextProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(JAXBContextProvider.class);
 
     private final Map<Class<?>, JAXBContext> contextMap = Collections.synchronizedMap(new HashMap<>());
 

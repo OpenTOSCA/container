@@ -97,7 +97,6 @@ public class Fragments {
         // <!-- $RequestVarName,$nodeInstanceURLVar -->
         final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightPUT_Instance_State_InstanceDataAPI.xml");
         String bpel4restString = ResourceAccess.readResourceAsString(url);
-        ;
 
         bpel4restString = bpel4restString.replace("$instanceURLVar", instanceURLVar);
         bpel4restString = bpel4restString.replace("$RequestVarName", RequestVarName);

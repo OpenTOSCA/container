@@ -100,9 +100,6 @@ public class DeploymentArtifactImpl extends AbstractDeploymentArtifact {
             return false;
         }
 
-        if (!this.getName().equals(other.getName())) {
-            return false;
-        }
-        return true;
+        return this.getName().equals(other.getName());
     }
 }

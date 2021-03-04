@@ -122,7 +122,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
 
     private final static Map<String, Object> locks = new HashMap<>();
-    private static ConcurrentHashMap<String, List<String>> activePartners = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, List<String>> activePartners = new ConcurrentHashMap<>();
     private final DeploymentDistributionDecisionMaker decisionMaker;
     private final CollaborationContext collaborationContext;
     private final ICoreEndpointService endpointService;
@@ -280,7 +280,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Map<String, String> responseMap = new HashMap<>();
 
         final Object params = message.getBody();
-        if (params != null && params instanceof HashMap && ((HashMap) params).values().contains("fault")) {
+        if (params != null && params instanceof HashMap && ((HashMap) params).containsValue("fault")) {
             responseMap.put("Fault", "managementBusMockFaultValue");
         }
 
@@ -370,7 +370,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // assuming type is a TRelationshipType, because otherwise this should be unreachable
             TRelationshipType relationshipType = (TRelationshipType) type;
             if (Objects.nonNull(relationshipInstance) && Objects.nonNull(relationshipType)) {
-                nodeInstance = containerEngine.resolveRelationshipOperationTarget(relationshipInstance,
+                nodeInstance = ContainerEngine.resolveRelationshipOperationTarget(relationshipInstance,
                     relationshipType,
                     arguments.interfaceName, arguments.operationName);
             } else {

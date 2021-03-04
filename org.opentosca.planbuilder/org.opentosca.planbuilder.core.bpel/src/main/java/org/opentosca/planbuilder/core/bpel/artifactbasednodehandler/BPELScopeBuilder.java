@@ -389,8 +389,7 @@ public class BPELScopeBuilder {
                 // we need to remove ia and da candidates accordingly, because
                 // we didn't found matchin operation candidates for them
                 for (final IANodeTypeImplCandidate iaCandidateToRemove : iaCandidatesToRemove) {
-                    final int index = chain.iaCandidates.indexOf(iaCandidateToRemove);
-                    chain.iaCandidates.remove(index);
+                    chain.iaCandidates.remove(iaCandidateToRemove);
                 }
             }
 

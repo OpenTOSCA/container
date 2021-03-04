@@ -4,7 +4,7 @@ public enum PlanLanguage {
 
     BPEL("http://docs.oasis-open.org/wsbpel/2.0/process/executable"), BPMN("http://www.omg.org/spec/BPMN/20100524/MODEL");
 
-    private String name;
+    private final String name;
 
     PlanLanguage(final String name) {
         this.name = name;

@@ -75,7 +75,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
 
     private BPELPlanHandler planHandler;
 
-    private BPELPluginHandler bpelPluginHandler;
+    private final BPELPluginHandler bpelPluginHandler;
 
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
@@ -145,7 +145,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             Map<AbstractPolicy, String> policy2IdMap = this.nodePolicyToId(situationPolicies);
 
             final AbstractPlan buildPlan =
-                this.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+                generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 
             LOG.debug("Generated the following abstract prov plan: ");
             LOG.debug(buildPlan.toString());

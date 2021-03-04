@@ -24,8 +24,8 @@ public class BPELRESTLightElement {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELRESTLightUpdater.class);
 
-    private BPELRESTLightElementType type;
-    private Node parentNode;
+    private final BPELRESTLightElementType type;
+    private final Node parentNode;
     private final Node uriNode;
     private URI uri = null;
     private String uriValue = null;
@@ -319,11 +319,8 @@ public class BPELRESTLightElement {
             if (!el.parentNode.equals(this.parentNode)) {
                 return false;
             }
-            if (!el.uriNode.equals(this.uriNode)) {
-                return false;
-            }
+            return el.uriNode.equals(this.uriNode);
         }
-        return true;
     }
 
     @Override

@@ -16,7 +16,7 @@ public class PortBindingTest implements TestExecutionPlugin {
     public static final QName ANNOTATION =
         new QName("http://opentosca.org/policytypes/annotations/tests", "PortBindingTest");
 
-    private static Logger logger = LoggerFactory.getLogger(PortBindingTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(PortBindingTest.class);
 
     @Override
     public DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
@@ -42,10 +42,6 @@ public class PortBindingTest implements TestExecutionPlugin {
     @Override
     public boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate) {
 
-        if (policyTemplate.getType().equals(ANNOTATION)) {
-            return true;
-        }
-
-        return false;
+        return policyTemplate.getType().equals(ANNOTATION);
     }
 }

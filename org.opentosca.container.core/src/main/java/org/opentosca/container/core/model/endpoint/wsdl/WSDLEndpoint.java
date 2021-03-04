@@ -123,9 +123,6 @@ public class WSDLEndpoint extends AbstractEndpoint {
         if (compareEndpoint.getId() != getId()) {
             return false;
         }
-        if (!compareEndpoint.getCsarId().equals(getCsarId())) {
-            return false;
-        }
-        return true;
+        return compareEndpoint.getCsarId().equals(getCsarId());
     }
 }

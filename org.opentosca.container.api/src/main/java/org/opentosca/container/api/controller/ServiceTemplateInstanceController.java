@@ -157,7 +157,7 @@ public class ServiceTemplateInstanceController {
         } else {
             // url to the transformation plan instance which created this instance from another service instance
             path = "/csars/{csar}/servicetemplates/{servicetemplate}/instances/{serviceinstance}/managementplans/{plan}/instances/{instance}";
-            uri = this.uriInfo.getBaseUriBuilder().path(path).build(pi.getServiceTemplateInstance().getCsarId().csarName(), pi.getServiceTemplateInstance().getTemplateId().toString(), pi.getServiceTemplateInstance().getId(),
+            uri = this.uriInfo.getBaseUriBuilder().path(path).build(pi.getServiceTemplateInstance().getCsarId().csarName(), pi.getServiceTemplateInstance().getTemplateId(), pi.getServiceTemplateInstance().getId(),
                 pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
         }
 

@@ -199,11 +199,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 
         NodeTypeImplementationImpl nodeImpl = (NodeTypeImplementationImpl) obj;
 
-        if(!(this.nodeTypeImpl.equals(nodeImpl.nodeTypeImpl))){
-            return false;
-        }
-
-        return true;
+        return this.nodeTypeImpl.equals(nodeImpl.nodeTypeImpl);
     }
 
     @Override

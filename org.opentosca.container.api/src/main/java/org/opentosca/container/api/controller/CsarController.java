@@ -65,7 +65,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CsarController {
 
-    private static Logger logger = LoggerFactory.getLogger(CsarController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsarController.class);
 
     @Context
     private UriInfo uriInfo;

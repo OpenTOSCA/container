@@ -73,7 +73,8 @@ public class CsarImpl implements Csar {
 
     // this is just for bridging purposes
     @Deprecated
-    private @NonNull Path saveLocation;
+    private @NonNull
+    final Path saveLocation;
 
     public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;

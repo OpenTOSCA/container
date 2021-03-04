@@ -406,7 +406,7 @@ public class MBUtils {
 
         for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
 
-            final String name = ((Element) node).getLocalName();
+            final String name = node.getLocalName();
             final StringBuilder content = new StringBuilder();
             final NodeList children = node.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {

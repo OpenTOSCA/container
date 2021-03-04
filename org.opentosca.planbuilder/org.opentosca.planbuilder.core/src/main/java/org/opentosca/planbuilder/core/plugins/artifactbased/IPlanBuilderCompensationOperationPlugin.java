@@ -24,10 +24,10 @@ public interface IPlanBuilderCompensationOperationPlugin<T extends PlanContext>
      * @param compensationParam2VariableMapping a mapping from compensation operation parameters to variables
      * @return true iff generating invocation logic was successful
      */
-    public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                          Map<AbstractParameter, Variable> param2propertyMapping,
-                          AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
-                          Map<AbstractParameter, Variable> compensationParam2VariableMapping);
+    boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                   Map<AbstractParameter, Variable> param2propertyMapping,
+                   AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
+                   Map<AbstractParameter, Variable> compensationParam2VariableMapping);
 
     /**
      * Create BPEL code to invoke given method and additionally add compensation logic
@@ -43,10 +43,10 @@ public interface IPlanBuilderCompensationOperationPlugin<T extends PlanContext>
      *                                          added to
      * @return true iff generating invocation logic was successful
      */
-    public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                          Map<AbstractParameter, Variable> param2propertyMapping,
-                          AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
-                          Map<AbstractParameter, Variable> compensationParam2VariableMapping, BPELScopePhaseType phase);
+    boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                   Map<AbstractParameter, Variable> param2propertyMapping,
+                   AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
+                   Map<AbstractParameter, Variable> compensationParam2VariableMapping, BPELScopePhaseType phase);
 
     /**
      * Create BPEL code to invoke given method and additionally add compensation logic
@@ -61,11 +61,11 @@ public interface IPlanBuilderCompensationOperationPlugin<T extends PlanContext>
      * @param compensationParam2VariableMapping a mapping from compensation operation parameters to variables
      * @return true iff generating invocation logic was successful
      */
-    public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                          Map<AbstractParameter, Variable> param2propertyMapping,
-                          Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
-                          Map<AbstractParameter, Variable> compensationParam2VariableMapping);
+    boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                   Map<AbstractParameter, Variable> param2propertyMapping,
+                   Map<AbstractParameter, Variable> param2PropertyOutputMapping,
+                   AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
+                   Map<AbstractParameter, Variable> compensationParam2VariableMapping);
 
     /**
      * Create BPEL code to invoke given method and additionally add compensation logic
@@ -82,9 +82,9 @@ public interface IPlanBuilderCompensationOperationPlugin<T extends PlanContext>
      *                                          added to
      * @return true iff generating invocation logic was successful
      */
-    public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                          Map<AbstractParameter, Variable> param2propertyMapping,
-                          Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
-                          Map<AbstractParameter, Variable> compensationParam2VariableMapping, BPELScopePhaseType phase);
+    boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                   Map<AbstractParameter, Variable> param2propertyMapping,
+                   Map<AbstractParameter, Variable> param2PropertyOutputMapping,
+                   AbstractOperation compensationOperation, AbstractImplementationArtifact compensationIa,
+                   Map<AbstractParameter, Variable> compensationParam2VariableMapping, BPELScopePhaseType phase);
 }

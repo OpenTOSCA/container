@@ -47,7 +47,7 @@ public class NodeRelationInstanceVariablesHandler {
     private final BPELScopeHandler bpelTemplateScopeHandler;
 
     private final BPELProcessFragments bpelFragments;
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
+    private final SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
 
     public NodeRelationInstanceVariablesHandler(final BPELPlanHandler bpelProcessHandler) throws ParserConfigurationException {
         this.bpelTemplateScopeHandler = new BPELScopeHandler();

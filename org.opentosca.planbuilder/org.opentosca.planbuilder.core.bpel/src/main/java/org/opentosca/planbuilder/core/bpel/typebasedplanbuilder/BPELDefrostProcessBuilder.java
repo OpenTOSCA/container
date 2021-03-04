@@ -169,7 +169,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
     private boolean isDefrostable(final AbstractNodeTemplate nodeTemplate) {
         return Objects.nonNull(this.getLoadStateOperation(nodeTemplate))
-            && this.hasFreezeableComponentPolicy(nodeTemplate);
+            && hasFreezeableComponentPolicy(nodeTemplate);
     }
 
     private AbstractInterface getLoadStateInterface(final AbstractNodeTemplate nodeTemplate) {

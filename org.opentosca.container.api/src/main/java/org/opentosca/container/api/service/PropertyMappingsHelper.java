@@ -33,7 +33,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class PropertyMappingsHelper {
-    private static Logger logger = LoggerFactory.getLogger(PropertyMappingsHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(PropertyMappingsHelper.class);
     private final InstanceService instanceService;
     private final CsarStorageService storage;
 

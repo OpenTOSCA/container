@@ -42,7 +42,7 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
     public static final QName ANNOTATION =
         new QName("http://opentosca.org/policytypes/annotations/tests", "ManagementOperationTest");
 
-    private static Logger logger = LoggerFactory.getLogger(ManagementOperationTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ManagementOperationTest.class);
 
     private final ProducerTemplate producer;
 

@@ -215,10 +215,7 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
                 undeployedPlans.add(plan);
         }
 
-        if (!undeployedPlans.isEmpty()) {
-            return false;
-        }
-        return true;
+        return undeployedPlans.isEmpty();
     }
 
     @Override

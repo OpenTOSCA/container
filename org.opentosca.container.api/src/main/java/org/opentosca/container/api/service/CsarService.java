@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CsarService {
-    private static Logger logger = LoggerFactory.getLogger(CsarService.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsarService.class);
 
     private final CsarStorageService storage;
     private final WineryExporter planBuilderExporter;

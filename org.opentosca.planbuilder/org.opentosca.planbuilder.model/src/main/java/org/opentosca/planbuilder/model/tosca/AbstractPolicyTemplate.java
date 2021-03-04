@@ -30,10 +30,6 @@ public abstract class AbstractPolicyTemplate {
             return false;
         }
 
-        if (!template.getProperties().equals(this.getProperties())) {
-            return false;
-        }
-
-        return true;
+        return template.getProperties().equals(this.getProperties());
     }
 }

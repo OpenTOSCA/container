@@ -2,6 +2,7 @@ package org.opentosca.bus.management.invocation.plugin.soaphttp.processor;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,7 +65,7 @@ public class CallbackProcessor implements Processor {
                 LOG.debug("Found MessageID: {}", messageID);
                 final MessageFactory messageFactory = MessageFactory.newInstance();
 
-                final InputStream inputStream = new ByteArrayInputStream(message.getBytes("UTF-8"));
+                final InputStream inputStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
                 final SOAPMessage soapMessage = messageFactory.createMessage(null, inputStream);
 
                 exchange.getIn().setHeader("MessageID", messageID);

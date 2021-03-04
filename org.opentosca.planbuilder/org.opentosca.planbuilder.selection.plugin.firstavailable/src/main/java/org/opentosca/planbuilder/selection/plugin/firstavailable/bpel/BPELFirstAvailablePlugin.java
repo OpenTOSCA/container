@@ -61,7 +61,6 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
                         + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), responseVarName,
                     nodeTemplateInstanceURLVar,
                     xpath2Query);
-            ;
             fetchNodeInstance = context.importNode(fetchNodeInstance);
             context.getPrePhaseElement().appendChild(fetchNodeInstance);
 

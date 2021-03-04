@@ -144,7 +144,7 @@ public class BoundaryDefinitionController {
                 logger.error("Unexpected mapping target detected for the property ("
                     + mapping.getServiceTemplatePropertyRef() + ")");
             } else {
-                result.setTargetObjectRef(((TEntityTemplate) mapping.getTargetObjectRef()).getId());
+                result.setTargetObjectRef(mapping.getTargetObjectRef().getId());
             }
 
             return result;

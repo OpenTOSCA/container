@@ -130,11 +130,7 @@ public abstract class PatternBasedHandler {
         final OperationMatching matching =
             createPropertyToParameterMatching(nodesForMatching, ifaceToMatch, operationToMatch);
 
-        if (matching.inputMatching.size() == operationToMatch.getInputParameters().size()) {
-            return true;
-        }
-
-        return false;
+        return matching.inputMatching.size() == operationToMatch.getInputParameters().size();
     }
 
     protected OperationMatching createPropertyToParameterMatching(final Collection<AbstractNodeTemplate> nodesForMatching,

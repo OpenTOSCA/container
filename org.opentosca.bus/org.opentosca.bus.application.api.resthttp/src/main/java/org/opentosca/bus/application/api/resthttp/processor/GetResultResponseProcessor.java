@@ -43,7 +43,7 @@ public class GetResultResponseProcessor implements Processor {
         } else {
 
             final Form httpHeaders = (Form) exchange.getIn().getHeader("org.restlet.http.headers");
-            final String acceptContentType = httpHeaders.getValues("Accept").toString();
+            final String acceptContentType = httpHeaders.getValues("Accept");
 
             GetResultResponseProcessor.LOG.debug("AcceptContentType: {}", acceptContentType);
 

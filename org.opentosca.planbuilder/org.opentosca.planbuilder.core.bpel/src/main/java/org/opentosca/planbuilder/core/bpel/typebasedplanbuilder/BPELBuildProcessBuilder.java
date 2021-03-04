@@ -72,7 +72,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
     private BPELPlanHandler planHandler;
 
-    private BPELPluginHandler bpelPluginHandler;
+    private final BPELPluginHandler bpelPluginHandler;
 
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 

@@ -76,7 +76,7 @@ public class InvocationRequestProcessor implements Processor {
         exchange.getIn().setHeader(ApplicationBusConstants.OPERATION_NAME.toString(), operationName);
 
         final Form httpHeaders = (Form) exchange.getIn().getHeader("org.restlet.http.headers");
-        final String contentType = httpHeaders.getValues("Content-Type").toString();
+        final String contentType = httpHeaders.getValues("Content-Type");
 
         InvocationRequestProcessor.LOG.debug("Content-Type: {}", contentType);
 

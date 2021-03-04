@@ -177,7 +177,7 @@ public class SituationTriggerRegistration {
 
     private final BPELProcessFragments fragments;
     private final BPELPlanHandler handler;
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
+    private final SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
 
     public SituationTriggerRegistration() throws ParserConfigurationException {
         this.fragments = new BPELProcessFragments();
@@ -432,11 +432,7 @@ public class SituationTriggerRegistration {
             e.printStackTrace();
         }
 
-        if (triggers.size() == 0) {
-            return false;
-        }
-
-        return true;
+        return triggers.size() != 0;
     }
 
     private NodeList queryNodeSet(final Node rootElement, final String xpathQuery) throws XPathExpressionException {

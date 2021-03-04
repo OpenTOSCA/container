@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ResultMap {
 
-    private static ConcurrentHashMap<String, HashMap<String, String>> invocations = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, HashMap<String, String>> invocations = new ConcurrentHashMap<>();
 
     /**
      * @param id     of the request

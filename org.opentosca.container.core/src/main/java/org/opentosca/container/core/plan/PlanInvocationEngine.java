@@ -76,7 +76,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
                 if (instance == null) {
                     return correlationId;
                 }
-                this.LOG.debug("CorrelationId {} already in use.", correlationId);
+                LOG.debug("CorrelationId {} already in use.", correlationId);
             } catch (final NoResultException e) {
                 return correlationId;
             }
@@ -94,7 +94,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
                 if (instance == null) {
                     return correlationId;
                 }
-                this.LOG.debug("CorrelationId {} already in use.", correlationId);
+                LOG.debug("CorrelationId {} already in use.", correlationId);
             } catch (final NoResultException e) {
                 return correlationId;
             }

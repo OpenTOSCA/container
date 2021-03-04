@@ -44,11 +44,11 @@ public class BPELInvokerPluginHandler {
     private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPluginHandler.class);
     private static final String PlanInstanceURLVarKeyword = "OpenTOSCAContainerAPIPlanInstanceURL";
 
-    private ResourceHandler resHandler;
-    private BPELProcessFragments bpelFrags;
+    private final ResourceHandler resHandler;
+    private final BPELProcessFragments bpelFrags;
     private DocumentBuilderFactory docFactory;
 
-    private DocumentBuilder docBuilder;
+    private final DocumentBuilder docBuilder;
 
     public BPELInvokerPluginHandler() {
         try {
@@ -446,7 +446,7 @@ public class BPELInvokerPluginHandler {
                         "http://opentosca.org/plans/invocationfault",
                         templateId + "_" + interfaceName + "_"
                             + operationName,
-                        "fault" + String.valueOf(System.currentTimeMillis())), responseVariableName);
+                        "fault" + System.currentTimeMillis()), responseVariableName);
 
             checkForFault = context.importNode(checkForFault);
             elementToAppendTo.insertBefore(checkForFault, responseAssignNode);

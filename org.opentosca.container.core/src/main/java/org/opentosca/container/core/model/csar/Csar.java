@@ -23,35 +23,33 @@ import org.eclipse.jdt.annotation.Nullable;
 @NonNullByDefault
 public interface Csar {
 
-    public CsarId id();
+    CsarId id();
 
-    public List<TArtifactTemplate> artifactTemplates();
+    List<TArtifactTemplate> artifactTemplates();
 
-    public List<TServiceTemplate> serviceTemplates();
+    List<TServiceTemplate> serviceTemplates();
 
-    public List<TPolicyTemplate> policyTemplates();
+    List<TPolicyTemplate> policyTemplates();
 
-    @Nullable
-    public TServiceTemplate entryServiceTemplate();
+    @Nullable TServiceTemplate entryServiceTemplate();
 
-    public List<TDefinitions> definitions();
+    List<TDefinitions> definitions();
 
-    public List<TExportedOperation> exportedOperations();
+    List<TExportedOperation> exportedOperations();
 
-    public List<TPlan> plans();
+    List<TPlan> plans();
 
-    public List<TNodeType> nodeTypes();
+    List<TNodeType> nodeTypes();
 
-    public List<TNodeTypeImplementation> nodeTypeImplementations();
+    List<TNodeTypeImplementation> nodeTypeImplementations();
 
-    public List<TRelationshipTypeImplementation> relationshipTypeImplementations();
+    List<TRelationshipTypeImplementation> relationshipTypeImplementations();
 
-    public String description();
+    String description();
 
-    public Application selfserviceMetadata();
+    Application selfserviceMetadata();
 
-    @Nullable
-    public TExtensibleElements queryRepository(DefinitionsChildId definitionId);
+    @Nullable TExtensibleElements queryRepository(DefinitionsChildId definitionId);
 
     void exportTo(Path targetPath) throws IOException;
 

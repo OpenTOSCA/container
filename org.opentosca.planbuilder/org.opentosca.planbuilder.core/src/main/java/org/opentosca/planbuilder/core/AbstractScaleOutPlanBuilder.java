@@ -46,7 +46,6 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
         final AbstractPlan abstractScaleOutPlan =
             AbstractBuildPlanBuilder.generatePOG(id, defintions, serviceTemplate, scalingPlanDefinition.nodeTemplates,
                 scalingPlanDefinition.relationshipTemplates);
-        ;
         abstractScaleOutPlan.setType(PlanType.MANAGEMENT);
 
         // add instance selection activties by starting for each node strat selection

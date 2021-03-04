@@ -25,7 +25,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param templateContext a TemplateContext of a Template
      * @return true iff when generating and adding fragment that handles the template completely
      */
-    public boolean handleCreate(T templateContext, AbstractNodeTemplate nodeTemplate);
+    boolean handleCreate(T templateContext, AbstractNodeTemplate nodeTemplate);
 
     /**
      * This method should generate and add a fragment which handle the termination of the Template inside the
@@ -34,7 +34,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param templateContext a TemplateContext of a Template
      * @return true iff when generating and adding fragment that handles the template completely
      */
-    public boolean handleTerminate(T templateContext, AbstractNodeTemplate nodeTemplate);
+    boolean handleTerminate(T templateContext, AbstractNodeTemplate nodeTemplate);
 
     /**
      * This method should generate and add a fragment which handle the creation of the Template inside the
@@ -43,7 +43,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param templateContext a TemplateContext of a Template
      * @return true iff when generating and adding fragment that handles the template completely
      */
-    public boolean handleCreate(T templateContext, AbstractRelationshipTemplate relationshipTemplate);
+    boolean handleCreate(T templateContext, AbstractRelationshipTemplate relationshipTemplate);
 
     /**
      * This method should generate and add a fragment which handle the termination of the Template inside the
@@ -52,7 +52,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param templateContext a TemplateContext of a Template
      * @return true iff when generating and adding fragment that handles the template completely
      */
-    public boolean handleTerminate(T templateContext, AbstractRelationshipTemplate relationshipTemplate);
+    boolean handleTerminate(T templateContext, AbstractRelationshipTemplate relationshipTemplate);
 
     /**
      * This method should return true if the plugin can handle creation of the given nodeTemplate
@@ -60,7 +60,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param nodeTemplate the NodeTemplate to be handled by this plugin
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    public boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
+    boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
 
     /**
      * This method should return true if the plugin can handle the termination of the given nodeTemplate
@@ -68,7 +68,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param nodeTemplate the NodeTemplate to be handled by this plugin
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate);
+    boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate);
 
     /**
      * This method should return true if the plugin can handle the creation of the given relationshipTemplate
@@ -76,7 +76,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param relationshipTemplate the RelationshipTemplate to be handled by this plugin
      * @return true iff this can handle the given relationshipTemplate
      */
-    public boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
 
     /**
      * This method should return true if the plugin can handle the termination of the given relationshipTemplate
@@ -84,7 +84,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param relationshipTemplate the RelationshipTemplate to be handled by this plugin
      * @return true iff this can handle the given relationshipTemplate
      */
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate);
 
     /**
      * This method should generate and add a fragment which handle the update of the Template inside the
@@ -113,7 +113,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      *
      * @author kalmankepes
      */
-    public interface NodeDependencyInformationInterface {
+    interface NodeDependencyInformationInterface {
 
         /**
          * Returns a collection of nodeTemplates that are needed to be able to create an instance of the given
@@ -124,7 +124,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
          * plugin, if null -> the given NodeTemplate cannot be created under the context of the node (e.g. the topology
          * template misses nodes)
          */
-        public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate);
+        Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate);
 
         /**
          * Returns a collection of nodeTemplates that are needed to be able to terminate an instance of the given
@@ -135,6 +135,6 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
          * plugin, if null -> the given NodeTemplate cannot be terminated under the context of the node (e.g. the
          * topology template misses nodes)
          */
-        public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate);
+        Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate);
     }
 }

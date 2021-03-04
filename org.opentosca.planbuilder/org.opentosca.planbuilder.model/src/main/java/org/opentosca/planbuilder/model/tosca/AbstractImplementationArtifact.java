@@ -94,10 +94,6 @@ public abstract class AbstractImplementationArtifact {
             return false;
         }
 
-        if (ia.getOperationName() != null && !this.getOperationName().equals(ia.getOperationName())) {
-            return false;
-        }
-
-        return true;
+        return ia.getOperationName() == null || this.getOperationName().equals(ia.getOperationName());
     }
 }

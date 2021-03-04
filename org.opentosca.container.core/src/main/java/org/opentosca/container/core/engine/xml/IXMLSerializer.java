@@ -33,7 +33,7 @@ public interface IXMLSerializer {
      * @param element The JAXBElement to serialize into a DOM representation.
      * @return The DOM node representation of the element.
      */
-    public Node marshalToNode(Object objToMarshal);
+    Node marshalToNode(Object objToMarshal);
 
     /**
      * This method marshals a given ServiceTemplate into a DOM Document representation.
@@ -41,7 +41,7 @@ public interface IXMLSerializer {
      * @param objToMarshal The root element to serialize into a DOM representation.
      * @return The DOM Document representation of the element.
      */
-    public Document marshalToDocument(TDefinitions definitions);
+    Document marshalToDocument(TDefinitions definitions);
 
     /**
      * This method marshals a passed JAXBElement into a String.
@@ -49,7 +49,7 @@ public interface IXMLSerializer {
      * @param objToMarshal The root element to serialize into a String representation.
      * @return The String representation of the object.
      */
-    public String marshalToString(Object objToMarshal);
+    String marshalToString(Object objToMarshal);
 
     /**
      * This method unmarshals a ServiceTemplate of a passed XML File object. <br>
@@ -58,7 +58,7 @@ public interface IXMLSerializer {
      * @return ServiceTemplate The ServiceTemplate which contains the xml data of the File. The method returns null if
      * the file is empty or one or more errors occurs.
      */
-    public abstract TDefinitions unmarshal(File fileToUnmarshal);
+    TDefinitions unmarshal(File fileToUnmarshal);
 
     /**
      * This method unmarshals a ServiceTemplate of a passed InputStream. <br>
@@ -67,7 +67,7 @@ public interface IXMLSerializer {
      * @return The ServiceTemplate which contains the xml data. The method returns null if the stream is empty or one or
      * more errors occurs.
      */
-    public abstract TDefinitions unmarshal(InputStream streamToUnmarshal);
+    TDefinitions unmarshal(InputStream streamToUnmarshal);
 
     /**
      * This method unmarshals a ServiceTemplate of a passed DOM document. <br>
@@ -76,7 +76,7 @@ public interface IXMLSerializer {
      * @return ServiceTemplate The ServiceTemplate which contains the xml data. The method returns a null if the file is
      * empty or one or more errors occurs.
      */
-    public abstract TDefinitions unmarshal(Document doc);
+    TDefinitions unmarshal(Document doc);
 
     /**
      * This method unmarshals a object of a passed DOM Node. For the mapping you need to provide the destination class
@@ -86,7 +86,7 @@ public interface IXMLSerializer {
      * @param destinationClazz The class which represents the Node.
      * @return An Object of the type of the second parameter and the data of the first.
      */
-    public abstract Object unmarshal(Node nodeToUnmarshal, Class<?> destinationClazz);
+    Object unmarshal(Node nodeToUnmarshal, Class<?> destinationClazz);
 
     /**
      * This method creates a JAXBElement object which contains the given object.
@@ -96,7 +96,7 @@ public interface IXMLSerializer {
      * classes.
      */
     @SuppressWarnings("rawtypes")
-    public abstract JAXBElement createJAXBElement(Object obj);
+    JAXBElement createJAXBElement(Object obj);
 
     /**
      * This method puts a given DOM Element into a proper DOM Document structure. The root element in the new document
@@ -105,7 +105,7 @@ public interface IXMLSerializer {
      * @param Element the element which shall be the root element of a new DOM Document.
      * @return a new DOM Document or null in case of an error.
      */
-    public Document elementIntoDocument(Element element);
+    Document elementIntoDocument(Element element);
 
     /**
      * This method puts a given list of DOM Elements into a proper DOM Document structure. The original elements are
@@ -116,14 +116,14 @@ public interface IXMLSerializer {
      * @return a new DOM Document or null in case of an error.
      */
     // TODO change type of rootElementName to QName to support namespaces
-    public Document elementsIntoDocument(List<Element> elements, String rootElementName);
+    Document elementsIntoDocument(List<Element> elements, String rootElementName);
 
     /**
      * This method sets the validation against the schema active or inactive. By default the validation is activated.
      *
      * @param bool True for activation and false for deactivation of the validation.
      */
-    public abstract void setValidation(Boolean bool);
+    void setValidation(Boolean bool);
 
     /**
      * Serializes a DOM Node to a String representation.
@@ -132,5 +132,5 @@ public interface IXMLSerializer {
      * @param removeWhitespaces Flag for removing the whitespace.
      * @return formatted String
      */
-    public abstract String docToString(Node node, boolean removeWhitespaces);
+    String docToString(Node node, boolean removeWhitespaces);
 }

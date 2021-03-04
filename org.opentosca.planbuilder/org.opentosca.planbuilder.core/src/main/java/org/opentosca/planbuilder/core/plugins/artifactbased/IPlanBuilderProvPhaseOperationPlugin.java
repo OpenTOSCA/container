@@ -26,7 +26,7 @@ public interface IPlanBuilderProvPhaseOperationPlugin<T extends PlanContext> ext
      * @param operationArtifactType the Type of the IA which implements a TOSCA Operation
      * @return true iff the plugin can handle Operations that are implemented by IA of the given ArtifactType
      */
-    public boolean canHandle(QName operationArtifactType);
+    boolean canHandle(QName operationArtifactType);
 
     /**
      * This method is used to generate and add a fragment which calls an TOSCA Operations
@@ -36,5 +36,5 @@ public interface IPlanBuilderProvPhaseOperationPlugin<T extends PlanContext> ext
      * @param ia        the IA which implements the Operation
      * @return true iff the plugin generated and added a fragment into the ProvisioningPhase in the TemplateContext
      */
-    public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia);
+    boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia);
 }

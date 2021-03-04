@@ -35,12 +35,12 @@ public interface IPlanEnginePluginService {
      *
      * @return a string representation of the plan language understood by this plugin
      */
-    public String getLanguageUsed();
+    String getLanguageUsed();
 
     /**
      * Returns provided capabilities of this plugin.
      *
      * @return a list of strings denoting the capabilities of this plugin
      */
-    public List<String> getCapabilties();
+    List<String> getCapabilties();
 }

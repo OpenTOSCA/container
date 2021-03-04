@@ -112,18 +112,14 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
         boolean canHandle = this.canHandleCreate(nodeTemplate);
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().equals(this.noPublicAccessPolicyType)
-                | policy.getType().getId().equals(this.publicAccessPolicyType)) {
+            // ALL policies must be supported
+            if (policy.getType().getId().equals(noPublicAccessPolicyType)
+                | policy.getType().getId().equals(publicAccessPolicyType)) {
                 if (policy.getProperties() != null
                     && policy.getProperties().asMap().containsKey("SecurityGroup")) {
                     canHandle &= true;
                 }
-            } else if (policy.getType().getId().equals(this.onlyModeledPortsPolicyType)) {
-                canHandle &= true;
-            } else {
-                // ALL policies must be supported
-                canHandle &= false;
-            }
+            } else canHandle &= policy.getType().getId().equals(onlyModeledPortsPolicyType);
         }
 
         return canHandle;

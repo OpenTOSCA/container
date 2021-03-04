@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class UriUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(UriUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(UriUtil.class);
 
     public static URI encode(final URI uri) {
         final List<PathSegment> pathSegments = UriComponent.decodePath(uri, false);

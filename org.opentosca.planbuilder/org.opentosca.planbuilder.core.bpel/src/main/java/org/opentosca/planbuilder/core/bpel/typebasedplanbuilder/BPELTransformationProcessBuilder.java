@@ -58,7 +58,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
     private BPELPlanHandler planHandler;
 
-    private BPELPluginHandler bpelPluginHandler;
+    private final BPELPluginHandler bpelPluginHandler;
 
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 

@@ -18,7 +18,7 @@ import org.apache.http.cookie.Cookie;
  */
 public interface IHTTPService {
 
-    public HttpResponse Get(String uri, List<Cookie> cookies) throws ClientProtocolException, IOException;
+    HttpResponse Get(String uri, List<Cookie> cookies) throws IOException;
 
     /**
      * Executes a HTTP GET command.
@@ -26,7 +26,7 @@ public interface IHTTPService {
      * @param uri - Resource URI
      * @return Response Message
      */
-    public HttpResponse Get(String uri) throws ClientProtocolException, IOException;
+    HttpResponse Get(String uri) throws IOException;
 
     /**
      * Executes a HTTP GET command.
@@ -35,12 +35,12 @@ public interface IHTTPService {
      * @param headers - map of headers and values
      * @return Response Message
      */
-    public HttpResponse Get(String uri, Map<String, String> headers) throws ClientProtocolException, IOException;
+    HttpResponse Get(String uri, Map<String, String> headers) throws IOException;
 
     /**
      * Executes a HTTP GET command.
      */
-    public HttpResponse Get(String uri, String username, String password) throws ClientProtocolException, IOException;
+    HttpResponse Get(String uri, String username, String password) throws IOException;
 
     /**
      * Executes a HTTP HEAD command.
@@ -48,7 +48,7 @@ public interface IHTTPService {
      * @param uri - Resource URI
      * @return Response Message
      */
-    public HttpResponse Head(String uri) throws ClientProtocolException, IOException;
+    HttpResponse Head(String uri) throws IOException;
 
     /**
      * Executes a HTTP POST command.
@@ -57,15 +57,15 @@ public interface IHTTPService {
      * @param httpEntity - Payload
      * @return Response Message
      */
-    public HttpResponse Post(String uri, HttpEntity httpEntity) throws ClientProtocolException, IOException;
+    HttpResponse Post(String uri, HttpEntity httpEntity) throws IOException;
 
-    public HttpResponse Post(String uri, HttpEntity httpEntity, Header... header) throws ClientProtocolException,
-        IOException;
+    HttpResponse Post(String uri, HttpEntity httpEntity, Header... header) throws
+            IOException;
 
-    public HttpResponse Post(String uri, HttpEntity httpEntity, List<Cookie> cookies) throws ClientProtocolException,
-        IOException;
+    HttpResponse Post(String uri, HttpEntity httpEntity, List<Cookie> cookies) throws
+            IOException;
 
-    public List<Cookie> PostCookies(String uri, HttpEntity httpEntity) throws ClientProtocolException, IOException;
+    List<Cookie> PostCookies(String uri, HttpEntity httpEntity) throws IOException;
 
     /**
      * Executes a HTTP PUT command.
@@ -74,13 +74,13 @@ public interface IHTTPService {
      * @param httpEntity - Payload
      * @return Response Message
      */
-    public HttpResponse Put(String uri, HttpEntity httpEntity) throws ClientProtocolException, IOException;
+    HttpResponse Put(String uri, HttpEntity httpEntity) throws IOException;
 
     /**
      *
      */
-    public HttpResponse Put(String uri, HttpEntity httpEntity, String username,
-                            String password) throws ClientProtocolException, IOException;
+    HttpResponse Put(String uri, HttpEntity httpEntity, String username,
+                     String password) throws IOException;
 
     /**
      * Executes a HTTP DELETE command.
@@ -88,7 +88,7 @@ public interface IHTTPService {
      * @param uri - Resource URI
      * @return Response Message
      */
-    public HttpResponse Delete(String uri) throws ClientProtocolException, IOException;
+    HttpResponse Delete(String uri) throws IOException;
 
     /**
      * Executes a HTTP TRACE command.
@@ -96,7 +96,7 @@ public interface IHTTPService {
      * @param uri - Resource URI
      * @return Response Message
      */
-    public HttpResponse Trace(String uri) throws ClientProtocolException, IOException;
+    HttpResponse Trace(String uri) throws IOException;
 
     /**
      * Executes a HTTP OPTIONS command.
@@ -104,5 +104,5 @@ public interface IHTTPService {
      * @param uri - Resource URI
      * @return Response Message
      */
-    public HttpResponse Options(String uri) throws ClientProtocolException, IOException;
+    HttpResponse Options(String uri) throws IOException;
 }

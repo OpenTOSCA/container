@@ -48,11 +48,7 @@ public abstract class AbstractPlan {
                 return false;
             }
             Link oLink = (Link) o;
-            if (!(oLink.getSrcActiv().equals(this.getSrcActiv()) & oLink.getTrgActiv().equals(this.getTrgActiv()))) {
-                return false;
-            }
-
-            return true;
+            return oLink.getSrcActiv().equals(this.getSrcActiv()) & oLink.getTrgActiv().equals(this.getTrgActiv());
         }
 
         @Override

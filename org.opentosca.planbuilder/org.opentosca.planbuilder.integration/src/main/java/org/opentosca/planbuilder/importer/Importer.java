@@ -155,8 +155,6 @@ public class Importer extends AbstractImporter {
             allRefs.addAll(repo.getContainedFiles(id));
         }
 
-        ;
-
         for(RepositoryFileReference ref : allRefs ){
             allPaths.add(repo.ref2AbsolutePath(ref));
         }

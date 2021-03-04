@@ -43,7 +43,7 @@ public class BPELPlan extends AbstractPlan {
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
      */
     public enum VariableType {
-        MESSAGE, TYPE, ELEMENT;
+        MESSAGE, TYPE, ELEMENT
     }
 
     /**

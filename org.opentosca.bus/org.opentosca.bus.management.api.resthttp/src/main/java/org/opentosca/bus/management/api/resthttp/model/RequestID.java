@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class RequestID {
 
-    private static AtomicLong incrementer = new AtomicLong(0);
+    private static final AtomicLong incrementer = new AtomicLong(0);
 
     /**
      * @return requestID

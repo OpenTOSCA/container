@@ -82,11 +82,7 @@ public class Situation extends PersistenceObject {
             return false;
         }
         final Situation entity = (Situation) o;
-        if (entity.getId().equals(this.id)) {
-            return true;
-        } else {
-            return false;
-        }
+        return entity.getId().equals(this.id);
     }
 
     @Override

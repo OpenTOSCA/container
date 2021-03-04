@@ -77,10 +77,6 @@ public class ParameterImpl extends AbstractParameter {
             return false;
         }
 
-        if (!oParam.getType().equals(this.getType())) {
-            return false;
-        }
-
-        return true;
+        return oParam.getType().equals(this.getType());
     }
 }

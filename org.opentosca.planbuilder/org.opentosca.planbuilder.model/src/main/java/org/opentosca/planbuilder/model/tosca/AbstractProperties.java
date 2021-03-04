@@ -39,10 +39,6 @@ public abstract class AbstractProperties {
         Map<String, String> propMap = props.asMap();
         Map<String, String> thisMap = this.asMap();
 
-        if (!propMap.equals(thisMap)) {
-            return false;
-        }
-
-        return true;
+        return propMap.equals(thisMap);
     }
 }

@@ -10,7 +10,7 @@ public enum ExposedManagementBusOperations {
 
     private final String headerValue;
 
-    private ExposedManagementBusOperations(final String headerValue) {
+    ExposedManagementBusOperations(final String headerValue) {
         this.headerValue = headerValue;
     }
 

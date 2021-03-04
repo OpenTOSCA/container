@@ -34,8 +34,6 @@ public class SituationTriggerInstanceProperty extends Property {
 
     public void setSituationTriggerInstance(final SituationTriggerInstance situationTriggerInstance) {
         this.situationTriggerInstance = situationTriggerInstance;
-        if (!situationTriggerInstance.getOutputs().contains(this)) {
-            situationTriggerInstance.getOutputs().add(this);
-        }
+        situationTriggerInstance.getOutputs().add(this);
     }
 }

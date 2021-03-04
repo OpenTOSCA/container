@@ -80,7 +80,7 @@ public class ServiceTemplateInstanceDTO extends ResourceSupport {
             dto.setId(object.getId());
             dto.setCreatedAt(object.getCreatedAt());
             dto.setCsarId(object.getCsarId().toString());
-            dto.setServiceTemplateId(object.getTemplateId().toString());
+            dto.setServiceTemplateId(object.getTemplateId());
             dto.setState(object.getState());
 
             return dto;
