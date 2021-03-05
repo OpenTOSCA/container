@@ -404,6 +404,24 @@ public class MBUtils {
         final NodeIterator iterator =
             traversal.createNodeIterator(propertiesDocument.getDocumentElement(), NodeFilter.SHOW_ELEMENT, null, true);
 
+
+
+        /*
+         Element envelope =  (Element)propertiesDocument.getFirstChild();
+        Element body = (Element) envelope.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/","Body").item(0);
+
+
+        NodeList childNodes = body.getChildNodes();
+
+
+        Collection<Node> childNodesCollection = new ArrayList<>();
+        for (int i = 0; i < childNodes.getLength(); i++){
+            childNodesCollection.add(childNodes.item(i));
+        }
+
+        Iterator<Node> iter = childNodesCollection.iterator();
+         */
+
         for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
 
             final String name = node.getLocalName();

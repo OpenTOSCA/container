@@ -27,7 +27,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilder {
 
@@ -80,7 +79,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
                     activities.add(activityStart);
                     mappingStart.put(nodeTemplate, activityStart);
                 } else {
-                    throw new NotImplementedException();
+                    throw new RuntimeException("Policy expected, behavior not implemented");
                 }
             } else if (isUpdatableComponent(nodeTemplate)) {
                 // Bottommost updatable node.

@@ -212,7 +212,7 @@ public class BPELRESTLightUpdater {
                 final Node node = result.item(i);
                 element = new BPELRESTLightElement(node);
             } catch (final org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightElement.NoBPELRESTLightElementException e) {
-                LOG.warn(e.getMessage());
+                LOG.debug(e.getMessage());
             } finally {
                 if (element != null) {
                     // adding element which can and should be changed to the

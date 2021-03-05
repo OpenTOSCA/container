@@ -84,7 +84,7 @@ public class ServiceTemplateController {
     private CsarService csarService;
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all service templates", response = ServiceTemplateListDTO.class)
     public Response getServiceTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId) {
         logger.info("Loading all service templates for csar [{}]", csarId);
@@ -105,7 +105,7 @@ public class ServiceTemplateController {
 
     @GET
     @Path("/{servicetemplate}")
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a service template", response = ServiceTemplateDTO.class)
     public Response getServiceTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                        @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
@@ -203,8 +203,8 @@ public class ServiceTemplateController {
     @POST
     @Path("/{servicetemplate}/transform")
     @ApiOperation(value = "Generates a plan to adapt service template instances via the given the source and target nodes/relations")
-    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response transformCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId, @ApiParam(required = true) final ServiceTransformRequest request) {
 

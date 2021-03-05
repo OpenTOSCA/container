@@ -47,6 +47,7 @@ public class BPELScope {
     private BPELScope bpelFaultScope;
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
+
     public BPELScope(AbstractActivity activity) {
         this.act = activity;
         this.usedOperations = new HashMap<AbstractOperation, AbstractOperation>();

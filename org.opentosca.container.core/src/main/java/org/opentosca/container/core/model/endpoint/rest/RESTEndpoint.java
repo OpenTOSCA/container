@@ -28,7 +28,7 @@ import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
  * REST operation element in the TOSCA-Specification.
  */
 // Named Queries for JPA
-@NamedQueries( {@NamedQuery(name = RESTEndpoint.getEndpointForPath, query = RESTEndpoint.getEndpointForPathQuery),
+@NamedQueries({@NamedQuery(name = RESTEndpoint.getEndpointForPath, query = RESTEndpoint.getEndpointForPathQuery),
     @NamedQuery(name = RESTEndpoint.getEndpointForPathAndMethod,
         query = RESTEndpoint.getEndpointForPathAndMethodQuery),
     @NamedQuery(name = RESTEndpoint.getEndpointForUri, query = RESTEndpoint.getEndpointForUriQuery)})
