@@ -81,8 +81,8 @@ public class CallbackProcessor implements Processor {
 
                 try {
                     doc = soapMessage.getSOAPBody().getOwnerDocument();
-                    NodeList nodeList = doc.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
-
+                    Element documentElement = doc.getDocumentElement();
+                    NodeList nodeList = documentElement.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
                     NodeList childNodes = nodeList.item(0).getChildNodes();
                     Node invokeResponse = null;
                     for (int i = 0; i < childNodes.getLength(); i++) {

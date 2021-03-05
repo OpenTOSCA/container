@@ -11,8 +11,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <winery.version>ustutt-SNAPSHOT</winery.version>
-        <apache.cxf.version>3.1.10</apache.cxf.version>
-        <camel.version>2.18.3</camel.version>
+        <apache.cxf.version>3.1.18</apache.cxf.version>
+        <camel.version>2.18.5</camel.version>
         <commons-io.version>2.6</commons-io.version>
         <jaxb.version>2.2.11</jaxb.version>
         <!-- needs to match the jersey version used in winery to avoid conflicts -->
