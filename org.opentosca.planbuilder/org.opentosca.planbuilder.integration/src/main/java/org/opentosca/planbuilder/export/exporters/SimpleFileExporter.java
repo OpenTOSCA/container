@@ -59,18 +59,6 @@ public class SimpleFileExporter {
 
     private final static Logger LOG = LoggerFactory.getLogger(SimpleFileExporter.class);
 
-    // wrapper class for the rewriting of service names in WSDL's
-    public class Service2ServiceEntry {
-
-        public QName service0;
-        public QName service1;
-
-        public Service2ServiceEntry(final QName service0, final QName service1) {
-            this.service0 = service0;
-            this.service1 = service1;
-        }
-    }
-
     /**
      * Exports the given BuildPlan to the given URI location
      *
@@ -175,7 +163,6 @@ public class SimpleFileExporter {
             return false;
         }
 
-
         Collection<Path> files = Files.walk(tempFolder, 1)
             .filter(Files::isRegularFile)
             .collect(Collectors.toList());
@@ -185,32 +172,6 @@ public class SimpleFileExporter {
         // package temp dir and move to destination URI
         //ZipManager.getInstance().zip(tempFolder.toFile(), new File(destination));
         return true;
-    }
-
-    private class Mapping {
-        private final QName key;
-        private final QName val;
-
-        protected Mapping(final QName key, final QName val) {
-            this.key = key;
-            this.val = val;
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-
-            if (obj instanceof Mapping) {
-                final Mapping map = (Mapping) obj;
-                return map.key.equals(this.key) && map.val.equals(this.val);
-            }
-
-            return super.equals(obj);
-        }
-
-        @Override
-        public String toString() {
-            return this.key.toString() + this.val.toString();
-        }
     }
 
     private void rewriteServiceNames(final Deploy deploy, final List<Path> referencedFiles,
@@ -351,5 +312,43 @@ public class SimpleFileExporter {
         final DOMSource source = new DOMSource(doc);
         final StreamResult result = new StreamResult(new FileOutputStream(destination));
         transformer.transform(source, result);
+    }
+
+    // wrapper class for the rewriting of service names in WSDL's
+    public class Service2ServiceEntry {
+
+        public QName service0;
+        public QName service1;
+
+        public Service2ServiceEntry(final QName service0, final QName service1) {
+            this.service0 = service0;
+            this.service1 = service1;
+        }
+    }
+
+    private class Mapping {
+        private final QName key;
+        private final QName val;
+
+        protected Mapping(final QName key, final QName val) {
+            this.key = key;
+            this.val = val;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+
+            if (obj instanceof Mapping) {
+                final Mapping map = (Mapping) obj;
+                return map.key.equals(this.key) && map.val.equals(this.val);
+            }
+
+            return super.equals(obj);
+        }
+
+        @Override
+        public String toString() {
+            return this.key.toString() + this.val.toString();
+        }
     }
 }

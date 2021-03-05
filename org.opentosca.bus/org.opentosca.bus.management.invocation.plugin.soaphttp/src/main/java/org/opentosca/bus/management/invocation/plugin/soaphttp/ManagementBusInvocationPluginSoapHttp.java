@@ -55,7 +55,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
     // Supported types defined in messages.properties.
     private static final String TYPES = "SOAP/HTTP";
-    private static Map<String, Exchange> EXCHANGE_MAP = Collections.synchronizedMap(new HashMap<String, Exchange>());
+    private static final Map<String, Exchange> EXCHANGE_MAP = Collections.synchronizedMap(new HashMap<String, Exchange>());
     private final CamelContext camelContext;
 
     @Inject
@@ -233,7 +233,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         Binding binding = null;
         final Map<QName, ?> bindings = wsdl.getBindings();
         for (Map.Entry<QName, ?> entry : bindings.entrySet()) {
-            Binding examined = wsdl.getBinding((QName) entry.getKey());
+            Binding examined = wsdl.getBinding(entry.getKey());
             if (examined.getBindingOperations().contains(operation)) {
                 binding = examined;
                 break;
@@ -273,7 +273,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         }
         Map<QName, ?> bindings = wsdl.getBindings();
         for (Map.Entry<QName, ?> entry : bindings.entrySet()) {
-            Binding binding = wsdl.getBinding((QName) entry.getKey());
+            Binding binding = wsdl.getBinding(entry.getKey());
             List<BindingOperation> definedOperations = binding.getBindingOperations();
             for (BindingOperation operation : definedOperations) {
                 if (operation.getName().equalsIgnoreCase(operationName)) {

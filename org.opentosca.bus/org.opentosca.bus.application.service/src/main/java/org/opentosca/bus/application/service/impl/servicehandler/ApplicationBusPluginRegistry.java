@@ -24,7 +24,7 @@ public class ApplicationBusPluginRegistry {
 
     // HashMap that stores available plug-ins. The supported InvocationType is
     // used as key and the corresponding routing endpoint as value.
-    private static ConcurrentHashMap<String, String> pluginServices = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, String> pluginServices = new ConcurrentHashMap<>();
 
     final private static Logger LOG = LoggerFactory.getLogger(ApplicationBusPluginRegistry.class);
 

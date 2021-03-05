@@ -6,8 +6,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
-import org.eclipse.winery.model.tosca.TBoolean;
-
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tParameterDTO")
 public class TParameterDTO {
@@ -19,7 +17,7 @@ public class TParameterDTO {
     @XmlAttribute(name = "type", required = true)
     protected String type;
     @XmlAttribute(name = "required")
-    protected TBoolean required;
+    protected boolean required;
 
     public TParameterDTO() {
 
@@ -85,22 +83,18 @@ public class TParameterDTO {
     /**
      * Gets the value of the required property.
      *
-     * @return possible object is {@link TBoolean }
+     * @return possible object is {@link boolean }
      */
-    public TBoolean getRequired() {
-        if (this.required == null) {
-            return TBoolean.YES;
-        } else {
-            return this.required;
-        }
+    public boolean getRequired() {
+        return this.required;
     }
 
     /**
      * Sets the value of the required property.
      *
-     * @param value allowed object is {@link TBoolean }
+     * @param value allowed object is {@link boolean }
      */
-    public void setRequired(final TBoolean value) {
+    public void setRequired(final boolean value) {
         this.required = value;
     }
 

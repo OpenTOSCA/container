@@ -161,7 +161,7 @@ public class SituationsController {
         }
 
         ServiceTemplateInstance serviceInstance = null;
-        if(situationTrigger.getServiceInstanceId() != null){
+        if (situationTrigger.getServiceInstanceId() != null) {
             try {
                 serviceInstance = this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId(), false);
             } catch (final NotFoundException e) {

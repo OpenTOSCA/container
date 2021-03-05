@@ -58,6 +58,45 @@ public class BPELScopeBuilder {
     }
 
     /**
+     * Calculates a list of DA's containing an effective set of DA combining the DA's from the given NodeImplementation
+     * and NodeTemplates according to the TOSCA specification.
+     *
+     * @param nodeTemplate the NodeTemplate the NodeImplementations belongs to
+     * @param nodeImpl     a NodeTypeImplementation for the given NodeTemplate
+     * @return a possibly empty list of AbstractDeploymentArtifacts
+     */
+    static List<AbstractDeploymentArtifact> calculateEffectiveDAs(final AbstractNodeTemplate nodeTemplate,
+                                                                  final AbstractNodeTypeImplementation nodeImpl) {
+        final List<AbstractDeploymentArtifact> effectiveDAs = new ArrayList<>();
+
+        final List<AbstractDeploymentArtifact> nodeImplDAs = Lists.newArrayList(nodeImpl.getDeploymentArtifacts());
+        final Collection<AbstractDeploymentArtifact> nodeTemplateDAs = nodeTemplate.getDeploymentArtifacts();
+
+        for (final AbstractDeploymentArtifact templateDa : nodeTemplateDAs) {
+            boolean overridesDA = false;
+            int daIndex = -1;
+            for (int i = 0; i < nodeImplDAs.size(); i++) {
+                final AbstractDeploymentArtifact nodeImplDa = nodeImplDAs.get(i);
+
+                if (nodeImplDa.getName().equals(templateDa.getName())
+                    & nodeImplDa.getArtifactType().equals(nodeImplDa.getArtifactType())) {
+                    overridesDA = true;
+                    daIndex = i;
+                }
+            }
+
+            if (overridesDA) {
+                nodeImplDAs.remove(daIndex);
+            }
+        }
+
+        effectiveDAs.addAll(nodeTemplateDAs);
+        effectiveDAs.addAll(nodeImplDAs);
+
+        return effectiveDAs;
+    }
+
+    /**
      * <p>
      * Filters IA and DA Candidates inside the given ProvisioningChain. Filtering means if there are IA and DACandidates
      * which don't operate on the same Template Implementation they are deleted.
@@ -389,8 +428,7 @@ public class BPELScopeBuilder {
                 // we need to remove ia and da candidates accordingly, because
                 // we didn't found matchin operation candidates for them
                 for (final IANodeTypeImplCandidate iaCandidateToRemove : iaCandidatesToRemove) {
-                    final int index = chain.iaCandidates.indexOf(iaCandidateToRemove);
-                    chain.iaCandidates.remove(index);
+                    chain.iaCandidates.remove(iaCandidateToRemove);
                 }
             }
 
@@ -854,46 +892,5 @@ public class BPELScopeBuilder {
             }
         }
         chain.iaCandidates = candidates;
-    }
-
-    /**
-     * Calculates a list of DA's containing an effective set of DA combining the DA's from the given NodeImplementation
-     * and NodeTemplates according to the TOSCA specification.
-     *
-     * @param nodeTemplate the NodeTemplate the NodeImplementations belongs to
-     * @param nodeImpl     a NodeTypeImplementation for the given NodeTemplate
-     * @return a possibly empty list of AbstractDeploymentArtifacts
-     */
-    static List<AbstractDeploymentArtifact> calculateEffectiveDAs(final AbstractNodeTemplate nodeTemplate,
-                                                                  final AbstractNodeTypeImplementation nodeImpl) {
-        final List<AbstractDeploymentArtifact> effectiveDAs = new ArrayList<>();
-
-        final List<AbstractDeploymentArtifact> nodeImplDAs = Lists.newArrayList(nodeImpl.getDeploymentArtifacts());
-        final Collection<AbstractDeploymentArtifact> nodeTemplateDAs = nodeTemplate.getDeploymentArtifacts();
-
-
-
-        for (final AbstractDeploymentArtifact templateDa : nodeTemplateDAs) {
-            boolean overridesDA = false;
-            int daIndex = -1;
-            for (int i = 0; i < nodeImplDAs.size(); i++) {
-                final AbstractDeploymentArtifact nodeImplDa = nodeImplDAs.get(i);
-
-                if (nodeImplDa.getName().equals(templateDa.getName())
-                    & nodeImplDa.getArtifactType().equals(nodeImplDa.getArtifactType())) {
-                    overridesDA = true;
-                    daIndex = i;
-                }
-            }
-
-            if (overridesDA) {
-                nodeImplDAs.remove(daIndex);
-            }
-        }
-
-        effectiveDAs.addAll(nodeTemplateDAs);
-        effectiveDAs.addAll(nodeImplDAs);
-
-        return effectiveDAs;
     }
 }

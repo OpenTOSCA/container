@@ -48,10 +48,7 @@ public abstract class AbstractActivity {
         if (!act.getId().equals(this.id)) {
             return false;
         }
-        if (!act.getType().equals(this.getType())) {
-            return false;
-        }
-        return true;
+        return act.getType().equals(this.getType());
     }
 
     @Override

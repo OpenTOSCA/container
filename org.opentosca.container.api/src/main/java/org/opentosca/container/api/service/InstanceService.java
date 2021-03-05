@@ -62,7 +62,7 @@ import org.w3c.dom.Element;
 @Service
 public class InstanceService {
 
-    private static Logger logger = LoggerFactory.getLogger(InstanceService.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceService.class);
 
     private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository =
         new ServiceTemplateInstanceRepository();
@@ -92,7 +92,7 @@ public class InstanceService {
     }
 
     public Document convertPropertyToDocument(final Property property) {
-        return (Document) this.converter.convertToEntityAttribute(property.getValue());
+        return this.converter.convertToEntityAttribute(property.getValue());
     }
 
     /**
@@ -667,7 +667,7 @@ public class InstanceService {
         newInstance.setCsarId(csarId);
         newInstance.setTriggerOnActivation(triggerOnActivation);
         newInstance.setSingleInstance(isSingleInstance);
-        if(serviceInstance != null) {
+        if (serviceInstance != null) {
             newInstance.setServiceInstance(serviceInstance);
         }
         newInstance.setInterfaceName(interfaceName);

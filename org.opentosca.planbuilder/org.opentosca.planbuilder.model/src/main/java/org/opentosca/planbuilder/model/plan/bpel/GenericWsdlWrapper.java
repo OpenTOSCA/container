@@ -50,112 +50,27 @@ public class GenericWsdlWrapper {
 
     // use as tag to set invoke operation name
     private final static String WSDL_INVOKE_OPERATION_NAME = "{operationName}";
-
-    // this holds the complete wsdl
-    private String genericWsdlFileAsString;
-
-    // the namespace and name of the process this wsdl belongs to
-    private String processName = null;
-    private String namespace = null;
-
-    // the names of the partnerLinkTypes this wsdl holds
-
     private final List<String> partnerLinkTypeNames;
-
     // the localNames inside the input and output message
     private final List<String> inputMessageLocalNames;
     private final List<String> outputMessageLocalNames;
 
+    // the names of the partnerLinkTypes this wsdl holds
     // a list of absolute locations of imported wsdl/xsd's
     private final List<String> absoluteLocations;
-
     // a list of names of delcared properties
     private final List<String> properties;
-
     // a map to store partnerLinks
     private final PltMap pltMap = new PltMap();
-
+    private final Set<String> namespaces = new HashSet<>();
+    // this holds the complete wsdl
+    private String genericWsdlFileAsString;
+    // the namespace and name of the process this wsdl belongs to
+    private String processName = null;
+    private String namespace = null;
+    // a set of namespaces used in the wsdl
     // counts namespaces
     private int namespaceCounter = 0;
-    // a set of namespaces used in the wsdl
-
-    private final Set<String> namespaces = new HashSet<>();
-
-    /**
-     * <p>
-     * This class is used to map and store partnerLinks inside the GenericWsdlWrapper calss
-     * </p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
-     * <br>
-     *
-     * @author nyu
-     */
-    private class PltMap {
-
-        private final List<String> partnerLinkTypeNames = new ArrayList<>();
-        private final List<String> roleNames1 = new ArrayList<>();
-        private final List<QName> portTypes1 = new ArrayList<>();
-        private final List<String> roleNames2 = new ArrayList<>();
-        private final List<QName> portTypes2 = new ArrayList<>();
-
-        /**
-         * Adds a partnerLinkType to this PltMap
-         *
-         * @param partnerLinkTypeName the name of the partnerLinkType to use
-         * @param role1               the name of the 1st role
-         * @param portType1           a QName of the 1st portType
-         * @param role2               the name of the 2nd role
-         * @param portType2           a QName of the 2nd portType
-         * @return true iff adding was successful
-         */
-        public boolean addPLT(final String partnerLinkTypeName, final String role1, final QName portType1,
-                              final String role2, final QName portType2) {
-            boolean check = true;
-            check &= this.partnerLinkTypeNames.add(partnerLinkTypeName);
-            check &= this.roleNames1.add(role1);
-            check &= this.portTypes1.add(portType1);
-            check &= this.roleNames2.add(role2);
-            check &= this.portTypes2.add(portType2);
-            return check;
-        }
-
-        /**
-         * Returns the names of the partnerLinkTypes
-         *
-         * @return a List of Strings
-         */
-        public List<String> getPartnerLinkTypeNames() {
-            return this.partnerLinkTypeNames;
-        }
-
-        /**
-         * Returns the 1st portType of the given partnerLinkType
-         *
-         * @param partnerLinkTypeName the name of the partnerLinkType
-         * @return a QName if the partnerLinkType is found, else null
-         */
-        public QName getPortType1OfPLT(final String partnerLinkTypeName) {
-            final int pos = this.partnerLinkTypeNames.indexOf(partnerLinkTypeName);
-            return this.portTypes1.get(pos);
-        }
-
-        /**
-         * Returns the 2nd portType of the given partnerLinkType
-         *
-         * @param partnerLinkTypeName the name of the partnerLinkType
-         * @return a QName of the 2nd PortType, else null
-         */
-        public QName getPortType2OfPLT(final String partnerLinkTypeName) {
-            final int pos = this.partnerLinkTypeNames.indexOf(partnerLinkTypeName);
-            final QName portType = this.portTypes2.get(pos);
-            // check if this is a portType dummy
-            if (portType.getLocalPart().equals("")) {
-                return null;
-            } else {
-                return portType;
-            }
-        }
-    }
 
     /**
      * Constructor
@@ -626,5 +541,81 @@ public class GenericWsdlWrapper {
         check &= this.absoluteLocations.contains(absolutePath);
         check &= this.namespaces.contains(qName.getNamespaceURI());
         return check;
+    }
+
+    /**
+     * <p>
+     * This class is used to map and store partnerLinks inside the GenericWsdlWrapper calss
+     * </p>
+     * Copyright 2013 IAAS University of Stuttgart <br>
+     * <br>
+     *
+     * @author nyu
+     */
+    private class PltMap {
+
+        private final List<String> partnerLinkTypeNames = new ArrayList<>();
+        private final List<String> roleNames1 = new ArrayList<>();
+        private final List<QName> portTypes1 = new ArrayList<>();
+        private final List<String> roleNames2 = new ArrayList<>();
+        private final List<QName> portTypes2 = new ArrayList<>();
+
+        /**
+         * Adds a partnerLinkType to this PltMap
+         *
+         * @param partnerLinkTypeName the name of the partnerLinkType to use
+         * @param role1               the name of the 1st role
+         * @param portType1           a QName of the 1st portType
+         * @param role2               the name of the 2nd role
+         * @param portType2           a QName of the 2nd portType
+         * @return true iff adding was successful
+         */
+        public boolean addPLT(final String partnerLinkTypeName, final String role1, final QName portType1,
+                              final String role2, final QName portType2) {
+            boolean check = true;
+            check &= this.partnerLinkTypeNames.add(partnerLinkTypeName);
+            check &= this.roleNames1.add(role1);
+            check &= this.portTypes1.add(portType1);
+            check &= this.roleNames2.add(role2);
+            check &= this.portTypes2.add(portType2);
+            return check;
+        }
+
+        /**
+         * Returns the names of the partnerLinkTypes
+         *
+         * @return a List of Strings
+         */
+        public List<String> getPartnerLinkTypeNames() {
+            return this.partnerLinkTypeNames;
+        }
+
+        /**
+         * Returns the 1st portType of the given partnerLinkType
+         *
+         * @param partnerLinkTypeName the name of the partnerLinkType
+         * @return a QName if the partnerLinkType is found, else null
+         */
+        public QName getPortType1OfPLT(final String partnerLinkTypeName) {
+            final int pos = this.partnerLinkTypeNames.indexOf(partnerLinkTypeName);
+            return this.portTypes1.get(pos);
+        }
+
+        /**
+         * Returns the 2nd portType of the given partnerLinkType
+         *
+         * @param partnerLinkTypeName the name of the partnerLinkType
+         * @return a QName of the 2nd PortType, else null
+         */
+        public QName getPortType2OfPLT(final String partnerLinkTypeName) {
+            final int pos = this.partnerLinkTypeNames.indexOf(partnerLinkTypeName);
+            final QName portType = this.portTypes2.get(pos);
+            // check if this is a portType dummy
+            if (portType.getLocalPart().equals("")) {
+                return null;
+            } else {
+                return portType;
+            }
+        }
     }
 }

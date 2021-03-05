@@ -286,13 +286,9 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
     }
 
     private boolean hasLifecycleProvisioningMethods(AbstractNodeTemplate nodeTemplate) {
-        if (this.getLifecyclePatternInstallMethod(nodeTemplate) != null
+        return this.getLifecyclePatternInstallMethod(nodeTemplate) != null
             || this.getLifecyclePatternConfigureMethod(nodeTemplate) != null
-            || this.getLifecyclePatternStartMethod(nodeTemplate) != null) {
-            return true;
-        } else {
-            return false;
-        }
+            || this.getLifecyclePatternStartMethod(nodeTemplate) != null;
     }
 
     protected AbstractInterface getLifecyclePatternInterface(final AbstractNodeTemplate nodeTemplate) {

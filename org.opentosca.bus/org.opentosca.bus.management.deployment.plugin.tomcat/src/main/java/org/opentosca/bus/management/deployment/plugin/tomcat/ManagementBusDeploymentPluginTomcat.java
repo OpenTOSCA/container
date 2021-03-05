@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -204,7 +205,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
         try {
             // perform undeployment request on Tomcat
             final HttpResponse httpResponse = this.httpService.Get(undeploymentURL, Settings.ENGINE_IA_TOMCAT_USERNAME, Settings.ENGINE_IA_TOMCAT_PASSWORD);
-            final String response = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
+            final String response = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
 
             LOG.debug("Tomcat response: {}", response);
 
@@ -264,7 +265,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
         // execute HTPP GET on URL and check the response
         try {
             final HttpResponse httpResponse = this.httpService.Get(url, Settings.ENGINE_IA_TOMCAT_USERNAME, Settings.ENGINE_IA_TOMCAT_PASSWORD);
-            final String response = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
+            final String response = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
 
             LOG.debug(response);
             if (response.contains("OK - Server info")) {
@@ -373,7 +374,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
                 this.httpService.Put(deploymentURL, entity, Settings.ENGINE_IA_TOMCAT_USERNAME,
                     Settings.ENGINE_IA_TOMCAT_PASSWORD);
 
-            final String response = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
+            final String response = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
 
             LOG.info("Tomcat response to deployment request: {}", response);
 

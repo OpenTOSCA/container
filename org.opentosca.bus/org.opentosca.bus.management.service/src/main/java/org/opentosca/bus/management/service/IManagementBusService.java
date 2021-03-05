@@ -24,7 +24,7 @@ public interface IManagementBusService {
      *                 implementation artifact and the data to be transferred to it.
      * @return the response of the invoked implementation artifact as body of the exchange message.
      */
-    public void invokeIA(Exchange exchange);
+    void invokeIA(Exchange exchange);
 
     /**
      * Handles the invoke-request of a plan.
@@ -33,7 +33,7 @@ public interface IManagementBusService {
      *                 and the data to be transferred to it.
      * @return the response of the invoked plan as body of the exchange message.
      */
-    public void invokePlan(Exchange exchange);
+    void invokePlan(Exchange exchange);
 
     /**
      * Notifies a connected partner about the possibility to start handling the connectsTo between him and the partner
@@ -42,14 +42,14 @@ public interface IManagementBusService {
      *
      * @param exchange contains all needed information.
      */
-    public void notifyPartner(Exchange exchange);
+    void notifyPartner(Exchange exchange);
 
     /**
      * Handles the initial notification of all partners for a choreography.
      *
      * @param exchange contains all needed information.
      */
-    public void notifyPartners(Exchange exchange);
+    void notifyPartners(Exchange exchange);
 
     /**
      * Adds given partner to list of ready partners

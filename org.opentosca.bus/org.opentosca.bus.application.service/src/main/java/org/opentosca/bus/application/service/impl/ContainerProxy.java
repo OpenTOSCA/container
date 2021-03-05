@@ -71,17 +71,51 @@ public class ContainerProxy {
         this.serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
     }
 
+    private static String getIpProperty(Map<String, String> props) {
+        final List<String> knownIpProperties = Utils.getSupportedVirtualMachineIPPropertyNames();
+        for (final String ipProperty : knownIpProperties) {
+            final String list = props.get(ipProperty);
+            if (list != null) {
+                LOG.debug("Property: {} is defined: {}", ipProperty, list);
+                return list;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param props to check
+     * @return IP property, if exist. Otherwise null.
+     */
+    private static String getIpProperty(final Document props) {
+        if (props == null) {
+            return null;
+        }
+        LOG.trace("Checking if IP-Property is defined in the xml document: " + props.getTextContent());
+        final List<String> knownIpProperties = Utils.getSupportedVirtualMachineIPPropertyNames();
+        for (final String ipProperty : knownIpProperties) {
+            final NodeList list = props.getElementsByTagName(ipProperty);
+            if (list.getLength() > 0) {
+                final String ip = list.item(0).getTextContent();
+                LOG.debug("Property: {} is defined: {}", ipProperty, ip);
+                return ip;
+            }
+        }
+        LOG.debug("No IP-Property defined.");
+        return null;
+    }
+
     /**
      * @return NodeInstance with specified ID
      */
     @Nullable
     public NodeTemplateInstance getNodeInstance(final Integer serviceInstanceID, final Integer nodeInstanceID,
-                                                         final String nodeTemplateID) {
+                                                final String nodeTemplateID) {
         LOG.debug("Searching NodeInstance with serviceInstanceID: " + serviceInstanceID + " nodeInstanceID: "
             + nodeInstanceID + " nodeTemplateID: " + nodeTemplateID);
         if (nodeInstanceID == null) {
             List<NodeTemplateInstance> nodeInstances =
-            this.nodeInstanceRepo.findByTemplateId(nodeTemplateID).stream().filter(node -> node.getServiceTemplateInstance().getId().equals(Long.valueOf(serviceInstanceID))).collect(Collectors.toList());
+                this.nodeInstanceRepo.findByTemplateId(nodeTemplateID).stream().filter(node -> node.getServiceTemplateInstance().getId().equals(Long.valueOf(serviceInstanceID))).collect(Collectors.toList());
             if (nodeInstances.size() > 0) {
                 return nodeInstances.get(0);
             }
@@ -99,7 +133,6 @@ public class ContainerProxy {
     protected ServiceTemplateInstance getServiceInstance(final Integer id) {
         LOG.trace("Searching ServiceInstance with ID: {}", id);
         return this.serviceTemplateInstanceRepository.find(Long.valueOf(id)).orElse(null);
-
     }
 
     /**
@@ -425,7 +458,6 @@ public class ContainerProxy {
 
         LOG.debug("Getting IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateID + " of ServiceInstanceID: " + serviceInstanceID + ".");
 
-
         final List<NodeTemplateInstance> nodeInstances = this.nodeInstanceRepo.findAll().stream().filter(x -> x.getServiceTemplateInstance().getId().equals(Long.valueOf(serviceInstanceID.toString())) && x.getTemplateId().equals(nodeTemplateID)).collect(Collectors.toList());
         for (final NodeTemplateInstance nodeInstance : nodeInstances) {
 
@@ -440,39 +472,6 @@ public class ContainerProxy {
             }
         }
         LOG.debug("No IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateID + " ServiceInstanceID: " + serviceInstanceID + " found.");
-        return null;
-    }
-
-    private static String getIpProperty(Map<String,String> props) {
-        final List<String> knownIpProperties = Utils.getSupportedVirtualMachineIPPropertyNames();
-        for (final String ipProperty : knownIpProperties) {
-            final String list = props.get(ipProperty);
-            if (list != null) {
-                LOG.debug("Property: {} is defined: {}", ipProperty, list);
-                return list;
-            }
-        }
-        return null;
-    }
-    /**
-     * @param props to check
-     * @return IP property, if exist. Otherwise null.
-     */
-    private static String getIpProperty(final Document props) {
-        if (props == null) {
-            return null;
-        }
-        LOG.trace("Checking if IP-Property is defined in the xml document: " + props.getTextContent());
-        final List<String> knownIpProperties = Utils.getSupportedVirtualMachineIPPropertyNames();
-        for (final String ipProperty : knownIpProperties) {
-            final NodeList list = props.getElementsByTagName(ipProperty);
-            if (list.getLength() > 0) {
-                final String ip = list.item(0).getTextContent();
-                LOG.debug("Property: {} is defined: {}", ipProperty, ip);
-                return ip;
-            }
-        }
-        LOG.debug("No IP-Property defined.");
         return null;
     }
 }

@@ -84,15 +84,15 @@ public class DeploymentArtifactImpl extends AbstractDeploymentArtifact {
             return false;
         }
 
-        if(!(this.artifact == other.artifact)){
+        if (!(this.artifact == other.artifact)) {
             return false;
         }
 
-        if(!(this.artifact.getName().equals(other.artifact.getName()))){
+        if (!(this.artifact.getName().equals(other.artifact.getName()))) {
             return false;
         }
 
-        if(!(this.artifact.getArtifactType().equals(other.artifact.getArtifactType()))){
+        if (!(this.artifact.getArtifactType().equals(other.artifact.getArtifactType()))) {
             return false;
         }
 
@@ -100,9 +100,6 @@ public class DeploymentArtifactImpl extends AbstractDeploymentArtifact {
             return false;
         }
 
-        if (!this.getName().equals(other.getName())) {
-            return false;
-        }
-        return true;
+        return this.getName().equals(other.getName());
     }
 }

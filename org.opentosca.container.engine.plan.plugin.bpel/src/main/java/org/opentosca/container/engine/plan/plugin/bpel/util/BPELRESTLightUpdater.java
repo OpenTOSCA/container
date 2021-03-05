@@ -202,7 +202,7 @@ public class BPELRESTLightUpdater {
         } catch (final XPathExpressionException e) {
             LOG.error("Internal Error: XPath expression wasn't valid", e);
         }
-        LOG.debug("Found Elements: {} ", String.valueOf(result.getLength()));
+        LOG.debug("Found Elements: {} ", result.getLength());
         for (int i = 0; i < result.getLength(); i++) {
             // in this block the BPELRESTLightElement class assures that we
             // change only elements which should be changed.

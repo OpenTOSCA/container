@@ -15,6 +15,25 @@ import org.w3c.dom.Document;
 // FIXME enforce business logic constraints by using basic constructors to fill fields with values
 public class ResolvedArtifacts {
 
+    private List<ResolvedDeploymentArtifact> deploymentArtifacts = new ArrayList<>();
+    private List<ResolvedImplementationArtifact> implementationArtifacts = new ArrayList<>();
+
+    public List<ResolvedDeploymentArtifact> getDeploymentArtifacts() {
+        return this.deploymentArtifacts;
+    }
+
+    public void setDeploymentArtifacts(final List<ResolvedDeploymentArtifact> deploymentArtifacts) {
+        this.deploymentArtifacts = deploymentArtifacts;
+    }
+
+    public List<ResolvedImplementationArtifact> getImplementationArtifacts() {
+        return this.implementationArtifacts;
+    }
+
+    public void setImplementationArtifacts(final List<ResolvedImplementationArtifact> implementationArtifacts) {
+        this.implementationArtifacts = implementationArtifacts;
+    }
+
     /**
      * Class to hold all fields used by implementation and deploymentArtifacts This is a generic class so therefore
      * there wont be an object of this (abstract!) Use a child class instead (see ResolvedDeploymentArtifact and
@@ -96,24 +115,5 @@ public class ResolvedArtifacts {
         public void setInterfaceName(final String interfaceName) {
             this.interfaceName = interfaceName;
         }
-    }
-
-    private List<ResolvedDeploymentArtifact> deploymentArtifacts = new ArrayList<>();
-    private List<ResolvedImplementationArtifact> implementationArtifacts = new ArrayList<>();
-
-    public List<ResolvedDeploymentArtifact> getDeploymentArtifacts() {
-        return this.deploymentArtifacts;
-    }
-
-    public void setDeploymentArtifacts(final List<ResolvedDeploymentArtifact> deploymentArtifacts) {
-        this.deploymentArtifacts = deploymentArtifacts;
-    }
-
-    public List<ResolvedImplementationArtifact> getImplementationArtifacts() {
-        return this.implementationArtifacts;
-    }
-
-    public void setImplementationArtifacts(final List<ResolvedImplementationArtifact> implementationArtifacts) {
-        this.implementationArtifacts = implementationArtifacts;
     }
 }

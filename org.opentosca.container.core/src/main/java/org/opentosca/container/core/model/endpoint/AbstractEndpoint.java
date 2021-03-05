@@ -91,10 +91,6 @@ public abstract class AbstractEndpoint {
         setMetadata(metadata);
     }
 
-    public void setCsarId(final CsarId csarId) {
-        this.csarId = csarId;
-    }
-
     public Long getId() {
         return this.id;
     }
@@ -113,6 +109,10 @@ public abstract class AbstractEndpoint {
 
     public CsarId getCsarId() {
         return this.csarId;
+    }
+
+    public void setCsarId(final CsarId csarId) {
+        this.csarId = csarId;
     }
 
     public Long getServiceTemplateInstanceID() {

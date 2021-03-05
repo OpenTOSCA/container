@@ -41,10 +41,6 @@ public abstract class AbstractPolicy {
             return false;
         }
 
-        if (!(policy.getTemplate().equals(this.getTemplate()))) {
-            return false;
-        }
-
-        return true;
+        return policy.getTemplate().equals(this.getTemplate());
     }
 }

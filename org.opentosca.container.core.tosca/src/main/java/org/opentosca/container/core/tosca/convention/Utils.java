@@ -137,11 +137,7 @@ public class Utils {
             return true;
         }
 
-        if (nodeType.equals(Types.raspbianJessieOSNodeType)) {
-            return true;
-        }
-
-        return false;
+        return nodeType.equals(Types.raspbianJessieOSNodeType);
     }
 
     private static boolean isProperUbuntuLocalName(final String localName) {

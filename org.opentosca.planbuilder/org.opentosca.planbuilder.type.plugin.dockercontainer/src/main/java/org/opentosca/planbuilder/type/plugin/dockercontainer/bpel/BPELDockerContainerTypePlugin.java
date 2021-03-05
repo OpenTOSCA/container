@@ -50,7 +50,7 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     @Override
     public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate) {
         Collection<AbstractNodeTemplate> deps = new HashSet<AbstractNodeTemplate>();
-        deps.add(this.getDockerEngineNode(nodeTemplate));
+        deps.add(getDockerEngineNode(nodeTemplate));
         return deps;
     }
 

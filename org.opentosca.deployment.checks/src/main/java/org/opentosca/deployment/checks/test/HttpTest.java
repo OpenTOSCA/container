@@ -36,7 +36,7 @@ public class HttpTest implements org.opentosca.deployment.checks.test.TestExecut
     public static final QName ANNOTATION_HTTPS_TEST =
         new QName("http://opentosca.org/policytypes/annotations/tests", "HttpsTest");
 
-    private static Logger logger = LoggerFactory.getLogger(HttpTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpTest.class);
 
     @Override
     public DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
@@ -59,7 +59,7 @@ public class HttpTest implements org.opentosca.deployment.checks.test.TestExecut
         Set<NodeTemplateInstance> nodes;
 
         // Input properties
-        final Map<String, String> inputProperties = policyTemplate.getProperties().getKVProperties();
+        final Map<String, String> inputProperties = (Map<String, String>) policyTemplate.getProperties();
         logger.debug("Input properties: {}", inputProperties);
         // TODO String testMethod = inputProperties.get("TestMethod");
         final String testPath = inputProperties.get("TestPath");
@@ -156,12 +156,8 @@ public class HttpTest implements org.opentosca.deployment.checks.test.TestExecut
     @Override
     public boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate) {
 
-        if (policyTemplate.getType().equals(ANNOTATION_HTTP_TEST)
-            || policyTemplate.getType().equals(ANNOTATION_HTTPS_TEST)) {
-            return true;
-        }
-
-        return false;
+        return policyTemplate.getType().equals(ANNOTATION_HTTP_TEST)
+            || policyTemplate.getType().equals(ANNOTATION_HTTPS_TEST);
     }
 
     // --- Helper classes

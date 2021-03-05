@@ -17,16 +17,14 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.common.RepositoryFileReference;
-import org.eclipse.winery.common.ids.XmlId;
-import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
-import org.eclipse.winery.common.ids.elements.PlanId;
-import org.eclipse.winery.common.ids.elements.PlansId;
+import org.eclipse.winery.model.ids.XmlId;
+import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.ids.elements.PlanId;
+import org.eclipse.winery.model.ids.elements.PlansId;
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.selfservice.ApplicationOption;
-import org.eclipse.winery.model.tosca.Definitions;
-import org.eclipse.winery.model.tosca.TBoolean;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TParameter;
@@ -35,6 +33,7 @@ import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.BackendUtils;
 import org.eclipse.winery.repository.backend.IRepository;
+import org.eclipse.winery.repository.common.RepositoryFileReference;
 
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.tika.mime.MediaType;
@@ -91,7 +90,7 @@ public class WineryExporter extends AbstractExporter {
         return exportBPELToCSAR(bpelPlans, csarId, repository, storage);
     }
 
-    private org.eclipse.winery.model.tosca.Definitions getEntryDefs(Csar csar, IRepository repo) {
+    private org.eclipse.winery.model.tosca.TDefinitions getEntryDefs(Csar csar, IRepository repo) {
         Collection<RepositoryFileReference> entryDefRefs = new HashSet<RepositoryFileReference>();
         entryDefRefs.addAll(repo.getContainedFiles(new ServiceTemplateId(new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()))));
         for (RepositoryFileReference ref : entryDefRefs) {
@@ -109,7 +108,7 @@ public class WineryExporter extends AbstractExporter {
     public PlanExportResult exportBPELToCSAR(final List<BPELPlan> plans, final CsarId csarId, IRepository repository, CsarStorageService storage) {
         Csar csar = storage.findById(csarId);
         Collection<String> exportedBpelPlanIds = new ArrayList<String>();
-        final Definitions defs = this.getEntryDefs(csar, repository);
+        final TDefinitions defs = this.getEntryDefs(csar, repository);
         final TServiceTemplate serviceTemplate = defs.getServiceTemplates().get(0);
         final String csarName = csarId.csarName();
         final Path tempDir = FileSystem.getTemporaryFolder();
@@ -117,7 +116,6 @@ public class WineryExporter extends AbstractExporter {
         final Path repackagedCsar = pathToRepackagedCsar.resolve(csarName);
 
         try {
-
 
             final List<BPELPlan> plansToExport = new ArrayList<>();
 
@@ -189,7 +187,7 @@ public class WineryExporter extends AbstractExporter {
             serviceTemplate.setBoundaryDefinitions(boundary);
 
             ServiceTemplateId id = BackendUtils.getDefinitionsChildId(ServiceTemplateId.class, serviceTemplate.getTargetNamespace(), serviceTemplate.getId(), false);
-            BackendUtils.persist(id, defs);
+            BackendUtils.persist(repository, id, defs);
 
             // Check if selfservice is already available
             final Path selfServiceDir = tempDir.resolve("SELFSERVICE-Metadata");
@@ -322,7 +320,7 @@ public class WineryExporter extends AbstractExporter {
      * @param serviceTemplate a JAXB TServiceTemplate
      * @return a QName denoting the given ServiceTemplate
      */
-    private QName buildQName(final org.eclipse.winery.model.tosca.Definitions defs, final org.eclipse.winery.model.tosca.TServiceTemplate serviceTemplate) {
+    private QName buildQName(final org.eclipse.winery.model.tosca.TDefinitions defs, final org.eclipse.winery.model.tosca.TServiceTemplate serviceTemplate) {
         String namespace = serviceTemplate.getTargetNamespace();
         if (namespace == null) {
             namespace = defs.getTargetNamespace();
@@ -354,12 +352,9 @@ public class WineryExporter extends AbstractExporter {
 
         PlansId plansId = new PlansId(servId);
 
-
-
         PlanId planId = new PlanId(plansId, new XmlId(QName.valueOf(generatedPlan.getId()).getLocalPart(), false));
         RepositoryFileReference fileRef = new RepositoryFileReference(planId, planPath.getFileName().toString());
         repo.putContentToFile(fileRef, Files.newInputStream(planPath), MediaType.APPLICATION_ZIP);
-
 
         ref.setReference(repo.id2RelativePath(planId).resolve(planPath.getFileName()).toString());
 
@@ -369,7 +364,7 @@ public class WineryExporter extends AbstractExporter {
             // the builder supports only string types
             final TParameter param = new TParameter();
             param.setName(paramName);
-            param.setRequired(TBoolean.YES);
+            param.setRequired(true);
             param.setType("String");
             inputParamsList.add(param);
         }
@@ -377,7 +372,7 @@ public class WineryExporter extends AbstractExporter {
         for (final String paramName : generatedPlan.getWsdl().getOuputMessageLocalNames()) {
             final TParameter param = new TParameter();
             param.setName(paramName);
-            param.setRequired(TBoolean.YES);
+            param.setRequired(true);
             param.setType("String");
             outputParamsList.add(param);
         }

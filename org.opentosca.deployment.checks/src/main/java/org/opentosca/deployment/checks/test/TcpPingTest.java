@@ -24,7 +24,7 @@ public class TcpPingTest implements TestExecutionPlugin {
     public static final QName ANNOTATION =
         new QName("http://opentosca.org/policytypes/annotations/tests", "TcpPingTest");
 
-    private static Logger logger = LoggerFactory.getLogger(TcpPingTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(TcpPingTest.class);
 
     @Override
     public DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
@@ -47,7 +47,7 @@ public class TcpPingTest implements TestExecutionPlugin {
         Set<NodeTemplateInstance> nodes;
 
         // Input properties
-        final Map<String, String> inputProperties = policyTemplate.getProperties().getKVProperties();
+        final Map<String, String> inputProperties = (Map<String, String>) policyTemplate.getProperties();
         logger.debug("Input properties: {}", inputProperties);
 
         final String hostnameProperty = "VMIP";

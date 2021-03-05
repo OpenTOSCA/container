@@ -16,7 +16,7 @@ public interface IPlanBuilderPlugin {
      *
      * @return a String used to identify this Plugin
      */
-    public String getID();
+    String getID();
 
     /**
      * Returns the priority to use this plugin by the plan builders. The higher the priority the more it is advised to
@@ -27,5 +27,5 @@ public interface IPlanBuilderPlugin {
      *
      * @return an Integer denoting the priority of this plugin
      */
-    public int getPriority();
+    int getPriority();
 }

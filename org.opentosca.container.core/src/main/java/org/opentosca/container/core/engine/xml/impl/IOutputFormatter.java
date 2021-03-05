@@ -16,5 +16,5 @@ public interface IOutputFormatter {
      * @param removeWhitespaces Flag for removing whitespace.
      * @return String representation of the passed DOM Node.
      */
-    public abstract String docToString(Node node, boolean removeWhitespaces);
+    String docToString(Node node, boolean removeWhitespaces);
 }

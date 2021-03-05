@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public class NCName {
 
     public static final Pattern ILLEGAL_CHARACTERS_PATTERN = Pattern
-        .compile("[\\s\\:\\@\\$\\%\\&\\/\\+\\,\\;\\!\"\\#\'\\(\\)\\*\\<\\=\\>\\?\\[\\]\\\\^\\`\\{\\|\\}\\~]");
+        .compile("[\\s\\:\\@\\$\\%\\&\\/\\+\\,\\;\\!\"\\#'\\(\\)\\*\\<\\=\\>\\?\\[\\]\\\\^\\`\\{\\|\\}\\~]");
     public static final Pattern ILLEGAL_START_CHARACTERS_PATTERN = Pattern.compile("^[\\.\\d\\-]+");
 
     // To check validity
@@ -15,8 +15,8 @@ public class NCName {
 
     public static final String OUTPUT_FORMAT = "%s:%s";
 
-    private String prefix;
-    private String ncName;
+    private final String prefix;
+    private final String ncName;
 
     public NCName(final String prefix, final String ncName) {
         Objects.requireNonNull(prefix);

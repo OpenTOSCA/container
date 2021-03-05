@@ -14,5 +14,5 @@ public interface IXMLSerializerService {
      *
      * @return The xmlSerializer for data which is TOSCA or is used by TOSCA.
      */
-    public abstract IXMLSerializer getXmlSerializer();
+    IXMLSerializer getXmlSerializer();
 }

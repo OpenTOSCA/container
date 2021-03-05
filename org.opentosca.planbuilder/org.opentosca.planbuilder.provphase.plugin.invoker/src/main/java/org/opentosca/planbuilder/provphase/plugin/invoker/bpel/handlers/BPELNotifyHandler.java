@@ -339,7 +339,7 @@ public class BPELNotifyHandler extends PluginHandler {
                 new QName("http://opentosca.org/plans/invocationfault",
                     "receiveNotifyFault",
                     "fault"
-                        + String.valueOf(System.currentTimeMillis())),
+                        + System.currentTimeMillis()),
                 responseVariableName);
 
         checkForFault = context.importNode(checkForFault);
@@ -505,22 +505,16 @@ public class BPELNotifyHandler extends PluginHandler {
     public boolean isValidForReceiveNotify(final BPELPlanContext context) {
         // basically we are always valid for receives as we only expect the properties of the partner's
         // nodes
-        if (!context.isNodeTemplate()) {
-            return false;
-        }
-        return true;
+        return context.isNodeTemplate();
     }
 
     public boolean isValidForSendNotify(final BPELPlanContext context) {
 
-        if (!context.getActivity().getType().equals(ActivityType.SENDNODENOTIFY)) {
-            return false;
-        }
+        return context.getActivity().getType().equals(ActivityType.SENDNODENOTIFY);
         // for now we'll just return all parameters
         // Collection<AbstractParameter> parameters = this.getAllOperationParameters(context);
         // Map<String, PropertyVariable> paramMacthing = this.matchOperationParamertsToProperties(context);
         // return parameters.size() == paramMacthing.size();
-        return true;
     }
 
     public Map<String, Variable> mapToParamMap(final Collection<PropertyVariable> propertyVariables) {

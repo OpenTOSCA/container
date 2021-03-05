@@ -39,5 +39,5 @@ public interface IPlanBuilderPrePhaseIAPlugin<T extends PlanContext> extends IPl
      * @return true iff generating and adding the fragment was successful
      */
     boolean handle(T context, AbstractImplementationArtifact ia,
-                          AbstractNodeTemplate infrastructureNodeTemplate);
+                   AbstractNodeTemplate infrastructureNodeTemplate);
 }

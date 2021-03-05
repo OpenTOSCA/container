@@ -85,7 +85,7 @@ public class InvocationRequestProcessor implements Processor {
         final QName nodeType = nodeInstance.getTemplateType();
         final ServiceTemplateInstance serviceInstance = nodeInstance.getServiceTemplateInstance();
         final CsarId csarID = serviceInstance.getCsarId();
-        final QName serviceTemplateID = new QName(this.csarStorageService.findById(csarID).entryServiceTemplate().getTargetNamespace(),this.csarStorageService.findById(csarID).entryServiceTemplate().getId());
+        final QName serviceTemplateID = new QName(this.csarStorageService.findById(csarID).entryServiceTemplate().getTargetNamespace(), this.csarStorageService.findById(csarID).entryServiceTemplate().getId());
 
         if (nodeTemplateID == null) {
             nodeTemplateID = nodeInstance.getTemplateId();

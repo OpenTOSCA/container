@@ -40,23 +40,18 @@ import org.w3c.dom.Document;
 public class RelationshipTemplateInstanceController {
 
     private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateInstanceController.class);
-
+    private final InstanceService instanceService;
     @ApiParam("ID of CSAR")
     @PathParam("csar")
     String csar;
-
     @ApiParam("qualified name of the service template")
     @PathParam("servicetemplate")
     String servicetemplate;
-
     @ApiParam("ID of relationship template")
     @PathParam("relationshiptemplate")
     String relationshiptemplate;
-
     @Context
     UriInfo uriInfo;
-
-    private final InstanceService instanceService;
 
     public RelationshipTemplateInstanceController(final InstanceService instanceService) {
         this.instanceService = instanceService;
@@ -77,7 +72,7 @@ public class RelationshipTemplateInstanceController {
         final RelationshipTemplateInstanceListDTO list = new RelationshipTemplateInstanceListDTO();
 
         for (final RelationshipTemplateInstance i : relationshipInstances) {
-            if (!i.getTarget().getServiceTemplateInstance().getTemplateId().toString().equals(this.servicetemplate)) {
+            if (!i.getTarget().getServiceTemplateInstance().getTemplateId().equals(this.servicetemplate)) {
                 continue;
             }
             if (states != null && !states.isEmpty() && !states.contains(i.getState())) {

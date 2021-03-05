@@ -42,23 +42,18 @@ import org.w3c.dom.Element;
 public class NodeTemplateInstanceController {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
-
+    private final InstanceService instanceService;
     @ApiParam("ID of node template")
     @PathParam("nodetemplate")
     String nodetemplate;
-
     @ApiParam("ID of CSAR")
     @PathParam("csar")
     String csar;
-
     @ApiParam("qualified name of the service template")
     @PathParam("servicetemplate")
     String servicetemplate;
-
     @Context
     UriInfo uriInfo;
-
-    private final InstanceService instanceService;
 
     public NodeTemplateInstanceController(final InstanceService instanceService) {
         this.instanceService = instanceService;
@@ -82,7 +77,7 @@ public class NodeTemplateInstanceController {
                 continue;
             }
 
-            if (!i.getServiceTemplateInstance().getTemplateId().toString().equals(this.servicetemplate)) {
+            if (!i.getServiceTemplateInstance().getTemplateId().equals(this.servicetemplate)) {
                 continue;
             }
 

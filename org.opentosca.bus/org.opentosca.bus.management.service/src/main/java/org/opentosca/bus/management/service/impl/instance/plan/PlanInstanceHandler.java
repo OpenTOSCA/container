@@ -239,7 +239,7 @@ public class PlanInstanceHandler {
      */
     private static String parseRESTResponse(final Object responseBody) {
         final String resp = (String) responseBody;
-        final String instanceID = resp.substring(resp.indexOf("href\":\"") + 7, resp.length());
+        final String instanceID = resp.substring(resp.indexOf("href\":\"") + 7);
         return instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
     }
 }

@@ -65,13 +65,9 @@ public class BPELPlanContext extends PlanContext {
 
     private final BPELScope templateBuildPlan;
     private final BPELScopeBuilder scopeBuilder;
-
-    private BPELPlanHandler buildPlanHandler;
-
-    private BPELPlanHandler bpelProcessHandler;
-
     private final BPELScopeHandler bpelTemplateHandler;
-
+    private BPELPlanHandler buildPlanHandler;
+    private BPELPlanHandler bpelProcessHandler;
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     /**
@@ -98,6 +94,10 @@ public class BPELPlanContext extends PlanContext {
         }
     }
 
+    public static Variable getVariable(String varName) {
+        return new Variable(varName);
+    }
+
     public AbstractActivity getActivity() {
         return this.templateBuildPlan.getActivity();
     }
@@ -117,11 +117,11 @@ public class BPELPlanContext extends PlanContext {
         }
     }
 
+    // TODO Refactor methods up to the BPEL specific methods
+
     public Map<AbstractOperation, AbstractOperation> getUsedOperations() {
         return this.templateBuildPlan.getUsedOperations();
     }
-
-    // TODO Refactor methods up to the BPEL specific methods
 
     /**
      * Looks for a Property with the same localName as the given String. The search is on either the Infrastructure on
@@ -196,7 +196,7 @@ public class BPELPlanContext extends PlanContext {
      * @return true if this context is for a nodeTemplate, else false
      */
     public boolean isNodeTemplate() {
-        return this.templateBuildPlan.getNodeTemplate() != null ? true : false;
+        return this.templateBuildPlan.getNodeTemplate() != null;
     }
 
     /**
@@ -205,11 +205,7 @@ public class BPELPlanContext extends PlanContext {
      * @return true if this context is for a relationshipTemplate, else false
      */
     public boolean isRelationshipTemplate() {
-        return this.templateBuildPlan.getRelationshipTemplate() != null ? true : false;
-    }
-
-    public static Variable getVariable(String varName) {
-        return new Variable(varName);
+        return this.templateBuildPlan.getRelationshipTemplate() != null;
     }
 
     public String findInstanceURLVar(final String templateId, final boolean isNode) {
@@ -1044,7 +1040,6 @@ public class BPELPlanContext extends PlanContext {
      *
      * @param qname a QName to import
      * @return the QName with set prefix
-     *
      */
     public QName importNamespace(final QName qname) {
         return this.bpelProcessHandler.importNamespace(qname, this.templateBuildPlan.getBuildPlan());
@@ -1159,11 +1154,11 @@ public class BPELPlanContext extends PlanContext {
         if (mainReceiveElement.getElementsByTagName("correlations").getLength() != 0) {
             correlationsElement = (Element) mainReceiveElement.getElementsByTagName("correlations").item(0);
         } else {
-            correlationsElement = plan.getBpelDocument().createElementNS(plan.bpelNamespace, "correlations");
+            correlationsElement = plan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "correlations");
             mainReceiveElement.appendChild(correlationsElement);
         }
 
-        Element correlationElement = plan.getBpelDocument().createElementNS(plan.bpelNamespace, "correlation");
+        Element correlationElement = plan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "correlation");
         correlationElement.setAttribute("set", correlationSetName);
 
         if (b != null) {

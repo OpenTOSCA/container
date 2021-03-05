@@ -40,7 +40,7 @@ public class ParameterImpl extends AbstractParameter {
      */
     @Override
     public boolean isRequired() {
-        return this.parameter.getRequired().value().equals("yes") ? true : false;
+        return this.parameter.getRequired();
     }
 
     /**
@@ -77,10 +77,6 @@ public class ParameterImpl extends AbstractParameter {
             return false;
         }
 
-        if (!oParam.getType().equals(this.getType())) {
-            return false;
-        }
-
-        return true;
+        return oParam.getType().equals(this.getType());
     }
 }

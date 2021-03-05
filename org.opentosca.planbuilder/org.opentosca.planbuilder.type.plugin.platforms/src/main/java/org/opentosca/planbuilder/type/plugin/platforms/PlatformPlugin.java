@@ -41,12 +41,9 @@ public class PlatformPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
 
     @Override
     public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
-        if (!this.canHandleCreate(nodeTemplate)) {
-            return false;
-        }
+        return this.canHandleCreate(nodeTemplate);
         // available platforms such as Clouds and Devices are not provisioned (as of yet), therefore do
         // nothing here
-        return true;
     }
 
     @Override
@@ -90,11 +87,8 @@ public class PlatformPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
 
     @Override
     public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
-        if (!this.isSupportedType(nodeTemplate)) {
-            return false;
-        }
+        return this.isSupportedType(nodeTemplate);
         // handle these running components by doing nothing
-        return true;
     }
 
     @Override

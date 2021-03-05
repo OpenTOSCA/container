@@ -34,92 +34,9 @@ public class ScalingPlanDefinition {
 
     // nodes with selection strategies
     public Collection<AnnotatedAbstractNodeTemplate> selectionStrategy2BorderNodes;
-
-    public static class AnnotatedAbstractNodeTemplate extends AbstractNodeTemplate {
-
-        private final Collection<String> annotations;
-        private final AbstractNodeTemplate nodeTemplate;
-
-        public AnnotatedAbstractNodeTemplate(final AbstractNodeTemplate nodeTemplate,
-                                             final Collection<String> annotations) {
-            this.annotations = annotations;
-            this.nodeTemplate = nodeTemplate;
-        }
-
-        public Collection<String> getAnnotations() {
-            return this.annotations;
-        }
-
-        @Override
-        public List<AbstractRelationshipTemplate> getOutgoingRelations() {
-            return this.nodeTemplate.getOutgoingRelations();
-        }
-
-        @Override
-        public List<AbstractRelationshipTemplate> getIngoingRelations() {
-            return this.nodeTemplate.getIngoingRelations();
-        }
-
-        @Override
-        public List<AbstractCapability> getCapabilities() {
-            return this.nodeTemplate.getCapabilities();
-        }
-
-        @Override
-        public List<AbstractRequirement> getRequirements() {
-            return this.nodeTemplate.getRequirements();
-        }
-
-        @Override
-        public String getName() {
-            return this.nodeTemplate.getId();
-        }
-
-        @Override
-        public List<AbstractNodeTypeImplementation> getImplementations() {
-            return this.nodeTemplate.getImplementations();
-        }
-
-        @Override
-        public String getId() {
-            return this.nodeTemplate.getId();
-        }
-
-        @Override
-        public AbstractNodeType getType() {
-            return this.nodeTemplate.getType();
-        }
-
-        @Override
-        public AbstractProperties getProperties() {
-            return this.nodeTemplate.getProperties();
-        }
-
-        @Override
-        public Collection<AbstractDeploymentArtifact> getDeploymentArtifacts() {
-            return this.nodeTemplate.getDeploymentArtifacts();
-        }
-
-        @Override
-        public int getMinInstances() {
-            return this.nodeTemplate.getMinInstances();
-        }
-
-        @Override
-        public List<AbstractPolicy> getPolicies() {
-            return this.nodeTemplate.getPolicies();
-        }
-
-        @Override
-        public Map<QName, String> getOtherAttributes() {
-            return this.nodeTemplate.getOtherAttributes();
-        }
-    }
-
     // recursive selections
     public List<AbstractNodeTemplate> nodeTemplatesRecursiveSelection;
     public List<AbstractRelationshipTemplate> relationshipTemplatesRecursiveSelection;
-
     // border crossing relations
     public Set<AbstractRelationshipTemplate> borderCrossingRelations;
 
@@ -250,5 +167,86 @@ public class ScalingPlanDefinition {
         }
 
         return null;
+    }
+
+    public static class AnnotatedAbstractNodeTemplate extends AbstractNodeTemplate {
+
+        private final Collection<String> annotations;
+        private final AbstractNodeTemplate nodeTemplate;
+
+        public AnnotatedAbstractNodeTemplate(final AbstractNodeTemplate nodeTemplate,
+                                             final Collection<String> annotations) {
+            this.annotations = annotations;
+            this.nodeTemplate = nodeTemplate;
+        }
+
+        public Collection<String> getAnnotations() {
+            return this.annotations;
+        }
+
+        @Override
+        public List<AbstractRelationshipTemplate> getOutgoingRelations() {
+            return this.nodeTemplate.getOutgoingRelations();
+        }
+
+        @Override
+        public List<AbstractRelationshipTemplate> getIngoingRelations() {
+            return this.nodeTemplate.getIngoingRelations();
+        }
+
+        @Override
+        public List<AbstractCapability> getCapabilities() {
+            return this.nodeTemplate.getCapabilities();
+        }
+
+        @Override
+        public List<AbstractRequirement> getRequirements() {
+            return this.nodeTemplate.getRequirements();
+        }
+
+        @Override
+        public String getName() {
+            return this.nodeTemplate.getId();
+        }
+
+        @Override
+        public List<AbstractNodeTypeImplementation> getImplementations() {
+            return this.nodeTemplate.getImplementations();
+        }
+
+        @Override
+        public String getId() {
+            return this.nodeTemplate.getId();
+        }
+
+        @Override
+        public AbstractNodeType getType() {
+            return this.nodeTemplate.getType();
+        }
+
+        @Override
+        public AbstractProperties getProperties() {
+            return this.nodeTemplate.getProperties();
+        }
+
+        @Override
+        public Collection<AbstractDeploymentArtifact> getDeploymentArtifacts() {
+            return this.nodeTemplate.getDeploymentArtifacts();
+        }
+
+        @Override
+        public int getMinInstances() {
+            return this.nodeTemplate.getMinInstances();
+        }
+
+        @Override
+        public List<AbstractPolicy> getPolicies() {
+            return this.nodeTemplate.getPolicies();
+        }
+
+        @Override
+        public Map<QName, String> getOtherAttributes() {
+            return this.nodeTemplate.getOtherAttributes();
+        }
     }
 }

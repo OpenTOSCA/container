@@ -31,11 +31,10 @@ import org.xml.sax.SAXException;
 public class BPELOpenMTCDockerContainerTypePluginHandler implements
     OpenMTCDockerContainerTypePluginHandler<BPELPlanContext> {
     private static final Logger LOG = LoggerFactory.getLogger(BPELOpenMTCDockerContainerTypePluginHandler.class);
-    private BPELProcessFragments planBuilderFragments;
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
-
     private final QName pyhsicallyConnectedRelationshipType =
         new QName("http://opentosca.org/relationshiptypes", "physicallyConnected");
+    private BPELProcessFragments planBuilderFragments;
 
     public BPELOpenMTCDockerContainerTypePluginHandler() {
         try {

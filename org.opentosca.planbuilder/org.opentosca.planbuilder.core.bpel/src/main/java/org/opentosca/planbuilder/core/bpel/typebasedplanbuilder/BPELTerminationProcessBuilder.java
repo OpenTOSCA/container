@@ -35,23 +35,19 @@ import org.slf4j.LoggerFactory;
 public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilder {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELTerminationProcessBuilder.class);
-
-    // handler for abstract buildplan operations
-    private BPELPlanHandler planHandler;
-
     // class for initializing properties inside the build plan
     private final PropertyVariableHandler propertyInitializer;
+    // class for finalizing build plans (e.g when some template didn't receive
+    // some provisioning logic and they must be filled with empty elements)
+    private final BPELFinalizer finalizer;
+    private final BPELPluginHandler bpelPluginHandler;
+    private final BPELScopeBuilder scopeBuilder;
+    // handler for abstract buildplan operations
+    private BPELPlanHandler planHandler;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
     private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
     // adds nodeInstanceIDs to each templatePlan
     private NodeRelationInstanceVariablesHandler instanceVarsHandler;
-    // class for finalizing build plans (e.g when some template didn't receive
-    // some provisioning logic and they must be filled with empty elements)
-    private final BPELFinalizer finalizer;
-
-    private final BPELPluginHandler bpelPluginHandler;
-    private final BPELScopeBuilder scopeBuilder;
-
     private CorrelationIDInitializer correlationHandler;
 
     public BPELTerminationProcessBuilder(PluginRegistry pluginRegistry) {

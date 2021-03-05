@@ -7,7 +7,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -207,23 +207,19 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
         // fallback to serviceTemplate NamespaceURI
         String namespace = plans.getTargetNamespace();
 
-        if(namespace == null) {
+        if (namespace == null) {
             namespace = serviceTemplate.getTargetNamespace();
         }
 
         if (!planEngine.deployPlan(plan, namespace, csar)) {
-                undeployedPlans.add(plan);
+            undeployedPlans.add(plan);
         }
 
-        if (!undeployedPlans.isEmpty()) {
-            return false;
-        }
-        return true;
+        return undeployedPlans.isEmpty();
     }
 
     @Override
     public boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate) {
-
 
         deploymentTracker.storeDeploymentState(csar, PLAN_DEPLOYMENT_ACTIVE);
         final List<TPlan> undeployedPlans = new ArrayList<>();
@@ -247,7 +243,7 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
         }
 
         for (final TPlan plan : plans.getPlan()) {
-            if (!this.invokePlanDeployment(csar, serviceTemplate,plans, plan)) {
+            if (!this.invokePlanDeployment(csar, serviceTemplate, plans, plan)) {
                 undeployedPlans.add(plan);
             }
         }

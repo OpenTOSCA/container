@@ -137,10 +137,7 @@ class OperationNodeTypeImplCandidate {
             return false;
         }
 
-        if (this.ias.size() != this.plugins.size() && this.ops.size() != this.plugins.size()) {
-            return false;
-        }
-        return true;
+        return this.ias.size() == this.plugins.size() || this.ops.size() == this.plugins.size();
     }
 
     /**

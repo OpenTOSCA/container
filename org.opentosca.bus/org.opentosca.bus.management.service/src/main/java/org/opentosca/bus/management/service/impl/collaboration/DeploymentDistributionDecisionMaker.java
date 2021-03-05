@@ -70,6 +70,49 @@ public class DeploymentDistributionDecisionMaker {
     }
 
     /**
+     * Filter out the 'State' property from the given properties Map if it is defined and return the corresponding entry
+     * Set.
+     *
+     * @param properties the properties as Map
+     * @return the properties as entry Set without 'State' property
+     */
+    private static Set<Entry<String, String>> getEntrySetWithoutState(final Map<String, String> properties) {
+        return properties.entrySet().stream().filter((entry) -> !entry.getKey().equals("State"))
+            .collect(Collectors.toSet());
+    }
+
+    /**
+     * Check whether the build plan that corresponds to the given NodeTemplateInstance is finished.
+     *
+     * @param nodeTemplateInstance the NodeTemplateInstance for which the build plan is checked
+     * @return <tt>true</tt> if the build plan is found and terminated, <tt>false</tt> otherwise
+     */
+    private static boolean isBuildPlanFinished(final NodeTemplateInstance nodeTemplateInstance) {
+        if (Objects.isNull(nodeTemplateInstance)) {
+            return false;
+        }
+
+        final PlanInstance buildPlan =
+            nodeTemplateInstance.getServiceTemplateInstance().getPlanInstances().stream()
+                .filter((plan) -> plan.getType().equals(PlanType.BUILD)).findFirst().orElse(null);
+
+        return Objects.nonNull(buildPlan) && buildPlan.getState().equals(PlanInstanceState.FINISHED);
+    }
+
+    /**
+     * Check whether a given Relationship Type is used to connect parts of a topology stack (infrastructure type) or
+     * different topology stacks.
+     *
+     * @param relationType The Relationship Type to check
+     * @return <tt>true</tt> if the Relationship Type is hostedOn, deployedOn or dependsOn and
+     * <tt>false</tt> otherwise
+     */
+    private static boolean isInfrastructureRelationshipType(final QName relationType) {
+        return relationType.equals(Types.hostedOnRelationType) || relationType.equals(Types.deployedOnRelationType)
+            || relationType.equals(Types.dependsOnRelationType);
+    }
+
+    /**
      * Get the deployment location for IAs which are attached to the NodeTemplateInstance. If the collaboration mode is
      * turned on, this method performs an instance data matching to determine the deployment location. Therefore, the
      * infrastructure NodeTemplateInstance is searched in the topology. Afterwards, its type and properties are matched
@@ -306,48 +349,5 @@ public class DeploymentDistributionDecisionMaker {
             LOG.debug("No response received within the timeout interval.");
             return null;
         }
-    }
-
-    /**
-     * Filter out the 'State' property from the given properties Map if it is defined and return the corresponding entry
-     * Set.
-     *
-     * @param properties the properties as Map
-     * @return the properties as entry Set without 'State' property
-     */
-    private static Set<Entry<String, String>> getEntrySetWithoutState(final Map<String, String> properties) {
-        return properties.entrySet().stream().filter((entry) -> !entry.getKey().equals("State"))
-            .collect(Collectors.toSet());
-    }
-
-    /**
-     * Check whether the build plan that corresponds to the given NodeTemplateInstance is finished.
-     *
-     * @param nodeTemplateInstance the NodeTemplateInstance for which the build plan is checked
-     * @return <tt>true</tt> if the build plan is found and terminated, <tt>false</tt> otherwise
-     */
-    private static boolean isBuildPlanFinished(final NodeTemplateInstance nodeTemplateInstance) {
-        if (Objects.isNull(nodeTemplateInstance)) {
-            return false;
-        }
-
-        final PlanInstance buildPlan =
-            nodeTemplateInstance.getServiceTemplateInstance().getPlanInstances().stream()
-                .filter((plan) -> plan.getType().equals(PlanType.BUILD)).findFirst().orElse(null);
-
-        return Objects.nonNull(buildPlan) && buildPlan.getState().equals(PlanInstanceState.FINISHED);
-    }
-
-    /**
-     * Check whether a given Relationship Type is used to connect parts of a topology stack (infrastructure type) or
-     * different topology stacks.
-     *
-     * @param relationType The Relationship Type to check
-     * @return <tt>true</tt> if the Relationship Type is hostedOn, deployedOn or dependsOn and
-     * <tt>false</tt> otherwise
-     */
-    private static boolean isInfrastructureRelationshipType(final QName relationType) {
-        return relationType.equals(Types.hostedOnRelationType) || relationType.equals(Types.deployedOnRelationType)
-            || relationType.equals(Types.dependsOnRelationType);
     }
 }

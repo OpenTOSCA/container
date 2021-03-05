@@ -29,16 +29,12 @@ public class InvocationRoute extends RouteBuilder {
 
     public static final String INVOKE_ENDPOINT = "/ManagementBus/v1/invoker";
     public static final String ID = "id";
-
-    private static final String HOST = "http://localhost";
-    private static final String PORT = "8086";
-
-    static final String BASE_ENDPOINT = HOST + ":" + PORT;
-
     public static final String ID_PLACEHODLER = "{" + ID + "}";
     public static final String POLL_ENDPOINT = INVOKE_ENDPOINT + "/activeRequests/" + ID_PLACEHODLER;
     public static final String GET_RESULT_ENDPOINT = POLL_ENDPOINT + "/response";
-
+    private static final String HOST = "http://localhost";
+    private static final String PORT = "8086";
+    static final String BASE_ENDPOINT = HOST + ":" + PORT;
     private static final String MANAGEMENT_BUS_REQUEST_ID_HEADER = "ManagementBusRequestID";
 
     // Checks if invoking a IA

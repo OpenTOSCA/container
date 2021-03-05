@@ -149,8 +149,17 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
     public AbstractProperties getProperties() {
         return new AbstractProperties() {
 
-            @Override
             public Element getDOMElement() {
+                return null;
+            }
+
+            @Override
+            public String getNamespace() {
+                return null;
+            }
+
+            @Override
+            public String getElementName() {
                 return null;
             }
 

@@ -30,6 +30,14 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
     private ObjectMapper objectMapper;
 
+    private static ObjectMapper createDefaultMapper() {
+        final ObjectMapper om = new HALMapper();
+        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        LOG.info("Created Jackson ObjectMapper");
+        return om;
+    }
+
     @Override
     public ObjectMapper getContext(final Class<?> type) {
         if (this.objectMapper == null) {
@@ -37,13 +45,5 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
         }
         LOG.trace("Retrieving Jackson Object Mapper");
         return this.objectMapper;
-    }
-
-    private static ObjectMapper createDefaultMapper() {
-        final ObjectMapper om = new HALMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-        LOG.info("Created Jackson ObjectMapper");
-        return om;
     }
 }

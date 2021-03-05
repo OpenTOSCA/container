@@ -7,7 +7,7 @@ import org.opentosca.bus.management.service.IManagementBusService;
 
 public class RouteConfiguration extends RouteBuilder {
 
-    private IManagementBusService managementBusService;
+    private final IManagementBusService managementBusService;
 
     @Inject
     public RouteConfiguration(IManagementBusService managementBusService) {

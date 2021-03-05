@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
@@ -12,8 +13,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * <p>
@@ -99,14 +98,11 @@ public class PropertyVariableHandler {
                                                final AbstractServiceTemplate serviceTemplate) {
         final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
         if (relationshipTemplate.getProperties() != null) {
-            final Element propertyElement = relationshipTemplate.getProperties().getDOMElement();
-            for (int i = 0; i < propertyElement.getChildNodes().getLength(); i++) {
 
-                if (propertyElement.getChildNodes().item(i).getNodeType() == Node.TEXT_NODE) {
-                    continue;
-                }
+            Map<String, String> propMap = relationshipTemplate.getProperties().asMap();
 
-                final String propName = propertyElement.getChildNodes().item(i).getLocalName();
+            for (String propName : propMap.keySet()) {
+
                 String propVarName = this.createPropertyVariableName(serviceTemplate, relationshipTemplate, propName);
 
                 while (!this.planHandler.addStringVariable(propVarName, templatePlan.getBuildPlan())) {
@@ -114,21 +110,11 @@ public class PropertyVariableHandler {
                 }
 
                 map.addPropertyMapping(serviceTemplate, relationshipTemplate, propName, propVarName);
-                // String value =
-                // propertyElement.getChildNodes().item(i).getFirstChild().getNodeValue();
-                String value = "";
 
-                for (int j = 0; j < propertyElement.getChildNodes().item(i).getChildNodes().getLength(); j++) {
-                    if (propertyElement.getChildNodes().item(i).getChildNodes().item(j)
-                        .getNodeType() == Node.TEXT_NODE) {
-                        value += propertyElement.getChildNodes().item(i).getChildNodes().item(j).getNodeValue();
-                    }
-                }
+                String value = propMap.get(propName);
 
                 PropertyVariableHandler.LOG.debug("Setting property variable " + propVarName);
                 PropertyVariableHandler.LOG.debug("with value: " + value);
-
-                // tempID_PropLocalName as property variable name
 
                 if (!value.trim().isEmpty() && !value.trim().equals("")) {
                     // init the variable with the node value
@@ -165,14 +151,8 @@ public class PropertyVariableHandler {
                                        final AbstractServiceTemplate serviceTemplate) {
         final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         if (nodeTemplate.getProperties() != null) {
-            final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
-            for (int i = 0; i < propertyElement.getChildNodes().getLength(); i++) {
-
-                if (propertyElement.getChildNodes().item(i).getNodeType() == Node.TEXT_NODE) {
-                    continue;
-                }
-
-                final String propName = propertyElement.getChildNodes().item(i).getLocalName();
+            Map<String, String> propMap = nodeTemplate.getProperties().asMap();
+            for (String propName : propMap.keySet()) {
                 String propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);
 
                 while (!this.planHandler.addStringVariable(propVarName, templatePlan.getBuildPlan())) {
@@ -181,19 +161,11 @@ public class PropertyVariableHandler {
 
                 map.addPropertyMapping(serviceTemplate, nodeTemplate, propName, propVarName);
 
-                String value = "";
-
-                for (int j = 0; j < propertyElement.getChildNodes().item(i).getChildNodes().getLength(); j++) {
-                    if (propertyElement.getChildNodes().item(i).getChildNodes().item(j)
-                        .getNodeType() == Node.TEXT_NODE) {
-                        value += propertyElement.getChildNodes().item(i).getChildNodes().item(j).getNodeValue();
-                    }
-                }
+                String value = propMap.get(propName);
 
                 PropertyVariableHandler.LOG.debug("Setting property variable " + propVarName);
                 PropertyVariableHandler.LOG.debug("with value: " + value);
 
-                // init the variable with the node value
                 this.planHandler.assignInitValueToVariable(propVarName, value, templatePlan.getBuildPlan());
             }
         }

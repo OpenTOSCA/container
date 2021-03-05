@@ -56,6 +56,47 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         }
     }
 
+    public static AbstractDeploymentArtifact fetchFirstDockerContainerDA(final AbstractNodeTemplate nodeTemplate) {
+        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
+            if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
+                || da.getArtifactType()
+                .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
+                return da;
+            }
+        }
+
+        for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
+            for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
+                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
+                    || da.getArtifactType()
+                    .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
+                    return da;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static List<AbstractDeploymentArtifact> fetchVolumeDeploymentArtifacts(final AbstractNodeTemplate nodeTemplate) {
+        final List<AbstractDeploymentArtifact> das = new ArrayList<>();
+
+        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
+            if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
+                das.add(da);
+            }
+        }
+
+        for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
+            for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
+                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
+                    das.add(da);
+                }
+            }
+        }
+
+        return das;
+    }
+
     private boolean handleTerminate(final BPELPlanContext context, Element elementToAppendTo) {
         final List<AbstractNodeTemplate> nodes = new ArrayList<>();
         ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
@@ -540,46 +581,5 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         check &= this.handleTerminate(context, context.getProvisioningCompensationPhaseElement());
 
         return check;
-    }
-
-    public static AbstractDeploymentArtifact fetchFirstDockerContainerDA(final AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
-            if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
-                || da.getArtifactType()
-                .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
-                return da;
-            }
-        }
-
-        for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
-            for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
-                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
-                    || da.getArtifactType()
-                    .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
-                    return da;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static List<AbstractDeploymentArtifact> fetchVolumeDeploymentArtifacts(final AbstractNodeTemplate nodeTemplate) {
-        final List<AbstractDeploymentArtifact> das = new ArrayList<>();
-
-        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
-            if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
-                das.add(da);
-            }
-        }
-
-        for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
-            for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
-                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
-                    das.add(da);
-                }
-            }
-        }
-
-        return das;
     }
 }

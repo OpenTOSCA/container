@@ -69,21 +69,17 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
     // serviceTemplate
     private final ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
     // accepted operations for provisioning
     private final List<String> opNames = new ArrayList<>();
-
-    private BPELPlanHandler planHandler;
     private final BPELScopeBuilder scopeBuilder;
-    private NodeRelationInstanceVariablesHandler instanceInit;
-
-    private CorrelationIDInitializer correlationHandler;
-
     private final EmptyPropertyToInputHandler emptyPropInit;
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
+    private BPELPlanHandler planHandler;
+    private NodeRelationInstanceVariablesHandler instanceInit;
+    private CorrelationIDInitializer correlationHandler;
 
     /**
      * <p>
@@ -128,7 +124,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
 
         final AbstractPlan buildPlan =
-            this.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+            generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 
         LOG.debug("Generated the following abstract prov plan: ");
         LOG.debug(buildPlan.toString());

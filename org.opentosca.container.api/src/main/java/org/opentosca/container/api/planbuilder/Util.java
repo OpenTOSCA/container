@@ -26,22 +26,6 @@ import org.opentosca.planbuilder.model.plan.bpel.Deploy;
  */
 public class Util {
 
-    public static class SelfServiceOptionWrapper {
-
-        public ApplicationOption option;
-        public File planInputMessageFile;
-
-        public SelfServiceOptionWrapper(final ApplicationOption option, final File planInputMessageFile) {
-            this.option = option;
-            this.planInputMessageFile = planInputMessageFile;
-        }
-
-        @Override
-        public String toString() {
-            return "SelfServiceOption Id: " + this.option.getId() + " Name: " + this.option.getName();
-        }
-    }
-
     public static SelfServiceOptionWrapper generateSelfServiceOption(final BPELPlan buildPlan) throws IOException {
         final String id = String.valueOf(System.currentTimeMillis());
         final ApplicationOption option = new ApplicationOption();
@@ -128,5 +112,21 @@ public class Util {
 
     private static String createSuffixPartOfSoapMessage(final String messageBodyRootLocalName) {
         return "</org:" + messageBodyRootLocalName + "></soapenv:Body></soapenv:Envelope>";
+    }
+
+    public static class SelfServiceOptionWrapper {
+
+        public ApplicationOption option;
+        public File planInputMessageFile;
+
+        public SelfServiceOptionWrapper(final ApplicationOption option, final File planInputMessageFile) {
+            this.option = option;
+            this.planInputMessageFile = planInputMessageFile;
+        }
+
+        @Override
+        public String toString() {
+            return "SelfServiceOption Id: " + this.option.getId() + " Name: " + this.option.getName();
+        }
     }
 }

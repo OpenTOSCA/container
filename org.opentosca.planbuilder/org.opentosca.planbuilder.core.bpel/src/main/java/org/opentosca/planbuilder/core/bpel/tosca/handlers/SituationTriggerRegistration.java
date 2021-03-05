@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.core.bpel.tosca.handlers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,157 +27,10 @@ public class SituationTriggerRegistration {
 
     private static final String xpath_query_situationtriggers =
         "//*[local-name()='SituationTrigger' and namespace-uri()='http://opentosca.org/situations']";
-
-    public class Situation {
-        private final String situationTemplateId;
-        private final String thingId;
-        private final boolean fromInput;
-
-        public Situation(final String situationTemplateId, final String thingId, final boolean fromInput) {
-            this.situationTemplateId = situationTemplateId;
-            this.thingId = thingId;
-            this.fromInput = fromInput;
-        }
-    }
-
-    public class Triplet<A, B, C> {
-        private final A first;
-        private final B second;
-        private final C third;
-
-        public Triplet(final A first, final B second, final C third) {
-            this.first = first;
-            this.second = second;
-            this.third = third;
-        }
-
-        public A getFirst() {
-            return this.first;
-        }
-
-        public B getSecond() {
-            return this.second;
-        }
-
-        public C getThird() {
-            return this.third;
-        }
-    }
-
-    public class SituationTrigger {
-
-        public static final String xpath_query_situations =
-            "//*[local-name()='Situation' and namespace-uri()='http://opentosca.org/situations']";
-
-        public static final String xpath_query_situations_situationTemplateId =
-            "//*[local-name()='Situation' and namespace-uri()='http://opentosca.org/situations']/*[local-name()='SituationTemplateId']";
-
-        public static final String xpath_query_situations_thingId =
-            "//*[local-name()='Situation' and namespace-uri()='http://opentosca.org/situations']/*[local-name()='ThingId']";
-
-        public static final String xpath_query_situationtrigger_onActivation =
-            "//*[local-name()='onActivation' and namespace-uri()='http://opentosca.org/situations']";
-
-        public static final String xpath_query_situationtrigger_isSingleInstance =
-            "//*[local-name()='isSingleInstance' and namespace-uri()='http://opentosca.org/situations']";
-
-        public static final String xpath_query_situationtrigger_serviceInstanceId =
-            "//*[local-name()='ServiceInstanceId' and namespace-uri()='http://opentosca.org/situations']";
-
-        public static final String xpath_query_situationtrigger_nodeInstanceId =
-            "//*[local-name()='NodeInstanceId' and namespace-uri()='http://opentosca.org/situations']";
-
-        public static final String xpath_query_situationtrigger_interfaceName =
-            "//*[local-name()='InterfaceName' and namespace-uri()='http://opentosca.org/situations']";
-
-        public static final String xpath_query_situationtrigger_operationName =
-            "//*[local-name()='OperationName' and namespace-uri()='http://opentosca.org/situations']";
-
-        public static final String xpath_query_situationtrigger_inputParameters =
-            "//*[local-name()='InputParameter' and namespace-uri()='http://opentosca.org/situations']";
-
-        public static final String xpath_query_situationtrigger_outputParameters =
-            "//*[local-name()='OutputParameter' and namespace-uri()='http://opentosca.org/situations']";
-
-        private List<Situation> situations;
-        private boolean onActivation;
-        private boolean isSingleInstance;
-        private String serviceInstanceId;
-        private String nodeInstanceId;
-        private String interfaceName;
-        private String operationName;
-        private List<Triplet<String, String, String>> inputParameters;
-
-        public List<Situation> getSituations() {
-            return this.situations;
-        }
-
-        public void setSituations(final List<Situation> situations) {
-            this.situations = situations;
-        }
-
-        public boolean isOnActivation() {
-            return this.onActivation;
-        }
-
-        public void setOnActivation(final boolean onActivation) {
-            this.onActivation = onActivation;
-        }
-
-        public boolean isSingelInstance() {
-            return this.isSingleInstance;
-        }
-
-        public void setSingelInstance(final boolean isSingelInstance) {
-            this.isSingleInstance = isSingelInstance;
-        }
-
-        public String getServiceInstanceId() {
-            return this.serviceInstanceId;
-        }
-
-        public void setServiceInstanceId(final String serviceInstanceId) {
-            this.serviceInstanceId = serviceInstanceId;
-        }
-
-        public String getNodeInstanceId() {
-            return this.nodeInstanceId;
-        }
-
-        public void setNodeInstanceId(final String nodeInstanceId) {
-            this.nodeInstanceId = nodeInstanceId;
-        }
-
-        public String getInterfaceName() {
-            return this.interfaceName;
-        }
-
-        public void setInterfaceName(final String interfaceName) {
-            this.interfaceName = interfaceName;
-        }
-
-        public String getOperationName() {
-            return this.operationName;
-        }
-
-        public void setOperationName(final String operationName) {
-            this.operationName = operationName;
-        }
-
-        public List<Triplet<String, String, String>> getInputParameters() {
-            return this.inputParameters;
-        }
-
-        public void setInputParameters(final List<Triplet<String, String, String>> inputParameters) {
-            this.inputParameters = inputParameters;
-        }
-    }
-
     private final XPath xpath = XPathFactory.newInstance().newXPath();
-
     private final BPELProcessFragments fragments;
     private final BPELPlanHandler handler;
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
+    private final SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
 
     public SituationTriggerRegistration() throws ParserConfigurationException {
         this.fragments = new BPELProcessFragments();
@@ -431,11 +285,7 @@ public class SituationTriggerRegistration {
             e.printStackTrace();
         }
 
-        if (triggers.size() == 0) {
-            return false;
-        }
-
-        return true;
+        return triggers.size() != 0;
     }
 
     private NodeList queryNodeSet(final Node rootElement, final String xpathQuery) throws XPathExpressionException {
@@ -447,13 +297,17 @@ public class SituationTriggerRegistration {
 
     private List<SituationTrigger> parseSituationTriggers(final AbstractServiceTemplate serviceTemplate) throws XPathExpressionException {
         final List<SituationTrigger> situationTriggers = new ArrayList<>();
-        final Element properties = getPropertiesSafely(serviceTemplate);
+        final Map<String, String> properties = getPropertiesSafely(serviceTemplate);
 
         if (properties == null) {
             return situationTriggers;
         }
 
-        final NodeList list = queryNodeSet(properties, xpath_query_situationtriggers);
+        return new ArrayList<>();
+
+        // Thx to the fact that winery is unable to work with namespaces and complex types in properties this feature is now dead, for a while. thx winery
+        // TODO: FIXME
+        /*final NodeList list = queryNodeSet(properties, xpath_query_situationtriggers);
 
         for (int i = 0; i < list.getLength(); i++) {
             if (list.item(i).getNodeType() == Node.ELEMENT_NODE) {
@@ -462,16 +316,15 @@ public class SituationTriggerRegistration {
             }
         }
 
-        return situationTriggers;
+        return situationTriggers;*/
     }
 
-    private Element getPropertiesSafely(final AbstractServiceTemplate serviceTemplate) {
+    private Map<String, String> getPropertiesSafely(final AbstractServiceTemplate serviceTemplate) {
         if (serviceTemplate.getBoundaryDefinitions() != null) {
             if (serviceTemplate.getBoundaryDefinitions().getProperties() != null) {
                 if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties() != null) {
-                    if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties()
-                        .getDOMElement() != null) {
-                        return serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().getDOMElement();
+                    if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties() != null && !serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().asMap().isEmpty()) {
+                        return serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().asMap();
                     }
                 }
             }
@@ -576,5 +429,150 @@ public class SituationTriggerRegistration {
 
     private String getNodeContent(final Node node) {
         return node.getTextContent();
+    }
+
+    public class Situation {
+        private final String situationTemplateId;
+        private final String thingId;
+        private final boolean fromInput;
+
+        public Situation(final String situationTemplateId, final String thingId, final boolean fromInput) {
+            this.situationTemplateId = situationTemplateId;
+            this.thingId = thingId;
+            this.fromInput = fromInput;
+        }
+    }
+
+    public class Triplet<A, B, C> {
+        private final A first;
+        private final B second;
+        private final C third;
+
+        public Triplet(final A first, final B second, final C third) {
+            this.first = first;
+            this.second = second;
+            this.third = third;
+        }
+
+        public A getFirst() {
+            return this.first;
+        }
+
+        public B getSecond() {
+            return this.second;
+        }
+
+        public C getThird() {
+            return this.third;
+        }
+    }
+
+    public class SituationTrigger {
+
+        public static final String xpath_query_situations =
+            "//*[local-name()='Situation' and namespace-uri()='http://opentosca.org/situations']";
+
+        public static final String xpath_query_situations_situationTemplateId =
+            "//*[local-name()='Situation' and namespace-uri()='http://opentosca.org/situations']/*[local-name()='SituationTemplateId']";
+
+        public static final String xpath_query_situations_thingId =
+            "//*[local-name()='Situation' and namespace-uri()='http://opentosca.org/situations']/*[local-name()='ThingId']";
+
+        public static final String xpath_query_situationtrigger_onActivation =
+            "//*[local-name()='onActivation' and namespace-uri()='http://opentosca.org/situations']";
+
+        public static final String xpath_query_situationtrigger_isSingleInstance =
+            "//*[local-name()='isSingleInstance' and namespace-uri()='http://opentosca.org/situations']";
+
+        public static final String xpath_query_situationtrigger_serviceInstanceId =
+            "//*[local-name()='ServiceInstanceId' and namespace-uri()='http://opentosca.org/situations']";
+
+        public static final String xpath_query_situationtrigger_nodeInstanceId =
+            "//*[local-name()='NodeInstanceId' and namespace-uri()='http://opentosca.org/situations']";
+
+        public static final String xpath_query_situationtrigger_interfaceName =
+            "//*[local-name()='InterfaceName' and namespace-uri()='http://opentosca.org/situations']";
+
+        public static final String xpath_query_situationtrigger_operationName =
+            "//*[local-name()='OperationName' and namespace-uri()='http://opentosca.org/situations']";
+
+        public static final String xpath_query_situationtrigger_inputParameters =
+            "//*[local-name()='InputParameter' and namespace-uri()='http://opentosca.org/situations']";
+
+        public static final String xpath_query_situationtrigger_outputParameters =
+            "//*[local-name()='OutputParameter' and namespace-uri()='http://opentosca.org/situations']";
+
+        private List<Situation> situations;
+        private boolean onActivation;
+        private boolean isSingleInstance;
+        private String serviceInstanceId;
+        private String nodeInstanceId;
+        private String interfaceName;
+        private String operationName;
+        private List<Triplet<String, String, String>> inputParameters;
+
+        public List<Situation> getSituations() {
+            return this.situations;
+        }
+
+        public void setSituations(final List<Situation> situations) {
+            this.situations = situations;
+        }
+
+        public boolean isOnActivation() {
+            return this.onActivation;
+        }
+
+        public void setOnActivation(final boolean onActivation) {
+            this.onActivation = onActivation;
+        }
+
+        public boolean isSingelInstance() {
+            return this.isSingleInstance;
+        }
+
+        public void setSingelInstance(final boolean isSingelInstance) {
+            this.isSingleInstance = isSingelInstance;
+        }
+
+        public String getServiceInstanceId() {
+            return this.serviceInstanceId;
+        }
+
+        public void setServiceInstanceId(final String serviceInstanceId) {
+            this.serviceInstanceId = serviceInstanceId;
+        }
+
+        public String getNodeInstanceId() {
+            return this.nodeInstanceId;
+        }
+
+        public void setNodeInstanceId(final String nodeInstanceId) {
+            this.nodeInstanceId = nodeInstanceId;
+        }
+
+        public String getInterfaceName() {
+            return this.interfaceName;
+        }
+
+        public void setInterfaceName(final String interfaceName) {
+            this.interfaceName = interfaceName;
+        }
+
+        public String getOperationName() {
+            return this.operationName;
+        }
+
+        public void setOperationName(final String operationName) {
+            this.operationName = operationName;
+        }
+
+        public List<Triplet<String, String, String>> getInputParameters() {
+            return this.inputParameters;
+        }
+
+        public void setInputParameters(final List<Triplet<String, String, String>> inputParameters) {
+            this.inputParameters = inputParameters;
+        }
     }
 }

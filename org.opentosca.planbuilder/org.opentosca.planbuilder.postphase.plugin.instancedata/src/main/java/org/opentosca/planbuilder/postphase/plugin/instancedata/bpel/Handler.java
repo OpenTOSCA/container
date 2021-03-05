@@ -52,12 +52,10 @@ import org.xml.sax.SAXException;
 public class Handler {
 
     private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
-
+    private final XPathFactory xPathfactory = XPathFactory.newInstance();
     private Fragments fragments;
     private BPELProcessFragments bpelFrags;
     private BPELInvokerPlugin invoker;
-
-    private final XPathFactory xPathfactory = XPathFactory.newInstance();
 
     public Handler() {
 
@@ -285,7 +283,7 @@ public class Handler {
             // Request
             // and send
             // first build a mapping from property variable names to dom element
-            final Map<String, Node> propertyVarNameToDOMMapping =
+            final Map<String, QName> propertyVarNameToDOMMapping =
                 buildMappingsFromVarNameToDomElement(context, nodeTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
@@ -455,7 +453,7 @@ public class Handler {
             // Request
             // and send
             // first build a mapping from property variable names to dom element
-            final Map<String, Node> propertyVarNameToDOMMapping =
+            final Map<String, QName> propertyVarNameToDOMMapping =
                 buildMappingsFromVarNameToDomElement(context, relationshipTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
@@ -1049,7 +1047,7 @@ public class Handler {
         // Request
         // and send
         // first build a mapping from property variable names to dom element
-        final Map<String, Node> propertyVarNameToDOMMapping =
+        final Map<String, QName> propertyVarNameToDOMMapping =
             buildMappingsFromVarNameToDomElement(sourceNodeContext, nodeTemplate);
         try {
             // then generate an assign to have code that writes the runtime
@@ -1107,7 +1105,7 @@ public class Handler {
         // Request
         // and send
         // first build a mapping from property variable names to dom element
-        final Map<String, Node> propertyVarNameToDOMMapping =
+        final Map<String, QName> propertyVarNameToDOMMapping =
             buildMappingsFromVarNameToDomElement(context, nodeTemplate);
         try {
             // then generate an assign to have code that writes the runtime
@@ -1269,7 +1267,7 @@ public class Handler {
             // Request
             // and send
             // first build a mapping from property variable names to dom element
-            final Map<String, Node> propertyVarNameToDOMMapping =
+            final Map<String, QName> propertyVarNameToDOMMapping =
                 buildMappingsFromVarNameToDomElement(targetContext, sourceRelationshipTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
@@ -1551,7 +1549,7 @@ public class Handler {
             // Request
             // and send
             // first build a mapping from property variable names to dom element
-            final Map<String, Node> propertyVarNameToDOMMapping =
+            final Map<String, QName> propertyVarNameToDOMMapping =
                 buildMappingsFromVarNameToDomElement(context, relationshipTemplate);
             try {
                 // then generate an assign to have code that writes the runtime
@@ -1685,49 +1683,29 @@ public class Handler {
      * @return a Map<String,Node> of BpelVariableName to DOM Node. Maybe null if the mapping is not complete, e.g. some
      * bpel variable was not found or the properties weren't parsed right.
      */
-    private Map<String, Node> buildMappingsFromVarNameToDomElement(final PlanContext context,
-                                                                   AbstractNodeTemplate nodeTemplate) {
-        final Element propRootElement = nodeTemplate.getProperties().getDOMElement();
+    private Map<String, QName> buildMappingsFromVarNameToDomElement(final PlanContext context,
+                                                                    AbstractNodeTemplate nodeTemplate) {
+        final Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
+        final Map<String, QName> mapping = new HashMap<>();
 
-        final Map<String, Node> mapping = new HashMap<>();
-
-        // get list of child elements
-        final NodeList childList = propRootElement.getChildNodes();
-
-        for (int i = 0; i < childList.getLength(); i++) {
-            final Node child = childList.item(i);
-            if (child.getNodeType() == Node.ELEMENT_NODE) {
-                final String propertyName = child.getLocalName();
-                final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
-
-                if (propVarName != null) {
-                    if (child.getNamespaceURI() == null) {
-                        throw new RuntimeException("Property " + propertyName + " of NodeTemplate " + nodeTemplate.getId() + " has no namespace. Properties must have a valid namespace");
-                    }
-                    mapping.put(propVarName, child);
-                }
-            }
+        for (String propertyName : propertiesMap.keySet()) {
+            final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
+            mapping.put(propVarName, new QName(nodeTemplate.getProperties().getNamespace(), propertyName));
         }
+
         return mapping;
     }
 
-    private Map<String, Node> buildMappingsFromVarNameToDomElement(final PlanContext context,
-                                                                   AbstractRelationshipTemplate relationshipTemplate) {
-        final Element propRootElement = relationshipTemplate.getProperties().getDOMElement();
+    private Map<String, QName> buildMappingsFromVarNameToDomElement(final PlanContext context,
+                                                                    AbstractRelationshipTemplate relationshipTemplate) {
+        final Map<String, String> propertiesMap = relationshipTemplate.getProperties().asMap();
+        final Map<String, QName> mapping = new HashMap<>();
 
-        final Map<String, Node> mapping = new HashMap<>();
-
-        // get list of child elements
-        final NodeList childList = propRootElement.getChildNodes();
-
-        for (int i = 0; i < childList.getLength(); i++) {
-            final Node child = childList.item(i);
-            if (child.getNodeType() == Node.ELEMENT_NODE) {
-                final String propertyName = child.getLocalName();
-                final String propVarName = context.getVariableNameOfProperty(relationshipTemplate, propertyName);
-                mapping.put(propVarName, child);
-            }
+        for (String propertyName : propertiesMap.keySet()) {
+            final String propVarName = context.getVariableNameOfProperty(relationshipTemplate, propertyName);
+            mapping.put(propVarName, new QName(relationshipTemplate.getProperties().getNamespace(), propertyName));
         }
+
         return mapping;
     }
 
@@ -1746,17 +1724,7 @@ public class Handler {
             return false;
         }
 
-        if (properties.getDOMElement() == null) {
-            return false;
-        }
-
-        final Element propertiesRootElement = properties.getDOMElement();
-
-        if (!propertiesRootElement.hasChildNodes()) {
-            return false;
-        }
-
-        return true;
+        return !properties.asMap().isEmpty();
     }
 
     public boolean handlePasswordCheck(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {

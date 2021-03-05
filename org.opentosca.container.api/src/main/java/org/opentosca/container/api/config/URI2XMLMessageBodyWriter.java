@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -50,6 +50,6 @@ public class URI2XMLMessageBodyWriter implements MessageBodyWriter<Serializable>
                         final MultivaluedMap<String, Object> httpHeaders,
                         final OutputStream entityStream) throws IOException, WebApplicationException {
         final String body = "<url>" + t.toString() + "</url>";
-        entityStream.write(body.getBytes(Charset.forName("UTF-8")));
+        entityStream.write(body.getBytes(StandardCharsets.UTF_8));
     }
 }

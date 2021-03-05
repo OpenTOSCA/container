@@ -2,6 +2,7 @@ package org.opentosca.bus.management.service.impl.collaboration.processor;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -96,14 +97,14 @@ public class IncomingProcessor implements Processor {
                     }
                     break;
                 case "LISTSTRING":
-                    final String array[] = header.getValue().replace("[", "").replace("]", "").split(",");
+                    final String[] array = header.getValue().replace("[", "").replace("]", "").split(",");
                     message.setHeader(header.getKey(), Arrays.asList(array));
                     break;
                 case "DOCUMENT":
                     try {
                         final DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                         final Document document =
-                            db.parse(new ByteArrayInputStream(header.getValue().getBytes("UTF-8")));
+                            db.parse(new ByteArrayInputStream(header.getValue().getBytes(StandardCharsets.UTF_8)));
                         message.setHeader(header.getKey(), document);
                     } catch (final Exception e) {
                         LOG.warn("Unable to parse header to type Document. Ignoring it.");

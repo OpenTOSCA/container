@@ -18,7 +18,7 @@ public class Settings {
     //  (i) Full-text search to find usage instead of Java Reference Search.
     //  (ii) It is possible to references non-existing settings, which is not possible with static variables which are checked on compile time.
 
-    private static Properties settings = new Properties();
+    private static final Properties settings = new Properties();
 
     static {
         // Initialize settings with defaults we know

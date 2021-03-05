@@ -31,7 +31,6 @@ import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -214,10 +213,10 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         for (final AbstractNodeTypeImplementation abstractNodeTypeImpl : abstractNodeTypeImpls) {
             final Collection<AbstractImplementationArtifact> abstractIAs = abstractNodeTypeImpl.getImplementationArtifacts();
             for (final AbstractImplementationArtifact abstractIA : abstractIAs) {
-                final NodeList nodeList =
-                    abstractIA.getArtifactRef().getProperties().getDOMElement().getElementsByTagName("Playbook");
-                if (nodeList.getLength() > 0) {
-                    return nodeList.item(0).getTextContent();
+                final String value =
+                    abstractIA.getArtifactRef().getProperties().asMap().get("Playbook");
+                if (value != null && !value.isEmpty()) {
+                    return value;
                 }
             }
         }

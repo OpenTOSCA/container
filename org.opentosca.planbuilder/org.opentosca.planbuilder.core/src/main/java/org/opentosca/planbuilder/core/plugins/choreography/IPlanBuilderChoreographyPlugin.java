@@ -21,7 +21,7 @@ public interface IPlanBuilderChoreographyPlugin<T extends PlanContext> extends I
      * @param context the context for working with the process
      * @return true if the context is valid for this plugin to generate notifies
      */
-    public boolean canHandleSendNotify(T context);
+    boolean canHandleSendNotify(T context);
 
     /**
      * Returns true if generation of notifcation code was successful
@@ -29,7 +29,7 @@ public interface IPlanBuilderChoreographyPlugin<T extends PlanContext> extends I
      * @param context the context for working with the process
      * @return true if code generation was sucessfull
      */
-    public boolean handleSendNotify(T context);
+    boolean handleSendNotify(T context);
 
     /**
      * Returns true if the given context has enough information to generate fragments to receive notifications from
@@ -38,7 +38,7 @@ public interface IPlanBuilderChoreographyPlugin<T extends PlanContext> extends I
      * @param context the context for working with the process
      * @return true if the context is valid for this plugin to generate receives for notifacitons
      */
-    public boolean canHandleReceiveNotify(T context);
+    boolean canHandleReceiveNotify(T context);
 
     /**
      * Returns true if generation to receive notifcation code was successful
@@ -46,7 +46,7 @@ public interface IPlanBuilderChoreographyPlugin<T extends PlanContext> extends I
      * @param context the context for working with the process
      * @return true if code generation was sucessfull
      */
-    public boolean handleReceiveNotify(T context);
+    boolean handleReceiveNotify(T context);
 
     /**
      * Returns true if the given context has enough information to generate fragments to inform all partners of a
@@ -55,7 +55,7 @@ public interface IPlanBuilderChoreographyPlugin<T extends PlanContext> extends I
      * @param context the context for working with the process
      * @return true if the context is valid for this plugin to generate code
      */
-    public boolean canHandleNotifyPartners(T context);
+    boolean canHandleNotifyPartners(T context);
 
     /**
      * Returns true if code generation to inform all choregraphy partners was successful
@@ -63,5 +63,5 @@ public interface IPlanBuilderChoreographyPlugin<T extends PlanContext> extends I
      * @param context the context for working with the process
      * @return true if code generation was sucessfull
      */
-    public boolean handleNotifyPartners(T context);
+    boolean handleNotifyPartners(T context);
 }

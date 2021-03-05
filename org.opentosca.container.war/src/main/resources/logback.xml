@@ -11,6 +11,7 @@
   <logger name="org.opentosca" level="INFO" />
   <logger name="org.opentosca.container.core.plan" level="DEBUG" />
   <logger name="org.opentosca.bus.management" level="TRACE" />
+  <logger name="org.opentosca.planbuilder" level="DEBUG" />
 
   <!-- Reducing logging noise  -->
   <logger name="com.predic8" level="WARN" />

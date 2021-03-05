@@ -69,10 +69,6 @@ public abstract class AbstractNodeType {
 
         AbstractNodeType nodeType = (AbstractNodeType) o;
 
-        if (!nodeType.getId().equals(this.getId())) {
-            return false;
-        }
-
-        return true;
+        return nodeType.getId().equals(this.getId());
     }
 }

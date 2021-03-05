@@ -65,7 +65,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CsarController {
 
-    private static Logger logger = LoggerFactory.getLogger(CsarController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsarController.class);
 
     @Context
     private UriInfo uriInfo;
@@ -250,39 +250,6 @@ public class CsarController {
         }
 
         Csar storedCsar = storage.findById(csarId);
-        try {
-            if (!this.csarService.generatePlans(storedCsar)) {
-                logger.info("Planning the CSAR failed. Deleting the failed import");
-                this.storage.deleteCSAR(csarId);
-                return Response.serverError().build();
-            }
-        } catch (Exception e) {
-            logger.warn("Planning the CSAR [{}] failed with an exception", csarId.csarName(), e);
-            try {
-                this.storage.deleteCSAR(csarId);
-            } catch (Exception log) {
-                logger.warn("Failed to delete CSAR [{}] with failed plans on import", csarId.csarName());
-            }
-            return Response.serverError().build();
-        }
-
-        // FIXME maybe this only makes sense when we have generated plans :/
-        this.controlService.declareStored(csarId);
-
-        final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
-        for (final TServiceTemplate serviceTemplate : serviceTemplates) {
-            logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-            if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
-                logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-                // do a rollback
-                try {
-                    storage.deleteCSAR(csarId);
-                } catch (Exception log) {
-                    logger.warn("Failed to delete CSAR [{}] with failed plan deployment on import", csarId.csarName(), log);
-                }
-                return Response.serverError().build();
-            }
-        }
 
         // TODO this is such a brutal hack, won't go through reviews....
         final boolean repoAvailable = wc.isWineryRepositoryAvailable();
@@ -328,6 +295,40 @@ public class CsarController {
                     this.storage.deleteCSAR(csarId);
                 } catch (Exception log) {
                     logger.warn("Failed to delete CSAR [{}] with open requirements on import", csarId.csarName());
+                }
+                return Response.serverError().build();
+            }
+        }
+
+        try {
+            if (!this.csarService.generatePlans(storedCsar)) {
+                logger.info("Planning the CSAR failed. Deleting the failed import");
+                this.storage.deleteCSAR(csarId);
+                return Response.serverError().build();
+            }
+        } catch (Exception e) {
+            logger.warn("Planning the CSAR [{}] failed with an exception", csarId.csarName(), e);
+            try {
+                this.storage.deleteCSAR(csarId);
+            } catch (Exception log) {
+                logger.warn("Failed to delete CSAR [{}] with failed plans on import", csarId.csarName());
+            }
+            return Response.serverError().build();
+        }
+
+        // FIXME maybe this only makes sense when we have generated plans :/
+        this.controlService.declareStored(csarId);
+
+        final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
+        for (final TServiceTemplate serviceTemplate : serviceTemplates) {
+            logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
+            if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
+                logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
+                // do a rollback
+                try {
+                    storage.deleteCSAR(csarId);
+                } catch (Exception log) {
+                    logger.warn("Failed to delete CSAR [{}] with failed plan deployment on import", csarId.csarName(), log);
                 }
                 return Response.serverError().build();
             }
@@ -382,7 +383,7 @@ public class CsarController {
 
         Collection<AbstractPlan> plansGenerated = this.csarService.generateTransformationPlans(sourceCsar, targetCsar);
         AbstractPlan planGenerated;
-        if(plansGenerated.isEmpty()){
+        if (plansGenerated.isEmpty()) {
             return Response.serverError().entity("Couldn't generate transformation plan").build();
         } else {
             // we should only have one plan here
@@ -395,13 +396,13 @@ public class CsarController {
         TPlan plan = null;
 
         for (TPlan tPlan : plans.getPlan()) {
-            if(tPlan.getId().equals(planGenerated.getId())){
+            if (tPlan.getId().equals(planGenerated.getId())) {
                 plan = tPlan;
                 break;
             }
         }
 
-        if(plan == null) {
+        if (plan == null) {
             return Response.serverError().entity("Couldn't generate transformation plan").build();
         }
 

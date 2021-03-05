@@ -9,8 +9,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * <p>
@@ -84,17 +82,7 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
         if (!policy.getType().getId().equals(this.securePasswordPolicyType)) {
             return false;
         }
-
-        final NodeList nodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
-
-        for (int index = 0; index < nodes.getLength(); index++) {
-            if (nodes.item(index).getNodeType() == Node.ELEMENT_NODE
-                && nodes.item(index).getLocalName().contains("Password")) {
-                return true;
-            }
-        }
-
-        return false;
+        return nodeTemplate.getProperties().asMap().containsKey("Password");
     }
 
     @Override

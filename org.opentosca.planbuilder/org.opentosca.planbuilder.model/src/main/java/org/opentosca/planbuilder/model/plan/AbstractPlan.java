@@ -17,62 +17,12 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  */
 public abstract class AbstractPlan {
 
-    public static class Link {
-        private final AbstractActivity srcActiv;
-        private final AbstractActivity trgActiv;
-
-        public Link(final AbstractActivity srcActiv, final AbstractActivity trgActiv) {
-            this.srcActiv = srcActiv;
-            this.trgActiv = trgActiv;
-        }
-
-        public AbstractActivity getSrcActiv() {
-            return this.srcActiv;
-        }
-
-        public AbstractActivity getTrgActiv() {
-            return this.trgActiv;
-        }
-
-        @Override
-        public String toString() {
-            return "{Src: " + this.srcActiv.getId() + " Trgt: " + this.trgActiv.getId() + "}";
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == this) {
-                return true;
-            }
-            if (!(o instanceof Link)) {
-                return false;
-            }
-            Link oLink = (Link) o;
-            if (!(oLink.getSrcActiv().equals(this.getSrcActiv()) & oLink.getTrgActiv().equals(this.getTrgActiv()))) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            return this.toString().hashCode();
-        }
-    }
-
     private final AbstractServiceTemplate serviceTemplate;
-
     private final AbstractDefinitions definitions;
-
     private final Collection<AbstractActivity> activites;
-
     private final Collection<Link> links;
-
     private final String id;
-
     private PlanType type;
-
     private int internalCounterId = 0;
 
     public AbstractPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
@@ -248,5 +198,45 @@ public abstract class AbstractPlan {
         }
 
         return toString;
+    }
+
+    public static class Link {
+        private final AbstractActivity srcActiv;
+        private final AbstractActivity trgActiv;
+
+        public Link(final AbstractActivity srcActiv, final AbstractActivity trgActiv) {
+            this.srcActiv = srcActiv;
+            this.trgActiv = trgActiv;
+        }
+
+        public AbstractActivity getSrcActiv() {
+            return this.srcActiv;
+        }
+
+        public AbstractActivity getTrgActiv() {
+            return this.trgActiv;
+        }
+
+        @Override
+        public String toString() {
+            return "{Src: " + this.srcActiv.getId() + " Trgt: " + this.trgActiv.getId() + "}";
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof Link)) {
+                return false;
+            }
+            Link oLink = (Link) o;
+            return oLink.getSrcActiv().equals(this.getSrcActiv()) & oLink.getTrgActiv().equals(this.getTrgActiv());
+        }
+
+        @Override
+        public int hashCode() {
+            return this.toString().hashCode();
+        }
     }
 }

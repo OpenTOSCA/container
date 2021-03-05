@@ -2,9 +2,9 @@ package org.opentosca.planbuilder.type.plugin.dockercontainer.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.Node;
 
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
@@ -13,8 +13,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /**
  * <p>
@@ -90,23 +88,11 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
             return false;
         }
 
-        final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
-        final NodeList childNodeList = propertyElement.getChildNodes();
+        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
 
-        int check = 0;
-        for (int index = 0; index < childNodeList.getLength(); index++) {
-            if (childNodeList.item(index).getNodeType() != Node.ELEMENT_NODE) {
-                continue;
-            }
-            if (childNodeList.item(index).getLocalName().equals("ContainerID")) {
-                check++;
-            }
-        }
-
-        if (check != 1) {
+        if (!propertiesMap.containsKey("ContainerID")) {
             return false;
         }
-
         // minimum properties are available
 
         // check whether the nodeTemplate is connected to a DockerEngine Node
@@ -148,22 +134,20 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
             return false;
         }
 
-        final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
-        final NodeList childNodeList = propertyElement.getChildNodes();
-
+        final Map<String, String> propMap = nodeTemplate.getProperties().asMap();
         int check = 0;
         boolean foundDockerImageProp = false;
-        for (int index = 0; index < childNodeList.getLength(); index++) {
-            if (childNodeList.item(index).getNodeType() != Node.ELEMENT_NODE) {
-                continue;
-            }
-            if (childNodeList.item(index).getLocalName().equals("ContainerPort")) {
-                check++;
-            } else if (childNodeList.item(index).getLocalName().equals("Port")) {
-                check++;
-            } else if (childNodeList.item(index).getLocalName().equals("ImageID")) {
-                foundDockerImageProp = true;
-            }
+
+        if (propMap.containsKey("ContainerPort")) {
+            check++;
+        }
+
+        if (propMap.containsKey("Port")) {
+            check++;
+        }
+
+        if (propMap.containsKey("ImageID")) {
+            foundDockerImageProp = true;
         }
 
         if (check != 2) {

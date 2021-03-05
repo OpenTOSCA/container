@@ -34,23 +34,18 @@ import org.slf4j.LoggerFactory;
 public class PlacementController {
 
     private static final Logger logger = LoggerFactory.getLogger(PlacementController.class);
-
+    private final InstanceService instanceService;
+    private final NodeTemplateService nodeTemplateService;
     @Context
     UriInfo uriInfo;
-
     @Context
     ResourceContext resourceContext;
-
     @ApiParam("ID of CSAR")
     @PathParam("csar")
     String csarId;
-
     @ApiParam("qualified name of the service template")
     @PathParam("servicetemplate")
     String serviceTemplateId;
-
-    private final InstanceService instanceService;
-    private final NodeTemplateService nodeTemplateService;
 
     public PlacementController(final InstanceService instanceService, final NodeTemplateService nodeTemplateService) {
         this.instanceService = instanceService;

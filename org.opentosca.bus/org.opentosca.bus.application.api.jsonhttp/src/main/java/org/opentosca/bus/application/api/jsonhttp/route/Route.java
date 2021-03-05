@@ -28,16 +28,12 @@ public class Route extends RouteBuilder {
 
     public static final String ID = "id";
     public static final String ID_PLACEHODLER = "{" + Route.ID + "}";
-    public static final String POLL_ENDPOINT = Route.INVOKE_ENDPOINT + "/activeRequests/" + Route.ID_PLACEHODLER;
     public static final String GET_RESULT_ENDPOINT = Route.POLL_ENDPOINT + "/response";
-
     private static final String HOST = "http://localhost";
-
     private static final String PORT = "8083";
     private static final String BASE_ENDPOINT = Route.HOST + ":" + Route.PORT;
-
     private static final String INVOKE_ENDPOINT = "/OTABService/v1/appInvoker";
-
+    public static final String POLL_ENDPOINT = Route.INVOKE_ENDPOINT + "/activeRequests/" + Route.ID_PLACEHODLER;
     private static final String TO_APP_BUS_ENDPOINT = "direct:toAppBus";
 
     @Override

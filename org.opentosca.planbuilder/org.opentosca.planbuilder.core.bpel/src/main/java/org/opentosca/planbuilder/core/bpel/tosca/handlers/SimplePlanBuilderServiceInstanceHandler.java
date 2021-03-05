@@ -17,7 +17,6 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -409,26 +408,22 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
 
             // assign bpel variables from the requested properties
             // create mapping from property dom nodes to bpelvariable
-            final Map<Element, String> element2BpelVarNameMap = new HashMap<>();
-            final NodeList propChildNodes =
-                templatePlan.getNodeTemplate().getProperties().getDOMElement().getChildNodes();
-            for (int index = 0; index < propChildNodes.getLength(); index++) {
-                if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
-                    final Element childElement = (Element) propChildNodes.item(index);
-                    // find bpelVariable
-                    for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate,
-                        templatePlan.getNodeTemplate())) {
-                        if (var.getPropertyName().equals(childElement.getLocalName())) {
-                            element2BpelVarNameMap.put(childElement, var.getVariableName());
-                        }
-                    }
+
+            final Map<String, String> propName2BpelVarNameMap = new HashMap<>();
+
+            Map<String, String> propertiesMap = templatePlan.getNodeTemplate().getProperties().asMap();
+
+            for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate,
+                templatePlan.getNodeTemplate())) {
+                if (propertiesMap.containsKey(var.getPropertyName())) {
+                    propName2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
                 }
             }
 
             try {
                 Node assignPropertiesToVariables =
                     this.fragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                        + System.currentTimeMillis(), restCallResponseVarName, element2BpelVarNameMap);
+                        + System.currentTimeMillis(), restCallResponseVarName, propName2BpelVarNameMap, templatePlan.getNodeTemplate().getProperties().getNamespace());
                 assignPropertiesToVariables =
                     templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(assignPropertiesToVariables,
@@ -677,7 +672,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                                                                                   String csarName,
                                                                                   String targetServiceInstancesUrlVar) {
         String xpathQuery1 = "concat(substring-before(string($" + availableServiceInstanceUrlVar
-            + "),'csars'),'csars/','" + csarName + "','/servicetemplates/','"+serviceTemplateId.getLocalPart()+"','/instances')";
+            + "),'csars'),'csars/','" + csarName + "','/servicetemplates/','" + serviceTemplateId.getLocalPart() + "','/instances')";
         try {
             Node assignServiceInstancesUrl =
                 this.fragments.createAssignVarToVarWithXpathQueryAsNode("createTargetServiceInstancesUrl",
