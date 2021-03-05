@@ -204,7 +204,6 @@ public class BPELPlanHandler {
             buildPlan.getBpelProcessElement().getAttribute("name"));
 
         if (this.hasImport(namespace, location, importType, buildPlan)) {
-            BPELPlanHandler.LOG.warn("Failed adding Import");
             return false;
         }
 

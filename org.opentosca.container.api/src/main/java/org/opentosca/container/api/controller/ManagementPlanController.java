@@ -67,7 +67,7 @@ public class ManagementPlanController {
     }
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get management plans", response = PlanListDTO.class)
     public Response getManagementPlans(@Context final UriInfo uriInfo) {
         PlanListDTO list = new PlanListDTO();
@@ -91,7 +91,7 @@ public class ManagementPlanController {
 
     @GET
     @Path("/{plan}")
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a management plan", response = PlanDTO.class)
     public Response getManagementPlan(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                       @Context final UriInfo uriInfo) {
@@ -105,7 +105,7 @@ public class ManagementPlanController {
 
     @GET
     @Path("/{plan}/instances")
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get instances of a management plan", response = PlanInstanceListDTO.class)
     public Response getManagementPlanInstances(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                                @Context final UriInfo uriInfo) {
@@ -133,8 +133,8 @@ public class ManagementPlanController {
 
     @POST
     @Path("/{plan}/instances")
-    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @ApiOperation(value = "Invokes a management plan", response = String.class)
     public Response invokeManagementPlan(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                          @Context final UriInfo uriInfo,
@@ -146,7 +146,7 @@ public class ManagementPlanController {
 
     @GET
     @Path("/{plan}/instances/{instance}")
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a management plan instance", response = PlanInstanceDTO.class)
     public Response getManagementPlanInstance(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                               @ApiParam("correlation ID") @PathParam("instance") final String instance,
@@ -174,7 +174,7 @@ public class ManagementPlanController {
 
     @GET
     @Path("/{plan}/instances/{instance}/state")
-    @Produces( {MediaType.TEXT_PLAIN})
+    @Produces({MediaType.TEXT_PLAIN})
     @ApiOperation(value = "Get state of a management plan instance", response = String.class)
     public Response getManagementPlanInstanceState(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                                    @ApiParam("correlation ID") @PathParam("instance") final String instance,
@@ -185,7 +185,7 @@ public class ManagementPlanController {
 
     @PUT
     @Path("/{plan}/instances/{instance}/state")
-    @Consumes( {MediaType.TEXT_PLAIN})
+    @Consumes({MediaType.TEXT_PLAIN})
     @ApiOperation(hidden = true, value = "")
     public Response changeManagementPlanInstanceState(@PathParam("plan") final String plan,
                                                       @PathParam("instance") final String instance,
@@ -198,7 +198,7 @@ public class ManagementPlanController {
 
     @GET
     @Path("/{plan}/instances/{instance}/logs")
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get log entries of a management plan instance", response = PlanInstanceEventDTO.class,
         responseContainer = "list")
     public Response getManagementPlanInstanceLogs(@ApiParam("management plan id") @PathParam("plan") final String plan,
@@ -215,8 +215,8 @@ public class ManagementPlanController {
 
     @POST
     @Path("/{plan}/instances/{instance}/logs")
-    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response addManagementPlanLogEntry(@PathParam("plan") final String plan,
                                               @PathParam("instance") final String instance,

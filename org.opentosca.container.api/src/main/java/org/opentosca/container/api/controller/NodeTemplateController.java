@@ -68,7 +68,7 @@ public class NodeTemplateController {
     }
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all node templates of a service template", response = NodeTemplateListDTO.class)
     public Response getNodeTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                      @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
@@ -100,7 +100,7 @@ public class NodeTemplateController {
 
     @GET
     @Path("/{nodetemplate}")
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a node template", response = NodeTemplateDTO.class)
     public Response getNodeTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                     @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
@@ -122,7 +122,7 @@ public class NodeTemplateController {
 
     @GET
     @Path("/{nodetemplate}/properties")
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get the properties of a node template", response = Document.class)
     public Response getNodeTemplateProperties(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                               @ApiParam("qualified name of service template") @PathParam("servicetemplate") final String serviceTemplateId,
@@ -170,7 +170,7 @@ public class NodeTemplateController {
     @POST
     @Path("/{nodetemplate}/uploadDA")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response uploadStatefulDA(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
                                      @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
                                      @ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId,

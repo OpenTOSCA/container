@@ -18,7 +18,7 @@ import org.opentosca.container.core.model.deployment.AbstractDeploymentInfo;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@NamedQueries( {@NamedQuery(name = DeploymentProcessInfo.getDeploymentProcessInfoByCSARID,
+@NamedQueries({@NamedQuery(name = DeploymentProcessInfo.getDeploymentProcessInfoByCSARID,
     query = DeploymentProcessInfo.getDeploymentProcessInfoByCSARIDQuery)})
 @Table(name = DeploymentProcessInfo.tableName)
 public class DeploymentProcessInfo extends AbstractDeploymentInfo {
