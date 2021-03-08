@@ -8,8 +8,8 @@ import java.util.Map;
  */
 public class InstanceStates {
 
-    private static Map<String, String> operationPreStates;
-    private static Map<String, String> operationPostStates;
+    private static final Map<String, String> operationPreStates;
+    private static final Map<String, String> operationPostStates;
 
     static {
         operationPreStates = new HashMap<>();

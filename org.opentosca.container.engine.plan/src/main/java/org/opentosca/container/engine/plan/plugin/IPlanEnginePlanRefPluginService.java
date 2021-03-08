@@ -32,7 +32,7 @@ public interface IPlanEnginePlanRefPluginService extends IPlanEnginePluginServic
      * @param csarId  the identifier of the CSAR the PlanReference element belongs to
      * @return true if deployment was successful, else false
      */
-    public boolean deployPlanReference(QName planId, PlanModelReference planRef, CsarId csarId);
+    boolean deployPlanReference(QName planId, PlanModelReference planRef, CsarId csarId);
 
     /**
      * <p>
@@ -48,5 +48,5 @@ public interface IPlanEnginePlanRefPluginService extends IPlanEnginePluginServic
      * @param csarId  the identifier of the CSAR the PlanReference element belongs to
      * @return true if undeployment was successful, else false
      */
-    public boolean undeployPlanReference(QName planId, PlanModelReference planRef, CsarId csarId);
+    boolean undeployPlanReference(QName planId, PlanModelReference planRef, CsarId csarId);
 }

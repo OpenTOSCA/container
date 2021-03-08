@@ -19,7 +19,7 @@ public interface CsarStorageService {
      *
      * @return Set of {@link Csar} objects
      */
-    public Set<Csar> findAll();
+    Set<Csar> findAll();
 
     /**
      * Loads the data of the CSAR associated with the given {@link CsarId} from storage.
@@ -28,7 +28,7 @@ public interface CsarStorageService {
      * @return A {@link Csar} instance representing the CSAR identified by the ID.
      * @throws NoSuchElementException in case the CSARID was unknown.
      */
-    public Csar findById(CsarId id) throws NoSuchElementException;
+    Csar findById(CsarId id) throws NoSuchElementException;
 
     /**
      * Temporarily stores all information in the given {@link InputStream} as a temporary file with the given filename.
@@ -38,7 +38,7 @@ public interface CsarStorageService {
      * @return The Path the CSAR has been stored to.
      * @apiSpec The given inputStream is <b>not</b> closed by this method.
      */
-    public Path storeCSARTemporarily(final String filename, final InputStream is);
+    Path storeCSARTemporarily(final String filename, final InputStream is);
 
     /**
      * <p>
@@ -61,7 +61,7 @@ public interface CsarStorageService {
      *                         or it's content is invalid, e.g. contains no TOSCA file or has an invalid TOSCA meta
      *                         file.
      */
-    public CsarId storeCSAR(Path csarLocation) throws UserException, SystemException;
+    CsarId storeCSAR(Path csarLocation) throws UserException, SystemException;
 
     /**
      * <p>
@@ -75,7 +75,7 @@ public interface CsarStorageService {
      * @throws UserException   if the identified CSAR was not found.
      * @throws SystemException if an error occurred during deleting files.
      */
-    public void deleteCSAR(CsarId csarId) throws UserException, SystemException;
+    void deleteCSAR(CsarId csarId) throws UserException, SystemException;
 
     /**
      * Deletes <b>all</b> CSARs in the storage, including deleting their metadata from the database.

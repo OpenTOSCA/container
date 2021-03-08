@@ -90,7 +90,7 @@ public class OdeConnector {
             setEndpoint(uri);
 
             final String fileName = process.getName();
-            final String fileType = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+            final String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
             OdeConnector.LOG.debug("Trying to deploy file: {}", process.getAbsolutePath());
             final String packageId = deployFile(process, fileName, fileType);
             List<QName> pidsOfPackage = new ArrayList<>();

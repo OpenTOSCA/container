@@ -15,12 +15,11 @@ import org.w3c.dom.Element;
  */
 public abstract class AbstractProperties {
 
-    /**
-     * Returns the first Properties Element
-     *
-     * @return a Properties representation as DOM Element
-     */
     public abstract Element getDOMElement();
+
+    public abstract String getElementName();
+
+    public abstract String getNamespace();
 
     /**
      * Return the first Properties Element as a Map when it can be parsed to key/value pairs.
@@ -40,10 +39,6 @@ public abstract class AbstractProperties {
         Map<String, String> propMap = props.asMap();
         Map<String, String> thisMap = this.asMap();
 
-        if (!propMap.equals(thisMap)) {
-            return false;
-        }
-
-        return true;
+        return propMap.equals(thisMap);
     }
 }

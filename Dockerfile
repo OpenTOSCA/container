@@ -1,4 +1,4 @@
-FROM maven:3-jdk-8 as builder
+FROM maven:3-jdk-11 as builder
 
 RUN rm /dev/random && ln -s /dev/urandom /dev/random
 
@@ -9,7 +9,7 @@ RUN mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B \
     && mkdir /tmp/build \
     && unzip /tmp/opentosca/container/org.opentosca.container.war/target/OpenTOSCA-container.war -d /tmp/build/container
 
-FROM tomcat:9-jdk8
+FROM tomcat:9.0-jdk11
 LABEL maintainer = "Benjamin Weder <weder@iaas.uni-stuttgart.de>, Lukas Harzenetter <lharzenetter@gmx.de>, Michael Wurster <miwurster@gmail.com>"
 
 ARG DOCKERIZE_VERSION=v0.6.1

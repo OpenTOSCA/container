@@ -31,11 +31,7 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
             return false;
         }
 
-        if (this.getRemoteManagerNode(node) == null) {
-            return false;
-        }
-
-        return true;
+        return this.getRemoteManagerNode(node) != null;
     }
 
     public Set<AbstractNodeTemplate> getNodeDependencies(AbstractNodeTemplate nodeTemplate) {

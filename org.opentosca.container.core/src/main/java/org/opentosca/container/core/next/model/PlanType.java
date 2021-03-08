@@ -7,7 +7,7 @@ public enum PlanType {
     MANAGEMENT("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan"),
     TRANSFORMATION("http://opentosca.org/plantypes/TransformationPlan");
 
-    private String name;
+    private final String name;
 
     PlanType(final String name) {
         this.name = name;

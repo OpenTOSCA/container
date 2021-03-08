@@ -68,8 +68,9 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
         this.capabilities = new ArrayList<>();
         this.das = new HashSet<>();
         this.policies = new ArrayList<>();
-        if (this.nodeTemplate.getProperties() != null && this.nodeTemplate.getProperties().getInternalAny() != null) {
-            this.properties = new PropertiesImpl(this.nodeTemplate.getProperties().getInternalAny());
+
+        if (this.nodeTemplate.getProperties() != null && this.nodeTemplate.getProperties() != null) {
+            this.properties = new PropertiesImpl(this.nodeTemplate.getProperties());
         }
 
         this.ingoingRelations = ModelUtilities.getIncomingRelationshipTemplates(this.topology.topologyTemplate, this.nodeTemplate).stream().map(val -> new RelationshipTemplateImpl(val, definitions, this.topology)).collect(Collectors.toList());

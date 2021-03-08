@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.common.RepositoryFileReference;
-import org.eclipse.winery.common.ids.definitions.DefinitionsChildId;
-import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
-import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.ids.definitions.DefinitionsChildId;
+import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
+import org.eclipse.winery.repository.common.RepositoryFileReference;
 
 import com.google.common.collect.Lists;
 import org.opentosca.container.core.common.SystemException;
@@ -61,9 +61,9 @@ public class Importer extends AbstractImporter {
      * @return a List of BuildPlan
      */
     public List<AbstractPlan> generatePlans(final CsarId csarId) {
-            final AbstractDefinitions defs = this.createContext(csarId);
-            final List<AbstractPlan> plans = this.buildPlans(defs, csarId.csarName());
-            return plans;
+        final AbstractDefinitions defs = this.createContext(csarId);
+        final List<AbstractPlan> plans = this.buildPlans(defs, csarId.csarName());
+        return plans;
     }
 
     public AbstractPlan generateAdaptationPlan(CsarId csarId, QName serviceTemplateId,
@@ -72,15 +72,14 @@ public class Importer extends AbstractImporter {
                                                Collection<String> targetNodeTemplateId,
                                                Collection<String> targetRelationshipTemplateId) throws SystemException {
 
+        AbstractDefinitions defs = this.createContext(csarId);
+        AbstractTopologyTemplate topology = Lists.newArrayList(defs.getServiceTemplates()).get(0).getTopologyTemplate();
 
-            AbstractDefinitions defs = this.createContext(csarId);
-            AbstractTopologyTemplate topology = Lists.newArrayList(defs.getServiceTemplates()).get(0).getTopologyTemplate();
-
-            return this.buildAdaptationPlan(csarId.csarName(), defs, serviceTemplateId,
-                this.getNodes(topology, sourceNodeTemplateIds),
-                this.getRelations(topology, sourceRelationshipTemplateIds),
-                this.getNodes(topology, targetNodeTemplateId),
-                this.getRelations(topology, targetRelationshipTemplateId));
+        return this.buildAdaptationPlan(csarId.csarName(), defs, serviceTemplateId,
+            this.getNodes(topology, sourceNodeTemplateIds),
+            this.getRelations(topology, sourceRelationshipTemplateIds),
+            this.getNodes(topology, targetNodeTemplateId),
+            this.getRelations(topology, targetRelationshipTemplateId));
     }
 
     private Collection<AbstractNodeTemplate> getNodes(AbstractTopologyTemplate topology, Collection<String> nodeIds) {
@@ -110,13 +109,13 @@ public class Importer extends AbstractImporter {
 
     public List<AbstractPlan> generateTransformationPlans(final CsarId sourceCsarId, final CsarId targetCsarId) {
         final List<AbstractPlan> plans = new ArrayList<>();
-            this.createContext(sourceCsarId);
-            final AbstractDefinitions sourceDefs = this.createContext(sourceCsarId);
-            final AbstractDefinitions targetDefs = this.createContext(targetCsarId);
+        this.createContext(sourceCsarId);
+        final AbstractDefinitions sourceDefs = this.createContext(sourceCsarId);
+        final AbstractDefinitions targetDefs = this.createContext(targetCsarId);
 
-            plans.addAll(this.buildTransformationPlans(sourceCsarId.csarName(), sourceDefs,
-                targetCsarId.csarName(), targetDefs));
-            return plans;
+        plans.addAll(this.buildTransformationPlans(sourceCsarId.csarName(), sourceDefs,
+            targetCsarId.csarName(), targetDefs));
+        return plans;
     }
 
     /**
@@ -126,7 +125,7 @@ public class Importer extends AbstractImporter {
      * @return an AbstractDefinitions object
      */
     public AbstractDefinitions getMainDefinitions(final CsarId csarId) {
-            return this.createContext(csarId);
+        return this.createContext(csarId);
     }
 
     /**
@@ -136,35 +135,32 @@ public class Importer extends AbstractImporter {
      * @return an AbstractDefinitions which is the Entry-Definitions of the given CSAR
      * @throws SystemException is thrown if accessing data inside the OpenTOSCA Core fails
      */
-    /**public AbstractDefinitions createContext(final CSARContent csarContent) throws SystemException {
-        final AbstractFile rootTosca = csarContent.getRootTOSCA();
-        final Set<AbstractFile> referencedFilesInCsar = csarContent.getFilesRecursively();
-        return new DefinitionsImpl(rootTosca, referencedFilesInCsar, true);
-    }*/
+    /**
+     * public AbstractDefinitions createContext(final CSARContent csarContent) throws SystemException { final
+     * AbstractFile rootTosca = csarContent.getRootTOSCA(); final Set<AbstractFile> referencedFilesInCsar =
+     * csarContent.getFilesRecursively(); return new DefinitionsImpl(rootTosca, referencedFilesInCsar, true); }
+     */
 
     public AbstractDefinitions createContext(final CsarId csarId) {
         Csar csar = this.storage.findById(csarId);
-
 
         IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
         Collection<DefinitionsChildId> ids = repo.getAllDefinitionsChildIds();
         Collection<RepositoryFileReference> allRefs = new HashSet<RepositoryFileReference>();
         Collection<RepositoryFileReference> entryDefRefs = new HashSet<RepositoryFileReference>();
         Collection<Path> allPaths = new HashSet<Path>();
-        for(DefinitionsChildId id : ids){
+        for (DefinitionsChildId id : ids) {
             allRefs.addAll(repo.getContainedFiles(id));
         }
 
-        ;
-
-        for(RepositoryFileReference ref : allRefs ){
+        for (RepositoryFileReference ref : allRefs) {
             allPaths.add(repo.ref2AbsolutePath(ref));
         }
 
-        entryDefRefs.addAll(repo.getContainedFiles(new ServiceTemplateId(new QName (csar.entryServiceTemplate().getTargetNamespace(),csar.entryServiceTemplate().getId()))));
-        Definitions entryDef = null;
-        for( RepositoryFileReference ref: entryDefRefs) {
-            if(ref.getFileName().endsWith(".tosca")){
+        entryDefRefs.addAll(repo.getContainedFiles(new ServiceTemplateId(new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()))));
+        TDefinitions entryDef = null;
+        for (RepositoryFileReference ref : entryDefRefs) {
+            if (ref.getFileName().endsWith(".tosca")) {
                 try {
                     entryDef = repo.definitionsFromRef(ref);
                 } catch (IOException e) {
@@ -173,6 +169,6 @@ public class Importer extends AbstractImporter {
             }
         }
 
-        return new org.opentosca.planbuilder.importer.winery.context.impl.impl.DefinitionsImpl(entryDef,ids.stream().map(x -> repo.getDefinitions(x)).collect(Collectors.toList()), allPaths,repo);
+        return new org.opentosca.planbuilder.importer.winery.context.impl.impl.DefinitionsImpl(entryDef, ids.stream().map(x -> repo.getDefinitions(x)).collect(Collectors.toList()), allPaths, repo);
     }
 }

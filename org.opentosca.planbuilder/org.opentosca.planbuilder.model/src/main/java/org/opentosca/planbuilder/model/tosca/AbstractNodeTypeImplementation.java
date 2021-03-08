@@ -85,6 +85,4 @@ public abstract class AbstractNodeTypeImplementation {
      * @return an AbstractNodeType this NodeTypeImplementation implements
      */
     public abstract AbstractNodeType getNodeType();
-
-
 }

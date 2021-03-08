@@ -558,12 +558,8 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         }
 
         // really weak and messy check incoming!
-        if (!(this.mappingEquals(rel1.getSource(), rel2.getSource())
-            && this.mappingEquals(rel1.getTarget(), rel2.getTarget()))) {
-            return false;
-        }
-
-        return true;
+        return this.mappingEquals(rel1.getSource(), rel2.getSource())
+            && this.mappingEquals(rel1.getTarget(), rel2.getTarget());
     }
 
     private boolean mappingEquals(AbstractNodeTemplate node1, AbstractNodeTemplate node2) {
@@ -607,10 +603,6 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         // }
         LOG.debug("Matched node {} with node {} ", node1.getId(), node2.getId());
 
-        if (!node1.getId().equals(node2.getId())) {
-            return false;
-        }
-
-        return true;
+        return node1.getId().equals(node2.getId());
     }
 }

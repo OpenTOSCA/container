@@ -14,12 +14,9 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.model.tosca.TPlan;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -140,7 +137,7 @@ public class PlanbuilderWorker {
 
             Path tempCsarLocation = csarStorage.storeCSARTemporarily(fileName, csarInputStream);
             csarId = csarStorage.storeCSAR(tempCsarLocation);
-        } catch (final IOException|SystemException|UserException e) {
+        } catch (final IOException | SystemException | UserException e) {
             state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
             state.currentMessage = "Couldn't download CSAR";
             LOG.error("Couldn't download CSAR");
@@ -187,7 +184,6 @@ public class PlanbuilderWorker {
             // write to tmp dir, only generating one plan
             final File planTmpFile = plansToUpload.get(buildPlan);
 
-
             final List<String> inputParameters = ((BPELPlan) buildPlan).getWsdl().getInputMessageLocalNames();
             final List<String> outputParameters = ((BPELPlan) buildPlan).getWsdl().getOuputMessageLocalNames();
 
@@ -201,7 +197,7 @@ public class PlanbuilderWorker {
             createParameters(inputParameters).forEach(inputParamList::add);
 
             JsonObject inputParametersJson = new JsonObject();
-            inputParametersJson.add("inputParameter",inputParamList);
+            inputParametersJson.add("inputParameter", inputParamList);
             obj.add("inputParameters", inputParametersJson);
 
             JsonArray outputParamList = new JsonArray();
@@ -213,7 +209,6 @@ public class PlanbuilderWorker {
 
             final HttpEntity ent =
                 EntityBuilder.create().setText(obj.toString()).setContentType(ContentType.APPLICATION_JSON).build();
-
 
             HttpResponse createPlanResponse = null;
             try {
@@ -229,7 +224,7 @@ public class PlanbuilderWorker {
                 return;
             }
 
-            if(createPlanResponse.getStatusLine().getStatusCode() >= 300){
+            if (createPlanResponse.getStatusLine().getStatusCode() >= 300) {
                 state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
                 state.currentMessage =
                     "Couldn't send plan. Server send status " + createPlanResponse.getStatusLine();

@@ -80,7 +80,7 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
             varName = policy.getName() + "_DATA_" + System.currentTimeMillis();
             context.addGlobalVariable(varName, VariableType.TYPE, new QName("http://www.w3.org/2001/XMLSchema",
                 "anyType", "xsd" + System.currentTimeMillis()));
-            Variable policyDataVar = context.getVariable(varName);
+            Variable policyDataVar = BPELPlanContext.getVariable(varName);
 
             situationPolicies2IdVariables.put(policy, policyIdVar);
             situationPolicies2DataVariables.put(policy, policyDataVar);
@@ -232,10 +232,7 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
     @Override
     public boolean canHandleUpdate(AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
         // this plugin can create instance data for only equal nodeTemplates as of now
-        if (sourceNodeTemplate.getType().getId().equals(targetNodeTemplate.getType().getId())) {
-            return true;
-        }
-        return false;
+        return sourceNodeTemplate.getType().getId().equals(targetNodeTemplate.getType().getId());
     }
 
     @Override
@@ -249,6 +246,26 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
     @Override
     public boolean canHandleUpdate(AbstractRelationshipTemplate sourceRelationshipTemplate,
                                    AbstractRelationshipTemplate targetRelationshipTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean handleUpgrade(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean handleUpgrade(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpgrade(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+        return false;
+    }
+
+    @Override
+    public boolean canHandleUpgrade(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
         return false;
     }
 }

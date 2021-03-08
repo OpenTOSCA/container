@@ -161,7 +161,7 @@ public class BPELPlanHandler {
      */
     public boolean addExtension(final String namespace, final boolean mustUnderstand, final BPELPlan buildPlan) {
         BPELPlanHandler.LOG.debug("Trying to add extension {} with mustUnderstand {} to BuildPlan {}", namespace,
-            String.valueOf(mustUnderstand),
+            mustUnderstand,
             buildPlan.getBpelProcessElement().getAttribute("name"));
         if (hasExtension(namespace, buildPlan)) {
             BPELPlanHandler.LOG.warn("Adding extension failed");
@@ -204,7 +204,6 @@ public class BPELPlanHandler {
             buildPlan.getBpelProcessElement().getAttribute("name"));
 
         if (this.hasImport(namespace, location, importType, buildPlan)) {
-            BPELPlanHandler.LOG.warn("Failed adding Import");
             return false;
         }
 
@@ -359,7 +358,7 @@ public class BPELPlanHandler {
                                   final BPELPlan buildPlan) {
         BPELPlanHandler.LOG.debug("Trying to add partnerLink {} with type {}, myRole {}, partnerRole {} and initializePartnerRole {} to BuildPlan {}",
             partnerLinkName, partnerLinkType.toString(), myRole, partnerRole,
-            String.valueOf(initializePartnerRole),
+            initializePartnerRole,
             buildPlan.getBpelProcessElement().getAttribute("name"));
         if (hasPartnerLink(partnerLinkName, buildPlan)) {
             BPELPlanHandler.LOG.warn("Failed to add partnerLink");

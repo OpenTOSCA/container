@@ -4,15 +4,10 @@ public enum PlanLanguage {
 
     BPEL("http://docs.oasis-open.org/wsbpel/2.0/process/executable"), BPMN("http://www.omg.org/spec/BPMN/20100524/MODEL");
 
-    private String name;
+    private final String name;
 
     PlanLanguage(final String name) {
         this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return this.name;
     }
 
     public static PlanLanguage fromString(final String name) {
@@ -24,5 +19,10 @@ public enum PlanLanguage {
             }
         }
         throw new IllegalArgumentException("Parameter 'name' does not match an Enum type");
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 }

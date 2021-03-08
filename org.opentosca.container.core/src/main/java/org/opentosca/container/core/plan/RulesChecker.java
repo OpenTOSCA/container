@@ -15,7 +15,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TEntityTemplate.Properties;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -49,6 +49,31 @@ public class RulesChecker {
     @Inject
     public RulesChecker(IXMLSerializerService service) {
         this.serializer = service.getXmlSerializer();
+    }
+
+    private static Map<String, String> getPropertiesFromDoc(final Document doc) {
+
+        final Map<String, String> propertiesMap = new HashMap<>();
+
+        final NodeList nodeList = doc.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            final Node node = nodeList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                final NodeList nodeList2 = node.getChildNodes();
+                for (int i2 = 0; i2 < nodeList2.getLength(); i2++) {
+                    final Node node2 = nodeList2.item(i2);
+                    if (node2.getNodeType() == Node.ELEMENT_NODE) {
+                        final String propName = node2.getNodeName();
+                        final String propValue = node2.getTextContent();
+                        LOG.debug("Property: " + propName + " has Value: " + propValue);
+                        if (propName != null && propValue != null) {
+                            propertiesMap.put(node2.getNodeName(), node2.getTextContent());
+                        }
+                    }
+                }
+            }
+        }
+        return propertiesMap;
     }
 
     boolean check(final Csar csar, final TServiceTemplate serviceTemplate, final InputParameters inputParameters) {
@@ -222,7 +247,7 @@ public class RulesChecker {
             for (Iterator<Path> rulesFilesIt = rulesFiles.iterator(); rulesFilesIt.hasNext(); ) {
                 Path rulesFile = rulesFilesIt.next();
                 LOG.trace("Rules File: {}", rulesFile.toAbsolutePath().toString());
-                final Definitions definitions = serializer.unmarshal(Files.newInputStream(rulesFile));
+                final TDefinitions definitions = serializer.unmarshal(Files.newInputStream(rulesFile));
                 definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()
                     .stream().map(TServiceTemplate.class::cast)
                     .forEach(rulesList::add);
@@ -246,7 +271,7 @@ public class RulesChecker {
             LOG.debug("Properties are not set.");
             return null;
         }
-        final Object any = properties.getInternalAny();
+        final Object any = properties;
         if (!(any instanceof Element)) {
             LOG.debug("Properties is not of class Element.");
             return null;
@@ -255,31 +280,6 @@ public class RulesChecker {
         final Element element = (Element) any;
         final Document doc = element.getOwnerDocument();
         return getPropertiesFromDoc(doc);
-    }
-
-    private static Map<String, String> getPropertiesFromDoc(final Document doc) {
-
-        final Map<String, String> propertiesMap = new HashMap<>();
-
-        final NodeList nodeList = doc.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            final Node node = nodeList.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                final NodeList nodeList2 = node.getChildNodes();
-                for (int i2 = 0; i2 < nodeList2.getLength(); i2++) {
-                    final Node node2 = nodeList2.item(i2);
-                    if (node2.getNodeType() == Node.ELEMENT_NODE) {
-                        final String propName = node2.getNodeName();
-                        final String propValue = node2.getTextContent();
-                        LOG.debug("Property: " + propName + " has Value: " + propValue);
-                        if (propName != null && propValue != null) {
-                            propertiesMap.put(node2.getNodeName(), node2.getTextContent());
-                        }
-                    }
-                }
-            }
-        }
-        return propertiesMap;
     }
 
     private boolean arePropertiesMatching(final TNodeTemplate relatedNodeTemplate,

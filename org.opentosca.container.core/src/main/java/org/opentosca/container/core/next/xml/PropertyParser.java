@@ -21,7 +21,7 @@ import org.xml.sax.InputSource;
  */
 public final class PropertyParser {
 
-    private static Logger logger = LoggerFactory.getLogger(PropertyParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(PropertyParser.class);
 
     public Map<String, String> parse(final String xml) {
         final Document document = createDocument(xml);

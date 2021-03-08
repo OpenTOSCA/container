@@ -16,7 +16,7 @@ public class SqlConnectionTest implements TestExecutionPlugin {
     public static final QName ANNOTATION =
         new QName("http://opentosca.org/policytypes/annotations/tests", "SqlConnectionTest");
 
-    private static Logger logger = LoggerFactory.getLogger(SqlConnectionTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(SqlConnectionTest.class);
 
     @Override
     public DeploymentTestResult execute(final TestContext context, final TNodeTemplate nodeTemplate,
@@ -42,10 +42,6 @@ public class SqlConnectionTest implements TestExecutionPlugin {
     @Override
     public boolean canExecute(final TNodeTemplate nodeTemplate, final TPolicyTemplate policyTemplate) {
 
-        if (policyTemplate.getType().equals(ANNOTATION)) {
-            return true;
-        }
-
-        return false;
+        return policyTemplate.getType().equals(ANNOTATION);
     }
 }

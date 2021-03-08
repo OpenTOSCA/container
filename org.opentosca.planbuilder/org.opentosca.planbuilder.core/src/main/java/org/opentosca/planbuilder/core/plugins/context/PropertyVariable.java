@@ -7,11 +7,9 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 public class PropertyVariable extends Variable {
 
     private final AbstractServiceTemplate serviceTemplate;
-
+    private final String propertyName;
     private AbstractNodeTemplate nodeTemplate;
     private AbstractRelationshipTemplate relationshipTemplate;
-
-    private final String propertyName;
 
     public PropertyVariable(AbstractServiceTemplate serviceTemplate, AbstractNodeTemplate templateId,
                             String variableName, String propertyName) {

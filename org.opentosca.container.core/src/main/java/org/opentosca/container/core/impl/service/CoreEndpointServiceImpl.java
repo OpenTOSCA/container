@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoCloseable {
     private final static Logger LOG = LoggerFactory.getLogger(CoreEndpointServiceImpl.class);
 
-    private EntityManager em;
+    private final EntityManager em;
 
     public CoreEndpointServiceImpl() {
         em = EntityManagerProvider.createEntityManager();
@@ -212,7 +212,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService, AutoClosea
         queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
 
         try {
-            endpoint = (WSDLEndpoint) queryWSDLEndpoint.getSingleResult();
+            endpoint = queryWSDLEndpoint.getSingleResult();
         } catch (final NoResultException e) {
             LOG.info("No endpoint stored for requested IA.");
         }

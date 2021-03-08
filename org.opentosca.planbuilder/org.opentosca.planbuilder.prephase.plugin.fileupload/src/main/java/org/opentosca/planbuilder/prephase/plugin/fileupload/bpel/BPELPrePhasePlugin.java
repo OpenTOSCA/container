@@ -70,8 +70,8 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     public boolean handle(final BPELPlanContext context, final AbstractDeploymentArtifact da,
                           final AbstractNodeTemplate nodeTemplate) {
 
-        if (da.getArtifactType().equals(this.dockerContainerArtefactType)
-            || da.getArtifactType().equals(this.dockerContainerArtefactTypeOld)) {
+        if (da.getArtifactType().equals(dockerContainerArtefactType)
+            || da.getArtifactType().equals(dockerContainerArtefactTypeOld)) {
             return true;
         }
 
@@ -85,7 +85,7 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     public boolean handle(final BPELPlanContext context, final AbstractImplementationArtifact ia,
                           final AbstractNodeTemplate nodeTemplate) {
         final QName type = ia.getArtifactType();
-        return type.equals(this.warArtifactType) || type.equals(this.warArtifactTypeOld);
+        return type.equals(warArtifactType) || type.equals(warArtifactTypeOld);
     }
 
     /**

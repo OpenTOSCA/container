@@ -74,7 +74,7 @@ public class MBJavaApi implements IManagementBus {
     private static final String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
     private static final String BPELNS = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 
-    private static Logger LOG = LoggerFactory.getLogger(MBJavaApi.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MBJavaApi.class);
 
     private final CamelContext camelContext;
     private final Importer importer;

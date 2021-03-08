@@ -18,7 +18,7 @@ public final class EntityManagerProvider {
 
     private static final String PERSISTENCE_UNIT = "default";
 
-    private static EntityManagerFactory emf;
+    private static final EntityManagerFactory emf;
 
     static {
         final Map<String, Object> cfg = new HashMap<>();

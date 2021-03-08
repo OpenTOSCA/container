@@ -17,10 +17,8 @@ import javax.persistence.Table;
 @Table(name = SituationsMonitor.TABLE_NAME)
 public class SituationsMonitor extends PersistenceObject {
 
-    private static final long serialVersionUID = 6770816160173767058L;
-
     public static final String TABLE_NAME = "SITUATIONSMONITOR";
-
+    private static final long serialVersionUID = 6770816160173767058L;
     @Column(name = "NODESITUATIONMAPPING")
     @OneToMany
     private Set<SituationsMonitorIdCollection> node2situations = new HashSet<>();

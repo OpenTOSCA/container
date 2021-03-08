@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class FileController {
 
-    private static Logger logger = LoggerFactory.getLogger(FileController.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
     private static final Map<String, MediaType> IMAGE_TYPES = new HashMap<>();
 
     static {
@@ -41,7 +41,7 @@ public class FileController {
     }
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getLinks(@Context final UriInfo uriInfo) {
         logger.debug("Get link for file controller on file: {}", this.path);
         final ResourceSupport dto = new ResourceSupport();
@@ -51,11 +51,11 @@ public class FileController {
     }
 
     @GET
-    @Produces( {MediaType.APPLICATION_OCTET_STREAM, "image/*"})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, "image/*"})
     public Response getFile() {
         logger.info("Attempt to get file: \"{}\"", this.path);
         try {
-            final InputStream is = Files.newInputStream(this.path);;
+            final InputStream is = Files.newInputStream(this.path);
             // Image or normal file download?
             final String ext = FilenameUtils.getExtension(this.path.getFileName().toString());
             final MediaType imageType = IMAGE_TYPES.get(ext);

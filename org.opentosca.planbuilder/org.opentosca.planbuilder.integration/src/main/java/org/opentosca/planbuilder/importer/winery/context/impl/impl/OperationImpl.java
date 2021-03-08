@@ -124,13 +124,8 @@ public class OperationImpl extends AbstractOperation {
             return false;
         }
         if (this.outputParameters == null) {
-            if (other.outputParameters != null) {
-                return false;
-            }
-        } else if (!this.outputParameters.equals(other.outputParameters)) {
-            return false;
-        }
-        return true;
+            return other.outputParameters == null;
+        } else return this.outputParameters.equals(other.outputParameters);
     }
 
     @Override

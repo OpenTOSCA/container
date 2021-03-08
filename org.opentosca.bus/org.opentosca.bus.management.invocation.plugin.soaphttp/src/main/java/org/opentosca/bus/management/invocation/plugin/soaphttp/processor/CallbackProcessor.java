@@ -2,10 +2,14 @@ package org.opentosca.bus.management.invocation.plugin.soaphttp.processor;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -20,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Callback-Processor of the SOAP/HTTP-Invocation-Management-Bus-Plug-in.<br>
@@ -64,23 +70,50 @@ public class CallbackProcessor implements Processor {
                 LOG.debug("Found MessageID: {}", messageID);
                 final MessageFactory messageFactory = MessageFactory.newInstance();
 
-                final InputStream inputStream = new ByteArrayInputStream(message.getBytes("UTF-8"));
+                final InputStream inputStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
                 final SOAPMessage soapMessage = messageFactory.createMessage(null, inputStream);
 
                 exchange.getIn().setHeader("MessageID", messageID);
                 exchange.getIn().setHeader("AvailableMessageID", "true");
 
                 Document doc;
+                Document responseDoc;
+
                 try {
-                    doc = soapMessage.getSOAPBody().extractContentAsDocument();
-                    exchange.getIn().setBody(doc);
+                    doc = soapMessage.getSOAPBody().getOwnerDocument();
+                    Element documentElement = doc.getDocumentElement();
+                    NodeList nodeList = documentElement.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
+                    NodeList childNodes = nodeList.item(0).getChildNodes();
+                    Node invokeResponse = null;
+                    for (int i = 0; i < childNodes.getLength(); i++) {
+                        if (childNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                            invokeResponse = childNodes.item(i);
+                        }
+                    }
+                    responseDoc = this.node2doc(invokeResponse);
+                    exchange.getIn().setBody(responseDoc);
                 } catch (final SOAPException e) {
-                    doc = soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
+                    responseDoc = soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
                     LOG.warn("SOAP response body can't be parsed and/or isn't well formatted. Returning alternative response.");
-                    exchange.getIn().setBody(doc);
+                    exchange.getIn().setBody(responseDoc);
                 }
                 break;
             }
         }
+    }
+
+    private Document node2doc(Node node) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        DocumentBuilder builder = null;
+        try {
+            builder = factory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+        Document newDocument = builder.newDocument();
+        Node importedNode = newDocument.importNode(node, true);
+        newDocument.appendChild(importedNode);
+        return newDocument;
     }
 }

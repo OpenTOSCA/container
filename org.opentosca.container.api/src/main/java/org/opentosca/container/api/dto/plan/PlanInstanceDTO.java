@@ -63,6 +63,10 @@ public class PlanInstanceDTO extends ResourceSupport {
         return this.outputs;
     }
 
+    public void setOutputs(final Collection<PlanInstanceOutputDTO> outputs) {
+        this.outputs = outputs;
+    }
+
     public PlanType getType() {
         return this.type;
     }
@@ -85,10 +89,6 @@ public class PlanInstanceDTO extends ResourceSupport {
 
     public void setState(final PlanInstanceState state) {
         this.state = state;
-    }
-
-    public void setOutputs(final Collection<PlanInstanceOutputDTO> outputs) {
-        this.outputs = outputs;
     }
 
     public Collection<PlanInstanceEventDTO> getLogs() {

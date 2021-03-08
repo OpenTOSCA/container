@@ -56,7 +56,7 @@ public class SituationsController {
     }
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/situations")
     public Response getSituations() {
         final SituationListDTO dto = new SituationListDTO();
@@ -65,7 +65,7 @@ public class SituationsController {
     }
 
     @PUT
-    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/situations/{situation}")
     public Response updateSituation(@PathParam("situation") final Long situationId, final SituationDTO situation) {
         final Situation sit = this.instanceService.getSituation(situation.getId());
@@ -82,7 +82,7 @@ public class SituationsController {
     }
 
     @PUT
-    @Consumes( {MediaType.TEXT_PLAIN})
+    @Consumes({MediaType.TEXT_PLAIN})
     @Path("/situations/{situation}/active")
     public Response updateSituationActivity(@PathParam("situation") final Long situationId, final String body) {
         final Situation sit = this.instanceService.getSituation(situationId);
@@ -105,8 +105,8 @@ public class SituationsController {
     }
 
     @POST
-    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/situations")
     public Response createSituation(final SituationDTO situation) {
         final Situation sit = this.instanceService.createNewSituation(situation.getThingId(),
@@ -119,14 +119,14 @@ public class SituationsController {
     }
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/situations/{situation}")
     public Response getSituation(@PathParam("situation") final Long situationId) {
         return Response.ok(SituationDTO.Converter.convert(this.instanceService.getSituation(situationId))).build();
     }
 
     @DELETE
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/situations/{situation}")
     public Response deleteSituation(@PathParam("situation") final Long situationId) {
         this.instanceService.removeSituation(situationId);
@@ -134,7 +134,7 @@ public class SituationsController {
     }
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/triggers")
     public Response getSituationTriggers() {
         final SituationTriggerListDTO dto;
@@ -150,8 +150,8 @@ public class SituationsController {
 
     @POST
     @Path("/triggers")
-    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response createSituationTrigger(final SituationTriggerDTO situationTrigger) {
         final Collection<Situation> sits = Lists.newArrayList();
 
@@ -161,7 +161,7 @@ public class SituationsController {
         }
 
         ServiceTemplateInstance serviceInstance = null;
-        if(situationTrigger.getServiceInstanceId() != null){
+        if (situationTrigger.getServiceInstanceId() != null) {
             try {
                 serviceInstance = this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId(), false);
             } catch (final NotFoundException e) {
@@ -198,7 +198,7 @@ public class SituationsController {
     }
 
     @DELETE
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/triggers/{situationtrigger}")
     public Response deleteSituationTrigger(@PathParam("situationtrigger") final Long situationTriggerId) {
 
@@ -209,7 +209,7 @@ public class SituationsController {
     }
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/triggers/{situationtrigger}")
     public Response getSituationTrigger(@PathParam("situationtrigger") final Long situationTriggerId) {
         return Response
@@ -218,7 +218,7 @@ public class SituationsController {
     }
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/triggers/{situationtrigger}/{situationtriggerinstance}")
     public Response getSituationTriggerInstance(@PathParam("situationtrigger") final Long situationTriggerId,
                                                 @PathParam("situationtriggerinstance") final Long situationTriggerInstanceId) {

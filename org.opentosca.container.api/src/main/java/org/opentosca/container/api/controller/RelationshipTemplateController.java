@@ -48,7 +48,7 @@ public class RelationshipTemplateController {
     }
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all relationship templates of a service template",
         response = RelationshipTemplateListDTO.class)
     public Response getRelationshipTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
@@ -73,7 +73,7 @@ public class RelationshipTemplateController {
 
     @GET
     @Path("/{relationshiptemplate}")
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a relationship template", response = RelationshipTemplateDTO.class)
     public Response getRelationshipTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                             @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateName,

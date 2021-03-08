@@ -39,6 +39,33 @@ public class PluginHandler {
     }
 
     /**
+     * Checks if a InvocationType was specified in the Tosca.xml and returns it if so.
+     *
+     * @param properties to check for InvocationType.
+     * @return InvocationType if specified. Otherwise <tt>null</tt>.
+     */
+    private static String getInvocationType(final Document properties) {
+
+        // checks if there are specified properties at all.
+        if (properties != null) {
+            final NodeList list = properties.getFirstChild().getChildNodes();
+
+            for (int i = 0; i < list.getLength(); i++) {
+
+                final Node propNode = list.item(i);
+                final String localName = propNode.getLocalName();
+
+                // check if the node contains the InvocationType
+                if (localName != null && localName.equals("InvocationType")) {
+                    return propNode.getTextContent().trim();
+                }
+            }
+        }
+        LOG.debug("No InvocationType found!");
+        return null;
+    }
+
+    /**
      * Calls the invocation plug-in that supports the specific invocation-type and redirects invocations on remote
      * OpenTOSCA Containers to the 'remote' plug-in.
      *
@@ -144,33 +171,6 @@ public class PluginHandler {
         }
 
         LOG.debug("Artifact type was not found in the list of currently supported types: {}", pluginRegistry.getInvocationPluginServices().toString());
-        return null;
-    }
-
-    /**
-     * Checks if a InvocationType was specified in the Tosca.xml and returns it if so.
-     *
-     * @param properties to check for InvocationType.
-     * @return InvocationType if specified. Otherwise <tt>null</tt>.
-     */
-    private static String getInvocationType(final Document properties) {
-
-        // checks if there are specified properties at all.
-        if (properties != null) {
-            final NodeList list = properties.getFirstChild().getChildNodes();
-
-            for (int i = 0; i < list.getLength(); i++) {
-
-                final Node propNode = list.item(i);
-                final String localName = propNode.getLocalName();
-
-                // check if the node contains the InvocationType
-                if (localName != null && localName.equals("InvocationType")) {
-                    return propNode.getTextContent().trim();
-                }
-            }
-        }
-        LOG.debug("No InvocationType found!");
         return null;
     }
 }

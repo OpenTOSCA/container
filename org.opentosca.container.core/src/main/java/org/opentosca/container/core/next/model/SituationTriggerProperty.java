@@ -34,8 +34,6 @@ public class SituationTriggerProperty extends Property {
 
     public void setSituationTrigger(final SituationTrigger situationTrigger) {
         this.situationTrigger = situationTrigger;
-        if (!situationTrigger.getInputs().contains(this)) {
-            situationTrigger.getInputs().add(this);
-        }
+        situationTrigger.getInputs().add(this);
     }
 }

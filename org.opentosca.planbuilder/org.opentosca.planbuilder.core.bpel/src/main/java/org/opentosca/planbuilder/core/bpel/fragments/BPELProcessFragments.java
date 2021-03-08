@@ -145,7 +145,7 @@ public class BPELProcessFragments {
                 String inputLocalName = policy2IdMap.get(policy);
 
                 situationIdRequestBody += "<situationId/>";
-                copyFromInputToRequestBody += "<bpel:copy><bpel:from part=\"payload\" variable=\"input\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()='" + inputLocalName + "']/text()]]></bpel:query></bpel:from><bpel:to variable=\"$anyVar\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0\"><![CDATA[//*[local-name()='SituationsMonitor']/*[local-name()='NodeIds2SituationIds']/*[local-name()='entry' and ./*[local-name()='key' and text()='" + nodeTemplateId + "']]/*[local-name()='value']/*[local-name()='SituationIdsList']/*[local-name()='situationId'][" + String.valueOf(i + 1) + "]]]></bpel:query></bpel:to></bpel:copy>";
+                copyFromInputToRequestBody += "<bpel:copy><bpel:from part=\"payload\" variable=\"input\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()='" + inputLocalName + "']/text()]]></bpel:query></bpel:from><bpel:to variable=\"$anyVar\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0\"><![CDATA[//*[local-name()='SituationsMonitor']/*[local-name()='NodeIds2SituationIds']/*[local-name()='entry' and ./*[local-name()='key' and text()='" + nodeTemplateId + "']]/*[local-name()='value']/*[local-name()='SituationIdsList']/*[local-name()='situationId'][" + (i + 1) + "]]]></bpel:query></bpel:to></bpel:copy>";
             }
             situationIdRequestBody += "</SituationIdsList></value></entry>";
         }
@@ -281,11 +281,11 @@ public class BPELProcessFragments {
      */
     public Node createAssignFromInstancePropertyToBPELVariableAsNode(final String assignName,
                                                                      final String nodeInstancePropertyResponseVarName,
-                                                                     final Map<Element, String> propElement2BpelVarNameMap) throws IOException,
+                                                                     final Map<String, String> propElement2BpelVarNameMap, String namespace) throws IOException,
         SAXException {
         final String templateString =
             createAssignFromInstancePropertyToBPELVariableAsString(assignName, nodeInstancePropertyResponseVarName,
-                propElement2BpelVarNameMap);
+                propElement2BpelVarNameMap, namespace);
         return this.transformStringToNode(templateString);
     }
 
@@ -302,7 +302,7 @@ public class BPELProcessFragments {
      */
     public String createAssignFromInstancePropertyToBPELVariableAsString(final String assignName,
                                                                          final String nodeInstancePropertyResponseVarName,
-                                                                         final Map<Element, String> propElement2BpelVarNameMap) throws IOException {
+                                                                         final Map<String, String> propElement2BpelVarNameMap, String namespace) throws IOException {
         final String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelCopyFromPropertyVarToNodeInstanceProperty.xml"));
 
         String assignString =
@@ -310,11 +310,11 @@ public class BPELProcessFragments {
 
         // <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,
         // $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
-        for (final Element propElement : propElement2BpelVarNameMap.keySet()) {
+        for (final String propElement : propElement2BpelVarNameMap.keySet()) {
             String copyString = template.replace("$PropertyVarName", propElement2BpelVarNameMap.get(propElement));
             copyString = copyString.replace("$NodeInstancePropertyRequestVarName", nodeInstancePropertyResponseVarName);
-            copyString = copyString.replace("$NodeInstancePropertyLocalName", propElement.getLocalName());
-            copyString = copyString.replace("$NodeInstancePropertyNamespace", propElement.getNamespaceURI());
+            copyString = copyString.replace("$NodeInstancePropertyLocalName", propElement);
+            copyString = copyString.replace("$NodeInstancePropertyNamespace", namespace);
             assignString += copyString;
         }
 

@@ -304,7 +304,7 @@ public class BPELInvokeOperationHandler extends PluginHandler {
                         templateId + "_" + interfaceName + "_"
                             + operationName,
                         "fault"
-                            + String.valueOf(System.currentTimeMillis())),
+                            + System.currentTimeMillis()),
                     responseVariableName);
 
             checkForFault = context.importNode(checkForFault);

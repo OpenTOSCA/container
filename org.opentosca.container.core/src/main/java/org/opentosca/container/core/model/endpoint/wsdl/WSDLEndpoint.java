@@ -28,7 +28,7 @@ import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
 @Table(name = WSDLEndpoint.tableName,
     uniqueConstraints = @UniqueConstraint(columnNames = {"portType", "csarId", "managingContainer",
         "serviceTemplateInstanceID"}))
-@NamedQueries( {
+@NamedQueries({
     @NamedQuery(name = WSDLEndpoint.getWSDLEndpointByPortType, query = WSDLEndpoint.queryByPortType)
 })
 public class WSDLEndpoint extends AbstractEndpoint {
@@ -123,9 +123,6 @@ public class WSDLEndpoint extends AbstractEndpoint {
         if (compareEndpoint.getId() != getId()) {
             return false;
         }
-        if (!compareEndpoint.getCsarId().equals(getCsarId())) {
-            return false;
-        }
-        return true;
+        return compareEndpoint.getCsarId().equals(getCsarId());
     }
 }

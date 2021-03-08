@@ -115,7 +115,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
      */
     @Override
     public boolean isAbstract() {
-        return this.nodeTypeImpl.getAbstract().value().equals("yes") ? true : false;
+        return this.nodeTypeImpl.getAbstract();
     }
 
     /**
@@ -123,7 +123,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
      */
     @Override
     public boolean isFinal() {
-        return this.nodeTypeImpl.getFinal().value().equals("yes") ? true : false;
+        return this.nodeTypeImpl.getFinal();
     }
 
     /**
@@ -193,17 +193,13 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
     @Override
     public boolean equals(Object obj) {
 
-        if(!(obj instanceof AbstractNodeTypeImplementation)){
+        if (!(obj instanceof AbstractNodeTypeImplementation)) {
             return false;
         }
 
         NodeTypeImplementationImpl nodeImpl = (NodeTypeImplementationImpl) obj;
 
-        if(!(this.nodeTypeImpl.equals(nodeImpl.nodeTypeImpl))){
-            return false;
-        }
-
-        return true;
+        return this.nodeTypeImpl.equals(nodeImpl.nodeTypeImpl);
     }
 
     @Override

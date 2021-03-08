@@ -2,7 +2,7 @@ package org.opentosca.container.core.model.csar;
 
 public class CsarId implements Comparable<CsarId> {
 
-    private String name;
+    private final String name;
 
     public CsarId(String name) {
         this.name = name;

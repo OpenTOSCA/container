@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
@@ -110,7 +109,6 @@ public class RelationshipTemplateService {
             final TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateName);
             return ToscaEngine.getRelationshipTemplate(serviceTemplate, relationshipTemplateId)
                 .map(TRelationshipTemplate::getProperties)
-                .map(TEntityTemplate.Properties::getInternalAny)
                 .filter(Element.class::isInstance)
                 .map(Element.class::cast)
                 .map(Element::getOwnerDocument)

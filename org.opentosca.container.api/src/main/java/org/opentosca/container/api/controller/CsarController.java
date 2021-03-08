@@ -65,7 +65,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CsarController {
 
-    private static Logger logger = LoggerFactory.getLogger(CsarController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsarController.class);
 
     @Context
     private UriInfo uriInfo;
@@ -80,7 +80,7 @@ public class CsarController {
     private OpenToscaControlService controlService;
 
     @GET
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all CSARs", response = CsarListDTO.class)
     public Response getCsars() {
         logger.debug("Invoking getCsars");
@@ -106,7 +106,7 @@ public class CsarController {
 
     @GET
     @javax.ws.rs.Path("/{csar}")
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a CSAR", response = CsarDTO.class)
     public Response getCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
         logger.debug("Invoking getCsar");
@@ -174,7 +174,7 @@ public class CsarController {
 
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response uploadCsar(@FormDataParam("enrichment") final String applyEnrichment,
                                @FormDataParam("file") final InputStream is,
@@ -201,8 +201,8 @@ public class CsarController {
     }
 
     @POST
-    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Handles an upload request for a CSAR file")
     public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request) {
         logger.debug("Invoking uploadCsar");
@@ -250,39 +250,6 @@ public class CsarController {
         }
 
         Csar storedCsar = storage.findById(csarId);
-        try {
-            if (!this.csarService.generatePlans(storedCsar)) {
-                logger.info("Planning the CSAR failed. Deleting the failed import");
-                this.storage.deleteCSAR(csarId);
-                return Response.serverError().build();
-            }
-        } catch (Exception e) {
-            logger.warn("Planning the CSAR [{}] failed with an exception", csarId.csarName(), e);
-            try {
-                this.storage.deleteCSAR(csarId);
-            } catch (Exception log) {
-                logger.warn("Failed to delete CSAR [{}] with failed plans on import", csarId.csarName());
-            }
-            return Response.serverError().build();
-        }
-
-        // FIXME maybe this only makes sense when we have generated plans :/
-        this.controlService.declareStored(csarId);
-
-        final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
-        for (final TServiceTemplate serviceTemplate : serviceTemplates) {
-            logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-            if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
-                logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-                // do a rollback
-                try {
-                    storage.deleteCSAR(csarId);
-                } catch (Exception log) {
-                    logger.warn("Failed to delete CSAR [{}] with failed plan deployment on import", csarId.csarName(), log);
-                }
-                return Response.serverError().build();
-            }
-        }
 
         // TODO this is such a brutal hack, won't go through reviews....
         final boolean repoAvailable = wc.isWineryRepositoryAvailable();
@@ -333,6 +300,40 @@ public class CsarController {
             }
         }
 
+        try {
+            if (!this.csarService.generatePlans(storedCsar)) {
+                logger.info("Planning the CSAR failed. Deleting the failed import");
+                this.storage.deleteCSAR(csarId);
+                return Response.serverError().build();
+            }
+        } catch (Exception e) {
+            logger.warn("Planning the CSAR [{}] failed with an exception", csarId.csarName(), e);
+            try {
+                this.storage.deleteCSAR(csarId);
+            } catch (Exception log) {
+                logger.warn("Failed to delete CSAR [{}] with failed plans on import", csarId.csarName());
+            }
+            return Response.serverError().build();
+        }
+
+        // FIXME maybe this only makes sense when we have generated plans :/
+        this.controlService.declareStored(csarId);
+
+        final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
+        for (final TServiceTemplate serviceTemplate : serviceTemplates) {
+            logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
+            if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
+                logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
+                // do a rollback
+                try {
+                    storage.deleteCSAR(csarId);
+                } catch (Exception log) {
+                    logger.warn("Failed to delete CSAR [{}] with failed plan deployment on import", csarId.csarName(), log);
+                }
+                return Response.serverError().build();
+            }
+        }
+
         logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());
         final URI uri =
             UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId.csarName()));
@@ -373,8 +374,8 @@ public class CsarController {
     @POST
     @javax.ws.rs.Path("/transform")
     @ApiOperation(value = "Transform this CSAR to a new CSAR")
-    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
         logger.debug("Invoking transform Csar");
         final CsarId sourceCsar = new CsarId(request.getSourceCsarName());
@@ -382,7 +383,7 @@ public class CsarController {
 
         Collection<AbstractPlan> plansGenerated = this.csarService.generateTransformationPlans(sourceCsar, targetCsar);
         AbstractPlan planGenerated;
-        if(plansGenerated.isEmpty()){
+        if (plansGenerated.isEmpty()) {
             return Response.serverError().entity("Couldn't generate transformation plan").build();
         } else {
             // we should only have one plan here
@@ -395,13 +396,13 @@ public class CsarController {
         TPlan plan = null;
 
         for (TPlan tPlan : plans.getPlan()) {
-            if(tPlan.getId().equals(planGenerated.getId())){
+            if (tPlan.getId().equals(planGenerated.getId())) {
                 plan = tPlan;
                 break;
             }
         }
 
-        if(plan == null) {
+        if (plan == null) {
             return Response.serverError().entity("Couldn't generate transformation plan").build();
         }
 

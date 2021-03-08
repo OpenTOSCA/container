@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class PolicyTemplateImpl extends AbstractPolicyTemplate {
 
-    private static Logger logger = LoggerFactory.getLogger(PolicyTemplateImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(PolicyTemplateImpl.class);
 
     private final org.eclipse.winery.model.tosca.TPolicyTemplate policyTemplate;
     private final DefinitionsImpl defs;
@@ -47,7 +47,7 @@ public class PolicyTemplateImpl extends AbstractPolicyTemplate {
     @Override
     public AbstractProperties getProperties() {
         if (this.policyTemplate.getProperties() != null) {
-            return new PropertiesImpl(this.policyTemplate.getProperties().getInternalAny());
+            return new PropertiesImpl(this.policyTemplate.getProperties());
         } else {
             return null;
         }

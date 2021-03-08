@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
-import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -34,7 +33,7 @@ import org.springframework.stereotype.Service;
 public class PlanService {
 
     private static final PlanType[] ALL_PLAN_TYPES = PlanType.values();
-    private static Logger logger = LoggerFactory.getLogger(PlanService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PlanService.class);
     private final OpenToscaControlService controlService;
     private final DeploymentTestService deploymentTestService;
     private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
@@ -131,7 +130,6 @@ public class PlanService {
                 && Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Plan \"" + planId + "\" could not be found"));
-
 
         final PlanDTO dto = new PlanDTO(plan);
 

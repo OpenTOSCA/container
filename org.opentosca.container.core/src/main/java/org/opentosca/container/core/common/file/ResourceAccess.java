@@ -46,10 +46,6 @@ public class ResourceAccess {
         }
     }
 
-    public Path resolvedPath() {
-        return path;
-    }
-
     public static Path resolveUrl(URL resource) throws IOException, IllegalArgumentException {
         return new ResourceAccess(resource).resolvedPath();
     }
@@ -57,5 +53,9 @@ public class ResourceAccess {
     public static String readResourceAsString(URL resource) throws IOException, IllegalArgumentException {
         final Path resolved = resolveUrl(resource);
         return new String(Files.readAllBytes(resolved));
+    }
+
+    public Path resolvedPath() {
+        return path;
     }
 }

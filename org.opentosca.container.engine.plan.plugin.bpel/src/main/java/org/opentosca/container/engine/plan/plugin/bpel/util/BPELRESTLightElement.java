@@ -24,39 +24,13 @@ public class BPELRESTLightElement {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELRESTLightUpdater.class);
 
-    private BPELRESTLightElementType type;
-    private Node parentNode;
+    private final BPELRESTLightElementType type;
+    private final Node parentNode;
     private final Node uriNode;
     private URI uri = null;
     private String uriValue = null;
     private int firstVarPos;
     private URIFormatType uriType = null;
-
-    /**
-     * <p>
-     * This exception informs about what went wrong when initialzing BPELRESTLightElements fails
-     * </p>
-     * Copyright 2012 IAAS University of Stuttgart <br>
-     * <br>
-     *
-     * @author kepeskn@studi.informatik.uni-stuttgart.de
-     */
-    public class NoBPELRESTLightElementException extends Exception {
-
-        private static final long serialVersionUID = 900021575519412804L;
-
-        private NoBPELRESTLightElementException(final String msg) {
-            super(msg);
-        }
-
-        private NoBPELRESTLightElementException(final String msg, final Throwable e) {
-            super(msg, e);
-        }
-    }
-
-    protected enum URIFormatType {
-        PLAINURI, BPELVAR, BOTH
-    }
 
     /**
      * <p>
@@ -209,6 +183,15 @@ public class BPELRESTLightElement {
     }
 
     /**
+     * Returns the type of the uri value
+     *
+     * @return URIFormatType the type determined by this BPELRESTLightElement object
+     */
+    public URIFormatType getURIFormatType() {
+        return this.uriType;
+    }
+
+    /**
      * Determines the type of the uri value of the node this BPELRESTLightElement has to manage
      *
      * @param value the pure uri value inside the DOM node
@@ -286,15 +269,6 @@ public class BPELRESTLightElement {
     }
 
     /**
-     * Returns the type of the uri value
-     *
-     * @return URIFormatType the type determined by this BPELRESTLightElement object
-     */
-    public URIFormatType getURIFormatType() {
-        return this.uriType;
-    }
-
-    /**
      * Updates the DOM node handled by this BPELRESTLightElement object
      */
     private void updateNode() {
@@ -319,11 +293,8 @@ public class BPELRESTLightElement {
             if (!el.parentNode.equals(this.parentNode)) {
                 return false;
             }
-            if (!el.uriNode.equals(this.uriNode)) {
-                return false;
-            }
+            return el.uriNode.equals(this.uriNode);
         }
-        return true;
     }
 
     @Override
@@ -346,5 +317,31 @@ public class BPELRESTLightElement {
             System.out.println("nodeToString Transformer Exception");
         }
         return sw.toString();
+    }
+
+    protected enum URIFormatType {
+        PLAINURI, BPELVAR, BOTH
+    }
+
+    /**
+     * <p>
+     * This exception informs about what went wrong when initialzing BPELRESTLightElements fails
+     * </p>
+     * Copyright 2012 IAAS University of Stuttgart <br>
+     * <br>
+     *
+     * @author kepeskn@studi.informatik.uni-stuttgart.de
+     */
+    public class NoBPELRESTLightElementException extends Exception {
+
+        private static final long serialVersionUID = 900021575519412804L;
+
+        private NoBPELRESTLightElementException(final String msg) {
+            super(msg);
+        }
+
+        private NoBPELRESTLightElementException(final String msg, final Throwable e) {
+            super(msg, e);
+        }
     }
 }

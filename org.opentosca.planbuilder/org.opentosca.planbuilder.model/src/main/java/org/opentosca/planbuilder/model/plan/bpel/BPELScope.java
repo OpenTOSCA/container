@@ -23,13 +23,8 @@ import org.w3c.dom.Element;
  */
 public class BPELScope {
 
-    private AbstractActivity act;
-
-    public BPELScope(AbstractActivity activity) {
-        this.act = activity;
-        this.usedOperations = new HashMap<AbstractOperation, AbstractOperation>();
-    }
-
+    private final AbstractActivity act;
+    private final Map<AbstractOperation, AbstractOperation> usedOperations;
     // the buildplan this templatebuildplan belongs to
     private BPELPlan buildPlan;
 
@@ -50,19 +45,17 @@ public class BPELScope {
 
     private BPELScope bpelCompensationScope;
     private BPELScope bpelFaultScope;
-
-    private Map<AbstractOperation, AbstractOperation> usedOperations;
-
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
+
+    public BPELScope(AbstractActivity activity) {
+        this.act = activity;
+        this.usedOperations = new HashMap<AbstractOperation, AbstractOperation>();
+    }
 
     @Override
     public String toString() {
         return "BPELScope Plan: " + buildPlan.getId() + " Activity: " + this.act + ((this.getNodeTemplate() != null) ? " Node: " + this.nodeTemplate.getId() : " Relation: " + this.relationshipTemplate.getId());
-    }
-
-    public static enum BPELScopePhaseType {
-        PRE, PROVISIONING, POST
     }
 
     public AbstractActivity getActivity() {
@@ -370,5 +363,9 @@ public class BPELScope {
 
     public void addUsedOperation(AbstractOperation usedOperation, AbstractOperation compensationOperation) {
         this.usedOperations.put(usedOperation, compensationOperation);
+    }
+
+    public enum BPELScopePhaseType {
+        PRE, PROVISIONING, POST
     }
 }

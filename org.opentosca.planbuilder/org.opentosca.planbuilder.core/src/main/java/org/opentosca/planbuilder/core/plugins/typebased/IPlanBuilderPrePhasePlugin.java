@@ -12,11 +12,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
  */
 public interface IPlanBuilderPrePhasePlugin<T extends PlanContext> extends IPlanBuilderPlugin {
 
-    public boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
+    boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
 
-    public boolean handleCreate(T context, AbstractNodeTemplate nodeTemplate);
+    boolean handleCreate(T context, AbstractNodeTemplate nodeTemplate);
 
-    public boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
 
-    public boolean handleCreate(T context, AbstractRelationshipTemplate relationshipTemplate);
+    boolean handleCreate(T context, AbstractRelationshipTemplate relationshipTemplate);
 }

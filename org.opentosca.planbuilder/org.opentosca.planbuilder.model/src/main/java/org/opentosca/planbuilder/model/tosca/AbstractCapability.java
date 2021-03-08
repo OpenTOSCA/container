@@ -47,9 +47,6 @@ public abstract class AbstractCapability {
         if (!capability.getType().equals(this.getType())) {
             return false;
         }
-        if (!capability.getName().equals(this.getName())) {
-            return false;
-        }
-        return true;
+        return capability.getName().equals(this.getName());
     }
 }

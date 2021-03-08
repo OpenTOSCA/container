@@ -25,7 +25,7 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
     private final static Logger LOG = LoggerFactory.getLogger(TopologyTemplateImpl.class);
 
     protected final org.eclipse.winery.model.tosca.TTopologyTemplate topologyTemplate;
-    private QName serviceTemplateId;
+    private final QName serviceTemplateId;
     private final List<AbstractNodeTemplate> nodeTemplates;
     private final List<AbstractRelationshipTemplate> relationshipTemplates;
     private DefinitionsImpl definitions = null;

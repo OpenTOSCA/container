@@ -3,7 +3,7 @@ package org.opentosca.container.control;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -54,5 +54,4 @@ public interface OpenToscaControlService {
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, TPlans plans, TPlan plan);
 
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate);
-
 }

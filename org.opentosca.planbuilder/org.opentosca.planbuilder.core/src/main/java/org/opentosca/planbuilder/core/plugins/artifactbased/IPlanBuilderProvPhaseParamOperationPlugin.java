@@ -31,17 +31,17 @@ public interface IPlanBuilderProvPhaseParamOperationPlugin<T extends PlanContext
      * @param param2propertyMapping a mapping from operation parameters to tosca property variables
      * @return true iff the plugin generated and added a fragment into the ProvisioningPhase in the TemplateContext
      */
-    public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                          Map<AbstractParameter, Variable> param2propertyMapping);
+    boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                   Map<AbstractParameter, Variable> param2propertyMapping);
 
-    public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                          Map<AbstractParameter, Variable> param2propertyMapping, Element elementToAppendTo);
+    boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                   Map<AbstractParameter, Variable> param2propertyMapping, Element elementToAppendTo);
 
-    public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                          Map<AbstractParameter, Variable> param2propertyMapping,
-                          Map<AbstractParameter, Variable> param2PropertyOutputMapping);
+    boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                   Map<AbstractParameter, Variable> param2propertyMapping,
+                   Map<AbstractParameter, Variable> param2PropertyOutputMapping);
 
-    public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                          Map<AbstractParameter, Variable> param2propertyMapping,
-                          Map<AbstractParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo);
+    boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
+                   Map<AbstractParameter, Variable> param2propertyMapping,
+                   Map<AbstractParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo);
 }

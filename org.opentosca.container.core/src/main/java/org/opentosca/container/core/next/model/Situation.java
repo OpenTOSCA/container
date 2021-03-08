@@ -11,7 +11,7 @@ import org.opentosca.container.core.next.trigger.SituationListener;
 
 @Entity
 @Table(name = Situation.TABLE_NAME)
-@EntityListeners( {SituationListener.class})
+@EntityListeners({SituationListener.class})
 public class Situation extends PersistenceObject {
 
     public static final String TABLE_NAME = "SITUATION";
@@ -82,11 +82,7 @@ public class Situation extends PersistenceObject {
             return false;
         }
         final Situation entity = (Situation) o;
-        if (entity.getId().equals(this.id)) {
-            return true;
-        } else {
-            return false;
-        }
+        return entity.getId().equals(this.id);
     }
 
     @Override

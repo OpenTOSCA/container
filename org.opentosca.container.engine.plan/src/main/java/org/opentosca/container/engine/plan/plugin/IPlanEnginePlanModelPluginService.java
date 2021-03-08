@@ -27,7 +27,7 @@ public interface IPlanEnginePlanModelPluginService extends IPlanEnginePluginServ
      * @param csarId    the identifier of the CSAR this PlanModel element belongs to
      * @return true if deployment was successful, else false
      */
-    public boolean deployPlan(PlanModel planModel, CsarId csarId);
+    boolean deployPlan(PlanModel planModel, CsarId csarId);
 
     /**
      * <p>
@@ -42,5 +42,5 @@ public interface IPlanEnginePlanModelPluginService extends IPlanEnginePluginServ
      * @param csarId    the identifier of the CSAR this PlanModel element belongs to
      * @return true if undeployment was successful, else false
      */
-    public boolean undeployPlan(PlanModel planModel, CsarId csarId);
+    boolean undeployPlan(PlanModel planModel, CsarId csarId);
 }

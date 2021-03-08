@@ -23,8 +23,6 @@ import org.opentosca.container.api.planbuilder.PlanbuilderWorker;
 import org.opentosca.container.api.planbuilder.RunningTasks;
 import org.opentosca.container.api.planbuilder.model.GeneratePlanForTopology;
 import org.opentosca.container.api.planbuilder.model.PlanGenerationState;
-import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.impl.service.CsarStorageServiceImpl;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.planbuilder.importer.Importer;
@@ -48,15 +46,12 @@ public class PlanbuilderController {
 
     private static final ExecutorService backgroundWorker = Executors.newCachedThreadPool(r -> new Thread(r, "planbuilder-api-worker"));
     private static final Logger LOG = LoggerFactory.getLogger(PlanbuilderController.class);
-
-    @Context
-    UriInfo uriInfo;
-
-    @Inject
-    private CsarStorageService csarStorage;
-
     private final Importer importer;
     private final IHTTPService httpService;
+    @Context
+    UriInfo uriInfo;
+    @Inject
+    private CsarStorageService csarStorage;
 
     @Inject
     public PlanbuilderController(Importer importer, IHTTPService httpService) {

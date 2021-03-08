@@ -25,6 +25,14 @@ public class RelationshipTemplateDTO extends ResourceSupport {
     @XmlElement(name = "RelationshipType")
     private String relationshipType;
 
+    public static RelationshipTemplateDTO fromToscaObject(TRelationshipTemplate toscaObject) {
+        RelationshipTemplateDTO dto = new RelationshipTemplateDTO();
+        dto.id = toscaObject.getId();
+        dto.name = toscaObject.getName();
+        dto.relationshipType = toscaObject.getType().toString();
+        return dto;
+    }
+
     public String getId() {
         return this.id;
     }
@@ -48,13 +56,5 @@ public class RelationshipTemplateDTO extends ResourceSupport {
 
     public void setRelationshipType(final String relationshipType) {
         this.relationshipType = relationshipType;
-    }
-
-    public static RelationshipTemplateDTO fromToscaObject(TRelationshipTemplate toscaObject) {
-        RelationshipTemplateDTO dto = new RelationshipTemplateDTO();
-        dto.id = toscaObject.getId();
-        dto.name = toscaObject.getName();
-        dto.relationshipType = toscaObject.getType().toString();
-        return dto;
     }
 }

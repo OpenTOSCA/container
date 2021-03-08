@@ -10,13 +10,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-
-        <winery.version>v2.4.0-M1</winery.version>
-
-        <apache.cxf.version>3.1.10</apache.cxf.version>
-        <camel.version>2.18.3</camel.version>
+        <winery.version>ustutt-SNAPSHOT</winery.version>
+        <apache.cxf.version>3.1.18</apache.cxf.version>
+        <camel.version>2.18.5</camel.version>
         <commons-io.version>2.6</commons-io.version>
         <jaxb.version>2.2.11</jaxb.version>
         <!-- needs to match the jersey version used in winery to avoid conflicts -->
@@ -36,18 +32,6 @@
              <id>jcenter</id>
              <url>https://jcenter.bintray.com/</url>
         </repository>
-        <!--<repository>
-             <name>Spring Plugins Public Repository</name>
-             <id>spring-plugins</id>
-             <url>https://repo.spring.io/plugins-release/</url>
-        </repository>
-        <repository>
-            <name>Redhat General Access Public Repository</name>
-            <id>redhat-ga</id>
-            <url>https://maven.repository.redhat.com/ga/</url>
-        </repository>-->
-        <!-- for resthttp management bus api -->
-        <!-- pulling latest winery as just-in-time build -->
         <repository>
             <id>jitpack</id>
             <url>https://jitpack.io</url>
@@ -107,6 +91,14 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <configuration>
+                        <release>11</release>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -150,6 +142,12 @@
             <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.16</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -167,7 +165,7 @@
 
             <dependency>
                 <groupId>com.github.opentosca.winery</groupId>
-                <artifactId>org.eclipse.winery.model.tosca</artifactId>
+                <artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
                 <version>${winery.version}</version>
             </dependency>
             <dependency>

@@ -34,11 +34,11 @@ public enum MethodeType {
 
     POST, GET;
 
-    public String value() {
-        return name();
-    }
-
     public static MethodeType fromValue(final String v) {
         return valueOf(v);
+    }
+
+    public String value() {
+        return name();
     }
 }

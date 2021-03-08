@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.repository.backend.IRepository;
 
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -40,47 +40,42 @@ import org.slf4j.LoggerFactory;
 public class DefinitionsImpl extends AbstractDefinitions {
 
     private final static Logger LOG = LoggerFactory.getLogger(DefinitionsImpl.class);
-
+    protected final org.eclipse.winery.model.tosca.TDefinitions definitions;
     private final IRepository repository;
-    protected final org.eclipse.winery.model.tosca.Definitions definitions;
     private final Set<AbstractDefinitions> referencedDefinitions;
-    private final Set<org.eclipse.winery.model.tosca.Definitions> allDefs;
+    private final Set<org.eclipse.winery.model.tosca.TDefinitions> allDefs;
     private final Set<Path> filesInCsar;
     private final Set<AbstractServiceTemplate> serviceTemplates = new HashSet<>();
     private final Set<AbstractNodeType> nodeTypes = new HashSet<>();
     private final Set<AbstractNodeTypeImplementation> nodeTypeImpls = new HashSet<>();
     private final Set<AbstractRelationshipType> relationshipTypes = new HashSet<>();
-    private final Set<AbstractRelationshipTypeImplementation> relationshipTypeImpls= new HashSet<>();
-    private final Set<AbstractArtifactTemplate> artifactTemplates= new HashSet<>();
-    private final Set<AbstractArtifactType> artifactTypes= new HashSet<>();
-    private final Set<AbstractPolicyType> policyTypes= new HashSet<>();
-    private final Set<AbstractPolicyTemplate> policyTemlates= new HashSet<>();
-
-
+    private final Set<AbstractRelationshipTypeImplementation> relationshipTypeImpls = new HashSet<>();
+    private final Set<AbstractArtifactTemplate> artifactTemplates = new HashSet<>();
+    private final Set<AbstractArtifactType> artifactTypes = new HashSet<>();
+    private final Set<AbstractPolicyType> policyTypes = new HashSet<>();
+    private final Set<AbstractPolicyTemplate> policyTemlates = new HashSet<>();
 
     /**
      * Constructor with a Definitions file as File Object and all referenced File Artifacts as a File List
      *
-     * @param mainDef        the File of the TOSCA Definitions to load as DefinitionsImpl
-     * @param filesInCsar        a list of Files referenced by the given Definitions
+     * @param mainDef     the File of the TOSCA Definitions to load as DefinitionsImpl
+     * @param filesInCsar a list of Files referenced by the given Definitions
      */
-    public DefinitionsImpl(final org.eclipse.winery.model.tosca.Definitions mainDef, final Collection<org.eclipse.winery.model.tosca.Definitions> allDefs, Collection<Path> filesInCsar, IRepository repository) {
+    public DefinitionsImpl(final org.eclipse.winery.model.tosca.TDefinitions mainDef, final Collection<org.eclipse.winery.model.tosca.TDefinitions> allDefs, Collection<Path> filesInCsar, IRepository repository) {
         DefinitionsImpl.LOG.debug("Initializing DefinitionsImpl");
         this.repository = repository;
         this.definitions = mainDef;
         this.filesInCsar = new HashSet<>(filesInCsar);
         this.allDefs = new HashSet<>(allDefs);
 
-
-
         // HUGE assumption
-        if(this.definitions.getServiceTemplates().isEmpty()){
+        if (this.definitions.getServiceTemplates().isEmpty()) {
             this.referencedDefinitions = new HashSet<>();
         } else {
             this.referencedDefinitions = new HashSet<>(this.repository.getReferencedDefinitionsChildIds(new ServiceTemplateId(new QName(this.definitions.getServiceTemplates().get(0).getTargetNamespace(), this.definitions.getServiceTemplates().get(0).getId()))).stream().map(x -> new DefinitionsImpl(this.repository.getDefinitions(x), allDefs, filesInCsar, this.repository)).collect(Collectors.toList()));
         }
 
-        allDefs.forEach(definitions ->{
+        allDefs.forEach(definitions -> {
             this.serviceTemplates.addAll(definitions.getServiceTemplates().stream().map(x -> new ServiceTemplateImpl(x, this)).collect(Collectors.toList()));
             this.nodeTypes.addAll(definitions.getNodeTypes().stream().map(x -> new NodeTypeImpl(x, this)).collect(Collectors.toList()));
             this.relationshipTypes.addAll(definitions.getRelationshipTypes().stream().map(x -> new RelationshipTypeImpl(x, this)).collect(Collectors.toList()));
@@ -91,11 +86,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
             this.policyTypes.addAll(definitions.getPolicyTypes().stream().map(x -> new PolicyTypeImpl(x, this)).collect(Collectors.toList()));
             this.policyTemlates.addAll(definitions.getPolicyTemplates().stream().map(x -> new PolicyTemplateImpl(x, this)).collect(Collectors.toList()));
         });
-
-
-
     }
-
 
     /**
      * {@inheritDoc}
@@ -110,7 +101,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      *
      * @return the TOSCA Definitions of this DefinitionsImpl as JAXB class
      */
-    protected org.eclipse.winery.model.tosca.Definitions getDefinitions() {
+    protected org.eclipse.winery.model.tosca.TDefinitions getDefinitions() {
         return this.definitions;
     }
 
@@ -145,8 +136,6 @@ public class DefinitionsImpl extends AbstractDefinitions {
     public Collection<? extends AbstractDefinitions> getImportedDefinitions() {
         return this.referencedDefinitions;
     }
-
-
 
     /**
      * {@inheritDoc}
@@ -197,13 +186,11 @@ public class DefinitionsImpl extends AbstractDefinitions {
         final String path = ref.getReference();
         for (final Path file : this.filesInCsar) {
             if (file.toString().contains(path)) {
-                    return file.toFile();
+                return file.toFile();
             }
         }
         return null;
     }
-
-
 
     /**
      * Returns a List of all nodeTypes in the current csar context of this definitions document

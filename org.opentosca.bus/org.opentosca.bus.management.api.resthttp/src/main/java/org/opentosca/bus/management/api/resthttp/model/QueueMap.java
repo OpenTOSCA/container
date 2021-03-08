@@ -15,7 +15,7 @@ public class QueueMap {
 
     final private static Logger LOG = LoggerFactory.getLogger(QueueMap.class);
 
-    private static ConcurrentHashMap<String, Boolean> queue = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Boolean> queue = new ConcurrentHashMap<>();
 
     /**
      * Inserts an entry into the queue (if not already existing) and set it to finished.

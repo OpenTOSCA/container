@@ -50,7 +50,7 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
             Node getNodeInstances =
                 new BPELProcessFragments().createRESTExtensionGETForNodeInstanceDataAsNode(serviceTemplateUrlVar,
                     responseVarName,
-                    nodeTemplate.getId(), "?serviceInstanceId=$bpelvar[" + context.getServiceInstanceIDVarName() +"]");
+                    nodeTemplate.getId(), "?serviceInstanceId=$bpelvar[" + context.getServiceInstanceIDVarName() + "]");
             getNodeInstances = context.importNode(getNodeInstances);
             context.getPrePhaseElement().appendChild(getNodeInstances);
 
@@ -61,7 +61,6 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
                         + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), responseVarName,
                     nodeTemplateInstanceURLVar,
                     xpath2Query);
-            ;
             fetchNodeInstance = context.importNode(fetchNodeInstance);
             context.getPrePhaseElement().appendChild(fetchNodeInstance);
 

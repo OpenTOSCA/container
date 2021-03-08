@@ -47,6 +47,19 @@ public class ParameterHandler {
     }
 
     /**
+     * Checks if one of the supported properties is defined in the Map and returns an optional with the corresponding
+     * value.
+     *
+     * @param supportedProperties a List of supported properties
+     * @param propertiesMap       a Map containing properties of a NodeTemplateInstance
+     * @return an Optional with the value of a supported property if one is found, an empty Optional otherwise
+     */
+    private static Optional<String> getSupportedProperty(final List<String> supportedProperties,
+                                                         final Map<String, String> propertiesMap) {
+        return supportedProperties.stream().filter(propertiesMap::containsKey).findFirst().map(propertiesMap::get);
+    }
+
+    /**
      * Updates missing input parameters for a operation on a NodeTemplate or RelationshipTemplate with instance data.
      * The provided input parameters have priority, which means if one parameter is provided and found in the instance
      * data, then the provided parameter is used. <br>
@@ -272,18 +285,5 @@ public class ParameterHandler {
             .map(TOperation.InputParameters::getInputParameter)
             .map(l -> l.stream().map(TParameter::getName).collect(Collectors.toSet()))
             .orElse(Collections.emptySet());
-    }
-
-    /**
-     * Checks if one of the supported properties is defined in the Map and returns an optional with the corresponding
-     * value.
-     *
-     * @param supportedProperties a List of supported properties
-     * @param propertiesMap       a Map containing properties of a NodeTemplateInstance
-     * @return an Optional with the value of a supported property if one is found, an empty Optional otherwise
-     */
-    private static Optional<String> getSupportedProperty(final List<String> supportedProperties,
-                                                         final Map<String, String> propertiesMap) {
-        return supportedProperties.stream().filter(propertiesMap::containsKey).findFirst().map(propertiesMap::get);
     }
 }

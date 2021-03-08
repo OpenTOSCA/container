@@ -87,10 +87,7 @@ public abstract class AbstractRelationshipTemplate extends AbstractEntityTemplat
                 return false;
             }
 
-            if (!relation.getType().equals(this.getType())) {
-                return false;
-            }
-            return true;
+            return relation.getType().equals(this.getType());
         } else {
             return false;
         }

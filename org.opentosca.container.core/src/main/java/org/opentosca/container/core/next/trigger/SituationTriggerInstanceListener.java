@@ -56,136 +56,6 @@ public class SituationTriggerInstanceListener {
         new Thread(obs).start();
     }
 
-    private class SituationTriggerInstanceObserver implements Runnable {
-
-        final private Logger LOG = LoggerFactory.getLogger(SituationTriggerInstanceObserver.class);
-
-        private final SituationTriggerInstanceRepository repo = new SituationTriggerInstanceRepository();
-
-        @Autowired
-        private IPlanInvocationEngine planInvocEngine;
-        @Autowired
-        private CsarStorageService storage;
-
-        private final PlanInstanceRepository planRepository = new PlanInstanceRepository();
-        private final SituationTriggerInstance instance;
-
-        public SituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
-            this.instance = instance;
-        }
-
-        @Override
-        public void run() {
-            this.instance.setStarted(true);
-            this.repo.update(this.instance);
-            this.LOG.debug("Started SituationTriggerInstance " + this.instance.getId());
-
-            final String interfaceName = this.instance.getSituationTrigger().getInterfaceName();
-            final String operationName = this.instance.getSituationTrigger().getOperationName();
-            final Set<SituationTriggerProperty> inputs = this.instance.getSituationTrigger().getInputs();
-
-            long timeAvailableInSeconds = Long.MAX_VALUE;
-
-            for (Situation sit : this.instance.getSituationTrigger().getSituations()) {
-                if(sit.getEventTime() != null){ long duration = Long.parseLong(sit.getEventTime());
-                if (duration < timeAvailableInSeconds) {
-                    timeAvailableInSeconds = duration;
-                }
-                }
-            }
-
-            final ServiceTemplateInstance servInstance = this.instance.getSituationTrigger().getServiceInstance();
-            final NodeTemplateInstance nodeInstance = this.instance.getSituationTrigger().getNodeInstance();
-
-            if (nodeInstance == null) {
-
-                // plan invocation
-                Csar csar = storage.findById(this.instance.getSituationTrigger().getCsarId());
-
-                TExportedOperation op = null;
-                try {
-                    op = ToscaEngine.resolveBoundaryDefinitionOperation(csar.entryServiceTemplate(),
-                        interfaceName, operationName);
-                } catch (NotFoundException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-
-                // get info about current plan
-
-                final TPlan plan = (TPlan) op.getPlan().getPlanRef();
-
-                final TPlanDTO planDTO = new TPlanDTO(plan, csar.entryServiceTemplate().getTargetNamespace());
-
-                final long calculatedTimeFromPreviousExecutions = Long.valueOf(
-                    plan.getOtherAttributes().getOrDefault(new QName("http://opentosca.org"), String.valueOf(0)));
-
-                if (calculatedTimeFromPreviousExecutions > 0) {
-                    // check if time is shorter than timeAvailable
-                    if (calculatedTimeFromPreviousExecutions > timeAvailableInSeconds) {
-                        this.LOG.info("Update (WCET = %d ms) not completable in timeframe of %d ms. Aborting.",
-                            calculatedTimeFromPreviousExecutions, timeAvailableInSeconds);
-                        return;
-                    } else {
-                        this.LOG.info("Update (WCET = %d ms) is completable in timeframe of %d ms. Executing.",
-                            calculatedTimeFromPreviousExecutions, timeAvailableInSeconds);
-                    }
-                }
-
-                this.LOG.debug("Time: " + calculatedTimeFromPreviousExecutions);
-
-                for (final TParameterDTO param : planDTO.getInputParameters().getInputParameter()) {
-                    if (servInstance != null && param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
-                        String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + servInstance.getId();
-                        url = url.replace("{csarid}", csar.id().csarName());
-                        url = url.replace("{servicetemplateid}", UriComponent
-                            .encode(servInstance.getTemplateId().toString(), UriComponent.Type.PATH_SEGMENT));
-
-                        final URI uri = URI.create(UriComponent.encode(url, UriComponent.Type.PATH));
-                        param.setValue(uri.toString());
-                    }
-
-                    if (param.getValue() == null) {
-                        for (final SituationTriggerProperty val : inputs) {
-                            if (param.getName().equals(val.getName())) {
-                                param.setValue(val.getValue());
-                            }
-                        }
-                    }
-                }
-
-                try {
-                    final String correlationId = planInvocEngine.createCorrelationId();
-                    // FIXME QName natural key migration to string leftover
-                    if (servInstance != null) {
-                        planInvocEngine.invokePlan(instance.getSituationTrigger().getCsarId(), new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()), servInstance.getId(),
-                            planDTO, correlationId);
-                    } else {
-                        planInvocEngine.invokePlan(instance.getSituationTrigger().getCsarId(), new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()), -1,
-                            planDTO, correlationId);
-                    }
-
-                    // now wait for finished execution
-                    PlanInstance planInstance = planRepository.findByCorrelationId(correlationId);
-                    while (!(planInstance.getState() == PlanInstanceState.FINISHED)
-                        || planInstance.getState() == PlanInstanceState.FAILED) {
-                        Thread.sleep(10000);
-                        planInstance = planRepository.findByCorrelationId(correlationId);
-                    }
-
-                    // plan finished, write output to trigger instance
-                    planInstance.getOutputs().forEach(x -> instance.getOutputs()
-                        .add(new SituationTriggerInstanceProperty(x.getName(), x.getValue(), x.getType())));
-
-                    instance.setFinished(true);
-                    repo.update(instance);
-                } catch (final InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
     private boolean isPlanExecutionFinished(final TPlanDTO plan, final String correlationId) {
 
         for (final TParameterDTO param : plan.getOutputParameters().getOutputParameter()) {
@@ -274,6 +144,135 @@ public class SituationTriggerInstanceListener {
         } else {
             longestDurationMap.put(aEvent.getNodeTemplateID() + aEvent.getOperationName(),
                 aEvent.getExecutionDuration());
+        }
+    }
+
+    private class SituationTriggerInstanceObserver implements Runnable {
+
+        final private Logger LOG = LoggerFactory.getLogger(SituationTriggerInstanceObserver.class);
+
+        private final SituationTriggerInstanceRepository repo = new SituationTriggerInstanceRepository();
+        private final PlanInstanceRepository planRepository = new PlanInstanceRepository();
+        private final SituationTriggerInstance instance;
+        @Autowired
+        private IPlanInvocationEngine planInvocEngine;
+        @Autowired
+        private CsarStorageService storage;
+
+        public SituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
+            this.instance = instance;
+        }
+
+        @Override
+        public void run() {
+            this.instance.setStarted(true);
+            this.repo.update(this.instance);
+            this.LOG.debug("Started SituationTriggerInstance " + this.instance.getId());
+
+            final String interfaceName = this.instance.getSituationTrigger().getInterfaceName();
+            final String operationName = this.instance.getSituationTrigger().getOperationName();
+            final Set<SituationTriggerProperty> inputs = this.instance.getSituationTrigger().getInputs();
+
+            long timeAvailableInSeconds = Long.MAX_VALUE;
+
+            for (Situation sit : this.instance.getSituationTrigger().getSituations()) {
+                if (sit.getEventTime() != null) {
+                    long duration = Long.parseLong(sit.getEventTime());
+                    if (duration < timeAvailableInSeconds) {
+                        timeAvailableInSeconds = duration;
+                    }
+                }
+            }
+
+            final ServiceTemplateInstance servInstance = this.instance.getSituationTrigger().getServiceInstance();
+            final NodeTemplateInstance nodeInstance = this.instance.getSituationTrigger().getNodeInstance();
+
+            if (nodeInstance == null) {
+
+                // plan invocation
+                Csar csar = storage.findById(this.instance.getSituationTrigger().getCsarId());
+
+                TExportedOperation op = null;
+                try {
+                    op = ToscaEngine.resolveBoundaryDefinitionOperation(csar.entryServiceTemplate(),
+                        interfaceName, operationName);
+                } catch (NotFoundException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+
+                // get info about current plan
+
+                final TPlan plan = (TPlan) op.getPlan().getPlanRef();
+
+                final TPlanDTO planDTO = new TPlanDTO(plan, csar.entryServiceTemplate().getTargetNamespace());
+
+                final long calculatedTimeFromPreviousExecutions = Long.valueOf(
+                    plan.getOtherAttributes().getOrDefault(new QName("http://opentosca.org"), String.valueOf(0)));
+
+                if (calculatedTimeFromPreviousExecutions > 0) {
+                    // check if time is shorter than timeAvailable
+                    if (calculatedTimeFromPreviousExecutions > timeAvailableInSeconds) {
+                        this.LOG.info("Update (WCET = %d ms) not completable in timeframe of %d ms. Aborting.",
+                            calculatedTimeFromPreviousExecutions, timeAvailableInSeconds);
+                        return;
+                    } else {
+                        this.LOG.info("Update (WCET = %d ms) is completable in timeframe of %d ms. Executing.",
+                            calculatedTimeFromPreviousExecutions, timeAvailableInSeconds);
+                    }
+                }
+
+                this.LOG.debug("Time: " + calculatedTimeFromPreviousExecutions);
+
+                for (final TParameterDTO param : planDTO.getInputParameters().getInputParameter()) {
+                    if (servInstance != null && param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
+                        String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + servInstance.getId();
+                        url = url.replace("{csarid}", csar.id().csarName());
+                        url = url.replace("{servicetemplateid}", UriComponent
+                            .encode(servInstance.getTemplateId(), UriComponent.Type.PATH_SEGMENT));
+
+                        final URI uri = URI.create(UriComponent.encode(url, UriComponent.Type.PATH));
+                        param.setValue(uri.toString());
+                    }
+
+                    if (param.getValue() == null) {
+                        for (final SituationTriggerProperty val : inputs) {
+                            if (param.getName().equals(val.getName())) {
+                                param.setValue(val.getValue());
+                            }
+                        }
+                    }
+                }
+
+                try {
+                    final String correlationId = planInvocEngine.createCorrelationId();
+                    // FIXME QName natural key migration to string leftover
+                    if (servInstance != null) {
+                        planInvocEngine.invokePlan(instance.getSituationTrigger().getCsarId(), new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()), servInstance.getId(),
+                            planDTO, correlationId);
+                    } else {
+                        planInvocEngine.invokePlan(instance.getSituationTrigger().getCsarId(), new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()), -1,
+                            planDTO, correlationId);
+                    }
+
+                    // now wait for finished execution
+                    PlanInstance planInstance = planRepository.findByCorrelationId(correlationId);
+                    while (!(planInstance.getState() == PlanInstanceState.FINISHED)
+                        || planInstance.getState() == PlanInstanceState.FAILED) {
+                        Thread.sleep(10000);
+                        planInstance = planRepository.findByCorrelationId(correlationId);
+                    }
+
+                    // plan finished, write output to trigger instance
+                    planInstance.getOutputs().forEach(x -> instance.getOutputs()
+                        .add(new SituationTriggerInstanceProperty(x.getName(), x.getValue(), x.getType())));
+
+                    instance.setFinished(true);
+                    repo.update(instance);
+                } catch (final InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 }

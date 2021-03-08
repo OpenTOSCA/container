@@ -28,7 +28,7 @@ import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
  * REST operation element in the TOSCA-Specification.
  */
 // Named Queries for JPA
-@NamedQueries( {@NamedQuery(name = RESTEndpoint.getEndpointForPath, query = RESTEndpoint.getEndpointForPathQuery),
+@NamedQueries({@NamedQuery(name = RESTEndpoint.getEndpointForPath, query = RESTEndpoint.getEndpointForPathQuery),
     @NamedQuery(name = RESTEndpoint.getEndpointForPathAndMethod,
         query = RESTEndpoint.getEndpointForPathAndMethodQuery),
     @NamedQuery(name = RESTEndpoint.getEndpointForUri, query = RESTEndpoint.getEndpointForUriQuery)})
@@ -52,34 +52,24 @@ public class RESTEndpoint extends AbstractEndpoint {
     // Query to check if an Endpoint with given URI exists.
     protected static final String getEndpointForUriQuery =
         "select t from " + RESTEndpoint.tableName + " t where t.uri = :uri and t.csarId = :csarId and t.triggeringContainer = :triggeringContainer";
-
-    public enum restMethod {
-        GET, PUT, POST, DELETE
-    }
-
+    @Column(name = "RequestHeaders")
+    @ElementCollection
+    private final List<RequestHeader> headers = new ArrayList<>();
+    @Column(name = "Parameters")
+    @ElementCollection
+    private final List<Parameter> params = new ArrayList<>();
     // Converter to Convert QNames to String, and back from String to QName.
     // Used when persisting, so we can Query for QName-Objects.
     @Basic
     @Convert(converter = QNameConverter.class)
     @Column(name = "method")
     private restMethod method;
-
     @Column(name = "path")
     private String path;
-
     @Convert(converter = QNameConverter.class)
     private QName requestPayload;
-
     @Convert(converter = QNameConverter.class)
     private QName responsePayload;
-
-    @Column(name = "RequestHeaders")
-    @ElementCollection
-    private final List<RequestHeader> headers = new ArrayList<>();
-
-    @Column(name = "Parameters")
-    @ElementCollection
-    private final List<Parameter> params = new ArrayList<>();
 
     public RESTEndpoint() {
         super();
@@ -143,5 +133,9 @@ public class RESTEndpoint extends AbstractEndpoint {
 
     public List<Parameter> getParameters() {
         return this.params;
+    }
+
+    public enum restMethod {
+        GET, PUT, POST, DELETE
     }
 }

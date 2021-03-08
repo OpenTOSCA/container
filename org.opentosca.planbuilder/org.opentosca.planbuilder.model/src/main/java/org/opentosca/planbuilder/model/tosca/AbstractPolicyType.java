@@ -38,10 +38,6 @@ public abstract class AbstractPolicyType {
             return false;
         }
 
-        if (!policyType.getProperties().equals(this.getProperties())) {
-            return false;
-        }
-
-        return true;
+        return policyType.getProperties().equals(this.getProperties());
     }
 }

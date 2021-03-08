@@ -15,7 +15,7 @@ import org.opentosca.container.core.model.capability.provider.ProviderType;
 
 @Entity
 @Table(name = Capability.TABLE_NAME)
-@NamedQueries( {
+@NamedQueries({
     @NamedQuery(name = Capability.byProviderType, query = Capability.byProviderTypeQuery),
     @NamedQuery(name = Capability.byProvider, query = Capability.byProviderQuery)
 })
