@@ -2,12 +2,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
-import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
@@ -15,7 +16,6 @@ import org.eclipse.winery.common.configuration.FileBasedRepositoryConfiguration;
 import org.eclipse.winery.common.configuration.GitBasedRepositoryConfiguration;
 import org.eclipse.winery.common.configuration.RepositoryConfigurationObject;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
-import org.eclipse.winery.repository.TestWithGitBackedRepository;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
@@ -26,7 +26,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.junit.Assert;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
@@ -94,16 +93,15 @@ public class CSARTest {
         CsarExporter exporter = new CsarExporter(this.repository);
         Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
         Map<String, Object> exportConfiguration = new HashMap<>();
-        exporter.writeCsar(new ServiceTemplateId(serviceTemplateId),Files.newOutputStream(csarFilePath),exportConfiguration);
+        exporter.writeCsar(new ServiceTemplateId(serviceTemplateId), Files.newOutputStream(csarFilePath), exportConfiguration);
 
-        Csar csar = storage.findById(new CsarId(serviceTemplateId.getLocalPart()+".csar"));
-        if(csar == null){
+        CsarId csarId = new CsarId(serviceTemplateId.getLocalPart() + ".csar");
+        Set<Csar> csars = storage.findAll();
+        Collection<CsarId> csarIds = csars.stream().filter(x -> x.id().equals(csarId)).map(x -> x.id()).collect(Collectors.toList());
+
+        if (!csarIds.contains(csarId)) {
             storage.storeCSAR(csarFilePath);
-            Set<Csar> csars = storage.findAll();
-            csar = storage.findById(new CsarId(serviceTemplateId.getLocalPart()+".csar"));
         }
-
-        this.csar = csar;
+        this.csar = storage.findById(csarId);
     }
-
 }
