@@ -14,6 +14,12 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      engine-plan:
+        image: opentosca/ode:latest
+        ports:
+          - 9763:9763
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
