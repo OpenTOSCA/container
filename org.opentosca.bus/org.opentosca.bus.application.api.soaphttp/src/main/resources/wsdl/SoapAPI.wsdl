@@ -113,7 +113,7 @@
 	</binding>
 	<service name="AppInvokerSoapWebServiceService">
 		<port name="AppInvokerSoapWebServicePort" binding="tns:AppInvokerSoapWebServicePortBinding">
-			<soap:address location="http://localhost:8084/appinvoker"></soap:address>
+			<soap:address location="http://localhost:8086/appinvoker"></soap:address>
 		</port>
 	</service>
 </definitions>
