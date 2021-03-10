@@ -14,7 +14,7 @@
 	<packaging>war</packaging>
 
 	<properties>
-		<tomcat.version>7.0.93</tomcat.version>
+		<tomcat.version>9.0.43</tomcat.version>
 	</properties>
 
 	<build>
@@ -633,13 +633,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.1.2</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>1.2.3</version>
 		</dependency>
 	</dependencies>
 

@@ -2,7 +2,6 @@ package org.opentosca.bus.management.api.resthttp.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.restlet.RestletConstants;
 import org.json.simple.parser.ParseException;
 import org.restlet.Response;
 import org.restlet.data.MediaType;
@@ -29,7 +28,7 @@ public class ExceptionProcessor implements Processor {
 
         ExceptionProcessor.LOG.debug("Exception handling...");
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
 
         if (exchange.getIn().getBody() instanceof ParseException) {
             response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
