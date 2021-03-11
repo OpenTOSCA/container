@@ -169,7 +169,7 @@ public class MyTinyToDoIntegrationTest {
 
         Assert.assertTrue(nodeTemplateInstances.size() == 3);
         Assert.assertTrue(relationshipTemplateInstances.size() == 2);
-        
+
         List<org.opentosca.container.core.tosca.extension.TParameter> terminationOutInputParams = this.getTerminationPlanInputParameters(serviceInstanceUrl);
         String terminationPlanCorrelationId = this.planService.invokePlan(this.csar,serviceTemplate, buildPlanInstance.getServiceTemplateInstance().getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
         PlanInstance terminationPlanInstance = this.planService.getPlanInstanceByCorrelationId(terminationPlanCorrelationId);
@@ -238,7 +238,7 @@ public class MyTinyToDoIntegrationTest {
         dockerEngineUrl.setName("DockerEngineURL");
         dockerEngineUrl.setRequired(true);
         dockerEngineUrl.setType("String");
-        dockerEngineUrl.setValue("tcp://dind:2375");
+        dockerEngineUrl.setValue("tcp://172.17.0.1:2375");
 
         org.opentosca.container.core.tosca.extension.TParameter applicationPort = new org.opentosca.container.core.tosca.extension.TParameter();
         applicationPort.setName("ApplicationPort");
