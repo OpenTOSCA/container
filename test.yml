@@ -11,12 +11,7 @@ services:
     ports:
       - '9763:9763'
     networks:
-      - opentosca
-    image: opentosca/engine-ia:latest
-    ports:
-      - '8090:8080'
-    networks:
-      - opentosca
+      - opentosca    
   dind:
     image: jpetazzo/dind:latest
     privileged: true
