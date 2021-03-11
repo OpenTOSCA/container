@@ -14,30 +14,13 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    services:
-      engine-plan:
-        image: opentosca/ode:latest
-        ports:
-          - 9763:9763
-      engine-ia:
-        image: opentosca/engine-ia:latest
-        ports:
-          - '8090:8080'
-      dind:
-        image: jpetazzo/dind:latest
-        privileged: true
-        environment:
-          - PORT=2375
-          - DOCKER_DAEMON_ARGS=--dns 8.8.8.8 --dns 8.8.4.4 -D
-        ports:
-          - '2375:2375'
-          - '9990-9999:9990-9999'
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Setup test environment
+      run: docker-compose -f test.yml up -d
     - name: Build with Maven
       run: mvn -B package --file pom.xml --fail-at-end
