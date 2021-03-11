@@ -14,6 +14,16 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      engine-plan:
+        image: opentosca/ode:latest
+        ports:
+          - 9763:9763
+      engine-ia:
+        image: opentosca/engine-ia:latest
+        ports:
+          - 8099:8080
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -26,12 +36,6 @@ jobs:
       run: sudo systemctl daemon-reload
     - name: Restart Docker
       run: sudo service docker restart
-    - name: Setup test environment
-      run: docker-compose -f test.yml up -d
-    - name: Sleep for 30 seconds
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '30s'
     - name: Configure runtime with test properties
       run: cp test.properties ./org.opentosca.container.core/src/main/resources/application.properties
     - name: Build with Maven
