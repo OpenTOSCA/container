@@ -21,7 +21,11 @@ jobs:
       with:
         java-version: 11
     - name: Setup Docker Remote API
-      run: sh setupdockerapi.sh
+      run: sudo sed -ie "s@ExecStart=\/usr\/bin\/dockerd -H fd:\/\/@ExecStart=\/usr\/bin\/dockerd -H fd:\/\/ -H tcp:\/\/0.0.0.0:2375 -H unix:///var/run/docker.sock@g" /lib/systemd/system/docker.service
+    - name: Reload Deamones
+      run: sudo systemctl daemon-reload
+    - name: Restart Docker
+      run: sudo service docker restart
     - name: Setup test environment
       run: docker-compose -f test.yml up -d
     - name: Sleep for 30 seconds
