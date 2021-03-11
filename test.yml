@@ -1,5 +1,11 @@
 version: '3'
 services:
+  engine-ia:
+    image: opentosca/engine-ia:latest
+    ports:
+      - '8090:8080'
+    networks:
+      - opentosca
   engine-plan:
     image: opentosca/ode:latest
     ports:
