@@ -32,11 +32,17 @@ jobs:
         java-version: 11
     - name: Setup Docker Remote API
       run: sudo sed -ie "s@ExecStart=\/usr\/bin\/dockerd -H fd:\/\/@ExecStart=\/usr\/bin\/dockerd -H fd:\/\/ -H tcp:\/\/0.0.0.0:2375 -H unix:///var/run/docker.sock@g" /lib/systemd/system/docker.service
+    - name: Setup DOCKER_OPTS
+      run: sudo echo 'DOCKER_OPTS="-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock"' >> /etc/default/docker
     - name: Reload Deamones
       run: sudo systemctl daemon-reload
     - name: Restart Docker
       run: sudo service docker restart
     - name: Configure runtime with test properties
       run: cp test.properties ./org.opentosca.container.core/src/main/resources/application.properties
+    - name: Show application properties
+      run: cat ./org.opentosca.container.core/src/main/resources/application.properties
+    - name: Test Docker Remote API
+      run: curl -X GET http://localhost:2375/images/json
     - name: Build with Maven
       run: mvn -B package --file pom.xml --fail-at-end
