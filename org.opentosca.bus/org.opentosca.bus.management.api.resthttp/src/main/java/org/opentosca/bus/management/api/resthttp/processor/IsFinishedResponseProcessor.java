@@ -2,7 +2,6 @@ package org.opentosca.bus.management.api.resthttp.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.restlet.RestletConstants;
 import org.json.simple.JSONObject;
 import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
 import org.restlet.Response;
@@ -35,7 +34,7 @@ public class IsFinishedResponseProcessor implements Processor {
 
         IsFinishedResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
 
         if (exchange.getIn().getBody() instanceof Exception) {
 
@@ -50,7 +49,7 @@ public class IsFinishedResponseProcessor implements Processor {
 
                 response.setStatus(Status.REDIRECTION_SEE_OTHER);
                 response.setLocationRef(InvocationRoute.GET_RESULT_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER,
-                    requestID));
+                                                                                    requestID));
             } else {
                 IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
 

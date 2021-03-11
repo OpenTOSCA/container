@@ -2,7 +2,6 @@ package org.opentosca.bus.application.api.resthttp.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.restlet.RestletConstants;
 import org.json.simple.JSONObject;
 import org.opentosca.bus.application.api.resthttp.route.Route;
 import org.opentosca.bus.application.model.exception.ApplicationBusExternalException;
@@ -34,7 +33,7 @@ public class GetResultResponseProcessor implements Processor {
 
         GetResultResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
 
         if (exchange.getIn().getBody() instanceof Exception) {
 
@@ -62,8 +61,8 @@ public class GetResultResponseProcessor implements Processor {
                 response.setEntity("<result>" + result + "</result>", MediaType.APPLICATION_XML);
             } else {
                 GetResultResponseProcessor.LOG.warn("The requested entity media type (Accept header) is not supported. Supported types are {} and {}",
-                    MediaType.APPLICATION_JSON.getName(),
-                    MediaType.APPLICATION_XML.getName());
+                                                    MediaType.APPLICATION_JSON.getName(),
+                                                    MediaType.APPLICATION_XML.getName());
                 throw new ApplicationBusExternalException(
                     "The requested request entity media type (Accept header) is not supported. Supported types are "
                         + MediaType.APPLICATION_JSON.getName() + " and " + MediaType.APPLICATION_XML.getName(),
