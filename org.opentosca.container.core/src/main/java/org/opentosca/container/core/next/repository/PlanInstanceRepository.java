@@ -2,6 +2,7 @@ package org.opentosca.container.core.next.repository;
 
 import java.util.Collection;
 
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -13,8 +14,12 @@ import org.hibernate.Hibernate;
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.next.model.PlanInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
+
+    protected static final Logger logger = LoggerFactory.getLogger(PlanInstanceRepository.class);
 
     public PlanInstanceRepository() {
         super(PlanInstance.class);
@@ -67,7 +72,11 @@ public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
             PlanInstance result = q.getSingleResult();
             initializeInstance(result);
             return result;
+        } catch (NoResultException e) {
+            logger.debug("Didn't find plan for columnName "+ columnName + " and columnValue " + columnValue);
+            return null;
         }
+
     }
 
     @Override

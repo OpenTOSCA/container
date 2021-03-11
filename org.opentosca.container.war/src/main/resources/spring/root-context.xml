@@ -25,9 +25,6 @@
   <!-- fallback camel context for all camel-context dependents with no route configuration -->
   <camel:camelContext id="fallback" />
 
-  <!-- import RESTEasy spring definitions -->
-<!--  <import resource="classpath:springmvc-resteasy.xml" />-->
-
   <!-- importing external module's own configuration -->
   <import resource="classpath:/spring/context-api.xml" />
   <import resource="classpath:/spring/context-container-core.xml" />

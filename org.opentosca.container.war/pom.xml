@@ -14,7 +14,9 @@
 	<packaging>war</packaging>
 
 	<properties>
-		<tomcat.version>7.0.93</tomcat.version>
+		<tomcat.version>9.0.43</tomcat.version>
+        <springboot.version>1.5.22.RELEASE</springboot.version>
+        <cargo-maven3-plugin.version>1.9.2</cargo-maven3-plugin.version>
 	</properties>
 
 	<build>
@@ -25,113 +27,12 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.2</version>
-				<configuration>
-					<port>1337</port>
-					<path>/</path>
-
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-core</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-util</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-coyote</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-api</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jdbc</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-dbcp</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-servlet-api</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jsp-api</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jasper</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jasper-el</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-el-api</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-catalina</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-tribes</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-catalina-ha</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-annotations-api</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-juli</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-logging-juli</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-logging-log4j</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-				</dependencies>
-			</plugin>
 		</plugins>
 		<finalName>OpenTOSCA-container</finalName>
 	</build>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>org.opentosca</groupId>
 			<artifactId>org.opentosca.container.api</artifactId>
@@ -633,7 +534,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.1.2</version>
+			<version>${logback.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -641,6 +542,18 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	</dependencies>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${springboot.version}</version>
+        </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${springboot.version}</version>
+                <scope>test</scope>
+            </dependency>
+    </dependencies>
 </project>

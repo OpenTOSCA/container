@@ -49,7 +49,9 @@
     <listener-class>org.opentosca.container.war.Config</listener-class>
   </listener>
 
-  <servlet>
+
+
+    <servlet>
     <servlet-name>jersey-servlet</servlet-name>
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
     <init-param>
