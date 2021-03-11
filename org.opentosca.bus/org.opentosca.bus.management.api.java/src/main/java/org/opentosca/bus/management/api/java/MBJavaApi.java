@@ -21,7 +21,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.support.DefaultExchange;
@@ -131,7 +130,6 @@ public class MBJavaApi implements IManagementBus {
 
         // templates to communicate with the Management Bus
         final ProducerTemplate template = this.camelContext.createProducerTemplate();
-        final ConsumerTemplate consumer = this.camelContext.createConsumerTemplate();
 
         LOG.debug("Correlation id: {}", messageID);
         LOG.debug("Sending message {}", message);

@@ -1,7 +1,5 @@
 package org.opentosca.bus.management.api.resthttp.processor;
 
-
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.json.simple.JSONObject;
