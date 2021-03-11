@@ -14,6 +14,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    timeout-minutes: 10
+    
     services:
       engine-plan:
         image: opentosca/ode:latest
