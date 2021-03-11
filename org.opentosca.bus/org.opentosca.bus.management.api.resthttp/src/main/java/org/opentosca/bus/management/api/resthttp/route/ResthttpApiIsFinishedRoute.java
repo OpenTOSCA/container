@@ -28,11 +28,11 @@ public class ResthttpApiIsFinishedRoute extends RouteBuilder {
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
         // handle exceptions
-        onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
-            .process(exceptionProcessor);
+        onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
+                                    .process(exceptionProcessor);
 
-        from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
-            + "?restletMethod=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
-            .process(isFinishedResponseProcessor).removeHeaders("*");
+        from("rest:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
+            + "?method=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
+                            .process(isFinishedResponseProcessor).removeHeaders("*");
     }
 }

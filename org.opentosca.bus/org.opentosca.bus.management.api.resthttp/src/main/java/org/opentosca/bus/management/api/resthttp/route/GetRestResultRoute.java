@@ -28,11 +28,11 @@ public class GetRestResultRoute extends RouteBuilder {
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
         // handle exceptions
-        onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
-            .process(exceptionProcessor);
+        onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
+                                    .process(exceptionProcessor);
 
-        from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
-            + "?restletMethod=get").process(getResultRequestProcessor).process(getResultProcessor)
-            .process(getResultResponseProcessor).removeHeaders("*");
+        from("rest:get:" + InvocationRoute.BASE_ENDPOINT
+            + InvocationRoute.GET_RESULT_ENDPOINT).process(getResultRequestProcessor).process(getResultProcessor)
+                                                  .process(getResultResponseProcessor).removeHeaders("*");
     }
 }

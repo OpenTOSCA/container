@@ -2,7 +2,6 @@ package org.opentosca.bus.application.api.jsonhttp.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.restlet.RestletConstants;
 import org.opentosca.bus.application.api.jsonhttp.route.Route;
 import org.restlet.Response;
 import org.restlet.data.Status;
@@ -30,7 +29,7 @@ public class InvocationResponseProcessor implements Processor {
 
         InvocationResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
         response.setStatus(Status.SUCCESS_ACCEPTED);
         response.setLocationRef(Route.POLL_ENDPOINT.replace(Route.ID_PLACEHODLER, requestID));
         exchange.getOut().setBody(response);

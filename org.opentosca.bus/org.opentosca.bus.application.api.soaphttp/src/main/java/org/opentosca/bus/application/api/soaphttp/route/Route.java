@@ -5,23 +5,19 @@ import java.net.URL;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
-import org.apache.camel.Predicate;
 import org.apache.camel.Processor;
-import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.ValueBuilder;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.opentosca.bus.application.api.soaphttp.processor.RequestProcessor;
 import org.opentosca.bus.application.api.soaphttp.processor.ResponseProcessor;
-import org.opentosca.bus.application.api.soaphttp.servicehandler.ApplicationBusServiceHandler;
 import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
 
 /**
  * Route of the Application Bus-SOAP/HTTP-API.<br>
  * <br>
  * <p>
- * The endpoint of the SOAP/HTTP-API is created here. Incoming requests will be un/marshalled, routed to processors or
- * the application bus in order to handle the requests.
+ * The endpoint of the SOAP/HTTP-API is created here. Incoming requests will be un/marshalled,
+ * routed to processors or the application bus in order to handle the requests.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
@@ -41,10 +37,6 @@ public class Route extends RouteBuilder {
             + "&serviceName={http://opentosca.org/appinvoker/}AppInvokerSoapWebServiceService&portName="
             + PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
-        final ValueBuilder APP_BUS_ENDPOINT =
-            new ValueBuilder(method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
-        final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
-
         final ClassLoader cl = org.opentosca.bus.application.api.soaphttp.model.ObjectFactory.class.getClassLoader();
         final JAXBContext jc = JAXBContext.newInstance("org.opentosca.bus.application.api.soaphttp.model", cl);
         final JaxbDataFormat jaxb = new JaxbDataFormat(jc);
@@ -52,15 +44,12 @@ public class Route extends RouteBuilder {
         final Processor requestProcessor = new RequestProcessor();
         final Processor responseProcessor = new ResponseProcessor();
 
-        from(SOAP_ENDPOINT).unmarshal(jaxb).process(requestProcessor).choice().when(APP_BUS_ENDPOINT_EXISTS)
-            //FIXME this recipientList should be replaced with a directly injected service reference
-            .recipientList(APP_BUS_ENDPOINT).to("direct:handleResponse").endChoice().otherwise()
-            .to("direct:handleException");
+        from(SOAP_ENDPOINT).unmarshal(jaxb).process(requestProcessor)
+                           .to("direct-vm:org.opentosca.bus.application.service").to("direct:handleResponse");
 
         // handle exception if Application Bus is not running or wasn't bound
-        from("direct:handleException")
-            .throwException(new ApplicationBusInternalException("It seems like the Application Bus is not running."))
-            .to("direct:handleResponse");
+        from("direct:handleException").throwException(new ApplicationBusInternalException(
+            "It seems like the Application Bus is not running.")).to("direct:handleResponse");
 
         // handle response
         from("direct:handleResponse").process(responseProcessor).marshal(jaxb);

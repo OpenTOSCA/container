@@ -2,7 +2,6 @@ package org.opentosca.bus.application.api.resthttp.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.restlet.RestletConstants;
 import org.json.simple.JSONObject;
 import org.opentosca.bus.application.api.resthttp.route.Route;
 import org.opentosca.bus.application.model.exception.ApplicationBusExternalException;
@@ -33,7 +32,7 @@ public class IsFinishedResponseProcessor implements Processor {
 
         IsFinishedResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
 
         if (exchange.getIn().getBody() instanceof Exception) {
 

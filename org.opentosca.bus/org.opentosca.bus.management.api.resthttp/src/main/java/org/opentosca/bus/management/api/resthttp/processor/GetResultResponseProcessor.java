@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.restlet.RestletConstants;
 import org.json.simple.JSONObject;
 import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
 import org.restlet.Response;
@@ -37,7 +36,7 @@ public class GetResultResponseProcessor implements Processor {
 
         GetResultResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
 
         if (exchange.getIn().getBody() instanceof Exception) {
 
