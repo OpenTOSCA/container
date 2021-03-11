@@ -4,7 +4,11 @@ services:
     image: opentosca/engine-ia:latest
     ports:
       - '8099:8080'
+  networks:
+    - host
   engine-plan:
     image: opentosca/ode:latest
     ports:
       - '9763:9763'
+  networks:
+    - host
