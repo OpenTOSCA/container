@@ -3,7 +3,7 @@ services:
   engine-ia:
     image: opentosca/engine-ia:latest
     ports:
-      - '8090:8080'
+      - '8099:8080'
     networks:
       - opentosca
   engine-plan:

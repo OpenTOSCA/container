@@ -26,5 +26,7 @@ jobs:
       uses: jakejarvis/wait-action@master
       with:
         time: '30s'
+    - name: Configure runtime with test properties
+      run: cp test.properties ./org.opentosca.container.core/src/main/resources/application.properties
     - name: Build with Maven
       run: mvn -B package --file pom.xml --fail-at-end
