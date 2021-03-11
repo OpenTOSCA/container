@@ -39,10 +39,9 @@ import org.w3c.dom.Document;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * <p>
- * The Plug-in gets needed information (like endpoint of the service or operation to invoke) from
- * the Management Bus and creates a SOAP message out of it. If needed the Plug-in parses the WSDL of
- * the service. The Plug-in supports synchronous request-response communication, asynchronous
- * communication with callbacks and one-way invocation.
+ * The Plug-in gets needed information (like endpoint of the service or operation to invoke) from the Management Bus and
+ * creates a SOAP message out of it. If needed the Plug-in parses the WSDL of the service. The Plug-in supports
+ * synchronous request-response communication, asynchronous communication with callbacks and one-way invocation.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
@@ -105,12 +104,12 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
             final QName messagePayloadType =
                 ((javax.wsdl.Part) operation.getOperation().getInput().getMessage().getOrderedParts(null)
-                                            .get(0)).getElementName();
+                    .get(0)).getElementName();
             headers.put("SOAPEndpoint", endpoint);
 
             // add the operation header for the cxf endpoint explicitly if invoking an IA
             if (Objects.nonNull(message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(),
-                                                  String.class))) {
+                String.class))) {
                 headers.put("operationName", operationName);
             }
 
@@ -120,8 +119,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 return null;
             }
             message.setHeader("ParamsMode", "HashMap");
-            @SuppressWarnings("unchecked")
-            final HashMap<String, String> paramsMap = (HashMap<String, String>) params;
+            @SuppressWarnings("unchecked") final HashMap<String, String> paramsMap = (HashMap<String, String>) params;
             // special handling for CALLBACK messages
             if (messagingPattern == MessagingPattern.CALLBACK) {
                 String messageId = message.getMessageId();
@@ -146,10 +144,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 }
                 if (paramsMap.containsKey("planCallbackAddress_invoker")) {
                     paramsMap.put("planCallbackAddress_invoker",
-                                  "http://localhost:9763/services/" + csarID.csarName() + "InvokerService/");
+                        "http://localhost:9763/services/" + csarID.csarName() + "InvokerService/");
                 } else {
                     headers.put("planCallbackAddress_invoker",
-                                "http://localhost:9763/services/" + csarID.csarName() + "InvokerService/");
+                        "http://localhost:9763/services/" + csarID.csarName() + "InvokerService/");
                 }
             }
 
@@ -197,8 +195,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                         consumer.start();
                         ex = consumer.receive("direct:Async-WS-Callback" + messageID);
                         consumer.stop();
-                    }
-                    catch (final Exception e) {
+                    } catch (final Exception e) {
                         e.printStackTrace();
                     }
 
@@ -215,7 +212,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                 break;
             default:
                 LOG.error("Unhandled messaging pattern \"{}\" in management bus soaphttp invocation plugin!",
-                          messagingPattern);
+                    messagingPattern);
                 return null;
         }
 
@@ -244,8 +241,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             wsdlFactory = WSDLFactory.newInstance();
             final WSDLReader wsdlDefinitionReader = wsdlFactory.newWSDLReader();
             return wsdlDefinitionReader.readWSDL(endpoint);
-        }
-        catch (final WSDLException e) {
+        } catch (final WSDLException e) {
             LOG.warn("Could not read WSDL definitions from endpoint {} due to WSDLException", endpoint, e);
         }
         return null;
@@ -272,7 +268,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
      * Determine if the specified operation of the specified wsdl defines output parameter.
      *
      * @return <code>true</code> if operation returns output params. Otherwise <code>false</code>. If
-     *         operation can't be found <code>null</code> is returned.
+     * operation can't be found <code>null</code> is returned.
      */
     private boolean hasOutputDefined(final BindingOperation operation) {
         // If wsdl is not accessible, try again (max wait 5 min)

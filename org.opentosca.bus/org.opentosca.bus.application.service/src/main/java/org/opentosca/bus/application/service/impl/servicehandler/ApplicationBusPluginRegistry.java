@@ -31,7 +31,7 @@ public class ApplicationBusPluginRegistry {
             for (IApplicationBusPluginService plugin : plugins.get()) {
                 final String routingEndpoint = plugin.getRoutingEndpoint();
                 plugin.getSupportedInvocationTypes()
-                      .forEach(invocationType -> pluginServices.put(invocationType, routingEndpoint));
+                    .forEach(invocationType -> pluginServices.put(invocationType, routingEndpoint));
             }
         }
     }

@@ -61,8 +61,8 @@ public class GetResultResponseProcessor implements Processor {
                 response.setEntity("<result>" + result + "</result>", MediaType.APPLICATION_XML);
             } else {
                 GetResultResponseProcessor.LOG.warn("The requested entity media type (Accept header) is not supported. Supported types are {} and {}",
-                                                    MediaType.APPLICATION_JSON.getName(),
-                                                    MediaType.APPLICATION_XML.getName());
+                    MediaType.APPLICATION_JSON.getName(),
+                    MediaType.APPLICATION_XML.getName());
                 throw new ApplicationBusExternalException(
                     "The requested request entity media type (Accept header) is not supported. Supported types are "
                         + MediaType.APPLICATION_JSON.getName() + " and " + MediaType.APPLICATION_XML.getName(),

@@ -49,7 +49,7 @@ public class IsFinishedResponseProcessor implements Processor {
 
                 response.setStatus(Status.REDIRECTION_SEE_OTHER);
                 response.setLocationRef(InvocationRoute.GET_RESULT_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER,
-                                                                                    requestID));
+                    requestID));
             } else {
                 IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
 

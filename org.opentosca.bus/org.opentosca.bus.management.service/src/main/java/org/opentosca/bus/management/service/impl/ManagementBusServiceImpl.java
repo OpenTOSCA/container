@@ -20,12 +20,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.namespace.QName;
 
-
-import org.apache.camel.Exchange;
-import org.apache.camel.Message;
-import org.apache.camel.ProducerTemplate;
-import org.apache.camel.support.DefaultExchange;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.winery.model.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
@@ -43,6 +37,11 @@ import org.eclipse.winery.model.tosca.TRequiredContainerFeatures;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTag;
 
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.support.DefaultExchange;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;

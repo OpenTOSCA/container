@@ -15,8 +15,8 @@ import org.opentosca.bus.application.model.exception.ApplicationBusInternalExcep
  * Route of the Application Bus-REST/HTTP-API.<br>
  * <br>
  * <p>
- * The endpoint of the REST/HTTP-API is created here. Incoming requests will be routed to processors
- * or the application bus in order to handle the requests.
+ * The endpoint of the REST/HTTP-API is created here. Incoming requests will be routed to processors or the application
+ * bus in order to handle the requests.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
