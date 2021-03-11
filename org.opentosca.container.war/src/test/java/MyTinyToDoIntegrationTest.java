@@ -16,7 +16,6 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.configuration.FileBasedRepositoryConfiguration;
-import org.eclipse.winery.common.configuration.GitBasedRepositoryConfiguration;
 import org.eclipse.winery.common.configuration.RepositoryConfigurationObject;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
@@ -28,6 +27,7 @@ import org.eclipse.winery.repository.export.CsarExporter;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -81,18 +81,48 @@ public class MyTinyToDoIntegrationTest {
     @Inject
     InstanceService instanceService;
 
-    public MyTinyToDoIntegrationTest() {
-
-    }
-
     @Test
-    public void test() throws SystemException, UserException, InterruptedException, ExecutionException, RepositoryCorruptException, AccountabilityException, IOException {
-        this.fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker"), this.storage);
+    public void test() {
+        try {
+            this.fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker"), this.storage);
+        } catch (SystemException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        } catch (UserException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        } catch (AccountabilityException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        } catch (RepositoryCorruptException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
 
         Assert.assertNotNull(storage);
         Assert.assertNotNull(control);
         Assert.assertNotNull(repository);
-        Assert.assertTrue(this.csarService.generatePlans(this.csar));
+        try {
+            Assert.assertTrue(this.csarService.generatePlans(this.csar));
+        } catch (SystemException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        } catch (UserException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
 
         TServiceTemplate serviceTemplate = this.csar.entryServiceTemplate();
 
@@ -113,10 +143,11 @@ public class MyTinyToDoIntegrationTest {
                     if (plan.getId().toLowerCase().contains("scale")) {
                         scaleOutPlan = plan;
                     }
-                    ;
                     break;
                 case TERMINATION:
                     terminationPlan = plan;
+                    break;
+                default:
                     break;
             }
         }
@@ -290,52 +321,45 @@ public class MyTinyToDoIntegrationTest {
         return inputParams;
     }
 
-    protected void fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId, CsarStorageService storage) throws SystemException, UserException, IOException, InterruptedException, ExecutionException, AccountabilityException, RepositoryCorruptException {
+    protected void fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId, CsarStorageService storage) throws SystemException, UserException, IOException, InterruptedException, ExecutionException, AccountabilityException, RepositoryCorruptException, GitAPIException {
 
         this.repositoryPath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("tosca-definitions-public");
         String remoteUrl = "https://github.com/OpenTOSCA/tosca-definitions-public";
 
-        try {
-            LOGGER.debug("Testing with repository directory {}", repositoryPath);
+        LOGGER.debug("Testing with repository directory {}", repositoryPath);
 
-            if (!Files.exists(repositoryPath)) {
-                Files.createDirectory(repositoryPath);
-            }
-
-            FileRepositoryBuilder builder = new FileRepositoryBuilder();
-            if (!Files.exists(repositoryPath.resolve(".git"))) {
-                FileUtils.cleanDirectory(repositoryPath.toFile());
-                this.git = Git.cloneRepository()
-                    .setURI(remoteUrl)
-                    .setBare(false)
-                    .setCloneAllBranches(true)
-                    .setDirectory(repositoryPath.toFile())
-                    .call();
-            } else {
-                Repository gitRepo = builder.setWorkTree(repositoryPath.toFile()).setMustExist(false).build();
-                this.git = new Git(gitRepo);
-                try {
-                    this.git.fetch().call();
-                } catch (TransportException e) {
-                    // we ignore it to enable offline testing
-                    LOGGER.debug("Working in offline mode", e);
-                }
-            }
-
-            // inject the current path to the repository factory
-            FileBasedRepositoryConfiguration fileBasedRepositoryConfiguration = new FileBasedRepositoryConfiguration(repositoryPath, provider);
-            // force xml repository provider
-            fileBasedRepositoryConfiguration.setRepositoryProvider(provider);
-            GitBasedRepositoryConfiguration gitBasedRepositoryConfiguration = new GitBasedRepositoryConfiguration(false, fileBasedRepositoryConfiguration);
-            //RepositoryFactory.reconfigure(gitBasedRepositoryConfiguration);
-
-            this.repository = RepositoryFactory.getRepository(repositoryPath);
-
-            //this.repository = new GitBasedRepository(gitBasedRepositoryConfiguration,(AbstractFileBasedRepository) RepositoryFactory.getRepository(repositoryPath));
-            LOGGER.debug("Initialized test repository");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (!Files.exists(repositoryPath)) {
+            Files.createDirectory(repositoryPath);
         }
+
+        FileRepositoryBuilder builder = new FileRepositoryBuilder();
+        if (!Files.exists(repositoryPath.resolve(".git"))) {
+            FileUtils.cleanDirectory(repositoryPath.toFile());
+            this.git = Git.cloneRepository()
+                .setURI(remoteUrl)
+                .setBare(false)
+                .setCloneAllBranches(true)
+                .setDirectory(repositoryPath.toFile())
+                .call();
+        } else {
+            Repository gitRepo = builder.setWorkTree(repositoryPath.toFile()).setMustExist(false).build();
+            this.git = new Git(gitRepo);
+            try {
+                this.git.fetch().call();
+            } catch (TransportException e) {
+                // we ignore it to enable offline testing
+                LOGGER.debug("Working in offline mode", e);
+            }
+        }
+
+        // inject the current path to the repository factory
+        FileBasedRepositoryConfiguration fileBasedRepositoryConfiguration = new FileBasedRepositoryConfiguration(repositoryPath, provider);
+        // force xml repository provider
+        fileBasedRepositoryConfiguration.setRepositoryProvider(provider);
+
+        this.repository = RepositoryFactory.getRepository(repositoryPath);
+
+        LOGGER.debug("Initialized test repository");
 
         CsarExporter exporter = new CsarExporter(this.repository);
         Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
