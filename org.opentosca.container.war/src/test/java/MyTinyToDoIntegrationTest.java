@@ -99,7 +99,7 @@ public class MyTinyToDoIntegrationTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws InterruptedException, ExecutionException, RepositoryCorruptException, IOException, SystemException, AccountabilityException, UserException, GitAPIException {
         this.fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker"), this.storage);
         this.checkServices();
         this.generatePlans();
@@ -314,57 +314,30 @@ public class MyTinyToDoIntegrationTest {
         return inputParams;
     }
 
-    protected void fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId, CsarStorageService storage) {
-
+    protected void fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId, CsarStorageService storage) throws IOException, SystemException, UserException, InterruptedException, ExecutionException, AccountabilityException, RepositoryCorruptException, GitAPIException {
         this.repositoryPath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("tosca-definitions-public");
         String remoteUrl = "https://github.com/OpenTOSCA/tosca-definitions-public";
 
         LOGGER.debug("Testing with repository directory {}", repositoryPath);
 
         if (!Files.exists(repositoryPath)) {
-            try {
-                Files.createDirectory(repositoryPath);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Assert.fail(e.getMessage());
-            }
+            Files.createDirectory(repositoryPath);
         }
 
         FileRepositoryBuilder builder = new FileRepositoryBuilder();
         if (!Files.exists(repositoryPath.resolve(".git"))) {
-            try {
-                FileUtils.cleanDirectory(repositoryPath.toFile());
-            } catch (IOException e) {
-                e.printStackTrace();
-                Assert.fail(e.getMessage());
-            }
-            try {
-                this.git = Git.cloneRepository()
-                    .setURI(remoteUrl)
-                    .setBare(false)
-                    .setCloneAllBranches(true)
-                    .setDirectory(repositoryPath.toFile())
-                    .call();
-            } catch (GitAPIException e) {
-                e.printStackTrace();
-                Assert.fail(e.getMessage());
-            }
-        } else {
-            Repository gitRepo = null;
-            try {
-                gitRepo = builder.setWorkTree(repositoryPath.toFile()).setMustExist(false).build();
-            } catch (IOException e) {
-                e.printStackTrace();
-                Assert.fail(e.getMessage());
-            }
-            this.git = new Git(gitRepo);
+            FileUtils.cleanDirectory(repositoryPath.toFile());
 
-            try {
-                this.git.fetch().call();
-            } catch (GitAPIException e) {
-                e.printStackTrace();
-                Assert.fail(e.getMessage());
-            }
+            this.git = Git.cloneRepository()
+                .setURI(remoteUrl)
+                .setBare(false)
+                .setCloneAllBranches(true)
+                .setDirectory(repositoryPath.toFile())
+                .call();
+        } else {
+            Repository gitRepo = builder.setWorkTree(repositoryPath.toFile()).setMustExist(false).build();
+            this.git = new Git(gitRepo);
+            this.git.fetch().call();
         }
 
         // inject the current path to the repository factory
@@ -377,47 +350,17 @@ public class MyTinyToDoIntegrationTest {
         LOGGER.debug("Initialized test repository");
 
         CsarExporter exporter = new CsarExporter(this.repository);
-        Path csarFilePath = null;
-        try {
-            csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
-        } catch (IOException e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        }
+        Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
+
         Map<String, Object> exportConfiguration = new HashMap<>();
-        try {
-            exporter.writeCsar(new ServiceTemplateId(serviceTemplateId), Files.newOutputStream(csarFilePath), exportConfiguration);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        } catch (RepositoryCorruptException e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        } catch (AccountabilityException e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        }
+        exporter.writeCsar(new ServiceTemplateId(serviceTemplateId), Files.newOutputStream(csarFilePath), exportConfiguration);
 
         CsarId csarId = new CsarId(serviceTemplateId.getLocalPart() + ".csar");
         Set<Csar> csars = storage.findAll();
         Collection<CsarId> csarIds = csars.stream().filter(x -> x.id().equals(csarId)).map(x -> x.id()).collect(Collectors.toList());
 
         if (!csarIds.contains(csarId)) {
-            try {
-                storage.storeCSAR(csarFilePath);
-            } catch (UserException e) {
-                e.printStackTrace();
-                Assert.fail(e.getMessage());
-            } catch (SystemException e) {
-                e.printStackTrace();
-                Assert.fail(e.getMessage());
-            }
+            storage.storeCSAR(csarFilePath);
         }
         this.csar = storage.findById(csarId);
     }
