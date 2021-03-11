@@ -20,6 +20,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Setup Docker Remote API
+      run: sh setupdockerapi.sh
     - name: Setup test environment
       run: docker-compose -f test.yml up -d
     - name: Sleep for 30 seconds
