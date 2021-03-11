@@ -252,21 +252,31 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
 
         // generate any type variable for REST call response
-        final String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
+
+
+        String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
         final QName rescalResponseVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
 
-        if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
-            rescalResponseVarDeclId, plan)) {
-            return false;
+        boolean addedRestReponseVar = this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
+            rescalResponseVarDeclId, plan);
+        while(!addedRestReponseVar){
+            restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
+            addedRestReponseVar = this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
+                rescalResponseVarDeclId, plan);
         }
 
-        final String restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
+
+        String restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
         final QName rescalRequestVarDeclId = new QName(xsdNamespace, "string", xsdPrefix);
 
-        if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.TYPE,
-            rescalRequestVarDeclId, plan)) {
-            return false;
-        }
+        boolean addedRestRequestVar = this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.TYPE,
+            rescalRequestVarDeclId, plan);
+        while (!addedRestRequestVar){
+             restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
+                addedRestRequestVar = this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.TYPE,
+                    rescalRequestVarDeclId, plan);
+            }
+
 
         final String assignName = "assignServiceInstanceState" + System.currentTimeMillis();
 
