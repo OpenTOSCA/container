@@ -36,7 +36,7 @@ public class DirectoryController {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getLinks(@Context final UriInfo uriInfo, @QueryParam("recursive") String recursive) throws IOException {
         logger.debug("Get links for directory controller on directory: {} with recursive flag: {}", this.dirPath.toString(), recursive);
         final ResourceSupport dto = new ResourceSupport();
@@ -65,7 +65,7 @@ public class DirectoryController {
     }
 
     @Path("/{path}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Object getPath(@PathParam("path") String path, @Context final UriInfo uriInfo) throws IOException {
         logger.debug("Serve path '{}' of directory '{}'", path, this.dirPath.toString());
         for (final java.nio.file.Path directory : this.getDirectories()) {

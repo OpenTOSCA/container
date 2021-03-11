@@ -63,7 +63,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @TestPropertySource(properties = "server.port=1337")
 public class MyTinyToDoIntegrationTest {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(CSARTest.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(MyTinyToDoIntegrationTest.class);
 
     public IRepository repository;
     public Path repositoryPath;
@@ -103,25 +103,33 @@ public class MyTinyToDoIntegrationTest {
         TPlan terminationPlan = null;
         List<TPlan> plans = serviceTemplate.getPlans().getPlan();
 
-        for(TPlan plan : plans){
+        for (TPlan plan : plans) {
             PlanType type = PlanType.fromString(plan.getPlanType());
-            switch(type){
-                case BUILD: buildPlan = plan; break;
-                case MANAGEMENT: if(plan.getId().toLowerCase().contains("scale")){ scaleOutPlan = plan;}; break;
-                case TERMINATION: terminationPlan = plan; break;
+            switch (type) {
+                case BUILD:
+                    buildPlan = plan;
+                    break;
+                case MANAGEMENT:
+                    if (plan.getId().toLowerCase().contains("scale")) {
+                        scaleOutPlan = plan;
+                    }
+                    ;
+                    break;
+                case TERMINATION:
+                    terminationPlan = plan;
+                    break;
             }
-
         }
 
         List<org.opentosca.container.core.tosca.extension.TParameter> buildPlanInputParams = this.getBuildPlanInputParameters();
-        String buildPlanCorrelationId = this.planService.invokePlan(this.csar,serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
+        String buildPlanCorrelationId = this.planService.invokePlan(this.csar, serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
         PlanInstance buildPlanInstance = this.planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
-        while(buildPlanInstance == null) {
+        while (buildPlanInstance == null) {
             buildPlanInstance = this.planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
         }
 
         PlanInstanceState buildPlanInstanceState = buildPlanInstance.getState();
-        while(!buildPlanInstanceState.equals(PlanInstanceState.FINISHED)){
+        while (!buildPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             buildPlanInstance = this.planService.getPlanInstance(buildPlanInstance.getId());
             buildPlanInstanceState = buildPlanInstance.getState();
         }
@@ -136,11 +144,11 @@ public class MyTinyToDoIntegrationTest {
 
         boolean foundDockerEngine = false;
         boolean foundTinyToDo = false;
-        for(NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstances) {
-            if(nodeTemplateInstance.getTemplateId().contains("DockerEngine")){
+        for (NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstances) {
+            if (nodeTemplateInstance.getTemplateId().contains("DockerEngine")) {
                 foundDockerEngine = true;
             }
-            if(nodeTemplateInstance.getTemplateId().contains("MyTinyToDo")) {
+            if (nodeTemplateInstance.getTemplateId().contains("MyTinyToDo")) {
                 foundTinyToDo = true;
             }
         }
@@ -151,14 +159,14 @@ public class MyTinyToDoIntegrationTest {
         String serviceInstanceUrl = this.createServiceInstanceUrl(this.csar.id().csarName(), serviceTemplate.getId(), buildPlanInstance.getServiceTemplateInstance().getId().toString());
 
         List<org.opentosca.container.core.tosca.extension.TParameter> scaleOutInputParams = this.getScaleOurPlanInputParameters(serviceInstanceUrl);
-        String scaleOurPlanCorrelationId = this.planService.invokePlan(this.csar,serviceTemplate, buildPlanInstance.getServiceTemplateInstance().getId(), scaleOutPlan.getId(), scaleOutInputParams, PlanType.MANAGEMENT);
+        String scaleOurPlanCorrelationId = this.planService.invokePlan(this.csar, serviceTemplate, buildPlanInstance.getServiceTemplateInstance().getId(), scaleOutPlan.getId(), scaleOutInputParams, PlanType.MANAGEMENT);
         PlanInstance scaleOutPlanInstance = this.planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
-        while(scaleOutPlanInstance == null) {
+        while (scaleOutPlanInstance == null) {
             scaleOutPlanInstance = this.planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
         }
 
         PlanInstanceState scaleOutPlanInstanceState = scaleOutPlanInstance.getState();
-        while(!scaleOutPlanInstanceState.equals(PlanInstanceState.FINISHED)){
+        while (!scaleOutPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             scaleOutPlanInstance = this.planService.getPlanInstance(scaleOutPlanInstance.getId());
             scaleOutPlanInstanceState = scaleOutPlanInstance.getState();
         }
@@ -171,14 +179,14 @@ public class MyTinyToDoIntegrationTest {
         Assert.assertTrue(relationshipTemplateInstances.size() == 2);
 
         List<org.opentosca.container.core.tosca.extension.TParameter> terminationOutInputParams = this.getTerminationPlanInputParameters(serviceInstanceUrl);
-        String terminationPlanCorrelationId = this.planService.invokePlan(this.csar,serviceTemplate, buildPlanInstance.getServiceTemplateInstance().getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
+        String terminationPlanCorrelationId = this.planService.invokePlan(this.csar, serviceTemplate, buildPlanInstance.getServiceTemplateInstance().getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
         PlanInstance terminationPlanInstance = this.planService.getPlanInstanceByCorrelationId(terminationPlanCorrelationId);
-        while(terminationPlanInstance == null) {
+        while (terminationPlanInstance == null) {
             terminationPlanInstance = this.planService.getPlanInstanceByCorrelationId(terminationPlanCorrelationId);
         }
 
         PlanInstanceState terminationPlanInstanceState = terminationPlanInstance.getState();
-        while(!terminationPlanInstanceState.equals(PlanInstanceState.FINISHED)){
+        while (!terminationPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             terminationPlanInstance = this.planService.getPlanInstance(terminationPlanInstance.getId());
             terminationPlanInstanceState = terminationPlanInstance.getState();
         }

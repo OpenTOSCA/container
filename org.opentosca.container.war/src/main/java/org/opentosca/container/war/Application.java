@@ -13,7 +13,7 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 @SpringBootApplication
-@ImportResource({"classpath:spring/root-context.xml"})
+@ImportResource( {"classpath:spring/root-context.xml"})
 public class Application implements ServletContextInitializer {
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(Application.class);

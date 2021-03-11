@@ -73,10 +73,9 @@ public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
             initializeInstance(result);
             return result;
         } catch (NoResultException e) {
-            logger.debug("Didn't find plan for columnName "+ columnName + " and columnValue " + columnValue);
+            logger.debug("Didn't find plan for columnName " + columnName + " and columnValue " + columnValue);
             return null;
         }
-
     }
 
     @Override

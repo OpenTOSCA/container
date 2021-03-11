@@ -46,7 +46,7 @@ public class RootController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getRoot() {
         final ResourceSupport links = new ResourceSupport();
         links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());

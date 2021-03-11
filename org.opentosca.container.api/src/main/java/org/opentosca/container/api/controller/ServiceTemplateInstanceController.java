@@ -83,7 +83,7 @@ public class ServiceTemplateInstanceController {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all instances of a service template", response = ServiceTemplateInstanceListDTO.class)
     public Response getServiceTemplateInstances() {
         logger.debug("Invoking getServiceTemplateInstances");
@@ -105,8 +105,8 @@ public class ServiceTemplateInstanceController {
     }
 
     @POST
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response createServiceTemplateInstance(final CreateServiceTemplateInstanceRequest request) {
         logger.debug("Invoking createServiceTemplateInstance");
@@ -137,7 +137,7 @@ public class ServiceTemplateInstanceController {
 
     @GET
     @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a service template instance", response = ServiceTemplateInstanceDTO.class)
     public Response getServiceTemplateInstance(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstance");
@@ -179,7 +179,7 @@ public class ServiceTemplateInstanceController {
 
     @DELETE
     @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response deleteServiceTemplateInstance(@PathParam("id") final Long id) {
         logger.debug("Invoking deleteServiceTemplateInstance");
@@ -196,7 +196,7 @@ public class ServiceTemplateInstanceController {
 
     @GET
     @Path("/{id}/state")
-    @Produces({MediaType.TEXT_PLAIN})
+    @Produces( {MediaType.TEXT_PLAIN})
     @ApiOperation(value = "Get state of a service template instance", response = String.class)
     public Response getServiceTemplateInstanceState(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstanceState");
@@ -206,7 +206,7 @@ public class ServiceTemplateInstanceController {
 
     @PUT
     @Path("/{id}/state")
-    @Consumes({MediaType.TEXT_PLAIN})
+    @Consumes( {MediaType.TEXT_PLAIN})
     @ApiOperation(hidden = true, value = "")
     public Response updateServiceTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         logger.debug("Invoking updateServiceTemplateInstanceState");
@@ -220,7 +220,7 @@ public class ServiceTemplateInstanceController {
 
     @GET
     @Path("/{id}/properties")
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response getServiceTemplateInstanceProperties(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstanceProperties");
@@ -236,7 +236,7 @@ public class ServiceTemplateInstanceController {
 
     @GET
     @Path("/{id}/properties")
-    @Produces({MediaType.APPLICATION_JSON})
+    @Produces( {MediaType.APPLICATION_JSON})
     @ApiOperation(value = "Gets the properties of a service template instance", response = Map.class)
     public Map<String, String> getServiceTemplateInstancePropertiesAsJSON(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstancePropertiesAsJSON");
@@ -246,8 +246,8 @@ public class ServiceTemplateInstanceController {
 
     @PUT
     @Path("/{id}/properties")
-    @Consumes({MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @Consumes( {MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @ApiOperation(hidden = true, value = "")
     public Response updateServiceTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
         logger.debug("Invoking updateServiceTemplateInstanceProperties");
@@ -263,7 +263,7 @@ public class ServiceTemplateInstanceController {
 
     @GET
     @Path("/{id}/situationsmonitors")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getSituationMonitors(@PathParam("id") final Long id) {
         logger.debug("Invoking getSituationMonitors");
         Collection<SituationsMonitor> monitors = this.instanceService.getSituationsMonitors(id);
@@ -278,8 +278,8 @@ public class ServiceTemplateInstanceController {
 
     @POST
     @Path("/{id}/situationsmonitors")
-    @Consumes({MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes( {MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response createSituationMonitor(@PathParam("id") final Long id, SituationsMonitorDTO monitor) {
         logger.debug("Invoking createSituationMonitor");
         ServiceTemplateInstance servInstance = this.instanceService.getServiceTemplateInstance(id, false);
@@ -316,7 +316,7 @@ public class ServiceTemplateInstanceController {
 
     @GET
     @Path("/{id}/boundarydefinitions/interfaces")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
     public Response getInterfaces(@PathParam("id") final Long id) {
         logger.debug("Invoking getInterfaces");

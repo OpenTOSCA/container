@@ -53,8 +53,8 @@ public class PlacementController {
     }
 
     @POST
-    @Produces({MediaType.APPLICATION_JSON})
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces( {MediaType.APPLICATION_JSON})
+    @Consumes( {MediaType.APPLICATION_JSON})
     @ApiOperation(hidden = true, value = "")
     public Response getInstances(@ApiParam("node template list need to be placed") final List<String> request) throws InstantiationException,
         IllegalAccessException,
