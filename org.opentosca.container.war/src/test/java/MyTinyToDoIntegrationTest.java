@@ -70,15 +70,15 @@ public class MyTinyToDoIntegrationTest {
     public Csar csar;
 
     @Inject
-    OpenToscaControlService control;
+    public OpenToscaControlService control;
     @Inject
-    CsarStorageService storage;
+    public CsarStorageService storage;
     @Inject
-    CsarService csarService;
+    public CsarService csarService;
     @Inject
-    PlanService planService;
+    public PlanService planService;
     @Inject
-    InstanceService instanceService;
+    public InstanceService instanceService;
 
     private void checkServices() {
         Assert.assertNotNull(storage);
