@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
@@ -52,8 +53,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 
 /**
  * <p>
@@ -117,8 +116,7 @@ public class MBJavaApi implements IManagementBus {
                 try {
                     serviceInstanceURI = new URI(serviceInstanceID.toString());
                     headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
-                }
-                catch (final URISyntaxException e) {
+                } catch (final URISyntaxException e) {
                     LOG.warn("Could not generate service instance URL: {}", e.getMessage(), e);
                 }
             } else {
@@ -177,7 +175,7 @@ public class MBJavaApi implements IManagementBus {
         // there is no necessity to set up response handling for the invocation,
         // because the ManagementBus does the updating of outputs for us through the PlanInstanceHandler
         invokePlan(operationName, messageID, serviceInstanceID, serviceTemplateID, message, csarID, planID,
-                   planLanguage);
+            planLanguage);
     }
 
     @Override
@@ -191,13 +189,12 @@ public class MBJavaApi implements IManagementBus {
         LOG.debug("Received SituationAware Adapation Event");
         final ServiceTemplateInstance instance = (ServiceTemplateInstance) eventValues.get("SERVICEINSTANCE");
 
-        @SuppressWarnings("unchecked")
-        final Map<String, Collection<Long>> nodeIds2situationIds =
+        @SuppressWarnings("unchecked") final Map<String, Collection<Long>> nodeIds2situationIds =
             (Map<String, Collection<Long>>) eventValues.get("NODE2SITUATIONS");
 
         final AbstractTopologyTemplate topology =
             Lists.newArrayList(this.importer.getMainDefinitions(instance.getCsarId()).getServiceTemplates()).get(0)
-                 .getTopologyTemplate();
+                .getTopologyTemplate();
 
         final ServiceTemplateInstanceConfiguration currentConfig =
             getCurrentServiceTemplateInstanceConfiguration(topology, instance);
@@ -221,7 +218,7 @@ public class MBJavaApi implements IManagementBus {
         }
 
         final WSDLEndpoint endpoint = getAdaptationPlanEndpoint(currentConfigNodeIds, currentConfigRelationIds,
-                                                                targetConfigNodeIds, targetConfigRelationIds);
+            targetConfigNodeIds, targetConfigRelationIds);
         final String correlationID = String.valueOf(System.currentTimeMillis());
         QName planId = null;
         PlanType planType = null;
@@ -241,9 +238,9 @@ public class MBJavaApi implements IManagementBus {
                 // FIXME the QName conversion of the instance is probably a bad idea
                 final BPELPlan adaptationPlan =
                     (BPELPlan) this.importer.generateAdaptationPlan(instance.getCsarId(),
-                                                                    QName.valueOf(instance.getTemplateId()),
-                                                                    currentConfigNodeIds, currentConfigRelationIds,
-                                                                    targetConfigNodeIds, targetConfigRelationIds);
+                        QName.valueOf(instance.getTemplateId()),
+                        currentConfigNodeIds, currentConfigRelationIds,
+                        targetConfigNodeIds, targetConfigRelationIds);
 
                 planType = PlanType.fromString(adaptationPlan.getType().toString());
                 inputs = createInput(adaptationPlan);
@@ -252,23 +249,20 @@ public class MBJavaApi implements IManagementBus {
 
                 final Map<String, String> endpointMetadata =
                     toEndpointMetadata(currentConfigNodeIds, currentConfigRelationIds, targetConfigNodeIds,
-                                       targetConfigRelationIds);
+                        targetConfigRelationIds);
 
                 endpointMetadata.put("PLANTYPE", planType.toString());
                 endpointMetadata.put("INPUTS", toCSV(inputs.keySet()));
 
                 planId = new QName(tempFile.getFileName().toString());
                 this.bpelDeployPlugin.deployPlanFile(tempFile, instance.getCsarId(), planId, endpointMetadata);
-            }
-            catch (final SystemException e) {
+            } catch (final SystemException e) {
                 LOG.error("Internal error", e);
                 return;
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 LOG.error("Couldn't read files", e);
                 return;
-            }
-            catch (final JAXBException e) {
+            } catch (final JAXBException e) {
                 LOG.error("Couldn't parse files", e);
                 return;
             }
@@ -279,7 +273,7 @@ public class MBJavaApi implements IManagementBus {
 
         // FIXME QName natural key replacement leftover!
         invokePlan("adapt", correlationID, instance.getId(), QName.valueOf(instance.getTemplateId()), requestBody,
-                   instance.getCsarId(), planId, BPELNS);
+            instance.getCsarId(), planId, BPELNS);
     }
 
     @Override
@@ -485,12 +479,12 @@ public class MBJavaApi implements IManagementBus {
 
     private Collection<AbstractRelationshipTemplate> getOutgoingHostedOnRelations(final AbstractNodeTemplate nodeTemplate) {
         return nodeTemplate.getOutgoingRelations().stream().filter(x -> x.getType().equals(Types.hostedOnRelationType))
-                           .collect(Collectors.toList());
+            .collect(Collectors.toList());
     }
 
     private Collection<AbstractPolicy> getPolicies(final QName policyType, final AbstractNodeTemplate nodeTemplate) {
         return nodeTemplate.getPolicies().stream().filter(x -> x.getType().getId().equals(policyType))
-                           .collect(Collectors.toList());
+            .collect(Collectors.toList());
     }
 
     private boolean isSituationActive(final Long situationId) {
@@ -523,34 +517,33 @@ public class MBJavaApi implements IManagementBus {
                 map.put(para, serviceTemplateID);
             } else if (para.equalsIgnoreCase("OpenTOSCAContainerAPIServiceInstanceURL")
                 & serviceTemplateInstanceId != null) {
-                    final String serviceTemplateInstanceUrl =
-                        createServiceInstanceURI(csarID, serviceTemplateID, serviceTemplateInstanceId);
-                    map.put(para, serviceTemplateInstanceUrl);
-                } else if (para.equalsIgnoreCase("containerApiAddress")) {
-                    LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \""
-                        + Settings.CONTAINER_API_LEGACY + "\".");
-                    map.put(para, Settings.CONTAINER_API_LEGACY);
-                } else if (para.equalsIgnoreCase("instanceDataAPIUrl")) {
-                    LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \""
-                        + Settings.CONTAINER_INSTANCEDATA_API + "\".");
-                    String str = Settings.CONTAINER_INSTANCEDATA_API;
-                    str = str.replace("{csarid}", csarID.csarName());
-                    try {
-                        str = str.replace("{servicetemplateid}",
-                                          URLEncoder.encode(URLEncoder.encode(serviceTemplateID, "UTF-8"), "UTF-8"));
-                    }
-                    catch (final UnsupportedEncodingException e) {
-                        LOG.error("Couldn't encode Service Template URL", e);
-                    }
-                    LOG.debug("instance api: {}", str);
-                    map.put(para, str);
-                } else if (para.equalsIgnoreCase("csarEntrypoint")) {
-                    LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
-                        + Settings.CONTAINER_API_LEGACY + "/" + csarID + "\".");
-                    map.put(para, Settings.CONTAINER_API_LEGACY + "/CSARs/" + csarID);
-                } else {
-                    map.put(para, value);
+                final String serviceTemplateInstanceUrl =
+                    createServiceInstanceURI(csarID, serviceTemplateID, serviceTemplateInstanceId);
+                map.put(para, serviceTemplateInstanceUrl);
+            } else if (para.equalsIgnoreCase("containerApiAddress")) {
+                LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \""
+                    + Settings.CONTAINER_API_LEGACY + "\".");
+                map.put(para, Settings.CONTAINER_API_LEGACY);
+            } else if (para.equalsIgnoreCase("instanceDataAPIUrl")) {
+                LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \""
+                    + Settings.CONTAINER_INSTANCEDATA_API + "\".");
+                String str = Settings.CONTAINER_INSTANCEDATA_API;
+                str = str.replace("{csarid}", csarID.csarName());
+                try {
+                    str = str.replace("{servicetemplateid}",
+                        URLEncoder.encode(URLEncoder.encode(serviceTemplateID, "UTF-8"), "UTF-8"));
+                } catch (final UnsupportedEncodingException e) {
+                    LOG.error("Couldn't encode Service Template URL", e);
                 }
+                LOG.debug("instance api: {}", str);
+                map.put(para, str);
+            } else if (para.equalsIgnoreCase("csarEntrypoint")) {
+                LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
+                    + Settings.CONTAINER_API_LEGACY + "/" + csarID + "\".");
+                map.put(para, Settings.CONTAINER_API_LEGACY + "/CSARs/" + csarID);
+            } else {
+                map.put(para, value);
+            }
         }
 
         return map;
@@ -561,8 +554,8 @@ public class MBJavaApi implements IManagementBus {
         String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + serviceTemplateInstanceId;
         url = url.replace("{csarid}", csarId.csarName());
         url = url.replace("{servicetemplateid}",
-                          UriComponent.encode(UriComponent.encode(serviceTemplate, UriComponent.Type.PATH_SEGMENT),
-                                              UriComponent.Type.PATH_SEGMENT));
+            UriComponent.encode(UriComponent.encode(serviceTemplate, UriComponent.Type.PATH_SEGMENT),
+                UriComponent.Type.PATH_SEGMENT));
 
         return url;
     }

@@ -39,7 +39,7 @@ public class InvocationRoute extends RouteBuilder {
 
     // Checks if invoking a IA
     final Predicate IS_INVOKE_IA = PredicateBuilder.or(header(MBHeader.NODETEMPLATEID_STRING.toString()).isNotNull(),
-                                                       header(MBHeader.PLANID_QNAME.toString()).isNotNull());
+        header(MBHeader.PLANID_QNAME.toString()).isNotNull());
     // Checks if invoking a Plan
     final Predicate IS_INVOKE_PLAN = header(MBHeader.PLANID_QNAME.toString()).isNotNull();
 
@@ -59,39 +59,39 @@ public class InvocationRoute extends RouteBuilder {
 
         // handle exceptions
         onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
-                                    .process(exceptionProcessor);
+            .process(exceptionProcessor);
 
         // invoke main route
         from("rest:post:" + BASE_ENDPOINT + INVOKE_ENDPOINT).doTry().process(invocationRequestProcessor)
-                                                            .doCatch(Exception.class).end().choice()
-                                                            .when(exchangeProperty(Exchange.EXCEPTION_CAUGHT).isNull())
-                                                            .to("direct:invoke").otherwise().to("direct:exception")
-                                                            .end().removeHeaders("*");
+            .doCatch(Exception.class).end().choice()
+            .when(exchangeProperty(Exchange.EXCEPTION_CAUGHT).isNull())
+            .to("direct:invoke").otherwise().to("direct:exception")
+            .end().removeHeaders("*");
 
         // route if no exception was caught
         from("direct:invoke").setHeader(MANAGEMENT_BUS_REQUEST_ID_HEADER, method(RequestID.class, "getNextID"))
-                             .wireTap("direct:toManagementBus").end().to("direct:init")
-                             .process(invocationResponseProcessor);
+            .wireTap("direct:toManagementBus").end().to("direct:init")
+            .process(invocationResponseProcessor);
 
         // route in case an exception was caught
         from("direct:exception").setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT)).process(exceptionProcessor);
 
         // set "isFinsihed"-flag to false for this request
         from("direct:init").bean(QueueMap.class, "notFinished(${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "})")
-                           .setBody(simple("${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "}"));
+            .setBody(simple("${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "}"));
 
         // route to management bus engine
         from("direct:toManagementBus").choice().when(this.IS_INVOKE_IA).bean(this.managementBusService, "invokeIA")
-                                      .when(this.IS_INVOKE_PLAN).bean(this.managementBusService, "invokePlan").end();
+            .when(this.IS_INVOKE_PLAN).bean(this.managementBusService, "invokePlan").end();
 
         // invoke response route
         from("direct-vm:" + "org.opentosca.bus.management.api.resthttp")
-                                                                        .bean(QueueMap.class, "finished(${header."
-                                                                            + MANAGEMENT_BUS_REQUEST_ID_HEADER + "})")
-                                                                        .bean(ResultMap.class,
-                                                                              "put(${header."
-                                                                                  + MANAGEMENT_BUS_REQUEST_ID_HEADER
-                                                                                  + "}, ${body})")
-                                                                        .stop();
+            .bean(QueueMap.class, "finished(${header."
+                + MANAGEMENT_BUS_REQUEST_ID_HEADER + "})")
+            .bean(ResultMap.class,
+                "put(${header."
+                    + MANAGEMENT_BUS_REQUEST_ID_HEADER
+                    + "}, ${body})")
+            .stop();
     }
 }

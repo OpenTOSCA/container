@@ -13,8 +13,8 @@ import org.opentosca.container.core.common.Settings;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * <p>
- * This class manages the asynchronous communication with a service. Both invoking and handling the
- * callback are done here.
+ * This class manages the asynchronous communication with a service. Both invoking and handling the callback are done
+ * here.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */

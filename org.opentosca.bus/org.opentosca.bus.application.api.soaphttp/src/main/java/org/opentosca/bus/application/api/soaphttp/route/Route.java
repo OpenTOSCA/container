@@ -16,14 +16,14 @@ import org.opentosca.bus.application.model.exception.ApplicationBusInternalExcep
  * Route of the Application Bus-SOAP/HTTP-API.<br>
  * <br>
  * <p>
- * The endpoint of the SOAP/HTTP-API is created here. Incoming requests will be un/marshalled,
- * routed to processors or the application bus in order to handle the requests.
+ * The endpoint of the SOAP/HTTP-API is created here. Incoming requests will be un/marshalled, routed to processors or
+ * the application bus in order to handle the requests.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
 public class Route extends RouteBuilder {
 
-    private final static String ENDPOINT = "http://0.0.0.0:8084/appBus";
+    private final static String ENDPOINT = "http://0.0.0.0:8082/appBus";
 
     private final static QName PORT = new QName("http://opentosca.org/appinvoker/", "AppInvokerSoapWebServicePort");
 
@@ -45,7 +45,7 @@ public class Route extends RouteBuilder {
         final Processor responseProcessor = new ResponseProcessor();
 
         from(SOAP_ENDPOINT).unmarshal(jaxb).process(requestProcessor)
-                           .to("direct-vm:org.opentosca.bus.application.service").to("direct:handleResponse");
+            .to("direct-vm:org.opentosca.bus.application.service").to("direct:handleResponse");
 
         // handle exception if Application Bus is not running or wasn't bound
         from("direct:handleException").throwException(new ApplicationBusInternalException(

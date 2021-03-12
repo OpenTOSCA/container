@@ -1,6 +1,7 @@
 package org.opentosca.bus.application.service.impl.servicehandler;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
@@ -25,12 +26,12 @@ public class ApplicationBusPluginRegistry {
     private static final ConcurrentHashMap<String, String> pluginServices = new ConcurrentHashMap<>();
 
     @Inject
-    public ApplicationBusPluginRegistry(@Autowired(required = false) Collection<IApplicationBusPluginService> plugins) {
-        if (plugins != null) {
-            for (final IApplicationBusPluginService plugin : plugins) {
+    public ApplicationBusPluginRegistry(@Autowired(required = false) Optional<Collection<IApplicationBusPluginService>> plugins) {
+        if (plugins != null && plugins.isPresent()) {
+            for (IApplicationBusPluginService plugin : plugins.get()) {
                 final String routingEndpoint = plugin.getRoutingEndpoint();
                 plugin.getSupportedInvocationTypes()
-                      .forEach(invocationType -> pluginServices.put(invocationType, routingEndpoint));
+                    .forEach(invocationType -> pluginServices.put(invocationType, routingEndpoint));
             }
         }
     }

@@ -34,8 +34,7 @@ import org.w3c.dom.NodeList;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * <p>
- * This processor processes incoming soap messages. It checks if the messages are containing
- * existing messageIDs.
+ * This processor processes incoming soap messages. It checks if the messages are containing existing messageIDs.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
@@ -54,8 +53,7 @@ public class CallbackProcessor implements Processor {
         LOG.debug("Stored messageIDs: {}", messageIDs.toString());
 
         // copy SOAP headers in camel exchange header
-        @SuppressWarnings("unchecked")
-        final List<SoapHeader> soapHeaders = (List<SoapHeader>) exchange.getIn().getHeader(Header.HEADER_LIST);
+        @SuppressWarnings("unchecked") final List<SoapHeader> soapHeaders = (List<SoapHeader>) exchange.getIn().getHeader(Header.HEADER_LIST);
         Element element;
         if (soapHeaders != null) {
             for (final SoapHeader header : soapHeaders) {
@@ -99,8 +97,7 @@ public class CallbackProcessor implements Processor {
                     }
                     responseDoc = node2doc(invokeResponse);
                     exchange.getIn().setBody(responseDoc);
-                }
-                catch (final SOAPException e) {
+                } catch (final SOAPException e) {
                     responseDoc = soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
                     LOG.warn("SOAP response body can't be parsed and/or isn't well formatted. Returning alternative response.");
                     exchange.getIn().setBody(responseDoc);
@@ -116,8 +113,7 @@ public class CallbackProcessor implements Processor {
         DocumentBuilder builder = null;
         try {
             builder = factory.newDocumentBuilder();
-        }
-        catch (final ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
         final Document newDocument = builder.newDocument();

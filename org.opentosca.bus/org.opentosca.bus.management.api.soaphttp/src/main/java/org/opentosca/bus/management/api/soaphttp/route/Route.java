@@ -35,13 +35,12 @@ import org.springframework.stereotype.Component;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * <p>
- * Here the route an incoming invoke-request has to pass is defined. Also the web services to
- * consume and produce a SOAP message are created here. An incoming SOAP message will be
- * unmarshalled and with the request-processor transformed. After that the message will be given the
- * Management Bus for further execution. The response will be transformed, marshalled and send to
- * the recipient. Supported are both synchronous request-response communication and asynchronous
- * communication with callback. MessageID and ReplyTo-address can be passed as parameter of the SOAP
- * body or as WS-A header.
+ * Here the route an incoming invoke-request has to pass is defined. Also the web services to consume and produce a SOAP
+ * message are created here. An incoming SOAP message will be unmarshalled and with the request-processor transformed.
+ * After that the message will be given the Management Bus for further execution. The response will be transformed,
+ * marshalled and send to the recipient. Supported are both synchronous request-response communication and asynchronous
+ * communication with callback. MessageID and ReplyTo-address can be passed as parameter of the SOAP body or as WS-A
+ * header.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
@@ -94,8 +93,7 @@ public class Route extends RouteBuilder {
             final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, localContainer, localContainer,
                 new CsarId("***"), null, null, null, null, new HashMap<String, String>());
             this.endpointService.storeWSDLEndpoint(endpoint);
-        }
-        catch (final URISyntaxException e) {
+        } catch (final URISyntaxException e) {
             e.printStackTrace();
         }
     }

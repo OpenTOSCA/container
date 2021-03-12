@@ -6,8 +6,10 @@ import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 @ApplicationPath("/")
+@Component
 public class SpringJaxRSConfiguration extends ResourceConfig {
 
     public SpringJaxRSConfiguration() {

@@ -1,66 +1,67 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" metadata-complete="true"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+         metadata-complete="true"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-  <display-name>OpenTOSCA Container API</display-name>
-  <description>The OpenTOSCA ecosystem's tosca-container API application for REST-based csar deployment</description>
+    <display-name>OpenTOSCA Container API</display-name>
+    <description>The OpenTOSCA ecosystem's tosca-container API application for REST-based csar deployment</description>
 
-  <context-param>
-    <description>Logback configuration definition</description>
-    <param-name>logbackConfigLocation</param-name>
-    <param-value>classpath:logback.xml</param-value>
-  </context-param>
-  <context-param>
-    <description>Application "Root Context" of Spring DI logic</description>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>classpath:/spring/root-context.xml</param-value>
-  </context-param>
+    <context-param>
+        <description>Logback configuration definition</description>
+        <param-name>logbackConfigLocation</param-name>
+        <param-value>classpath:logback.xml</param-value>
+    </context-param>
+    <context-param>
+        <description>Application "Root Context" of Spring DI logic</description>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:/spring/root-context.xml</param-value>
+    </context-param>
 
-  <filter>
-    <description>Encoding-Clamping filter</description>
-    <filter-name>encoding-filter</filter-name>
-    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
-    <init-param>
-      <param-name>encoding</param-name>
-      <param-value>UTF-8</param-value>
-    </init-param>
-  </filter>
-  <filter-mapping>
-    <filter-name>encoding-filter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
+    <filter>
+        <description>Encoding-Clamping filter</description>
+        <filter-name>encoding-filter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>encoding-filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
-  <!-- enforce logging configuration to be the first thing that happens -->
-  <listener>
-    <description>Logging configuration listener</description>
-    <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>
-  </listener>
+    <!-- enforce logging configuration to be the first thing that happens -->
+    <listener>
+        <description>Logging configuration listener</description>
+        <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>
+    </listener>
 
-  <!-- Spring context context loader listener -->
-  <listener>
-    <description>Spring Controller injection listener</description>
-    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-  </listener>
+    <!-- Spring context context loader listener -->
+    <listener>
+        <description>Spring Controller injection listener</description>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
 
-  <!-- LOG a ready message when servlet context is loaded and one when it's shutting down -->
-  <!-- this listener is also currently co-opted to deal with mqtt broker startup -->
-  <listener>
-    <description>Context startup listener for opentosca container configuration purposes</description>
-    <listener-class>org.opentosca.container.war.Config</listener-class>
-  </listener>
+    <!-- LOG a ready message when servlet context is loaded and one when it's shutting down -->
+    <!-- this listener is also currently co-opted to deal with mqtt broker startup -->
+    <listener>
+        <description>Context startup listener for opentosca container configuration purposes</description>
+        <listener-class>org.opentosca.container.war.Config</listener-class>
+    </listener>
 
-  <servlet>
-    <servlet-name>jersey-servlet</servlet-name>
-    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
-    <init-param>
-      <param-name>javax.ws.rs.Application</param-name>
-      <param-value>org.opentosca.container.war.SpringJaxRSConfiguration</param-value>
-    </init-param>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>jersey-servlet</servlet-name>
-    <url-pattern>/*</url-pattern>
-  </servlet-mapping>
+
+    <servlet>
+        <servlet-name>jersey-servlet</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>org.opentosca.container.war.SpringJaxRSConfiguration</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>jersey-servlet</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
 
 </web-app>

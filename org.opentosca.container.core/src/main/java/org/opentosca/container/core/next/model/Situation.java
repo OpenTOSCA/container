@@ -11,7 +11,7 @@ import org.opentosca.container.core.next.trigger.SituationListener;
 
 @Entity
 @Table(name = Situation.TABLE_NAME)
-@EntityListeners({SituationListener.class})
+@EntityListeners( {SituationListener.class})
 public class Situation extends PersistenceObject {
 
     public static final String TABLE_NAME = "SITUATION";

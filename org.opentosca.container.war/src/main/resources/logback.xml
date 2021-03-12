@@ -1,34 +1,34 @@
 <configuration>
 
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
-    <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p [%t] %-40.40logger{39} : %m%n</pattern>
-    </encoder>
-  </appender>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p [%t] %-40.40logger{39} : %m%n</pattern>
+        </encoder>
+    </appender>
 
-  <!-- code under our direct control -->
-  <logger name="org.opentosca" level="INFO" />
-  <logger name="org.opentosca.container.core.plan" level="DEBUG" />
-  <logger name="org.opentosca.bus.management" level="TRACE" />
+    <!-- code under our direct control -->
+    <logger name="org.opentosca" level="INFO"/>
+    <logger name="org.opentosca.container.core.plan" level="DEBUG"/>
+    <logger name="org.opentosca.bus.management" level="TRACE"/>
 
-  <!-- Reducing logging noise  -->
-  <logger name="com.predic8" level="WARN" />
-  <logger name="httpclient.wire" level="WARN" />
-  <logger name="io.moquette" level="ERROR" />
-  <logger name="io.moquette.persistence" level="OFF" />
-  <logger name="io.netty" level="ERROR" />
-  <logger name="io.swagger" level="INFO"/>
-  <logger name="messageLogger" level="INFO" />
-  <logger name="org" level="WARN" />
-  <logger name="org.apache.camel" level="WARN" />
-  <!-- logging in- and outbound SOAP messages -->
-  <logger name="org.apache.cxf.services" level="INFO" />
-  <logger name="org.hibernate" level="INFO" />
-  <logger name="org.jclouds" level="INFO" />
-  <logger name="org.springframework" level="INFO" />
+    <!-- Reducing logging noise  -->
+    <logger name="com.predic8" level="WARN"/>
+    <logger name="httpclient.wire" level="WARN"/>
+    <logger name="io.moquette" level="ERROR"/>
+    <logger name="io.moquette.persistence" level="OFF"/>
+    <logger name="io.netty" level="ERROR"/>
+    <logger name="io.swagger" level="INFO"/>
+    <logger name="messageLogger" level="INFO"/>
+    <logger name="org" level="WARN"/>
+    <logger name="org.apache.camel" level="WARN"/>
+    <!-- logging in- and outbound SOAP messages -->
+    <logger name="org.apache.cxf.services" level="INFO"/>
+    <logger name="org.hibernate" level="INFO"/>
+    <logger name="org.jclouds" level="INFO"/>
+    <logger name="org.springframework" level="INFO"/>
 
-  <root level="debug">
-    <appender-ref ref="STDOUT" />
-  </root>
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
+    </root>
 </configuration>

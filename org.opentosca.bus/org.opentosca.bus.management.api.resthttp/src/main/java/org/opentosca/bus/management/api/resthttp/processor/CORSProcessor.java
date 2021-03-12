@@ -36,7 +36,7 @@ public class CORSProcessor implements Processor {
 
             headers.add("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
             headers.add("Access-Control-Allow-Headers",
-                        "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+                "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
             headers.add("Access-Control-Allow-Origin", "*");
             headers.add("Access-Control-Expose-Headers", "Location, Content-Type, Expires, Last-Modified");
         }

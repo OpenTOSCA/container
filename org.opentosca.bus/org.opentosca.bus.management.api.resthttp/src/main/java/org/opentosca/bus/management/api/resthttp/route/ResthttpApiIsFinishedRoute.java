@@ -29,10 +29,10 @@ public class ResthttpApiIsFinishedRoute extends RouteBuilder {
 
         // handle exceptions
         onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
-                                    .process(exceptionProcessor);
+            .process(exceptionProcessor);
 
         from("rest:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
             + "?method=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
-                            .process(isFinishedResponseProcessor).removeHeaders("*");
+            .process(isFinishedResponseProcessor).removeHeaders("*");
     }
 }

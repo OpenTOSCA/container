@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 @Singleton
 public class PluginRegistry {
 
-
     private final Map<String, IManagementBusInvocationPluginService> invocationPluginServices =
         Collections.synchronizedMap(new HashMap<>());
     private final Map<String, IManagementBusDeploymentPluginService> deploymentPluginServices =
@@ -30,13 +29,13 @@ public class PluginRegistry {
         // unfortunately Spring then injects null instead of an empty collection
         if (deploymentPlugins != null) {
             deploymentPlugins.forEach(plugin -> plugin.getSupportedTypes()
-                                                      .forEach(type -> this.deploymentPluginServices.put(type,
-                                                                                                         plugin)));
+                .forEach(type -> this.deploymentPluginServices.put(type,
+                    plugin)));
         }
         if (invocationPlugins != null) {
             invocationPlugins.forEach(plugin -> plugin.getSupportedTypes()
-                                                      .forEach(type -> this.invocationPluginServices.put(type,
-                                                                                                         plugin)));
+                .forEach(type -> this.invocationPluginServices.put(type,
+                    plugin)));
         }
     }
 

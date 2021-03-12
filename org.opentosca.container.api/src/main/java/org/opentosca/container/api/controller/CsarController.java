@@ -80,7 +80,7 @@ public class CsarController {
     private OpenToscaControlService controlService;
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all CSARs", response = CsarListDTO.class)
     public Response getCsars() {
         logger.debug("Invoking getCsars");
@@ -106,7 +106,7 @@ public class CsarController {
 
     @GET
     @javax.ws.rs.Path("/{csar}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a CSAR", response = CsarDTO.class)
     public Response getCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
         logger.debug("Invoking getCsar");
@@ -174,7 +174,7 @@ public class CsarController {
 
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response uploadCsar(@FormDataParam("enrichment") final String applyEnrichment,
                                @FormDataParam("file") final InputStream is,
@@ -201,8 +201,8 @@ public class CsarController {
     }
 
     @POST
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Handles an upload request for a CSAR file")
     public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request) {
         logger.debug("Invoking uploadCsar");
@@ -374,8 +374,8 @@ public class CsarController {
     @POST
     @javax.ws.rs.Path("/transform")
     @ApiOperation(value = "Transform this CSAR to a new CSAR")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
         logger.debug("Invoking transform Csar");
         final CsarId sourceCsar = new CsarId(request.getSourceCsarName());

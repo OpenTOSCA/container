@@ -19,7 +19,7 @@ import org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@NamedQueries({
+@NamedQueries( {
     @NamedQuery(name = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDAndRelPath,
         query = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDAndRelPathQuery),
     @NamedQuery(name = PlanDeploymentInfo.getPlanDeploymentInfoByCSARID,
