@@ -12,7 +12,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.next.model.PlanType;
-import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.planbuilder.core.AbstractManagementFeaturePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;

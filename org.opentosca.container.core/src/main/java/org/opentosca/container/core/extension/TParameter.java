@@ -1,4 +1,4 @@
-package org.opentosca.container.core.tosca.extension;
+package org.opentosca.container.core.extension;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlValue;
 
 @XmlRootElement(name = "Parameter")
 @XmlAccessorType(XmlAccessType.FIELD)
+@Deprecated(since = "We want to remove the dependency javax packages and we have already a PlanDTO class")
 public class TParameter {
 
     @XmlAttribute(name = "name")

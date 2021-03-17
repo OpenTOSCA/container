@@ -9,7 +9,7 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -102,7 +102,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
 
         for (AbstractNodeTemplate node : nodes) {
-            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
+            if (org.opentosca.container.core.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
                 .getId())) {
 
                 final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
@@ -260,7 +260,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
     private Variable findVMIP(final PlanContext templateContext, final AbstractNodeTemplate infraTemplate) {
         Variable serverIpPropWrapper = null;
-        for (final String serverIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+        for (final String serverIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = templateContext.getPropertyVariable(infraTemplate, serverIpName);
             if (serverIpPropWrapper != null) {
                 break;
@@ -271,7 +271,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
     private Variable findPrivateKey(final PlanContext templateContext, final AbstractNodeTemplate infraTemplate) {
         Variable sshKeyVariable = null;
-        for (final String vmLoginPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+        for (final String vmLoginPassword : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginPassword);
             if (sshKeyVariable != null) {
                 break;

@@ -23,11 +23,11 @@ import javax.xml.transform.stream.StreamResult;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 
-import org.apache.http.annotation.Obsolete;
+
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -237,8 +237,8 @@ public class ModelUtils {
         List<QName> nodeTypeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType());
         nodeTypeHierarchy.stream()
             .filter(type ->
-                org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(type)
-                    || org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(type)
+                org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(type)
+                    || org.opentosca.container.core.convention.Utils.isSupportedCloudProviderNodeType(type)
             )
             .findFirst()
             .ifPresent(type -> {
@@ -252,8 +252,8 @@ public class ModelUtils {
                 || ModelUtils.getRelationshipBaseType(relation).equals(Types.deployedOnRelationType)) {
                 ModelUtils.LOG.debug("traversing edge to node: " + relation.getTarget().getId());
 
-                if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(ModelUtils.getNodeBaseType(relation.getTarget()))
-                    || org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(ModelUtils.getNodeBaseType(relation.getTarget()))) {
+                if (org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(ModelUtils.getNodeBaseType(relation.getTarget()))
+                    || org.opentosca.container.core.convention.Utils.isSupportedCloudProviderNodeType(ModelUtils.getNodeBaseType(relation.getTarget()))) {
                     ModelUtils.LOG.debug("Found infrastructure node: " + relation.getTarget().getId());
                     infrastructureNodes.add(relation.getTarget());
                 }
@@ -441,7 +441,6 @@ public class ModelUtils {
      * @return a List containing an order of inheritance of NodeTypes for this NodeType with itself at the first spot in
      * the list.
      */
-    @Obsolete
     public static List<QName> getNodeTypeHierarchy(final AbstractNodeType nodeType) {
         ModelUtils.LOG.debug("Beginning calculating NodeType Hierarchy for: " + nodeType.getId().toString());
         final List<QName> typeHierarchy = new ArrayList<>();
@@ -535,7 +534,6 @@ public class ModelUtils {
      * The returns list would have {someNs}someRelationType,{someNs}someOtherRelationType inside, in the exact same
      * order. Var
      *
-     * @param definitions      the Definitions to look in
      * @param relationshipType the RelationshipType to get the hierarchy for
      * @return a List containing an order of inheritance of RelationshipTypes of the given RelationshipType
      */

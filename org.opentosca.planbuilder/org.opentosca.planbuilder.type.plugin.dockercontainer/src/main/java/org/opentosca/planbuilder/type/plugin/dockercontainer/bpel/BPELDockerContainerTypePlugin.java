@@ -3,7 +3,7 @@ package org.opentosca.planbuilder.type.plugin.dockercontainer.bpel;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;

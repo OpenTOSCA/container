@@ -171,7 +171,7 @@ public class MyTinyToDoIntegrationTest {
     }
 
     private ServiceTemplateInstance runBuildPlanExecution(TServiceTemplate serviceTemplate, TPlan buildPlan) {
-        List<org.opentosca.container.core.tosca.extension.TParameter> buildPlanInputParams = this.getBuildPlanInputParameters();
+        List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams = this.getBuildPlanInputParameters();
         String buildPlanCorrelationId = this.planService.invokePlan(this.csar, serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
         PlanInstance buildPlanInstance = this.planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
         while (buildPlanInstance == null) {
@@ -189,7 +189,7 @@ public class MyTinyToDoIntegrationTest {
     }
 
     private void runScaleOutPlanExecution(String serviceInstanceUrl, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan scaleOutPlan) {
-        List<org.opentosca.container.core.tosca.extension.TParameter> scaleOutInputParams = this.getScaleOurPlanInputParameters(serviceInstanceUrl);
+        List<org.opentosca.container.core.extension.TParameter> scaleOutInputParams = this.getScaleOurPlanInputParameters(serviceInstanceUrl);
         String scaleOurPlanCorrelationId = this.planService.invokePlan(this.csar, serviceTemplate, serviceTemplateInstance.getId(), scaleOutPlan.getId(), scaleOutInputParams, PlanType.MANAGEMENT);
         PlanInstance scaleOutPlanInstance = this.planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
         while (scaleOutPlanInstance == null) {
@@ -204,7 +204,7 @@ public class MyTinyToDoIntegrationTest {
     }
 
     private void runTerminationPlanExecution(String serviceInstanceUrl, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan) {
-        List<org.opentosca.container.core.tosca.extension.TParameter> terminationOutInputParams = this.getTerminationPlanInputParameters(serviceInstanceUrl);
+        List<org.opentosca.container.core.extension.TParameter> terminationOutInputParams = this.getTerminationPlanInputParameters(serviceInstanceUrl);
         String terminationPlanCorrelationId = this.planService.invokePlan(this.csar, serviceTemplate, serviceTemplateInstance.getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
         PlanInstance terminationPlanInstance = this.planService.getPlanInstanceByCorrelationId(terminationPlanCorrelationId);
         while (terminationPlanInstance == null) {
@@ -227,10 +227,10 @@ public class MyTinyToDoIntegrationTest {
         this.storage.findAll().forEach(x -> this.control.deleteCsar(x.id()));
     }
 
-    private List<org.opentosca.container.core.tosca.extension.TParameter> getTerminationPlanInputParameters(String serviceInstanceUrl) {
-        List<org.opentosca.container.core.tosca.extension.TParameter> inputParams = this.getBaseInputParams();
+    private List<org.opentosca.container.core.extension.TParameter> getTerminationPlanInputParameters(String serviceInstanceUrl) {
+        List<org.opentosca.container.core.extension.TParameter> inputParams = this.getBaseInputParams();
 
-        org.opentosca.container.core.tosca.extension.TParameter serviceInstanceUrlParam = new org.opentosca.container.core.tosca.extension.TParameter();
+        org.opentosca.container.core.extension.TParameter serviceInstanceUrlParam = new org.opentosca.container.core.extension.TParameter();
         serviceInstanceUrlParam.setName("OpenTOSCAContainerAPIServiceInstanceURL");
         serviceInstanceUrlParam.setType("String");
         serviceInstanceUrlParam.setValue(serviceInstanceUrl);
@@ -240,16 +240,16 @@ public class MyTinyToDoIntegrationTest {
         return inputParams;
     }
 
-    private List<org.opentosca.container.core.tosca.extension.TParameter> getScaleOurPlanInputParameters(String serviceInstanceUrl) {
-        List<org.opentosca.container.core.tosca.extension.TParameter> inputParams = new ArrayList<>();
+    private List<org.opentosca.container.core.extension.TParameter> getScaleOurPlanInputParameters(String serviceInstanceUrl) {
+        List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
 
-        org.opentosca.container.core.tosca.extension.TParameter applicationPort = new org.opentosca.container.core.tosca.extension.TParameter();
+        org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
         applicationPort.setName("ApplicationPort");
         applicationPort.setType("String");
         applicationPort.setValue("9991");
         applicationPort.setRequired(true);
 
-        org.opentosca.container.core.tosca.extension.TParameter serviceInstanceUrlParam = new org.opentosca.container.core.tosca.extension.TParameter();
+        org.opentosca.container.core.extension.TParameter serviceInstanceUrlParam = new org.opentosca.container.core.extension.TParameter();
         serviceInstanceUrlParam.setName("OpenTOSCAContainerAPIServiceInstanceURL");
         serviceInstanceUrlParam.setType("String");
         serviceInstanceUrlParam.setValue(serviceInstanceUrl);
@@ -263,16 +263,16 @@ public class MyTinyToDoIntegrationTest {
         return inputParams;
     }
 
-    private List<org.opentosca.container.core.tosca.extension.TParameter> getBuildPlanInputParameters() {
-        List<org.opentosca.container.core.tosca.extension.TParameter> inputParams = new ArrayList<>();
+    private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters() {
+        List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
 
-        org.opentosca.container.core.tosca.extension.TParameter dockerEngineUrl = new org.opentosca.container.core.tosca.extension.TParameter();
+        org.opentosca.container.core.extension.TParameter dockerEngineUrl = new org.opentosca.container.core.extension.TParameter();
         dockerEngineUrl.setName("DockerEngineURL");
         dockerEngineUrl.setRequired(true);
         dockerEngineUrl.setType("String");
         dockerEngineUrl.setValue("tcp://172.17.0.1:2375");
 
-        org.opentosca.container.core.tosca.extension.TParameter applicationPort = new org.opentosca.container.core.tosca.extension.TParameter();
+        org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
         applicationPort.setName("ApplicationPort");
         applicationPort.setType("String");
         applicationPort.setValue("9990");
@@ -286,22 +286,22 @@ public class MyTinyToDoIntegrationTest {
         return inputParams;
     }
 
-    public List<org.opentosca.container.core.tosca.extension.TParameter> getBaseInputParams() {
-        List<org.opentosca.container.core.tosca.extension.TParameter> inputParams = new ArrayList<>();
+    public List<org.opentosca.container.core.extension.TParameter> getBaseInputParams() {
+        List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
 
-        org.opentosca.container.core.tosca.extension.TParameter instanceDataAPIUrl = new org.opentosca.container.core.tosca.extension.TParameter();
+        org.opentosca.container.core.extension.TParameter instanceDataAPIUrl = new org.opentosca.container.core.extension.TParameter();
         instanceDataAPIUrl.setName("instanceDataAPIUrl");
         instanceDataAPIUrl.setType("String");
         instanceDataAPIUrl.setValue(null);
         instanceDataAPIUrl.setRequired(true);
 
-        org.opentosca.container.core.tosca.extension.TParameter csarEntrypoint = new org.opentosca.container.core.tosca.extension.TParameter();
+        org.opentosca.container.core.extension.TParameter csarEntrypoint = new org.opentosca.container.core.extension.TParameter();
         csarEntrypoint.setName("csarEntrypoint");
         csarEntrypoint.setType("String");
         csarEntrypoint.setValue(null);
         csarEntrypoint.setRequired(true);
 
-        org.opentosca.container.core.tosca.extension.TParameter correlationId = new org.opentosca.container.core.tosca.extension.TParameter();
+        org.opentosca.container.core.extension.TParameter correlationId = new org.opentosca.container.core.extension.TParameter();
         correlationId.setName("CorrelationID");
         correlationId.setType("String");
         correlationId.setValue(null);

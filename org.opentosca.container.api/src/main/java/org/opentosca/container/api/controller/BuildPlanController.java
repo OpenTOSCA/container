@@ -36,7 +36,7 @@ import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
-import org.opentosca.container.core.tosca.extension.TParameter;
+import org.opentosca.container.core.extension.TParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

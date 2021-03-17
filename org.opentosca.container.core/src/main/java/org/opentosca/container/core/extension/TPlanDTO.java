@@ -1,4 +1,4 @@
-package org.opentosca.container.core.tosca.extension;
+package org.opentosca.container.core.extension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +21,7 @@ import org.w3c.dom.Element;
 
 @XmlRootElement(name = "Plan")
 @XmlAccessorType(XmlAccessType.FIELD)
+@Deprecated(since = "We want to remove the dependency javax packages and we have already a PlanDTO class")
 public class TPlanDTO {
 
     @XmlElement(name = "InputParameters")
@@ -53,7 +54,7 @@ public class TPlanDTO {
 
         this.calculatedWCET = Long.valueOf(plan.getOtherAttributes().getOrDefault(new QName("http://opentosca.org", "WCET"), String.valueOf(0)));
 
-        final org.eclipse.winery.model.tosca.TPlan.InputParameters serializedInputParams = plan.getInputParameters();
+        final TPlan.InputParameters serializedInputParams = plan.getInputParameters();
         if (null != serializedInputParams) {
             this.inputParameters = new InputParameters();
             for (final TParameter param : serializedInputParams.getInputParameter()) {
@@ -61,7 +62,7 @@ public class TPlanDTO {
             }
         }
 
-        final org.eclipse.winery.model.tosca.TPlan.OutputParameters serializedOutputParams = plan.getOutputParameters();
+        final TPlan.OutputParameters serializedOutputParams = plan.getOutputParameters();
         if (null != serializedOutputParams) {
             this.outputParameters = new OutputParameters();
             for (final TParameter param : serializedOutputParams.getOutputParameter()) {

@@ -1,4 +1,4 @@
-package org.opentosca.container.core.tosca.convention;
+package org.opentosca.container.core.convention;
 
 import javax.xml.namespace.QName;
 

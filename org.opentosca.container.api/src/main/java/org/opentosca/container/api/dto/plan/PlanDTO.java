@@ -17,9 +17,10 @@ import org.eclipse.winery.model.tosca.TPlan;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.api.dto.ResourceSupport;
-import org.opentosca.container.core.tosca.extension.TParameter;
-import org.opentosca.container.core.tosca.extension.TParameterDTO;
-import org.opentosca.container.core.tosca.extension.TPlanDTO;
+import org.opentosca.container.core.extension.TParameter;
+import org.opentosca.container.core.extension.TParameterDTO;
+import org.opentosca.container.core.extension.TPlanDTO;
+//import org.opentosca.container.core.tosca.extension.TPlanDTO;
 
 @XmlRootElement(name = "Plan")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -161,39 +162,6 @@ public class PlanDTO extends ResourceSupport {
                 outputParameters.getOutputParameter().add(new TParameterDTO(param));
             }
             plan.setOutputParameters(outputParameters);
-
-            return plan;
-        }
-
-        public static PlanDTO convert(final TPlanDTO object) {
-            final PlanDTO plan = new PlanDTO();
-
-            plan.setId(object.getId().toString());
-            plan.setName(object.getName());
-            plan.setPlanLanguage(object.getPlanLanguage());
-            plan.setPlanType(object.getPlanType());
-            plan.setCalculatedWCET(object.getCalculatedWCET());
-
-            final List<TParameter> inputParameters = object.getInputParameters().getInputParameter().stream().map(p -> {
-                final TParameter parameter = new TParameter();
-                parameter.setName(p.getName());
-                parameter.setRequired(p.getRequired());
-                parameter.setType(p.getType());
-                parameter.setValue(p.getValue());
-                return parameter;
-            }).collect(Collectors.toList());
-            plan.setInputParameters(inputParameters);
-
-            final List<TParameter> outputParameters =
-                object.getOutputParameters().getOutputParameter().stream().map(p -> {
-                    final TParameter parameter = new TParameter();
-                    parameter.setName(p.getName());
-                    parameter.setRequired(p.getRequired());
-                    parameter.setType(p.getType());
-                    parameter.setValue(p.getValue());
-                    return parameter;
-                }).collect(Collectors.toList());
-            plan.setInputParameters(outputParameters);
 
             return plan;
         }

@@ -2,8 +2,8 @@ package org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.tosca.convention.Types;
-import org.opentosca.container.core.tosca.convention.Utils;
+import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
