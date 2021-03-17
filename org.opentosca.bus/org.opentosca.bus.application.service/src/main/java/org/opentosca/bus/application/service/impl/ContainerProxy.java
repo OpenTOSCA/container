@@ -20,6 +20,7 @@ import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.core.common.NotFoundException;
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
@@ -28,7 +29,6 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.opentosca.container.core.convention.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

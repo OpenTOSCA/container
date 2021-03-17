@@ -21,7 +21,6 @@ import org.w3c.dom.Element;
 
 @XmlRootElement(name = "Plan")
 @XmlAccessorType(XmlAccessType.FIELD)
-@Deprecated(since = "We want to remove the dependency javax packages and we have already a PlanDTO class")
 public class TPlanDTO {
 
     @XmlElement(name = "InputParameters")

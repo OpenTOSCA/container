@@ -21,6 +21,7 @@ import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueMap
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueType;
 import org.opentosca.bus.management.service.impl.collaboration.model.RemoteOperations;
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -29,7 +30,6 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
-import org.opentosca.container.core.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

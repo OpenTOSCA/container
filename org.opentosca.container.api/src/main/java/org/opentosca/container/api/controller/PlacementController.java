@@ -25,8 +25,8 @@ import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.core.common.NotFoundException;
-import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.convention.Utils;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

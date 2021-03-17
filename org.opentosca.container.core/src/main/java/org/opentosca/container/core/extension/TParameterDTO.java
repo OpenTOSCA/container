@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlValue;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tParameterDTO")
-@Deprecated(since = "We want to remove the dependency javax packages and we have already a PlanDTO class")
 public class TParameterDTO {
 
     @XmlValue

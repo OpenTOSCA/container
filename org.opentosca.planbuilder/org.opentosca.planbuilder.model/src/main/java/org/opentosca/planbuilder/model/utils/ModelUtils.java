@@ -23,11 +23,10 @@ import javax.xml.transform.stream.StreamResult;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 
-
 import org.opentosca.container.core.common.NotFoundException;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;

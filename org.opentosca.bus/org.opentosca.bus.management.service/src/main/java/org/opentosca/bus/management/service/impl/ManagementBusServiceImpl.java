@@ -57,6 +57,7 @@ import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.xml.XMLHelper;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
@@ -74,7 +75,6 @@ import org.opentosca.container.core.next.trigger.SituationTriggerInstanceListene
 import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
