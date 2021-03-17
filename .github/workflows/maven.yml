@@ -24,7 +24,7 @@ jobs:
         java-version: 11
     - name: Setup Docker Remote API
       run: sudo sed -ie "s@ExecStart=\/usr\/bin\/dockerd -H fd:\/\/@ExecStart=\/usr\/bin\/dockerd -H fd:\/\/ -H tcp:\/\/0.0.0.0:2375 -H unix:///var/run/docker.sock@g" /lib/systemd/system/docker.service
-    - name: Reload Deamones
+    - name: Reload Daemons
       run: sudo systemctl daemon-reload
     - name: Restart Docker
       run: sudo service docker restart
