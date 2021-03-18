@@ -6,6 +6,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.rest.RestBindingMode;
 import org.opentosca.bus.management.api.resthttp.model.QueueMap;
 import org.opentosca.bus.management.api.resthttp.model.RequestID;
 import org.opentosca.bus.management.api.resthttp.model.ResultMap;
@@ -57,12 +58,20 @@ public class InvocationRoute extends RouteBuilder {
         final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
+        restConfiguration().component("jetty").host("0.0.0.0").port(8086).bindingMode(RestBindingMode.auto);
+
         // handle exceptions
         onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
             .process(exceptionProcessor);
 
+
+
+
+
+
+
         // invoke main route
-        from("rest:post:" + BASE_ENDPOINT + INVOKE_ENDPOINT).doTry().process(invocationRequestProcessor)
+        from("rest:post:" + INVOKE_ENDPOINT).doTry().process(invocationRequestProcessor)
             .doCatch(Exception.class).end().choice()
             .when(exchangeProperty(Exchange.EXCEPTION_CAUGHT).isNull())
             .to("direct:invoke").otherwise().to("direct:exception")

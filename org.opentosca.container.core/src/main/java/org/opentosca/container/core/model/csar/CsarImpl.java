@@ -25,6 +25,7 @@ import org.eclipse.winery.model.ids.definitions.DefinitionsChildId;
 import org.eclipse.winery.model.ids.definitions.NodeTypeId;
 import org.eclipse.winery.model.ids.definitions.NodeTypeImplementationId;
 import org.eclipse.winery.model.ids.definitions.PolicyTemplateId;
+import org.eclipse.winery.model.ids.definitions.RelationshipTypeId;
 import org.eclipse.winery.model.ids.definitions.RelationshipTypeImplementationId;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.selfservice.Application;
@@ -42,6 +43,7 @@ import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TPolicyTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.BackendUtils;
@@ -230,6 +232,12 @@ public class CsarImpl implements Csar {
     @Override
     public List<TNodeTypeImplementation> nodeTypeImplementations() {
         return wineryRepo.getAllDefinitionsChildIds(NodeTypeImplementationId.class).stream()
+            .map(wineryRepo::getElement)
+            .collect(Collectors.toList());
+    }
+    @Override
+    public List<TRelationshipType> relationshipTypes(){
+        return wineryRepo.getAllDefinitionsChildIds(RelationshipTypeId.class).stream()
             .map(wineryRepo::getElement)
             .collect(Collectors.toList());
     }

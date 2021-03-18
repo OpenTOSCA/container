@@ -1,9 +1,11 @@
 package org.opentosca.bus.management.api.resthttp.processor;
 
+import java.util.Map;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.eclipse.jetty.server.Response;
 import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
-import org.restlet.Response;
 import org.restlet.data.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +33,9 @@ public class InvocationResponseProcessor implements Processor {
 
         InvocationResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
-        response.setStatus(Status.SUCCESS_ACCEPTED);
-        response.setLocationRef(InvocationRoute.POLL_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER, requestID));
+        final Response response = exchange.getIn().getHeader("CamelHttpServletResponse", Response.class);
+        response.setStatus(202);
+        response.setHeader("Location", InvocationRoute.POLL_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER, requestID));
 
         exchange.getOut().setBody(response);
     }

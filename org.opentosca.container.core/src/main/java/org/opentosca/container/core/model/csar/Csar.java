@@ -14,6 +14,7 @@ import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPolicyTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
@@ -42,6 +43,8 @@ public interface Csar {
     List<TNodeType> nodeTypes();
 
     List<TNodeTypeImplementation> nodeTypeImplementations();
+
+    List<TRelationshipType> relationshipTypes();
 
     List<TRelationshipTypeImplementation> relationshipTypeImplementations();
 

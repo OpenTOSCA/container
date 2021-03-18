@@ -29,6 +29,7 @@ import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TImplementationArtifacts;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
@@ -317,31 +318,28 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 + arguments.interfaceName + "' and operation '" + arguments.operationName + "'");
 
         final Csar csar = this.storage.findById(arguments.csarId);
-        final TServiceTemplate serviceTemplate;
-        try {
-            serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, arguments.serviceTemplateId);
-        } catch (final NotFoundException e) {
-            LOG.error("ServiceTemplate {} does not exist within Csar {}. Aborting IA Invocation",
-                arguments.serviceTemplateId, arguments.csarId.csarName());
-            event.setEndTimestamp(new Date());
-            return event;
-        }
 
+        final TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
+
+
+
+        Optional<TNodeTemplate> node = ToscaEngine.getNodeTemplate(csar,arguments.serviceTemplateId,arguments.nodeTemplateId);
         QName typeID = null;
+        TEntityType type = null;
         if (Objects.nonNull(arguments.nodeTemplateId)) {
-            final Optional<TNodeTemplate> nodeTemplate =
-                ToscaEngine.getNodeTemplate(serviceTemplate, arguments.nodeTemplateId);
-            if (nodeTemplate.isPresent()) {
-                typeID = nodeTemplate.get().getType();
+            TNodeTemplate nodeTemplate  =serviceTemplate.getTopologyTemplate().getNodeTemplate(arguments.nodeTemplateId);
+            if (nodeTemplate != null) {
+                typeID = nodeTemplate.getType();
             }
+            type = csar.nodeTypes().stream().filter(x -> x.getQName().equals(nodeTemplate.getTypeAsQName())).findFirst().orElse(null);
         } else if (Objects.nonNull(arguments.relationshipTemplateId)) {
-            final Optional<TRelationshipTemplate> relTemplate =
-                ToscaEngine.getRelationshipTemplate(serviceTemplate, arguments.relationshipTemplateId);
-            if (relTemplate.isPresent()) {
-                typeID = relTemplate.get().getType();
+            TRelationshipTemplate relationshipTemplate = serviceTemplate.getTopologyTemplate().getRelationshipTemplate(arguments.relationshipTemplateId);
+            if (relationshipTemplate != null) {
+                typeID = relationshipTemplate.getType();
             }
+            type = csar.relationshipTypes().stream().filter(x -> x.getQName().equals(relationshipTemplate.getTypeAsQName())).findFirst().orElse(null);
         }
-        if (typeID == null) {
+        if (typeID == null || arguments.nodeTemplateId.equals("DockerEngine_0")) {
             LOG.error(String.format("Could not resolve a type for the given nodeTemplateId/relationshipTemplateId [%s/%s]",
                 arguments.nodeTemplateId, arguments.relationshipTemplateId));
             handleResponse(exchange);
@@ -350,12 +348,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // invocation is only possible with retrieved type which contains the operation
-        TEntityType type;
-        try {
-            type = ToscaEngine.resolveEntityTypeReference(csar, typeID);
-        } catch (final NotFoundException e) {
-            type = null;
-        }
         if (!Objects.nonNull(typeID) || !Objects.nonNull(type)) {
             LOG.error("Unable to retrieve the NodeType/RelationshipType for NodeTemplate: {} and RelationshipTemplate: {}",
                 arguments.nodeTemplateId, arguments.relationshipTemplateId);

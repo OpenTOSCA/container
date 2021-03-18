@@ -1,6 +1,7 @@
 package org.opentosca.bus.management.api.resthttp.route;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.rest.RestBindingMode;
 import org.opentosca.bus.management.api.resthttp.model.QueueMap;
 import org.opentosca.bus.management.api.resthttp.model.ResultMap;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,9 @@ public class DeleteRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        from("rest:delete:" + InvocationRoute.BASE_ENDPOINT
+
+        restConfiguration().component("jetty").host("0.0.0.0").port(8086).bindingMode(RestBindingMode.auto);
+        from("rest:delete:"
             + InvocationRoute.GET_RESULT_ENDPOINT).bean(QueueMap.class, "remove(${header." + InvocationRoute.ID + "})")
             .bean(ResultMap.class, "remove(${header." + InvocationRoute.ID + "})")
             .removeHeaders("*");

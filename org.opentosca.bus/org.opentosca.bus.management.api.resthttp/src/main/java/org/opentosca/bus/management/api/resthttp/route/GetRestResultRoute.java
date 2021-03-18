@@ -2,6 +2,7 @@ package org.opentosca.bus.management.api.resthttp.route;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.rest.RestBindingMode;
 import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.GetResultProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.GetResultRequestProcessor;
@@ -27,11 +28,14 @@ public class GetRestResultRoute extends RouteBuilder {
         final GetResultProcessor getResultProcessor = new GetResultProcessor();
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
+        restConfiguration().component("jetty").host("0.0.0.0").port(8086).bindingMode(RestBindingMode.auto);
         // handle exceptions
         onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
             .process(exceptionProcessor);
 
-        from("rest:get:" + InvocationRoute.BASE_ENDPOINT
+
+
+        from("rest:get:"
             + InvocationRoute.GET_RESULT_ENDPOINT).process(getResultRequestProcessor).process(getResultProcessor)
             .process(getResultResponseProcessor).removeHeaders("*");
     }
