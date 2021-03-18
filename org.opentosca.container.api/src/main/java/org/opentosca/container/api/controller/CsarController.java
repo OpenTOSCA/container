@@ -7,6 +7,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -229,7 +231,7 @@ public class CsarController {
     }
 
     private Response handleCsarUpload(final String filename, final InputStream is, final String applyEnrichment) {
-
+        LocalDateTime startTIme = LocalDateTime.now();
         Path tempFile = storage.storeCSARTemporarily(filename, is);
         if (tempFile == null) {
             // writing to temporary file failed
@@ -337,6 +339,7 @@ public class CsarController {
         logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());
         final URI uri =
             UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId.csarName()));
+        logger.info("Csar handling took  " + Duration.between(startTIme, LocalDateTime.now()));
         return Response.created(uri).build();
     }
 

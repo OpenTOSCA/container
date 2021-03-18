@@ -1,4 +1,4 @@
-package org.opentosca.container.core.tosca.extension;
+package org.opentosca.container.core.extension;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -29,7 +29,7 @@ public class TParameterDTO {
         this.required = param.getRequired();
     }
 
-    public TParameterDTO(final org.opentosca.container.core.tosca.extension.TParameter param) {
+    public TParameterDTO(final TParameter param) {
         this.name = param.getName();
         this.type = param.getType();
         this.required = param.getRequired();
@@ -107,8 +107,8 @@ public class TParameterDTO {
             return element;
         }
 
-        public static org.opentosca.container.core.tosca.extension.TParameter toEntity(TParameterDTO dto) {
-            org.opentosca.container.core.tosca.extension.TParameter entity = new org.opentosca.container.core.tosca.extension.TParameter();
+        public static TParameter toEntity(TParameterDTO dto) {
+            TParameter entity = new TParameter();
             entity.setName(dto.name);
             entity.setRequired(dto.required);
             entity.setType(dto.type);

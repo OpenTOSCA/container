@@ -14,7 +14,7 @@ import org.eclipse.winery.model.tosca.TExportedOperation;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiModelProperty;
-import org.opentosca.container.core.tosca.extension.TParameter;
+import org.opentosca.container.core.extension.TParameter;
 
 @XmlRootElement(name = "NodeOperation")
 @XmlAccessorType(XmlAccessType.FIELD)

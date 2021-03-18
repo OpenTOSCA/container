@@ -3,7 +3,7 @@ package org.opentosca.planbuilder.type.plugin.connectsto.bpel.handler;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;

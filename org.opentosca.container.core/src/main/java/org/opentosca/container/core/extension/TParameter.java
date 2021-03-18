@@ -1,4 +1,4 @@
-package org.opentosca.container.core.tosca.extension;
+package org.opentosca.container.core.extension;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

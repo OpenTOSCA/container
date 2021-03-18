@@ -31,12 +31,12 @@ import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.core.common.uri.UriUtil;
+import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
-import org.opentosca.container.core.tosca.extension.TParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

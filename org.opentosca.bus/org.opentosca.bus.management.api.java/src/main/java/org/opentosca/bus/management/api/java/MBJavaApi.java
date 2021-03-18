@@ -29,6 +29,7 @@ import org.glassfish.jersey.uri.UriComponent;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.management.IManagementBus;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
@@ -41,7 +42,6 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.SituationRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
 import org.opentosca.planbuilder.export.WineryExporter;
 import org.opentosca.planbuilder.importer.Importer;

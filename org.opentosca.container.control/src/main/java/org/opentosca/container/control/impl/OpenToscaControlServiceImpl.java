@@ -16,6 +16,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.extension.TPlanDTO;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
@@ -23,7 +24,6 @@ import org.opentosca.container.core.model.deployment.process.DeploymentProcessSt
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.DeploymentTracker;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
-import org.opentosca.container.core.tosca.extension.TPlanDTO;
 import org.opentosca.container.engine.plan.IPlanEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

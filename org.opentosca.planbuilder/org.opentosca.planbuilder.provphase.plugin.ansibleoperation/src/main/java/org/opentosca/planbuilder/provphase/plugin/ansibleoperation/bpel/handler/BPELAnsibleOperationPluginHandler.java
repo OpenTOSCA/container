@@ -14,8 +14,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.opentosca.container.core.common.file.ResourceAccess;
-import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.container.core.tosca.convention.Properties;
+import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.convention.Properties;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
@@ -192,7 +192,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
 
     private AbstractNodeTemplate findInfrastructureNode(final List<AbstractNodeTemplate> nodes) {
         for (final AbstractNodeTemplate nodeTemplate : nodes) {
-            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType()
+            if (org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType()
                 .getId())) {
                 return nodeTemplate;
             }
@@ -268,7 +268,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         // fetch server ip of the vm this apache http php module will be
         // installed on
         PropertyVariable serverIpPropWrapper = null;
-        for (final String serverIp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+        for (final String serverIp : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = templateContext.getPropertyVariable(infrastructureNodeTemplate, serverIp);
             if (serverIpPropWrapper != null) {
                 break;
@@ -282,7 +282,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
 
         // find sshUser and sshKey
         PropertyVariable sshUserVariable = null;
-        for (final String vmUserName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+        for (final String vmUserName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserName);
             if (sshUserVariable != null) {
                 break;
@@ -300,7 +300,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
             }
         }
         PropertyVariable sshKeyVariable = null;
-        for (final String vmUserPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+        for (final String vmUserPassword : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserPassword);
             if (sshKeyVariable != null) {
                 break;
@@ -405,7 +405,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
             this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia, param2propertyMapping);
 
         Variable ipStringVariable = null;
-        for (final String serverIp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+        for (final String serverIp : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             ipStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, serverIp);
             if (ipStringVariable != null) {
                 break;
@@ -413,7 +413,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         }
 
         Variable userStringVariable = null;
-        for (final String vmUserName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+        for (final String vmUserName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             userStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserName);
             if (userStringVariable != null) {
                 break;
@@ -421,7 +421,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         }
 
         Variable passwdStringVariable = null;
-        for (final String vmUserPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+        for (final String vmUserPassword : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             passwdStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserPassword);
             if (passwdStringVariable != null) {
                 break;

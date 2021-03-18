@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core;
 
-import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;

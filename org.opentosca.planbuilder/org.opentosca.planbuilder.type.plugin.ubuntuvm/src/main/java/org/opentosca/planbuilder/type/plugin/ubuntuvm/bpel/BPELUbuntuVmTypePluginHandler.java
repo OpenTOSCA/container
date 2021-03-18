@@ -10,9 +10,9 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.container.core.tosca.convention.Properties;
-import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.convention.Properties;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -71,7 +71,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
      * @return a String containing an ubuntuImageId, if given QName is not presenting an Ubuntu image then null
      */
     private String createUbuntuImageStringFromNodeType(final QName nodeType) {
-        if (!org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(nodeType)) {
+        if (!org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(nodeType)) {
             return null;
         }
 
@@ -148,7 +148,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodes);
 
         for (final AbstractNodeTemplate node : nodes) {
-            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(node.getType()
+            if (org.opentosca.container.core.convention.Utils.isSupportedCloudProviderNodeType(node.getType()
                 .getId())) {
                 return node;
             }
@@ -165,14 +165,14 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
      */
     private AbstractNodeTemplate findDockerEngineNode(final AbstractNodeTemplate nodeTemplate) {
         // check if the given node is the docker engine node
-        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(nodeTemplate.getType()
+        if (org.opentosca.container.core.convention.Utils.isSupportedDockerEngineNodeType(nodeTemplate.getType()
             .getId())) {
             return nodeTemplate;
         }
 
         // check if the given node is connected to an docker engine node
         for (final AbstractRelationshipTemplate relationTemplate : nodeTemplate.getOutgoingRelations()) {
-            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(relationTemplate.getTarget()
+            if (org.opentosca.container.core.convention.Utils.isSupportedDockerEngineNodeType(relationTemplate.getTarget()
                 .getType()
                 .getId())) {
                 return relationTemplate.getTarget();
@@ -190,14 +190,14 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
      */
     private AbstractNodeTemplate findUbuntuNode(final AbstractNodeTemplate nodeTemplate) {
         // check if the given node is the ubuntu node
-        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType()
+        if (org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType()
             .getId())) {
             return nodeTemplate;
         }
 
         for (final AbstractRelationshipTemplate relationTemplate : nodeTemplate.getIngoingRelations()) {
             // check if the given node is connected to an ubuntu node
-            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(relationTemplate.getSource()
+            if (org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(relationTemplate.getSource()
                 .getType()
                 .getId())) {
                 return relationTemplate.getSource();
@@ -207,7 +207,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             // a path of length 2
             for (final AbstractRelationshipTemplate relationTemplate2 : relationTemplate.getSource()
                 .getIngoingRelations()) {
-                if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(relationTemplate2.getSource()
+                if (org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(relationTemplate2.getSource()
                     .getType()
                     .getId())) {
 
@@ -407,7 +407,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                                              final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
         final List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
         for (final AbstractNodeTemplate infraNode : infraNodes) {
-            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(infraNode.getType()
+            if (org.opentosca.container.core.convention.Utils.isSupportedCloudProviderNodeType(infraNode.getType()
                 .getId())) {
                 // append logic to call terminateVM method on the
                 // node
@@ -431,8 +431,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 inputs.put("HypervisorUserPassword", hypervisorUserPassword);
 
                 return this.invokerOpPlugin.handle(context, hypervisorNode.getId(), true,
-                    org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
-                    org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+                    org.opentosca.container.core.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
+                    org.opentosca.container.core.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
                     inputs, outputs, elementToAppendTo);
             }
         }
@@ -464,7 +464,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         Variable instanceIdPropWrapper = null;
 
-        for (final String instanceIdName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
+        for (final String instanceIdName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
 
             // find InstanceId Property inside ubuntu nodeTemplate
 
@@ -483,7 +483,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // find ServerIp Property inside ubuntu nodeTemplate
         Variable serverIpPropWrapper = null;
-        for (final String vmIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+        for (final String vmIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, vmIpName);
             if (serverIpPropWrapper == null) {
                 serverIpPropWrapper = context.getPropertyVariable(vmIpName, true);
@@ -499,7 +499,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // find sshUser and sshKey
         PropertyVariable sshUserVariable = null;
-        for (final String userName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+        for (final String userName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate, userName);
             if (sshUserVariable == null) {
                 sshUserVariable = context.getPropertyVariable(userName, true);
@@ -526,7 +526,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         PropertyVariable sshKeyVariable = null;
 
-        for (final String passwordName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+        for (final String passwordName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate, passwordName);
             if (sshKeyVariable == null) {
                 sshKeyVariable = context.getPropertyVariable(passwordName, true);
@@ -840,7 +840,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // find ServerIp Property inside ubuntu nodeTemplate
         Variable serverIpPropWrapper = null;
-        for (final String vmIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+        for (final String vmIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, vmIpName);
             if (serverIpPropWrapper == null) {
                 serverIpPropWrapper = context.getPropertyVariable(vmIpName, true);
@@ -851,7 +851,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // find InstanceID Property inside ubuntu nodeTemplate
         Variable instanceIdPropWrapper = null;
-        for (final String instanceIdName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
+        for (final String instanceIdName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
             instanceIdPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, instanceIdName);
             if (instanceIdPropWrapper == null) {
                 instanceIdPropWrapper = context.getPropertyVariable(instanceIdName, true);
@@ -872,7 +872,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // find sshUser and sshKey
         PropertyVariable sshUserVariable = null;
-        for (final String userName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+        for (final String userName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate, userName);
             if (sshUserVariable == null) {
                 sshUserVariable = context.getPropertyVariable(userName, true);
@@ -894,7 +894,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         }
 
         PropertyVariable sshKeyVariable = null;
-        for (final String passwordName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+        for (final String passwordName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate, passwordName);
             if (sshKeyVariable == null) {
                 sshKeyVariable = context.getPropertyVariable(passwordName, true);
@@ -987,7 +987,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         Variable instanceIdPropWrapper = null;
 
-        for (final String instanceIdName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
+        for (final String instanceIdName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
             // find InstanceId Property inside ubuntu nodeTemplate
 
             instanceIdPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, instanceIdName);
@@ -1005,7 +1005,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // find ServerIp Property inside ubuntu nodeTemplate
         Variable serverIpPropWrapper = null;
-        for (final String vmIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+        for (final String vmIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, vmIpName);
             if (serverIpPropWrapper == null) {
                 serverIpPropWrapper = context.getPropertyVariable(vmIpName, true);
@@ -1021,7 +1021,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // find sshUser and sshKey
         PropertyVariable sshUserVariable = null;
-        for (final String userName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+        for (final String userName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate, userName);
             if (sshUserVariable == null) {
                 sshUserVariable = context.getPropertyVariable(userName, true);
@@ -1048,7 +1048,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         PropertyVariable sshKeyVariable = null;
 
-        for (final String passwordName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+        for (final String passwordName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate, passwordName);
             if (sshKeyVariable == null) {
                 sshKeyVariable = context.getPropertyVariable(passwordName, true);

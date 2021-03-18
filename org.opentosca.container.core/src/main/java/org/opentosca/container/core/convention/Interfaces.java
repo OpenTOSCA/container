@@ -1,4 +1,4 @@
-package org.opentosca.container.core.tosca.convention;
+package org.opentosca.container.core.convention;
 
 /**
  * This class holds the names of the well-known interfaces and their operations.

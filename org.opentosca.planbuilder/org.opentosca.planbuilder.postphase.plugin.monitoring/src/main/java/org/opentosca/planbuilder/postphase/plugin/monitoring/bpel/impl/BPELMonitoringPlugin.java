@@ -6,8 +6,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.next.model.PlanType;
-import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.container.core.tosca.convention.Properties;
+import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.convention.Properties;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;

@@ -15,13 +15,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.opentosca</groupId>
-			<artifactId>org.opentosca.container.core.tosca</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.github.opentosca.winery</groupId>
 			<artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
+            <version>${winery.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.opentosca.winery</groupId>

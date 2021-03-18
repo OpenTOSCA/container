@@ -49,7 +49,6 @@
 		<module>org.opentosca.container.connector.winery</module>
 		<module>org.opentosca.container.control</module>
 		<module>org.opentosca.container.core</module>
-		<module>org.opentosca.container.core.tosca</module>
 		<module>org.opentosca.container.engine.plan</module>
 		<module>org.opentosca.container.engine.plan.plugin.bpel</module>
 		<module>org.opentosca.container.engine.plan.plugin.camunda</module>

@@ -1,4 +1,4 @@
-package org.opentosca.container.core.tosca.convention;
+package org.opentosca.container.core.convention;
 
 import java.util.ArrayList;
 import java.util.List;

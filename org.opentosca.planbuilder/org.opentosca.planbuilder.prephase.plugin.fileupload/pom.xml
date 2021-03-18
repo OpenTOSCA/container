@@ -18,7 +18,7 @@
     </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.container.core.tosca</artifactId>
+      <artifactId>org.opentosca.container.core</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>

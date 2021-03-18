@@ -8,10 +8,10 @@ import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.extension.TPlanDTO;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
-import org.opentosca.container.core.tosca.extension.TPlanDTO;
 
 /**
  * Interface of the control of the OpenTosca Container.

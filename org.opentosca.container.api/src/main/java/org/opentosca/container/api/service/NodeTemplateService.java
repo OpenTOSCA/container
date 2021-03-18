@@ -22,10 +22,10 @@ import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.opentosca.container.core.tosca.extension.TParameter;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 
