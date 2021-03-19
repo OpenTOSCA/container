@@ -13,6 +13,30 @@
 
 	<artifactId>org.opentosca.container.connector.ode</artifactId>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>axistools-maven-plugin</artifactId>
+                <version>1.4</version>
+                <configuration>
+                    <wsdlFiles>
+                        <wsdlFiles>deploy.wsdl</wsdlFiles>
+                        <wsdlFiles>pmapi.wsdl</wsdlFiles>
+                    </wsdlFiles>
+                    <sourceDirectory>${basedir}/src/main/resources</sourceDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.axis</groupId>

@@ -208,7 +208,7 @@ public class OdeConnector {
         // Retrieve the process ids contained in the given package
         QName[] processIds;
         try {
-            processIds = client.listProcesses(packageId);
+            processIds = client.listProcesses(packageId).getId();
 
             // this can happen if ODE has no process deployed
             if (processIds != null) {
@@ -244,7 +244,7 @@ public class OdeConnector {
         try {
             final DeploymentPortType client = getDeploymentServiceClient();
 
-            final String[] deployedPackages = client.listDeployedPackages();
+            final String[] deployedPackages = client.listDeployedPackages().getName();
 
             final List<String> filteredPackages = new ArrayList<>();
 
@@ -353,7 +353,7 @@ public class OdeConnector {
 
         String[] packages = null;
         try {
-            packages = client.listDeployedPackages();
+            packages = client.listDeployedPackages().getName();
         } catch (final RemoteException e) {
             OdeConnector.LOG.error("Trying to resolve all deployed packages caused an exception.", e);
         }
@@ -403,7 +403,7 @@ public class OdeConnector {
 
             if (info.getEndpoints() != null) {
                 // process response
-                for (final TEndpointReferencesEndpointRef endpointRef : info.getEndpoints()) {
+                for (final TEndpointReferencesEndpointRef endpointRef : info.getEndpoints().getEndpointRef()) {
 
                     OdeConnector.LOG.debug("Found partnerlink: " + endpointRef.getPartnerLink());
 
@@ -494,7 +494,7 @@ public class OdeConnector {
 
         TProcessInfo[] processList;
         try {
-            processList = client.listAllProcesses();
+            processList = client.listAllProcesses().getProcessInfo();
 
             // check for case when there are no process deployed anymore
             if (processList == null) {
