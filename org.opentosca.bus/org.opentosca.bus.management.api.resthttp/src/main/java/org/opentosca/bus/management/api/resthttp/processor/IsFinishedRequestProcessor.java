@@ -25,8 +25,8 @@ public class IsFinishedRequestProcessor implements Processor {
 
         IsFinishedRequestProcessor.LOG.debug("Processing IsFinished request....");
 
-        final Integer requestID = exchange.getIn().getHeader(InvocationRoute.ID, Integer.class);
-
+        final String uri = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class);
+        final String requestID = uri.substring(uri.lastIndexOf("/") + 1);
         IsFinishedRequestProcessor.LOG.debug("RequestID: {}", requestID);
 
         exchange.getIn().setBody(requestID);
