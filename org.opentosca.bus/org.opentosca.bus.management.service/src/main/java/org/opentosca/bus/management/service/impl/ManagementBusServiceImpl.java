@@ -339,7 +339,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             }
             type = csar.relationshipTypes().stream().filter(x -> x.getQName().equals(relationshipTemplate.getTypeAsQName())).findFirst().orElse(null);
         }
-        if (typeID == null || arguments.nodeTemplateId.equals("DockerEngine_0")) {
+        if (typeID == null) {
             LOG.error(String.format("Could not resolve a type for the given nodeTemplateId/relationshipTemplateId [%s/%s]",
                 arguments.nodeTemplateId, arguments.relationshipTemplateId));
             handleResponse(exchange);
