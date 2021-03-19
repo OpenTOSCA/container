@@ -4,11 +4,12 @@ import java.util.HashMap;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.eclipse.jetty.server.Response;
 import org.json.simple.JSONObject;
 import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
-import org.restlet.Response;
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
+//import org.restlet.Response;
+//import org.restlet.data.MediaType;
+//import org.restlet.data.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,12 +37,12 @@ public class GetResultResponseProcessor implements Processor {
 
         GetResultResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
+        final Response response = exchange.getIn().getHeader(Exchange.HTTP_SERVLET_RESPONSE, Response.class);
 
         if (exchange.getIn().getBody() instanceof Exception) {
-
-            response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-            response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
+            response.setStatus(404);
+            exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+            exchange.getMessage().setBody(exchange.getIn().getBody(String.class));
         } else {
 
             final HashMap<String, String> responseMap = exchange.getIn().getBody(HashMap.class);
@@ -49,10 +50,12 @@ public class GetResultResponseProcessor implements Processor {
             final JSONObject obj = new JSONObject();
             obj.put("response", responseMap);
 
-            response.setStatus(Status.SUCCESS_OK);
-            response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
+            response.setStatus(200);
+            exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
+            exchange.getIn().setHeader("Content-Type", "application/json");
+            exchange.getIn().setBody(obj.toJSONString());
+            exchange.getMessage().setBody(obj.toJSONString());
         }
 
-        exchange.getOut().setBody(response);
     }
 }

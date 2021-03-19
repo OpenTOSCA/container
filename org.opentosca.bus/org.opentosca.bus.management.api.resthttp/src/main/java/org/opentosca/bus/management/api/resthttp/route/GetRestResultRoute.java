@@ -35,6 +35,6 @@ public class GetRestResultRoute extends RouteBuilder {
 
         from("jetty://" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
             + "?httpMethodRestrict=get").process(getResultRequestProcessor).process(getResultProcessor)
-                                        .process(getResultResponseProcessor).removeHeaders("*");
+                                        .process(getResultResponseProcessor);
     }
 }

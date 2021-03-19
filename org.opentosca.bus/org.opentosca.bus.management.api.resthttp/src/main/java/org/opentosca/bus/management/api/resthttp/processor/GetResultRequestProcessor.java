@@ -25,7 +25,8 @@ public class GetResultRequestProcessor implements Processor {
 
         GetResultRequestProcessor.LOG.debug("Processing GetResult request....");
 
-        final Integer requestID = exchange.getIn().getHeader(InvocationRoute.ID, Integer.class);
+        final String uri = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class).replace("/response", "");
+        final String requestID = uri.substring(uri.lastIndexOf("/") + 1);
 
         GetResultRequestProcessor.LOG.debug("RequestID: {}", requestID);
 

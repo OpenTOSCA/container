@@ -7,6 +7,7 @@ import org.json.simple.JSONObject;
 import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
 //import org.restlet.Response;
 //import org.restlet.data.MediaType;
+import org.opentosca.container.core.common.Settings;
 import org.restlet.data.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,8 @@ public class IsFinishedResponseProcessor implements Processor {
         if (exchange.getIn().getBody() instanceof Exception) {
 
             response.setStatus(404);
+            exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+            exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
             exchange.getMessage().setBody(exchange.getIn().getBody(String.class));
         } else {
 
@@ -49,8 +52,15 @@ public class IsFinishedResponseProcessor implements Processor {
             if (isFinished) {
                 IsFinishedResponseProcessor.LOG.debug("Invocation has finished, send location of result.");
                 response.setStatus(303);
-                exchange.getMessage().setHeader("Location" , InvocationRoute.GET_RESULT_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER,
-                    requestID));
+                exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 303);
+                exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 303);
+                String loc = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + InvocationRoute.PORT + "/ManagementBus/v1/invoker/activeRequests/" + requestID + "/response";
+                exchange.getIn().setHeader("Location" , "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + InvocationRoute.PORT + "/ManagementBus/v1/invoker/activeRequests/" + requestID + "/response");
+                exchange.getMessage().setHeader("Location" , "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + InvocationRoute.PORT + "/ManagementBus/v1/invoker/activeRequests/" + requestID + "/response");
+                exchange.getMessage().setHeader("Content-Type", "application/json");
+                final JSONObject obj = new JSONObject();
+                obj.put("status", "FINISHED");
+                exchange.getMessage().setBody(obj.toJSONString());
             } else {
                 IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
 
@@ -58,9 +68,12 @@ public class IsFinishedResponseProcessor implements Processor {
                 obj.put("status", "PENDING");
 
                 response.setStatus(200);
+                exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
+                exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
+                exchange.getMessage().setHeader("Content-Type", "application/json");
                 exchange.getMessage().setBody(obj.toJSONString());
             }
-            exchange.getOut().setBody(response);
+            //exchange.getOut().setBody(response);
         }
     }
 }

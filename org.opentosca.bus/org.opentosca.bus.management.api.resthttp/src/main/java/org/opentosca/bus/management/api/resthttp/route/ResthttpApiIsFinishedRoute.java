@@ -32,6 +32,6 @@ public class ResthttpApiIsFinishedRoute extends RouteBuilder {
 
         from("jetty://" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
             + "?httpMethodRestrict=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
-                                        .process(isFinishedResponseProcessor).removeHeaders("*");
+                                        .process(isFinishedResponseProcessor);
     }
 }
