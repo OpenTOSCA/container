@@ -13,6 +13,7 @@ import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationRequestProcessor;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
+import org.opentosca.container.core.common.Settings;
 import org.springframework.stereotype.Component;
 
 /**
@@ -71,7 +72,7 @@ public class InvocationRoute extends RouteBuilder {
                              .wireTap("direct:toManagementBus").to("direct:init")
                              .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(202))
                              .setHeader("Location",
-                                        simple("http://localhost:8086" + "/ManagementBus/v1/invoker/activeRequests/"
+                                        simple("http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + InvocationRoute.PORT + "/ManagementBus/v1/invoker/activeRequests/"
                                             + "${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "}"));
 
         // route in case an exception was caught
