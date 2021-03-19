@@ -5,7 +5,7 @@ import java.util.HashSet;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
@@ -158,7 +158,7 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
             return true;
         }
 
-        if (!org.opentosca.container.core.tosca.convention.Utils
+        if (!org.opentosca.container.core.convention.Utils
             .isSupportedInfrastructureNodeType(infrastructureNodeType)) {
             return false;
         }

@@ -15,6 +15,7 @@ import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
+import org.opentosca.bus.management.api.soaphttp.model.InvokeResponse;
 import org.opentosca.bus.management.api.soaphttp.processor.RequestProcessor;
 import org.opentosca.bus.management.api.soaphttp.processor.ResponseProcessor;
 import org.opentosca.bus.management.service.IManagementBusService;
@@ -45,7 +46,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 // named to avoid clashing with other RouteBuilders just called Route across the project
-//@Named("management-bus-soaphttp-route")
+// @Named("management-bus-soaphttp-route")
 public class Route extends RouteBuilder {
 
     public final static String PUBLIC_ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";
@@ -74,7 +75,8 @@ public class Route extends RouteBuilder {
 
     @Inject
     public Route(CsarStorageService csarStorageService, IManagementBusService managementBusService,
-                 ICoreEndpointService endpointService, ContainerEngine containerEngine, ChoreographyHandler choreoHandler) {
+                 ICoreEndpointService endpointService, ContainerEngine containerEngine,
+                 ChoreographyHandler choreoHandler) {
         this.csarStorageService = csarStorageService;
         this.managementBusService = managementBusService;
         this.endpointService = endpointService;
@@ -86,11 +88,11 @@ public class Route extends RouteBuilder {
 
     private void storeManagementEndpoint() {
         try {
-            URI uri = new URI(Route.PUBLIC_ENDPOINT);
+            final URI uri = new URI(Route.PUBLIC_ENDPOINT);
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
             final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, localContainer, localContainer,
                 new CsarId("***"), null, null, null, null, new HashMap<String, String>());
-            endpointService.storeWSDLEndpoint(endpoint);
+            this.endpointService.storeWSDLEndpoint(endpoint);
         } catch (final URISyntaxException e) {
             e.printStackTrace();
         }
@@ -118,26 +120,20 @@ public class Route extends RouteBuilder {
         final JAXBContext jc = JAXBContext.newInstance("org.opentosca.bus.management.api.soaphttp.model", cl);
         final JaxbDataFormat requestJaxb = new JaxbDataFormat(jc);
         final JaxbDataFormat responseJaxb = new JaxbDataFormat(jc);
-        responseJaxb.setPartClass("org.opentosca.bus.management.api.soaphttp.model.InvokeResponse");
+        responseJaxb.setPartClass(InvokeResponse.class);
         responseJaxb.setPartNamespace(new QName("http://siserver.org/schema", "invokeResponse"));
 
-        final Processor requestProcessor = new RequestProcessor(csarStorageService, containerEngine, managementBusService, choreoHandler);
+        final Processor requestProcessor = new RequestProcessor(this.csarStorageService, this.containerEngine,
+            this.managementBusService, this.choreoHandler);
         final Processor responseProcessor = new ResponseProcessor();
 
-        this.from(INVOKE_ENDPOINT)
-            .unmarshal(requestJaxb)
-            .process(requestProcessor)
-            .choice().when(IS_INVOKE_IA)
-            .bean(managementBusService, "invokeIA")
-            .when(IS_INVOKE_PLAN)
-            .bean(managementBusService, "invokePlan")
-            .when(IS_NOTIFY_PARTNER)
-            .bean(managementBusService, "notifyPartner")
-            .when(IS_NOTIFY_PARTNERS)
-            .bean(managementBusService, "notifyPartners")
-            .end();
+        this.from(INVOKE_ENDPOINT).unmarshal(requestJaxb).process(requestProcessor).choice().when(this.IS_INVOKE_IA)
+            .bean(this.managementBusService, "invokeIA").when(this.IS_INVOKE_PLAN)
+            .bean(this.managementBusService, "invokePlan").when(this.IS_NOTIFY_PARTNER)
+            .bean(this.managementBusService, "notifyPartner").when(this.IS_NOTIFY_PARTNERS)
+            .bean(this.managementBusService, "notifyPartners").end();
 
-        this.from("direct-vm:" + RequestProcessor.MB_MANAGEMENT_SOAPHTTP_API_ID).process(responseProcessor).marshal(responseJaxb).choice().when(ASYNC)
-            .recipientList(this.simple(CALLBACK_ENDPOINT)).end();
+        this.from("direct-vm:" + RequestProcessor.MB_MANAGEMENT_SOAPHTTP_API_ID).process(responseProcessor)
+            .marshal(responseJaxb).choice().when(ASYNC).recipientList(this.simple(CALLBACK_ENDPOINT)).end();
     }
 }

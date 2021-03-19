@@ -7,6 +7,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -80,7 +82,7 @@ public class CsarController {
     private OpenToscaControlService controlService;
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all CSARs", response = CsarListDTO.class)
     public Response getCsars() {
         logger.debug("Invoking getCsars");
@@ -106,7 +108,7 @@ public class CsarController {
 
     @GET
     @javax.ws.rs.Path("/{csar}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a CSAR", response = CsarDTO.class)
     public Response getCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
         logger.debug("Invoking getCsar");
@@ -174,7 +176,7 @@ public class CsarController {
 
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response uploadCsar(@FormDataParam("enrichment") final String applyEnrichment,
                                @FormDataParam("file") final InputStream is,
@@ -201,8 +203,8 @@ public class CsarController {
     }
 
     @POST
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Handles an upload request for a CSAR file")
     public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request) {
         logger.debug("Invoking uploadCsar");
@@ -229,7 +231,7 @@ public class CsarController {
     }
 
     private Response handleCsarUpload(final String filename, final InputStream is, final String applyEnrichment) {
-
+        LocalDateTime startTIme = LocalDateTime.now();
         Path tempFile = storage.storeCSARTemporarily(filename, is);
         if (tempFile == null) {
             // writing to temporary file failed
@@ -337,6 +339,7 @@ public class CsarController {
         logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());
         final URI uri =
             UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId.csarName()));
+        logger.info("Csar handling took  " + Duration.between(startTIme, LocalDateTime.now()));
         return Response.created(uri).build();
     }
 
@@ -374,8 +377,8 @@ public class CsarController {
     @POST
     @javax.ws.rs.Path("/transform")
     @ApiOperation(value = "Transform this CSAR to a new CSAR")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
         logger.debug("Invoking transform Csar");
         final CsarId sourceCsar = new CsarId(request.getSourceCsarName());

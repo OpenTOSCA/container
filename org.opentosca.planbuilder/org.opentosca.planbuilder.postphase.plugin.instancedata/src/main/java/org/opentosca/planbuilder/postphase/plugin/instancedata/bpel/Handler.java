@@ -15,8 +15,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;

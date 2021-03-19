@@ -40,6 +40,8 @@ import org.opentosca.bus.management.invocation.plugin.script.typeshandler.Artifa
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.opentosca.container.core.engine.ToscaEngine;
@@ -48,8 +50,6 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

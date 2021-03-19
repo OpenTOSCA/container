@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -54,11 +55,11 @@ public class PlanEngineImpl implements IPlanEngineService {
     public PlanEngineImpl(ICoreCapabilityService capabilityService,
                           // nullable because required = false injects null instead of an empty collection if no matching beans were found
                           // required = false because otherwise at least one implementation is expected
-                          @Autowired(required = false) @Nullable Collection<IPlanEnginePlanModelPluginService> modelPlugins,
+                          @Autowired(required = false) @Nullable Optional<Collection<IPlanEnginePlanModelPluginService>> modelPlugins,
                           @Autowired(required = false) @Nullable Collection<IPlanEnginePlanRefPluginService> referencePlugins) {
-        if (modelPlugins != null) {
-            modelPlugins.forEach(mp -> capabilityService.storeCapabilities(mp.getCapabilties(), mp.toString(), ProviderType.PLAN_PLUGIN));
-            this.planModelPlugins.putAll(modelPlugins.stream().collect(Collectors.toMap(IPlanEnginePlanModelPluginService::getLanguageUsed, Function.identity())));
+        if (modelPlugins != null && modelPlugins.isPresent()) {
+            modelPlugins.get().forEach(mp -> capabilityService.storeCapabilities(mp.getCapabilties(), mp.toString(), ProviderType.PLAN_PLUGIN));
+            this.planModelPlugins.putAll(modelPlugins.get().stream().collect(Collectors.toMap(IPlanEnginePlanModelPluginService::getLanguageUsed, Function.identity())));
         }
         if (referencePlugins != null) {
             referencePlugins.forEach(rp -> capabilityService.storeCapabilities(rp.getCapabilties(), rp.toString(), ProviderType.PLAN_PLUGIN));

@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;

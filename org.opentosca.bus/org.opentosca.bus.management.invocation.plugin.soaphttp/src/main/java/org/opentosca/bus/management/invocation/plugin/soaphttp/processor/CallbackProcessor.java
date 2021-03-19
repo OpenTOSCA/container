@@ -45,6 +45,10 @@ public class CallbackProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) throws Exception {
+
+        final String message = exchange.getIn().getBody(String.class);
+        LOG.debug("Received message as callback: {}", message);
+
         final Set<String> messageIDs = ManagementBusInvocationPluginSoapHttp.getMessageIDs();
         LOG.debug("Stored messageIDs: {}", messageIDs.toString());
 
@@ -58,10 +62,10 @@ public class CallbackProcessor implements Processor {
             }
         }
 
-        final String message = exchange.getIn().getBody(String.class);
         final Map<String, Object> headers = exchange.getIn().getHeaders();
 
         LOG.debug("Searching the callback Message for a MessageID matching the stored ones...");
+
         for (final String messageID : messageIDs) {
             // checks if the callback message contains a stored messageID
             // if (message.matches("(?s).*\\s*[^a-zA-Z0-9-]" + messageID +
@@ -81,16 +85,17 @@ public class CallbackProcessor implements Processor {
 
                 try {
                     doc = soapMessage.getSOAPBody().getOwnerDocument();
-                    Element documentElement = doc.getDocumentElement();
-                    NodeList nodeList = documentElement.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
-                    NodeList childNodes = nodeList.item(0).getChildNodes();
+                    final Element documentElement = doc.getDocumentElement();
+                    final NodeList nodeList =
+                        documentElement.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
+                    final NodeList childNodes = nodeList.item(0).getChildNodes();
                     Node invokeResponse = null;
                     for (int i = 0; i < childNodes.getLength(); i++) {
                         if (childNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
                             invokeResponse = childNodes.item(i);
                         }
                     }
-                    responseDoc = this.node2doc(invokeResponse);
+                    responseDoc = node2doc(invokeResponse);
                     exchange.getIn().setBody(responseDoc);
                 } catch (final SOAPException e) {
                     responseDoc = soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
@@ -103,16 +108,16 @@ public class CallbackProcessor implements Processor {
     }
 
     private Document node2doc(Node node) {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         DocumentBuilder builder = null;
         try {
             builder = factory.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
+        } catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
-        Document newDocument = builder.newDocument();
-        Node importedNode = newDocument.importNode(node, true);
+        final Document newDocument = builder.newDocument();
+        final Node importedNode = newDocument.importNode(node, true);
         newDocument.appendChild(importedNode);
         return newDocument;
     }

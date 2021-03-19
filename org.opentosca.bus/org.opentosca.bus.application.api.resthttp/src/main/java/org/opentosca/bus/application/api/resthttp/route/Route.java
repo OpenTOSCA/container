@@ -1,10 +1,7 @@
 package org.opentosca.bus.application.api.resthttp.route;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.Predicate;
-import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.ValueBuilder;
 import org.opentosca.bus.application.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.application.api.resthttp.processor.GetResultRequestProcessor;
 import org.opentosca.bus.application.api.resthttp.processor.GetResultResponseProcessor;
@@ -12,7 +9,6 @@ import org.opentosca.bus.application.api.resthttp.processor.InvocationRequestPro
 import org.opentosca.bus.application.api.resthttp.processor.InvocationResponseProcessor;
 import org.opentosca.bus.application.api.resthttp.processor.IsFinishedRequestProcessor;
 import org.opentosca.bus.application.api.resthttp.processor.IsFinishedResponseProcessor;
-import org.opentosca.bus.application.api.resthttp.servicehandler.ApplicationBusServiceHandler;
 import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
 
 /**
@@ -60,10 +56,6 @@ public class Route extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        final ValueBuilder APP_BUS_ENDPOINT =
-            new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
-        final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
-
         final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
         final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
         final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
@@ -73,32 +65,27 @@ public class Route extends RouteBuilder {
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
         // handle exceptions
-
-        this.onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
+        this.onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
             .process(exceptionProcessor);
 
         // INVOKE ROUTES
         // invoke route (for ServiceInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_SI + "?restletMethod=post")
-            .to("direct:invoke");
+        this.from("rest:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_SI + "?method=post").to("direct:invoke");
 
         // invoke route (for NodeInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_NI + "?restletMethod=post")
-            .to("direct:invoke");
+        this.from("rest:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_NI + "?method=post").to("direct:invoke");
 
         // invoke route
         this.from("direct:invoke").process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
-            .when(property(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor).removeHeaders("*")
-            .otherwise().process(exceptionProcessor);
+            .when(exchangeProperty(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor)
+            .removeHeaders("*").otherwise().process(exceptionProcessor);
 
         // IS FINISHED ROUTES
         // isFinished route (for ServiceInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_SI + "?restletMethod=get")
-            .to("direct:isFinished");
+        this.from("rest:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_SI + "?method=get").to("direct:isFinished");
 
         // isFinished route (for NodeInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_NI + "?restletMethod=get")
-            .to("direct:isFinished");
+        this.from("rest:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT_NI + "?method=get").to("direct:isFinished");
 
         // isFinished route
         this.from("direct:isFinished").process(isFinishedRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT)
@@ -106,21 +93,17 @@ public class Route extends RouteBuilder {
 
         // GET RESULT ROUTES
         // getResult route (for ServiceInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_SI + "?restletMethod=get")
-            .to("direct:getResult");
+        this.from("rest:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_SI + "?method=get").to("direct:getResult");
 
         // getResult route (for NodeInstance)
-        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_NI + "?restletMethod=get")
-            .to("direct:getResult");
+        this.from("rest:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT_NI + "?method=get").to("direct:getResult");
 
         // getResult route
         this.from("direct:getResult").process(getResultRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT)
             .process(getResultResponseProcessor).removeHeaders("*");
 
-        // applicationBus route, throws exception if Application Bus is not
-        // running or wasn't binded
-        this.from(Route.TO_APP_BUS_ENDPOINT).choice().when(APP_BUS_ENDPOINT_EXISTS).recipientList(APP_BUS_ENDPOINT)
-            .endChoice().otherwise().to("direct:handleException");
+        // applicationBus route
+        this.from(Route.TO_APP_BUS_ENDPOINT).to("direct-vm:org.opentosca.bus.application.service");
 
         // handle exception if Application Bus is not running or wasn't binded
         this.from("direct:handleException")

@@ -5,7 +5,7 @@ package org.opentosca.planbuilder.type.plugin.dockercontainer.core;
 
 import java.util.Map;
 
-import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;

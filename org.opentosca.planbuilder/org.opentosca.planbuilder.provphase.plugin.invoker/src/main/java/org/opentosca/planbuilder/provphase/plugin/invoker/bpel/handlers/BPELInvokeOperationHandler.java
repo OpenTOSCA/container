@@ -7,7 +7,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.tosca.convention.Utils;
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;

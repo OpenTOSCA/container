@@ -2,7 +2,6 @@ package org.opentosca.bus.management.api.resthttp.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.restlet.RestletConstants;
 import org.restlet.Response;
 import org.restlet.data.Form;
 import org.slf4j.Logger;
@@ -26,7 +25,7 @@ public class CORSProcessor implements Processor {
 
         CORSProcessor.LOG.debug("Adding CORS headers.");
 
-        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
 
         Form headers = (Form) response.getAttributes().get("org.restlet.http.headers");
 

@@ -11,7 +11,8 @@ import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.impl.DefaultMessage;
+import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.support.DefaultMessage;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.impl.collaboration.model.BodyType;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
@@ -20,6 +21,7 @@ import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueMap
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueType;
 import org.opentosca.bus.management.service.impl.collaboration.model.RemoteOperations;
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -28,7 +30,6 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
-import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -336,9 +337,10 @@ public class DeploymentDistributionDecisionMaker {
         final CollaborationMessage collaborationMessage = new CollaborationMessage(new KeyValueMap(), content);
 
         // perform remote instance data matching and wait 10s for a response
-        final Exchange response = sender.sendRequestToRemoteContainer(new DefaultMessage(),
-            RemoteOperations.INVOKE_INSTANCE_DATA_MATCHING,
-            collaborationMessage, 10000);
+        final Exchange response =
+            this.sender.sendRequestToRemoteContainer(new DefaultMessage(new DefaultCamelContext()),
+                RemoteOperations.INVOKE_INSTANCE_DATA_MATCHING,
+                collaborationMessage, 10000);
 
         if (Objects.nonNull(response)) {
             LOG.debug("Received a response in time.");

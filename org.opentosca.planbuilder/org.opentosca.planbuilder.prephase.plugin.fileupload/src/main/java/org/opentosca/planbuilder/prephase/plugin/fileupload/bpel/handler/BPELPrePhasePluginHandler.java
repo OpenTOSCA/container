@@ -101,7 +101,7 @@ public class BPELPrePhasePluginHandler {
         // fetch server ip of the vm this artefact will be deployed on
 
         PropertyVariable serverIpPropWrapper = null;
-        for (final String serverIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+        for (final String serverIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = templateContext.getPropertyVariable(infraTemplate, serverIpName);
             if (serverIpPropWrapper != null) {
                 break;
@@ -115,7 +115,7 @@ public class BPELPrePhasePluginHandler {
 
         // find sshUser and sshKey
         PropertyVariable sshUserVariable = null;
-        for (final String vmLoginName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+        for (final String vmLoginName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginName);
             if (sshUserVariable != null) {
                 break;
@@ -123,7 +123,7 @@ public class BPELPrePhasePluginHandler {
         }
 
         PropertyVariable sshKeyVariable = null;
-        for (final String vmLoginPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+        for (final String vmLoginPassword : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginPassword);
             if (sshKeyVariable != null) {
                 break;

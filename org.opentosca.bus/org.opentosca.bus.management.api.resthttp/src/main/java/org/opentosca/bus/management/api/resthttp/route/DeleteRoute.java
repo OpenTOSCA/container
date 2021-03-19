@@ -23,8 +23,8 @@ public class DeleteRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
-            + "?restletMethod=delete").bean(QueueMap.class, "remove(${header." + InvocationRoute.ID + "})")
+        from("rest:delete:" + InvocationRoute.BASE_ENDPOINT
+            + InvocationRoute.GET_RESULT_ENDPOINT).bean(QueueMap.class, "remove(${header." + InvocationRoute.ID + "})")
             .bean(ResultMap.class, "remove(${header." + InvocationRoute.ID + "})")
             .removeHeaders("*");
     }

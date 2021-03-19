@@ -15,16 +15,10 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.opentosca</groupId>
-			<artifactId>org.opentosca.container.core.tosca</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.github.opentosca.winery</groupId>
 			<artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
+            <version>${winery.version}</version>
 		</dependency>
-		<!--<dependency> <groupId>com.github.opentosca.winery</groupId> <artifactId>org.eclipse.winery.accountability</artifactId> 
-			</dependency> -->
 		<dependency>
 			<groupId>com.github.opentosca.winery</groupId>
 			<artifactId>org.eclipse.winery.repository</artifactId>
@@ -40,6 +34,11 @@
 			<artifactId>guava</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.codehaus.woodstox</groupId>
+			<artifactId>stax2-api</artifactId>
+			<version>4.2.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.hibernate</groupId>

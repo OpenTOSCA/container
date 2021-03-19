@@ -12,8 +12,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
-import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.container.core.tosca.convention.Types;
+import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
@@ -170,7 +170,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
 
                 // search for default parameters at opposite NodeTemplate
                 if (!param2propertyMapping.containsKey(param)) {
-                    if (!org.opentosca.container.core.tosca.convention.Utils.isSupportedVirtualMachineIPProperty(param.getName())) {
+                    if (!org.opentosca.container.core.convention.Utils.isSupportedVirtualMachineIPProperty(param.getName())) {
                         // search for property with exact name
                         final Variable property =
                             searchPropertyInStack(templateContext, parametersRootNode, param.getName());
@@ -179,7 +179,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                         }
                     } else {
                         // search for IP property with different names
-                        for (final String paramName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+                        for (final String paramName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
                             final Variable property =
                                 searchPropertyInStack(templateContext, parametersRootNode, paramName);
                             if (property != null) {

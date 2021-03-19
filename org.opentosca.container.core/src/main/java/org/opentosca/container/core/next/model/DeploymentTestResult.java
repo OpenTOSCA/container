@@ -47,7 +47,7 @@ public class DeploymentTestResult extends PersistenceObject {
 
     @ManyToOne
     @JoinColumn(name = "NODE_TEMPLATE_INSTANCE_ID")
-    @JsonIgnoreProperties({"state", "service_template_instance", "incoming_relations", "outgoing_relations",
+    @JsonIgnoreProperties( {"state", "service_template_instance", "incoming_relations", "outgoing_relations",
         "properties"})
     private NodeTemplateInstance nodeTemplateInstance;
 

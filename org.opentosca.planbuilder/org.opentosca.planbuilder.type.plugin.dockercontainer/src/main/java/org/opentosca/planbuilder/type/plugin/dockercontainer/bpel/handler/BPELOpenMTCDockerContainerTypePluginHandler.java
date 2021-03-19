@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -83,7 +83,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         Variable ownIp = null;
 
         for (final AbstractNodeTemplate infraNode : templateContext.getInfrastructureNodes()) {
-            for (final String serverIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+            for (final String serverIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
                 ownIp = templateContext.getPropertyVariable(infraNode, serverIpName);
                 if (ownIp != null) {
                     break;

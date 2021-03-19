@@ -18,7 +18,7 @@ public class GetResultRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         // handle exceptions
-        onException(Exception.class).setBody(property(Exchange.EXCEPTION_CAUGHT));
+        onException(Exception.class).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT));
         from(MainRoute.GET_RESULT_ENDPOINT).process(GetResultProcessor.BEAN_NAME);
     }
 }

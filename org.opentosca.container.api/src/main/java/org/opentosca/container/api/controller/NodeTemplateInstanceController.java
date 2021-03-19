@@ -60,7 +60,7 @@ public class NodeTemplateInstanceController {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceListDTO.class)
     public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
                                              @QueryParam(value = "source") final List<Long> relationIds,
@@ -106,8 +106,8 @@ public class NodeTemplateInstanceController {
     }
 
     @POST
-    @Consumes({MediaType.TEXT_PLAIN})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes( {MediaType.TEXT_PLAIN})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response createNodeTemplateInstance(@Context final UriInfo uriInfo, final String serviceTemplateInstanceId) {
         logger.debug("Invoking createNodeTemplateInstance");
@@ -128,7 +128,7 @@ public class NodeTemplateInstanceController {
 
     @GET
     @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get a node template instance", response = NodeTemplateInstanceDTO.class)
     public Response getNodeTemplateInstance(@ApiParam("ID of node template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstance");
@@ -145,7 +145,7 @@ public class NodeTemplateInstanceController {
 
     @DELETE
     @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response deleteNodeTemplateInstance(@PathParam("id") final Long id) {
         logger.debug("Invoking deleteNodeTemplateInstance");
@@ -155,7 +155,7 @@ public class NodeTemplateInstanceController {
 
     @GET
     @Path("/{id}/state")
-    @Produces({MediaType.TEXT_PLAIN})
+    @Produces( {MediaType.TEXT_PLAIN})
     @ApiOperation(value = "Get state of a node template instance", response = String.class)
     public Response getNodeTemplateInstanceState(@ApiParam("ID node template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstanceState");
@@ -166,7 +166,7 @@ public class NodeTemplateInstanceController {
 
     @PUT
     @Path("/{id}/state")
-    @Consumes({MediaType.TEXT_PLAIN})
+    @Consumes( {MediaType.TEXT_PLAIN})
     @ApiOperation(hidden = true, value = "")
     public Response updateNodeTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         logger.debug("Invoking updateNodeTemplateInstanceState");
@@ -180,7 +180,7 @@ public class NodeTemplateInstanceController {
 
     @GET
     @Path("/{id}/properties")
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstanceProperties");
@@ -209,7 +209,7 @@ public class NodeTemplateInstanceController {
 
     @GET
     @Path("/{id}/properties/{propname}")
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response getNodeTemplateInstanceProperty(@PathParam("id") final Long id,
                                                     @PathParam("propname") final String propertyName) {
@@ -228,8 +228,8 @@ public class NodeTemplateInstanceController {
 
     @PUT
     @Path("/{id}/properties")
-    @Consumes({MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes( {MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
         logger.debug("Invoking updateNodeTemplateInstanceProperties");
@@ -247,8 +247,8 @@ public class NodeTemplateInstanceController {
 
     @PUT
     @Path("/{id}/properties/{propname}")
-    @Consumes({MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes( {MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response updateNodeTemplateInstanceProperty(@PathParam("id") final Long id,
                                                        @PathParam("propname") final String propertyName,

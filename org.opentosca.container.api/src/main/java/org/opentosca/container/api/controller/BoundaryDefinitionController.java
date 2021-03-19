@@ -72,7 +72,7 @@ public class BoundaryDefinitionController {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response getBoundaryDefinitions(@PathParam("csar") final String csarId,
                                            @PathParam("servicetemplate") final String servicetemplate) {
@@ -105,7 +105,7 @@ public class BoundaryDefinitionController {
 
     @GET
     @Path("/properties")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get properties of a service tempate", response = PropertiesDTO.class)
     public Response getBoundaryDefinitionProperties(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                                     @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
@@ -163,7 +163,7 @@ public class BoundaryDefinitionController {
 
     @GET
     @Path("/interfaces")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
     public Response getBoundaryDefinitionInterfaces(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                                     @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
@@ -198,7 +198,7 @@ public class BoundaryDefinitionController {
 
     @GET
     @Path("/interfaces/{name}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get an interface of a service template", response = InterfaceDTO.class)
     public Response getBoundaryDefinitionInterface(@ApiParam("interface name") @PathParam("name") final String name,
                                                    @ApiParam("ID of CSAR") @PathParam("csar") final String csarId,

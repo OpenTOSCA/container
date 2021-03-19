@@ -13,7 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
-import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
@@ -73,7 +73,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
 
         for (final AbstractNodeTemplate infraNode : infrastructureNodes) {
 
-            for (final String ipPropName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+            for (final String ipPropName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
                 // fetch mosquitto ip
                 if (templateContext.getPropertyVariable(infraNode, ipPropName) != null) {
                     mosquittoVmIp = templateContext.getPropertyVariable(infraNode, ipPropName);
@@ -97,21 +97,21 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
 
         for (final AbstractNodeTemplate infraNode : infrastructureNodes) {
 
-            for (final String ipPropName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+            for (final String ipPropName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
                 if (templateContext.getPropertyVariable(infraNode, ipPropName) != null) {
                     clientVmIp = templateContext.getPropertyVariable(infraNode, ipPropName);
                     break;
                 }
             }
 
-            for (final String loginNameProp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+            for (final String loginNameProp : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
                 if (templateContext.getPropertyVariable(infraNode, loginNameProp) != null) {
                     ubuntuTemplateId = infraNode.getId();
                     clientVmUser = templateContext.getPropertyVariable(infraNode, loginNameProp);
                 }
             }
 
-            for (final String loginPwProp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+            for (final String loginPwProp : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
                 if (templateContext.getPropertyVariable(infraNode, loginPwProp) != null) {
                     ubuntuTemplateId = infraNode.getId();
                     clientVmPass = templateContext.getPropertyVariable(infraNode, loginPwProp);

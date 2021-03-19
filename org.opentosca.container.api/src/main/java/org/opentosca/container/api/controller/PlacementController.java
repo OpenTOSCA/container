@@ -25,8 +25,8 @@ import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.core.common.NotFoundException;
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +53,8 @@ public class PlacementController {
     }
 
     @POST
-    @Produces({MediaType.APPLICATION_JSON})
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces( {MediaType.APPLICATION_JSON})
+    @Consumes( {MediaType.APPLICATION_JSON})
     @ApiOperation(hidden = true, value = "")
     public Response getInstances(@ApiParam("node template list need to be placed") final List<String> request) throws InstantiationException,
         IllegalAccessException,

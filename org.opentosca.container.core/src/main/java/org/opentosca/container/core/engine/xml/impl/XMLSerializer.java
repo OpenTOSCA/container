@@ -278,7 +278,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings( {"rawtypes", "unchecked"})
     @Override
     public JAXBElement createJAXBElement(final Object obj) {
         // Check if the given object is in the same package as the JAXB Element
