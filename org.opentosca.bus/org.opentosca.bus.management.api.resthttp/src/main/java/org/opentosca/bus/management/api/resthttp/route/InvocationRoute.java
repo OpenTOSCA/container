@@ -57,7 +57,6 @@ public class InvocationRoute extends RouteBuilder {
         final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
-
         // handle exceptions
         onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
                                     .process(exceptionProcessor);
