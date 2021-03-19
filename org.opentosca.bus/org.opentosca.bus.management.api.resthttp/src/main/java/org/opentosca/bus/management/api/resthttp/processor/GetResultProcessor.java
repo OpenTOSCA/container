@@ -33,7 +33,7 @@ public class GetResultProcessor implements Processor {
 
         if (ResultMap.containsID(requestID)) {
 
-            GetResultProcessor.LOG.debug("Getting result.");
+            GetResultProcessor.LOG.debug("Getting result...");
 
             final HashMap<String, String> result = ResultMap.get(requestID);
 
@@ -43,7 +43,13 @@ public class GetResultProcessor implements Processor {
                 QueueMap.remove(requestID);
             }
 
-            exchange.getIn().setBody(result);
+            if (result.containsKey("ERROR")) {
+                exchange.getIn().setBody(new Exception(result.get("ERROR")));
+            } else {
+                exchange.getIn().setBody(result);
+            }
+
+
         } else if (!QueueMap.containsID(requestID)) {
             GetResultProcessor.LOG.warn("Unknown RequestID: {}", requestID);
             exchange.getIn().setBody(new Exception("Unknown RequestID: " + requestID));

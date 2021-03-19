@@ -2,7 +2,6 @@ package org.opentosca.bus.management.api.resthttp.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

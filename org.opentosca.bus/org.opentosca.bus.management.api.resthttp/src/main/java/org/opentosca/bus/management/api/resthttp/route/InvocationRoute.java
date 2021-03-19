@@ -27,15 +27,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class InvocationRoute extends RouteBuilder {
 
+    private static final String HOST = "http://0.0.0.0";
+    public static final String PORT = "8086";
+    public static final String BASE_ENDPOINT = HOST + ":" + PORT;
     public static final String INVOKE_ENDPOINT = "/ManagementBus/v1/invoker";
     public static final String ID = "id";
     public static final String ID_PLACEHODLER = "{" + ID + "}";
-    public static final String POLL_ENDPOINT = INVOKE_ENDPOINT + "/activeRequests/" + ID_PLACEHODLER;
-    public static final String GET_RESULT_ENDPOINT = POLL_ENDPOINT + "/response";
-    private static final String HOST = "http://0.0.0.0";
-    public static final String PORT = "8086";
-    static final String BASE_ENDPOINT = HOST + ":" + PORT;
-    private static final String MANAGEMENT_BUS_REQUEST_ID_HEADER = "ManagementBusRequestID";
+    public static final String POLL_ENDPOINT = INVOKE_ENDPOINT + "/activeRequests/";
+    public static final String POLL_ENDPOINT_LOCATION = POLL_ENDPOINT + ID_PLACEHODLER;
+    public static final String GET_RESULT_ENDPOINT = POLL_ENDPOINT_LOCATION + "/response";
+    public static final String MANAGEMENT_BUS_REQUEST_ID_HEADER = "ManagementBusRequestID";
 
     // Checks if invoking a IA
     final Predicate IS_INVOKE_IA = PredicateBuilder.or(header(MBHeader.NODETEMPLATEID_STRING.toString()).isNotNull(),
@@ -72,8 +73,9 @@ public class InvocationRoute extends RouteBuilder {
                              .wireTap("direct:toManagementBus").to("direct:init")
                              .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(202))
                              .setHeader("Location",
-                                        simple("http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + InvocationRoute.PORT + "/ManagementBus/v1/invoker/activeRequests/"
-                                            + "${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "}"));
+                                        simple("http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
+                                            + InvocationRoute.PORT + POLL_ENDPOINT + "${header."
+                                            + MANAGEMENT_BUS_REQUEST_ID_HEADER + "}"));
 
         // route in case an exception was caught
         from("direct:exception").setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT)).process(exceptionProcessor);

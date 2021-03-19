@@ -4,12 +4,8 @@ import java.util.HashMap;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.eclipse.jetty.server.Response;
 import org.json.simple.JSONObject;
 import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
-//import org.restlet.Response;
-//import org.restlet.data.MediaType;
-//import org.restlet.data.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -37,11 +33,8 @@ public class GetResultResponseProcessor implements Processor {
 
         GetResultResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader(Exchange.HTTP_SERVLET_RESPONSE, Response.class);
-
         if (exchange.getIn().getBody() instanceof Exception) {
-            response.setStatus(404);
-            exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+            exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
             exchange.getMessage().setBody(exchange.getIn().getBody(String.class));
         } else {
 
@@ -50,10 +43,8 @@ public class GetResultResponseProcessor implements Processor {
             final JSONObject obj = new JSONObject();
             obj.put("response", responseMap);
 
-            response.setStatus(200);
-            exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
-            exchange.getIn().setHeader("Content-Type", "application/json");
-            exchange.getIn().setBody(obj.toJSONString());
+            exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
+            exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, "application/json");
             exchange.getMessage().setBody(obj.toJSONString());
         }
 
