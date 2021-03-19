@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
 @Component
-public class ResthttpApiIsFinishedRoute extends RouteBuilder {
+public class IsFinishedRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
