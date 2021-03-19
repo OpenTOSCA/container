@@ -24,7 +24,6 @@ import org.apache.axis.message.MessageElement;
 import org.apache.www.ode.deployapi.DeployUnit;
 import org.apache.www.ode.deployapi.DeploymentPortType;
 import org.apache.www.ode.deployapi.DeploymentServiceLocator;
-import org.apache.www.ode.deployapi.ProcessIds;
 import org.apache.www.ode.deployapi._package;
 import org.apache.www.ode.pmapi.ManagementFault;
 import org.apache.www.ode.pmapi.ProcessManagementPortType;
