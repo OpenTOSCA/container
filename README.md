@@ -30,18 +30,17 @@ Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 3. Add created war file of project `org.opentosca.container.war` to suitable server configured within your eclipse, e.g., Tomcat
 4. (AdditionalInfo) Usually the application runs on port 1337 and without a prefix in the path -> change port of tomcat to 1337 and remove the path of the added WAR project
 
-## Run via embedded Tomcat
+## Run via SpringBoot
 
-1. Switch to folder org.opentosca.container.war
-2. Run the following command: 'org.apache.tomcat.maven:tomcat7-maven-plugin:2.0:run'
-3. Be sure to use Java 8
-
-## Haftungsausschluss
-
-Dies ist ein Forschungsprototyp.
-Die Haftung für entgangenen Gewinn, Produktionsausfall, Betriebsunterbrechung, entgangene Nutzungen, Verlust von Daten und Informationen, Finanzierungsaufwendungen sowie sonstige Vermögens- und Folgeschäden ist, außer in Fällen von grober Fahrlässigkeit, Vorsatz und Personenschäden, ausgeschlossen.
+1. Run `mvn isntall` in root of project
+2. Go to directory `org.opentosca.container.war` and run `mvn spring-boot:run` and the runtime should be available under localhost:1337
 
 ## Disclaimer of Warranty
 
 Unless required by applicable law or agreed to in writing, Licensor provides the Work (and each Contributor provides its Contributions) on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE.
 You are solely responsible for determining the appropriateness of using or redistributing the Work and assume any risks associated with Your exercise of permissions under this License.
+
+## Haftungsausschluss
+
+Dies ist ein Forschungsprototyp.
+Die Haftung für entgangenen Gewinn, Produktionsausfall, Betriebsunterbrechung, entgangene Nutzungen, Verlust von Daten und Informationen, Finanzierungsaufwendungen sowie sonstige Vermögens- und Folgeschäden ist, außer in Fällen von grober Fahrlässigkeit, Vorsatz und Personenschäden, ausgeschlossen.

@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class InvocationRoute extends RouteBuilder {
 
-    private static final String HOST = "http://0.0.0.0";
+    public static final String HOST = "http://0.0.0.0";
     public static final String PORT = "8086";
     public static final String BASE_ENDPOINT = HOST + ":" + PORT;
     public static final String INVOKE_ENDPOINT = "/ManagementBus/v1/invoker";
