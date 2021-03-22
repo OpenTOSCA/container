@@ -37,6 +37,7 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Management Bus-Plug-in for invoking a service over HTTP.<br>
@@ -228,6 +229,7 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
         Document doc = null;
         try {
             builder = factory.newDocumentBuilder();
+            builder.setErrorHandler(new DefaultHandler());
             doc = builder.parse(new InputSource(new StringReader(string)));
         } catch (final Exception e) {
             LOG.debug("Response isn't xml.");
