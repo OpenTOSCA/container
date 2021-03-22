@@ -29,7 +29,7 @@ public class InvocationRoute extends RouteBuilder {
 
     public static final String HOST = "http://0.0.0.0";
     public static final String PORT = "8086";
-    public static final String BASE_ENDPOINT = HOST + ":" + PORT;
+    public static final String ENDPOINT = HOST + ":" + PORT;
     public static final String INVOKE_ENDPOINT = "/ManagementBus/v1/invoker";
     public static final String ID = "id";
     public static final String ID_PLACEHODLER = "{" + ID + "}";
@@ -62,7 +62,7 @@ public class InvocationRoute extends RouteBuilder {
                                     .process(exceptionProcessor);
 
         // invoke main route
-        from("jetty://" + BASE_ENDPOINT + INVOKE_ENDPOINT
+        from("jetty://" + ENDPOINT + INVOKE_ENDPOINT
             + "?httpMethodRestrict=post").doTry().process(invocationRequestProcessor).doCatch(Exception.class).end()
                                          .choice().when(exchangeProperty(Exchange.EXCEPTION_CAUGHT).isNull())
                                          .to("direct:invoke").otherwise().to("direct:exception");

@@ -31,7 +31,7 @@ public class GetRestResultRoute extends RouteBuilder {
         onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
                                     .process(exceptionProcessor);
 
-        from("jetty://" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
+        from("jetty://" + InvocationRoute.ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
             + "?httpMethodRestrict=get").process(getResultRequestProcessor).process(getResultProcessor)
                                         .process(getResultResponseProcessor);
     }
