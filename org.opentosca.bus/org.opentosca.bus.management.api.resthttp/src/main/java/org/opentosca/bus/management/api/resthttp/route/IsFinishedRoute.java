@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
 @Component
-public class ResthttpApiIsFinishedRoute extends RouteBuilder {
+public class IsFinishedRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
@@ -26,13 +26,12 @@ public class ResthttpApiIsFinishedRoute extends RouteBuilder {
         final IsFinishedProcessor isFinishedProcessor = new IsFinishedProcessor();
         final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
-
         // handle exceptions
         onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
-            .process(exceptionProcessor);
+                                    .process(exceptionProcessor);
 
-        from("rest:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
-            + "?method=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
-            .process(isFinishedResponseProcessor).removeHeaders("*");
+        from("jetty://" + InvocationRoute.ENDPOINT + InvocationRoute.POLL_ENDPOINT_LOCATION
+            + "?httpMethodRestrict=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
+                                        .process(isFinishedResponseProcessor);
     }
 }

@@ -4,9 +4,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.json.simple.JSONObject;
 import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
-import org.restlet.Response;
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
+import org.opentosca.container.core.common.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -30,16 +28,16 @@ public class IsFinishedResponseProcessor implements Processor {
 
         IsFinishedResponseProcessor.LOG.debug("Processing IsFinished response....");
 
-        final String requestID = exchange.getIn().getHeader(InvocationRoute.ID, String.class);
+        final String uri = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class);
+        final String requestID = uri.substring(uri.lastIndexOf("/") + 1);
 
         IsFinishedResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
-
         if (exchange.getIn().getBody() instanceof Exception) {
 
-            response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-            response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
+            exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
+            exchange.getMessage().setBody(exchange.getIn().getBody(String.class));
+
         } else {
 
             final Boolean isFinished = exchange.getIn().getBody(Boolean.class);
@@ -47,19 +45,25 @@ public class IsFinishedResponseProcessor implements Processor {
             if (isFinished) {
                 IsFinishedResponseProcessor.LOG.debug("Invocation has finished, send location of result.");
 
-                response.setStatus(Status.REDIRECTION_SEE_OTHER);
-                response.setLocationRef(InvocationRoute.GET_RESULT_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER,
-                    requestID));
+                exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 303);
+                exchange.getMessage().setHeader("Location", "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
+                    + InvocationRoute.PORT + InvocationRoute.POLL_ENDPOINT + requestID + "/response");
+                exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, "application/json");
+
+                final JSONObject obj = new JSONObject();
+                obj.put("status", "FINISHED");
+                exchange.getMessage().setBody(obj.toJSONString());
+
             } else {
                 IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
 
                 final JSONObject obj = new JSONObject();
                 obj.put("status", "PENDING");
 
-                response.setStatus(Status.SUCCESS_OK);
-                response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
+                exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
+                exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, "application/json");
+                exchange.getMessage().setBody(obj.toJSONString());
             }
-            exchange.getOut().setBody(response);
         }
     }
 }

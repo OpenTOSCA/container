@@ -2,7 +2,6 @@ package org.opentosca.bus.management.api.resthttp.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -25,8 +24,8 @@ public class IsFinishedRequestProcessor implements Processor {
 
         IsFinishedRequestProcessor.LOG.debug("Processing IsFinished request....");
 
-        final Integer requestID = exchange.getIn().getHeader(InvocationRoute.ID, Integer.class);
-
+        final String uri = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class);
+        final String requestID = uri.substring(uri.lastIndexOf("/") + 1);
         IsFinishedRequestProcessor.LOG.debug("RequestID: {}", requestID);
 
         exchange.getIn().setBody(requestID);

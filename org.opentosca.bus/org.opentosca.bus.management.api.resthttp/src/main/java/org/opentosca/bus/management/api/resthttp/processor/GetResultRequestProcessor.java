@@ -2,7 +2,6 @@ package org.opentosca.bus.management.api.resthttp.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,8 @@ public class GetResultRequestProcessor implements Processor {
 
         GetResultRequestProcessor.LOG.debug("Processing GetResult request....");
 
-        final Integer requestID = exchange.getIn().getHeader(InvocationRoute.ID, Integer.class);
+        final String uri = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class).replace("/response", "");
+        final String requestID = uri.substring(uri.lastIndexOf("/") + 1);
 
         GetResultRequestProcessor.LOG.debug("RequestID: {}", requestID);
 

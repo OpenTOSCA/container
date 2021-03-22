@@ -1,11 +1,13 @@
 package org.opentosca.bus.management.api.resthttp.processor;
 
+import java.util.HashMap;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.json.simple.parser.ParseException;
-import org.restlet.Response;
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
+import org.opentosca.bus.management.api.resthttp.model.QueueMap;
+import org.opentosca.bus.management.api.resthttp.model.ResultMap;
+import org.opentosca.bus.management.api.resthttp.route.InvocationRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,25 +28,37 @@ public class ExceptionProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) throws Exception {
 
-        ExceptionProcessor.LOG.debug("Exception handling...");
+        final String requestID =
+            exchange.getIn().getHeader(InvocationRoute.MANAGEMENT_BUS_REQUEST_ID_HEADER, String.class);
 
-        final Response response = exchange.getIn().getHeader("CamelRestletResponse", Response.class);
+        String errorMessage = null;
+
+        final HashMap<String, String> errorResponse = new HashMap<>();
 
         if (exchange.getIn().getBody() instanceof ParseException) {
-            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             final String body = exchange.getIn().getBody(String.class);
-            response.setEntity("JSON is not valid: " + body, MediaType.TEXT_ALL);
+            errorMessage = "JSON is not valid: " + body;
             ExceptionProcessor.LOG.warn("JSON is not valid: {}", body);
         } else if (exchange.getIn().getBody() instanceof NullPointerException) {
-            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            response.setEntity("Needed information not specified.", MediaType.TEXT_ALL);
+            errorMessage = "Needed information not specified.";
             ExceptionProcessor.LOG.warn("Needed information not specified.");
         } else if (exchange.getIn().getBody() instanceof Exception) {
-            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            response.setEntity("Invocation failed! " + exchange.getIn().getBody().toString(), MediaType.TEXT_ALL);
+            errorMessage = "Invocation failed! " + exchange.getIn().getBody().toString();
             ExceptionProcessor.LOG.warn("Invocation failed! " + exchange.getIn().getBody().toString());
         }
 
-        exchange.getOut().setBody(response);
+        if (requestID != null) {
+            ExceptionProcessor.LOG.debug("Exception handling for request with ID: {}", requestID);
+            errorResponse.put("ERROR", errorMessage);
+
+            QueueMap.finished(requestID);
+            ResultMap.put(requestID, errorResponse);
+
+        } else {
+            ExceptionProcessor.LOG.debug("Exception handling...", requestID);
+
+            exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
+            exchange.getMessage().setBody(errorMessage);
+        }
     }
 }
