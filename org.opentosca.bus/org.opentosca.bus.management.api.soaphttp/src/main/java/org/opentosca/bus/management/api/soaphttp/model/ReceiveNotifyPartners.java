@@ -13,15 +13,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import lombok.ToString;
-
 /**
  * Java class for ReceiveNotifyPartners complex type.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "receiveNotifyPartners", propOrder = {"planCorrelation", "planChorCorrelation", "csarID", "serviceTemplateIDNamespaceURI",
     "serviceTemplateIDLocalPart", "messageID", "params", "doc"})
-@ToString
 public class ReceiveNotifyPartners {
 
     @XmlElement(name = "PlanCorrelationID")
@@ -180,4 +177,5 @@ public class ReceiveNotifyPartners {
     public void setPlanChorCorrelation(String planChorCorrelation) {
         this.planChorCorrelation = planChorCorrelation;
     }
+    
 }
