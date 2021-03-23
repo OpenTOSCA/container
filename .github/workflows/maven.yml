@@ -40,6 +40,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: OpenTOSCA/tosca-definitions-internal
+        ref: 'master'
         path: 'tosca-definitions-public'
         lfs: 'true'
     - name: Copy TOSCA internal repository to tmp
