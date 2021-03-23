@@ -40,7 +40,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: OpenTOSCA/tosca-definitions-public
-        path: '/tosca-definitions-public'
+        path: 'tosca-definitions-public'
     - name: Copy TOSCA-Public Repository to tmp
       run: cp -R $GITHUB_WORKSPACE/tosca-definitions-public /tmp/
     - name: Sleep for 45 seconds
