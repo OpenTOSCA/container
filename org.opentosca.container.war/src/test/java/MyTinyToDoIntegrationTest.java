@@ -326,6 +326,7 @@ public class MyTinyToDoIntegrationTest {
 
         FileRepositoryBuilder builder = new FileRepositoryBuilder();
         if (!Files.exists(repositoryPath.resolve(".git"))) {
+        	LOGGER.info("No git repository found, cloning repository from " + remoteUrl);
             FileUtils.cleanDirectory(repositoryPath.toFile());
 
             this.git = Git.cloneRepository()
@@ -335,9 +336,10 @@ public class MyTinyToDoIntegrationTest {
                 .setDirectory(repositoryPath.toFile())
                 .call();
         } else {
-            Repository gitRepo = builder.setWorkTree(repositoryPath.toFile()).setMustExist(false).build();
-            this.git = new Git(gitRepo);
-            this.git.fetch().call();
+        	LOGGER.info("Found git repository under " + this.repositoryPath);
+            //Repository gitRepo = builder.setWorkTree(repositoryPath.toFile()).setMustExist(false).build();
+            //this.git = new Git(gitRepo);
+            //this.git.fetch().call();
         }
 
         // inject the current path to the repository factory
