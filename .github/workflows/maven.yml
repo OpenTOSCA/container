@@ -37,10 +37,10 @@ jobs:
     - name: Start test environment
       run: docker-compose -f test.yml up -d
     - name: Check out TOSCA-Public Repository
-        uses: actions/checkout@master
-        with:
-          repository: OpenTOSCA/tosca-definitions-public
-          path: '/tosca-definitions-public'
+      uses: actions/checkout@v2
+      with:
+        repository: OpenTOSCA/tosca-definitions-public
+        path: '/tosca-definitions-public'
     - name: Copy TOSCA-Public Repository to tmp
       run: cp -R $GITHUB_WORKSPACE/tosca-definitions-public /tmp/
     - name: Sleep for 45 seconds
