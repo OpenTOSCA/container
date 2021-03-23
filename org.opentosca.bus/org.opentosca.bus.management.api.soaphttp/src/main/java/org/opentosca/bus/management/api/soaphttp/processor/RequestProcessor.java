@@ -166,12 +166,11 @@ public class RequestProcessor implements Processor {
 
 							List<TNodeTypeImplementation> nodeTypeImpls = csar.nodeTypeImplementations();
 							for (TNodeTypeImplementation nodeTypeImpl : nodeTypeImpls) {
-								if (nodeTypeImpl.getNodeType().equals(nodeType.getQName())) {
-									if (nodeTypeImpl.getDeploymentArtifacts() != null) {
-										final ResolvedArtifacts resolvedArtifacts = this.containerEngine
-												.resolvedDeploymentArtifactsOfNodeTypeImpl(csar, nodeTypeImpl);
-										resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
-									}
+								if (nodeTypeImpl.getNodeType().equals(nodeType.getQName())
+										&& nodeTypeImpl.getDeploymentArtifacts() != null) {
+									final ResolvedArtifacts resolvedArtifacts = this.containerEngine
+											.resolvedDeploymentArtifactsOfNodeTypeImpl(csar, nodeTypeImpl);
+									resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
 								}
 							}
 						}
