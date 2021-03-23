@@ -337,9 +337,9 @@ public class MyTinyToDoIntegrationTest {
                 .call();
         } else {
         	LOGGER.info("Found git repository under " + this.repositoryPath);
-            Repository gitRepo = builder.setWorkTree(repositoryPath.toFile()).setMustExist(false).build();
-            this.git = new Git(gitRepo);
-            this.git.fetch().call();
+            //Repository gitRepo = builder.setWorkTree(repositoryPath.toFile()).setMustExist(false).build();
+            //this.git = new Git(gitRepo);
+            //this.git.fetch().call();
         }
 
         // inject the current path to the repository factory
