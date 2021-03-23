@@ -41,6 +41,7 @@ jobs:
       with:
         repository: OpenTOSCA/tosca-definitions-internal
         ref: 'master'
+        token: '{{secrets.OPENTOSCAPRIVATEREPOACCESS}}'
         path: 'tosca-definitions-public'
         lfs: 'true'
     - name: Copy TOSCA internal repository to tmp
