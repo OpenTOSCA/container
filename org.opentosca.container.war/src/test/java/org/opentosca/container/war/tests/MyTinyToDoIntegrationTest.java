@@ -1,33 +1,20 @@
 package org.opentosca.container.war.tests;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.common.configuration.FileBasedRepositoryConfiguration;
 import org.eclipse.winery.common.configuration.RepositoryConfigurationObject;
-import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.repository.backend.IRepository;
-import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
-import org.eclipse.winery.repository.export.CsarExporter;
-
-import org.apache.commons.io.FileUtils;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -43,7 +30,6 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceState;
@@ -65,9 +51,8 @@ public class MyTinyToDoIntegrationTest {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(MyTinyToDoIntegrationTest.class);
 
-    public IRepository repository;    
-    public Git git;
-    public Csar csar;
+    
+    
 
     @Inject
     public OpenToscaControlService control;
@@ -82,13 +67,12 @@ public class MyTinyToDoIntegrationTest {
 
     private void checkServices() {
         Assert.assertNotNull(storage);
-        Assert.assertNotNull(control);
-        Assert.assertNotNull(repository);
+        Assert.assertNotNull(control);        
     }
 
-    private void generatePlans() {
+    private void generatePlans(Csar csar) {
         try {
-            Assert.assertTrue(this.csarService.generatePlans(this.csar));
+            Assert.assertTrue(this.csarService.generatePlans(csar));
         } catch (SystemException e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
@@ -100,35 +84,34 @@ public class MyTinyToDoIntegrationTest {
 
     @Test    
     public void test() throws InterruptedException, ExecutionException, RepositoryCorruptException, IOException, SystemException, AccountabilityException, UserException, GitAPIException {
-    	
-    	
     	String testLocalRepositoryPath = Settings.OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH;
     	String testRemoteRepositoryUrl = Settings.OPENTOSCA_TEST_REMOTE_REPOSITORY_URL;
     	
-    	
     	Path repositoryPath;
-    	
     	if(testLocalRepositoryPath != null && !testLocalRepositoryPath.isEmpty()) {
     		repositoryPath = Paths.get(testLocalRepositoryPath);
     	} else {
-    		repositoryPath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("tosca-definitions-public");
+    		repositoryPath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("opentosca-test-repository");;
     	}
     	
     	String remoteUrl;
     	if(testRemoteRepositoryUrl != null && !testRemoteRepositoryUrl.isEmpty()) {
     		remoteUrl = testRemoteRepositoryUrl;
     	} else {
-    		remoteUrl = "https://github.com/OpenTOSCA/tosca-definitions-public";
+    		remoteUrl = null;
     	}
         
+    	if(repositoryPath == null & remoteUrl == null) {
+    		Assert.fail("Neither local repository path or remote url is defined");    		
+    	}
     	
-        this.fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker"), this.storage, repositoryPath, remoteUrl);
+    	Csar csar = TestUtils.fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker"), this.storage, repositoryPath, remoteUrl);
         this.checkServices();
-        this.generatePlans();
+        this.generatePlans(csar);
 
-        TServiceTemplate serviceTemplate = this.csar.entryServiceTemplate();
+        TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
-        this.control.invokePlanDeployment(this.csar.id(), serviceTemplate);
+        this.control.invokePlanDeployment(csar.id(), serviceTemplate);
 
         TPlan buildPlan = null;
         TPlan scaleOutPlan = null;
@@ -154,7 +137,7 @@ public class MyTinyToDoIntegrationTest {
             }
         }
 
-        ServiceTemplateInstance serviceTemplateInstance = this.runBuildPlanExecution(serviceTemplate, buildPlan);
+        ServiceTemplateInstance serviceTemplateInstance = this.runBuildPlanExecution(csar, serviceTemplate, buildPlan);
 
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
@@ -176,9 +159,9 @@ public class MyTinyToDoIntegrationTest {
         Assert.assertTrue(foundDockerEngine);
         Assert.assertTrue(foundTinyToDo);
 
-        String serviceInstanceUrl = this.createServiceInstanceUrl(this.csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
+        String serviceInstanceUrl = this.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
 
-        this.runScaleOutPlanExecution(serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, scaleOutPlan);
+        this.runScaleOutPlanExecution(csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, scaleOutPlan);
 
         serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
         nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
@@ -187,14 +170,14 @@ public class MyTinyToDoIntegrationTest {
         Assert.assertTrue(nodeTemplateInstances.size() == 3);
         Assert.assertTrue(relationshipTemplateInstances.size() == 2);
 
-        this.runTerminationPlanExecution(serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, terminationPlan);
+        this.runTerminationPlanExecution(csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, terminationPlan);
 
-        this.control.deleteCsar(this.csar.id());
+        this.control.deleteCsar(csar.id());
     }
 
-    private ServiceTemplateInstance runBuildPlanExecution(TServiceTemplate serviceTemplate, TPlan buildPlan) {
+    private ServiceTemplateInstance runBuildPlanExecution(Csar csar, TServiceTemplate serviceTemplate, TPlan buildPlan) {
         List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams = this.getBuildPlanInputParameters();
-        String buildPlanCorrelationId = this.planService.invokePlan(this.csar, serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
+        String buildPlanCorrelationId = this.planService.invokePlan(csar, serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
         PlanInstance buildPlanInstance = this.planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
         while (buildPlanInstance == null) {
             buildPlanInstance = this.planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
@@ -210,9 +193,9 @@ public class MyTinyToDoIntegrationTest {
         return serviceTemplateInstance;
     }
 
-    private void runScaleOutPlanExecution(String serviceInstanceUrl, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan scaleOutPlan) {
+    private void runScaleOutPlanExecution(Csar csar, String serviceInstanceUrl, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan scaleOutPlan) {
         List<org.opentosca.container.core.extension.TParameter> scaleOutInputParams = this.getScaleOurPlanInputParameters(serviceInstanceUrl);
-        String scaleOurPlanCorrelationId = this.planService.invokePlan(this.csar, serviceTemplate, serviceTemplateInstance.getId(), scaleOutPlan.getId(), scaleOutInputParams, PlanType.MANAGEMENT);
+        String scaleOurPlanCorrelationId = this.planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), scaleOutPlan.getId(), scaleOutInputParams, PlanType.MANAGEMENT);
         PlanInstance scaleOutPlanInstance = this.planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
         while (scaleOutPlanInstance == null) {
             scaleOutPlanInstance = this.planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
@@ -225,9 +208,9 @@ public class MyTinyToDoIntegrationTest {
         }
     }
 
-    private void runTerminationPlanExecution(String serviceInstanceUrl, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan) {
+    private void runTerminationPlanExecution(Csar csar, String serviceInstanceUrl, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan) {
         List<org.opentosca.container.core.extension.TParameter> terminationOutInputParams = this.getTerminationPlanInputParameters(serviceInstanceUrl);
-        String terminationPlanCorrelationId = this.planService.invokePlan(this.csar, serviceTemplate, serviceTemplateInstance.getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
+        String terminationPlanCorrelationId = this.planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
         PlanInstance terminationPlanInstance = this.planService.getPlanInstanceByCorrelationId(terminationPlanCorrelationId);
         while (terminationPlanInstance == null) {
             terminationPlanInstance = this.planService.getPlanInstanceByCorrelationId(terminationPlanCorrelationId);
@@ -334,52 +317,5 @@ public class MyTinyToDoIntegrationTest {
         inputParams.add(correlationId);
 
         return inputParams;
-    }
-
-    protected void fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId, CsarStorageService storage, Path repositoryPath, String remoteUrl) throws IOException, SystemException, UserException, InterruptedException, ExecutionException, AccountabilityException, RepositoryCorruptException, GitAPIException {       
-        LOGGER.debug("Testing with repository directory {}", repositoryPath);
-
-        if (!Files.exists(repositoryPath)) {
-            Files.createDirectory(repositoryPath);
-        }
-
-        FileRepositoryBuilder builder = new FileRepositoryBuilder();
-        if (!Files.exists(repositoryPath.resolve(".git"))) {
-        	LOGGER.info("No git repository found, cloning repository from " + remoteUrl);
-            FileUtils.cleanDirectory(repositoryPath.toFile());
-
-            this.git = Git.cloneRepository()
-                .setURI(remoteUrl)
-                .setBare(false)
-                .setCloneAllBranches(true)
-                .setDirectory(repositoryPath.toFile())
-                .call();
-        } else {
-        	LOGGER.info("Found git repository under " + repositoryPath);
-        }
-
-        // inject the current path to the repository factory
-        FileBasedRepositoryConfiguration fileBasedRepositoryConfiguration = new FileBasedRepositoryConfiguration(repositoryPath, provider);
-        // force xml repository provider
-        fileBasedRepositoryConfiguration.setRepositoryProvider(provider);
-
-        this.repository = RepositoryFactory.getRepository(repositoryPath);
-
-        LOGGER.debug("Initialized test repository");
-
-        CsarExporter exporter = new CsarExporter(this.repository);
-        Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
-
-        Map<String, Object> exportConfiguration = new HashMap<>();
-        exporter.writeCsar(new ServiceTemplateId(serviceTemplateId), Files.newOutputStream(csarFilePath), exportConfiguration);
-
-        CsarId csarId = new CsarId(serviceTemplateId.getLocalPart() + ".csar");
-        Set<Csar> csars = storage.findAll();
-        Collection<CsarId> csarIds = csars.stream().filter(x -> x.id().equals(csarId)).map(x -> x.id()).collect(Collectors.toList());
-
-        if (!csarIds.contains(csarId)) {
-            storage.storeCSAR(csarFilePath);
-        }
-        this.csar = storage.findById(csarId);
     }
 }
