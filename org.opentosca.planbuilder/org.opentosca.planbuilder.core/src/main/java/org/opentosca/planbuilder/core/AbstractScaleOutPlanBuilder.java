@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
@@ -64,9 +66,14 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
             findOutgoingInfrastructurePaths(paths, stratNodeTemplate);
 
             if (paths.isEmpty()) {
-                for (final AbstractRelationshipTemplate relation : stratNodeTemplate.getIngoingRelations()) {
-                    abstractScaleOutPlan.getLinks().add(new Link(activity,
-                        abstractScaleOutPlan.findRelationshipTemplateActivity(relation, ActivityType.PROVISIONING)));
+            	Collection<AbstractRelationshipTemplate> ingoingRelations = stratNodeTemplate.getIngoingRelations().stream().filter(x -> scalingPlanDefinition.relationshipTemplates.contains(x)).collect(Collectors.toList());
+                for (final AbstractRelationshipTemplate relation : ingoingRelations) {
+                	// only add links for relations which are part of the scale plan definition
+                	AbstractActivity trgActivity = abstractScaleOutPlan.findRelationshipTemplateActivity(relation, ActivityType.PROVISIONING);
+                	if(Objects.nonNull(trgActivity)) {
+                		abstractScaleOutPlan.getLinks().add(new Link(activity, trgActivity));
+                	}
+                    
                 }
             }
 
