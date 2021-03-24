@@ -53,6 +53,8 @@ public class Settings {
 
     public final static String OPENTOSCA_DEPLOYMENT_TESTS = settings.getProperty("org.opentosca.deployment.checks", "false");
     public final static String OPENTOSCA_BUS_MANAGEMENT_MOCK = settings.getProperty("org.opentosca.bus.management.mocking", "false");
+    public final static String OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH = settings.getProperty("org.opentosca.test.local.repository.path");
+    public final static String OPENTOSCA_TEST_REMOTE_REPOSITORY_URL = settings.getProperty("org.opentosca.test.remote.repository.url");
     public final static Path CONTAINER_STORAGE_BASEPATH = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "container", "csar-storage");
 
     /**

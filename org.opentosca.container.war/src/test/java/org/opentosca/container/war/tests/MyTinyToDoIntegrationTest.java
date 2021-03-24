@@ -1,3 +1,4 @@
+package org.opentosca.container.war.tests;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,8 +65,7 @@ public class MyTinyToDoIntegrationTest {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(MyTinyToDoIntegrationTest.class);
 
-    public IRepository repository;
-    public Path repositoryPath;
+    public IRepository repository;    
     public Git git;
     public Csar csar;
 
@@ -98,9 +98,31 @@ public class MyTinyToDoIntegrationTest {
         }
     }
 
-    @Test
+    @Test    
     public void test() throws InterruptedException, ExecutionException, RepositoryCorruptException, IOException, SystemException, AccountabilityException, UserException, GitAPIException {
-        this.fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker"), this.storage);
+    	
+    	
+    	String testLocalRepositoryPath = Settings.OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH;
+    	String testRemoteRepositoryUrl = Settings.OPENTOSCA_TEST_REMOTE_REPOSITORY_URL;
+    	
+    	
+    	Path repositoryPath;
+    	
+    	if(testLocalRepositoryPath != null && !testLocalRepositoryPath.isEmpty()) {
+    		repositoryPath = Paths.get(testLocalRepositoryPath);
+    	} else {
+    		repositoryPath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("tosca-definitions-public");
+    	}
+    	
+    	String remoteUrl;
+    	if(testRemoteRepositoryUrl != null && !testRemoteRepositoryUrl.isEmpty()) {
+    		remoteUrl = testRemoteRepositoryUrl;
+    	} else {
+    		remoteUrl = "https://github.com/OpenTOSCA/tosca-definitions-public";
+    	}
+        
+    	
+        this.fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker"), this.storage, repositoryPath, remoteUrl);
         this.checkServices();
         this.generatePlans();
 
@@ -314,10 +336,7 @@ public class MyTinyToDoIntegrationTest {
         return inputParams;
     }
 
-    protected void fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId, CsarStorageService storage) throws IOException, SystemException, UserException, InterruptedException, ExecutionException, AccountabilityException, RepositoryCorruptException, GitAPIException {
-        this.repositoryPath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("tosca-definitions-public");
-        String remoteUrl = "https://github.com/OpenTOSCA/tosca-definitions-public";
-
+    protected void fetchCSARFromPublicRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId, CsarStorageService storage, Path repositoryPath, String remoteUrl) throws IOException, SystemException, UserException, InterruptedException, ExecutionException, AccountabilityException, RepositoryCorruptException, GitAPIException {       
         LOGGER.debug("Testing with repository directory {}", repositoryPath);
 
         if (!Files.exists(repositoryPath)) {
@@ -336,7 +355,7 @@ public class MyTinyToDoIntegrationTest {
                 .setDirectory(repositoryPath.toFile())
                 .call();
         } else {
-        	LOGGER.info("Found git repository under " + this.repositoryPath);
+        	LOGGER.info("Found git repository under " + repositoryPath);
         }
 
         // inject the current path to the repository factory
