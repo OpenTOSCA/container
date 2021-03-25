@@ -83,11 +83,6 @@ public class PlanService {
     }
 
     public PlanInstance resolvePlanInstance(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, String correlationId, PlanType... planTypes) {
-        TPlan plan = csar.plans().stream()
-            .filter(tplan -> tplan.getId().equals(planId) && Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
-            .findFirst()
-            .orElseThrow(() -> new NotFoundException("Plan \"" + planId + "\" could not be found"));
-
         final PlanInstanceRepository repository = new PlanInstanceRepository();
         final PlanInstance pi = repository.findByCorrelationId(correlationId);
 
@@ -95,9 +90,6 @@ public class PlanService {
             final String msg = "Plan instance with correlationId '" + correlationId + "' not found";
             logger.info(msg);
             throw new NotFoundException(msg);
-        }
-        if (!pi.getTemplateId().getLocalPart().equals(plan.getId())) {
-            throw new NotFoundException(String.format("The passed plan instance <%s> does not belong to the passed plan template: %s", correlationId, plan));
         }
 
         final Long id = pi.getServiceTemplateInstance().getId();

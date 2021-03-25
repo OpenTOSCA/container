@@ -91,7 +91,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
                                                    String targetCsarName, AbstractDefinitions targetDefinitions,
                                                    AbstractServiceTemplate targetServiceTemplate,
                                                    Collection<AbstractNodeTemplate> targetNodeTemplates,
-                                                   Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
+                                                   Collection<AbstractRelationshipTemplate> targetRelationshipTemplates, String idSuffix) {
 
         Set<AbstractNodeTemplate> maxCommonSubgraph =
             this.getMaxCommonSubgraph(new HashSet<AbstractNodeTemplate>(sourceNodeTemplates),
@@ -111,7 +111,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         Collection<AbstractRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate);
 
         AbstractPlan termPlan = AbstractTerminationPlanBuilder.generateTOG("transformTerminate"
-                + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId(), sourceDefinitions, sourceServiceTemplate,
+                + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId()+ "_" + idSuffix, sourceDefinitions, sourceServiceTemplate,
             nodesToTerminate, relationsToTerminate);
 
         // migrate node instances from old service instance to new service instance
@@ -138,7 +138,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
         transPlan = this.mergePlans(
             "transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
-                + startPlan.getServiceTemplate().getId(),
+                + startPlan.getServiceTemplate().getId() + "_" + idSuffix,
             PlanType.TRANSFORMATION, transPlan, startPlan);
 
         return transPlan;
@@ -157,13 +157,13 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     public AbstractTransformationPlan generateTFOG(String sourceCsarName, AbstractDefinitions sourceDefinitions,
                                                    AbstractServiceTemplate sourceServiceTemplate, String targetCsarName,
                                                    AbstractDefinitions targetDefinitions,
-                                                   AbstractServiceTemplate targetServiceTemplate) {
+                                                   AbstractServiceTemplate targetServiceTemplate, String idSuffix) {
         return this.generateTFOG(sourceCsarName, sourceDefinitions, sourceServiceTemplate,
             sourceServiceTemplate.getTopologyTemplate().getNodeTemplates(),
             sourceServiceTemplate.getTopologyTemplate().getRelationshipTemplates(), targetCsarName,
             targetDefinitions, targetServiceTemplate,
             targetServiceTemplate.getTopologyTemplate().getNodeTemplates(),
-            targetServiceTemplate.getTopologyTemplate().getRelationshipTemplates());
+            targetServiceTemplate.getTopologyTemplate().getRelationshipTemplates(), idSuffix);
     }
 
     /**

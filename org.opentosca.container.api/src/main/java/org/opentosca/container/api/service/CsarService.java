@@ -78,10 +78,9 @@ public class CsarService {
             final WineryExporter.PlanExportResult result = planBuilderExporter.exportToCSAR(plans, csarId, repo, this.storage);
             final Path file = result.csarFile;
 
-            storage.deleteCSAR(csarId);
-
-            CsarId newCsarId = storage.storeCSAR(file);
-            return new AdaptationPlanGenerationResult(newCsarId, result.planIds.iterator().next());
+            
+           
+            return new AdaptationPlanGenerationResult(this.storage.findById(csarId).id(), result.planIds.iterator().next());
         } catch (final Exception e) {
             logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
         }

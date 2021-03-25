@@ -211,6 +211,24 @@ public class InstanceService {
         this.serviceTemplateInstanceRepository.remove(instance);
     }
 
+    public ServiceTemplateInstance createServiceTemplateInstance(final String csarId, final String serviceTemplateName) throws InstantiationException, IllegalAccessException, IllegalArgumentException {
+    	final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
+    	final Document propertiesAsDoc =
+                createServiceInstanceInitialPropertiesFromServiceTemplate(csar, serviceTemplateName);
+        final ServiceTemplateInstanceProperty property =
+                convertDocumentToProperty(propertiesAsDoc, ServiceTemplateInstanceProperty.class);
+
+        final ServiceTemplateInstance instance = new ServiceTemplateInstance();
+        instance.setCsarId(csar);
+        instance.setTemplateId(serviceTemplateName);
+        instance.setState(ServiceTemplateInstanceState.INITIAL);
+        instance.addProperty(property);            
+            
+        this.serviceTemplateInstanceRepository.add(instance);
+            
+        return instance;
+    }
+    
     public ServiceTemplateInstance createServiceTemplateInstance(final String csarId, final String serviceTemplateName,
                                                                  final String correlationId) throws NotFoundException,
         InstantiationException,
