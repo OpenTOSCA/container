@@ -40,11 +40,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class})
 @TestPropertySource(properties = "server.port=1337")
-public class MyTinyToDoIntegrationTest {
+public class MultiMyTinyToDoIntegrationTest {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(MyTinyToDoIntegrationTest.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(MultiMyTinyToDoIntegrationTest.class);
 
-    public QName csarId = new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker");
+    public QName csarId = new QName("http://opentosca.org/servicetemplates", "Multi_MyTinyToDo_Bare_Docker_w1-wip1");
     
     @Inject
     public OpenToscaControlService control;
@@ -75,23 +75,23 @@ public class MyTinyToDoIntegrationTest {
         for (TPlan plan : plans) {
             PlanType type = PlanType.fromString(plan.getPlanType());
             switch (type) {
-            case BUILD:
-            	if(!plan.getId().toLowerCase().contains("defrost")) {
-            		buildPlan = plan;
-            	}
-                break;
-            case MANAGEMENT:
-                if (plan.getId().toLowerCase().contains("scale")) {
-                    scaleOutPlan = plan;
-                }
-                break;
-            case TERMINATION:
-            	if(!plan.getId().toLowerCase().contains("freeze")) {
-            		terminationPlan = plan;
-            	}                    
-                break;
-            default:
-                break;
+                case BUILD:
+                	if(!plan.getId().toLowerCase().contains("defrost")) {
+                		buildPlan = plan;
+                	}
+                    break;
+                case MANAGEMENT:
+                    if (plan.getId().toLowerCase().contains("scale")) {
+                        scaleOutPlan = plan;
+                    }
+                    break;
+                case TERMINATION:
+                	if(!plan.getId().toLowerCase().contains("freeze")) {
+                		terminationPlan = plan;
+                	}                    
+                    break;
+                default:
+                    break;
             }
         }
         
@@ -100,7 +100,6 @@ public class MyTinyToDoIntegrationTest {
         this.checkStateAfterBuild(serviceTemplateInstance);
 
         String serviceInstanceUrl = TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
-               
         
         TestUtils.runManagementPlanExecution(this.planService, csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, scaleOutPlan, this.getScaleOurPlanInputParameters(serviceInstanceUrl));
 
@@ -121,34 +120,51 @@ public class MyTinyToDoIntegrationTest {
     	Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
     	Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
-        Assert.assertTrue(nodeTemplateInstances.size() == 3);
-        Assert.assertTrue(relationshipTemplateInstances.size() == 2);
+        Assert.assertTrue(nodeTemplateInstances.size() == 5);
+        Assert.assertTrue(relationshipTemplateInstances.size() == 4);
         
-        TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
+        int foundDockerEngine = 0;
+        int foundTinyToDo = 0;
+        for (NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstances) {
+            if (nodeTemplateInstance.getTemplateId().contains("DockerEngine")) {
+                foundDockerEngine++;
+            }
+            if (nodeTemplateInstance.getTemplateId().contains("MyTinyToDo")) {
+                foundTinyToDo++;
+            }
+        }
+
+        Assert.assertTrue(foundDockerEngine == 1);
+        Assert.assertTrue(foundTinyToDo == 4);
+        
+        TestUtils.checkViaHTTPGET("http://localhost:9994", 200, "My Tiny Todolist");
+
     }
     
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
     	Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
-        Assert.assertTrue(nodeTemplateInstances.size() == 2);
-        Assert.assertTrue(relationshipTemplateInstances.size() == 1);
+        Assert.assertTrue(nodeTemplateInstances.size() == 4);
+        Assert.assertTrue(relationshipTemplateInstances.size() == 3);
 
-        boolean foundDockerEngine = false;
-        boolean foundTinyToDo = false;
+        int foundDockerEngine = 0;
+        int foundTinyToDo = 0;
         for (NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstances) {
             if (nodeTemplateInstance.getTemplateId().contains("DockerEngine")) {
-                foundDockerEngine = true;
+                foundDockerEngine++;
             }
             if (nodeTemplateInstance.getTemplateId().contains("MyTinyToDo")) {
-                foundTinyToDo = true;
+                foundTinyToDo++;
             }
         }
 
-        Assert.assertTrue(foundDockerEngine);
-        Assert.assertTrue(foundTinyToDo);
+        Assert.assertTrue(foundDockerEngine == 1);
+        Assert.assertTrue(foundTinyToDo == 3);
         
         TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
+        TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
+        TestUtils.checkViaHTTPGET("http://localhost:9992", 200, "My Tiny Todolist");
     }
     
     private List<org.opentosca.container.core.extension.TParameter> getScaleOurPlanInputParameters(String serviceInstanceUrl) {
@@ -157,8 +173,9 @@ public class MyTinyToDoIntegrationTest {
         org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
         applicationPort.setName("ApplicationPort");
         applicationPort.setType("String");
-        applicationPort.setValue("9991");
+        applicationPort.setValue("9994");
         applicationPort.setRequired(true);
+        
 
         org.opentosca.container.core.extension.TParameter serviceInstanceUrlParam = new org.opentosca.container.core.extension.TParameter();
         serviceInstanceUrlParam.setName("OpenTOSCAContainerAPIServiceInstanceURL");
@@ -166,7 +183,7 @@ public class MyTinyToDoIntegrationTest {
         serviceInstanceUrlParam.setValue(serviceInstanceUrl);
         serviceInstanceUrlParam.setRequired(true);
 
-        inputParams.add(applicationPort);
+        inputParams.add(applicationPort);        
         inputParams.add(serviceInstanceUrlParam);
 
         inputParams.addAll(TestUtils.getBaseInputParams());
@@ -188,9 +205,23 @@ public class MyTinyToDoIntegrationTest {
         applicationPort.setType("String");
         applicationPort.setValue("9990");
         applicationPort.setRequired(true);
+        
+        org.opentosca.container.core.extension.TParameter applicationPort2 = new org.opentosca.container.core.extension.TParameter();
+        applicationPort2.setName("ApplicationPort2");
+        applicationPort2.setType("String");
+        applicationPort2.setValue("9991");
+        applicationPort2.setRequired(true);
+        
+        org.opentosca.container.core.extension.TParameter applicationPort3 = new org.opentosca.container.core.extension.TParameter();
+        applicationPort3.setName("ApplicationPort3");
+        applicationPort3.setType("String");
+        applicationPort3.setValue("9992");
+        applicationPort3.setRequired(true);
 
         inputParams.add(dockerEngineUrl);
         inputParams.add(applicationPort);
+        inputParams.add(applicationPort2);
+        inputParams.add(applicationPort3);
 
         inputParams.addAll(TestUtils.getBaseInputParams());
 

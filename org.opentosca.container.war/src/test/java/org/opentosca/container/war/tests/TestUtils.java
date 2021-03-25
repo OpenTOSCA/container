@@ -1,6 +1,10 @@
 package org.opentosca.container.war.tests;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,7 +17,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.io.FileUtils;
@@ -37,7 +40,6 @@ import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -194,6 +196,22 @@ public class TestUtils {
 	
 	    return inputParams;
 	}
+	
+	public static ServiceTemplateInstance runAdaptationPlanExecution(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan adaptPlan, List<org.opentosca.container.core.extension.TParameter> adaptPlanInputParams) {        
+	    String buildPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), adaptPlan.getId(), adaptPlanInputParams, PlanType.TRANSFORMATION);
+	    PlanInstance buildPlanInstance = planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
+	    while (buildPlanInstance == null) {
+	        buildPlanInstance = planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
+	    }
+	
+	    PlanInstanceState buildPlanInstanceState = buildPlanInstance.getState();
+	    while (!buildPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
+	        buildPlanInstance = planService.getPlanInstance(buildPlanInstance.getId());
+	        buildPlanInstanceState = buildPlanInstance.getState();
+	    }
+	
+	    return instanceService.getServiceTemplateInstance(buildPlanInstance.getServiceTemplateInstance().getId(), false);	    
+	}
 
 	public static ServiceTemplateInstance runBuildPlanExecution(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, TPlan buildPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {        
 	    String buildPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
@@ -232,6 +250,32 @@ public class TestUtils {
 
 	public static void clearContainer(CsarStorageService storage, OpenToscaControlService control) {
 	    storage.findAll().forEach(x -> control.deleteCsar(x.id()));
+	}
+
+	public static void checkViaHTTPGET(String url, int expectedStatus, String contains) throws IOException {
+		URL location = new URL(url);
+		
+		HttpURLConnection con = (HttpURLConnection) location.openConnection();
+		con.setRequestMethod("GET");
+		
+		int status = con.getResponseCode();
+		
+		Assert.assertEquals(expectedStatus, status);
+		
+		BufferedReader in = new BufferedReader(
+				  new InputStreamReader(con.getInputStream()));
+				String inputLine;
+				StringBuffer content = new StringBuffer();
+				while ((inputLine = in.readLine()) != null) {
+				    content.append(inputLine);
+				}
+				in.close();
+				
+				con.disconnect();
+				
+		if(contains != null && !contains.isEmpty()) {
+			Assert.assertTrue(content.toString().contains(contains));
+		}   					
 	}
 
 }
