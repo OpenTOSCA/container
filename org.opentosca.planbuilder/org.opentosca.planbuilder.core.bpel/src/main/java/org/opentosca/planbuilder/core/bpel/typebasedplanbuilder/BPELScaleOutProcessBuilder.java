@@ -3,9 +3,11 @@ package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -312,9 +314,11 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             bpelScaleOutProcess.setTOSCAOperationname("scale-out");
 
             this.planHandler.initializeBPELSkeleton(bpelScaleOutProcess, csarName);
+            
+            Collection<AbstractNodeTemplate> nodes = bpelScaleOutProcess.getTemplateBuildPlans().stream().filter(x -> x.getNodeTemplate() != null).map(x -> x.getNodeTemplate()).distinct().collect(Collectors.toList());
+            Collection<AbstractRelationshipTemplate> relations = bpelScaleOutProcess.getTemplateBuildPlans().stream().filter(x -> x.getRelationshipTemplate() != null).map(x -> x.getRelationshipTemplate()).distinct().collect(Collectors.toList());
 
-            final Property2VariableMapping propMap =
-                this.propertyInitializer.initializePropertiesAsVariables(bpelScaleOutProcess, serviceTemplate);
+            final Property2VariableMapping propMap = this.propertyInitializer.initializePropertiesAsVariables(bpelScaleOutProcess, serviceTemplate, nodes, relations);
 
             // instanceDataAPI handling is done solely trough this extension
             this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,

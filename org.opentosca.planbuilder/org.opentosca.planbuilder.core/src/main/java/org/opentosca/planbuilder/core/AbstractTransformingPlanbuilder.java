@@ -91,7 +91,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
                                                    String targetCsarName, AbstractDefinitions targetDefinitions,
                                                    AbstractServiceTemplate targetServiceTemplate,
                                                    Collection<AbstractNodeTemplate> targetNodeTemplates,
-                                                   Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
+                                                   Collection<AbstractRelationshipTemplate> targetRelationshipTemplates, String idSuffix) {
 
         Set<AbstractNodeTemplate> maxCommonSubgraph =
             this.getMaxCommonSubgraph(new HashSet<AbstractNodeTemplate>(sourceNodeTemplates),
@@ -111,7 +111,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         Collection<AbstractRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate);
 
         AbstractPlan termPlan = AbstractTerminationPlanBuilder.generateTOG("transformTerminate"
-                + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId(), sourceDefinitions, sourceServiceTemplate,
+                + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId() + "_" + idSuffix, sourceDefinitions, sourceServiceTemplate,
             nodesToTerminate, relationsToTerminate);
 
         // migrate node instances from old service instance to new service instance
@@ -138,7 +138,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
         transPlan = this.mergePlans(
             "transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
-                + startPlan.getServiceTemplate().getId(),
+                + startPlan.getServiceTemplate().getId() + "_" + idSuffix,
             PlanType.TRANSFORMATION, transPlan, startPlan);
 
         return transPlan;
@@ -157,13 +157,13 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     public AbstractTransformationPlan generateTFOG(String sourceCsarName, AbstractDefinitions sourceDefinitions,
                                                    AbstractServiceTemplate sourceServiceTemplate, String targetCsarName,
                                                    AbstractDefinitions targetDefinitions,
-                                                   AbstractServiceTemplate targetServiceTemplate) {
+                                                   AbstractServiceTemplate targetServiceTemplate, String idSuffix) {
         return this.generateTFOG(sourceCsarName, sourceDefinitions, sourceServiceTemplate,
             sourceServiceTemplate.getTopologyTemplate().getNodeTemplates(),
             sourceServiceTemplate.getTopologyTemplate().getRelationshipTemplates(), targetCsarName,
             targetDefinitions, targetServiceTemplate,
             targetServiceTemplate.getTopologyTemplate().getNodeTemplates(),
-            targetServiceTemplate.getTopologyTemplate().getRelationshipTemplates());
+            targetServiceTemplate.getTopologyTemplate().getRelationshipTemplates(), idSuffix);
     }
 
     /**
@@ -593,14 +593,19 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
         // This check is pretty heavy if i think about the State Property or changes in
         // values etc.
-        // if (!(node1.getProperties().equals(node2.getProperties()))) {
-        // return false;
-        // }
+        // FIXME? Check for values as well?
+        if (!node1.getProperties().asMap().keySet().containsAll(node2.getProperties().asMap().keySet())) {
+            return false;
+        }
 
-        // if (!(node1.getPolicies().containsAll(node2.getPolicies())
-        // && node2.getPolicies().containsAll(node1.getPolicies()))) {
-        // return false;
-        // }
+        if (!node1.getProperties().getElementName().equals(node2.getProperties().getElementName())) {
+            return false;
+        }
+
+        if (node1.getProperties().getNamespace().equals(node2.getProperties().getNamespace())) {
+            return false;
+        }
+
         LOG.debug("Matched node {} with node {} ", node1.getId(), node2.getId());
 
         return node1.getId().equals(node2.getId());
