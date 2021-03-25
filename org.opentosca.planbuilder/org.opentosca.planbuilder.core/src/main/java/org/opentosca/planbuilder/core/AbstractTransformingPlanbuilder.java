@@ -111,7 +111,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         Collection<AbstractRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate);
 
         AbstractPlan termPlan = AbstractTerminationPlanBuilder.generateTOG("transformTerminate"
-                + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId()+ "_" + idSuffix, sourceDefinitions, sourceServiceTemplate,
+                + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId() + "_" + idSuffix, sourceDefinitions, sourceServiceTemplate,
             nodesToTerminate, relationsToTerminate);
 
         // migrate node instances from old service instance to new service instance
@@ -594,18 +594,18 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         // This check is pretty heavy if i think about the State Property or changes in
         // values etc.
         // FIXME? Check for values as well?
-        if(!node1.getProperties().asMap().keySet().containsAll(node2.getProperties().asMap().keySet())) {
-        	return false;
+        if (!node1.getProperties().asMap().keySet().containsAll(node2.getProperties().asMap().keySet())) {
+            return false;
         }
-        
-        if(!node1.getProperties().getElementName().equals(node2.getProperties().getElementName())) {
-        	return false;
+
+        if (!node1.getProperties().getElementName().equals(node2.getProperties().getElementName())) {
+            return false;
         }
-        
-        if(node1.getProperties().getNamespace().equals(node2.getProperties().getNamespace())) {
-        	return false;
+
+        if (node1.getProperties().getNamespace().equals(node2.getProperties().getNamespace())) {
+            return false;
         }
-        
+
         LOG.debug("Matched node {} with node {} ", node1.getId(), node2.getId());
 
         return node1.getId().equals(node2.getId());

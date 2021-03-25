@@ -105,8 +105,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             this.generateTFOG(csarName, definitions, serviceTemplate, sourceNodeTemplates, sourceRelationshipTemplates,
                 csarName, definitions, serviceTemplate, targetNodeTemplates, targetRelationshipTemplates, id.toString());
 
-       
-
         // transform to bpel skeleton
         final String processName =
             ModelUtils.makeValidNCName(serviceTemplate.getId() + "_adaptationPlan_" + id);
@@ -130,7 +128,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         final Property2VariableMapping sourcesProp2VarMap =
             this.propertyInitializer.initializePropertiesAsVariables(transformationBPELPlan, serviceTemplate,
                 adaptationPlan.getHandledSourceServiceTemplateNodes(),
-                adaptationPlan.getHandledSourceServiceTemplateRelations());        
+                adaptationPlan.getHandledSourceServiceTemplateRelations());
 
         // add correlation id and handling for input and output
         this.correlationHandler.addCorrellationID(transformationBPELPlan);
@@ -254,7 +252,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                     "?state=CREATED&amp;state=INITIAL");
             }
         }
-        
+
         return transformationBPELPlan;
     }
 
@@ -419,8 +417,8 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             "MIGRATED", sourceServiceInstanceURL);
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
             transformationBPELPlan.getBpelMainSequenceOutputAssignElement(),
-            "CREATED", targetServiceInstanceURL);        
-        
+            "CREATED", targetServiceInstanceURL);
+
         String planInstanceUrlVarName = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(transformationBPELPlan);
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
             transformationBPELPlan.getBpelMainFlowElement(),
@@ -429,7 +427,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
             transformationBPELPlan.getBpelMainSequenceOutputAssignElement(),
             "FINISHED", planInstanceUrlVarName);
-        
+
         this.finalizer.finalize(transformationBPELPlan);
 
         // iterate over terminated nodes and create for each loop per instance

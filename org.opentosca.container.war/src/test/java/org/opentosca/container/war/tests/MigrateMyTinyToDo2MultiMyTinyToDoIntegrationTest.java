@@ -14,6 +14,7 @@ import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
+
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
 import org.junit.Assert;
@@ -50,7 +51,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
 
     public QName myTinyToDocsarId = new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker");
     public QName multiMyTinyToDoCsarId = new QName("http://opentosca.org/servicetemplates", "Multi_MyTinyToDo_Bare_Docker_w1-wip1");
-    
+
     @Inject
     public OpenToscaControlService control;
     @Inject
@@ -62,14 +63,13 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     @Inject
     public InstanceService instanceService;
 
-
-    @Test    
-    public void test() throws InterruptedException, ExecutionException, RepositoryCorruptException, IOException, SystemException, AccountabilityException, UserException, GitAPIException {    
-    	Csar myTinyToDoCsar = TestUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage);
-    	Csar multiMyTinyToDoCsar = TestUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage);
+    @Test
+    public void test() throws InterruptedException, ExecutionException, RepositoryCorruptException, IOException, SystemException, AccountabilityException, UserException, GitAPIException {
+        Csar myTinyToDoCsar = TestUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage);
+        Csar multiMyTinyToDoCsar = TestUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage);
         TestUtils.generatePlans(this.csarService, myTinyToDoCsar);
         TestUtils.generatePlans(this.csarService, multiMyTinyToDoCsar);
-        
+
         this.csarService.generateTransformationPlans(myTinyToDoCsar.id(), multiMyTinyToDoCsar.id());
 
         TServiceTemplate myTinyToDoServiceTemplate = myTinyToDoCsar.entryServiceTemplate();
@@ -81,39 +81,39 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         TPlan myTinyToDoBuildPlan = null;
         TPlan myTinyToMultiTinyTransformationPlan = null;
         TPlan multiTinyTerminationPlan = null;
-        
+
         List<TPlan> myTinyToDoPlans = myTinyToDoServiceTemplate.getPlans().getPlan();
         List<TPlan> multiMyTinyToDoPlans = multiMyTinyToDoServiceTemplate.getPlans().getPlan();
-        
+
         for (TPlan plan : myTinyToDoPlans) {
             PlanType type = PlanType.fromString(plan.getPlanType());
             switch (type) {
                 case BUILD:
-                	if(!plan.getId().toLowerCase().contains("defrost")) {
-                		myTinyToDoBuildPlan = plan;
-                	}
-                    break;                           
-                case TRANSFORMATION:
-                	myTinyToMultiTinyTransformationPlan = plan;
-                	break;
-                default:
+                    if (!plan.getId().toLowerCase().contains("defrost")) {
+                        myTinyToDoBuildPlan = plan;
+                    }
                     break;
-            }
-        }         
-        
-        for (TPlan plan : multiMyTinyToDoPlans) {
-            PlanType type = PlanType.fromString(plan.getPlanType());
-            switch (type) {
-                case TERMINATION:
-                	if(!plan.getId().toLowerCase().contains("freeze")) {
-                		multiTinyTerminationPlan = plan;
-                	}
-                    break;                                        
+                case TRANSFORMATION:
+                    myTinyToMultiTinyTransformationPlan = plan;
+                    break;
                 default:
                     break;
             }
         }
-                     
+
+        for (TPlan plan : multiMyTinyToDoPlans) {
+            PlanType type = PlanType.fromString(plan.getPlanType());
+            switch (type) {
+                case TERMINATION:
+                    if (!plan.getId().toLowerCase().contains("freeze")) {
+                        multiTinyTerminationPlan = plan;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
         ServiceTemplateInstance myTinyToDoServiceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoBuildPlan, this.getMyTinyToDoBuildPlanInputParameters());
         String myTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(myTinyToDoCsar.id().csarName(), myTinyToDoServiceTemplate.getId(), myTinyToDoServiceTemplateInstance.getId().toString());
         this.checkStateAfterBuild(myTinyToDoServiceTemplateInstance);
@@ -121,63 +121,60 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         ServiceTemplateInstance multiInstance = this.runTransformationPlan(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoServiceTemplateInstance, myTinyToMultiTinyTransformationPlan, this.getTransformationPlanInputParameters(myTinyToDoServiceInstanceUrl));
         String multMyTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(multiMyTinyToDoCsar.id().csarName(), multiMyTinyToDoServiceTemplate.getId(), multiInstance.getId().toString());
         this.checkStateAfterMigration(multiInstance);
-                
+
         TestUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multMyTinyToDoServiceInstanceUrl, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
 
         TestUtils.clearContainer(this.storage, this.control);
     }
-    
-    
+
     @After
     public void cleanUpContainer() {
-    	TestUtils.clearContainer(this.storage, this.control);
+        TestUtils.clearContainer(this.storage, this.control);
     }
-    
+
     private void checkStateAfterMigration(ServiceTemplateInstance serviceInstance) throws IOException {
-    	Assert.assertEquals(4, serviceInstance.getNodeTemplateInstances().size());
-    	Assert.assertEquals(3, serviceInstance.getRelationshipTemplateInstances().size());
-    	
-    	Assert.assertEquals(3, serviceInstance.getNodeTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("mytiny")).count());
-    	Assert.assertEquals(1, serviceInstance.getNodeTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("dockerengine")).count());
-    	Assert.assertEquals(3, serviceInstance.getRelationshipTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("hostedon")).count());
-    	
-    	TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
-    	TestUtils.checkViaHTTPGET("http://localhost:9992", 200, "My Tiny Todolist");
-    	TestUtils.checkViaHTTPGET("http://localhost:9994", 200, "My Tiny Todolist");
+        Assert.assertEquals(4, serviceInstance.getNodeTemplateInstances().size());
+        Assert.assertEquals(3, serviceInstance.getRelationshipTemplateInstances().size());
+
+        Assert.assertEquals(3, serviceInstance.getNodeTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("mytiny")).count());
+        Assert.assertEquals(1, serviceInstance.getNodeTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("dockerengine")).count());
+        Assert.assertEquals(3, serviceInstance.getRelationshipTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("hostedon")).count());
+
+        TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
+        TestUtils.checkViaHTTPGET("http://localhost:9992", 200, "My Tiny Todolist");
+        TestUtils.checkViaHTTPGET("http://localhost:9994", 200, "My Tiny Todolist");
     }
-    
+
     private ServiceTemplateInstance runTransformationPlan(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan transformationPlan, List<org.opentosca.container.core.extension.TParameter> inputParams) {
-    	String tranformationPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), transformationPlan.getId(), inputParams, PlanType.TRANSFORMATION);
-	    PlanInstance transformationPlanInstance = planService.getPlanInstanceByCorrelationId(tranformationPlanCorrelationId);
-	    while (transformationPlanInstance == null) {
-	        transformationPlanInstance = planService.getPlanInstanceByCorrelationId(tranformationPlanCorrelationId);
-	    }
-	
-	    PlanInstanceState tranformationPlanInstanceState = transformationPlanInstance.getState();
-	    while (!tranformationPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
-	        transformationPlanInstance = planService.getPlanInstance(transformationPlanInstance.getId());
-	        tranformationPlanInstanceState = transformationPlanInstance.getState();
-	    }
-	    
-	    
-	    
-	    while(transformationPlanInstance.getOutputs().isEmpty()) {
-	    	transformationPlanInstance = planService.getPlanInstance(transformationPlanInstance.getId());
-	    }
-	    
-	    Iterator<PlanInstanceOutput> iter = transformationPlanInstance.getOutputs().iterator();
-	    while(iter.hasNext()) {
-	    	PlanInstanceOutput output = iter.next();	    	
-	    	if(output.getName().equals("instanceId")) {
-	    		String serviceInstanceId = output.getValue();
-	    		return instanceService.getServiceTemplateInstance(Long.valueOf(serviceInstanceId), false);
-	    	}
-	    }
-	    return null;
+        String tranformationPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), transformationPlan.getId(), inputParams, PlanType.TRANSFORMATION);
+        PlanInstance transformationPlanInstance = planService.getPlanInstanceByCorrelationId(tranformationPlanCorrelationId);
+        while (transformationPlanInstance == null) {
+            transformationPlanInstance = planService.getPlanInstanceByCorrelationId(tranformationPlanCorrelationId);
+        }
+
+        PlanInstanceState tranformationPlanInstanceState = transformationPlanInstance.getState();
+        while (!tranformationPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
+            transformationPlanInstance = planService.getPlanInstance(transformationPlanInstance.getId());
+            tranformationPlanInstanceState = transformationPlanInstance.getState();
+        }
+
+        while (transformationPlanInstance.getOutputs().isEmpty()) {
+            transformationPlanInstance = planService.getPlanInstance(transformationPlanInstance.getId());
+        }
+
+        Iterator<PlanInstanceOutput> iter = transformationPlanInstance.getOutputs().iterator();
+        while (iter.hasNext()) {
+            PlanInstanceOutput output = iter.next();
+            if (output.getName().equals("instanceId")) {
+                String serviceInstanceId = output.getValue();
+                return instanceService.getServiceTemplateInstance(Long.valueOf(serviceInstanceId), false);
+            }
+        }
+        return null;
     }
-    
+
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-    	Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
+        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
         Assert.assertTrue(nodeTemplateInstances.size() == 2);
@@ -196,10 +193,10 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
 
         Assert.assertTrue(foundDockerEngine == 1);
         Assert.assertTrue(foundTinyToDo == 1);
-        
+
         TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
     }
-    
+
     private List<org.opentosca.container.core.extension.TParameter> getTransformationPlanInputParameters(String serviceInstanceUrl) {
         List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
 
@@ -208,19 +205,18 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         applicationPort.setType("String");
         applicationPort.setValue("9994");
         applicationPort.setRequired(true);
-        
+
         org.opentosca.container.core.extension.TParameter applicationPort2 = new org.opentosca.container.core.extension.TParameter();
         applicationPort2.setName("ApplicationPort2");
         applicationPort2.setType("String");
         applicationPort2.setValue("9991");
         applicationPort2.setRequired(true);
-        
+
         org.opentosca.container.core.extension.TParameter applicationPort3 = new org.opentosca.container.core.extension.TParameter();
         applicationPort3.setName("ApplicationPort3");
         applicationPort3.setType("String");
         applicationPort3.setValue("9992");
         applicationPort3.setRequired(true);
-
 
         org.opentosca.container.core.extension.TParameter serviceInstanceUrlParam = new org.opentosca.container.core.extension.TParameter();
         serviceInstanceUrlParam.setName("OpenTOSCAContainerAPIServiceInstanceURL");
@@ -233,13 +229,13 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         dockerEngineUrl.setRequired(true);
         dockerEngineUrl.setType("String");
         dockerEngineUrl.setValue("tcp://172.17.0.1:2375");
-        
+
         inputParams.add(dockerEngineUrl);
-        inputParams.add(applicationPort);        
+        inputParams.add(applicationPort);
         inputParams.add(serviceInstanceUrlParam);
         inputParams.add(applicationPort2);
         inputParams.add(applicationPort3);
-              
+
         inputParams.addAll(TestUtils.getBaseInputParams());
 
         return inputParams;
@@ -259,11 +255,9 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         applicationPort.setType("String");
         applicationPort.setValue("9990");
         applicationPort.setRequired(true);
-        
-        
+
         inputParams.add(dockerEngineUrl);
         inputParams.add(applicationPort);
-        
 
         inputParams.addAll(TestUtils.getBaseInputParams());
 

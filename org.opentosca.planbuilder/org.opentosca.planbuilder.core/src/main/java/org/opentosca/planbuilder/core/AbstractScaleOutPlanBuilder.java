@@ -66,14 +66,13 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
             findOutgoingInfrastructurePaths(paths, stratNodeTemplate);
 
             if (paths.isEmpty()) {
-            	Collection<AbstractRelationshipTemplate> ingoingRelations = stratNodeTemplate.getIngoingRelations().stream().filter(x -> scalingPlanDefinition.relationshipTemplates.contains(x)).collect(Collectors.toList());
+                Collection<AbstractRelationshipTemplate> ingoingRelations = stratNodeTemplate.getIngoingRelations().stream().filter(x -> scalingPlanDefinition.relationshipTemplates.contains(x)).collect(Collectors.toList());
                 for (final AbstractRelationshipTemplate relation : ingoingRelations) {
-                	// only add links for relations which are part of the scale plan definition
-                	AbstractActivity trgActivity = abstractScaleOutPlan.findRelationshipTemplateActivity(relation, ActivityType.PROVISIONING);
-                	if(Objects.nonNull(trgActivity)) {
-                		abstractScaleOutPlan.getLinks().add(new Link(activity, trgActivity));
-                	}
-                    
+                    // only add links for relations which are part of the scale plan definition
+                    AbstractActivity trgActivity = abstractScaleOutPlan.findRelationshipTemplateActivity(relation, ActivityType.PROVISIONING);
+                    if (Objects.nonNull(trgActivity)) {
+                        abstractScaleOutPlan.getLinks().add(new Link(activity, trgActivity));
+                    }
                 }
             }
 

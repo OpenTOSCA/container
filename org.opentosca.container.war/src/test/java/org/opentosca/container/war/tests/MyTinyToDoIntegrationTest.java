@@ -13,6 +13,7 @@ import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
+
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
 import org.junit.Assert;
@@ -45,7 +46,7 @@ public class MyTinyToDoIntegrationTest {
     protected static final Logger LOGGER = LoggerFactory.getLogger(MyTinyToDoIntegrationTest.class);
 
     public QName csarId = new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker");
-    
+
     @Inject
     public OpenToscaControlService control;
     @Inject
@@ -57,15 +58,14 @@ public class MyTinyToDoIntegrationTest {
     @Inject
     public InstanceService instanceService;
 
-
-    @Test    
-    public void test() throws InterruptedException, ExecutionException, RepositoryCorruptException, IOException, SystemException, AccountabilityException, UserException, GitAPIException {    
-    	Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage);        
+    @Test
+    public void test() throws InterruptedException, ExecutionException, RepositoryCorruptException, IOException, SystemException, AccountabilityException, UserException, GitAPIException {
+        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage);
         TestUtils.generatePlans(this.csarService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
-        TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);        
+        TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
         TPlan buildPlan = null;
         TPlan scaleOutPlan = null;
@@ -75,60 +75,59 @@ public class MyTinyToDoIntegrationTest {
         for (TPlan plan : plans) {
             PlanType type = PlanType.fromString(plan.getPlanType());
             switch (type) {
-            case BUILD:
-            	if(!plan.getId().toLowerCase().contains("defrost")) {
-            		buildPlan = plan;
-            	}
-                break;
-            case MANAGEMENT:
-                if (plan.getId().toLowerCase().contains("scale")) {
-                    scaleOutPlan = plan;
-                }
-                break;
-            case TERMINATION:
-            	if(!plan.getId().toLowerCase().contains("freeze")) {
-            		terminationPlan = plan;
-            	}                    
-                break;
-            default:
-                break;
+                case BUILD:
+                    if (!plan.getId().toLowerCase().contains("defrost")) {
+                        buildPlan = plan;
+                    }
+                    break;
+                case MANAGEMENT:
+                    if (plan.getId().toLowerCase().contains("scale")) {
+                        scaleOutPlan = plan;
+                    }
+                    break;
+                case TERMINATION:
+                    if (!plan.getId().toLowerCase().contains("freeze")) {
+                        terminationPlan = plan;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
-        
+
         ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
 
         this.checkStateAfterBuild(serviceTemplateInstance);
 
         String serviceInstanceUrl = TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
-               
-        
+
         TestUtils.runManagementPlanExecution(this.planService, csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, scaleOutPlan, this.getScaleOurPlanInputParameters(serviceInstanceUrl));
 
         this.checkStateAfterScaleOut(serviceTemplateInstance);
-        
+
         TestUtils.runTerminationPlanExecution(this.planService, csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, terminationPlan);
 
         TestUtils.clearContainer(this.storage, this.control);
     }
-    
+
     @After
     public void cleanUpContainer() {
-    	TestUtils.clearContainer(this.storage, this.control);
+        TestUtils.clearContainer(this.storage, this.control);
     }
-    
+
     private void checkStateAfterScaleOut(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-    	serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
-    	Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
-    	Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
+        serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
+        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
+        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
         Assert.assertTrue(nodeTemplateInstances.size() == 3);
         Assert.assertTrue(relationshipTemplateInstances.size() == 2);
-        
+
         TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
     }
-    
+
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-    	Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
+        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
         Assert.assertTrue(nodeTemplateInstances.size() == 2);
@@ -147,10 +146,10 @@ public class MyTinyToDoIntegrationTest {
 
         Assert.assertTrue(foundDockerEngine);
         Assert.assertTrue(foundTinyToDo);
-        
+
         TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
     }
-    
+
     private List<org.opentosca.container.core.extension.TParameter> getScaleOurPlanInputParameters(String serviceInstanceUrl) {
         List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
 
