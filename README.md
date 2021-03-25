@@ -1,7 +1,7 @@
 
 # OpenTOSCA Container - TOSCA Runtime
 
-[![Build Status](https://travis-ci.org/OpenTOSCA/container.svg?branch=master)](https://travis-ci.org/OpenTOSCA/container)
+[![Java CI with Maven](https://github.com/OpenTOSCA/container/actions/workflows/maven.yml/badge.svg)](https://github.com/OpenTOSCA/container/actions/workflows/maven.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
@@ -30,7 +30,7 @@ Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
 ## Run via SpringBoot
 
-1. Run `mvn isntall` in root of project
+1. Run `mvn install` in root of project
 2. Go to directory `org.opentosca.container.war` and run `mvn spring-boot:run` and the runtime should be available under localhost:1337
 
 ## Disclaimer of Warranty
