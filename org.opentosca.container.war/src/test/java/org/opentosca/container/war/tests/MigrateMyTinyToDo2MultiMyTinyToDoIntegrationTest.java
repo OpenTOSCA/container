@@ -114,6 +114,10 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
             }
         }
 
+        Assert.assertNotNull("BuildPlan not found", myTinyToDoBuildPlan);
+        Assert.assertNotNull("TransformationPlan not found", myTinyToMultiTinyTransformationPlan);
+        Assert.assertNotNull("TerminationPlan not found", multiTinyTerminationPlan);
+
         ServiceTemplateInstance myTinyToDoServiceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoBuildPlan, this.getMyTinyToDoBuildPlanInputParameters());
         String myTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(myTinyToDoCsar.id().csarName(), myTinyToDoServiceTemplate.getId(), myTinyToDoServiceTemplateInstance.getId().toString());
         this.checkStateAfterBuild(myTinyToDoServiceTemplateInstance);

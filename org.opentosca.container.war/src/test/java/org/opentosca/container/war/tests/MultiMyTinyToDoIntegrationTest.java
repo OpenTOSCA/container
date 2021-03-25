@@ -95,6 +95,10 @@ public class MultiMyTinyToDoIntegrationTest {
             }
         }
 
+        Assert.assertNotNull("BuildPlan not found", buildPlan);
+        Assert.assertNotNull("ScaleOutPlan not found", scaleOutPlan);
+        Assert.assertNotNull("TerminationPlan not found", terminationPlan);
+
         ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
 
         this.checkStateAfterBuild(serviceTemplateInstance);
@@ -116,9 +120,9 @@ public class MultiMyTinyToDoIntegrationTest {
     }
 
     private void checkStateAfterScaleOut(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-        serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
-        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
-        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
+        ServiceTemplateInstance serviceTemplateInstanceUpdated = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
+        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstanceUpdated.getNodeTemplateInstances();
+        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstanceUpdated.getRelationshipTemplateInstances();
 
         Assert.assertTrue(nodeTemplateInstances.size() == 5);
         Assert.assertTrue(relationshipTemplateInstances.size() == 4);

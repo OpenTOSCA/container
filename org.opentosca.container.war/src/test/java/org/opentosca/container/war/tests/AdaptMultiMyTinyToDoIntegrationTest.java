@@ -91,14 +91,18 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
                 terminationPlan = plan;
             }
         }
+        Assert.assertNotNull("BuildPlan not found", buildPlan);
+        Assert.assertNotNull("TerminationPlan not found", terminationPlan);
 
         ServiceTemplateInstance serviceTemplateInstance = this.instanceService.createServiceTemplateInstance(csar.id().csarName(), serviceTemplate.getId());
+        Assert.assertNotNull(serviceTemplateInstance);
 
         serviceTemplateInstance = TestUtils.runAdaptationPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, serviceTemplateInstance, buildPlan, this.getBuildPlanInputParameters(TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
-
+        Assert.assertNotNull(serviceTemplateInstance);
         this.checkStateAfterBuild(serviceTemplateInstance);
 
         serviceTemplateInstance = TestUtils.runAdaptationPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan, TestUtils.getTerminationPlanInputParameters(TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
+        Assert.assertNotNull(serviceTemplateInstance);
 
         TestUtils.clearContainer(this.storage, this.control);
     }
