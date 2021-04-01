@@ -105,11 +105,11 @@ public class Route extends RouteBuilder {
         // CXF Endpoints
         final String INVOKE_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString()
             + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT.toString()
-            + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+            + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true&loggingSizeLimit=-1";
         final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL.toString()
             + "&headerFilterStrategy=#dropAllMessageHeadersStrategy"
             + "&serviceName={http://siserver.org/wsdl}CallbackService&portName={http://siserver.org/wsdl}CallbackPort"
-            + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+            + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true&loggingSizeLimit=-1";
 
         // Checks if invoke is sync or async
         final Predicate MESSAGEID = header("MessageID").isNotNull();

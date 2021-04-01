@@ -518,7 +518,7 @@ public class RequestProcessor implements Processor {
 
 		final HashMap<String, String> map = new HashMap<>();
 		map.put("instanceDataAPIUrl", str);
-		map.put("csarEntrypoint", Settings.CONTAINER_API_LEGACY + "/CSARs/" + csarID);
+		map.put("csarEntrypoint", Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID));
 		map.put("CorrelationID", planCorrelationID);
 		map.put("planCallbackAddress_invoker", "");
 		return map;

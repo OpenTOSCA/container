@@ -649,7 +649,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 }
                 // artifact is exposed via the content endpoint
                 final String absoluteArtifactReference =
-                    Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csar.id().csarName())
+                    Settings.OPENTOSCA_CONTAINER_CONTENT_API_ARTIFACTREFERENCE.replace("{csarid}", csar.id().csarName())
                                                             // reference here is relative to CSAR basedirectory, with
                                                             // spaces being URLEncoded
                                                             .replace("{artifactreference}",

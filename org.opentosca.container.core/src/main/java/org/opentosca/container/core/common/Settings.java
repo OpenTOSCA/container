@@ -31,13 +31,11 @@ public class Settings {
 
     public final static String OPENTOSCA_CONTAINER_HOSTNAME = settings.getProperty("org.opentosca.container.hostname", "localhost");
     public final static String OPENTOSCA_CONTAINER_PORT = settings.getProperty("org.opentosca.container.port", "1337");
-
-    @Deprecated
-    public final static String CONTAINER_API_LEGACY = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi";
-    public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;
-    public final static String CONTAINER_INSTANCEDATA_LEGACY_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
+    
+    public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;    
     public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/servicetemplates/{servicetemplateid}/instances";
-    public final static String OPENTOSCA_CONTAINER_CONTENT_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
+    public final static String OPENTOSCA_CONTAINER_CONTENT_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/";
+    public final static String OPENTOSCA_CONTAINER_CONTENT_API_ARTIFACTREFERENCE = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
 
     public final static String ENGINE_PLAN_BPMN_ENGINE = settings.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.engine", "Camunda");
     public final static String ENGINE_PLAN_BPMN_URL = settings.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.url", "http://localhost:808/engine-rest");
