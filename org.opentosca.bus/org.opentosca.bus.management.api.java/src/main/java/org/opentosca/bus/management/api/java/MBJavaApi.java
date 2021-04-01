@@ -522,8 +522,8 @@ public class MBJavaApi implements IManagementBus {
                 map.put(para, serviceTemplateInstanceUrl);
             } else if (para.equalsIgnoreCase("containerApiAddress")) {
                 LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \""
-                    + Settings.CONTAINER_API_LEGACY + "\".");
-                map.put(para, Settings.CONTAINER_API_LEGACY);
+                    + Settings.CONTAINER_API + "\".");
+                map.put(para, Settings.CONTAINER_API);
             } else if (para.equalsIgnoreCase("instanceDataAPIUrl")) {
                 LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \""
                     + Settings.CONTAINER_INSTANCEDATA_API + "\".");
@@ -538,9 +538,9 @@ public class MBJavaApi implements IManagementBus {
                 LOG.debug("instance api: {}", str);
                 map.put(para, str);
             } else if (para.equalsIgnoreCase("csarEntrypoint")) {
-                LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
-                    + Settings.CONTAINER_API_LEGACY + "/" + csarID + "\".");
-                map.put(para, Settings.CONTAINER_API_LEGACY + "/CSARs/" + csarID);
+            	LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
+                    + Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));                                              
+                map.put(para, Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()).replace("{artifactreference}",""));
             } else {
                 map.put(para, value);
             }
