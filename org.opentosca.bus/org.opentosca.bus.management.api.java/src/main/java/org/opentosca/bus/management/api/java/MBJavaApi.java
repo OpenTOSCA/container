@@ -540,7 +540,7 @@ public class MBJavaApi implements IManagementBus {
             } else if (para.equalsIgnoreCase("csarEntrypoint")) {
             	LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
                     + Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));                                              
-                map.put(para, Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()).replace("{artifactreference}",""));
+                map.put(para, Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));
             } else {
                 map.put(para, value);
             }
