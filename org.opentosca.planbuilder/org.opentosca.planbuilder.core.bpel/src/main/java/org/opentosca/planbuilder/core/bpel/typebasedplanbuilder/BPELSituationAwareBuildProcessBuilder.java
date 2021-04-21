@@ -235,6 +235,9 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
                     serviceTemplate.getQName().toString());
             }
         }
+        if(!plans.isEmpty()) {
+        	LOG.info("Created {} situation-aware build plans for CSAR {}", String.valueOf(plans.size()), csarName);
+        }
         return plans;
     }
 

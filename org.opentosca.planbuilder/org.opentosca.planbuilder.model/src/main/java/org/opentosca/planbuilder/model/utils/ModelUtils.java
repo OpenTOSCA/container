@@ -643,7 +643,7 @@ public class ModelUtils {
             return iface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst()
                 .orElse(null);
         } else {
-            LOG.error("Unable to find interface {} for NodeTemplate {}", interfaceName, nodeTemplate.getName());
+            LOG.debug("Unable to find interface {} for NodeTemplate {}", interfaceName, nodeTemplate.getName());
             return null;
         }
     }

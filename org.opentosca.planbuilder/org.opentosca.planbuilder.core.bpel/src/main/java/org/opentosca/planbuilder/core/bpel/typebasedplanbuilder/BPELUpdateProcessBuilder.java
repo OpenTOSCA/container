@@ -78,9 +78,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
     }
 
     @Override
-    public BPELPlan buildPlan(String csarName, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate) {
-        LOG.info("Creating Update Plan...");
-
+    public BPELPlan buildPlan(String csarName, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate) {        
         final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_updatePlan");
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_updatePlan";
 
@@ -182,7 +180,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
     @Override
     public List<AbstractPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
-        LOG.info("Building the Update Plans");
+        LOG.debug("Building the Update Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
@@ -194,6 +192,9 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
                 LOG.debug("Created Update Plan " + newUpdatePlan.getBpelProcessElement().getAttribute("name"));
                 plans.add(newUpdatePlan);
             }
+        }
+        if(!plans.isEmpty()) {
+        	LOG.info("Created {} update plans for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;
     }

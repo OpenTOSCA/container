@@ -141,11 +141,11 @@ public class BPELPluginHandler {
         // methods
         final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForTermination(relationshipTemplate);
         if (plugin != null) {
-            LOG.info("Handling RelationshipTemplate {} with type plugin {}", relationshipTemplate.getId(),
+            LOG.debug("Handling RelationshipTemplate {} with type plugin {}", relationshipTemplate.getId(),
                 plugin.getID());
             result &= plugin.handleTerminate(context, relationshipTemplate);
         } else {
-            LOG.warn("Couldn't handle RelationshipTemplate {} with type plugin", relationshipTemplate.getId());
+            LOG.debug("Couldn't handle termination code generation RelationshipTemplate {} with type plugin", relationshipTemplate.getId());
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
@@ -164,10 +164,10 @@ public class BPELPluginHandler {
         // methods
         final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForTermination(nodeTemplate);
         if (plugin != null) {
-            LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
+            LOG.debug("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
             result &= plugin.handleTerminate(context, nodeTemplate);
         } else {
-            LOG.warn("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
+            LOG.debug("Couldn't handle termination code generation of NodeTemplate {} with type plugin", nodeTemplate.getId());
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
@@ -184,13 +184,13 @@ public class BPELPluginHandler {
         boolean result = true;
 
         if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
-            LOG.info("Ignoring NodeTemplate {} with activityType {}", nodeTemplate.getId(),
+            LOG.debug("Ignoring NodeTemplate {} with activityType {}", nodeTemplate.getId(),
                 bpelScope.getActivity().getType());
 
             // generate code for the pre handling, e.g., upload DAs
             for (final IPlanBuilderPrePhasePlugin prePlugin : this.pluginRegistry.getPrePlugins()) {
                 if (prePlugin.canHandleCreate(nodeTemplate)) {
-                    LOG.info("Handling NodeTemplate {} with pre plugin {}", nodeTemplate.getId(), prePlugin.getID());
+                    LOG.debug("Handling NodeTemplate {} with pre plugin {}", nodeTemplate.getId(), prePlugin.getID());
                     result &= prePlugin.handleCreate(context, nodeTemplate);
                 }
             }
@@ -199,16 +199,16 @@ public class BPELPluginHandler {
             // methods
             final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate);
             if (plugin != null) {
-                LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
+                LOG.debug("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
                 result &= plugin.handleCreate(context, nodeTemplate);
             } else {
-                LOG.info("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
+                LOG.debug("Couldn't handle provisioning code generation of NodeTemplate {} with type plugin", nodeTemplate.getId());
             }
         }
         // generate code the post handling, e.g., update instance data, logs etc.
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
             if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
-                LOG.info("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
+                LOG.debug("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
             }
         }
@@ -221,16 +221,16 @@ public class BPELPluginHandler {
 
         if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
 
-            LOG.info("Ignoring RelationshipTemplate {} with activityType {}", relationshipTemplate.getId(),
+            LOG.debug("Ignoring RelationshipTemplate {} with activityType {}", relationshipTemplate.getId(),
                 bpelScope.getActivity().getType());
 
             if (this.pluginRegistry.canTypePluginHandleCreate(relationshipTemplate)) {
                 final IPlanBuilderTypePlugin plugin = this.pluginRegistry
                     .findTypePluginForCreation(relationshipTemplate);
-                LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
+                LOG.debug("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
                 result &= this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);
             } else {
-                LOG.debug("Couldn't handle RelationshipTemplate {}", relationshipTemplate.getId());
+                LOG.debug("Couldn't handle provisioning code generation RelationshipTemplate {} with type plugin", relationshipTemplate.getId());
             }
         }
 
@@ -250,10 +250,10 @@ public class BPELPluginHandler {
         // methods
         final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForUpdate(nodeTemplate);
         if (plugin != null) {
-            LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
+            LOG.debug("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
             result &= plugin.handleUpdate(context, nodeTemplate);
         } else {
-            LOG.info("Couldn't handle NodeTemplate {} with type plugin", nodeTemplate.getId());
+            LOG.debug("Couldn't handle update code generation NodeTemplate {} with type plugin", nodeTemplate.getId());
         }
 
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
@@ -283,7 +283,7 @@ public class BPELPluginHandler {
         // generate code for the pre handling, e.g., upload DAs
         for (final IPlanBuilderPrePhasePlugin prePlugin : this.pluginRegistry.getPrePlugins()) {
             if (prePlugin.canHandleCreate(nodeTemplate)) {
-                LOG.info("Handling NodeTemplate {} with pre plugin {}", nodeTemplate.getId(), prePlugin.getID());
+                LOG.debug("Handling NodeTemplate {} with pre plugin {}", nodeTemplate.getId(), prePlugin.getID());
                 result &= prePlugin.handleCreate(context, nodeTemplate);
             }
         }
@@ -309,10 +309,10 @@ public class BPELPluginHandler {
 
         // generate code the post handling, e.g., update instance data, logs etc.
         for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-            LOG.info("Checking if post plugin {} is suited for handling {}", postPhasePlugin.getID(),
+            LOG.debug("Checking if post plugin {} is suited for handling {}", postPhasePlugin.getID(),
                 nodeTemplate.getName());
             if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
-                LOG.info("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
+                LOG.debug("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
                 result &= postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
             }
         }
