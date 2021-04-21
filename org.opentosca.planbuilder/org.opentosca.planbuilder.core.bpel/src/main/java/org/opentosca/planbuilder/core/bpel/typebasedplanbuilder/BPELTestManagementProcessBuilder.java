@@ -178,7 +178,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
     @Override
     public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
-        LOG.info("Building the Test Management Plans");
+        LOG.debug("Building the Test Management Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
@@ -194,6 +194,9 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
             } else {
                 LOG.debug("No test interface defined in ServiceTemplate {}", serviceTemplate.getName());
             }
+        }
+        if (!plans.isEmpty()) {
+        	LOG.info("Created {} test management plans for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;
     }

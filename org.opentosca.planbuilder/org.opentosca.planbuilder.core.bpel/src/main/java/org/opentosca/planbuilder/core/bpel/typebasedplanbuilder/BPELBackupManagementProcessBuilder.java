@@ -266,7 +266,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
 
     @Override
     public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
-        LOG.info("Building the Backup Management Plans");
+        LOG.debug("Building the Backup Management Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
@@ -282,6 +282,10 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
             } else {
                 LOG.debug("No backup interface defined in ServiceTemplate {}", serviceTemplate.getName());
             }
+        }
+        
+        if (!plans.isEmpty()) {
+        	LOG.info("Created {} backup plans for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;
     }

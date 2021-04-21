@@ -236,6 +236,9 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                     serviceTemplate.getQName().toString());
             }
         }
+        if (!plans.isEmpty()) {
+        	LOG.info("Created {} policy-aware build plans for CSAR {}", String.valueOf(plans.size()), csarName);
+        }
         return plans;
     }
 

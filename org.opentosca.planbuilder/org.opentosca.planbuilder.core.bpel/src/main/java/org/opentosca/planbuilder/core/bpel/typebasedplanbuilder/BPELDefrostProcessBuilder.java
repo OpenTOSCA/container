@@ -231,7 +231,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
     @Override
     public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
-        BPELDefrostProcessBuilder.LOG.info("Building the Plans");
+        BPELDefrostProcessBuilder.LOG.debug("Building the Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
@@ -248,6 +248,9 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
                     + newBuildPlan.getBpelProcessElement().getAttribute("name"));
                 plans.add(newBuildPlan);
             }
+        }
+        if (!plans.isEmpty()) {
+        	LOG.info("Created {} defrost plan for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;
     }

@@ -200,7 +200,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
     @Override
     public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
-        LOG.info("Building the Freeze Plans");
+        LOG.debug("Building the Freeze Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
             if (!this.isStateful(serviceTemplate)) {
@@ -215,6 +215,9 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                 LOG.debug("Created Freeze Plan " + newBuildPlan.getBpelProcessElement().getAttribute("name"));
                 plans.add(newBuildPlan);
             }
+        }
+        if (!plans.isEmpty()) {
+        	LOG.info("Created {} freeze plan for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;
     }

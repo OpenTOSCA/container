@@ -279,7 +279,7 @@ public class BPELPlanHandler {
 
         for (final TInvoke inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getInvoke()) {
             if (inv.getPartnerLink().equals(partnerLinkName)) {
-                BPELPlanHandler.LOG.warn("Adding invoke for partnerLink {}, serviceName {} and portName {} failed, there is already a partnerLink with the same Name",
+                BPELPlanHandler.LOG.debug("Adding invoke for partnerLink {}, serviceName {} and portName {} failed, there is already a partnerLink with the same Name",
                     partnerLinkName, serviceName.toString(), portName);
                 return false;
             }
@@ -440,7 +440,7 @@ public class BPELPlanHandler {
             buildPlan.getBpelProcessElement().getAttribute("name"));
         for (final TProvide inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getProvide()) {
             if (inv.getPartnerLink().equals(partnerLinkName)) {
-                BPELPlanHandler.LOG.warn("Adding provide failed");
+                BPELPlanHandler.LOG.debug("Adding provide failed");
                 return false;
             }
         }
