@@ -271,7 +271,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             plans.addAll(buildScalingPlans(csarName, definitions, serviceTemplate.getQName()));
         }
 
-        if(!plans.isEmpty()) {
+        if (!plans.isEmpty()) {
         	LOG.info("Created {} scaling plans for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;

@@ -195,7 +195,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                 LOG.debug("No test interface defined in ServiceTemplate {}", serviceTemplate.getName());
             }
         }
-        if(!plans.isEmpty()) {
+        if (!plans.isEmpty()) {
         	LOG.info("Created {} test management plans for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;

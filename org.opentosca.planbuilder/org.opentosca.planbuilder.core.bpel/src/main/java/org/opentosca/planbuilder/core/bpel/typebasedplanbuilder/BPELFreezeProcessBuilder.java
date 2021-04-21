@@ -216,7 +216,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                 plans.add(newBuildPlan);
             }
         }
-        if(!plans.isEmpty()) {
+        if (!plans.isEmpty()) {
         	LOG.info("Created {} freeze plan for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;

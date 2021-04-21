@@ -203,7 +203,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                     serviceTemplate.getQName().toString());
             }
         }
-        if(!plans.isEmpty()) {
+        if (!plans.isEmpty()) {
         	LOG.info("Created {} termination plans for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;

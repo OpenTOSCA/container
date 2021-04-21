@@ -193,7 +193,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
                 plans.add(newUpdatePlan);
             }
         }
-        if(!plans.isEmpty()) {
+        if (!plans.isEmpty()) {
         	LOG.info("Created {} update plans for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;

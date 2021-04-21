@@ -249,7 +249,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
                 plans.add(newBuildPlan);
             }
         }
-        if(!plans.isEmpty()) {
+        if (!plans.isEmpty()) {
         	LOG.info("Created {} defrost plan for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;

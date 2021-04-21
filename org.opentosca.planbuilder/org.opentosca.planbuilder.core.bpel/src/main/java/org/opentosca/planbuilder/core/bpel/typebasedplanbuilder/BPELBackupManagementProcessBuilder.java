@@ -284,7 +284,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
             }
         }
         
-        if(!plans.isEmpty()) {
+        if (!plans.isEmpty()) {
         	LOG.info("Created {} backup plans for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;

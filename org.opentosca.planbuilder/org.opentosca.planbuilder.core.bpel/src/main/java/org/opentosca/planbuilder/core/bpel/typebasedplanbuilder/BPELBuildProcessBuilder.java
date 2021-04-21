@@ -228,7 +228,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                     serviceTemplate.getQName().toString());
             }
         }
-        if(!plans.isEmpty()) {
+        if (!plans.isEmpty()) {
         	LOG.info("Created {} build plans for CSAR {}", String.valueOf(plans.size()), csarName);
         }
         return plans;
