@@ -75,24 +75,24 @@ public class PlanEngineImpl implements IPlanEngineService {
         final String language = plan.getPlanLanguage();
         // XOR between PlanModel and PlanModelReference
         if (plan.getPlanModel() != null) {
-            LOG.info("Searching PlanModelPlugin for plan {}", plan.getId());
+            LOG.debug("Searching PlanModelPlugin for plan {}", plan.getId());
             final IPlanEnginePlanModelPluginService plugin = this.getModelPlugin(language);
             if (plugin == null) {
                 LOG.warn("No PlanModelPlugin available for plan {}", plan.getId());
                 return false;
             }
-            LOG.info("Found PlanModelPlugin for plan {}", plan.getId());
+            LOG.debug("Found PlanModelPlugin for plan {}", plan.getId());
             return plugin.deployPlan(plan.getPlanModel(), csarId);
         }
         final QName planId = QName.valueOf(plan.getId());
         LOG.debug("Created new management plan id " + planId);
-        LOG.info("Searching PlanReferencePlugin for plan {} written in language {}", plan.getId(), language);
+        LOG.debug("Searching PlanReferencePlugin for plan {} written in language {}", plan.getId(), language);
         final IPlanEnginePlanRefPluginService plugin = this.getRefPlugin(language);
         if (plugin == null) {
             LOG.warn("No PlanReferencePlugin available for plan {}", plan.getId());
             return false;
         }
-        LOG.info("Found PlanReferencePlugin for plan {}", plan.getId());
+        LOG.debug("Found PlanReferencePlugin for plan {}", plan.getId());
         return plugin.deployPlanReference(planId, plan.getPlanModelReference(), csarId);
     }
 
@@ -103,24 +103,24 @@ public class PlanEngineImpl implements IPlanEngineService {
     public boolean undeployPlan(final TPlan plan, final String targetNamespace, final CsarId csarId) {
         final String language = plan.getPlanLanguage();
         if (plan.getPlanModel() != null) {
-            LOG.info("Searching PlanModelPlugin for plan {}", plan.getId());
+            LOG.debug("Searching PlanModelPlugin for plan {}", plan.getId());
             final IPlanEnginePlanModelPluginService plugin = this.getModelPlugin(language);
             if (plugin == null) {
                 LOG.warn("No PlanModelPlugin available for plan {}", plan.getId());
                 return false;
             }
-            LOG.info("Found PlanModelPlugin for plan {}", plan.getId());
+            LOG.debug("Found PlanModelPlugin for plan {}", plan.getId());
             return plugin.undeployPlan(plan.getPlanModel(), csarId);
         }
         final QName planId = QName.valueOf(plan.getId());
         LOG.debug("Created new management plan id" + planId);
-        LOG.info("Searching PlanReferencePlugin for plan {}", plan.getId());
+        LOG.debug("Searching PlanReferencePlugin for plan {}", plan.getId());
         final IPlanEnginePlanRefPluginService plugin = this.getRefPlugin(language);
         if (plugin == null) {
             LOG.warn("No PlanReferencePlugin available for plan {}", plan.getId());
             return false;
         }
-        LOG.info("Found PlanReferencePlugin for plan {}", plan.getId());
+        LOG.debug("Found PlanReferencePlugin for plan {}", plan.getId());
         return plugin.undeployPlanReference(planId, plan.getPlanModelReference(), csarId);
     }
 
@@ -140,6 +140,8 @@ public class PlanEngineImpl implements IPlanEngineService {
         for (final TPlan plan : p) {
             if (!this.deployPlan(plan, namespace, csarId)) {
                 nonDeployedPlans.add(plan);
+            } else {
+            	LOG.info("Deployment of plan {} was successful", plan.getId());
             }
         }
 

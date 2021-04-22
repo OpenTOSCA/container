@@ -501,7 +501,7 @@ public class BPELPlanHandler {
             variableType, declarationId.toString(),
             buildPlan.getBpelProcessElement().getAttribute("name"));
         if (hasVariable(name, buildPlan)) {
-            BPELPlanHandler.LOG.warn("Adding variable failed, as it is already declared");
+            BPELPlanHandler.LOG.debug("Adding variable failed, as it is already declared");
             return false;
         }
 
