@@ -9,8 +9,8 @@
 
     <!-- code under our direct control -->
     <logger name="org.opentosca" level="INFO"/>
-    <logger name="org.opentosca.container.core.plan" level="DEBUG"/>
-    <logger name="org.opentosca.bus.management" level="TRACE"/>
+    <logger name="org.opentosca.container.core.plan" level="INFO"/>
+    <logger name="org.opentosca.bus.management" level="INFO"/>
 
     <!-- Reducing logging noise  -->
     <logger name="com.predic8" level="WARN"/>
@@ -27,6 +27,7 @@
     <logger name="org.hibernate" level="INFO"/>
     <logger name="org.jclouds" level="INFO"/>
     <logger name="org.springframework" level="INFO"/>
+    <logger name="org.apache.axis.utils.JavaUtils" level="OFF"/>
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>

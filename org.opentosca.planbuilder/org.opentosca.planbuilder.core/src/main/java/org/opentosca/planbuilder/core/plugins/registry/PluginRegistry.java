@@ -63,7 +63,7 @@ public class PluginRegistry {
             return;
         }
         availablePlugins.forEach(this::registerPlugin);
-        LOG.info("Registered {} planbuilder plugins overall.", availablePlugins.size());
+        LOG.debug("Registered {} planbuilder plugins overall.", availablePlugins.size());
     }
 
     private void registerPlugin(IPlanBuilderPlugin plugin) {
@@ -116,7 +116,7 @@ public class PluginRegistry {
             LOG.warn("Plugin {} could not be registered for any roles. It's not available from the PluginRegistry", plugin.getClass().getSimpleName());
             return;
         }
-        LOG.info("Registered plugin {} for role(s) {}", plugin.getClass().getSimpleName(), String.join(", ", roles));
+        LOG.debug("Registered plugin {} for role(s) {}", plugin.getClass().getSimpleName(), String.join(", ", roles));
     }
 
     /**

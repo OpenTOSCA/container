@@ -175,7 +175,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         }
 
         // package process
-        LOG.info("Prepare deployment of PlanModelReference");
+        LOG.debug("Prepare deployment of PlanModelReference");
 
         try {
             Files.createFile(tempPlan);
@@ -224,7 +224,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
         if (processId != null && endpoint != null && portType != null && this.endpointService != null) {
             BpelPlanEnginePlugin.LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
-            BpelPlanEnginePlugin.LOG.info("Deployment of Plan was successfull: {}", planId);
+            BpelPlanEnginePlugin.LOG.debug("Deployment of Plan was successfull: {}", planId);
 
             // save endpoint
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
@@ -290,6 +290,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             return false;
         }
 
+        LOG.info("Removing Plan: {}", planLocation.getFileName().toString());
         boolean wasUndeployed = false;
         if (processEngine.equalsIgnoreCase(BPS_ENGINE)) {
             LOG.error("BPS Engine is no longer supported");
@@ -319,7 +320,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         }
 
         if (wasUndeployed) {
-            LOG.info("Undeployment of Plan " + planRef.getReference() + " was successful");
+            LOG.debug("Undeployment of Plan " + planRef.getReference() + " was successful");
         } else {
             LOG.warn("Undeployment of Plan " + planRef.getReference() + " was unsuccessful");
         }

@@ -34,7 +34,7 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
         final ObjectMapper om = new HALMapper();
         om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-        LOG.info("Created Jackson ObjectMapper");
+        LOG.debug("Created Jackson ObjectMapper");
         return om;
     }
 

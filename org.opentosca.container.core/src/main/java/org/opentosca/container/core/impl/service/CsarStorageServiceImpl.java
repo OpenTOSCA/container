@@ -189,8 +189,9 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     @Override
     public void deleteCSAR(CsarId csarId) throws SystemException, UserException {
-        LOGGER.debug("Deleting CSAR \"{}\"...", csarId.csarName());
+        LOGGER.info("Deleting CSAR \"{}\"...", csarId.csarName());
         FileUtils.forceDelete(basePath.resolve(csarId.csarName()));
+        LOGGER.info("Deleted CSAR \"{}\"...", csarId.csarName());
     }
 
     @Override
