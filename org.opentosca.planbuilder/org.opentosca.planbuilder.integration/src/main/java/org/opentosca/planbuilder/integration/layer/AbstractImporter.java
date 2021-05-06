@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.integration.layer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
@@ -85,6 +86,17 @@ public abstract class AbstractImporter {
     public List<AbstractPlan> buildPlans(final AbstractDefinitions defs, final String csarName) {
 
         final List<AbstractPlan> plans = new ArrayList<>();
+
+        boolean foundTopo = false;
+        for(AbstractServiceTemplate servTemp : defs.getServiceTemplates()) {
+            if(servTemp.getTopologyTemplate() != null) {
+                foundTopo = true;
+            }
+        }
+
+        if(!foundTopo) {
+            return plans;
+        }
 
         AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder(pluginRegistry);
         final BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(pluginRegistry);

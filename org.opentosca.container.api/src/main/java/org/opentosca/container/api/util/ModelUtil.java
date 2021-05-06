@@ -25,6 +25,10 @@ public abstract class ModelUtil {
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
         TTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
+        if(topology == null) {
+            return false;
+        }
+
         List<TNodeTemplate> nodeTemplates = topology.getNodeTemplates();
         List<TRelationshipTemplate> relationshipTemplates = topology.getRelationshipTemplates();
 

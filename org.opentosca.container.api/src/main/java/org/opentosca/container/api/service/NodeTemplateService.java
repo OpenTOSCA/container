@@ -58,13 +58,19 @@ public class NodeTemplateService {
     public List<NodeTemplateDTO> getNodeTemplatesOfServiceTemplate(final String csarId,
                                                                    final String serviceTemplateQName) {
         final Csar csar = storage.findById(new CsarId(csarId));
+        List<TNodeTemplate> nodeTemplates = null;
 
-        List<TNodeTemplate> nodeTemplates = csar.serviceTemplates().stream()
-            .filter(st -> st.getId().equals(serviceTemplateQName))
-            .findFirst()
-            .get()
-            .getTopologyTemplate()
-            .getNodeTemplates();
+        if(csar.serviceTemplates().stream()
+            .filter(st -> st.getId().equals(serviceTemplateQName)).findFirst().get().getTopologyTemplate() != null) {
+            nodeTemplates = csar.serviceTemplates().stream()
+                .filter(st -> st.getId().equals(serviceTemplateQName))
+                .findFirst()
+                .get()
+                .getTopologyTemplate()
+                .getNodeTemplates();
+        } else {
+            nodeTemplates = new ArrayList<>();
+        }
 
         return nodeTemplates.stream()
             .map(toscaNodeTemplate -> createNodeTemplate(toscaNodeTemplate, csar))
