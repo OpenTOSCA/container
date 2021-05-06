@@ -474,7 +474,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
     private AbstractServiceTemplate getServiceTemplate(AbstractDefinitions defs, QName serviceTemplateId) {
         for (AbstractServiceTemplate servTemplate : defs.getServiceTemplates()) {
-            if (servTemplate.getQName().equals(serviceTemplateId)) {
+            if (servTemplate.getQName().getLocalPart().equals(serviceTemplateId.getLocalPart())) {
                 return servTemplate;
             }
         }

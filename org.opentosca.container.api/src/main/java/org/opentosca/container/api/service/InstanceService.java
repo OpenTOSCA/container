@@ -222,13 +222,13 @@ public class InstanceService {
         instance.setCsarId(csar);
         instance.setTemplateId(serviceTemplateName);
         instance.setState(ServiceTemplateInstanceState.INITIAL);
-        instance.addProperty(property);            
-            
+        instance.addProperty(property);
+
         this.serviceTemplateInstanceRepository.add(instance);
-            
+
         return instance;
     }
-    
+
     public ServiceTemplateInstance createServiceTemplateInstance(final String csarId, final String serviceTemplateName,
                                                                  final String correlationId) throws NotFoundException,
         InstantiationException,
@@ -246,6 +246,11 @@ public class InstanceService {
                     correlationId);
             logger.info(msg);
             throw new NotFoundException(msg);
+        }
+
+        // if no instance was found it is possible that live-modeling was started, just create an empty instance
+        if(pi == null) {
+            return this.createServiceTemplateInstance(csarId, serviceTemplateName);
         }
 
         // If the found plan is a build plan there shouldn't be a service template instance available,

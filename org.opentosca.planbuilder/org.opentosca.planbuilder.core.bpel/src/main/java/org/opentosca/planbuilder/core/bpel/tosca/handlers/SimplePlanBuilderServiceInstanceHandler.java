@@ -553,7 +553,6 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 schemaFile.toAbsolutePath().toString(), "http://www.w3.org/2001/XMLSchema",
                 plan);
         } catch (final IOException e2) {
-            // TODO Auto-generated catch block
             e2.printStackTrace();
         }
 
@@ -570,17 +569,17 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         this.bpelProcessHandler.addNamespaceToBPELDoc(requestVariableQName.getPrefix(),
             requestVariableQName.getNamespaceURI(), plan);
 
-        final String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
-        if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
-            responseVariableQName, plan)) {
-            throw new RuntimeException("Couldn't create REST response variable");
-        }
+        String restCallResponseVarName;
+        do{
+            restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
+        } while(!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
+            responseVariableQName, plan));
 
-        final String restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
-        if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.ELEMENT,
-            requestVariableQName, plan)) {
-            throw new RuntimeException("Couldn't create REST request variable");
-        }
+        String restCallRequestVarName;
+        do {
+            restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
+        } while(!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.ELEMENT,
+            requestVariableQName, plan));
 
         try {
             Node assignRestRequestNode =
@@ -589,10 +588,8 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             assignRestRequestNode = plan.getBpelDocument().importNode(assignRestRequestNode, true);
             appendToInitSequence(assignRestRequestNode, plan);
         } catch (final IOException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         } catch (final SAXException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
 

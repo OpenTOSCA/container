@@ -18,6 +18,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import io.swagger.annotations.Api;
@@ -208,7 +210,8 @@ public class ServiceTemplateController {
     public Response transformCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId, @ApiParam(required = true) final ServiceTransformRequest request) {
 
-        final AdaptationPlanGenerationResult result = this.csarService.generateAdaptationPlan(new CsarId(csar), QName.valueOf(serviceTemplateId), request.getSourceNodeTemplates(), request.getSourceRelationshipTemplates(), request.getTargetNodeTemplates(), request.getTargetRelationshipTemplates());
+        CsarId csarId = new CsarId(csar);
+        final AdaptationPlanGenerationResult result = this.csarService.generateAdaptationPlan(csarId, QName.valueOf(serviceTemplateId), request.getSourceNodeTemplates(), request.getSourceRelationshipTemplates(), request.getTargetNodeTemplates(), request.getTargetRelationshipTemplates());
 
         if (result == null) {
             return Response.serverError().build();
@@ -219,19 +222,22 @@ public class ServiceTemplateController {
 
         boolean success = this.controlService.invokeToscaProcessing(result.csarId);
 
-        if (success) {
-            Csar storedCsar = storage.findById(result.csarId);
-            final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
+        Csar csarFile = this.storage.findById(result.csarId);
 
-            for (final TServiceTemplate serviceTemplate : serviceTemplates) {
-                if (!this.controlService.invokePlanDeployment(result.csarId, serviceTemplate)) {
-                    success = false;
-                }
+        TPlans plans = csarFile.entryServiceTemplate().getPlans();
+        TPlan plan = null;
+
+        for (TPlan tPlan : plans.getPlan()) {
+            if (tPlan.getId().equals(result.planId)) {
+                plan = tPlan;
+                break;
             }
         }
 
+        this.controlService.invokePlanDeployment(result.csarId, csarFile.entryServiceTemplate(), plans, plan);
+
         if (success) {
-            PlanType[] planTypes = {PlanType.MANAGEMENT};
+            PlanType[] planTypes = {PlanType.TRANSFORMATION};
             return Response.ok(this.planService.getPlanDto(storage.findById(result.csarId), planTypes, result.planId)).build();
         } else {
             return Response.serverError().build();

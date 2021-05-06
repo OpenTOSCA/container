@@ -140,6 +140,7 @@ public class PlanService {
         return correlationId;
     }
 
+    // @TODO move or merge this with MBJavaAPI#createRequestBody
     private void enhanceInputParameters(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, List<TParameter> parameters) {
         // set "meta" params
         for (final TParameter param : parameters) {

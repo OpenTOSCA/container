@@ -146,22 +146,25 @@ public class ServiceTemplateInstanceController {
 
         // Build plan: Determine plan instance that created this service template instance
         final PlanInstance pi = findPlanInstance(instance);
-        // Add a link
-        String path = "";
-        URI uri = null;
-        if (pi.getType().equals(PlanType.BUILD)) {
-            //url to the build plan instance
-            path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";
-            uri = this.uriInfo.getBaseUriBuilder().path(path).build(csar.id().csarName(), serviceTemplate.getId(),
+
+        if (pi != null) {
+            // Add a link
+            String path = "";
+            URI uri = null;
+            if (pi.getType().equals(PlanType.BUILD)) {
+                //url to the build plan instance
+                path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";
+                uri = this.uriInfo.getBaseUriBuilder().path(path).build(csar.id().csarName(), serviceTemplate.getId(),
+                    pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
+            } else {
+                // url to the transformation plan instance which created this instance from another service instance
+                path = "/csars/{csar}/servicetemplates/{servicetemplate}/instances/{serviceinstance}/managementplans/{plan}/instances/{instance}";
+                uri = this.uriInfo.getBaseUriBuilder().path(path).build(pi.getServiceTemplateInstance().getCsarId().csarName(), pi.getServiceTemplateInstance().getTemplateId(), pi.getServiceTemplateInstance().getId(),
                 pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
-        } else {
-            // url to the transformation plan instance which created this instance from another service instance
-            path = "/csars/{csar}/servicetemplates/{servicetemplate}/instances/{serviceinstance}/managementplans/{plan}/instances/{instance}";
-            uri = this.uriInfo.getBaseUriBuilder().path(path).build(pi.getServiceTemplateInstance().getCsarId().csarName(), pi.getServiceTemplateInstance().getTemplateId(), pi.getServiceTemplateInstance().getId(),
-                pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
+            }
+            dto.add(Link.fromUri(UriUtil.encode(uri)).rel("build_plan_instance").build());
         }
 
-        dto.add(Link.fromUri(UriUtil.encode(uri)).rel("build_plan_instance").build());
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "managementplans", false, "managementplans"));
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "properties", false, "properties"));
