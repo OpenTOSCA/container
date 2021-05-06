@@ -1,10 +1,13 @@
 package org.opentosca.planbuilder.core;
 
 import javax.inject.Inject;
+import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
+import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,5 +42,14 @@ public abstract class AbstractPlanBuilder {
         return this.pluginRegistry.getTypePlugins().size() + this.pluginRegistry.getDaPlugins().size()
             + this.pluginRegistry.getIaPlugins().size() + this.pluginRegistry.getPostPlugins().size()
             + this.pluginRegistry.getProvPlugins().size();
+    }
+
+    public AbstractServiceTemplate getServiceTemplate(AbstractDefinitions defs, QName serviceTemplateId) {
+        for (AbstractServiceTemplate servTemplate : defs.getServiceTemplates()) {
+            if (servTemplate.getQName().getLocalPart().equals(serviceTemplateId.getLocalPart())) {
+                return servTemplate;
+            }
+        }
+        return null;
     }
 }
