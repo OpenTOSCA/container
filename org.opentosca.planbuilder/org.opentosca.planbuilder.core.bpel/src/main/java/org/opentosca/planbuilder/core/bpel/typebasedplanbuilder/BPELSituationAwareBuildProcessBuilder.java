@@ -258,7 +258,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
         Map<AbstractNodeTemplate, Collection<AbstractPolicy>> nodeToPolicies =
             new HashMap<AbstractNodeTemplate, Collection<AbstractPolicy>>();
 
-        if(serviceTemplate.getTopologyTemplate()  == null) {
+        if (serviceTemplate.getTopologyTemplate()  == null) {
             return nodeToPolicies;
         }
 

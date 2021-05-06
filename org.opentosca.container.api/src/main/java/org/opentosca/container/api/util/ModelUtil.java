@@ -25,7 +25,7 @@ public abstract class ModelUtil {
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
         TTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
-        if(topology == null) {
+        if (topology == null) {
             return false;
         }
 

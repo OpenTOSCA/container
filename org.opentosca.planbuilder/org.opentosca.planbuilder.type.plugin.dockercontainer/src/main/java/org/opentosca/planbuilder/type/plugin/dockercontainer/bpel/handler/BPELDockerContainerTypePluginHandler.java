@@ -438,14 +438,6 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                    final Variable deviceMappingVar, final Variable containerMountPath,
                                    final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
                                    final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
-
-
-
-        /*
-         * Variable remoteVolumeDataVariable = null; Variable hostVolumeDataVariable = null; Variable
-         * vmIpVariable = null; Variable vmPrivateKeyVariable = null;
-         */
-
         context.addStringValueToPlanRequest("containerApiAddress");
         final String artifactPathQuery =
             this.planBuilderFragments.createXPathQueryForURLRemoteFilePathViaContainerAPI(da.getArtifactRef().getArtifactReferences()

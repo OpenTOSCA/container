@@ -570,15 +570,15 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             requestVariableQName.getNamespaceURI(), plan);
 
         String restCallResponseVarName;
-        do{
+        do {
             restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
-        } while(!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
+        } while (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE,
             responseVariableQName, plan));
 
         String restCallRequestVarName;
         do {
             restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
-        } while(!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.ELEMENT,
+        } while (!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.ELEMENT,
             requestVariableQName, plan));
 
         try {

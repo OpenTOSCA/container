@@ -249,7 +249,7 @@ public class InstanceService {
         }
 
         // if no instance was found it is possible that live-modeling was started, just create an empty instance
-        if(pi == null) {
+        if (pi == null) {
             return this.createServiceTemplateInstance(csarId, serviceTemplateName);
         }
 
