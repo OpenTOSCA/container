@@ -234,7 +234,7 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
         // Find infrastructures of this node and check if we can deploy all of its DA's
         for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
             if (getDeployableInfrastructureNode(nodeTemplate, da) == null) {
-                LOG.warn("DAs of node template {} can't be deployed", nodeTemplate.getId());
+                LOG.debug("DAs of node template {} can't be deployed", nodeTemplate.getId());
                 return false;
             }
         }
