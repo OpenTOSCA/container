@@ -391,6 +391,14 @@ public class BPELProcessFragments {
         return ifElement;
     }
 
+    public Node createWait(String durationExpression) throws IOException, SAXException {
+        String templateString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPELWait.xml"));
+
+        templateString = templateString.replace("$durationexpression", durationExpression);
+
+        return this.transformStringToNode(templateString);
+    }
+
     public Node createWaitForCondition(String xpathExpr, String durationExpression) throws IOException, SAXException {
         String templateString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPELWaitTillTrue.xml"));
 

@@ -275,6 +275,16 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 rescalRequestVarDeclId, plan);
         }
 
+        try {
+            Node waitNode = this.fragments.createWait("'PT1S'");
+            waitNode = plan.getBpelDocument().importNode(waitNode, true);
+            insertBeforeElement.getParentNode().insertBefore(waitNode, insertBeforeElement);
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         final String assignName = "assignServiceInstanceState" + System.currentTimeMillis();
 
         try {
@@ -284,10 +294,8 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             assignRequestWithStateNode = plan.getBpelDocument().importNode(assignRequestWithStateNode, true);
             insertBeforeElement.getParentNode().insertBefore(assignRequestWithStateNode, insertBeforeElement);
         } catch (final IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (final SAXException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
