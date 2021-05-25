@@ -28,11 +28,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>io.moquette</groupId>
       <artifactId>moquette-broker</artifactId>
       <version>0.11</version>
