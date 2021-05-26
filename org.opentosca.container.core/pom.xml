@@ -14,28 +14,40 @@
 	<artifactId>org.opentosca.container.core</artifactId>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.github.opentosca.winery</groupId>
-			<artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
+        <dependency>
+            <groupId>com.github.opentosca.winery</groupId>
+            <artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
             <version>${winery.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.opentosca.winery</groupId>
-			<artifactId>org.eclipse.winery.repository</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>xml-apis</groupId>
-					<artifactId>xml-apis</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
+        </dependency>
+        <dependency>
+            <groupId>com.github.opentosca.winery</groupId>
+            <artifactId>org.eclipse.winery.repository</artifactId>
+            <version>${winery.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.web3j</groupId>
+                    <artifactId>core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.xml.bind</groupId>
+                    <artifactId>jaxb-impl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>30.1.1-jre</version>
+        </dependency>
 		<dependency>
 			<groupId>org.codehaus.woodstox</groupId>
 			<artifactId>stax2-api</artifactId>
 			<version>4.2.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
