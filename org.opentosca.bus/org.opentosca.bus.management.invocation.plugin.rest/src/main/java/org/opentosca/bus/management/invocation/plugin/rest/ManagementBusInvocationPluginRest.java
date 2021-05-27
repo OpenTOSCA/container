@@ -12,13 +12,9 @@ import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.eclipse.winery.model.tosca.TNodeType;
-import org.eclipse.winery.model.tosca.TOperation;
+import javax.xml.parsers.ParserConfigurationException;;
 
 import com.google.gson.JsonObject;
 import org.apache.camel.CamelContext;
@@ -31,8 +27,6 @@ import org.opentosca.bus.management.invocation.plugin.rest.model.ContentType;
 import org.opentosca.bus.management.invocation.plugin.rest.model.DataAssign;
 import org.opentosca.bus.management.invocation.plugin.rest.model.DataAssign.Operations.Operation;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

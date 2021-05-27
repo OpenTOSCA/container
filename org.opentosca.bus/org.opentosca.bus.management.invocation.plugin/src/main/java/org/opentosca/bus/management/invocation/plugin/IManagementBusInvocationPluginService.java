@@ -48,7 +48,6 @@ public abstract class IManagementBusInvocationPluginService {
      */
     abstract public List<String> getSupportedTypes();
 
-
     public Exchange respondViaMocking(final Exchange exchange, CsarStorageService storage) {
 
         final long waitTime = System.currentTimeMillis() + 10000;
