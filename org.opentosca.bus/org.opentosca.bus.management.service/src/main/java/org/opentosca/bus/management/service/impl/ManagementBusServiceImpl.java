@@ -272,35 +272,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
     }
 
-    private void respondViaMocking(final TOperation.@Nullable OutputParameters outputParameters,
-                                   final Exchange exchange) {
-
-        final long waitTime = System.currentTimeMillis() + 10000;
-        while (System.currentTimeMillis() > waitTime) {
-            // busy waiting here...
-        }
-
-        final Message message = exchange.getIn();
-        final Map<String, String> responseMap = new HashMap<>();
-
-        final Object params = message.getBody();
-        if (params != null && params instanceof HashMap && ((HashMap) params).containsValue("fault")) {
-            responseMap.put("Fault", "managementBusMockFaultValue");
-        }
-
-        if (outputParameters == null || outputParameters.getOutputParameter().isEmpty()) {
-            handleResponse(exchange);
-            return;
-        }
-
-        outputParameters.getOutputParameter().forEach(param -> {
-            responseMap.put(param.getName(), "managementBusMockValue");
-        });
-
-        exchange.getIn().setBody(responseMap);
-        handleResponse(exchange);
-    }
-
     /**
      * Searches for the NodeType/RelationshipType of the given operation, updates the input parameters
      * and passes the request on to invoke the corresponding IA.
@@ -455,10 +426,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             final TOperation operation = ToscaEngine.resolveOperation(nodeTypeInterface, neededOperation);
             hasOutputParams = operation.getOutputParameters() != null
                 && !operation.getOutputParameters().getOutputParameter().isEmpty();
-            if (Boolean.parseBoolean(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK)) {
-                respondViaMocking(operation.getOutputParameters(), exchange);
-                return;
-            }
         }
         catch (final NotFoundException notFound) {
             LOG.warn("Tried to invoke an unknown operation on an IA");

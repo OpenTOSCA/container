@@ -144,6 +144,9 @@ public class MBUtils {
      * @return true if the specified NodeType is one of the OperatingSystem NodeTypes. Otherwise false.
      */
     private static boolean isOperatingSystemNodeType(final TNodeType nodeType) {
+        if (nodeType.getInterfaces() == null) {
+            return false;
+        }
         TInterfaces exposedInterfaces = nodeType.getInterfaces();
         boolean isOs = exposedInterfaces.getInterface().stream()
             .filter(tInterface -> Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM.equals(tInterface.getName()))

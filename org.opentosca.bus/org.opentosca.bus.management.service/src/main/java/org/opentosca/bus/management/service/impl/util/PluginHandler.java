@@ -2,9 +2,7 @@ package org.opentosca.bus.management.service.impl.util;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
-
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
-
 import org.apache.camel.Exchange;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
@@ -87,6 +85,7 @@ public class PluginHandler {
                 invocationPlugin = pluginRegistry.getInvocationPluginServices().get(Constants.REMOTE_TYPE);
             }
         }
+
         if (invocationPlugin != null) {
             exchange = invocationPlugin.invoke(exchange);
         } else {

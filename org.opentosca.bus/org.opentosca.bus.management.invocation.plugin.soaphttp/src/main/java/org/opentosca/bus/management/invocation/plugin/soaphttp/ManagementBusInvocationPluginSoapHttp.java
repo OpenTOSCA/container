@@ -17,6 +17,9 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TOperation;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
@@ -26,7 +29,10 @@ import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.soaphttp.route.AsyncRoute;
 import org.opentosca.bus.management.utils.MBUtils;
+import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -46,7 +52,7 @@ import org.w3c.dom.Document;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
 @Component
-public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvocationPluginService {
+public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocationPluginService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginSoapHttp.class);
 
@@ -55,10 +61,12 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
     private static final Map<String, Exchange> EXCHANGE_MAP =
         Collections.synchronizedMap(new HashMap<String, Exchange>());
     private final CamelContext camelContext;
+    private final CsarStorageService storage;
 
     @Inject
-    public ManagementBusInvocationPluginSoapHttp(CamelContext camelContext) {
+    public ManagementBusInvocationPluginSoapHttp(CamelContext camelContext, CsarStorageService storage) {
         this.camelContext = camelContext;
+        this.storage = storage;
     }
 
     /**
@@ -70,7 +78,6 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
     @Override
     public Exchange invoke(Exchange exchange) {
-
         MessagingPattern messagingPattern = null;
 
         final Message message = exchange.getIn();
@@ -90,6 +97,16 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
             }
         }
         headers.put("endpoint", endpoint.replace("?wsdl", ""));
+
+        // if mocking is turned on, we just fake the SOAP call
+        if (Boolean.parseBoolean(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK) && exchange.getMessage().getHeader(MBHeader.PLANID_QNAME.toString()) == null) {
+            LOG.info("Mocking following SOAP call:");
+            LOG.info("Headers:");
+            LOG.info(headers.toString());
+            LOG.info("Body:");
+            LOG.info(((HashMap<String, String>) params).toString());
+            return respondViaMocking(exchange, this.storage);
+        }
 
         Document document = null;
         final Definition wsdl = pullWsdlDefinitions(endpoint);

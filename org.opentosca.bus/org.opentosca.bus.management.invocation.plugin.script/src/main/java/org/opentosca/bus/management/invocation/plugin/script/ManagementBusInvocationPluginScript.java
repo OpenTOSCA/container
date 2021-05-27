@@ -64,7 +64,7 @@ import org.w3c.dom.Document;
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  */
 @Service
-public class ManagementBusInvocationPluginScript implements IManagementBusInvocationPluginService {
+public class ManagementBusInvocationPluginScript extends IManagementBusInvocationPluginService {
 
     final private static String PLACEHOLDER_TARGET_FILE_PATH = "{TARGET_FILE_PATH}";
     final private static String PLACEHOLDER_TARGET_FILE_FOLDER_PATH = "{TARGET_FILE_FOLDER_PATH}";

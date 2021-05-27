@@ -38,7 +38,7 @@ import org.w3c.dom.Element;
  * Copyright 2018 IAAS University of Stuttgart
  */
 @Service
-public class ManagementBusInvocationPluginRemote implements IManagementBusInvocationPluginService {
+public class ManagementBusInvocationPluginRemote extends IManagementBusInvocationPluginService {
 
     final private static Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginRemote.class);
 
