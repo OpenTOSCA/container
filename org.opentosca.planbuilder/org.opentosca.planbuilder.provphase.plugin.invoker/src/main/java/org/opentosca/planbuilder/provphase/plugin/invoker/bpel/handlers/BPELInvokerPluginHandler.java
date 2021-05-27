@@ -24,6 +24,7 @@ import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
@@ -299,17 +300,19 @@ public class BPELInvokerPluginHandler {
             }
         }
 
-        // fetch serviceInstanceId
-
+        // fetch instance vars
         final String serviceInstanceIdVarName = context.getServiceInstanceURLVarName();
-
         if (serviceInstanceIdVarName == null) {
             return false;
         }
 
         final String nodeInstanceUrlVarName = context.findInstanceURLVar(templateId, isNodeTemplate);
-
         if (nodeInstanceUrlVarName == null) {
+            return false;
+        }
+
+        String nodeInstanceIdVarName = context.findInstanceIDVar(templateId, isNodeTemplate);
+        if (nodeInstanceIdVarName == null) {
             return false;
         }
 
@@ -324,10 +327,13 @@ public class BPELInvokerPluginHandler {
             // TIP this issue theoretically happens only with the "container deployment pattern" were a hosting
             // node has the operations needed to manage a component => different termination handling for such
             // components is needed
+            if (context.getActivity().getType().equals(ActivityType.TERMINATION) || context.getActivity().getType().equals(ActivityType.FREEZE)) {
+                nodeInstanceIdVarName = null;
+            }
             assignNode =
                 this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
                     context.getServiceTemplateId(),
-                    serviceInstanceIdVarName, null,
+                    serviceInstanceIdVarName, nodeInstanceIdVarName,
                     operationName,
                     String.valueOf(System.currentTimeMillis()),
                     requestVariableName,
@@ -632,7 +638,7 @@ public class BPELInvokerPluginHandler {
      * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
      *
      * @param assignName          the name of the BPEL assign
-     * @param csarEntryXpathQuery the csarEntryPoint XPath query
+     * @param xpath2Query         the XPath query
      * @param stringVarName       the variable to load the queries results into
      * @return a DOM Node representing a BPEL assign element
      * @throws IOException  is thrown when loading internal bpel fragments fails

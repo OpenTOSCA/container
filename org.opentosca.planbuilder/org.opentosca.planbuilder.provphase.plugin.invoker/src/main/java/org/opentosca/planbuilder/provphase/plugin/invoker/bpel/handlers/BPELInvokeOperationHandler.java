@@ -11,6 +11,7 @@ import org.opentosca.container.core.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
@@ -152,19 +153,19 @@ public class BPELInvokeOperationHandler extends PluginHandler {
         correlationSetName = invokerPortType.getLocalPart() + "CorrelationSet" + context.getIdForNames();
         context.addCorrelationSet(correlationSetName, correlationPropertyName);
 
-        // add external props to plan input message
-
-        // fetch serviceInstanceId
-
+        // fetch instance data
         final String serviceInstanceIdVarName = context.getServiceInstanceURLVarName();
-
         if (serviceInstanceIdVarName == null) {
             return false;
         }
 
         final String nodeInstanceUrlVarName = context.findInstanceURLVar(templateId, isNodeTemplate);
-
         if (nodeInstanceUrlVarName == null) {
+            return false;
+        }
+
+        String nodeInstanceIdVarName = context.findInstanceIDVar(templateId, isNodeTemplate);
+        if (nodeInstanceIdVarName == null) {
             return false;
         }
 
@@ -180,10 +181,13 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             // TIP this issue theoretically happens only with the "container deployment pattern" were a hosting
             // node has the operations needed to manage a component => different termination handling for such
             // components is needed
+            if (context.getActivity().getType().equals(ActivityType.TERMINATION) || context.getActivity().getType().equals(ActivityType.FREEZE)) {
+                nodeInstanceIdVarName = null;
+            }
             assignNode =
                 this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
                     context.getServiceTemplateId(),
-                    serviceInstanceIdVarName, null,
+                    serviceInstanceIdVarName, nodeInstanceIdVarName,
                     operationName,
                     String.valueOf(System.currentTimeMillis()),
                     requestVariableName,
