@@ -4,11 +4,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
+import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
@@ -33,6 +37,48 @@ public abstract class PatternBasedHandler {
         final Map<String, Variable> newMap = new HashMap<>();
         map.forEach((x, y) -> newMap.put(x.getName(), y));
         return newMap;
+    }
+
+    protected boolean invokeArtifactReferenceUpload(BPELPlanContext context, AbstractArtifactReference ref,  AbstractNodeTemplate infraNode) {
+        PropertyVariable ip = this.getIpProperty(context,infraNode);
+        PropertyVariable user = this.getUserProperty(context, infraNode);
+        PropertyVariable key = this.getKeyProperty(context, infraNode);
+
+        if (!(Objects.nonNull(ip) && Objects.nonNull(user) && Objects.nonNull(key))) {
+            throw new RuntimeException("Couldn't fetch required variables to enable DA upload with the Remote Manager pattern");
+        }
+
+        return invoker.handleArtifactReferenceUpload(ref, context, ip, user, key, infraNode, context.getPrePhaseElement());
+    }
+
+    protected PropertyVariable getIpProperty(BPELPlanContext context, AbstractNodeTemplate node) {
+        for (String propName : Utils.getSupportedVirtualMachineIPPropertyNames()) {
+            PropertyVariable propVar = context.getPropertyVariable(propName);
+            if (propVar != null) {
+                return propVar;
+            }
+        }
+        return null;
+    }
+
+    protected PropertyVariable getUserProperty(BPELPlanContext context, AbstractNodeTemplate node) {
+        for (String propName : Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+            PropertyVariable propVar = context.getPropertyVariable(propName);
+            if (propVar != null) {
+                return propVar;
+            }
+        }
+        return null;
+    }
+
+    protected PropertyVariable getKeyProperty(BPELPlanContext context, AbstractNodeTemplate node) {
+        for (String propName : Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+            PropertyVariable propVar = context.getPropertyVariable(propName);
+            if (propVar != null) {
+                return propVar;
+            }
+        }
+        return null;
     }
 
     protected boolean invokeWithMatching(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,

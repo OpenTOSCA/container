@@ -16,11 +16,16 @@ import org.w3c.dom.Element;
 public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
 
     public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
-
         final AbstractInterface iface = getRemoteManagerInterface(nodeTemplate);
         final AbstractOperation createOperation = getRemoteManagerInstallOperation(nodeTemplate);
 
         final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
+
+        // For the future we should think about integrating the fileupload plugin into the pattern plugin or refactoring it, cause:
+        // The fileupload plugin implicitly works according to the lifecycle/container pattern as in that case it can just traverse the the topology downward along the hostedOn relations.
+        // The remote manager pattern uses a dependsOn relation to a managing node which used to find the operation for uploading files/DAs
+        AbstractNodeTemplate infraNode = this.getRemoteManagerNode(nodeTemplate);
+        nodeTemplate.getDeploymentArtifacts().forEach(da -> da.getArtifactRef().getArtifactReferences().forEach(ref -> this.invokeArtifactReferenceUpload(context, ref, infraNode)));
 
         return invokeWithMatching(context, nodeTemplate, iface, createOperation, nodesForMatching, elementToAppendTo);
     }
