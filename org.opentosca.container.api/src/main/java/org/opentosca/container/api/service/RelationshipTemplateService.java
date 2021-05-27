@@ -8,18 +8,14 @@ import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
-import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 // TODO it is assumed that the name of the node template is the same as its id.
 
@@ -97,27 +93,6 @@ public class RelationshipTemplateService {
                                            final String relationshipTemplateId) {
         return getRelationshipTemplateIdsOfServiceTemplate(csarId,
             serviceTemplateQName.toString()).contains(relationshipTemplateId);
-    }
-
-    /**
-     * Gets the properties (as an XML document) of a given relationship template.
-     */
-    public Document getPropertiesOfRelationshipTemplate(final String csarId, final String serviceTemplateName,
-                                                        final String relationshipTemplateId) {
-        final Csar csar = storage.findById(new CsarId(csarId));
-        try {
-            final TServiceTemplate serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateName);
-            return ToscaEngine.getRelationshipTemplate(serviceTemplate, relationshipTemplateId)
-                .map(TRelationshipTemplate::getProperties)
-                .filter(Element.class::isInstance)
-                .map(Element.class::cast)
-                .map(Element::getOwnerDocument)
-                .orElse(null);
-        } catch (org.opentosca.container.core.common.NotFoundException e) {
-            LOG.warn("Could not get properties of relationship template {} for service template {} in csar {}",
-                relationshipTemplateId, serviceTemplateName, csarId);
-        }
-        return null;
     }
 
     /**

@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.common.collect.Lists;
@@ -592,6 +593,16 @@ public class InstanceService {
             throw new IllegalArgumentException(msg);
         }
 
+        final Csar csar = storage.findById(new CsarId(csarId));
+        final TServiceTemplate serviceTemplate;
+        final TRelationshipTemplate relationshipTemplate;
+        try {
+            serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateName);
+            relationshipTemplate = ToscaEngine.resolveRelationshipTemplate(serviceTemplate, relationshipTemplateId);
+        } catch (org.opentosca.container.core.common.NotFoundException e) {
+            throw new NotFoundException(e.getMessage(), e);
+        }
+
         final RelationshipTemplateInstance newInstance = new RelationshipTemplateInstance();
         final RelationshipTemplateDTO dto =
             this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName,
@@ -600,8 +611,7 @@ public class InstanceService {
         // Properties
         // We set the properties of the template as initial properties
         final Document propertiesAsDocument =
-            this.relationshipTemplateService.getPropertiesOfRelationshipTemplate(csarId, serviceTemplateName,
-                relationshipTemplateId);
+            ToscaEngine.getEntityTemplateProperties(relationshipTemplate);
 
         if (propertiesAsDocument != null) {
             final RelationshipTemplateInstanceProperty properties =
