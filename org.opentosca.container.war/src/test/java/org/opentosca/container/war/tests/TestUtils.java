@@ -165,7 +165,14 @@ public class TestUtils {
         serviceInstanceUrlParam.setValue(serviceInstanceUrl);
         serviceInstanceUrlParam.setRequired(true);
 
+        org.opentosca.container.core.extension.TParameter containerApiAddress = new org.opentosca.container.core.extension.TParameter();
+        containerApiAddress.setName("containerApiAddress");
+        containerApiAddress.setType("String");
+        containerApiAddress.setValue(null);
+        containerApiAddress.setRequired(true);
+
         inputParams.add(serviceInstanceUrlParam);
+        inputParams.add(containerApiAddress);
         return inputParams;
     }
 
@@ -184,6 +191,12 @@ public class TestUtils {
         csarEntrypoint.setValue(null);
         csarEntrypoint.setRequired(true);
 
+        org.opentosca.container.core.extension.TParameter containerApiAddress = new org.opentosca.container.core.extension.TParameter();
+        containerApiAddress.setName("containerApiAddress");
+        containerApiAddress.setType("String");
+        containerApiAddress.setValue(null);
+        containerApiAddress.setRequired(true);
+
         org.opentosca.container.core.extension.TParameter correlationId = new org.opentosca.container.core.extension.TParameter();
         correlationId.setName("CorrelationID");
         correlationId.setType("String");
@@ -193,6 +206,7 @@ public class TestUtils {
         inputParams.add(instanceDataAPIUrl);
         inputParams.add(csarEntrypoint);
         inputParams.add(correlationId);
+        inputParams.add(containerApiAddress);
 
         return inputParams;
     }

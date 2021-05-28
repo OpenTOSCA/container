@@ -127,6 +127,11 @@ public final class ToscaEngine {
             .orElseThrow(() -> new NotFoundException("Node template \"" + nodeTemplate + "\" could not be found"));
     }
 
+    public static TRelationshipTemplate resolveRelationshipTemplate(TServiceTemplate serviceTemplate, String relationshipTemplate) throws NotFoundException {
+        return getRelationshipTemplate(serviceTemplate, relationshipTemplate)
+            .orElseThrow(() -> new NotFoundException("Relationship template \"" + relationshipTemplate + "\" could not be found"));
+    }
+
     public static Optional<TNodeTemplate> getNodeTemplate(Csar csar, QName serviceTemplateId, String nodeTemplate) {
         TServiceTemplate serviceTemplate = getServiceTemplate(csar, serviceTemplateId);
         if (serviceTemplate == null) {

@@ -34,11 +34,6 @@
     </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.container.core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.bus.management</artifactId>
       <version>${project.version}</version>
     </dependency>

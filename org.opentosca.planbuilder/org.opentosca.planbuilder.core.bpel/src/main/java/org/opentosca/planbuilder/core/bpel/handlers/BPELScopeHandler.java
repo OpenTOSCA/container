@@ -177,7 +177,7 @@ public class BPELScopeHandler {
             name, variableType, declarationId.toString(),
             templateBuildPlan.getBpelScopeElement().getAttribute("name"));
         if (this.hasVariable(name, templateBuildPlan)) {
-            BPELScopeHandler.LOG.warn("Failed adding variable");
+            BPELScopeHandler.LOG.debug("Failed adding variable, it is already defined");
             return false;
         }
 

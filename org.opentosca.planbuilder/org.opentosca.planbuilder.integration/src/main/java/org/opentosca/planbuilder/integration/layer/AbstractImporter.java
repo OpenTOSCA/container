@@ -86,6 +86,17 @@ public abstract class AbstractImporter {
 
         final List<AbstractPlan> plans = new ArrayList<>();
 
+        boolean foundTopo = false;
+        for (AbstractServiceTemplate servTemp : defs.getServiceTemplates()) {
+            if (servTemp.getTopologyTemplate() != null) {
+                foundTopo = true;
+            }
+        }
+
+        if (!foundTopo) {
+            return plans;
+        }
+
         AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder(pluginRegistry);
         final BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(pluginRegistry);
 

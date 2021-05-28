@@ -140,69 +140,14 @@
             <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				<version>[30.0-jre,)</version>
-			</dependency>
-			<dependency>
 				<groupId>javax.ws.rs</groupId>
 				<artifactId>javax.ws.rs-api</artifactId>
 				<version>2.1.1</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.github.opentosca.winery</groupId>
-				<artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
-				<version>${winery.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.github.opentosca.winery</groupId>
-				<artifactId>org.eclipse.winery.model.selfservice</artifactId>
-				<version>${winery.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.github.opentosca.winery</groupId>
-				<artifactId>org.eclipse.winery.accountability</artifactId>
-				<version>${winery.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>com.sun.jersey</groupId>
-						<artifactId>jersey-core</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>com.sun.jersey</groupId>
-						<artifactId>jersey-client</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>com.sun.jersey.contribs</groupId>
-						<artifactId>jersey-multipart</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>javax.persistence</groupId>
-						<artifactId>javax.persistence-api</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.github.opentosca.winery</groupId>
-				<artifactId>org.eclipse.winery.repository</artifactId>
-				<version>${winery.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.web3j</groupId>
-						<artifactId>core</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>com.sun.xml.bind</groupId>
-						<artifactId>jaxb-impl</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 
 			<!-- pin jaxb-core and jaxb-impl version to avoid NoSuchFieldError: REFLECTION

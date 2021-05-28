@@ -472,15 +472,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         return this.getScopesByType(plan, ActivityType.PROVISIONING);
     }
 
-    private AbstractServiceTemplate getServiceTemplate(AbstractDefinitions defs, QName serviceTemplateId) {
-        for (AbstractServiceTemplate servTemplate : defs.getServiceTemplates()) {
-            if (servTemplate.getQName().equals(serviceTemplateId)) {
-                return servTemplate;
-            }
-        }
-        return null;
-    }
-
     private void addNodeRelationInstanceVariables(BPELPlan plan, AbstractServiceTemplate sourceServiceTemplate,
                                                   AbstractServiceTemplate targetServiceTemplate) {
         this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(plan, sourceServiceTemplate);

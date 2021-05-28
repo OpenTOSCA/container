@@ -48,6 +48,7 @@ import org.opentosca.container.api.dto.CsarListDTO;
 import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.service.CsarService;
+import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.OpenToscaControlService;
@@ -56,6 +57,7 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.slf4j.Logger;
@@ -80,6 +82,9 @@ public class CsarController {
 
     @Inject
     private OpenToscaControlService controlService;
+
+    @Inject
+    private PlanService planService;
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -411,22 +416,7 @@ public class CsarController {
 
         this.controlService.invokePlanDeployment(sourceCsar, storedCsar.entryServiceTemplate(), plans, plan);
 
-        /*
-        this.controlService.declareStored(csarId);
-
-        boolean success = this.controlService.invokeToscaProcessing(csarId);
-        if (success) {
-            Csar storedCsar = storage.findById(csarId);
-            final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
-            for (final TServiceTemplate serviceTemplate : serviceTemplates) {
-                logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-                if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
-                    logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate.getName(), csarId.csarName());
-                    success = false;
-                }
-            }
-        }*/
-
-        return Response.ok().build();
+        PlanType[] planTypes = {PlanType.TRANSFORMATION};
+        return Response.ok(this.planService.getPlanDto(storedCsar, planTypes, plan.getId())).build();
     }
 }

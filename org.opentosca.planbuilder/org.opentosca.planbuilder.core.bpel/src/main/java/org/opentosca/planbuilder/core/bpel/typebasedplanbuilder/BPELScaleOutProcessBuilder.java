@@ -317,7 +317,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             bpelScaleOutProcess.setTOSCAOperationname("scale-out");
 
             this.planHandler.initializeBPELSkeleton(bpelScaleOutProcess, csarName);
-            
+
             Collection<AbstractNodeTemplate> nodes = bpelScaleOutProcess.getTemplateBuildPlans().stream().filter(x -> x.getNodeTemplate() != null).map(x -> x.getNodeTemplate()).distinct().collect(Collectors.toList());
             Collection<AbstractRelationshipTemplate> relations = bpelScaleOutProcess.getTemplateBuildPlans().stream().filter(x -> x.getRelationshipTemplate() != null).map(x -> x.getRelationshipTemplate()).distinct().collect(Collectors.toList());
 
@@ -618,16 +618,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             return relations.get(0);
         }
 
-        return null;
-    }
-
-    private AbstractServiceTemplate getServiceTemplate(final AbstractDefinitions defs, final QName serviceTemplateId) {
-        for (final AbstractServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
-            if (serviceTemplate.getTargetNamespace().equals(serviceTemplateId.getNamespaceURI())
-                && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
-                return serviceTemplate;
-            }
-        }
         return null;
     }
 

@@ -160,6 +160,7 @@ public class RequestProcessor implements Processor {
 							serviceTemplate, nodeTemplate, Types.hostedOnRelationType, Types.deployedOnRelationType,
 							Types.dependsOnRelationType);
 					for (final TNodeTemplate nodeTemplate1 : relatedSourceNodeTemplate) {
+					    // FIXME? TODO? Is the DA header only good for ubuntu DAs ? How about for future IAs this may come in handy right ?
 						if (nodeTemplate1.getName().startsWith("Ubuntu")) {
 							final TNodeType nodeType = ToscaEngine.resolveNodeTypeReference(csar,
 									nodeTemplate1.getType());

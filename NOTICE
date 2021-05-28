@@ -139,10 +139,6 @@ com.google.gson Version: 2.2.4
 * License: Apache-2.0
 * Project: https://github.com/google/gson
 
-com.google.guava Version: 15.0.0.v201403281430
-* License: Apache-2.0
-* Project: https://github.com/google/guava
-
 com.google.inject Version: 3.0.0.v201605172100
 * License: Apache-2.0
 * Project: https://github.com/google/guice
@@ -566,10 +562,6 @@ org.eclipse.persistence.jpa Version: 2.6.3.v20160428-59c81c5
 org.eclipse.persistence.jpa.jpql Version: 2.6.3.v20160428-59c81c5
 * License: EPL-1.0
 * Project: https://www.eclipse.org/eclipselink/
-
-org.glassfish.jersey.bundles.repackaged.jersey-guava Version: 2.22.1.v20161103-1916
-* License: CDDL
-* Project: https://jersey.github.io/
 
 org.glassfish.jersey.ext.entityfiltering Version: 2.22.1.v20161103-0227
 * License: CDDL v1.1

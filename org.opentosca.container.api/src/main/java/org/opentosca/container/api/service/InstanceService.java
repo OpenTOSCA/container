@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.common.collect.Lists;
@@ -222,13 +223,13 @@ public class InstanceService {
         instance.setCsarId(csar);
         instance.setTemplateId(serviceTemplateName);
         instance.setState(ServiceTemplateInstanceState.INITIAL);
-        instance.addProperty(property);            
-            
+        instance.addProperty(property);
+
         this.serviceTemplateInstanceRepository.add(instance);
-            
+
         return instance;
     }
-    
+
     public ServiceTemplateInstance createServiceTemplateInstance(final String csarId, final String serviceTemplateName,
                                                                  final String correlationId) throws NotFoundException,
         InstantiationException,
@@ -246,6 +247,11 @@ public class InstanceService {
                     correlationId);
             logger.info(msg);
             throw new NotFoundException(msg);
+        }
+
+        // if no instance was found it is possible that live-modeling was started, just create an empty instance
+        if (pi == null) {
+            return this.createServiceTemplateInstance(csarId, serviceTemplateName);
         }
 
         // If the found plan is a build plan there shouldn't be a service template instance available,
@@ -587,6 +593,16 @@ public class InstanceService {
             throw new IllegalArgumentException(msg);
         }
 
+        final Csar csar = storage.findById(new CsarId(csarId));
+        final TServiceTemplate serviceTemplate;
+        final TRelationshipTemplate relationshipTemplate;
+        try {
+            serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateName);
+            relationshipTemplate = ToscaEngine.resolveRelationshipTemplate(serviceTemplate, relationshipTemplateId);
+        } catch (org.opentosca.container.core.common.NotFoundException e) {
+            throw new NotFoundException(e.getMessage(), e);
+        }
+
         final RelationshipTemplateInstance newInstance = new RelationshipTemplateInstance();
         final RelationshipTemplateDTO dto =
             this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName,
@@ -595,8 +611,7 @@ public class InstanceService {
         // Properties
         // We set the properties of the template as initial properties
         final Document propertiesAsDocument =
-            this.relationshipTemplateService.getPropertiesOfRelationshipTemplate(csarId, serviceTemplateName,
-                relationshipTemplateId);
+            ToscaEngine.getEntityTemplateProperties(relationshipTemplate);
 
         if (propertiesAsDocument != null) {
             final RelationshipTemplateInstanceProperty properties =

@@ -26,6 +26,8 @@ import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPl
 import org.opentosca.bus.management.invocation.plugin.rest.model.ContentType;
 import org.opentosca.bus.management.invocation.plugin.rest.model.DataAssign;
 import org.opentosca.bus.management.invocation.plugin.rest.model.DataAssign.Operations.Operation;
+import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -54,7 +56,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Christian Endres - christian.endres@iaas.informatik.uni-stuttgart.de
  */
 @Component
-public class ManagementBusInvocationPluginRest implements IManagementBusInvocationPluginService {
+public class ManagementBusInvocationPluginRest extends IManagementBusInvocationPluginService {
     final private static Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginRest.class);
 
     // Supported types defined in messages.properties.
@@ -66,10 +68,12 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
     private static final String METHOD = "POST";
 
     private final CamelContext camelContext;
+    private final CsarStorageService storage;
 
     @Inject
-    public ManagementBusInvocationPluginRest(@Named("fallback") CamelContext camelContext) {
+    public ManagementBusInvocationPluginRest(@Named("fallback") CamelContext camelContext, CsarStorageService storage) {
         this.camelContext = camelContext;
+        this.storage = storage;
     }
 
     @SuppressWarnings("unchecked")
@@ -128,6 +132,16 @@ public class ManagementBusInvocationPluginRest implements IManagementBusInvocati
             } else {
                 body = null;
             }
+        }
+
+        // if mocking is turned on we just fake the entire request
+        if (Boolean.parseBoolean(Settings.OPENTOSCA_BUS_MANAGEMENT_MOCK) && exchange.getMessage().getHeader(MBHeader.PLANID_QNAME.toString()) == null) {
+            LOG.info("Mocking following REST call:");
+            LOG.info("Headers:");
+            LOG.info(headers.toString());
+            LOG.info("Body:");
+            LOG.info(((HashMap<String, String>) params).toString());
+            return respondViaMocking(exchange, this.storage);
         }
 
         final ProducerTemplate template = camelContext.createProducerTemplate();

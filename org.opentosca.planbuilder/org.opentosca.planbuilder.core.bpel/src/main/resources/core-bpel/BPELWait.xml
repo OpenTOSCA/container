@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpel:wait xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
+    <for expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$durationexpression]]></for>
+</bpel:wait>
+
