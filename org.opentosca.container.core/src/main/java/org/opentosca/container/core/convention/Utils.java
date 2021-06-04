@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.common.version.VersionUtils;
+
 public class Utils {
 
     private static final List<String> ipPropertyNames;
@@ -141,8 +143,7 @@ public class Utils {
     }
 
     private static boolean isProperUbuntuLocalName(final String localName) {
-        // new QName("http://opentosca.org/types/declarative",
-        // "Ubuntu-13.10-Server");
+        // new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
 
         final String[] dotSplit = localName.split("\\.");
 
@@ -150,8 +151,8 @@ public class Utils {
             return false;
         }
 
-        final String[] leftDashSplit = dotSplit[0].split("\\-");
-        final String[] rightDashSplit = dotSplit[1].split("\\-");
+        final String[] leftDashSplit = dotSplit[0].split("-");
+        final String[] rightDashSplit = dotSplit[1].split("-");
 
         if (leftDashSplit.length != 2 && rightDashSplit.length != 2) {
             return false;
@@ -188,13 +189,10 @@ public class Utils {
      * @return a boolean. True if given nodeType is a virtual machine nodeType
      */
     public static boolean isSupportedVMNodeType(final QName nodeType) {
-        return nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
-            || nodeType.equals(Types.ubuntu1404ServerVmNodeType3) || nodeType.equals(Types.ubuntu1604ServerVmNodeType)
-            || nodeType.equals(Types.ubuntu1804ServerVmNodeType)
-            || nodeType.equals(Types.ubuntu2004ServerVmNodeType)
-            || (
-            nodeType.getNamespaceURI().equals(Types.ubuntu1804ServerVmNodeTypeGenerated.getNamespaceURI())
-                && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart()));
+        return nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2) || (
+            nodeType.getNamespaceURI().toLowerCase().startsWith(Types.versionedUbuntuServerVmNodeType.getNamespaceURI().toLowerCase())
+                && VersionUtils.getNameWithoutVersion(nodeType.getLocalPart()).equalsIgnoreCase(Types.versionedUbuntuServerVmNodeType.getLocalPart())
+        );
     }
 
     public static boolean isSupportedOSNodeType(final QName nodeType) {
@@ -217,6 +215,8 @@ public class Utils {
      * @return a boolean. True if the given nodeType is a docker engine nodeType
      */
     public static boolean isSupportedDockerEngineNodeType(final QName nodeType) {
-        return nodeType.equals(Types.dockerEngineNodeType) || nodeType.equals(Types.dockerEngineNodeTypeAlt);
+        return nodeType.getNamespaceURI().equalsIgnoreCase(Types.dockerEngineNodeType.getNamespaceURI())
+            && VersionUtils.getNameWithoutVersion(nodeType.getLocalPart())
+            .equalsIgnoreCase(Types.dockerEngineNodeType.getLocalPart());
     }
 }

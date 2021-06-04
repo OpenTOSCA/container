@@ -344,7 +344,8 @@ public class CsarController {
         logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());
         final URI uri =
             UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId.csarName()));
-        logger.info("Csar handling took  " + Duration.between(startTIme, LocalDateTime.now()));
+        Duration between = Duration.between(startTIme, LocalDateTime.now());
+        logger.info("Csar handling took {}:{}:{}", between.toHoursPart(), between.toMinutesPart(), between.toSecondsPart());
         return Response.created(uri).build();
     }
 
@@ -373,7 +374,7 @@ public class CsarController {
 
         if (errors.size() > 0) {
             logger.error("Error deleting CSAR");
-            errors.forEach(s -> logger.error(s));
+            errors.forEach(logger::error);
             return Response.serverError().entity(errors).build();
         }
         return Response.noContent().build();

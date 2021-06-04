@@ -10,6 +10,9 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.common.version.VersionUtils;
+import org.eclipse.winery.common.version.WineryVersion;
+
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
 import org.opentosca.container.core.convention.Types;
@@ -76,15 +79,13 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         }
 
         // hack because of the openstack migration
-        if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
-            || nodeType.equals(Types.ubuntu1404ServerVmNodeType3)) {
+        if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)) {
             return "ubuntu-14.04-trusty-server-cloudimg";
-        } else if (nodeType.equals(Types.ubuntu1604ServerVmNodeType)) {
-            return "ubuntu-16.04";
-        } else if (nodeType.equals(Types.ubuntu1804ServerVmNodeType)
-            || nodeType.getNamespaceURI().equals(Types.ubuntu1804ServerVmNodeTypeGenerated.getNamespaceURI())
-            && nodeType.getLocalPart().startsWith(Types.ubuntu1804ServerVmNodeTypeGenerated.getLocalPart())) {
-            return "ubuntu-18.04";
+        }
+
+        WineryVersion version = VersionUtils.getVersion(nodeType.getLocalPart());
+        if (!version.getComponentVersion().isEmpty()) {
+            return "ubuntu-" + version.getComponentVersion();
         }
 
         final String localName = nodeType.getLocalPart();
@@ -95,8 +96,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             return null;
         }
 
-        final String[] leftDashSplit = dotSplit[0].split("\\-");
-        final String[] rightDashSplit = dotSplit[1].split("\\-");
+        final String[] leftDashSplit = dotSplit[0].split("-");
+        final String[] rightDashSplit = dotSplit[1].split("-");
 
         if (leftDashSplit.length != 2 && rightDashSplit.length != 2) {
             return null;
@@ -138,9 +139,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         // new QName("http://opentosca.org/types/declarative",
         // "Ubuntu-13.10-Server");
 
-        final String ubuntuAMIId = "ubuntu-" + majorVers + "." + minorVersString + "-server-cloudimg-amd64";
-
-        return ubuntuAMIId;
+        return "ubuntu-" + majorVers + "." + minorVersString + "-server-cloudimg-amd64";
     }
 
     private AbstractNodeTemplate findCloudProviderNode(final AbstractNodeTemplate nodeTemplate) {
@@ -397,7 +396,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         startRequestInputParams.put("sshKey", sshKeyVariable);
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu",
-            startRequestInputParams, new HashMap<String, Variable>(),
+            startRequestInputParams, new HashMap<>(),
             context.getProvisioningPhaseElement());
 
         return true;
@@ -413,16 +412,15 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 // node
 
                 AbstractNodeTemplate ubuntuNode = context.getNodeTemplate();
-                AbstractNodeTemplate hypervisorNode = infraNode;
 
                 final Map<String, Variable> inputs = new HashMap<>();
                 final Map<String, Variable> outputs = new HashMap<>();
 
-                Variable hypervisorTenant = context.getPropertyVariable(hypervisorNode, "HypervisorTenantID");
-                Variable hypervisorEndpoint = context.getPropertyVariable(hypervisorNode, "HypervisorEndpoint");
+                Variable hypervisorTenant = context.getPropertyVariable(infraNode, "HypervisorTenantID");
+                Variable hypervisorEndpoint = context.getPropertyVariable(infraNode, "HypervisorEndpoint");
                 Variable VMInstanceID = context.getPropertyVariable(ubuntuNode, "VMInstanceID");
-                Variable hypervisorUserName = context.getPropertyVariable(hypervisorNode, "HypervisorUserName");
-                Variable hypervisorUserPassword = context.getPropertyVariable(hypervisorNode, "HypervisorUserPassword");
+                Variable hypervisorUserName = context.getPropertyVariable(infraNode, "HypervisorUserName");
+                Variable hypervisorUserPassword = context.getPropertyVariable(infraNode, "HypervisorUserPassword");
 
                 inputs.put("HypervisorTenantID", hypervisorTenant);
                 inputs.put("HypervisorEndpoint", hypervisorEndpoint);
@@ -430,7 +428,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                 inputs.put("HypervisorUserName", hypervisorUserName);
                 inputs.put("HypervisorUserPassword", hypervisorUserPassword);
 
-                return this.invokerOpPlugin.handle(context, hypervisorNode.getId(), true,
+                return this.invokerOpPlugin.handle(context, infraNode.getId(), true,
                     org.opentosca.container.core.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
                     org.opentosca.container.core.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
                     inputs, outputs, elementToAppendTo);
@@ -696,34 +694,28 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         /*
          * Setup variable with script
          */
-        String xpathQuery =
-            "concat('sudo iptables -F & sudo iptables -P INPUT DROP & sudo iptables -A INPUT -i lo -p all -j ACCEPT & sudo iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT &',";
+        StringBuilder xpathQuery =
+            new StringBuilder("concat('sudo iptables -F & sudo iptables -P INPUT DROP & sudo iptables -A INPUT -i lo -p all -j ACCEPT & sudo iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT &',");
         // sudo iptables -F
         // sudo iptables -P INPUT DROP
         // sudo iptables -A INPUT -i lo -p all -j ACCEPT
         // sudo iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
         for (final Variable var : portVariables) {
-            xpathQuery +=
-                "' sudo iptables -A INPUT -p tcp -m tcp --dport ',$" + var.getVariableName() + ",' -j ACCEPT &',";
+            xpathQuery.append("' sudo iptables -A INPUT -p tcp -m tcp --dport ',$").append(var.getVariableName()).append(",' -j ACCEPT &',");
         }
 
-        xpathQuery += "' sudo iptables -A INPUT -j DROP')";
+        xpathQuery.append("' sudo iptables -A INPUT -j DROP')");
 
         final Variable ipTablesScriptVariable = context.createGlobalStringVariable("setIpTablesScript", "");
 
         try {
             Node assignIpTables =
                 new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("assignIpTablesScript"
-                    + System.currentTimeMillis(), xpathQuery, ipTablesScriptVariable.getVariableName());
+                    + System.currentTimeMillis(), xpathQuery.toString(), ipTablesScriptVariable.getVariableName());
             assignIpTables = context.importNode(assignIpTables);
             context.getProvisioningPhaseElement().appendChild(assignIpTables);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
-            e.printStackTrace();
-        } catch (final ParserConfigurationException e) {
-
+        } catch (final IOException | SAXException | ParserConfigurationException e) {
             e.printStackTrace();
         }
 
@@ -749,9 +741,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
     private List<Variable> fetchModeledPortsOfInfrastructure(final PlanContext context,
                                                              final AbstractNodeTemplate nodeTemplate) {
-        final List<Variable> portVariables = new ArrayList<>();
-
-        portVariables.addAll(fetchPortPropertyVariable(context, nodeTemplate));
+        final List<Variable> portVariables = new ArrayList<>(fetchPortPropertyVariable(context, nodeTemplate));
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
             if (ModelUtils.isInfrastructureRelationshipType(relation.getType())) {

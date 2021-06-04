@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.namespace.QName;
-
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
@@ -31,18 +29,18 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
 
     public static AbstractDeploymentArtifact fetchFirstDockerContainerDA(final AbstractNodeTemplate nodeTemplate) {
         for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
-            if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
+            if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE)
                 || da.getArtifactType()
-                .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
+                .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE_OLD)) {
                 return da;
             }
         }
 
         for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
             for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
-                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
+                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE)
                     || da.getArtifactType()
-                    .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
+                    .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE_OLD)) {
                     return da;
                 }
             }
@@ -63,28 +61,13 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
         return null;
     }
 
-    public static boolean isConnectedToDockerEnginerNode(final AbstractNodeTemplate nodeTemplate) {
+    public static boolean isConnectedToDockerEngineNode(final AbstractNodeTemplate nodeTemplate) {
         return DockerContainerTypePlugin.getDockerEngineNode(nodeTemplate) != null;
     }
 
     @Override
     public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
-        if (nodeTemplate.getProperties() == null) {
-            return false;
-        }
-
-        boolean correctNodeType = false;
-        final List<QName> typeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType());
-
-        if (typeHierarchy.contains(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_NODETYPE)) {
-            correctNodeType |= true;
-        }
-
-        if (typeHierarchy.contains(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_NODETYPE2)) {
-            correctNodeType |= true;
-        }
-
-        if (!correctNodeType) {
+        if (nodeTemplate.getProperties() == null || DockerUtils.notIsDockerContainer(nodeTemplate.getType())) {
             return false;
         }
 
@@ -93,83 +76,18 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
         if (!propertiesMap.containsKey("ContainerID")) {
             return false;
         }
-        // minimum properties are available
 
-        // check whether the nodeTemplate is connected to a DockerEngine Node
-
-        return DockerContainerTypePlugin.isConnectedToDockerEnginerNode(nodeTemplate);
+        // Minimum properties are available.
+        // Check whether the nodeTemplate is connected to a DockerEngine Node
+        return DockerContainerTypePlugin.isConnectedToDockerEngineNode(nodeTemplate);
     }
 
     @Override
     public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
-        // for this plugin to handle the given NodeTemplate following statements
-        // must hold:
-        // 1. The NodeTemplate has the Properties "ContainerPort" and "Port"
-        // 2. The NodeTemplate has either one DeploymentArtefact of the Type
-        // {http://opentosca.org/artefacttypes}DockerContainer XOR a Property
-        // "ContainerImage"
-        // 3. Is connected to a {http://opentosca.org/nodetypes}DockerEngine
-        // Node trough a path of hostedOn relations
-        // Optional:
-        // Has a "SSHPort" which can be used to further configure the
-        // DockerContainer
-
-        // check mandatory properties
-        if (nodeTemplate.getProperties() == null) {
-            return false;
-        }
-
-        boolean correctNodeType = false;
-        final List<QName> typeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType());
-
-        if (typeHierarchy.contains(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_NODETYPE)) {
-            correctNodeType |= true;
-        }
-
-        if (typeHierarchy.contains(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_NODETYPE2)) {
-            correctNodeType |= true;
-        }
-
-        if (!correctNodeType) {
-            return false;
-        }
-
-        final Map<String, String> propMap = nodeTemplate.getProperties().asMap();
-        int check = 0;
-        boolean foundDockerImageProp = false;
-
-        if (propMap.containsKey("ContainerPort")) {
-            check++;
-        }
-
-        if (propMap.containsKey("Port")) {
-            check++;
-        }
-
-        if (propMap.containsKey("ImageID")) {
-            foundDockerImageProp = true;
-        }
-
-        if (check != 2) {
-            return false;
-        }
-
-        // minimum properties are available, now check for the container image
-        // itself
-
-        // if we didn't find a property to take an image from a public repo,
-        // then we search for a DA
-        if (!foundDockerImageProp) {
-
-            if (DockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate) == null) {
-                return false;
-            }
-        }
-
-        // check whether the nodeTemplate is connected to a DockerEngine Node
-
-        return DockerContainerTypePlugin.isConnectedToDockerEnginerNode(nodeTemplate);
+       return DockerUtils.canHandleDockerContainerPropertiesAndDA(nodeTemplate);
     }
+
+
 
     @Override
     public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
