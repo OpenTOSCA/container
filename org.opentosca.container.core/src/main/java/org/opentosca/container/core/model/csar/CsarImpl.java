@@ -3,6 +3,8 @@ package org.opentosca.container.core.model.csar;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -91,7 +93,28 @@ public class CsarImpl implements Csar {
             qname = new String(Files.readAllBytes(csarLocation.resolve(ENTRY_SERVICE_TEMPLATE_LOCATION)), StandardCharsets.UTF_8);
         } catch (IOException e) {
             // Swallow, no helping this
+
+            // maybe a log could have helped for the future..
+            LOGGER.debug("Couldn't find entry service template in location " + csarLocation, e);
         }
+
+        try {
+
+
+        // or trying a little
+        if (Files.exists(csarLocation.resolve("ServiceTemplate.tosca"))){
+            // where now in the winery repository code here
+            String localName = csarLocation.getFileName().toString();
+            String namespaceEncoded = csarLocation.getParent().getFileName().toString();
+
+            String namespaceDecoded = URLDecoder.decode(namespaceEncoded, "UTF-8");
+
+            qname = "{" + namespaceDecoded + "}" +  localName;
+        }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.debug("Couldn't decode namespace in location " + csarLocation, e);
+        }
+
         return qname == null ? Optional.empty()
             : Optional.ofNullable(new ServiceTemplateId(QName.valueOf(qname)));
     }

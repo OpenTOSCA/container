@@ -31,8 +31,9 @@ public class Settings {
 
     public final static String OPENTOSCA_CONTAINER_HOSTNAME = settings.getProperty("org.opentosca.container.hostname", "localhost");
     public final static String OPENTOSCA_CONTAINER_PORT = settings.getProperty("org.opentosca.container.port", "1337");
-    
-    public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;    
+    public final static String OPENTOSCA_CONTAINER_LOCAL_WINERY_REPOSITORY = settings.getProperty("org.opentosca.container.winery.repository", null);
+
+    public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;
     public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/servicetemplates/{servicetemplateid}/instances";
     public final static String OPENTOSCA_CONTAINER_CONTENT_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/";
     public final static String OPENTOSCA_CONTAINER_CONTENT_API_ARTIFACTREFERENCE = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
@@ -53,7 +54,7 @@ public class Settings {
     public final static String OPENTOSCA_BUS_MANAGEMENT_MOCK = settings.getProperty("org.opentosca.bus.management.mocking", "false");
     public final static String OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH = settings.getProperty("org.opentosca.test.local.repository.path");
     public final static String OPENTOSCA_TEST_REMOTE_REPOSITORY_URL = settings.getProperty("org.opentosca.test.remote.repository.url");
-    public final static Path CONTAINER_STORAGE_BASEPATH = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "container", "csar-storage");
+    public final static Path CONTAINER_STORAGE_BASEPATH = settings.getProperty("org.opentosca.container.storage.basepath") != null && !settings.getProperty("org.opentosca.container.storage.basepath").isEmpty() ? Paths.get(settings.getProperty("org.opentosca.container.storage.basepath")) : Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "container", "csar-storage");
 
     /**
      * OpenTOSCA Container database location

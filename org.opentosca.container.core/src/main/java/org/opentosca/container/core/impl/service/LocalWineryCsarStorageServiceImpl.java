@@ -25,8 +25,6 @@ import org.eclipse.winery.repository.importing.CsarImporter;
 import org.eclipse.winery.repository.importing.ImportMetaInformation;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
@@ -36,44 +34,37 @@ import org.opentosca.container.core.model.csar.CsarImpl;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
-@Service
-@NonNullByDefault
-public class CsarStorageServiceImpl implements CsarStorageService {
+public class LocalWineryCsarStorageServiceImpl implements CsarStorageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsarStorageServiceImpl.class);
 
     private static final Object repositoryFactoryConfigurationMutex = new Object();
 
-    private static LocalWineryCsarStorageServiceImpl wineryStorage = null;
-
     private final Path basePath;
+    private final Path serviceTemplatesPath;
 
-    public CsarStorageServiceImpl() {
-        try {
-            Files.createDirectories(Settings.CONTAINER_STORAGE_BASEPATH);
-        } catch (IOException e) {
-            LOGGER.error("Could not set up storage for Csars", e);
-            throw new ExceptionInInitializerError(e);
-        }
-        basePath = Settings.CONTAINER_STORAGE_BASEPATH;
-
-        try {
-            wineryStorage = new LocalWineryCsarStorageServiceImpl();
-        } catch (Exception e) {
-            LOGGER.error("Local winery storage not available" , e);
+    public LocalWineryCsarStorageServiceImpl() {
+        if (this.isLocalWineryRepositoryAvailable()) {
+            basePath = Paths.get(Settings.OPENTOSCA_CONTAINER_LOCAL_WINERY_REPOSITORY);
+            serviceTemplatesPath = basePath.resolve("servicetemplates");
+        } else {
+            LOGGER.error("Could not set up storage for Csars");
+            throw new ExceptionInInitializerError("Local winery storage not specified");
         }
     }
 
-    public CsarStorageServiceImpl(Path basePath) {
-        try {
-            Files.createDirectories(basePath);
-        } catch (IOException e) {
-            LOGGER.error("Could not set up storage for Csars", e);
-            throw new ExceptionInInitializerError(e);
+    public boolean isLocalWineryRepositoryAvailable(){
+        return Settings.OPENTOSCA_CONTAINER_LOCAL_WINERY_REPOSITORY != null && !Settings.OPENTOSCA_CONTAINER_LOCAL_WINERY_REPOSITORY.isEmpty();
+    }
+
+    public Path csarIdToServiceTemplatePath(CsarId csarId) {
+        Csar csar = this.findAll().stream().filter(x -> x.id().equals(csarId)).findFirst().orElse(null);
+        if(csar != null){
+            return csar.getSaveLocation();
+        } else {
+            return null;
         }
-        this.basePath = basePath;
     }
 
     @Override
@@ -81,42 +72,25 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         LOGGER.debug("Requesting all CSARs");
         final Set<Csar> csars = new HashSet<>();
         try {
-            for (@NonNull Path csarId : Files.newDirectoryStream(basePath, Files::isDirectory)) {
+            for (@NonNull Path namespace : Files.newDirectoryStream(serviceTemplatesPath, Files::isDirectory)) {
                 // FIXME make CsarId a name and put the path somewhere else
-                csars.add(new CsarImpl(new CsarId(csarId.getFileName().toString()), csarId));
+                for (@NonNull Path csarId : Files.newDirectoryStream(namespace, Files::isDirectory)) {
+                    csars.add(new CsarImpl(new CsarId(csarId.getFileName().toString()), csarId));
+                }
             }
         } catch (IOException e) {
             LOGGER.error("Error when traversing '{}' for CSARs", basePath);
             throw new UncheckedIOException(e);
         }
-
-        if(wineryStorage != null) {
-            csars.addAll(wineryStorage.findAll());
-        }
-
         return csars;
     }
 
     @Override
     public Csar findById(CsarId id) throws NoSuchElementException {
-        Path predictedSaveLocation = basePath.resolve(id.csarName());
-        if (Files.exists(predictedSaveLocation)) {
-            return new CsarImpl(id, predictedSaveLocation);
-        }
-
-        if(wineryStorage != null){
-            Csar csar  = wineryStorage.findById(id);
-            if(csar != null) {
-                return csar;
-            }
-        }
-
-        LOGGER.info("CSAR '{}' could not be found", id.csarName());
-        throw new NoSuchElementException();
+        return this.findAll().stream().filter(x -> x.id().equals(id)).findFirst().orElse(null);
     }
 
     @Override
-    @Nullable
     public Path storeCSARTemporarily(String filename, InputStream is) {
         try {
             Path tempLocation = Paths.get(System.getProperty("java.io.tmpdir"), filename);
@@ -141,11 +115,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         }
 
         CsarId candidateId = new CsarId(csarLocation.getFileName().toString());
-        Path permanentLocation = basePath.resolve(csarLocation.getFileName());
-        if (Files.exists(permanentLocation)) {
-            throw new UserException(
-                "CSAR \"" + candidateId.csarName() + "\" is already stored. Overwriting a CSAR is not allowed.");
-        }
+        Path permanentLocation = basePath;
         ImportMetaInformation importInfo = null;
         try {
             Files.createDirectory(permanentLocation);
@@ -209,50 +179,17 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     }
 
     @Override
-    public void deleteCSAR(CsarId csarId) throws SystemException, UserException {
-        LOGGER.info("Deleting CSAR \"{}\"...", csarId.csarName());
-        FileUtils.forceDelete(basePath.resolve(csarId.csarName()));
-        LOGGER.info("Deleted CSAR \"{}\"...", csarId.csarName());
+    public void deleteCSAR(CsarId csarId) throws UserException, SystemException {
+
     }
 
     @Override
     public void purgeCsars() throws SystemException {
-        LOGGER.debug("Deleting all CSARs...");
-        try {
-            for (Path csarRepoContent : Files.newDirectoryStream(basePath)) {
-                LOGGER.debug("Deleting CSAR at [{}]", csarRepoContent);
-                if (Files.isDirectory(csarRepoContent)) {
-                    // delete csar here
-                    FileUtils.forceDelete(csarRepoContent);
-                }
-            }
-            LOGGER.debug("Deleting all CSARs completed");
-        } catch (IOException e) {
-            throw new SystemException("Could not delete all CSARs.", e);
-        }
+
     }
 
     @Override
-    public Path exportCSAR(final CsarId csarId) throws UserException, SystemException {
-        LOGGER.debug("Exporting CSAR \"{}\"...", csarId.csarName());
-        Csar csar = findById(csarId);
-
-        final Path csarDownloadDirectory = Paths.get(System.getProperty("java.io.tmpdir"), "content");
-        try {
-            // only create temp directory if it doesn't exist
-            if (!Files.exists(csarDownloadDirectory)) {
-                Files.createDirectory(csarDownloadDirectory);
-            }
-            final Path csarTarget = csarDownloadDirectory.resolve(csarId.csarName());
-            if (Files.exists(csarTarget)) {
-                // remove previous export result
-                FileUtils.forceDelete(csarTarget);
-            }
-            csar.exportTo(csarTarget);
-            LOGGER.info("Successfully exported CSAR to {}", csarTarget);
-            return csarTarget;
-        } catch (final IOException e) {
-            throw new SystemException("An IO Exception occured.", e);
-        }
+    public Path exportCSAR(CsarId csarId) throws UserException, SystemException {
+        return null;
     }
 }
