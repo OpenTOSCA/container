@@ -50,7 +50,7 @@ public class CallbackProcessor implements Processor {
         LOG.debug("Received message as callback: {}", message);
 
         final Set<String> messageIDs = ManagementBusInvocationPluginSoapHttp.getMessageIDs();
-        LOG.debug("Stored messageIDs: {}", messageIDs.toString());
+        LOG.debug("Stored messageIDs: {}", messageIDs);
 
         // copy SOAP headers in camel exchange header
         @SuppressWarnings("unchecked") final List<SoapHeader> soapHeaders = (List<SoapHeader>) exchange.getIn().getHeader(Header.HEADER_LIST);
@@ -71,10 +71,17 @@ public class CallbackProcessor implements Processor {
             // if (message.matches("(?s).*\\s*[^a-zA-Z0-9-]" + messageID +
             // "[^a-zA-Z0-9-]\\s*(?s).*") || headers.containsValue(messageID)) {
             if (message.contains(messageID) || headers.containsValue(messageID)) {
+
                 LOG.debug("Found MessageID: {}", messageID);
                 final MessageFactory messageFactory = MessageFactory.newInstance();
 
-                final InputStream inputStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
+                // Sometimes, the message contains invalid characters that are not valid in XML.
+                // Thus, we ensure that non-ascii chars are deleted before we process the message further.
+                LOG.debug("Received message:\n\t{}", message);
+                String cleanMessage = message.replaceAll("[^\\x20-\\x7e]", "");
+                LOG.debug("Message cleaned from non-ascii elements:\n\t{}", cleanMessage);
+
+                final InputStream inputStream = new ByteArrayInputStream(cleanMessage.getBytes(StandardCharsets.UTF_8));
                 final SOAPMessage soapMessage = messageFactory.createMessage(null, inputStream);
 
                 exchange.getIn().setHeader("MessageID", messageID);
@@ -112,13 +119,13 @@ public class CallbackProcessor implements Processor {
         factory.setNamespaceAware(true);
         DocumentBuilder builder = null;
         try {
-            builder = factory.newDocumentBuilder();
+            final Document newDocument = factory.newDocumentBuilder().newDocument();
+            newDocument.appendChild(newDocument.importNode(node, true));
+            return newDocument;
         } catch (final ParserConfigurationException e) {
-            e.printStackTrace();
+            LOG.error("Error while converting node to document!", e);
         }
-        final Document newDocument = builder.newDocument();
-        final Node importedNode = newDocument.importNode(node, true);
-        newDocument.appendChild(importedNode);
-        return newDocument;
+
+        return null;
     }
 }
