@@ -30,6 +30,8 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanB
         super(pluginRegistry);
     }
 
+    // Generate TOG and POG are too similar and are detected as duplicates.
+    @SuppressWarnings("Duplicates")
     protected static AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
                                               final AbstractServiceTemplate serviceTemplate,
                                               Collection<AbstractNodeTemplate> nodes,
@@ -73,11 +75,8 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanB
             }
         }
 
-        final AbstractPlan abstractTerminationPlan =
-            new AbstractPlan(id, PlanType.TERMINATION, definitions, serviceTemplate, activities, links) {
-            };
-
-        return abstractTerminationPlan;
+        return new AbstractPlan(id, PlanType.TERMINATION, definitions, serviceTemplate, activities, links) {
+        };
     }
 
     @Override

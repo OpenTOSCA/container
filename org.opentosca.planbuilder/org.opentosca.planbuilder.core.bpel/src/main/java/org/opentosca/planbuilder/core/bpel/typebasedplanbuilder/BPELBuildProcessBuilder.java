@@ -21,6 +21,7 @@ import org.opentosca.planbuilder.core.bpel.tosca.handlers.ServiceTemplateBoundar
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.bpel.tosca.handlers.SituationTriggerRegistration;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
+import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
@@ -229,7 +230,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} build plans for CSAR {}", String.valueOf(plans.size()), csarName);
+            LOG.info("Created {} build plans for CSAR {}", plans.size(), csarName);
         }
         return plans;
     }
@@ -260,7 +261,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 if (isRunning(nodeTemplate)
                     || nodeTemplate.getType().getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())) {
                     LOG.debug("Skipping the provisioning of NodeTemplate "
-                        + bpelScope.getNodeTemplate().getId() + "  beacuse state=running is set.");
+                        + bpelScope.getNodeTemplate().getId() + "  because state=running is set.");
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
                         if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
                             postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());

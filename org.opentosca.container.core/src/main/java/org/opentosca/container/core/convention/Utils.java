@@ -127,11 +127,11 @@ public class Utils {
         }
 
         // code for docker
-        if (nodeType.equals(Types.dockerContainerNodeType)) {
+        if (isSupportedContainerNodeType(nodeType)) {
             return true;
         }
 
-        if (nodeType.equals(Types.dockerEngineNodeType)) {
+        if (isSupportedDockerEngineNodeType(nodeType)) {
             return true;
         }
 
@@ -196,7 +196,9 @@ public class Utils {
     }
 
     public static boolean isSupportedOSNodeType(final QName nodeType) {
-        return nodeType.equals(Types.raspbianJessieOSNodeType);
+        return nodeType.getNamespaceURI().equalsIgnoreCase(Types.raspbianJessieOSNodeType.getNamespaceURI())
+            && VersionUtils.getNameWithoutVersion(nodeType.getLocalPart())
+            .equalsIgnoreCase(Types.raspbianJessieOSNodeType.getLocalPart());
     }
 
     public static boolean isSupportedDeviceNodeType(final QName nodeType) {
@@ -218,5 +220,11 @@ public class Utils {
         return nodeType.getNamespaceURI().equalsIgnoreCase(Types.dockerEngineNodeType.getNamespaceURI())
             && VersionUtils.getNameWithoutVersion(nodeType.getLocalPart())
             .equalsIgnoreCase(Types.dockerEngineNodeType.getLocalPart());
+    }
+
+    public static boolean isSupportedContainerNodeType(final QName nodeType) {
+        return nodeType.getNamespaceURI().equalsIgnoreCase(Types.dockerContainerNodeType.getNamespaceURI())
+            && VersionUtils.getNameWithoutVersion(nodeType.getLocalPart())
+            .equalsIgnoreCase(Types.dockerContainerNodeType.getLocalPart());
     }
 }

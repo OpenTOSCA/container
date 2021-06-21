@@ -28,6 +28,10 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
     private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder Type Plugin DockerContainer";
 
     public static AbstractDeploymentArtifact fetchFirstDockerContainerDA(final AbstractNodeTemplate nodeTemplate) {
+        return getAbstractDeploymentArtifact(nodeTemplate);
+    }
+
+    public static AbstractDeploymentArtifact getAbstractDeploymentArtifact(AbstractNodeTemplate nodeTemplate) {
         for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
             if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE)
                 || da.getArtifactType()

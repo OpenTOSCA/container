@@ -139,12 +139,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
                     envMappingVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (final IOException | SAXException e) {
+            LOG.error("Error while assigning ports.", e);
         }
 
         // fetch (optional) SSHPort variable
@@ -198,22 +194,22 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
     private String createDeviceMapping(final PropertyVariable sensorDeviceId, final List<Variable> resourceNames) {
         LOG.debug("Creating OpenMTC FS20 Adapater Device Mapping JSON for sensor device "
             + sensorDeviceId.getVariableName() + " " + sensorDeviceId.getNodeTemplate().getId());
-        String baseString = "DEVICE_MAPPINGS={\"',";
+        StringBuilder baseString = new StringBuilder("DEVICE_MAPPINGS={\"',");
 
         for (int i = 0; i < resourceNames.size(); i++) {
             LOG.debug("Adding resourceName: " + resourceNames.get(i));
             LOG.debug("Index is " + i);
-            baseString += "$" + sensorDeviceId.getVariableName() + ",'_" + i + "','\"";
+            baseString.append("$").append(sensorDeviceId.getVariableName()).append(",'_").append(i).append("','\"");
             if (i + 1 == resourceNames.size()) {
-                baseString += ": \"',$" + resourceNames.get(i).getVariableName() + ",'\"',";
+                baseString.append(": \"',$").append(resourceNames.get(i).getVariableName()).append(",'\"',");
             } else {
-                baseString += ": \"',$" + resourceNames.get(i).getVariableName() + ",'\",\"',";
+                baseString.append(": \"',$").append(resourceNames.get(i).getVariableName()).append(",'\",\"',");
             }
         }
 
-        baseString += "'};'";
+        baseString.append("'};'");
 
-        return baseString;
+        return baseString.toString();
     }
 
     @Override
@@ -341,12 +337,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
                     linksVar.getVariableName());
             assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (final IOException | SAXException e) {
+            LOG.error("Error while assigning links.", e);
         }
 
         // fetch (optional) SSHPort variable
@@ -421,31 +413,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
         createDEInternalExternalPropsInput.put("ContainerPorts", portMappingVar);
 
-        if (envMappingVar != null) {
-            createDEInternalExternalPropsInput.put("ContainerEnv", envMappingVar);
-        }
-
-        if (deviceMappingVar != null) {
-            createDEInternalExternalPropsInput.put("Devices", deviceMappingVar);
-        }
-
-        if (linksVar != null) {
-            createDEInternalExternalPropsInput.put("Links", linksVar);
-        }
-
-        if (sshPortVar != null) {
-            // we expect a sshPort back -> add to output handling
-            createDEInternalExternalPropsOutput.put("SSHPort", sshPortVar);
-            createDEInternalExternalPropsInput.put("SSHPort", sshPortVar);
-        }
-
-        if (containerIpVar != null) {
-            createDEInternalExternalPropsOutput.put("ContainerIP", containerIpVar);
-        }
-
-        if (containerIdVar != null) {
-            createDEInternalExternalPropsOutput.put("ContainerID", containerIdVar);
-        }
+        BPELDockerContainerTypePluginHandler.addProperties(sshPortVar, containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar, createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput);
 
         this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
