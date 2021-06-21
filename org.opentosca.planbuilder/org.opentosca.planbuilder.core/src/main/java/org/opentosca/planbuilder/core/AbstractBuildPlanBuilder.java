@@ -37,38 +37,22 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
                                               final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
-        final Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
-        final Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<>();
-        generatePOGActivitesAndLinks(activities, links, nodeMapping, nodeTemplates, relationMapping,
+        generatePOGActivitesAndLinks(activities, links, new HashMap<>(), nodeTemplates, new HashMap<>(),
             relationshipTemplates);
 
         // this.cleanLooseEdges(links);
 
-        final AbstractPlan plan =
-            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
+        return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
 
-            };
-        return plan;
+        };
     }
 
     protected static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
                                               final AbstractServiceTemplate serviceTemplate) {
-
-        final Collection<AbstractActivity> activities = new ArrayList<>();
-        final Set<Link> links = new HashSet<>();
-        final Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
-        final Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<>();
-
-        final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
-
-        generatePOGActivitesAndLinks(activities, links, nodeMapping, topology.getNodeTemplates(), relationMapping,
-            topology.getRelationshipTemplates());
-
-        final AbstractPlan plan =
-            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
-
-            };
-        return plan;
+        return generatePOG(id, definitions, serviceTemplate,
+            serviceTemplate.getTopologyTemplate().getNodeTemplates(),
+            serviceTemplate.getTopologyTemplate().getRelationshipTemplates()
+        );
     }
 
     private static void generatePOGActivitesAndLinks(final Collection<AbstractActivity> activities,
