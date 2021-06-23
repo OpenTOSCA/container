@@ -150,7 +150,7 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
         if (!isDA
             && (BPELPrePhasePlugin.warArtifactType.equals(artifactType) || BPELPrePhasePlugin.warArtifactTypeOld.equals(artifactType))
             && infrastructureNodeType.equals(
-                new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure"))) {
+            new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure"))) {
             // WARs are deployed as environment-centric artifacts -> doesn't
             // need to be deployed on a node inside the topology, instead we
             // install it inside the management infrastructure
@@ -161,7 +161,6 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
             .isSupportedInfrastructureNodeType(infrastructureNodeType)) {
             return false;
         }
-
 
         // we can deploy on debian nodes (ubuntu, rasbpian, docker containers based on
         // debian,..)

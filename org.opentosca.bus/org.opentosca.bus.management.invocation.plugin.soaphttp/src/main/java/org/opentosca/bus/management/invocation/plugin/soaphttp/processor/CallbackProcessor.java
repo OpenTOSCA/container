@@ -117,7 +117,6 @@ public class CallbackProcessor implements Processor {
     private Document node2doc(Node node) {
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
-        DocumentBuilder builder = null;
         try {
             final Document newDocument = factory.newDocumentBuilder().newDocument();
             newDocument.appendChild(newDocument.importNode(node, true));

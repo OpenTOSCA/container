@@ -41,12 +41,11 @@ abstract class DockerUtils {
             return false;
         }
 
-        if (!propMap.containsKey("ImageID")) {
-            // Minimum properties are available, now check for the container image itself.
+        if (!propMap.containsKey("ImageID")
+            && DockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate) == null) {
+            // Minimum properties are available, now check for the container image itself.CallbackProcessor
             // If we didn't find a property to take an image from a public repo, we search for a DA.
-            if (DockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate) == null) {
-                return false;
-            }
+            return false;
         }
 
         // Check whether the nodeTemplate is connected to a DockerEngine Node

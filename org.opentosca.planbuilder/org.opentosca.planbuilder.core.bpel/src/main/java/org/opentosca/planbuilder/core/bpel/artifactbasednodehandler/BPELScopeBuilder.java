@@ -15,7 +15,6 @@ import org.opentosca.planbuilder.core.bpel.tosca.handlers.TOSCAManagementInfrast
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
@@ -703,8 +702,8 @@ public class BPELScopeBuilder {
     /**
      * Searches for NodeTypeImplementations where all IA's can be provisioned by some plugin in the system.
      *
-     * Saves a list of Wrapper class Object which contain information of which ia is provisioned on which
-     * infrastructure by which plugin in <code>chain.iaCandidates</code>.
+     * Saves a list of Wrapper class Object which contain information of which ia is provisioned on which infrastructure
+     * by which plugin in <code>chain.iaCandidates</code>.
      *
      * @param impls      all implementations of single nodetype
      * @param plugins    all plugins possibly capable of working with the ia's contained in a nodetypeImplementation
@@ -759,8 +758,8 @@ public class BPELScopeBuilder {
     /**
      * Searches for NodeTypeImplementations where all IA's can be provisioned by some plugin in the system.
      *
-     * Saves a list of Wrapper class Object which contain information of which ia is provisioned on which
-     * infrastructure by which plugin in <code>chain.iaCandidates</code>.
+     * Saves a list of Wrapper class Object which contain information of which ia is provisioned on which infrastructure
+     * by which plugin in <code>chain.iaCandidates</code>.
      *
      * @param impls      all implementations of single nodetype
      * @param plugins    all plugins possibly capable of working with the ia's contained in a nodetypeImplementation

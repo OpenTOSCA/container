@@ -88,10 +88,8 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
 
     @Override
     public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
-       return DockerUtils.canHandleDockerContainerPropertiesAndDA(nodeTemplate);
+        return DockerUtils.canHandleDockerContainerPropertiesAndDA(nodeTemplate);
     }
-
-
 
     @Override
     public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
