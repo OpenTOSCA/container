@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Container" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat" ALTERNATIVE_JRE_ENABLED="true" ALTERNATIVE_JRE_PATH="1.8">
+  <configuration default="false" name="Container" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat" ALTERNATIVE_JRE_ENABLED="true" ALTERNATIVE_JRE_PATH="11">
     <option name="OPEN_IN_BROWSER" value="false" />
     <option name="UPDATING_POLICY" value="restart-server" />
     <deployment>
@@ -51,6 +51,21 @@
         <option name="PROGRAM_PARAMETERS" value="" />
       </SHUTDOWN>
     </ConfigurationWrapper>
+    <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Profile">
+      <option name="USE_ENV_VARIABLES" value="true" />
+      <STARTUP>
+        <option name="USE_DEFAULT" value="true" />
+        <option name="SCRIPT" value="" />
+        <option name="VM_PARAMETERS" value="" />
+        <option name="PROGRAM_PARAMETERS" value="" />
+      </STARTUP>
+      <SHUTDOWN>
+        <option name="USE_DEFAULT" value="true" />
+        <option name="SCRIPT" value="" />
+        <option name="VM_PARAMETERS" value="" />
+        <option name="PROGRAM_PARAMETERS" value="" />
+      </SHUTDOWN>
+    </ConfigurationWrapper>
     <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Run">
       <option name="USE_ENV_VARIABLES" value="true" />
       <STARTUP>
@@ -68,6 +83,7 @@
     </ConfigurationWrapper>
     <method v="2">
       <option name="Make" enabled="true" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="remove dir" run_configuration_type="ShConfigurationType" />
       <option name="BuildArtifacts" enabled="true">
         <artifact name="org.opentosca.container.war:war exploded" />
       </option>

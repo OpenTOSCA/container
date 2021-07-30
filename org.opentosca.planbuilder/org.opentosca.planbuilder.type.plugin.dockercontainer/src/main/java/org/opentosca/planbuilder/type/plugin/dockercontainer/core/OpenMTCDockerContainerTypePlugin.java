@@ -92,65 +92,13 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     }
 
     public boolean canHandleDockerContainerPropertiesAndDA(final AbstractNodeTemplate nodeTemplate) {
-        // for this method to return true, the given NodeTemplate must hold
-        // under the following statements:
-        // 1. The NodeTemplate has the Properties "ContainerPort" and "Port"
-        // 2. The NodeTemplate has either one DeploymentArtefact of the Type
-        // {http://opentosca.org/artefacttypes}DockerContainer XOR a Property
-        // "ContainerImage"
-        // 3. Is connected to a {http://opentosca.org/nodetypes}DockerEngine
-        // Node trough a path of hostedOn relations
-        // Optional:
-        // Has a "SSHPort" which can be used to further configure the
-        // DockerContainer
-
-        // check mandatory properties
-        if (nodeTemplate.getProperties() == null) {
-            return false;
-        }
-        int check = 0;
-        boolean foundDockerImageProp = false;
-
-        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
-
-        if (propertiesMap.containsKey("ContainerPort")) {
-            check++;
-        } else if (propertiesMap.containsKey("Port")) {
-            check++;
-        } else if (propertiesMap.containsKey("ImageID")) {
-            foundDockerImageProp = true;
-        }
-
-        if (check != 2) {
-            return false;
-        }
-
-        // minimum properties are available, now check for the container image
-        // itself
-
-        // if we didn't find a property to take an image from a public repo,
-        // then we search for a DA
-        if (!foundDockerImageProp) {
-            if (DockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate) == null) {
-                return false;
-            }
-        }
-
-        // check whether the nodeTemplate is connected to a DockerEngine Node
-        return DockerContainerTypePlugin.isConnectedToDockerEnginerNode(nodeTemplate);
+        return DockerUtils.canHandleDockerContainerPropertiesAndDAIgnoringType(nodeTemplate);
     }
 
     public boolean canHandleGateway(final AbstractNodeTemplate nodeTemplate) {
         Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
 
-        int check = 0;
-        if (propertiesMap.containsKey("TenantID")) {
-            check++;
-        } else if (propertiesMap.containsKey("InstanceID")) {
-            check++;
-        }
-
-        if (check != 2) {
+        if (!propertiesMap.containsKey("TenantID") || !propertiesMap.containsKey("InstanceID")) {
             return false;
         }
 
@@ -164,8 +112,8 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
             return false;
         }
 
-        AbstractNodeTemplate gatewayNodeTemplate = null;
-        if ((gatewayNodeTemplate = findConnectedGateway(nodeTemplate)) == null) {
+        AbstractNodeTemplate gatewayNodeTemplate = findConnectedGateway(nodeTemplate);
+        if (gatewayNodeTemplate == null) {
             return false;
         }
 

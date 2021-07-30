@@ -94,19 +94,19 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
                                                    Collection<AbstractRelationshipTemplate> targetRelationshipTemplates, String idSuffix) {
 
         Set<AbstractNodeTemplate> maxCommonSubgraph =
-            this.getMaxCommonSubgraph(new HashSet<AbstractNodeTemplate>(sourceNodeTemplates),
-                new HashSet<AbstractNodeTemplate>(sourceNodeTemplates),
-                new HashSet<AbstractNodeTemplate>(targetNodeTemplates),
-                new HashSet<AbstractNodeTemplate>());
+            this.getMaxCommonSubgraph(new HashSet<>(sourceNodeTemplates),
+                new HashSet<>(sourceNodeTemplates),
+                new HashSet<>(targetNodeTemplates),
+                new HashSet<>());
 
         // find valid subset inside common subgraph, i.e.:
         // any component that is a platform node (every node without outgoing
         // hostedOn edges), or is a node in the subgraph where its (transitive) platform
         // nodes are also in the subgraph are valid
-        Set<AbstractNodeTemplate> deployableMaxCommonSubgraph = this.getDeployableSubgraph(new HashSet<AbstractNodeTemplate>(this.getCorrespondingNodes(maxCommonSubgraph, targetNodeTemplates)));
+        Set<AbstractNodeTemplate> deployableMaxCommonSubgraph = this.getDeployableSubgraph(new HashSet<>(this.getCorrespondingNodes(maxCommonSubgraph, targetNodeTemplates)));
 
         // determine steps which have to be deleted from the original topology
-        Set<AbstractNodeTemplate> nodesToTerminate = new HashSet<AbstractNodeTemplate>(sourceNodeTemplates);
+        Set<AbstractNodeTemplate> nodesToTerminate = new HashSet<>(sourceNodeTemplates);
         nodesToTerminate.removeAll(deployableMaxCommonSubgraph);
         Collection<AbstractRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate);
 
@@ -123,7 +123,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
                 targetServiceTemplate);
 
         // determine steps which have to be start within the new topology
-        Set<AbstractNodeTemplate> nodesToStart = new HashSet<AbstractNodeTemplate>(targetNodeTemplates);
+        Set<AbstractNodeTemplate> nodesToStart = new HashSet<>(targetNodeTemplates);
         nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph, targetNodeTemplates));
 
         Collection<AbstractRelationshipTemplate> relationsToStart = this.getDeployableSubgraph(targetNodeTemplates, this.getOutgoingRelations(nodesToStart));
@@ -145,7 +145,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     public Collection<AbstractRelationshipTemplate> getDeployableSubgraph(Collection<AbstractNodeTemplate> nodes, Collection<AbstractRelationshipTemplate> relations) {
-        Collection<AbstractRelationshipTemplate> result = new HashSet<AbstractRelationshipTemplate>();
+        Collection<AbstractRelationshipTemplate> result = new HashSet<>();
         for (AbstractRelationshipTemplate rel : relations) {
             if (nodes.contains(rel.getSource()) && nodes.contains(rel.getTarget())) {
                 result.add(rel);
@@ -170,12 +170,10 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
      * Generates an abstract order of activities to transform from the source service template to the target service
      * template
      *
-     * @param sourceCsarName          the name of the source csar
-     * @param sourceDefinitions       the id of the source definitions inside the referenced source csar
-     * @param sourceServiceTemplateId the id of the source service templates inside the referenced definitions
-     * @param targetCsarName          the name of the target csar
-     * @param targetDefinitions       the id of the target definitions inside the referenced target csar
-     * @param targetServiceTemplateId the id of the target service templates inside the referenced definitions
+     * @param sourceCsarName    the name of the source csar
+     * @param sourceDefinitions the id of the source definitions inside the referenced source csar
+     * @param targetCsarName    the name of the target csar
+     * @param targetDefinitions the id of the target definitions inside the referenced target csar
      * @return a single AbstractPlan containing abstract activities for a transformation function from the source to the
      * target topology
      */
@@ -187,10 +185,10 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         AbstractTopologyTemplate targetTopology = targetServiceTemplate.getTopologyTemplate();
 
         Set<AbstractNodeTemplate> maxCommonSubgraph =
-            this.getMaxCommonSubgraph(new HashSet<AbstractNodeTemplate>(sourceTopology.getNodeTemplates()),
-                new HashSet<AbstractNodeTemplate>(sourceTopology.getNodeTemplates()),
-                new HashSet<AbstractNodeTemplate>(targetTopology.getNodeTemplates()),
-                new HashSet<AbstractNodeTemplate>());
+            this.getMaxCommonSubgraph(new HashSet<>(sourceTopology.getNodeTemplates()),
+                new HashSet<>(sourceTopology.getNodeTemplates()),
+                new HashSet<>(targetTopology.getNodeTemplates()),
+                new HashSet<>());
 
         // find valid subset inside common subgraph, i.e.:
         // any component that is a platform node (every node without outgoing
@@ -200,7 +198,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
         // determine steps which have to be deleted from the original topology
         Set<AbstractNodeTemplate> nodesToTerminate =
-            new HashSet<AbstractNodeTemplate>(sourceTopology.getNodeTemplates());
+            new HashSet<>(sourceTopology.getNodeTemplates());
         nodesToTerminate.removeAll(deployableMaxCommonSubgraph);
         Collection<AbstractRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate);
 
@@ -217,7 +215,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
                 targetServiceTemplate);
 
         // determine steps which have to be start within the new topology
-        Set<AbstractNodeTemplate> nodesToStart = new HashSet<AbstractNodeTemplate>(targetTopology.getNodeTemplates());
+        Set<AbstractNodeTemplate> nodesToStart = new HashSet<>(targetTopology.getNodeTemplates());
         nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph,
             targetTopology.getNodeTemplates()));
         Collection<AbstractRelationshipTemplate> relationsToStart = this.getOutgoingRelations(nodesToStart);
@@ -244,15 +242,11 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
                                                                      AbstractDefinitions targetDefinitions,
                                                                      AbstractServiceTemplate sourceServiceTemplate,
                                                                      AbstractServiceTemplate targetServiceTemplate) {
-
         // General flow is as within a build plan
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
-        final Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
-        final Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<>();
-
-        this.generateIMOGActivitesAndLinks(activities, links, nodeMapping, nodeTemplates, relationMapping,
+        this.generateIMOGActivitesAndLinks(activities, links, new HashMap<>(), nodeTemplates, new HashMap<>(),
             relationshipTemplates);
 
         return new AbstractTransformationPlan(
@@ -297,7 +291,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
     private Collection<AbstractRelationshipTemplate> getConnectingEdges(Collection<AbstractRelationshipTemplate> allEdges,
                                                                         Collection<AbstractNodeTemplate> subgraphNodes) {
-        Collection<AbstractRelationshipTemplate> connectingEdges = new HashSet<AbstractRelationshipTemplate>();
+        Collection<AbstractRelationshipTemplate> connectingEdges = new HashSet<>();
 
         for (AbstractRelationshipTemplate rel : allEdges) {
             if (subgraphNodes.contains(rel.getSource()) && subgraphNodes.contains(rel.getTarget())) {
@@ -310,10 +304,10 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
     private Collection<AbstractNodeTemplate> getCorrespondingNodes(Collection<AbstractNodeTemplate> subgraph,
                                                                    Collection<AbstractNodeTemplate> graph) {
-        Collection<AbstractNodeTemplate> correspondingNodes = new HashSet<AbstractNodeTemplate>();
+        Collection<AbstractNodeTemplate> correspondingNodes = new HashSet<>();
         for (AbstractNodeTemplate subgraphNode : subgraph) {
-            AbstractNodeTemplate correspondingNode = null;
-            if ((correspondingNode = this.getCorrespondingNode(subgraphNode, graph)) != null) {
+            AbstractNodeTemplate correspondingNode = this.getCorrespondingNode(subgraphNode, graph);
+            if (correspondingNode != null) {
                 correspondingNodes.add(correspondingNode);
             }
         }
@@ -343,11 +337,11 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
     private AbstractTransformationPlan mergePlans(String id, PlanType type, AbstractPlan plan1, AbstractPlan plan2) {
 
-        Collection<AbstractActivity> activities = new HashSet<AbstractActivity>();
+        Collection<AbstractActivity> activities = new HashSet<>();
         activities.addAll(plan1.getActivites());
         activities.addAll(plan2.getActivites());
 
-        Collection<Link> links = new HashSet<Link>();
+        Collection<Link> links = new HashSet<>();
         links.addAll(plan1.getLinks());
         links.addAll(plan2.getLinks());
 
@@ -366,7 +360,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     private Collection<AbstractRelationshipTemplate> getOutgoingRelations(Set<AbstractNodeTemplate> nodes) {
-        Collection<AbstractRelationshipTemplate> relations = new HashSet<AbstractRelationshipTemplate>();
+        Collection<AbstractRelationshipTemplate> relations = new HashSet<>();
         for (AbstractNodeTemplate node : nodes) {
             relations.addAll(node.getOutgoingRelations());
         }
@@ -374,7 +368,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     private Collection<AbstractNodeTemplate> getNeededNodes(AbstractNodeTemplate nodeTemplate) {
-        for (IPlanBuilderTypePlugin typePlugin : this.pluginRegistry.getTypePlugins()) {
+        for (IPlanBuilderTypePlugin<?> typePlugin : this.pluginRegistry.getTypePlugins()) {
             if (typePlugin.canHandleCreate(nodeTemplate)) {
                 if (typePlugin instanceof IPlanBuilderTypePlugin.NodeDependencyInformationInterface) {
                     return ((IPlanBuilderTypePlugin.NodeDependencyInformationInterface) typePlugin).getCreateDependencies(nodeTemplate);
@@ -385,8 +379,8 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     public Set<AbstractNodeTemplate> getDeployableSubgraph(Set<AbstractNodeTemplate> graph) {
-        Set<AbstractNodeTemplate> validDeploymentSubgraph = new HashSet<AbstractNodeTemplate>(graph);
-        Set<AbstractNodeTemplate> toRemove = new HashSet<AbstractNodeTemplate>();
+        Set<AbstractNodeTemplate> validDeploymentSubgraph = new HashSet<>(graph);
+        Set<AbstractNodeTemplate> toRemove = new HashSet<>();
 
         for (AbstractNodeTemplate node : graph) {
 
@@ -405,7 +399,6 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             // if the needed nodes are not in the graph we cannot deploy it
             if (!this.contains(graph, neededNodes)) {
                 toRemove.add(node);
-                continue;
             }
         }
 
@@ -457,9 +450,9 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         if (vertices.isEmpty()) {
             if (this.isCommonSubgraph(graph1, graph2, currentSubset)) {
                 LOG.debug("Returning the current subset of {}", this.printCandidate(currentSubset));
-                return new HashSet<AbstractNodeTemplate>(currentSubset);
+                return new HashSet<>(currentSubset);
             } else {
-                return new HashSet<AbstractNodeTemplate>();
+                return new HashSet<>();
             }
         }
 
@@ -470,7 +463,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         currentSubset.add(v);
         LOG.debug("Current subset {}", this.printCandidate(currentSubset));
 
-        Set<AbstractNodeTemplate> cand2 = new HashSet<AbstractNodeTemplate>();
+        Set<AbstractNodeTemplate> cand2 = new HashSet<>();
 
         if (this.isCommonSubgraph(graph1, graph2, currentSubset)) {
             cand2 = this.getMaxCommonSubgraph(vertices, graph1, graph2, currentSubset);
@@ -493,20 +486,20 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     private String printCandidate(Collection<AbstractNodeTemplate> nodeTemplates) {
-        String print = "{";
+        StringBuilder print = new StringBuilder("{");
 
-        AbstractNodeTemplate[] nodes = nodeTemplates.toArray(new AbstractNodeTemplate[nodeTemplates.size()]);
+        AbstractNodeTemplate[] nodes = nodeTemplates.toArray(new AbstractNodeTemplate[0]);
 
         for (int i = 0; i < nodes.length; i++) {
-            print += nodes[i].getId();
+            print.append(nodes[i].getId());
             if (i + 1 < nodes.length) {
-                print += ",";
+                print.append(",");
             }
         }
 
-        print += "}";
+        print.append("}");
 
-        return print;
+        return print.toString();
     }
 
     private AbstractNodeTemplate pop(Set<AbstractNodeTemplate> nodes) {

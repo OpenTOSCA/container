@@ -184,7 +184,7 @@ public class BPELPluginHandler {
         boolean result = true;
 
         if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
-            LOG.debug("Ignoring NodeTemplate {} with activityType {}", nodeTemplate.getId(),
+            LOG.debug("Processing NodeTemplate {} with activityType {}", nodeTemplate.getId(),
                 bpelScope.getActivity().getType());
 
             // generate code for the pre handling, e.g., upload DAs

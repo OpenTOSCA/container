@@ -24,7 +24,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuilder {
@@ -41,36 +40,20 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
                                            final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
-        final Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
-        final Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<>();
-        generateDOGActivitesAndLinks(activities, links, nodeMapping, nodeTemplates, relationMapping,
+        generateDOGActivitesAndLinks(activities, links, new HashMap<>(), nodeTemplates, new HashMap<>(),
             relationshipTemplates);
 
-        final AbstractPlan plan =
-            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
+        return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
 
-            };
-        return plan;
+        };
     }
 
     public static AbstractPlan generateDOG(final String id, final AbstractDefinitions definitions,
                                            final AbstractServiceTemplate serviceTemplate) {
-
-        final Collection<AbstractActivity> activities = new ArrayList<>();
-        final Set<Link> links = new HashSet<>();
-        final Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
-        final Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<>();
-
-        final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
-
-        generateDOGActivitesAndLinks(activities, links, nodeMapping, topology.getNodeTemplates(), relationMapping,
-            topology.getRelationshipTemplates());
-
-        final AbstractPlan plan =
-            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
-
-            };
-        return plan;
+        return generatePOG(id, definitions, serviceTemplate,
+            serviceTemplate.getTopologyTemplate().getNodeTemplates(),
+            serviceTemplate.getTopologyTemplate().getRelationshipTemplates()
+        );
     }
 
     private static void generateDOGActivitesAndLinks(final Collection<AbstractActivity> activities,
@@ -124,10 +107,10 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
     }
 
     private static Collection<AbstractNodeTemplate> calculateNodesToStart(Collection<AbstractNodeTemplate> nodes) {
-        Collection<AbstractNodeTemplate> nodesToStart = new HashSet<AbstractNodeTemplate>();
+        Collection<AbstractNodeTemplate> nodesToStart = new HashSet<>();
 
         for (AbstractNodeTemplate node : nodes) {
-            List<AbstractNodeTemplate> nodesToSink = new ArrayList<AbstractNodeTemplate>();
+            List<AbstractNodeTemplate> nodesToSink = new ArrayList<>();
             ModelUtils.getNodesFromNodeToSink(node, Types.hostedOnRelationType, nodesToSink);
             for (AbstractNodeTemplate nodeToSink : nodesToSink) {
                 if (!nodeToSink.equals(node) && AbstractDefrostPlanBuilder.hasFreezeableComponentPolicy(nodeToSink)) {

@@ -148,10 +148,9 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
         }
 
         if (!isDA
-            && (BPELPrePhasePlugin.warArtifactType.equals(artifactType)
-            || BPELPrePhasePlugin.warArtifactTypeOld.equals(artifactType))
-            && infrastructureNodeType
-            .equals(new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure"))) {
+            && (BPELPrePhasePlugin.warArtifactType.equals(artifactType) || BPELPrePhasePlugin.warArtifactTypeOld.equals(artifactType))
+            && infrastructureNodeType.equals(
+            new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure"))) {
             // WARs are deployed as environment-centric artifacts -> doesn't
             // need to be deployed on a node inside the topology, instead we
             // install it inside the management infrastructure
@@ -163,69 +162,22 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
             return false;
         }
 
-        boolean isSupportedArtifactType = false;
-
-        if (BPELPrePhasePlugin.jarArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        if (BPELPrePhasePlugin.archiveArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        if (BPELPrePhasePlugin.scriptArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        if (BPELPrePhasePlugin.ansibleArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        if (BPELPrePhasePlugin.chefArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        if (BPELPrePhasePlugin.bpelArchiveArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        if (BPELPrePhasePlugin.warArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        if (BPELPrePhasePlugin.warArtifactTypeOld.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        if (BPELPrePhasePlugin.sqlArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        if (BPELPrePhasePlugin.configurationArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        if (BPELPrePhasePlugin.dockerContainerArtefactTypeOld.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        // if (BPELPrePhasePlugin.dockerContainerArtefactType.equals(artifactType)) {
-        // isSupportedArtifactType |= true;
-        // }
-
-        if (BPELPrePhasePlugin.tdlConfigurationArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
-        // We always support state artifacts.
-        if (BPELPrePhasePlugin.stateArtifactType.equals(artifactType)) {
-            isSupportedArtifactType |= true;
-        }
-
         // we can deploy on debian nodes (ubuntu, rasbpian, docker containers based on
         // debian,..)
-
-        return isSupportedArtifactType;
+        return BPELPrePhasePlugin.jarArtifactType.equals(artifactType)
+            || BPELPrePhasePlugin.archiveArtifactType.equals(artifactType)
+            || BPELPrePhasePlugin.scriptArtifactType.equals(artifactType)
+            || BPELPrePhasePlugin.ansibleArtifactType.equals(artifactType)
+            || BPELPrePhasePlugin.chefArtifactType.equals(artifactType)
+            || BPELPrePhasePlugin.bpelArchiveArtifactType.equals(artifactType)
+            || BPELPrePhasePlugin.warArtifactType.equals(artifactType)
+            || BPELPrePhasePlugin.warArtifactTypeOld.equals(artifactType)
+            || BPELPrePhasePlugin.sqlArtifactType.equals(artifactType)
+            || BPELPrePhasePlugin.configurationArtifactType.equals(artifactType)
+            || BPELPrePhasePlugin.dockerContainerArtefactTypeOld.equals(artifactType)
+            || BPELPrePhasePlugin.tdlConfigurationArtifactType.equals(artifactType)
+            // We always support state artifacts.
+            || BPELPrePhasePlugin.stateArtifactType.equals(artifactType);
     }
 
     @Override

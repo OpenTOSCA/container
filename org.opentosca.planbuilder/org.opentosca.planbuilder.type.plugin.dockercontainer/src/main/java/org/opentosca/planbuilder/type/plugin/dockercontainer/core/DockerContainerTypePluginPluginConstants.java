@@ -10,12 +10,11 @@ import javax.xml.namespace.QName;
  */
 public class DockerContainerTypePluginPluginConstants {
 
-    public final static QName DOCKER_CONTAINER_NODETYPE = new QName("http://opentosca.org/nodetype", "DockerContainer");
-    public final static QName DOCKER_CONTAINER_NODETYPE2 =
-        new QName("http://opentosca.org/nodetypes", "DockerContainer");
-    public final static QName DOCKER_CONTAINER_ARTEFACTTYPE_OLD =
+    public final static QName DOCKER_CONTAINER_NODETYPE  = new QName("http://opentosca.org/nodetype", "DockerContainer");
+    public final static QName DOCKER_CONTAINER_NODETYPE2 = new QName("http://opentosca.org/nodetypes", "DockerContainer");
+    public final static QName DOCKER_CONTAINER_ARTIFACTTYPE_OLD =
         new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
-    public final static QName DOCKER_CONTAINER_ARTEFACTTYPE =
+    public final static QName DOCKER_CONTAINER_ARTIFACTTYPE =
         new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
 
     public final static QName DOCKER_VOLUME_ARTIFACTTYPE =
