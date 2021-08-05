@@ -345,23 +345,17 @@ public final class ToscaEngine {
         // FIXME this is a bit weird, because it resolves the implementations of the whole type hierarchy,
         //  but that matches the previous implementation, soo ...
 
-        List<TNodeTypeImplementation> result = csar.nodeTypeImplementations().stream()
-            .filter(impl -> {
+        // keep NodeTypeImplementations in hierarchy order to avoid using an overwritten implementation
+        List<TNodeTypeImplementation> result = new ArrayList<>();
+        for (TNodeType hierarchyNodeType : hierarchy) {
+            result.addAll(csar.nodeTypeImplementations().stream().filter(impl -> {
                 try {
-                    TNodeType implementationNodeType = resolveNodeTypeReference(csar, impl.getNodeType());
-
-                    for (TNodeType nodeType : hierarchy) {
-                        if (nodeType.getQName().equals(implementationNodeType.getQName())) {
-                            return true;
-                        }
-                    }
-                    return false;
+                    return resolveNodeTypeReference(csar, impl.getNodeType()).getQName().equals(hierarchyNodeType.getQName());
                 } catch (NotFoundException e) {
-                    LOG.warn("Could not find NodeType of a known NodeTypeImplementation");
                     return false;
                 }
-            })
-            .collect(Collectors.toList());
+            }).collect(Collectors.toList()));
+        }
 
         return result;
     }
