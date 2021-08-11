@@ -27,7 +27,7 @@ import org.opentosca.container.core.model.endpoint.AbstractEndpoint;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = WSDLEndpoint.tableName,
     uniqueConstraints = @UniqueConstraint(columnNames = {"portType", "csarId", "managingContainer",
-        "serviceTemplateInstanceID"}))
+        "serviceTemplateInstanceID", "TypeImplementation" , "IaName"}))
 @NamedQueries( {
     @NamedQuery(name = WSDLEndpoint.getWSDLEndpointByPortType, query = WSDLEndpoint.queryByPortType)
 })

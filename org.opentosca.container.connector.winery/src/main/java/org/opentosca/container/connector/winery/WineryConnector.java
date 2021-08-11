@@ -51,8 +51,8 @@ public class WineryConnector {
 
     public WineryConnector() {
         String configurationValue = Settings.getSetting("org.opentosca.container.connector.winery.url");
-        if (!configurationValue.endsWith("/")) {
-            configurationValue = configurationValue + "/";
+        if (configurationValue == null) {
+            configurationValue = "";
         }
         try {
             new URI(configurationValue);

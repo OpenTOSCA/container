@@ -22,9 +22,14 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder {
+
+    private final static Logger LOG = LoggerFactory.getLogger(AbstractBuildPlanBuilder.class);
 
     public AbstractBuildPlanBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);
@@ -41,17 +46,31 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
 
         // this.cleanLooseEdges(links);
 
-        return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
-
-        };
+        return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links){};
     }
 
     protected static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
                                               final AbstractServiceTemplate serviceTemplate) {
-        return generatePOG(id, definitions, serviceTemplate,
-            serviceTemplate.getTopologyTemplate().getNodeTemplates(),
-            serviceTemplate.getTopologyTemplate().getRelationshipTemplates()
-        );
+
+        final Collection<AbstractActivity> activities = new ArrayList<>();
+        final Set<Link> links = new HashSet<>();
+        final Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
+        final Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<>();
+
+        final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
+
+        generatePOGActivitiesAndLinks(activities, links, nodeMapping, topology.getNodeTemplates(), relationMapping,
+            topology.getRelationshipTemplates());
+
+        final AbstractPlan plan =
+            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
+
+            };
+
+        LOG.debug("Generated the following plan: ");
+        LOG.debug(plan.toString());
+        return plan;
+
     }
 
     // Generate TOG and POG are too similar and are detected as duplicates.
