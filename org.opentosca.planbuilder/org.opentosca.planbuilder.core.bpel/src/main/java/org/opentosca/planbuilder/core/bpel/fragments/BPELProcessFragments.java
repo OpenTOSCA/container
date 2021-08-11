@@ -709,10 +709,8 @@ public class BPELProcessFragments {
 
     public String createXPathQueryForURLRemoteFilePathViaContainerAPI(final String artifactPath, final String csarId) {
         BPELProcessFragments.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-        final String filePath =
-            "string(concat($input.payload//*[local-name()='containerApiAddress']/text(),'/csars/" + csarId + "', '/content/"
-                + artifactPath + "'))";
-        return filePath;
+        return "string(concat($input.payload//*[local-name()='containerApiAddress']/text(),'/csars/" + csarId + "', '/content/"
+            + artifactPath + "'))";
     }
 
     public String generateServiceInstanceRequestMessageAssign(final String inputMessageElementLocalName,

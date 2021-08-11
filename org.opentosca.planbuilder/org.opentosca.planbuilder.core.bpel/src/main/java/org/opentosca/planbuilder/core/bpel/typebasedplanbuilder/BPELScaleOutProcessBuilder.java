@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
@@ -97,7 +98,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     private boolean addInstanceIdToOutput(final BPELScope activ, AbstractServiceTemplate serviceTemplate) {
-        String outputName = "";
+        String outputName;
         if (activ.getNodeTemplate() != null) {
             outputName = "CreatedInstance_" + activ.getNodeTemplate().getId();
         } else {
@@ -151,13 +152,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                         + "]");
             fetchNodeInstanceData = nodeContext.importNode(fetchNodeInstanceData);
             nodeContext.getPrePhaseElement().appendChild(fetchNodeInstanceData);
-        } catch (final IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (final SAXException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (final ParserConfigurationException e1) {
+        } catch (final IOException | SAXException | ParserConfigurationException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
@@ -175,13 +170,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                     + System.currentTimeMillis(), responseVarName, nodeInstanceVarName, xpathQuery);
             queryNodeInstanceUrl = nodeContext.importNode(queryNodeInstanceUrl);
             nodeContext.getPrePhaseElement().appendChild(queryNodeInstanceUrl);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final ParserConfigurationException e) {
+        } catch (final IOException | SAXException | ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -227,13 +216,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                     nodeTemplateInstanceVarName);
             requestRelationInstance = relationContext.importNode(requestRelationInstance);
             relationContext.getPrePhaseElement().appendChild(requestRelationInstance);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final ParserConfigurationException e) {
+        } catch (final IOException | SAXException | ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -245,13 +228,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         try {
             new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("recursiveSelection_fetchRelationInstance"
                 + System.currentTimeMillis(), xpathQuery, relationshipTemplateInstanceVarName);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final ParserConfigurationException e) {
+        } catch (final IOException | SAXException | ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -272,7 +249,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         }
 
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} scaling plans for CSAR {}", String.valueOf(plans.size()), csarName);
+            LOG.info("Created {} scaling plans for CSAR {}", plans.size(), csarName);
         }
         return plans;
     }
@@ -318,8 +295,8 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
             this.planHandler.initializeBPELSkeleton(bpelScaleOutProcess, csarName);
 
-            Collection<AbstractNodeTemplate> nodes = bpelScaleOutProcess.getTemplateBuildPlans().stream().filter(x -> x.getNodeTemplate() != null).map(x -> x.getNodeTemplate()).distinct().collect(Collectors.toList());
-            Collection<AbstractRelationshipTemplate> relations = bpelScaleOutProcess.getTemplateBuildPlans().stream().filter(x -> x.getRelationshipTemplate() != null).map(x -> x.getRelationshipTemplate()).distinct().collect(Collectors.toList());
+            Collection<AbstractNodeTemplate> nodes = bpelScaleOutProcess.getTemplateBuildPlans().stream().map(BPELScope::getNodeTemplate).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+            Collection<AbstractRelationshipTemplate> relations = bpelScaleOutProcess.getTemplateBuildPlans().stream().map(BPELScope::getRelationshipTemplate).filter(Objects::nonNull).distinct().collect(Collectors.toList());
 
             final Property2VariableMapping propMap = this.propertyInitializer.initializePropertiesAsVariables(bpelScaleOutProcess, serviceTemplate, nodes, relations);
 
@@ -569,7 +546,9 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                 fetchNodeTemplate(topologyTemplate, selectionStrategyBorderNodesMap.get(selectionStrategy));
             if (node != null) {
                 if (findAnnotNode(annotNodes, node) != null) {
-                    findAnnotNode(annotNodes, node).getAnnotations().add(selectionStrategy);
+                    Objects.requireNonNull(findAnnotNode(annotNodes, node), "annotation node may not be null")
+                        .getAnnotations()
+                        .add(selectionStrategy);
                 } else {
                     final List<String> annot = new ArrayList<>();
                     annot.add(selectionStrategy);

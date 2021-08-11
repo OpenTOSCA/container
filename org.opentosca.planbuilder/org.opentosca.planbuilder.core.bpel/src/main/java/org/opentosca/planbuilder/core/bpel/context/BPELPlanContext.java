@@ -1097,9 +1097,9 @@ public class BPELPlanContext extends PlanContext {
      */
     public QName registerPortType(QName portType, final Path wsdlDefinitionsFile) {
         portType = importNamespace(portType);
-        boolean check = true;
+        boolean check;
         // import wsdl into plan wsdl
-        check &= this.templateBuildPlan.getBuildPlan().getWsdl()
+        check = this.templateBuildPlan.getBuildPlan().getWsdl()
             .addImportElement("http://schemas.xmlsoap.org/wsdl/", portType.getNamespaceURI(),
                 portType.getPrefix(),
 
@@ -1134,9 +1134,9 @@ public class BPELPlanContext extends PlanContext {
      * @return true if registered type successful, else false
      */
     public boolean registerType(final QName type, final Path xmlSchemaFile) {
-        boolean check = true;
+        boolean check;
         // add as imported file to plan
-        check &= this.buildPlanHandler.addImportedFile(xmlSchemaFile, this.templateBuildPlan.getBuildPlan());
+        check = this.buildPlanHandler.addImportedFile(xmlSchemaFile, this.templateBuildPlan.getBuildPlan());
         // import type inside bpel file
         check &= this.buildPlanHandler.addImportToBpel(type.getNamespaceURI(), xmlSchemaFile.toAbsolutePath().toString(),
             "http://www.w3.org/2001/XMLSchema",
@@ -1149,7 +1149,7 @@ public class BPELPlanContext extends PlanContext {
         BPELPlan plan = this.templateBuildPlan.getBuildPlan();
         Element mainReceiveElement = plan.getBpelMainSequenceReceiveElement();
 
-        Element correlationsElement = null;
+        Element correlationsElement;
         if (mainReceiveElement.getElementsByTagName("correlations").getLength() != 0) {
             correlationsElement = (Element) mainReceiveElement.getElementsByTagName("correlations").item(0);
         } else {

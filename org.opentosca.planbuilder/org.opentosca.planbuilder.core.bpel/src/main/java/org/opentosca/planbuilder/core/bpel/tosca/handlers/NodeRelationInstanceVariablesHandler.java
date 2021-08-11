@@ -80,10 +80,7 @@ public class NodeRelationInstanceVariablesHandler {
                 Node bpelIf = this.bpelFragments.generateBPELIfTrueThrowFaultAsNode(xpathQuery, propertyEmptyFault);
                 bpelIf = templatePlan.getBpelDocument().importNode(bpelIf, true);
                 templatePlan.getBpelSequencePrePhaseElement().appendChild(bpelIf);
-            } catch (final IOException e) {
-                e.printStackTrace();
-                return false;
-            } catch (final SAXException e) {
+            } catch (final IOException | SAXException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -123,9 +120,7 @@ public class NodeRelationInstanceVariablesHandler {
                     query);
             nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstanceGETNode);
-        } catch (final SAXException e) {
-            e.printStackTrace();
-        } catch (final IOException e) {
+        } catch (final SAXException | IOException e) {
             e.printStackTrace();
         }
 
@@ -141,9 +136,7 @@ public class NodeRelationInstanceVariablesHandler {
                 templatePlan.getBpelDocument().importNode(assignNodeInstanceIDFromInstanceDataAPIQueryResponse, true);
             templatePlan.getBpelSequencePrePhaseElement()
                 .appendChild(assignNodeInstanceIDFromInstanceDataAPIQueryResponse);
-        } catch (final SAXException e) {
-            e.printStackTrace();
-        } catch (final IOException e) {
+        } catch (final SAXException | IOException e) {
             e.printStackTrace();
         }
 
@@ -173,9 +166,7 @@ public class NodeRelationInstanceVariablesHandler {
                     query);
             relationInstanceGETNode = templatePlan.getBpelDocument().importNode(relationInstanceGETNode, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(relationInstanceGETNode);
-        } catch (final SAXException e) {
-            e.printStackTrace();
-        } catch (final IOException e) {
+        } catch (final SAXException | IOException e) {
             e.printStackTrace();
         }
 
@@ -189,9 +180,7 @@ public class NodeRelationInstanceVariablesHandler {
                 templatePlan.getBpelDocument().importNode(assignNodeInstanceIDFromInstanceDataAPIQueryResponse, true);
             templatePlan.getBpelSequencePrePhaseElement()
                 .appendChild(assignNodeInstanceIDFromInstanceDataAPIQueryResponse);
-        } catch (final SAXException e) {
-            e.printStackTrace();
-        } catch (final IOException e) {
+        } catch (final SAXException | IOException e) {
             e.printStackTrace();
         }
 
@@ -405,9 +394,7 @@ public class NodeRelationInstanceVariablesHandler {
             nodeInstancePropertiesGETNode =
                 templatePlan.getBpelDocument().importNode(nodeInstancePropertiesGETNode, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstancePropertiesGETNode);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             e.printStackTrace();
         }
 
@@ -429,9 +416,7 @@ public class NodeRelationInstanceVariablesHandler {
                     + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, relationshipTemplate.getProperties().getNamespace());
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             e.printStackTrace();
         }
 
@@ -482,9 +467,7 @@ public class NodeRelationInstanceVariablesHandler {
             nodeInstancePropertiesGETNode =
                 templatePlan.getBpelDocument().importNode(nodeInstancePropertiesGETNode, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstancePropertiesGETNode);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             e.printStackTrace();
         }
 
@@ -506,9 +489,7 @@ public class NodeRelationInstanceVariablesHandler {
                     + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, nodeTemplate.getProperties().getNamespace());
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             e.printStackTrace();
         }
 
@@ -543,9 +524,7 @@ public class NodeRelationInstanceVariablesHandler {
 
             nodeInstancePropertiesGETNode = context.importNode(nodeInstancePropertiesGETNode);
             context.getPrePhaseElement().appendChild(nodeInstancePropertiesGETNode);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             e.printStackTrace();
         }
 
@@ -568,9 +547,7 @@ public class NodeRelationInstanceVariablesHandler {
                     + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, nodeTemplate.getProperties().getNamespace());
             assignPropertiesToVariables = context.importNode(assignPropertiesToVariables);
             context.getPrePhaseElement().appendChild(assignPropertiesToVariables);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             e.printStackTrace();
         }
 
@@ -615,10 +592,7 @@ public class NodeRelationInstanceVariablesHandler {
                     "count(//*[local-name()='RelationshipTemplateInstance'])");
             assignCounter = context.importNode(assignCounter);
             templateMainSequeceNode.appendChild(assignCounter);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -693,10 +667,7 @@ public class NodeRelationInstanceVariablesHandler {
                     "count(//*[local-name()='NodeTemplateInstance'])");
             assignCounter = context.importNode(assignCounter);
             templateMainSequeceNode.appendChild(assignCounter);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -812,7 +783,7 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     public String findInstanceVarName(final BPELScope templatePlan, AbstractServiceTemplate serviceTemplate, boolean findUrl) {
-        String templateId = "";
+        String templateId;
 
         boolean isNode = true;
         if (templatePlan.getNodeTemplate() != null) {

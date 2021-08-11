@@ -168,10 +168,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         final String serviceInstanceIdVarName = this.addServiceInstanceIDVariable(plan);
         final String serviceTemplateUrlVarName = this.addServiceTemplateURLVariable(plan);
         final String planInstanceUrlVarName = this.addPlanInstanceURLVariable(plan);
-        boolean isManagementPlan = false;
-        if (plan.getType().equals(PlanType.MANAGEMENT)) {
-            isManagementPlan = true;
-        }
+        boolean isManagementPlan = plan.getType().equals(PlanType.MANAGEMENT);
 
         appendServiceInstanceInitCode(plan, instanceDataAPIVarName, serviceInstanceUrlVarName, serviceInstanceIdVarName,
             serviceTemplateUrlVarName, planInstanceUrlVarName, isManagementPlan);
@@ -211,10 +208,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                     restCallRequestVarName);
             assignRequestWithStateNode = plan.getBpelDocument().importNode(assignRequestWithStateNode, true);
             insertAsChild.appendChild(assignRequestWithStateNode);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -233,10 +227,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 this.fragments.createBPEL4RESTLightPutStateAsNode(urlVarName, restCallRequestVarName);
             setInstanceStateRequestNode = plan.getBpelDocument().importNode(setInstanceStateRequestNode, true);
             insertAsChild.appendChild(setInstanceStateRequestNode);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -279,9 +270,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             Node waitNode = this.fragments.createWait("'PT1S'");
             waitNode = plan.getBpelDocument().importNode(waitNode, true);
             insertBeforeElement.getParentNode().insertBefore(waitNode, insertBeforeElement);
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (SAXException | IOException e) {
             e.printStackTrace();
         }
 
@@ -293,9 +282,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                     restCallRequestVarName);
             assignRequestWithStateNode = plan.getBpelDocument().importNode(assignRequestWithStateNode, true);
             insertBeforeElement.getParentNode().insertBefore(assignRequestWithStateNode, insertBeforeElement);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             e.printStackTrace();
         }
 
@@ -312,10 +299,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 this.fragments.createBPEL4RESTLightPutStateAsNode(serviceInstanceURLVarName, restCallRequestVarName);
             setInstanceStateRequestNode = plan.getBpelDocument().importNode(setInstanceStateRequestNode, true);
             insertBeforeElement.getParentNode().insertBefore(setInstanceStateRequestNode, insertBeforeElement);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -391,9 +375,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(nodeInstanceGETNode,
                     plan.getBpelMainFlowElement());
-            } catch (final SAXException e) {
-                e.printStackTrace();
-            } catch (final IOException e) {
+            } catch (final SAXException | IOException e) {
                 e.printStackTrace();
             }
 
@@ -407,9 +389,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                         true);
                 plan.getBpelMainFlowElement().getParentNode()
                     .insertBefore(assignNodeInstanceIDFromInstanceDataAPIQueryResponse, plan.getBpelMainFlowElement());
-            } catch (final SAXException e) {
-                e.printStackTrace();
-            } catch (final IOException e) {
+            } catch (final SAXException | IOException e) {
                 e.printStackTrace();
             }
 
@@ -422,9 +402,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                     templatePlan.getBpelDocument().importNode(nodeInstancePropertiesGETNode, true);
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(nodeInstancePropertiesGETNode,
                     plan.getBpelMainFlowElement());
-            } catch (final IOException e) {
-                e.printStackTrace();
-            } catch (final SAXException e) {
+            } catch (final IOException | SAXException e) {
                 e.printStackTrace();
             }
 
@@ -450,9 +428,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                     templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(assignPropertiesToVariables,
                     plan.getBpelMainFlowElement());
-            } catch (final IOException e) {
-                e.printStackTrace();
-            } catch (final SAXException e) {
+            } catch (final IOException | SAXException e) {
                 e.printStackTrace();
             }
         }
@@ -482,10 +458,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                     + System.currentTimeMillis(), xpath2Query, serviceTemplateUrlVariableName);
             assignFragment = plan.getBpelDocument().importNode(assignFragment, true);
             appendToInitSequence(assignFragment, plan);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -508,10 +481,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 + System.currentTimeMillis(), xpath2Query, planInstanceUrlVarName);
             assignFragment = plan.getBpelDocument().importNode(assignFragment, true);
             appendToInitSequence(assignFragment, plan);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -530,9 +500,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                     "payload", "instanceId");
             copyNode = plan.getBpelDocument().importNode(copyNode, true);
             plan.getBpelMainSequenceOutputAssignElement().appendChild(copyNode);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             e.printStackTrace();
         }
     }
@@ -602,9 +570,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                     restCallRequestVarName);
             assignRestRequestNode = plan.getBpelDocument().importNode(assignRestRequestNode, true);
             appendToInitSequence(assignRestRequestNode, plan);
-        } catch (final IOException e1) {
-            e1.printStackTrace();
-        } catch (final SAXException e1) {
+        } catch (final IOException | SAXException e1) {
             e1.printStackTrace();
         }
 
@@ -615,9 +581,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                     restCallResponseVarName);
             serviceInstancePOSTNode = plan.getBpelDocument().importNode(serviceInstancePOSTNode, true);
             appendToInitSequence(serviceInstancePOSTNode, plan);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             e.printStackTrace();
         }
 
@@ -650,7 +614,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                     serviceInstanceCorrelationIdVarName);
             assignCorr = plan.getBpelDocument().importNode(assignCorr, true);
             appendToInitSequence(assignCorr, plan);
-            Node serviceInstanceURLAssignNode = null;
+            Node serviceInstanceURLAssignNode;
             if (isManagementPlan) {
                 serviceInstanceURLAssignNode =
                     this.fragments.generateServiceInstanceDataVarsAssignForManagementPlansAsNode(restCallResponseVarName,
@@ -676,10 +640,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 serviceInstanceURLAssignNode = plan.getBpelDocument().importNode(serviceInstanceURLAssignNode, true);
             }
             appendToInitSequence(serviceInstanceURLAssignNode, plan);
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
+        } catch (final IOException | SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -703,10 +664,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             // "Create ServiceInstancesURL for the target", null);
             assignServiceInstancesUrl = plan.getBpelDocument().importNode(assignServiceInstancesUrl, true);
             appendToInitSequence(assignServiceInstancesUrl, plan);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
+        } catch (IOException | SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
