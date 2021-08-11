@@ -1,6 +1,12 @@
 <bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" validate="no" name="$assignName">
     <bpel:copy>
         <bpel:from variable="$NodeInstancesResponseVarName"><bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[//*[local-name()='NodeTemplateInstanceResources']/*[local-name()='NodeTemplateInstances']/*[local-name()='NodeTemplateInstance'][1]/*[local-name()='Links']/*[local-name()='Link']/@*[local-name()='href']/string()]]></bpel:query></bpel:from>
-        <bpel:to variable="$stringVarName"></bpel:to>
+        <bpel:to variable="$stringVarName"/>
+    </bpel:copy>
+    <bpel:copy>
+        <bpel:from variable="$NodeInstancesResponseVarName">
+            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string(codepoints-to-string(reverse(string-to-codepoints(substring-before(codepoints-to-string(reverse(string-to-codepoints($$stringVarName))), '/')))))]]></bpel:query>
+        </bpel:from>
+        <bpel:to variable="$nodeInstanceIDVar"/>
     </bpel:copy>
 </bpel:assign>

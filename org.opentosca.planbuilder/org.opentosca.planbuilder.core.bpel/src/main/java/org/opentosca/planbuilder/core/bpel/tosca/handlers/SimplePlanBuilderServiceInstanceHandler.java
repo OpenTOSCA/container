@@ -350,6 +350,13 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             return false;
         }
 
+        final String tempNodeInstanceUrlVarName = "tempNodeInstanceUrl" + System.currentTimeMillis();
+
+        if (!this.bpelProcessHandler.addVariable(tempNodeInstanceUrlVarName, BPELPlan.VariableType.TYPE,
+            tempNodeInstanceIDVarDeclId, plan)) {
+            return false;
+        }
+
         // create temp anyType element for properties
         final String tempNodeInstancePropertiesVarName = "tempNodeInstanceProperties" + System.currentTimeMillis();
         final QName tempNodeInstancePropertiesVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
@@ -393,7 +400,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             // fetch nodeInstanceID from nodeInstance query
             try {
                 Node assignNodeInstanceIDFromInstanceDataAPIQueryResponse =
-                    this.fragments.createAssignSelectFirstNodeInstanceAndAssignToStringVarAsNode(restCallResponseVarName,
+                    this.fragments.createAssignSelectFirstNodeInstanceAndAssignToStringVarAsNode(restCallResponseVarName, tempNodeInstanceUrlVarName,
                         tempNodeInstanceIDVarName);
                 assignNodeInstanceIDFromInstanceDataAPIQueryResponse =
                     templatePlan.getBpelDocument().importNode(assignNodeInstanceIDFromInstanceDataAPIQueryResponse,
@@ -409,7 +416,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             // fetch properties into temp anyType var
             try {
                 Node nodeInstancePropertiesGETNode =
-                    this.fragments.createRESTExtensionGETForInstancePropertiesAsNode(tempNodeInstanceIDVarName,
+                    this.fragments.createRESTExtensionGETForInstancePropertiesAsNode(tempNodeInstanceUrlVarName,
                         restCallResponseVarName);
                 nodeInstancePropertiesGETNode =
                     templatePlan.getBpelDocument().importNode(nodeInstancePropertiesGETNode, true);

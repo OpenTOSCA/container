@@ -106,7 +106,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         this.planHandler.addStringElementToPlanResponse(outputName, activ.getBuildPlan());
 
-        final String varName = this.instanceInitializer.findInstanceUrlVarName(activ, serviceTemplate);
+        final String varName = this.instanceInitializer.findInstanceVarName(activ, serviceTemplate, true);
         this.planHandler.assginOutputWithVariableValue(varName, outputName, activ.getBuildPlan());
 
         return true;

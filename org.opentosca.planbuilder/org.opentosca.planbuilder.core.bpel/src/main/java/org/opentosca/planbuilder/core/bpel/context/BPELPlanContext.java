@@ -170,7 +170,7 @@ public class BPELPlanContext extends PlanContext {
      */
     public String getVariableNameOfInfraNodeProperty(final String propertyName) {
         for (final AbstractNodeTemplate infraNode : this.getInfrastructureNodes()) {
-            String varName = null;
+            String varName;
             if ((varName = this.getVariableNameOfProperty(infraNode, propertyName)) != null) {
                 return varName;
             }
@@ -214,8 +214,7 @@ public class BPELPlanContext extends PlanContext {
     }
 
     public String findInstanceIDVar(final String templateId, final boolean isNode) {
-        return this.nodeRelationInstanceHandler.findInstanceIdVarName(this.serviceTemplate, templateId, isNode,
-            getMainVariableNames());
+        return this.nodeRelationInstanceHandler.findInstanceIdVarName(this.templateBuildPlan.getBuildPlan(), this.serviceTemplate, templateId, isNode);
     }
 
     /**
@@ -364,7 +363,7 @@ public class BPELPlanContext extends PlanContext {
      */
     public Collection<AbstractNodeTemplate> getNodesInCreation() {
         Collection<AbstractActivity> activities = this.templateBuildPlan.getBuildPlan().getActivites();
-        Collection<AbstractNodeTemplate> result = new HashSet<AbstractNodeTemplate>();
+        Collection<AbstractNodeTemplate> result = new HashSet<>();
         for (AbstractActivity activity : activities) {
             if ((activity instanceof NodeTemplateActivity) &&
                 (activity.getType().equals(ActivityType.PROVISIONING) || activity.getType().equals(ActivityType.MIGRATION))) {
@@ -729,12 +728,12 @@ public class BPELPlanContext extends PlanContext {
     public boolean addPartnerLinkToTemplateScope(final String partnerLinkName, final String partnerLinkType,
                                                  final String myRole, final String partnerRole,
                                                  final boolean initializePartnerRole) {
-        boolean check = true;
+        boolean check;
 
         // here we set the qname with namespace of the plan "ba.example"
         final QName partnerType =
             new QName(this.templateBuildPlan.getBuildPlan().getProcessNamespace(), partnerLinkType, "tns");
-        check &= addPLtoDeploy(partnerLinkName, partnerLinkType);
+        check = addPLtoDeploy(partnerLinkName, partnerLinkType);
         check &= this.bpelTemplateHandler.addPartnerLink(partnerLinkName, partnerType, myRole, partnerRole,
             initializePartnerRole, this.templateBuildPlan);
         return check;
@@ -874,7 +873,7 @@ public class BPELPlanContext extends PlanContext {
         final WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
         final Definition wsdlInstance = reader.readWSDL(wsdlFile.toAbsolutePath().toString());
-        final Map portTypes = wsdlInstance.getAllPortTypes();
+        final Map<?, ?> portTypes = wsdlInstance.getAllPortTypes();
         for (final Object key : portTypes.keySet()) {
             final PortType portTypeInWsdl = (PortType) portTypes.get(key);
             if (portTypeInWsdl.getQName().getNamespaceURI().equals(portType.getNamespaceURI())
@@ -904,7 +903,7 @@ public class BPELPlanContext extends PlanContext {
      */
     private List<Port> getPortsFromService(final Service service) {
         final List<Port> portOfService = new ArrayList<>();
-        final Map ports = service.getPorts();
+        final Map<?, ?> ports = service.getPorts();
         for (final Object key : ports.keySet()) {
             portOfService.add((Port) ports.get(key));
         }
@@ -945,10 +944,10 @@ public class BPELPlanContext extends PlanContext {
         final WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
         final Definition wsdlInstance = reader.readWSDL(wsdlFile.getAbsolutePath());
-        final Map services = wsdlInstance.getAllServices();
+        final Map<?, ?> services = wsdlInstance.getAllServices();
         for (final Object key : services.keySet()) {
             final Service service = (Service) services.get(key);
-            final Map ports = service.getPorts();
+            final Map<?, ?> ports = service.getPorts();
             for (final Object portKey : ports.keySet()) {
                 final Port port = (Port) ports.get(portKey);
                 if (port.getBinding().getPortType().getQName().getNamespaceURI().equals(portType.getNamespaceURI())
@@ -993,10 +992,10 @@ public class BPELPlanContext extends PlanContext {
         final WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
         final Definition wsdlInstance = reader.readWSDL(wsdlFile.toAbsolutePath().toString());
-        final Map services = wsdlInstance.getAllServices();
+        final Map<?, ?> services = wsdlInstance.getAllServices();
         for (final Object key : services.keySet()) {
             final Service service = (Service) services.get(key);
-            final Map ports = service.getPorts();
+            final Map<?, ?> ports = service.getPorts();
             for (final Object portKey : ports.keySet()) {
                 final Port port = (Port) ports.get(portKey);
                 if (port.getBinding().getPortType().getQName().getNamespaceURI().equals(portType.getNamespaceURI())
