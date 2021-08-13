@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.eclipse.winery.model.tosca.TRequiredContainerFeature;
-import org.eclipse.winery.model.tosca.TRequiredContainerFeatures;
 
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.container.core.model.capability.provider.ProviderType;
@@ -37,11 +36,11 @@ public class DeploymentPluginCapabilityChecker {
         this.capabilityService = capabilityService;
     }
 
-    public boolean capabilitiesAreMet(final TRequiredContainerFeatures requiredFeatures, final IManagementBusDeploymentPluginService plugin) {
-        if (requiredFeatures == null || requiredFeatures.getRequiredContainerFeature().isEmpty()) {
+    public boolean capabilitiesAreMet(final List<TRequiredContainerFeature> requiredFeatures, final IManagementBusDeploymentPluginService plugin) {
+        if (requiredFeatures == null || requiredFeatures.isEmpty()) {
             return true;
         }
-        return capabilitiesAreMet(requiredFeatures.getRequiredContainerFeature().stream().map(TRequiredContainerFeature::getFeature).collect(Collectors.toList()), plugin);
+        return requiredFeaturesAreMet(requiredFeatures.stream().map(TRequiredContainerFeature::getFeature).collect(Collectors.toList()), plugin);
     }
 
     /**
@@ -51,8 +50,8 @@ public class DeploymentPluginCapabilityChecker {
      * @param plugin           the deployment plug-in
      * @return true if all requiredFeatures are met, false otherwise
      */
-    public boolean capabilitiesAreMet(final List<String> requiredFeatures,
-                                      final IManagementBusDeploymentPluginService plugin) {
+    public boolean requiredFeaturesAreMet(final List<String> requiredFeatures,
+                                          final IManagementBusDeploymentPluginService plugin) {
         if (requiredFeatures.isEmpty()) {
             return true;
         }

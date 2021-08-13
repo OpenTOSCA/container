@@ -17,7 +17,6 @@ import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactType;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
-import org.eclipse.winery.model.tosca.TDeploymentArtifacts;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
@@ -186,7 +185,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         // get list of artifacts
         final List<TArtifactReference> artifactReferences = (artifactTemplate.getArtifactReferences() == null)
             ? Collections.emptyList()
-            : artifactTemplate.getArtifactReferences().getArtifactReference();
+            : artifactTemplate.getArtifactReferences();
         LOG.debug("{} contains {} artifacts. Uploading and executing them...", artifactTemplate.getId(), artifactReferences.size());
 
         // Map which contains the output parameters
@@ -307,7 +306,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         final String[] resultParameters = scriptResultString.split("[\\r\\n]+");
 
         // add each parameter that is defined in the operation and passed back
-        for (final TParameter outputParameter : operation.getOutputParameters().getOutputParameter()) {
+        for (final TParameter outputParameter : operation.getOutputParameters()) {
             for (int i = resultParameters.length - 1; i >= 0; i--) {
                 if (resultParameters[i].startsWith(outputParameter.getName())) {
                     final String value = resultParameters[i].substring(resultParameters[i].indexOf("=") + 1);
@@ -341,26 +340,25 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
 
         final List<TNodeTypeImplementation> nodeTypeImpls = ToscaEngine.getNodeTypeImplementations(csar, nodeType);
         for (final TNodeTypeImplementation nodeTypeImpl : nodeTypeImpls) {
-            TDeploymentArtifacts das = nodeTypeImpl.getDeploymentArtifacts();
-            if (das == null) {
-                continue;
-            }
-            for (final TDeploymentArtifact da : das.getDeploymentArtifact()) {
-                final TArtifactTemplate daArtifactTemplate;
-                try {
-                    daArtifactTemplate = ToscaEngine.resolveArtifactTemplate(csar, da.getArtifactRef());
-                } catch (NotFoundException e) {
-                    LOG.warn("Failed to find ArtifactTemplate with reference [{}] for DeploymentArtifact {}", da.getArtifactRef(), da.getName());
-                    continue;
-                }
-                if (daArtifactTemplate.getArtifactReferences() == null) {
-                    continue;
-                }
-                for (final TArtifactReference daArtifactReference : daArtifactTemplate.getArtifactReferences().getArtifactReference()) {
-                    LOG.debug("Artifact reference for DA: {} found: {} .", da.getName(), daArtifactReference);
+            List<TDeploymentArtifact> das = nodeTypeImpl.getDeploymentArtifacts();
+            if (das != null) {
+                for (final TDeploymentArtifact da : das) {
+                    final TArtifactTemplate daArtifactTemplate;
+                    try {
+                        daArtifactTemplate = ToscaEngine.resolveArtifactTemplate(csar, da.getArtifactRef());
+                    } catch (NotFoundException e) {
+                        LOG.warn("Failed to find ArtifactTemplate with reference [{}] for DeploymentArtifact {}", da.getArtifactRef(), da.getName());
+                        continue;
+                    }
+                    if (daArtifactTemplate.getArtifactReferences() == null) {
+                        continue;
+                    }
+                    for (final TArtifactReference daArtifactReference : daArtifactTemplate.getArtifactReferences()) {
+                        LOG.debug("Artifact reference for DA: {} found: {} .", da.getName(), daArtifactReference);
 
-                    List<String> currentValue = daNameReferenceMapping.computeIfAbsent(da.getName(), k -> new ArrayList<>());
-                    currentValue.add(daArtifactReference.getReference());
+                        List<String> currentValue = daNameReferenceMapping.computeIfAbsent(da.getName(), k -> new ArrayList<>());
+                        currentValue.add(daArtifactReference.getReference());
+                    }
                 }
             }
         }

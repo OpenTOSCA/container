@@ -44,12 +44,12 @@ public class OperationImpl extends AbstractOperation {
      */
     private void setUp() {
         if (this.operation.getInputParameters() != null) {
-            for (final org.eclipse.winery.model.tosca.TParameter parameter : this.operation.getInputParameters().getInputParameter()) {
+            for (final org.eclipse.winery.model.tosca.TParameter parameter : this.operation.getInputParameters()) {
                 this.inputParameters.add(new ParameterImpl(this.defs, parameter));
             }
         }
         if (this.operation.getOutputParameters() != null) {
-            for (final org.eclipse.winery.model.tosca.TParameter parameter : this.operation.getOutputParameters().getOutputParameter()) {
+            for (final org.eclipse.winery.model.tosca.TParameter parameter : this.operation.getOutputParameters()) {
                 this.outputParameters.add(new ParameterImpl(this.defs, parameter));
             }
         }

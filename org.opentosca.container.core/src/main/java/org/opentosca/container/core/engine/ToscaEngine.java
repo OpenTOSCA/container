@@ -31,15 +31,13 @@ import org.eclipse.winery.model.tosca.TEntityType;
 import org.eclipse.winery.model.tosca.TEntityTypeImplementation;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
-import org.eclipse.winery.model.tosca.TImplementationArtifacts;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
-import org.eclipse.winery.model.tosca.TInterfaces;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
@@ -146,10 +144,10 @@ public final class ToscaEngine {
     }
 
     public static boolean isOperationBoundToSourceNode(final TRelationshipType relationshipType, final String interfaceName, final String operationName) {
-        return Optional.ofNullable(relationshipType.getSourceInterfaces()).map(TInterfaces::getInterface)
+        return Optional.ofNullable(relationshipType.getSourceInterfaces())
             .orElse(Collections.emptyList()).stream()
             .filter(iface -> interfaceName == null || iface.getName().equals(interfaceName))
-            .flatMap(iface -> iface.getOperation().stream())
+            .flatMap(iface -> iface.getOperations().stream())
             .anyMatch(op -> op.getName().equals(operationName));
     }
 
@@ -187,8 +185,8 @@ public final class ToscaEngine {
 
     public static List<TInterface> getInterfaces(TNodeTemplate nodeTemplate, Csar csar) {
         TNodeType nodeType = resolveNodeType(csar, nodeTemplate);
-        TInterfaces nullable = nodeType.getInterfaces();
-        return nullable == null ? Collections.emptyList() : nullable.getInterface();
+        return Optional.ofNullable(nodeType.getInterfaces())
+            .orElse(Collections.emptyList());
     }
 
     public static TEntityType resolveEntityTypeReference(Csar csar, QName typeId) throws NotFoundException {
@@ -262,16 +260,16 @@ public final class ToscaEngine {
         return resolveInterface(nodeType.getInterfaces(), interfaceName);
     }
 
-    private static TInterface resolveInterface(TInterfaces interfaces, String interfaceName) throws NotFoundException {
+    private static TInterface resolveInterface(List<TInterface> interfaces, String interfaceName) throws NotFoundException {
         return Stream.of(Optional.ofNullable(interfaces))
-            .flatMap(opt -> opt.map(TInterfaces::getInterface).orElse(Collections.emptyList()).stream())
+            .flatMap(opt -> opt.orElse(Collections.emptyList()).stream())
             .filter(iface -> iface.getName().equals(interfaceName))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Interface [" + interfaceName + "] was not found in the given EntityType"));
     }
 
     public static TOperation resolveOperation(TInterface iface, String operationName) throws NotFoundException {
-        return iface.getOperation().stream()
+        return iface.getOperations().stream()
             .filter(op -> op.getName().equals(operationName))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Operation [" + operationName + "] was not found on the given Interface"));
@@ -294,8 +292,8 @@ public final class ToscaEngine {
     }
 
     private static boolean hasInputParameters(TOperation operation) {
-        TOperation.InputParameters inputParams = operation.getInputParameters();
-        return inputParams != null && !inputParams.getInputParameter().isEmpty();
+        return Optional.ofNullable(operation.getInputParameters())
+            .isPresent();
     }
 
     public static boolean operationHasOutputParams(TNodeType nodeType, String interfaceName, String operationName) throws NotFoundException {
@@ -307,8 +305,8 @@ public final class ToscaEngine {
     }
 
     private static boolean hasOutputParameters(TOperation operation) {
-        TOperation.OutputParameters outputParams = operation.getOutputParameters();
-        return outputParams != null && !outputParams.getOutputParameter().isEmpty();
+        return Optional.ofNullable(operation.getOutputParameters())
+            .isPresent();
     }
 
     public static Optional<TRelationshipTemplate> getRelationshipTemplate(TServiceTemplate serviceTemplate, String localTemplateId) {
@@ -360,16 +358,18 @@ public final class ToscaEngine {
         return result;
     }
 
-    public static List<TImplementationArtifacts.ImplementationArtifact> implementationArtifacts(TEntityTypeImplementation impl) {
-        TImplementationArtifacts nullable = impl.getImplementationArtifacts();
-        return nullable == null ? Collections.emptyList() : nullable.getImplementationArtifact();
+    public static List<TImplementationArtifact> implementationArtifacts(TEntityTypeImplementation impl) {
+        return Optional.ofNullable(impl.getImplementationArtifacts())
+            .orElse(Collections.emptyList());
     }
 
-    public static TImplementationArtifacts.ImplementationArtifact resolveImplementationArtifact(TEntityTypeImplementation impl, String iaName) throws NotFoundException {
+    public static TImplementationArtifact resolveImplementationArtifact(TEntityTypeImplementation impl, String iaName) throws NotFoundException {
         return implementationArtifacts(impl).stream()
             .filter(ia -> ia.getName().equals(iaName))
             .findFirst()
-            .orElseThrow(() -> new NotFoundException("No implementation Artifact matching " + iaName + "found in EntityTypeImplementation " + impl.getIdFromIdOrNameField()));
+            .orElseThrow(() ->
+                new NotFoundException("No implementation Artifact matching " + iaName + "found in EntityTypeImplementation " + impl.getIdFromIdOrNameField())
+            );
     }
 
     public static List<TNodeTypeImplementation> nodeTypeImplementations(Csar csar, TNodeType superType) {
@@ -383,11 +383,10 @@ public final class ToscaEngine {
     public static TPlan resolvePlanReference(Csar csar, QName planId) throws NotFoundException {
         // can't reformulate using queryRepository because PlanId requires a PlansId as parent for resolution
         TPlan plan = csar.serviceTemplates().stream()
-            .flatMap(st -> {
-                TPlans plans = st.getPlans();
-                return plans == null ? Stream.empty() : plans.getPlan().stream();
-            })
-            .filter(tplan -> tplan.getId().equals(planId.getLocalPart()))
+            .flatMap(st ->
+                st.getPlans() == null ? Stream.empty() : st.getPlans().stream()
+            )
+            .filter(tPlan -> tPlan.getId().equals(planId.getLocalPart()))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("No plan matching " + planId + " was found in csar" + csar.id().csarName()));
         return plan;
@@ -414,11 +413,9 @@ public final class ToscaEngine {
     public static TServiceTemplate getContainingServiceTemplate(Csar csar, TPlan toscaPlan) {
         // can't obtain serviceTemplateId from the plan, therefore iterate all service templates
         return csar.serviceTemplates().stream()
-            .filter(st -> {
-                TPlans plans = st.getPlans();
-                return plans != null && plans.getPlan().stream().anyMatch(toscaPlan::equals);
-            })
-            .findFirst()
+            .filter(st ->
+                st.getPlans() != null && st.getPlans().stream().anyMatch(toscaPlan::equals)
+            ).findFirst()
             .orElse(null);
     }
 
@@ -506,7 +503,6 @@ public final class ToscaEngine {
         return Optional.of(serviceTemplate)
             .map(TServiceTemplate::getBoundaryDefinitions)
             .map(TBoundaryDefinitions::getInterfaces)
-            .map(TBoundaryDefinitions.Interfaces::getInterface)
             .orElse(Collections.emptyList())
             .stream()
             .map(TExportedInterface::getOperation)
@@ -534,7 +530,6 @@ public final class ToscaEngine {
         return Optional.of(serviceTemplate)
             .map(TServiceTemplate::getBoundaryDefinitions)
             .map(TBoundaryDefinitions::getInterfaces)
-            .map(TBoundaryDefinitions.Interfaces::getInterface)
             .orElse(Collections.emptyList())
             .stream()
             .filter(iface -> iface.getName().equals(interfaceName))
@@ -552,7 +547,6 @@ public final class ToscaEngine {
         return Optional.of(serviceTemplate)
             .map(TServiceTemplate::getBoundaryDefinitions)
             .map(TBoundaryDefinitions::getInterfaces)
-            .map(TBoundaryDefinitions.Interfaces::getInterface)
             .orElse(Collections.emptyList())
             .stream()
             .filter(iface -> iface.getOperation().contains(operation))
@@ -580,7 +574,7 @@ public final class ToscaEngine {
         }
         return hierarchy.stream()
             .filter(t -> t.getInterfaces() != null)
-            .flatMap(t -> t.getInterfaces().getInterface().stream()
+            .flatMap(t -> t.getInterfaces().stream()
                 // iterate over the interfaces that match the provided interface
                 .filter(i -> i.getName().equals(providedInterface))
             )
@@ -597,11 +591,11 @@ public final class ToscaEngine {
     }
 
     public static boolean isOperationUniqueInType(Csar csar, TRelationshipType type, String providedInterface, String neededOperation) {
-        TInterfaces interfaces = type.getInterfaces();
+        List<TInterface> interfaces = type.getInterfaces();
         if (interfaces == null) {
             return false;
         }
-        return interfaces.getInterface().stream()
+        return interfaces.stream()
             .filter(i -> i.getName().equals(providedInterface))
             // filter to only those that provide the needed operation
             .filter(i -> {

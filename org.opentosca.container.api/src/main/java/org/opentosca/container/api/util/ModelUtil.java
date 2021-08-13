@@ -36,7 +36,7 @@ public abstract class ModelUtil {
             if (nodeTemplate.getRequirements() == null) {
                 continue;
             }
-            final List<TRequirement> nodeTemplateRequirements = nodeTemplate.getRequirements().getRequirement();
+            final List<TRequirement> nodeTemplateRequirements = nodeTemplate.getRequirements();
             int foundRelations = 0;
             for (final TRelationshipTemplate relationship : relationshipTemplates) {
                 RelationshipSourceOrTarget src = relationship.getSourceElement().getRef();

@@ -19,7 +19,6 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import io.swagger.annotations.Api;
@@ -224,10 +223,10 @@ public class ServiceTemplateController {
 
         Csar csarFile = this.storage.findById(result.csarId);
 
-        TPlans plans = csarFile.entryServiceTemplate().getPlans();
+        List<TPlan> plans = csarFile.entryServiceTemplate().getPlans();
         TPlan plan = null;
 
-        for (TPlan tPlan : plans.getPlan()) {
+        for (TPlan tPlan : plans) {
             if (tPlan.getId().equals(result.planId)) {
                 plan = tPlan;
                 break;

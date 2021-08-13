@@ -70,7 +70,7 @@ public class MyTinyToDoIntegrationTest {
         TPlan buildPlan = null;
         TPlan scaleOutPlan = null;
         TPlan terminationPlan = null;
-        List<TPlan> plans = serviceTemplate.getPlans().getPlan();
+        List<TPlan> plans = serviceTemplate.getPlans();
 
         for (TPlan plan : plans) {
             PlanType type = PlanType.fromString(plan.getPlanType());

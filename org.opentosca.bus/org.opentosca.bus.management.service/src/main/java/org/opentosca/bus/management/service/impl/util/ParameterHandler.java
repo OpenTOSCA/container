@@ -282,7 +282,6 @@ public class ParameterHandler {
         }
 
         return Optional.ofNullable(resolvedOperation.getInputParameters())
-            .map(TOperation.InputParameters::getInputParameter)
             .map(l -> l.stream().map(TParameter::getName).collect(Collectors.toSet()))
             .orElse(Collections.emptySet());
     }

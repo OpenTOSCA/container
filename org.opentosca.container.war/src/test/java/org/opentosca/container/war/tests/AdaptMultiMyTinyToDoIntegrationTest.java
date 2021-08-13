@@ -81,7 +81,7 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
 
         TPlan buildPlan = null;
         TPlan terminationPlan = null;
-        List<TPlan> plans = serviceTemplate.getPlans().getPlan();
+        List<TPlan> plans = serviceTemplate.getPlans();
 
         for (TPlan plan : plans) {
             if (plan.getId().equals(buildPlanId)) {

@@ -27,7 +27,7 @@ public class InterfaceImpl extends AbstractInterface {
      * Constructor
      *
      * @param definitions a DefinitionsImpl
-     * @param a           JAXB TInterface
+     * @param i           JAXB TInterface
      */
     public InterfaceImpl(final DefinitionsImpl definitions, final org.eclipse.winery.model.tosca.TInterface i) {
         this.inter = i;
@@ -40,7 +40,7 @@ public class InterfaceImpl extends AbstractInterface {
      * Initializes the internal Operations
      */
     private void setUp() {
-        for (final TOperation operation : this.inter.getOperation()) {
+        for (final TOperation operation : this.inter.getOperations()) {
             this.operations.add(new OperationImpl(this.defs, this, operation));
         }
     }

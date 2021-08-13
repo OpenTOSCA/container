@@ -151,7 +151,7 @@ public class NodeTemplateService {
             interfaceDto.setName(toscaInterface.getName());
 
             final Map<String, OperationDTO> operations = new HashMap<>();
-            final List<TOperation> interfaceOperations = toscaInterface.getOperation();
+            final List<TOperation> interfaceOperations = toscaInterface.getOperations();
             for (final TOperation operation : interfaceOperations) {
                 final OperationDTO operationDto = new OperationDTO();
                 operationDto.setName(operation.getName());
@@ -166,15 +166,12 @@ public class NodeTemplateService {
     }
 
     private NodeOperationDTO transformNodeOperations(TOperation operation) {
-        TOperation.InputParameters inputParams = operation.getInputParameters();
-        TOperation.OutputParameters outputParams = operation.getOutputParameters();
-
         final NodeOperationDTO nodeOperationDTO = new NodeOperationDTO();
         nodeOperationDTO.setName(operation.getName());
-        nodeOperationDTO.setInputParameters(inputParams == null ? Collections.emptyList()
-            : wrap(inputParams.getInputParameter()));
-        nodeOperationDTO.setOutputParameters(outputParams == null ? Collections.emptyList()
-            : wrap(outputParams.getOutputParameter()));
+        nodeOperationDTO.setInputParameters(operation.getInputParameters() == null ? Collections.emptyList()
+            : wrap(operation.getInputParameters()));
+        nodeOperationDTO.setOutputParameters(operation.getOutputParameters() == null ? Collections.emptyList()
+            : wrap(operation.getOutputParameters()));
         return nodeOperationDTO;
     }
 

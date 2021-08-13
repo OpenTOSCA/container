@@ -45,17 +45,17 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
      */
     private void setUp() {
         if (this.relationshipType.getInterfaces() != null) {
-            for (final org.eclipse.winery.model.tosca.TInterface i : this.relationshipType.getInterfaces().getInterface()) {
+            for (final org.eclipse.winery.model.tosca.TInterface i : this.relationshipType.getInterfaces()) {
                 this.interfaces.add(new InterfaceImpl(this.definitions, i));
             }
         }
         if (this.relationshipType.getSourceInterfaces() != null) {
-            for (final org.eclipse.winery.model.tosca.TInterface i : this.relationshipType.getSourceInterfaces().getInterface()) {
+            for (final org.eclipse.winery.model.tosca.TInterface i : this.relationshipType.getSourceInterfaces()) {
                 this.sourceInterfaces.add(new InterfaceImpl(this.definitions, i));
             }
         }
         if (this.relationshipType.getTargetInterfaces() != null) {
-            for (final org.eclipse.winery.model.tosca.TInterface i : this.relationshipType.getTargetInterfaces().getInterface()) {
+            for (final org.eclipse.winery.model.tosca.TInterface i : this.relationshipType.getTargetInterfaces()) {
                 this.targetInterfaces.add(new InterfaceImpl(this.definitions, i));
             }
         }

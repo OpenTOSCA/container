@@ -13,7 +13,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -77,10 +76,10 @@ public class PropertyMappingsHelper {
             // properties by hand
             return;
         }
-        final TBoundaryDefinitions.Properties.PropertyMappings propertyMappings = template.getBoundaryDefinitions().getProperties().getPropertyMappings();
+        List<TPropertyMapping> propertyMappings = template.getBoundaryDefinitions().getProperties().getPropertyMappings();
 
         // cycle through mappings and update accordingly
-        for (final TPropertyMapping mapping : propertyMappings.getPropertyMapping()) {
+        for (final TPropertyMapping mapping : propertyMappings) {
             final String serviceTemplatePropertyQuery = mapping.getServiceTemplatePropertyRef();
             final List<Element> serviceTemplatePropertyElements = queryElementList((Element) proprtiesAsXML.getFirstChild(), serviceTemplatePropertyQuery);
 

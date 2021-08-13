@@ -29,7 +29,6 @@ import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.BackendUtils;
 import org.eclipse.winery.repository.backend.IRepository;
@@ -120,12 +119,11 @@ public class WineryExporter extends AbstractExporter {
             final List<BPELPlan> plansToExport = new ArrayList<>();
 
             // add plans element to servicetemplates
-            TPlans toscaPlansElement = serviceTemplate.getPlans();
-            if (toscaPlansElement == null) {
-                toscaPlansElement = new TPlans();
-                serviceTemplate.setPlans(toscaPlansElement);
+            List<TPlan> planList = serviceTemplate.getPlans();
+            if (planList == null) {
+                planList = new ArrayList<>();
+                serviceTemplate.setPlans(planList);
             }
-            final List<TPlan> planList = toscaPlansElement.getPlan();
 
             // add the plan as an operation to the boundary
             // definitions
@@ -135,11 +133,11 @@ public class WineryExporter extends AbstractExporter {
                 serviceTemplate.setBoundaryDefinitions(boundary);
             }
 
-            TBoundaryDefinitions.Interfaces ifaces =
+            List<TExportedInterface> ifaces =
                 boundary.getInterfaces();
 
             if (ifaces == null) {
-                ifaces = new TBoundaryDefinitions.Interfaces();
+                ifaces = new ArrayList<>();
                 boundary.setInterfaces(ifaces);
             }
 
@@ -153,7 +151,7 @@ public class WineryExporter extends AbstractExporter {
                     TExportedInterface exportedIface = null;
 
                     // find already set openTOSCA lifecycle interface
-                    for (final TExportedInterface exIface : ifaces.getInterface()) {
+                    for (final TExportedInterface exIface : ifaces) {
                         if (exIface.getName() != null && exIface.getName().equals(plan.getTOSCAInterfaceName())) {
                             exportedIface = exIface;
                         }
@@ -162,7 +160,7 @@ public class WineryExporter extends AbstractExporter {
                     if (exportedIface == null) {
                         exportedIface = new TExportedInterface();
                         exportedIface.setName(plan.getTOSCAInterfaceName());
-                        ifaces.getInterface().add(exportedIface);
+                        ifaces.add(exportedIface);
                     }
 
                     boolean alreadySpecified = false;
@@ -183,7 +181,6 @@ public class WineryExporter extends AbstractExporter {
                     }
                 }
             }
-            serviceTemplate.setPlans(toscaPlansElement);
             serviceTemplate.setBoundaryDefinitions(boundary);
 
             ServiceTemplateId id = BackendUtils.getDefinitionsChildId(ServiceTemplateId.class, serviceTemplate.getTargetNamespace(), serviceTemplate.getId(), false);
@@ -338,10 +335,8 @@ public class WineryExporter extends AbstractExporter {
     private org.eclipse.winery.model.tosca.TPlan generateTPlanElement(final BPELPlan generatedPlan, IRepository repo, ServiceTemplateId servId) throws IOException, JAXBException {
         final TPlan plan = new TPlan();
         final TPlan.PlanModelReference ref = new TPlan.PlanModelReference();
-        final TPlan.InputParameters inputParams = new TPlan.InputParameters();
-        final TPlan.OutputParameters outputParams = new TPlan.OutputParameters();
-        final List<TParameter> inputParamsList = inputParams.getInputParameter();
-        final List<TParameter> outputParamsList = outputParams.getOutputParameter();
+        final List<TParameter> inputParams = new ArrayList<>();
+        final List<TParameter> outputParams = new ArrayList<>();
 
         final Path tempDir = FileSystem.getTemporaryFolder();
         final Path planPath = tempDir.resolve(generateRelativePlanPath(generatedPlan));
@@ -362,19 +357,13 @@ public class WineryExporter extends AbstractExporter {
 
         for (final String paramName : generatedPlan.getWsdl().getInputMessageLocalNames()) {
             // the builder supports only string types
-            final TParameter param = new TParameter();
-            param.setName(paramName);
-            param.setRequired(true);
-            param.setType("String");
-            inputParamsList.add(param);
+            final TParameter param = new TParameter.Builder(paramName, "String", true).build();
+            inputParams.add(param);
         }
 
         for (final String paramName : generatedPlan.getWsdl().getOuputMessageLocalNames()) {
-            final TParameter param = new TParameter();
-            param.setName(paramName);
-            param.setRequired(true);
-            param.setType("String");
-            outputParamsList.add(param);
+            final TParameter param = new TParameter.Builder(paramName, "String", true).build();
+            outputParams.add(param);
         }
 
         plan.setInputParameters(inputParams);

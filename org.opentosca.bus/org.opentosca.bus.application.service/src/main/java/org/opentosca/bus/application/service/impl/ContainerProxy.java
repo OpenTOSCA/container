@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
-import org.eclipse.winery.model.tosca.TDeploymentArtifacts;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
@@ -159,15 +158,15 @@ public class ContainerProxy {
 
         for (final TNodeTypeImplementation nodeTypeImplementation : nodeTypeImplementations) {
             // if there are DAs
-            final TDeploymentArtifacts deploymentArtifacts = nodeTypeImplementation.getDeploymentArtifacts();
+            final List<TDeploymentArtifact> deploymentArtifacts = nodeTypeImplementation.getDeploymentArtifacts();
             if (deploymentArtifacts == null) {
                 LOG.warn("The NodeTypeImplementation {} has no DeploymentArtifacts.",
                     nodeTypeImplementation.getName());
                 return null;
             }
             LOG.trace("The NodeTypeImplementation [{}] has {} DeploymentArtifacts.",
-                nodeTypeImplementation.getName(), deploymentArtifacts.getDeploymentArtifact().size());
-            for (final TDeploymentArtifact da : deploymentArtifacts.getDeploymentArtifact()) {
+                nodeTypeImplementation.getName(), deploymentArtifacts.size());
+            for (final TDeploymentArtifact da : deploymentArtifacts) {
                 LOG.trace("- {}", da.getName());
                 LOG.trace("Searching for ArtifactTemplates.");
 

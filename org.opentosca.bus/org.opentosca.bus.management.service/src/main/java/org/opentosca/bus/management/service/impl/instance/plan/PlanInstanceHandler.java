@@ -99,11 +99,10 @@ public class PlanInstanceHandler {
         }
 
         // add input parameters to the plan instance
-        for (final TParameter param : storedPlan.getInputParameters().getInputParameter()) {
+        for (final TParameter param : storedPlan.getInputParameters()) {
             new PlanInstanceInput(param.getName(), inputMap.getOrDefault(param.getName(), ""),
                 param.getType()).setPlanInstance(plan);
         }
-
         // add connection to the service template and update the repository
         stiRepo.find(serviceTemplateInstanceId)
             .ifPresent(serviceTemplateInstance -> plan.setServiceTemplateInstance(serviceTemplateInstance));
@@ -154,7 +153,7 @@ public class PlanInstanceHandler {
             if (body instanceof Map) {
                 @SuppressWarnings("unchecked") final Map<String, String> map = (Map<String, String>) body;
                 // add output parameters to the PlanInstance object and update repository
-                for (final TParameter param : planModel.getOutputParameters().getOutputParameter()) {
+                for (final TParameter param : planModel.getOutputParameters()) {
                     new PlanInstanceOutput(param.getName(), map.get(param.getName()),
                         param.getType()).setPlanInstance(plan);
                 }
@@ -195,7 +194,7 @@ public class PlanInstanceHandler {
             }
 
             // get output parameters of the plan from the process instance variables
-            for (final TParameter param : planModel.getOutputParameters().getOutputParameter()) {
+            for (final TParameter param : planModel.getOutputParameters()) {
                 final String path = Settings.ENGINE_PLAN_BPMN_URL + Constants.HISTORY_PATH;
 
                 // get variable instances of the process instance with the param name
