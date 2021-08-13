@@ -120,21 +120,6 @@ public final class ContainerEngine {
         return result;
     }
 
-    private Document getArtifactSpecificContent(final List<TDeploymentArtifact> artifacts, final String deploymentArtifactName) {
-        // if there are ImplementationArtifacts
-        if (artifacts == null) {
-            return null;
-        }
-        Optional<TDeploymentArtifact> artifact = artifacts.stream()
-            .filter(da -> da.getName().equals(deploymentArtifactName))
-            .findFirst();
-        if (artifact.isEmpty()) {
-            LOG.info("Requested artifact {} was not found.", deploymentArtifactName);
-            return null;
-        }
-        return readArtifactSpecificContent(artifact.get());
-    }
-
     private Document readArtifactSpecificContent(TDeploymentArtifact artifact) {
         final List<Element> listOfAnyElements = new ArrayList<>();
         for (final Object obj : artifact.getAny()) {
