@@ -180,7 +180,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         LOG.info("Invoke the Plan {} of type {} of CSAR {}", givenPlan.getId(), givenPlan.getPlanType(), csarID);
 
         final HashMap<String, String> input = new HashMap<>();
-        for (final TParameterDTO param : givenPlan.getInputParameters().getInputParameter()) {
+        for (final TParameterDTO param : givenPlan.getInputParameters()) {
             if (Objects.isNull(param.getValue())) {
                 input.put(param.getName(), "");
             } else {

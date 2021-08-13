@@ -33,7 +33,6 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 
@@ -99,7 +98,7 @@ public class CsarController {
                 csar.setId(id);
                 csar.setDescription(csarContent.description());
                 csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                    .path(CsarController.class, "getCsar").build(id))
+                        .path(CsarController.class, "getCsar").build(id))
                     .rel("self").build());
                 list.add(csar);
             }
@@ -151,15 +150,15 @@ public class CsarController {
             );
 
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                .path(CsarController.class, "getContent").build(id))
+                    .path(CsarController.class, "getContent").build(id))
                 .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                .path(CsarController.class, "getCsar").build(id))
+                    .path(CsarController.class, "getCsar").build(id))
                 .rel("self").build());
 
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(ServiceTemplateController.class)
-                .path(ServiceTemplateController.class, "getServiceTemplate")
-                .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
+                    .path(ServiceTemplateController.class, "getServiceTemplate")
+                    .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
                 .rel("servicetemplate").baseUri(this.uriInfo.getBaseUri()).build());
 
             return Response.ok(csar).build();
@@ -401,10 +400,10 @@ public class CsarController {
 
         Csar storedCsar = storage.findById(sourceCsar);
 
-        TPlans plans = this.storage.findById(sourceCsar).entryServiceTemplate().getPlans();
+        List<TPlan> plans = this.storage.findById(sourceCsar).entryServiceTemplate().getPlans();
         TPlan plan = null;
 
-        for (TPlan tPlan : plans.getPlan()) {
+        for (TPlan tPlan : plans) {
             if (tPlan.getId().equals(planGenerated.getId())) {
                 plan = tPlan;
                 break;

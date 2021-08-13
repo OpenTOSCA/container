@@ -62,12 +62,21 @@ public class PlanDTO extends ResourceSupport {
         this.name = plan.getName();
         this.planType = plan.getPlanType();
         this.planLanguage = plan.getPlanLanguage();
-        this.inputParameters.addAll(plan.getInputParameters().getInputParameter().stream().map(p -> new TParameter(p))
-            .collect(Collectors.toList()));
-        this.outputParameters.addAll(plan.getOutputParameters().getOutputParameter().stream()
-            .map(p -> new TParameter(p)).collect(Collectors.toList()));
+        this.inputParameters.addAll(
+            plan.getInputParameters().stream()
+                .map(TParameter::new)
+                .collect(Collectors.toList())
+        );
+        this.outputParameters.addAll(
+            plan.getOutputParameters().stream()
+                .map(TParameter::new)
+                .collect(Collectors.toList())
+        );
         this.planModelReference = plan.getPlanModelReference().getReference();
-        this.calculatedWCET = Long.valueOf(plan.getOtherAttributes().getOrDefault(new QName("http://opentosca.org", "WCET"), "0"));
+        this.calculatedWCET = Long.parseLong(
+            plan.getOtherAttributes()
+                .getOrDefault(new QName("http://opentosca.org", "WCET"), "0")
+        );
     }
 
     public String getId() {
@@ -151,17 +160,16 @@ public class PlanDTO extends ResourceSupport {
             plan.setPlanType(object.getPlanType());
             plan.setCalculatedWCET(object.getCalculatedWCET());
 
-            final TPlanDTO.InputParameters inputParameters = new TPlanDTO.InputParameters();
-            for (final TParameter param : object.getInputParameters()) {
-                inputParameters.getInputParameter().add(new TParameterDTO(param));
-            }
-            plan.setInputParameters(inputParameters);
-
-            final TPlanDTO.OutputParameters outputParameters = new TPlanDTO.OutputParameters();
-            for (final TParameter param : object.getOutputParameters()) {
-                outputParameters.getOutputParameter().add(new TParameterDTO(param));
-            }
-            plan.setOutputParameters(outputParameters);
+            plan.setInputParameters(
+                object.getInputParameters().stream()
+                    .map(TParameterDTO::new)
+                    .collect(Collectors.toList())
+            );
+            plan.setOutputParameters(
+                object.getOutputParameters().stream()
+                    .map(TParameterDTO::new)
+                    .collect(Collectors.toList())
+            );
 
             return plan;
         }

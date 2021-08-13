@@ -278,7 +278,7 @@ public class ChoreographyHandler {
             LOG.error("Unable to retrieve tags for ServiceTemplate with ID {}.", serviceTemplate.getId());
             return null;
         }
-        List<TTag> tags = serviceTemplate.getTags().getTag();
+        List<TTag> tags = serviceTemplate.getTags();
         LOG.debug("Number of tags: {}", tags.size());
 
         List<TTag> partnerTags = Lists.newArrayList();
@@ -286,7 +286,7 @@ public class ChoreographyHandler {
         tags.forEach(tag -> {
             if (tag.getName().startsWith("participant:")) {
                 String participantName = tag.getName().replace("participant:", "");
-                partnerTags.add(new TTag.Builder().setName(participantName).setValue(tag.getValue()).build());
+                partnerTags.add(new TTag.Builder(participantName, tag.getValue()).build());
             }
         });
 
@@ -311,7 +311,7 @@ public class ChoreographyHandler {
             return tags;
         }
 
-        for (TTag tag : serviceTemplate.getTags().getTag()) {
+        for (TTag tag : serviceTemplate.getTags()) {
             tags.put(tag.getName(), tag.getValue());
         }
         return tags;
@@ -325,7 +325,7 @@ public class ChoreographyHandler {
             return null;
         }
 
-        for (TTag tag : serviceTemplate.getTags().getTag()) {
+        for (TTag tag : serviceTemplate.getTags()) {
             if (tag.getName().equals(tagName)) {
                 return tag.getValue();
             }

@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -75,24 +74,21 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
             return false;
         }
         deploymentTracker.storeDeploymentState(csarId, PLAN_DEPLOYMENT_ACTIVE);
-        TPlans plans = entryServiceTemplate.getPlans();
+        List<TPlan> plans = entryServiceTemplate.getPlans();
         if (plans == null) {
             LOGGER.info("No Plans to process");
             return true;
         }
-        String namespace = plans.getTargetNamespace();
-        if (namespace == null) {
-            // Plans has no targetNamespace, fallback to ServiceTemplate namespace
-            namespace = serviceTemplate.getQName().getNamespaceURI();
-        }
-        List<TPlan> undeployed = new ArrayList<>();
-        for (final TPlan plan : plans.getPlan()) {
+        String namespace = serviceTemplate.getQName().getNamespaceURI();
+
+        List<TPlan> unDeployed = new ArrayList<>();
+        for (final TPlan plan : plans) {
             if (!planEngine.deployPlan(plan, namespace, csarId)) {
-                undeployed.add(plan);
+                unDeployed.add(plan);
             }
         }
 
-        if (!undeployed.isEmpty()) {
+        if (!unDeployed.isEmpty()) {
             LOGGER.error("Plan deployment failed");
             deploymentTracker.storeDeploymentState(csarId, TOSCA_PROCESSED);
             return false;
@@ -181,18 +177,15 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
      * @return true, if undeploying all plans was successful, false otherwise
      */
     private boolean undeployAllPlans(CsarId csarId, TServiceTemplate serviceTemplate) {
-        TPlans plans = serviceTemplate.getPlans();
+        List<TPlan> plans = serviceTemplate.getPlans();
         if (plans == null) {
             LOGGER.info("No Plans to undeploy");
             return true;
         }
-        String namespace = plans.getTargetNamespace();
-        if (namespace == null) {
-            // Plans has no targetNamespace, fallback to ServiceTemplate namespace
-            namespace = serviceTemplate.getTargetNamespace();
-        }
+        String namespace = serviceTemplate.getTargetNamespace();
+
         List<TPlan> undeployed = new ArrayList<>();
-        for (final TPlan plan : plans.getPlan()) {
+        for (final TPlan plan : plans) {
             if (!planEngine.undeployPlan(plan, namespace, csarId)) {
                 undeployed.add(plan);
             }
@@ -201,15 +194,11 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
     }
 
     @Override
-    public boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, TPlans plans, TPlan plan) {
+    public boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, List<TPlan> plans, TPlan plan) {
         final List<TPlan> undeployedPlans = new ArrayList<>();
 
         // fallback to serviceTemplate NamespaceURI
-        String namespace = plans.getTargetNamespace();
-
-        if (namespace == null) {
-            namespace = serviceTemplate.getTargetNamespace();
-        }
+        String namespace = serviceTemplate.getTargetNamespace();
 
         if (!planEngine.deployPlan(plan, namespace, csar)) {
             undeployedPlans.add(plan);
@@ -236,13 +225,13 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
             return false;
         }
 
-        final TPlans plans = serviceTemplate.getPlans();
-        if (plans == null || plans.getPlan() == null || plans.getPlan().isEmpty()) {
+        final List<TPlan> plans = serviceTemplate.getPlans();
+        if (plans == null || plans.isEmpty()) {
             LOGGER.info("No plans to process");
             return true;
         }
 
-        for (final TPlan plan : plans.getPlan()) {
+        for (final TPlan plan : plans) {
             if (!this.invokePlanDeployment(csar, serviceTemplate, plans, plan)) {
                 undeployedPlans.add(plan);
             }

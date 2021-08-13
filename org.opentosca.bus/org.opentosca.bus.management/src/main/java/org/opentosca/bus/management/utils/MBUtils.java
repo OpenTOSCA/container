@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -19,7 +20,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
-import org.eclipse.winery.model.tosca.TInterfaces;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
@@ -147,12 +147,12 @@ public class MBUtils {
         if (nodeType.getInterfaces() == null) {
             return false;
         }
-        TInterfaces exposedInterfaces = nodeType.getInterfaces();
-        boolean isOs = exposedInterfaces.getInterface().stream()
+        List<TInterface> exposedInterfaces = nodeType.getInterfaces();
+        boolean isOs = exposedInterfaces.stream()
             .filter(tInterface -> Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM.equals(tInterface.getName()))
             .anyMatch(os -> doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
                 && doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE));
-        boolean isDocker = exposedInterfaces.getInterface().stream()
+        boolean isDocker = exposedInterfaces.stream()
             .filter(tInterface -> Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER.equals(tInterface.getName()))
             .anyMatch(os -> doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
                 && doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE));
@@ -168,7 +168,7 @@ public class MBUtils {
     }
 
     private static boolean doesInterfaceContainOperation(TInterface tInterface, String operationName) {
-        return tInterface.getOperation().stream().anyMatch(op -> operationName.equals(op.getName()));
+        return tInterface.getOperations().stream().anyMatch(op -> operationName.equals(op.getName()));
     }
 
     /**
@@ -385,7 +385,7 @@ public class MBUtils {
     }
 
     public static QName findPlanByOperation(Csar csar, String ifaceName, String opName) {
-        TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().getInterface().stream().filter(iface -> iface.getName().equals(ifaceName)).collect(Collectors.toList())
+        TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().stream().filter(iface -> iface.getName().equals(ifaceName)).collect(Collectors.toList())
             .stream().flatMap(iface -> iface.getOperation().stream()).filter(ope -> ope.getName().equals(opName)).findFirst().orElse(null);
         if (op != null) {
             return new QName(csar.entryServiceTemplate().getTargetNamespace(), ((TPlan) op.getPlan().getPlanRef()).getId());

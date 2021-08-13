@@ -82,8 +82,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         TPlan myTinyToMultiTinyTransformationPlan = null;
         TPlan multiTinyTerminationPlan = null;
 
-        List<TPlan> myTinyToDoPlans = myTinyToDoServiceTemplate.getPlans().getPlan();
-        List<TPlan> multiMyTinyToDoPlans = multiMyTinyToDoServiceTemplate.getPlans().getPlan();
+        List<TPlan> myTinyToDoPlans = myTinyToDoServiceTemplate.getPlans();
+        List<TPlan> multiMyTinyToDoPlans = multiMyTinyToDoServiceTemplate.getPlans();
 
         for (TPlan plan : myTinyToDoPlans) {
             PlanType type = PlanType.fromString(plan.getPlanType());

@@ -58,7 +58,7 @@ public class SituationTriggerInstanceListener {
 
     private boolean isPlanExecutionFinished(final TPlanDTO plan, final String correlationId) {
 
-        for (final TParameterDTO param : plan.getOutputParameters().getOutputParameter()) {
+        for (final TParameterDTO param : plan.getOutputParameters()) {
             if (param.getName().equalsIgnoreCase("correlationid") && param.getValue() != null
                 && param.getValue().equals(correlationId)) {
                 return true;
@@ -207,7 +207,7 @@ public class SituationTriggerInstanceListener {
 
                 final TPlanDTO planDTO = new TPlanDTO(plan, csar.entryServiceTemplate().getTargetNamespace());
 
-                final long calculatedTimeFromPreviousExecutions = Long.valueOf(
+                final long calculatedTimeFromPreviousExecutions = Long.parseLong(
                     plan.getOtherAttributes().getOrDefault(new QName("http://opentosca.org"), String.valueOf(0)));
 
                 if (calculatedTimeFromPreviousExecutions > 0) {
@@ -224,7 +224,7 @@ public class SituationTriggerInstanceListener {
 
                 this.LOG.debug("Time: " + calculatedTimeFromPreviousExecutions);
 
-                for (final TParameterDTO param : planDTO.getInputParameters().getInputParameter()) {
+                for (final TParameterDTO param : planDTO.getInputParameters()) {
                     if (servInstance != null && param.getName().equals("OpenTOSCAContainerAPIServiceInstanceURL")) {
                         String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + servInstance.getId();
                         url = url.replace("{csarid}", csar.id().csarName());

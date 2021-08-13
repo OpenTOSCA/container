@@ -75,7 +75,6 @@ public class TestExecutor {
                     final TNodeTemplate nodeTemplate = context.getNodeTemplate(nodeTemplateInstance);
                     final Csar csar = context.getCsar();
                     final List<TPolicyTemplate> policyTemplates = Optional.ofNullable(nodeTemplate.getPolicies())
-                        .map(ps -> ps.getPolicy())
                         .orElse(Collections.emptyList()).stream()
                         .filter(Objects::nonNull)
                         .map(p -> (TPolicyTemplate) csar.queryRepository(new PolicyTemplateId(p.getPolicyRef())))
