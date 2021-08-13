@@ -43,10 +43,9 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
         final Set<Link> links = new HashSet<>();
         generatePOGActivitiesAndLinks(activities, links, new HashMap<>(), nodeTemplates, new HashMap<>(),
             relationshipTemplates);
-
-        // this.cleanLooseEdges(links);
-
-        return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links){};
+        return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links){
+            
+        };
     }
 
     protected static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
