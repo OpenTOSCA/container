@@ -659,6 +659,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 final WSDLEndpoint endpoint =
                     new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
                         serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
+                LOG.debug("Storing WSDLEndpoint:");
+                LOG.debug("URI = {}, portType = {}, triggeringContainer = {}, managingContainer = {}, csar = {}, serviceTemplateInstanceID = {}, planId = {}, nodeTypeImplementation = {}, iaName = {}, metadata = {}",endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
+                    serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
                 this.endpointService.storeWSDLEndpoint(endpoint);
             }
             LOG.debug("Endpoint: {}", endpointURI.toString());
