@@ -43,9 +43,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
         final Set<Link> links = new HashSet<>();
         generatePOGActivitiesAndLinks(activities, links, new HashMap<>(), nodeTemplates, new HashMap<>(),
             relationshipTemplates);
-        return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links){
-            
-        };
+        return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) { };
     }
 
     protected static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
@@ -62,9 +60,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
             topology.getRelationshipTemplates());
 
         final AbstractPlan plan =
-            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
-
-            };
+            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) { };
 
         LOG.debug("Generated the following plan: ");
         LOG.debug(plan.toString());
