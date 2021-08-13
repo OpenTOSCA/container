@@ -39,6 +39,12 @@ Master is the main development branch, the stable branches are the [tags](https:
 1. Run `mvn install` in root of project
 2. Go to directory `org.opentosca.container.war` and run `mvn spring-boot:run` and the runtime should be available under localhost:1337
 
+## Creating a new version
+1. Run mvn release:update-versions -DautoVersionSubmodules=true, set to preffered version. [More Info](https://maven.apache.org/maven-release/maven-release-plugin/examples/update-versions.html)
+2. Add latest winery version into main pom.xml
+3. Then run `git tag <tagname>` where tagname is the version and if a major release add name to it, afterwards run `git push origin --tags`
+ 
+
 ## Disclaimer of Warranty
 
 Unless required by applicable law or agreed to in writing, Licensor provides the Work (and each Contributor provides its Contributions) on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE.
