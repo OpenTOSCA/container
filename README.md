@@ -6,6 +6,12 @@
 
 Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
+## Info
+The OpenTOSCA Container is java/maven based runtime for deploying and managing TOSCA-based applications. The backend uses [Winery](https://github.com/eclipse/winery) therefore all CSAR exported from a Winery repository should be compatible within the runtime. 
+
+## Development
+Master is the main development branch, the stable branches are the [tags](https://github.com/OpenTOSCA/container/tags) 
+
 ## Build
 
 1. Run `git update-index --assume-unchanged ./org.opentosca.container.core/src/main/resources/application.properties`

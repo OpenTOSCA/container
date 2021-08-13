@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -72,15 +73,12 @@ public class BPELProcessFragments {
         final String xpathQuery1 = "ode:dom-to-string(\\$" + xmlVar + "/*[local-name()='" + rootElementName + "'])";
         final String xpathQuery2 = "\\$" + stringVar;
 
-        Node assign =
-            this.createAssignVarToVarWithXpathQueriesAsNode("transformXMLtoStringVar", xmlVar, null,
-                stringVar, null, xpathQuery1, xpathQuery2,
-                "Transforms one xml var to a string var as ODE sets a an xml element as wrapper around complex type when using the rest extension.",
-                new QName(
-                    "http://www.apache.org/ode/type/extension",
-                    "ode", "ode"));
-
-        return assign;
+        return this.createAssignVarToVarWithXpathQueriesAsNode("transformXMLtoStringVar", xmlVar, null,
+            stringVar, null, xpathQuery1, xpathQuery2,
+            "Transforms one xml var to a string var as ODE sets a an xml element as wrapper around complex type when using the rest extension.",
+            new QName(
+                "http://www.apache.org/ode/type/extension",
+                "ode", "ode"));
     }
 
     public Node createAssignVarWithLiteralAsNode(final String literal, final String varName,
@@ -122,8 +120,8 @@ public class BPELProcessFragments {
                                                       Map<AbstractPolicy, String> policy2IdMap, String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPELMonitoringSituation.xml"));
 
-        String situationIdRequestBody = "";
-        String copyFromInputToRequestBody = "";
+        StringBuilder situationIdRequestBody = new StringBuilder();
+        StringBuilder copyFromInputToRequestBody = new StringBuilder();
 
         /*
          * <bpel:copy>
@@ -137,17 +135,17 @@ public class BPELProcessFragments {
 
         for (AbstractNodeTemplate node : situationPolicies.keySet()) {
             String nodeTemplateId = node.getId();
-            List<AbstractPolicy> policies = new ArrayList<AbstractPolicy>(situationPolicies.get(node));
+            List<AbstractPolicy> policies = new ArrayList<>(situationPolicies.get(node));
 
-            situationIdRequestBody += "<entry><key>" + nodeTemplateId + "</key><value><SituationIdsList>";
+            situationIdRequestBody.append("<entry><key>").append(nodeTemplateId).append("</key><value><SituationIdsList>");
             for (int i = 0; i < policies.size(); i++) {
                 AbstractPolicy policy = policies.get(i);
                 String inputLocalName = policy2IdMap.get(policy);
 
-                situationIdRequestBody += "<situationId/>";
-                copyFromInputToRequestBody += "<bpel:copy><bpel:from part=\"payload\" variable=\"input\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()='" + inputLocalName + "']/text()]]></bpel:query></bpel:from><bpel:to variable=\"$anyVar\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0\"><![CDATA[//*[local-name()='SituationsMonitor']/*[local-name()='NodeIds2SituationIds']/*[local-name()='entry' and ./*[local-name()='key' and text()='" + nodeTemplateId + "']]/*[local-name()='value']/*[local-name()='SituationIdsList']/*[local-name()='situationId'][" + (i + 1) + "]]]></bpel:query></bpel:to></bpel:copy>";
+                situationIdRequestBody.append("<situationId/>");
+                copyFromInputToRequestBody.append("<bpel:copy><bpel:from part=\"payload\" variable=\"input\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()='").append(inputLocalName).append("']/text()]]></bpel:query></bpel:from><bpel:to variable=\"$anyVar\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0\"><![CDATA[//*[local-name()='SituationsMonitor']/*[local-name()='NodeIds2SituationIds']/*[local-name()='entry' and ./*[local-name()='key' and text()='").append(nodeTemplateId).append("']]/*[local-name()='value']/*[local-name()='SituationIdsList']/*[local-name()='situationId'][").append(i + 1).append("]]]></bpel:query></bpel:to></bpel:copy>");
             }
-            situationIdRequestBody += "</SituationIdsList></value></entry>";
+            situationIdRequestBody.append("</SituationIdsList></value></entry>");
         }
 
 //        for(int i = 0; i < situationIdInputLocalNames.size() ; i++) {
@@ -158,8 +156,8 @@ public class BPELProcessFragments {
 //            copyFromInputToRequestBody += "<bpel:copy><bpel:from part=\"payload\" variable=\"input\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()='"+inputLocalName+"']/text()]]></bpel:query></bpel:from><bpel:to variable=\"$anyVar\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0\"><![CDATA[//*[local-name()='SituationsMonitor']/*[local-name()='Situations']/*[local-name()='SituationId']["+String.valueOf(i+1)+"]]]></bpel:query></bpel:to></bpel:copy>";
 //        }
 
-        template = template.replace("$SituationIds", situationIdRequestBody);
-        template = template.replace("$situationIdFromInputCopies", copyFromInputToRequestBody);
+        template = template.replace("$SituationIds", situationIdRequestBody.toString());
+        template = template.replace("$situationIdFromInputCopies", copyFromInputToRequestBody.toString());
         template = template.replace("$anyVar", anyVarName);
         template = template.replace("$requestVar", requestVarName);
         template = template.replace("$urlVarName", serviceTemplateInstanceUrlVarName);
@@ -305,8 +303,8 @@ public class BPELProcessFragments {
                                                                          final Map<String, String> propElement2BpelVarNameMap, String namespace) throws IOException {
         final String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelCopyFromPropertyVarToNodeInstanceProperty.xml"));
 
-        String assignString =
-            "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BPELPlan.bpelNamespace + "\" >";
+        StringBuilder assignString =
+            new StringBuilder("<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BPELPlan.bpelNamespace + "\" >");
 
         // <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,
         // $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
@@ -315,15 +313,15 @@ public class BPELProcessFragments {
             copyString = copyString.replace("$NodeInstancePropertyRequestVarName", nodeInstancePropertyResponseVarName);
             copyString = copyString.replace("$NodeInstancePropertyLocalName", propElement);
             copyString = copyString.replace("$NodeInstancePropertyNamespace", namespace);
-            assignString += copyString;
+            assignString.append(copyString);
         }
 
-        assignString += "</bpel:assign>";
+        assignString.append("</bpel:assign>");
 
         BPELProcessFragments.LOG.debug("Generated following assign string:");
-        BPELProcessFragments.LOG.debug(assignString);
+        BPELProcessFragments.LOG.debug(assignString.toString());
 
-        return assignString;
+        return assignString.toString();
     }
 
     public String createAssignSelectFirstRelationInstanceFromResponse(final String referencesResponseVarName, final String resultVarName) throws IOException {
@@ -343,7 +341,8 @@ public class BPELProcessFragments {
     }
 
     public String createAssignSelectFirstNodeInstanceAndAssignToStringVar(final String referencesResponseVarName,
-                                                                          final String stringVarName) throws IOException {
+                                                                          final String stringVarName,
+                                                                          final String idVarName) throws IOException {
         // BpelAssignSelectFromNodeInstancesRequestToStringVar.xml
         // <!-- $assignName, $stringVarName, $NodeInstancesResponseVarName -->
         String bpelAssignString =
@@ -353,14 +352,16 @@ public class BPELProcessFragments {
             bpelAssignString.replaceAll("\\$assignName", "assignSelectFirstReference" + System.currentTimeMillis());
         bpelAssignString = bpelAssignString.replaceAll("\\$stringVarName", stringVarName);
         bpelAssignString = bpelAssignString.replaceAll("\\$NodeInstancesResponseVarName", referencesResponseVarName);
+        bpelAssignString = bpelAssignString.replaceAll("\\$nodeInstanceIDVar", idVarName);
         return bpelAssignString;
     }
 
     public Node createAssignSelectFirstNodeInstanceAndAssignToStringVarAsNode(final String referencesResponseVarName,
-                                                                              final String stringVarName) throws IOException,
+                                                                              final String stringVarName,
+                                                                              final String idVarName) throws IOException,
         SAXException {
         final String templateString =
-            createAssignSelectFirstNodeInstanceAndAssignToStringVar(referencesResponseVarName, stringVarName);
+            createAssignSelectFirstNodeInstanceAndAssignToStringVar(referencesResponseVarName, stringVarName, idVarName);
         return this.transformStringToNode(templateString);
     }
 
@@ -630,11 +631,7 @@ public class BPELProcessFragments {
         template = template.replaceAll("\\$ResponseVarName", responseVarName);
         template = template.replaceAll("\\$templateId", templateId);
 
-        if (query != null) {
-            template = template.replace("?query", query);
-        } else {
-            template = template.replace("?query", "");
-        }
+        template = template.replace("?query", Objects.requireNonNullElse(query, ""));
 
         return template;
     }
@@ -658,11 +655,7 @@ public class BPELProcessFragments {
         template = template.replaceAll("\\$ResponseVarName", responseVarName);
         template = template.replaceAll("\\$templateId", templateId);
 
-        if (query != null) {
-            template = template.replace("?query", query);
-        } else {
-            template = template.replace("?query", "");
-        }
+        template = template.replace("?query", Objects.requireNonNullElse(query, ""));
 
         return template;
     }
@@ -710,18 +703,14 @@ public class BPELProcessFragments {
      */
     public String createXPathQueryForURLRemoteFilePath(final String artifactPath) {
         BPELProcessFragments.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-        final String filePath =
-            "string(concat(substring-before($input.payload//*[local-name()='instanceDataAPIUrl']/text(),'/servicetemplates'),'/content/"
-                + artifactPath + "'))";
-        return filePath;
+        return "string(concat(substring-before($input.payload//*[local-name()='instanceDataAPIUrl']/text(),'/servicetemplates'),'/content/"
+            + artifactPath + "'))";
     }
 
     public String createXPathQueryForURLRemoteFilePathViaContainerAPI(final String artifactPath, final String csarId) {
         BPELProcessFragments.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-        final String filePath =
-            "string(concat($input.payload//*[local-name()='containerApiAddress']/text(),'/csars/" + csarId + "', '/content/"
-                + artifactPath + "'))";
-        return filePath;
+        return "string(concat($input.payload//*[local-name()='containerApiAddress']/text(),'/csars/" + csarId + "', '/content/"
+            + artifactPath + "'))";
     }
 
     public String generateServiceInstanceRequestMessageAssign(final String inputMessageElementLocalName,
@@ -826,7 +815,7 @@ public class BPELProcessFragments {
 
     public Path getOpenTOSCAAPISchemaFile() throws IOException {
         final URL url = getClass().getClassLoader().getResource("schemas/opentoscaapischema.xsd");
-        ResourceAccess resource = new ResourceAccess(url);
+        ResourceAccess resource = new ResourceAccess(Objects.requireNonNull(url, "url may not be null"));
         return resource.resolvedPath();
     }
 
