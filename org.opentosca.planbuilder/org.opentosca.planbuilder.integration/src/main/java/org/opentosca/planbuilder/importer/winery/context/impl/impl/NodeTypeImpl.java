@@ -45,7 +45,7 @@ public class NodeTypeImpl extends AbstractNodeType {
     private void setUp() {
         // set up interfaces
         if (this.nodeType.getInterfaces() != null) {
-            for (final TInterface i : this.nodeType.getInterfaces().getInterface()) {
+            for (final TInterface i : this.nodeType.getInterfaces()) {
                 this.interfaces.add(new InterfaceImpl(this.definitions, i));
             }
         }

@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TNodeType;
-import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -73,16 +73,15 @@ public abstract class IManagementBusInvocationPluginService {
         TNodeType nodeType = csar.nodeTypes().stream().filter(x -> x.getQName().equals(nodeTypeId)).findFirst().get();
 
         if (nodeType.getInterfaces() != null) {
-            nodeType.getInterfaces().getInterface()
+            nodeType.getInterfaces()
                 .stream()
                 .filter(x -> x.getName().equals(interfaceName)).findFirst()
                 .ifPresent(x -> {
-                    TOperation.OutputParameters outputParameters = x.getOperation().stream().filter(op ->
+                    List<TParameter> outputParameters = x.getOperations().stream().filter(op ->
                         op.getName().equals(operationName)).findFirst().get().getOutputParameters();
                     if (outputParameters != null) {
-                        outputParameters.getOutputParameter().forEach(param -> responseMap.put(param.getName(), "managementBusMockValue"));
+                        outputParameters.forEach(param -> responseMap.put(param.getName(), "managementBusMockValue"));
                     }
-
                 });
         }
 

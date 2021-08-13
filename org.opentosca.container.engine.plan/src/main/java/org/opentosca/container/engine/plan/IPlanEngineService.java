@@ -6,7 +6,6 @@ package org.opentosca.container.engine.plan;
 import java.util.List;
 
 import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
 
 import org.opentosca.container.core.model.csar.CsarId;
 
@@ -37,7 +36,7 @@ public interface IPlanEngineService {
      * @param csarId The id of CSAR file where the TPlans are defined
      * @return returns a list of plans which couldn't be deployed
      */
-    List<TPlan> deployPlans(TPlans plans, String targetNamespace, CsarId csarId);
+    List<TPlan> deployPlans(List<TPlan> plans, String targetNamespace, CsarId csarId);
 
     /**
      * Undeploys the given TPlans
@@ -49,7 +48,7 @@ public interface IPlanEngineService {
      * @param csarId The id of CSAR file where the TPlans are contained
      * @return returns a list of TPlan's which coulnd't be undeployed
      */
-    List<TPlan> undeployPlans(TPlans plans, String targetNamespace, CsarId csarId);
+    List<TPlan> undeployPlans(List<TPlan> plans, String targetNamespace, CsarId csarId);
 
     /**
      * Deploys the given TPlan
@@ -72,5 +71,5 @@ public interface IPlanEngineService {
      * @param csarId The id of CSAR file where this TPlan is contained
      * @return true if undeployment was successful, else false
      */
-    boolean undeployPlan(TPlan plan, String targetNamspace, CsarId csarId);
+    boolean undeployPlan(TPlan plan, String planTargetNamespace, CsarId csarId);
 }

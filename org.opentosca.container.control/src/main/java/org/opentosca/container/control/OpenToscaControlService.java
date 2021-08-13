@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.extension.TPlanDTO;
@@ -51,7 +50,7 @@ public interface OpenToscaControlService {
     // FIXME evaluate using winery's TPlan instead
     String invokePlanInvocation(CsarId csar, TServiceTemplate serviceTemplate, long instanceId, TPlanDTO plan);
 
-    boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, TPlans plans, TPlan plan);
+    boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, List<TPlan> plans, TPlan plan);
 
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate);
 }

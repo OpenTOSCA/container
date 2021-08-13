@@ -15,7 +15,6 @@ import javax.inject.Singleton;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -128,20 +127,14 @@ public class PlanEngineImpl implements IPlanEngineService {
      * {@inheritDoc}
      */
     @Override
-    public List<TPlan> deployPlans(final TPlans plans, final String targetNamespace, final CsarId csarId) {
+    public List<TPlan> deployPlans(final List<TPlan> plans, final String targetNamespace, final CsarId csarId) {
         final List<TPlan> nonDeployedPlans = new LinkedList<>();
-        final List<TPlan> p = plans.getPlan();
 
-        String namespace = plans.getTargetNamespace();
-        if (namespace == null) {
-            namespace = "";
-        }
-
-        for (final TPlan plan : p) {
-            if (!this.deployPlan(plan, namespace, csarId)) {
+        for (final TPlan plan : plans) {
+            if (!this.deployPlan(plan, targetNamespace, csarId)) {
                 nonDeployedPlans.add(plan);
             } else {
-            	LOG.info("Deployment of plan {} was successful", plan.getId());
+                LOG.info("Deployment of plan {} was successful", plan.getId());
             }
         }
 
@@ -160,25 +153,19 @@ public class PlanEngineImpl implements IPlanEngineService {
      * {@inheritDoc}
      */
     @Override
-    public List<TPlan> undeployPlans(final TPlans plans, final String targetNamespace, final CsarId csarId) {
+    public List<TPlan> undeployPlans(final List<TPlan> plans, final String targetNamespace, final CsarId csarId) {
         final List<TPlan> nonUndeployedPlans = new LinkedList<>();
-        final List<TPlan> p = plans.getPlan();
 
-        String namespace = plans.getTargetNamespace();
-        if (namespace == null) {
-            namespace = targetNamespace;
-        }
-
-        if (namespace == null) {
+        if (targetNamespace == null) {
             LOG.error("No namespace for Plans {} defined. Plugins communication with toscaEngine may be wrong",
                 plans.toString());
-            return p;
+            return plans;
         }
 
-        for (final TPlan plan : p) {
+        for (final TPlan plan : plans) {
             // FIXME plans.getTargetNamespace can be null, then the
             //  targetNamespace has to be taken of the Service Template or Definitions
-            if (!this.undeployPlan(plan, namespace, csarId)) {
+            if (!this.undeployPlan(plan, targetNamespace, csarId)) {
                 nonUndeployedPlans.add(plan);
             }
         }

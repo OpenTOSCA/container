@@ -125,11 +125,10 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
     @Override
     public boolean hasBuildPlan() {
         if (this.serviceTemplate.getPlans() != null) {
-            final org.eclipse.winery.model.tosca.TPlans plans = this.serviceTemplate.getPlans();
-            final List<org.eclipse.winery.model.tosca.TPlan> plans2 = plans.getPlan();
+            final List<org.eclipse.winery.model.tosca.TPlan> plans = this.serviceTemplate.getPlans();
             ServiceTemplateImpl.LOG.debug("Checking whether ServiceTemplate {} has no BuildPlan",
                 this.getQName().toString());
-            for (final org.eclipse.winery.model.tosca.TPlan plan : plans.getPlan()) {
+            for (final org.eclipse.winery.model.tosca.TPlan plan : plans) {
                 ServiceTemplateImpl.LOG.debug("Checking Plan {} of Type {}", plan.getId(), plan.getPlanType());
                 if (plan.getPlanType().trim()
                     .equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan")) {
@@ -143,11 +142,10 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
     @Override
     public boolean hasTerminationPlan() {
         if (this.serviceTemplate.getPlans() != null) {
-            final org.eclipse.winery.model.tosca.TPlans plans = this.serviceTemplate.getPlans();
-            final List<org.eclipse.winery.model.tosca.TPlan> plans2 = plans.getPlan();
+            final List<org.eclipse.winery.model.tosca.TPlan> plans = this.serviceTemplate.getPlans();
             ServiceTemplateImpl.LOG.debug("Checking whether ServiceTemplate {} has no TerminationPlan",
                 this.getQName().toString());
-            for (final org.eclipse.winery.model.tosca.TPlan plan : plans.getPlan()) {
+            for (final org.eclipse.winery.model.tosca.TPlan plan : plans) {
                 ServiceTemplateImpl.LOG.debug("Checking Plan {} of Type {}", plan.getId(), plan.getPlanType());
                 if (plan.getPlanType().trim()
                     .equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan")) {
@@ -164,11 +162,11 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
 
         if (this.serviceTemplate.getTags() == null) {
             return tags;
-        } else if (this.serviceTemplate.getTags().getTag() == null) {
+        } else if (this.serviceTemplate.getTags() == null) {
             return tags;
         }
 
-        for (final TTag tag : this.serviceTemplate.getTags().getTag()) {
+        for (final TTag tag : this.serviceTemplate.getTags()) {
             tags.put(tag.getName(), tag.getValue());
         }
 

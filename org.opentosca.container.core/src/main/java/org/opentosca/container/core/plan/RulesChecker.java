@@ -29,7 +29,6 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.extension.TParameterDTO;
-import org.opentosca.container.core.extension.TPlanDTO.InputParameters;
 import org.opentosca.container.core.model.csar.Csar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +75,7 @@ public class RulesChecker {
         return propertiesMap;
     }
 
-    boolean check(final Csar csar, final TServiceTemplate serviceTemplate, final InputParameters inputParameters) {
+    boolean check(final Csar csar, final TServiceTemplate serviceTemplate, final List<TParameterDTO> inputParameters) {
         LOG.debug("Checking Rules");
         List<TServiceTemplate> stWhiteRuleList;
         List<TServiceTemplate> stBlackRuleList;
@@ -94,7 +93,7 @@ public class RulesChecker {
 
     private boolean checkRules(final List<TServiceTemplate> stRuleList, final String ruleType,
                                final TServiceTemplate serviceTemplate,
-                               final InputParameters inputParameters) {
+                               final List<TParameterDTO> inputParameters) {
 
         for (final TServiceTemplate stRule : stRuleList) {
 
@@ -283,7 +282,7 @@ public class RulesChecker {
     }
 
     private boolean arePropertiesMatching(final TNodeTemplate relatedNodeTemplate,
-                                          final InputParameters inputParameters,
+                                          final List<TParameterDTO> inputParameters,
                                           final TNodeTemplate targetRuleNTemplate) {
         final Document propsDoc = ToscaEngine.getNodeTemplateProperties(relatedNodeTemplate);
 
@@ -296,7 +295,7 @@ public class RulesChecker {
                 continue;
             }
             if (propertiesMap.get(name) == null || propertiesMap.get(name).contains("get_input:")) {
-                for (final TParameterDTO para : inputParameters.getInputParameter()) {
+                for (final TParameterDTO para : inputParameters) {
                     if (para.getName().equals(name) && !para.getValue().equals(value)) {
                         LOG.debug("Property " + name + " not matching. " + para.getValue() + " != " + value);
                         return false;

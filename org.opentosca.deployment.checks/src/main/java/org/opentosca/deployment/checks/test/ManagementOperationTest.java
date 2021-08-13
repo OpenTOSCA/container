@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -14,7 +15,6 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.ids.definitions.NodeTypeId;
 import org.eclipse.winery.model.tosca.TInterface;
-import org.eclipse.winery.model.tosca.TInterfaces;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TOperation;
@@ -207,11 +207,11 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
         return new HashMap<>();
     }
 
-    private boolean checkInterfaceOperationSpecification(final TInterfaces interfaces, final String interfaceName,
+    private boolean checkInterfaceOperationSpecification(final List<TInterface> interfaces, final String interfaceName,
                                                          final String operationName) {
-        for (final TInterface i : interfaces.getInterface()) {
+        for (final TInterface i : interfaces) {
             if (i.getName().equals(interfaceName)) {
-                for (final TOperation o : i.getOperation()) {
+                for (final TOperation o : i.getOperations()) {
                     if (o.getName().equals(operationName)) {
                         logger.debug("Found specified operation \"{}\" on interface \"{}\"", operationName,
                             interfaceName);
@@ -224,14 +224,14 @@ public class ManagementOperationTest implements org.opentosca.deployment.checks.
         return false;
     }
 
-    private Set<String> getRequiredInputParameters(final TInterfaces nodeTypeInterfaces, final String interfaceName,
+    private Set<String> getRequiredInputParameters(final List<TInterface> nodeTypeInterfaces, final String interfaceName,
                                                    final String operationName) {
-        for (final TInterface i : nodeTypeInterfaces.getInterface()) {
+        for (final TInterface i : nodeTypeInterfaces) {
             if (i.getName().equals(interfaceName)) {
-                for (final TOperation o : i.getOperation()) {
+                for (final TOperation o : i.getOperations()) {
                     if (o.getName().equals(operationName)) {
                         final Set<String> inputParameters =
-                            o.getInputParameters().getInputParameter().stream().map(p -> p.getName()).collect(Collectors.toSet());
+                            o.getInputParameters().stream().map(p -> p.getName()).collect(Collectors.toSet());
                         logger.debug("Required input parameters of operation \"{}\" ({}): {}", operationName,
                             interfaceName, inputParameters);
                         return inputParameters;

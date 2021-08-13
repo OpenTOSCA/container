@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
 
@@ -64,8 +65,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
      */
     private void initIas() {
         if (this.nodeTypeImpl.getImplementationArtifacts() != null) {
-            for (final TImplementationArtifact artifact : this.nodeTypeImpl.getImplementationArtifacts()
-                .getImplementationArtifact()) {
+            for (final TImplementationArtifact artifact : this.nodeTypeImpl.getImplementationArtifacts()) {
                 this.ias.add(new ImplementationArtifactImpl(artifact, this.definitions));
             }
         }
@@ -76,8 +76,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
      */
     private void initDas() {
         if (this.nodeTypeImpl.getDeploymentArtifacts() != null) {
-            for (final TDeploymentArtifact artifact : this.nodeTypeImpl.getDeploymentArtifacts()
-                .getDeploymentArtifact()) {
+            for (final TDeploymentArtifact artifact : this.nodeTypeImpl.getDeploymentArtifacts()) {
                 this.das.add(new DeploymentArtifactImpl(artifact, this.definitions));
             }
         }
@@ -88,7 +87,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
      */
     private void initTags() {
         if (this.nodeTypeImpl.getTags() != null) {
-            for (final TTag tag : this.nodeTypeImpl.getTags().getTag()) {
+            for (final TTag tag : this.nodeTypeImpl.getTags()) {
                 this.tags.add(new TagImpl(tag));
             }
         }
@@ -141,8 +140,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
     public List<String> getRequiredContainerFeatures() {
         // TODO make this non-hacky
         final List<String> features = new ArrayList<>();
-        for (final TRequiredContainerFeature feature : this.nodeTypeImpl.getRequiredContainerFeatures()
-            .getRequiredContainerFeature()) {
+        for (final TRequiredContainerFeature feature : Objects.requireNonNull(this.nodeTypeImpl.getRequiredContainerFeatures())) {
             features.add(feature.getFeature());
         }
         return features;

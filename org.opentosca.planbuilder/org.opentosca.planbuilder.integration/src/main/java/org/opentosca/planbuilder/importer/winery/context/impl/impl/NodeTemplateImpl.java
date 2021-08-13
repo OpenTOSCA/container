@@ -89,7 +89,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 
     private void setUpPolicies() {
         if (this.nodeTemplate.getPolicies() != null) {
-            for (final TPolicy policy : this.nodeTemplate.getPolicies().getPolicy()) {
+            for (final TPolicy policy : this.nodeTemplate.getPolicies()) {
                 this.policies.add(new PolicyImpl(policy, this.definitions));
             }
         }
@@ -100,8 +100,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
      */
     private void setUpDeploymentArtifacts() {
         if (this.nodeTemplate.getDeploymentArtifacts() != null) {
-            for (final TDeploymentArtifact artifact : this.nodeTemplate.getDeploymentArtifacts()
-                .getDeploymentArtifact()) {
+            for (final TDeploymentArtifact artifact : this.nodeTemplate.getDeploymentArtifacts()) {
                 this.das.add(new DeploymentArtifactImpl(artifact, this.definitions));
             }
         }
@@ -116,7 +115,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
      */
     private void setUpCapabilities() {
         if (this.nodeTemplate.getCapabilities() != null) {
-            for (final TCapability capability : this.nodeTemplate.getCapabilities().getCapability()) {
+            for (final TCapability capability : this.nodeTemplate.getCapabilities()) {
                 this.capabilities.add(new CapabilityImpl(capability));
             }
         }
@@ -127,7 +126,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
      */
     private void setUpRequirements() {
         if (this.nodeTemplate.getRequirements() != null) {
-            for (final TRequirement requirement : this.nodeTemplate.getRequirements().getRequirement()) {
+            for (final TRequirement requirement : this.nodeTemplate.getRequirements()) {
                 this.requirements.add(new RequirementImpl(requirement));
             }
         }
@@ -249,7 +248,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
         final Stack<AbstractDefinitions> defsToSearchIn = new Stack<>();
 
         while (currentDef != null) {
-            currentDef.getNodeTypeImplementations().forEach(x -> impls.add(x));
+            impls.addAll(currentDef.getNodeTypeImplementations());
             for (final AbstractDefinitions importedDef : currentDef.getImportedDefinitions()) {
                 defsToSearchIn.push(importedDef);
             }

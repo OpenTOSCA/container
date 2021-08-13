@@ -41,7 +41,6 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TPolicyTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
@@ -151,7 +150,7 @@ public class CsarImpl implements Csar {
                 deplArt.setArtifactRef(artTemplateId.getQName());
 
                 deplArt.setId(nodeTemplateId + "_StateArtifact");
-                allNestedNodeTemplate.getDeploymentArtifacts().getDeploymentArtifact().add(deplArt);
+                allNestedNodeTemplate.getDeploymentArtifacts().add(deplArt);
 
                 this.wineryRepo.setElement(serviceTemplateId, servTemp);
                 break;
@@ -194,7 +193,6 @@ public class CsarImpl implements Csar {
         return serviceTemplates().stream()
             .map(TServiceTemplate::getBoundaryDefinitions)
             .map(TBoundaryDefinitions::getInterfaces)
-            .map(TBoundaryDefinitions.Interfaces::getInterface)
             .flatMap(Collection::stream)
             .map(TExportedInterface::getOperation)
             .flatMap(Collection::stream)
@@ -206,7 +204,6 @@ public class CsarImpl implements Csar {
         @SuppressWarnings("null")
         List<TPlan> plans = Optional.ofNullable(entryServiceTemplate())
             .map(TServiceTemplate::getPlans)
-            .map(TPlans::getPlan)
             .orElse(Collections.emptyList());
         return plans;
     }
@@ -235,8 +232,9 @@ public class CsarImpl implements Csar {
             .map(wineryRepo::getElement)
             .collect(Collectors.toList());
     }
+
     @Override
-    public List<TRelationshipType> relationshipTypes(){
+    public List<TRelationshipType> relationshipTypes() {
         return wineryRepo.getAllDefinitionsChildIds(RelationshipTypeId.class).stream()
             .map(wineryRepo::getElement)
             .collect(Collectors.toList());

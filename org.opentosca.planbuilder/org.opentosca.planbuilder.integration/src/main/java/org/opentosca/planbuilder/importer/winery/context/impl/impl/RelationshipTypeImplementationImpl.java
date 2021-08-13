@@ -50,8 +50,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
      * Initializes the IAs of this RelationshipTypeImplementation
      */
     private void initIas() {
-        for (final TImplementationArtifact artifact : this.relationshipTypeImpl.getImplementationArtifacts()
-            .getImplementationArtifact()) {
+        for (final TImplementationArtifact artifact : this.relationshipTypeImpl.getImplementationArtifacts()) {
             this.ias.add(new ImplementationArtifactImpl(artifact, this.defs));
         }
     }
@@ -61,7 +60,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
      */
     private void initTags() {
         if (this.relationshipTypeImpl.getTags() != null) {
-            for (final TTag tag : this.relationshipTypeImpl.getTags().getTag()) {
+            for (final TTag tag : this.relationshipTypeImpl.getTags()) {
                 this.tags.add(new TagImpl(tag));
             }
         }
@@ -119,8 +118,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
     public List<String> getRequiredContainerFeatures() {
         // TODO make this non-hacky
         final List<String> features = new ArrayList<>();
-        for (final TRequiredContainerFeature feature : this.relationshipTypeImpl.getRequiredContainerFeatures()
-            .getRequiredContainerFeature()) {
+        for (final TRequiredContainerFeature feature : this.relationshipTypeImpl.getRequiredContainerFeatures()) {
             features.add(feature.getFeature());
         }
         return features;

@@ -40,8 +40,8 @@ public class ServiceTemplatePropertiesImpl extends AbstractServiceTemplateProper
      */
     private void init() {
         if (this.properties.getPropertyMappings() != null
-            && this.properties.getPropertyMappings().getPropertyMapping() != null) {
-            for (final TPropertyMapping mapping : this.properties.getPropertyMappings().getPropertyMapping()) {
+            && this.properties.getPropertyMappings() != null) {
+            for (final TPropertyMapping mapping : this.properties.getPropertyMappings()) {
                 this.propMappings.add(new PropertyMappingImpl(mapping));
             }
         }

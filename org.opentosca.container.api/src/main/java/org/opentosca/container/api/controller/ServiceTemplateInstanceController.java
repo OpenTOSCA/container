@@ -160,7 +160,7 @@ public class ServiceTemplateInstanceController {
                 // url to the transformation plan instance which created this instance from another service instance
                 path = "/csars/{csar}/servicetemplates/{servicetemplate}/instances/{serviceinstance}/managementplans/{plan}/instances/{instance}";
                 uri = this.uriInfo.getBaseUriBuilder().path(path).build(pi.getServiceTemplateInstance().getCsarId().csarName(), pi.getServiceTemplateInstance().getTemplateId(), pi.getServiceTemplateInstance().getId(),
-                pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
+                    pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
             }
             dto.add(Link.fromUri(UriUtil.encode(uri)).rel("build_plan_instance").build());
         }
@@ -323,7 +323,7 @@ public class ServiceTemplateInstanceController {
     @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
     public Response getInterfaces(@PathParam("id") final Long id) {
         logger.debug("Invoking getInterfaces");
-        List<TExportedInterface> boundaryInterfaces = serviceTemplate.getBoundaryDefinitions().getInterfaces().getInterface();
+        List<TExportedInterface> boundaryInterfaces = serviceTemplate.getBoundaryDefinitions().getInterfaces();
         logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", boundaryInterfaces.size(),
             serviceTemplate.getId(), csar.id().csarName());
 
@@ -403,7 +403,7 @@ public class ServiceTemplateInstanceController {
             final ResourceDecorator decorator = new ResourceDecorator();
             decorator.setObject(v);
             decorator.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder()
-                .path(String.valueOf(v.getId())).build()))
+                    .path(String.valueOf(v.getId())).build()))
                 .rel("self").build());
             return decorator;
         }).collect(Collectors.toList());

@@ -50,7 +50,7 @@ public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
      */
     private void setUp() {
         if (this.template.getArtifactReferences() != null) {
-            for (final TArtifactReference ref : this.template.getArtifactReferences().getArtifactReference()) {
+            for (final TArtifactReference ref : this.template.getArtifactReferences()) {
                 this.references.add(new ArtifactReferenceImpl(ref));
             }
         }

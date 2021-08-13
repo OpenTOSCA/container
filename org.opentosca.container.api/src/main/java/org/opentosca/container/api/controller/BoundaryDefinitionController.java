@@ -130,7 +130,6 @@ public class BoundaryDefinitionController {
         List<TPropertyMapping> propertyMappings =
             Optional.of(boundary)
                 .map(TBoundaryDefinitions::getProperties).map(TBoundaryDefinitions.Properties::getPropertyMappings)
-                .map(TBoundaryDefinitions.Properties.PropertyMappings::getPropertyMapping)
                 .orElse(Collections.emptyList());
         logger.debug("Found <{}> property mappings", propertyMappings.size());
 
@@ -179,7 +178,7 @@ public class BoundaryDefinitionController {
         // we're hacking ourselves an elvis operator here, allowing us to condense nullchecks
         @SuppressWarnings("null") final List<TExportedInterface> interfaces =
             Optional.ofNullable(serviceTemplate).map(TServiceTemplate::getBoundaryDefinitions)
-                .map(TBoundaryDefinitions::getInterfaces).map(TBoundaryDefinitions.Interfaces::getInterface)
+                .map(TBoundaryDefinitions::getInterfaces)
                 .orElse(Collections.emptyList());
         this.logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", interfaces.size(),
             servicetemplate, csar.id().csarName());
@@ -214,10 +213,11 @@ public class BoundaryDefinitionController {
 
         @SuppressWarnings("null") final List<TExportedOperation> operations =
             Optional.ofNullable(serviceTemplate).map(TServiceTemplate::getBoundaryDefinitions)
-                .map(TBoundaryDefinitions::getInterfaces).map(TBoundaryDefinitions.Interfaces::getInterface)
-                .map(List::stream).orElse(Collections.<TExportedInterface>emptyList().stream())
+                .map(TBoundaryDefinitions::getInterfaces).stream()
+                .flatMap(Collection::stream)
                 .filter(iface -> iface.getIdFromIdOrNameField().equals(name)).findFirst()
-                .map(iface -> iface.getOperation()).orElse(Collections.emptyList());
+                .map(TExportedInterface::getOperation)
+                .orElse(Collections.emptyList());
 
         logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
             operations.size(), name, servicetemplate, csar.id().csarName());
