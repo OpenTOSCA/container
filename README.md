@@ -7,10 +7,10 @@
 Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
 ## Info
-The OpenTOSCA Container is java/maven based runtime for deploying and managing TOSCA-based applications. The backend uses [Winery](https://github.com/eclipse/winery) therefore all CSAR exported from a Winery repository should be compatible within the runtime. 
+The OpenTOSCA Container is java/maven based runtime for deploying and managing TOSCA-based applications. The backend uses [Winery](https://github.com/eclipse/winery) therefore all CSAR exported from a Winery repository should be compatible within the runtime.
 
 ## Development
-Master is the main development branch, the stable branches are the [tags](https://github.com/OpenTOSCA/container/tags) 
+Master is the main development branch, the stable branches are the [tags](https://github.com/OpenTOSCA/container/tags)
 
 ## Build
 
@@ -40,10 +40,10 @@ Master is the main development branch, the stable branches are the [tags](https:
 2. Go to directory `org.opentosca.container.war` and run `mvn spring-boot:run` and the runtime should be available under localhost:1337
 
 ## Creating a new version
-1. Run mvn release:update-versions -DautoVersionSubmodules=true, set to preffered version. [More Info](https://maven.apache.org/maven-release/maven-release-plugin/examples/update-versions.html)
-2. Add latest winery version into main pom.xml
+1. Run mvn release:update-versions -DautoVersionSubmodules=true, set to the prefered version for the container. [More Info](https://maven.apache.org/maven-release/maven-release-plugin/examples/update-versions.html)
+2. Add latest winery version into main pom.xml (under <winery.version>ustutt-SNAPSHOT</winery.version>) by going into your local maven repo and find the dependencies (e.g. .m2/repository/com/github/opentosca/winery/org.eclipse.winery.repository/). Inside one of the dependencies fetch the version (e.g. <version>ustutt-b1ddec3c0c-1</version>) from the SNAPSHOT version in the metadata (e.g. /.m2/repository/com/github/opentosca/winery/org.eclipse.winery.repository/ustutt-SNAPSHOT/maven-metadata-jitpack.xml)
 3. Then run `git tag <tagname>` where tagname is the version and if a major release add name to it, afterwards run `git push origin --tags`
- 
+
 
 ## Disclaimer of Warranty
 
