@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 10
 
     steps:
-    - name: Checkout stable branch
+    - name: Checkout master branch
       uses: actions/checkout@v2
       with:
         ref: master
@@ -39,6 +39,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         ref: stable
+        clean: false
     - name: Pop changes
       run: git stash pop
     - uses: stefanzweifel/git-auto-commit-action@v4
