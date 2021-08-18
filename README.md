@@ -40,6 +40,7 @@ Master is the main development branch, the stable branches are the [tags](https:
 2. Go to directory `org.opentosca.container.war` and run `mvn spring-boot:run` and the runtime should be available under localhost:1337
 
 ## Creating a new version
+
 1. Run `mvn release:update-versions -DautoVersionSubmodules=true` and set the version to the prefered version for the container. [More Info](https://maven.apache.org/maven-release/maven-release-plugin/examples/update-versions.html)
 2. Add latest winery version into main pom.xml via `mvn versions:set-property -Dproperty=winery.version -DnewVersion=new_version`. Find new_version by going into your local maven repo and find the dependencies (e.g. .m2/repository/com/github/opentosca/winery/org.eclipse.winery.repository/). Inside one of the dependencies fetch the version (e.g. <version>ustutt-b1ddec3c0c-1</version>) from the SNAPSHOT version in the metadata (e.g. /.m2/repository/com/github/opentosca/winery/org.eclipse.winery.repository/ustutt-SNAPSHOT/maven-metadata-jitpack.xml)
 3. Then run `git tag <tagname>` where tagname is the version and if a major release add name to it, afterwards run `git push origin --tags`
