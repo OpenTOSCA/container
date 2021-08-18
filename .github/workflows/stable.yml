@@ -9,6 +9,12 @@ on:
     branches: [master]
     types:
       - completed
+  workflow_dispatch:
+    inputs:
+      desired_version:
+        description: 'The desired version to the tag'
+        required: false
+        default: ''
 
 jobs:
   tag:
