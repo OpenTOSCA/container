@@ -22,7 +22,7 @@ jobs:
     - name: Checkout stable branch
       uses: actions/checkout@v2
       with:
-        ref: stable
+        ref: master
     - name: Lock Winery version
       run: mvn versions:lock-snapshots
     - name: Remove -SNAPSHOT
@@ -33,7 +33,14 @@ jobs:
       run: echo "CONTAINER_VERSION="$(cat version.log)"-"$(date +'%Y-%m-%d-%H-%M-%S') >> $GITHUB_ENV
     - name: Show generated Tag version
       run: echo ${{ env.CONTAINER_VERSION }}
-
+    - name: Stash changes
+      run: git stash
+    - name: Checkout stable branch
+      uses: actions/checkout@v2
+      with:
+        ref: stable
+    - name: Pop changes
+      run: git stash pop
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: Create stable version ${{ env.CONTAINER_VERSION }}
@@ -41,6 +48,7 @@ jobs:
         commit_user_name: OpenTOSCA GitHub Actions Bot
         skip_dirty_check: true
         skip_fetch: true
+        push_options: '--force'
     #- name: Push to stable branch
     #  uses: actions-x/commit@v2
     #  with:
