@@ -36,6 +36,7 @@ jobs:
         email: actions@opentosca.org
         name: OpenTOSCA GitHub Actions Autocommitter
         branch: stable
+        files: .
         token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
         force: true
 
