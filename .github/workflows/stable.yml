@@ -30,15 +30,21 @@ jobs:
       run: echo "CONTAINER_VERSION="$(cat version.log)"-"$(date +'%Y-%m-%d-%H-%M-%S') >> $GITHUB_ENV
     - name: Show generated Tag version
       run: echo ${{ env.CONTAINER_VERSION }}
-    - name: Push to stable branch
-      uses: actions-x/commit@v2
+
+    - uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        email: actions@opentosca.org
-        name: OpenTOSCA GitHub Actions Autocommitter
+        commit_message: Create stable version ${{ env.CONTAINER_VERSION }}
         branch: stable
-        files: .
-        token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
-        force: true
+        commit_user_name: OpenTOSCA GitHub Actions Bot # defaults to "GitHub Actions"
+    #- name: Push to stable branch
+    #  uses: actions-x/commit@v2
+    #  with:
+    #    email: actions@opentosca.org
+    #    name: OpenTOSCA GitHub Actions Autocommitter
+    #    branch: stable
+    #    files: .
+    #    token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
+    #    force: true
 
     #- name: Create Tag
     #  uses: mathieudutour/github-tag-action@v5.6
