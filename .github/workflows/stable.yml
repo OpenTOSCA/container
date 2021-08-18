@@ -4,17 +4,12 @@
 name: Create stable tag
 
 on:
-  workflow_run:
-    workflows: ["build"]
-    branches: [master]
-    types:
-      - completed
-  workflow_dispatch:
-    inputs:
-      desired_version:
-        description: 'The desired version to the tag'
-        required: false
-        default: ''
+  #workflow_run:
+  #  workflows: ["build"]
+  #  branches: [master]
+  #  types:
+  #    - completed
+  - workflow_dispatch
 
 jobs:
   tag:
