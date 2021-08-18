@@ -26,7 +26,7 @@
     <dependency>
       <groupId>com.github.opentosca.winery</groupId>
       <artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
-      <version>${winery.version}</version>
+      <version>ustutt-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
