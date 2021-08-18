@@ -27,7 +27,7 @@ jobs:
     - name: Get POM version
       run: mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "INFO|WARNING" >> version.log
     - name: Set Tag Version in Environment
-      run: echo ("CONTAINER_VERSION=$(cat version.log)-$(date +'%Y-%m-%d-%H-%M-%S')") >> $env:GITHUB_ENV
+      run: echo ("CONTAINER_VERSION="$(cat version.log)"-"$(date +'%Y-%m-%d-%H-%M-%S')) >> $env:GITHUB_ENV
     - name: Create Tag
       uses: negz/create-tag@v1
       with:
