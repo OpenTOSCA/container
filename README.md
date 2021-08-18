@@ -38,9 +38,9 @@ Master is the main development branch, the stable branches are the [tags](https:
 1.  Run `mvn install` in root of project
 2.  Go to directory `org.opentosca.container.war` and run `mvn spring-boot:run` and the runtime should be available under localhost:1337
 
-## Creating a new version
+## Creating a new stable tag
 
-1.  Run `mvn release:update-versions -DautoVersionSubmodules=true` and set the version to the prefered version for the container. [More Info](https://maven.apache.org/maven-release/maven-release-plugin/examples/update-versions.html)
+1.  Run `mvn release:update-versions -DautoVersionSubmodules=true` and set the version to the prefered version for the container, or just use `mvn --batch-mode release:update-versions -DautoVersionSubmodules=true` to increment the current version. Remove -SNAPSHOT via `mvn versions:set -DremoveSnapshot` [More Info](https://maven.apache.org/maven-release/maven-release-plugin/examples/update-versions.html)
 2.  Lock winery SNAPSHOT version via `mvn versions:lock-snapshots`
 3.  Then run `git tag <tagname>` where tagname is the version and if a major release add name to it, afterwards run `git push origin --tags`
 

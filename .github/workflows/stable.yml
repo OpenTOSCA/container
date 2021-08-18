@@ -1,0 +1,38 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Create stable tag
+
+on:
+  push:
+    branches: 'master'
+  workflow_run:
+    workflows: ["build"]
+    branches: [master]
+    types:
+      - completed
+
+jobs:
+  tag:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      CONTAINER_VERSION: ''
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Lock winery version
+      run: mvn versions:lock-snapshots
+    - name: Remoe snapshot
+      run: mvn versions:set -DremoveSnapshot
+    - name: Get POM version
+      run: mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "INFO|WARNING" -l version.log
+    - name: Set Version in Environment
+      run: echo "CONTAINER_VERSION=$(cat version.log)-$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
+    - name: Create Tag
+        uses: negz/create-tag@v1
+        with:
+          version: ${{ env.CONTAINER_VERSION }}
+          message: 'Latest stable version'
+          token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
