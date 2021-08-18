@@ -22,13 +22,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Lock winery version
+    - name: Lock Winery version
       run: mvn versions:lock-snapshots
-    - name: Remoe snapshot
+    - name: Remove -SNAPSHOT
       run: mvn versions:set -DremoveSnapshot
     - name: Get POM version
-      run: mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "INFO|WARNING" -l version.log
-    - name: Set Version in Environment
+      run: mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "INFO|WARNING" >> version.log
+    - name: Set Tag Version in Environment
       run: echo "CONTAINER_VERSION=$(cat version.log)-$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
     - name: Create Tag
       uses: negz/create-tag@v1
