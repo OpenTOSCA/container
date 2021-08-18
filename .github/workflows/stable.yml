@@ -31,8 +31,8 @@ jobs:
     - name: Set Version in Environment
       run: echo "CONTAINER_VERSION=$(cat version.log)-$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
     - name: Create Tag
-        uses: negz/create-tag@v1
-        with:
-          version: ${{ env.CONTAINER_VERSION }}
-          message: 'Latest stable version'
-          token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
+      uses: negz/create-tag@v1
+      with:
+        version: ${{ env.CONTAINER_VERSION }}
+        message: 'Latest stable version'
+        token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
