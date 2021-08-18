@@ -35,7 +35,9 @@ jobs:
       with:
         commit_message: Create stable version ${{ env.CONTAINER_VERSION }}
         branch: stable
-        commit_user_name: OpenTOSCA GitHub Actions Bot # defaults to "GitHub Actions"
+        commit_user_name: OpenTOSCA GitHub Actions Bot
+        skip_dirty_check: true
+        skip_fetch: true
     #- name: Push to stable branch
     #  uses: actions-x/commit@v2
     #  with:
