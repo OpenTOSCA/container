@@ -6,12 +6,11 @@
 
     <groupId>org.opentosca</groupId>
     <artifactId>container</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <winery.version>ustutt-SNAPSHOT</winery.version>
         <apache.cxf.version>3.1.18</apache.cxf.version>
         <camel.version>3.8.0</camel.version>
         <commons-io.version>2.6</commons-io.version>

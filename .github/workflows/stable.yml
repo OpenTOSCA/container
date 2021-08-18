@@ -1,0 +1,43 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Create stable tag
+
+on:
+  #workflow_run:
+  #  workflows: ["build"]
+  #  branches: [master]
+  #  types:
+  #    - completed
+  pull_request:
+    branches: '**'
+
+jobs:
+  tag:
+    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Lock Winery version
+      run: mvn versions:lock-snapshots
+    - name: Remove -SNAPSHOT
+      run: mvn versions:set -DremoveSnapshot
+    - name: Get POM version
+      run: mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "INFO|WARNING|Download" >> version.log
+    - name: Set Tag Version in Environment
+      run: echo "CONTAINER_VERSION="$(cat version.log)"-"$(date +'%Y-%m-%d-%H-%M-%S') >> $GITHUB_ENV
+    - name: Show generated Tag version
+      run: echo ${{ env.CONTAINER_VERSION }}
+    - name: Create Tag
+      uses: mathieudutour/github-tag-action@v5.6
+      with:
+        github_token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
+        custom_tag: ${{ env.CONTAINER_VERSION }}
+    #- name: Create Tag
+    #  uses: negz/create-tag@v1
+    #  with:
+    #    version: ${{ env.CONTAINER_VERSION }}
+    #    message: 'Latest stable version'${{ env.CONTAINER_VERSION }}
+    #    token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
