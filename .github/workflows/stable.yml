@@ -28,9 +28,14 @@ jobs:
       run: mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "INFO|WARNING" >> version.log
     - name: Set Tag Version in Environment
       run: echo "CONTAINER_VERSION="$(cat version.log)"-"$(date +'%Y-%m-%d-%H-%M-%S') >> $GITHUB_ENV
-    - name: Create Tag
-      uses: negz/create-tag@v1
+    - name: Bump version and push tag
+      id: ${{ env.CONTAINER_VERSION }}
+      uses: mathieudutour/github-tag-action@v5.6
       with:
-        version: ${{ env.CONTAINER_VERSION }}
-        message: 'Latest stable version'
-        token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
+        github_token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
+    #- name: Create Tag
+    #  uses: negz/create-tag@v1
+    #  with:
+    #    version: ${{ env.CONTAINER_VERSION }}
+    #    message: 'Latest stable version'${{ env.CONTAINER_VERSION }}
+    #    token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
