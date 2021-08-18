@@ -37,6 +37,7 @@ jobs:
         name: OpenTOSCA GitHub Actions Autocommitter
         branch: stable
         token: ${{secrets.OPENTOSCAPRIVATEREPOACCESS}}
+        force: true
 
     #- name: Create Tag
     #  uses: mathieudutour/github-tag-action@v5.6
