@@ -28,6 +28,8 @@ jobs:
       run: mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "INFO|WARNING" >> version.log
     - name: Set Tag Version in Environment
       run: echo "CONTAINER_VERSION="$(cat version.log)"-"$(date +'%Y-%m-%d-%H-%M-%S') >> $GITHUB_ENV
+    - name: Show generated Tag version
+      run: echo ${{ env.CONTAINER_VERSION }}
     - name: Create Tag
       uses: mathieudutour/github-tag-action@v5.6
       with:
