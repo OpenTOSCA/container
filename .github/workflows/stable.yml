@@ -16,8 +16,6 @@ jobs:
   tag:
     #if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    env:
-      CONTAINER_VERSION: ''
     timeout-minutes: 10
 
     steps:
