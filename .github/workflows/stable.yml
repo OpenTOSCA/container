@@ -36,7 +36,7 @@ jobs:
     - name: Stash changes
       run: cd container && git stash
     - name: Checkout stable branch and merge with master
-      run: cd container && git checkout stable && git merge master
+      run: cd container && git checkout stable && git checkout HEAD~1 && git merge master
     - name: Pop changes
       run: cd container && git stash pop
     - name: Config git user
@@ -46,7 +46,7 @@ jobs:
     - name: Commit changes
       run: cd container && git commit -m "Locks new stable version ${{ env.CONTAINER_VERSION }}"
     - name: Push changes
-      run: cd container && git push https://${{ env.GITHUB_ACTOR }}:${{secrets.OPENTOSCAPRIVATEREPOACCESS}}@github.com/OpenTOSCA/container stable
+      run: cd container && git push https://${{ env.GITHUB_ACTOR }}:${{secrets.OPENTOSCAPRIVATEREPOACCESS}}@github.com/OpenTOSCA/container stable --force
     #- name: Push to stable branch
     #  uses: actions-x/commit@v2
     #  with:
