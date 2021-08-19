@@ -5,7 +5,8 @@ name: Update stable branch and create stable tag
 
 on:
   workflow_run:
-    workflows: ["build"]
+    workflows:
+      - Java CI with Maven
     branches: [master]
     types:
       - completed
