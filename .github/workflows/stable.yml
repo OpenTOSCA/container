@@ -46,7 +46,7 @@ jobs:
     - name: Commit changes
       run: cd container && git commit -a -m "Locks new stable version ${{ env.CONTAINER_VERSION }}"
     - name: Push changes
-      run: cd container && git push https://${{ env.GITHUB_ACTOR }}:${{secrets.OPENTOSCAPRIVATEREPOACCESS}}@github.com/OpenTOSCA/container stable --force
+      run: cd container && git push https://opentoscastableworkflow:${{secrets.OPENTOSCAPRIVATEREPOACCESS}}@github.com/OpenTOSCA/container stable --force
     #- name: Push to stable branch
     #  uses: actions-x/commit@v2
     #  with:
