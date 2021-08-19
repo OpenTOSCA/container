@@ -20,27 +20,27 @@ jobs:
 
     steps:
     - name: Checkout master branch
-      run: git clone https://github.com/OpenTOSCA/container && cd /container && git checkout master
+      run: git clone https://github.com/OpenTOSCA/container && cd container && git checkout master
     - name: Lock Winery version
-      run: cd /container && mvn versions:lock-snapshots
+      run: cd container && mvn versions:lock-snapshots
     - name: Remove -SNAPSHOT
-      run: cd /container && mvn versions:set -DremoveSnapshot
+      run: cd container && mvn versions:set -DremoveSnapshot
     - name: Get POM version
-      run: cd /container && mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "INFO|WARNING|Download" >> ~/version.log
+      run: cd container && mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "INFO|WARNING|Download" >> ~/version.log
     - name: Set Tag Version in Environment
       run: echo "CONTAINER_VERSION="$(cat ~/version.log)"-"$(date +'%Y-%m-%d-%H-%M-%S') >> $GITHUB_ENV
     - name: Show generated Tag version
       run: echo ${{ env.CONTAINER_VERSION }}
     - name: Stash changes
-      run: cd /container && git stash
+      run: cd container && git stash
     - name: Checkout stable branch
-      run: cd /container && git checkout stable
+      run: cd container && git checkout stable
     - name: Pop changes
-      run: cd /container && git stash pop
+      run: cd container && git stash pop
     - name: Commit changes
-      run: cd /container && git commit -m "Locks new stable version ${{ env.CONTAINER_VERSION }}"
+      run: cd container && git commit -m "Locks new stable version ${{ env.CONTAINER_VERSION }}"
     - name: Push changes
-      run: cd /container && git push https://${{ env.GITHUB_ACTOR }}:${{secrets.OPENTOSCAPRIVATEREPOACCESS}}@github.com/OpenTOSCA/container stable
+      run: cd container && git push https://${{ env.GITHUB_ACTOR }}:${{secrets.OPENTOSCAPRIVATEREPOACCESS}}@github.com/OpenTOSCA/container stable
     #- name: Push to stable branch
     #  uses: actions-x/commit@v2
     #  with:
