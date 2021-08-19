@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - name: Checkout master branch
-      run: git clone https://github.com/OpenTOSCA/container && cd container && git checkout master && git pull
+      run: git clone https://github.com/OpenTOSCA/container && cd container && git checkout master && git fetch
     - name: Lock Winery version
       run: cd container && mvn versions:lock-snapshots
     - name: Remove -SNAPSHOT
@@ -36,7 +36,7 @@ jobs:
     - name: Stash changes
       run: cd container && git stash
     - name: Checkout stable branch and merge with master
-      run: cd container && git checkout stable && git checkout HEAD~1 && git pull && git merge master
+      run: cd container && git checkout stable && git checkout HEAD~1 && git fetch && git merge master
     - name: Pop changes
       run: cd container && git stash pop
     - name: Config git user
