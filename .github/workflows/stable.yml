@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - name: Checkout master branch
-      run: git clone https://github.com/OpenTOSCA/container && cd container && git checkout master
+      run: git clone https://github.com/OpenTOSCA/container && cd container && git checkout master && git pull
     - name: Lock Winery version
       run: cd container && mvn versions:lock-snapshots
     - name: Remove -SNAPSHOT
@@ -36,7 +36,7 @@ jobs:
     - name: Stash changes
       run: cd container && git stash
     - name: Checkout stable branch and merge with master
-      run: cd container && git checkout stable && git checkout HEAD~1 && git merge master
+      run: cd container && git checkout stable && git checkout HEAD~1 && git pull && git merge master
     - name: Pop changes
       run: cd container && git stash pop
     - name: Config git user
@@ -44,9 +44,9 @@ jobs:
     - name: Configu git mail
       run: git config --global user.name "OpenTOSCA Github Action Stable Workflow"
     - name: Commit changes
-      run: cd container && git commit -a -m "Locks new stable version ${{ env.CONTAINER_VERSION }}"
+      run: cd container && git commit -a -m "Set stable version ${{ env.CONTAINER_VERSION }}"
     - name: Push changes
-      run: cd container && git push https://opentoscastableworkflow:${{secrets.OPENTOSCAPRIVATEREPOACCESS}}@github.com/OpenTOSCA/container stable --force
+      run: cd container && git push https://actions-user:${{secrets.OPENTOSCAPRIVATEREPOACCESS}}@github.com/OpenTOSCA/container stable --force
     #- name: Push to stable branch
     #  uses: actions-x/commit@v2
     #  with:
