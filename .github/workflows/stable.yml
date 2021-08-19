@@ -36,7 +36,7 @@ jobs:
     - name: Stash changes
       run: cd container && git stash
     - name: Checkout stable branch and merge with master
-      run: cd container && git checkout stable && git checkout HEAD~1 && git fetch && git merge master
+      run: cd container && git checkout stable && git checkout stable && git fetch && git revert HEAD --no-edit && git merge master
     - name: Pop changes
       run: cd container && git stash pop
     - name: Config git user
