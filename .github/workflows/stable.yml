@@ -35,14 +35,14 @@ jobs:
       run: cd container && mvn --batch-mode release:update-versions -DautoVersionSubmodules=true -DdevelopmentVersion=${{ env.CONTAINER_VERSION }}
     - name: Stash changes
       run: cd container && git stash
-    - name: Checkout stable branch and merge with master
-      run: cd container && git checkout stable && git checkout stable && git fetch && git revert HEAD --no-edit && git merge master
-    - name: Pop changes
-      run: cd container && git stash pop
     - name: Config git user
       run: git config --global user.email "actions@opentosca.org"
     - name: Configu git mail
       run: git config --global user.name "OpenTOSCA Github Action Stable Workflow"
+    - name: Checkout stable branch and merge with master
+      run: cd container && git checkout stable && git checkout stable && git fetch && git revert HEAD --no-edit && git merge master
+    - name: Pop changes
+      run: cd container && git stash pop
     - name: Commit changes
       run: cd container && git commit -a -m "Set stable version ${{ env.CONTAINER_VERSION }}"
     - name: Push changes
