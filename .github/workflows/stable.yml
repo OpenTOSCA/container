@@ -35,8 +35,8 @@ jobs:
       run: cd container && mvn --batch-mode release:update-versions -DautoVersionSubmodules=true -DdevelopmentVersion=${{ env.CONTAINER_VERSION }}
     - name: Stash changes
       run: cd container && git stash
-    - name: Checkout stable branch
-      run: cd container && git checkout stable
+    - name: Checkout stable branch and merge with master
+      run: cd container && git checkout stable && git merge master
     - name: Pop changes
       run: cd container && git stash pop
     - name: Config git user
