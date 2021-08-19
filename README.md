@@ -7,37 +7,43 @@
 Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
 ## Info
-The OpenTOSCA Container is java/maven based runtime for deploying and managing TOSCA-based applications. The backend uses [Winery](https://github.com/eclipse/winery) therefore all CSAR exported from a Winery repository should be compatible within the runtime. 
 
-## Development
-Master is the main development branch, the stable branches are the [tags](https://github.com/OpenTOSCA/container/tags) 
+The OpenTOSCA Container is java/maven based runtime for deploying and managing TOSCA-based applications. The backend uses [Winery](https://github.com/eclipse/winery) therefore all CSAR exported from a Winery repository should be compatible within the runtime.
+
+## Development & Stable Versions
+
+`master` is the main development branch, the `stable` branch represents the latest stable branch and is also available as [tags](https://github.com/OpenTOSCA/container/tags)
 
 ## Build
 
-1. Run `git update-index --assume-unchanged ./org.opentosca.container.core/src/main/resources/application.properties`
-   to ignore custom configuration changes inside the application.properties.
-2. Update [application.properties](org.opentosca.container.core/src/main/resources/application.properties) and
-   replace `localhost` with your external IP address, e.g., `192.168.1.100`.
-3. Run `mvn package` inside the root folder.
-4. Afterwards, the [OpenTOSCA-container.war](org.opentosca.container.war/target/OpenTOSCA-container.war)
-   can be deployed using a tomcat webserver.
+1.  Run `git update-index --assume-unchanged ./org.opentosca.container.core/src/main/resources/application.properties` to ignore custom configuration changes inside the application.properties.
+2.  Update [application.properties](org.opentosca.container.core/src/main/resources/application.properties) and replace `localhost` with your external IP address, e.g., `192.168.1.100`.
+3.  Run `mvn package` inside the root folder.
+4.  Afterwards, the [OpenTOSCA-container.war](org.opentosca.container.war/target/OpenTOSCA-container.war) can be deployed using a tomcat webserver.
 
 ## Setup in IntelliJ
 
-1. Open the project using `File` > `Open` and navigate to the container folder.
-2. Right click the [pom.xml](pom.xml) and select `Add as Maven project`.
-3. Run the `Container` run configuration.
+1.  Open the project using `File` > `Open` and navigate to the container folder.
+2.  Right click the [pom.xml](pom.xml) and select `Add as Maven project`.
+3.  Run the `Container` run configuration.
 
 ## Setup in Eclipse
 
-1. Import project via `Import existing maven projects..`
-2. Add created war file of project `org.opentosca.container.war` to suitable server configured within your eclipse, e.g., Tomcat
-3. (AdditionalInfo) Usually the application runs on port 1337 and without a prefix in the path -> change port of tomcat to 1337 and remove the path of the added WAR project
+1.  Import project via `Import existing maven projects..`
+2.  Add created war file of project `org.opentosca.container.war` to suitable server configured within your eclipse, e.g., Tomcat
+3.  (AdditionalInfo) Usually the application runs on port 1337 and without a prefix in the path -> change port of tomcat to 1337 and remove the path of the added WAR project
 
 ## Run via SpringBoot
 
-1. Run `mvn install` in root of project
-2. Go to directory `org.opentosca.container.war` and run `mvn spring-boot:run` and the runtime should be available under localhost:1337
+1.  Run `mvn install` in root of project
+2.  Go to directory `org.opentosca.container.war` and run `mvn spring-boot:run` and the runtime should be available under localhost:1337
+
+## Creating a new stable tag
+
+1.  Run `mvn release:update-versions -DautoVersionSubmodules=true` and set the version to the prefered version for the container, or just use `mvn --batch-mode release:update-versions -DautoVersionSubmodules=true` to increment the current version. Remove -SNAPSHOT via `mvn versions:set -DremoveSnapshot` [More Info](https://maven.apache.org/maven-release/maven-release-plugin/examples/update-versions.html)
+2.  Lock winery SNAPSHOT version via `mvn versions:lock-snapshots`
+3.  Then run `git tag <tagname>` where tagname is the version and if a major release add name to it, afterwards run `git push origin --tags`
+
 
 ## Disclaimer of Warranty
 
