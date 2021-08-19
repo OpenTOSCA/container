@@ -1,20 +1,20 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Create stable version
+name: Update stable branch and create stable tag
 
 on:
-  #workflow_run:
-  #  workflows: ["build"]
-  #  branches: [master]
-  #  types:
-  #    - completed
-  pull_request:
-    branches: '**'
+  workflow_run:
+    workflows: ["build"]
+    branches: [master]
+    types:
+      - completed
+  #pull_request:
+  #  branches: '**'
 
 jobs:
   tag:
-    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -37,7 +37,7 @@ jobs:
       run: cd container && git stash
     - name: Config git user
       run: git config --global user.email "actions@opentosca.org"
-    - name: Configu git mail
+    - name: Config git mail
       run: git config --global user.name "OpenTOSCA Github Action Stable Workflow"
     - name: Checkout stable branch and merge with master
       run: cd container && git checkout stable && git checkout stable && git fetch && git revert HEAD --no-edit && git merge master
