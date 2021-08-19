@@ -44,7 +44,7 @@ jobs:
     - name: Configu git mail
       run: git config --global user.name "OpenTOSCA Github Action Stable Workflow"
     - name: Commit changes
-      run: cd container && git commit -m "Locks new stable version ${{ env.CONTAINER_VERSION }}"
+      run: cd container && git commit -a -m "Locks new stable version ${{ env.CONTAINER_VERSION }}"
     - name: Push changes
       run: cd container && git push https://${{ env.GITHUB_ACTOR }}:${{secrets.OPENTOSCAPRIVATEREPOACCESS}}@github.com/OpenTOSCA/container stable --force
     #- name: Push to stable branch
