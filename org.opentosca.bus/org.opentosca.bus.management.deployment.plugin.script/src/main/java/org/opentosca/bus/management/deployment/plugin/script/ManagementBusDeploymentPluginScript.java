@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ManagementBusDeploymentPluginScript implements IManagementBusDeploymentPluginService {
 
-    static final private String TYPES = "{http://opentosca.org/artifacttypes}Chef, {http://opentosca.org/artifacttypes}Ansible, {http://www.example.com/clartigr/tosca}clartigr, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Chef, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Puppet, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Juju, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}CloudFoundry, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}UnixShell, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ScriptArtifact";
+    static final private String TYPES = "{http://opentosca.org/artifacttypes}PythonScriptArtifact_w1-wip1, {http://opentosca.org/artifacttypes}Chef, {http://opentosca.org/artifacttypes}Ansible, {http://www.example.com/clartigr/tosca}clartigr, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Chef, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Puppet, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Juju, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}CloudFoundry, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}UnixShell, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ScriptArtifact";
     static final private String CAPABILITIES = "";
 
     static final private Logger LOG = LoggerFactory.getLogger(ManagementBusDeploymentPluginScript.class);

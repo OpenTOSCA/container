@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<artifacttype name="PythonScriptArtifact_w1-wip1"
+	namespace="http://opentosca.org/artifacttypes">
+	<packages>
+        <!--<package>python</package>-->
+	</packages>
+	<commands>
+		<command>chmod +x {TARGET_FILE_PATH}</command>
+		<!--<command>CAN_SUDO=$(sudo -n uptime 2&gt;&amp;1|grep "load"|wc -l); if [ ${CAN_SUDO} -gt 0 ]; then sudo -E {DA_NAME_PATH_MAP}{INPUT_PARAMETER} python {TARGET_FILE_PATH}; else {DA_NAME_PATH_MAP}{INPUT_PARAMETER} python {TARGET_FILE_PATH}; fi</command>-->
+        <command>python {TARGET_FILE_PATH} {DA_NAME_PATH_MAP} {INPUT_PARAMETER}</command>
+	</commands>
+</artifacttype>
