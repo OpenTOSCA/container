@@ -395,13 +395,11 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
             LOG.debug("ArtifactType: {} needs no packages to install.", requiredPackages, artifactType);
             return;
         }
+        
         final String requiredPackagesString = String.join(" ", requiredPackages);
-        final Map<String, String> inputParamsMap = new HashMap<>();
-        inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_PACKAGENAMES, requiredPackagesString);
+        final String commandsString = "apt update && export DEBIAN_FRONTEND=noninteractive && apt install -y -q " + requiredPackagesString;
 
-        LOG.debug("Installing packages: {} for ArtifactType: {} ", requiredPackages, artifactType);
-        headers.put(MBHeader.OPERATIONNAME_STRING.toString(), Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE);
-        invokeManagementBusEngine(inputParamsMap, headers);
+        this.runScript(commandsString, headers);
     }
 
     /**
