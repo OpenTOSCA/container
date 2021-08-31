@@ -78,7 +78,7 @@ public class CallbackProcessor implements Processor {
                 // Sometimes, the message contains invalid characters that are not valid in XML.
                 // Thus, we ensure that non-ascii chars are deleted before we process the message further.
                 LOG.debug("Received message:\n\t{}", message);
-                String cleanMessage = message.replaceAll("[^\\x20-\\x7e]", "");
+                String cleanMessage = message.replaceAll("[^\\x0a,^\\x20-\\x7e]", "");
                 LOG.debug("Message cleaned from non-ascii elements:\n\t{}", cleanMessage);
 
                 final InputStream inputStream = new ByteArrayInputStream(cleanMessage.getBytes(StandardCharsets.UTF_8));
