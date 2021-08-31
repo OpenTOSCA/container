@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.apache.camel.Exchange;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
@@ -25,7 +26,17 @@ import org.slf4j.LoggerFactory;
  */
 public class ManagementBusDeploymentPluginScript implements IManagementBusDeploymentPluginService {
 
-    static final private String TYPES = "{http://opentosca.org/artifacttypes}PythonArchiveArtifact_w1-wip1, {http://opentosca.org/artifacttypes}PythonScriptArtifact_w1-wip1, {http://opentosca.org/artifacttypes}Chef, {http://opentosca.org/artifacttypes}Ansible, {http://www.example.com/clartigr/tosca}clartigr, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Chef, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Puppet, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Juju, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}CloudFoundry, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}UnixShell, {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ScriptArtifact";
+    static final private String[] TYPES = {"{http://opentosca.org/artifacttypes}PythonArchiveArtifact_w1-wip1",
+        "{http://opentosca.org/artifacttypes}PythonScriptArtifact_w1-wip1",
+        "{http://opentosca.org/artifacttypes}Chef",
+        "{http://opentosca.org/artifacttypes}Ansible",
+        "{http://www.example.com/clartigr/tosca}clartigr",
+        "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Chef",
+        "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Puppet",
+        "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}Juju",
+        "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}CloudFoundry",
+        "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}UnixShell",
+        "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ScriptArtifact"};
     static final private String CAPABILITIES = "";
 
     static final private Logger LOG = LoggerFactory.getLogger(ManagementBusDeploymentPluginScript.class);
@@ -55,12 +66,7 @@ public class ManagementBusDeploymentPluginScript implements IManagementBusDeploy
      */
     public List<String> getSupportedTypes() {
         LOG.debug("Getting Types: {}.", TYPES);
-        final List<String> types = new ArrayList<>();
-
-        for (final String type : TYPES.split("[,;]")) {
-            types.add(type.trim());
-        }
-        return types;
+        return Lists.newArrayList(TYPES);
     }
 
     @Override
