@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<artifacttype name="PythonArchiveArtifact"
+	namespace="http://opentosca.org/artifacttypes">
+	<packages>
+        <package>unzip</package>
+        <package>zip</package>
+        <package>python3</package>
+        <package>python3-pip</package>
+	</packages>
+	<commands>
+        <command>unzip -o {TARGET_FILE_PATH} -d $(dirname {TARGET_FILE_PATH})  &amp;&amp; if [ -f "$($(dirname {TARGET_FILE_PATH})/requirements.txt)"]; then yes | pip3 install -r $(dirname {TARGET_FILE_PATH})/requirements.txt --quiet; fi &amp;&amp; if [ -f "$($(dirname {TARGET_FILE_PATH})/*.py)"]; then sudo python3 $(dirname {TARGET_FILE_PATH})/*.py {DA_NAME_PATH_MAP} {INPUT_PARAMETER}; else echo "Execution=fault"; fi</command>
+	</commands>
+</artifacttype>

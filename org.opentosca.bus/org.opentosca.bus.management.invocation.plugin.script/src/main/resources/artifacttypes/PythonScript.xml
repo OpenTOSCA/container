@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<artifacttype name="PythonScriptArtifact"
+	namespace="http://opentosca.org/artifacttypes">
+	<packages>
+        <package>python3</package>
+        <package>python3-pip</package>
+	</packages>
+	<commands>
+		<command>chmod +x {TARGET_FILE_PATH}</command>
+        <command>sudo python3 {TARGET_FILE_PATH} {DA_NAME_PATH_MAP} {INPUT_PARAMETER}</command>
+	</commands>
+</artifacttype>
