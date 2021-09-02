@@ -365,7 +365,21 @@ public class BPELProcessFragments {
         return this.transformStringToNode(templateString);
     }
 
-    public Node createIfTrueThrowsError(final String xpath, final QName faultName) {
+    public Node createEmptyScope(String name) {
+        final Document doc = this.docBuilder.newDocument();
+        final Element scopeElement = doc.createElementNS(BPELPlan.bpelNamespace, "scope");
+        scopeElement.setAttribute("name" , name);
+        return scopeElement;
+    }
+
+    public Node createEmptySequence(String name) {
+        final Document doc = this.docBuilder.newDocument();
+        final Element scopeElement = doc.createElementNS(BPELPlan.bpelNamespace, "sequence");
+        scopeElement.setAttribute("name" , name);
+        return scopeElement;
+    }
+
+    public Node createIfTrueThrowsError(final String xpath, final QName faultName, String faultVariableName) {
         final Document doc = this.docBuilder.newDocument();
 
         final Element ifElement = doc.createElementNS(BPELPlan.bpelNamespace, "if");
@@ -386,6 +400,11 @@ public class BPELProcessFragments {
         throwElement.setAttribute("xmlns:" + nsPrefix, faultName.getNamespaceURI());
 
         throwElement.setAttribute("faultName", nsPrefix + ":" + faultName.getLocalPart());
+
+        if (faultVariableName != null) {
+            throwElement.setAttribute("faultVariable", faultVariableName);
+        }
+
 
         ifElement.appendChild(throwElement);
 
@@ -771,17 +790,24 @@ public class BPELProcessFragments {
     }
 
     public String generateBPEL4RESTLightGETonURL(final String urlVarName,
-                                                 final String responseVarName) throws IOException {
+                                                 final String responseVarName, final String statusCodeVarName) throws IOException {
         String bpelAssignString = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_URL_ApplicationXML.xml"));
         // <!-- $ResponseVarName, $urlVar -->
         bpelAssignString = bpelAssignString.replace("$ResponseVarName", responseVarName);
         bpelAssignString = bpelAssignString.replace("$urlVar", urlVarName);
+
+        if (statusCodeVarName == null) {
+            bpelAssignString = bpelAssignString.replace("statusCode=\"$StatusCodeVarName\"", "");
+        } else {
+            bpelAssignString = bpelAssignString.replace("$StatusCodeVarName", statusCodeVarName);
+        }
+
         return bpelAssignString;
     }
 
     public Node generateBPEL4RESTLightGETonURLAsNode(final String urlVarName,
-                                                     final String reponseVarName) throws IOException, SAXException {
-        final String templateString = generateBPEL4RESTLightGETonURL(urlVarName, reponseVarName);
+                                                     final String reponseVarName, final String statusCodeVarName) throws IOException, SAXException {
+        final String templateString = generateBPEL4RESTLightGETonURL(urlVarName, reponseVarName, statusCodeVarName);
         return this.transformStringToNode(templateString);
     }
 

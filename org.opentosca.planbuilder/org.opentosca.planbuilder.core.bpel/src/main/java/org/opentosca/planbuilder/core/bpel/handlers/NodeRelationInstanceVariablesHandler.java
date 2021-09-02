@@ -1,7 +1,6 @@
-package org.opentosca.planbuilder.core.bpel.tosca.handlers;
+package org.opentosca.planbuilder.core.bpel.handlers;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +10,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
@@ -34,11 +31,8 @@ import org.xml.sax.SAXException;
  */
 public class NodeRelationInstanceVariablesHandler {
 
-    private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
-    // private static final String InstanceURLVarKeyword = "InstanceURL";
     private static final String nodeInstanceURLVarKeyword = "nodeInstanceURL";
     private static final String relationInstanceURLVarKeyword = "relationshipInstanceURL";
-    // private static final String InstanceIDVarKeyword = "InstanceID";
     private static final String nodeInstanceIDVarKeyword = "nodeInstanceID";
     private static final String relationInstanceIDVarKeyword = "relationInstanceID";
 
@@ -54,17 +48,6 @@ public class NodeRelationInstanceVariablesHandler {
         this.bpelFragments = new BPELProcessFragments();
         this.bpelProcessHandler = bpelProcessHandler;
         this.serviceInstanceHandler = new SimplePlanBuilderServiceInstanceHandler();
-    }
-
-    public boolean addIfNullAbortCheck(final BPELPlan plan, final Property2VariableMapping propMap,
-                                       AbstractServiceTemplate serviceTemplate) {
-        boolean check = true;
-        for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
-            if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null) {
-                check &= this.addIfNullAbortCheck(templatePlan, propMap, serviceTemplate);
-            }
-        }
-        return check;
     }
 
     public boolean addIfNullAbortCheck(final BPELScope templatePlan, final Property2VariableMapping propMap,

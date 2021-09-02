@@ -139,9 +139,7 @@ public abstract class PlanContext {
      * @return an Integer
      */
     public int getIdForNames() {
-        final int idToReturn = this.plan.getInternalCounterId();
-        this.plan.setInternalCounterId(idToReturn + 1);
-        return idToReturn;
+        return this.plan.getIdForNamesAndIncrement();
     }
 
     /**

@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel.tosca.handlers;
+package org.opentosca.planbuilder.core.bpel.handlers;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -72,16 +72,6 @@ public abstract class AbstractServiceInstanceHandler {
     public Collection<String> findServiceTemplateURLVarName(final BPELPlanHandler bpelplanHandler,
                                                             final BPELPlan plan) {
         return findServiceInstanceVarNames(bpelplanHandler, plan, ServiceTemplateURLVarKeyword);
-    }
-
-    public Collection<String> findServiceInstancesURLVarName(final BPELPlanHandler bpelplanHandler,
-                                                             final BPELPlan plan) {
-        return findServiceInstanceVarNames(bpelplanHandler, plan, ServiceInstancesURLVarKeyword);
-    }
-
-    public Collection<String> findInstanceDataAPIURLVarName(final BPELPlanHandler bpelplanHandler,
-                                                            final BPELPlan plan) {
-        return findServiceInstanceVarNames(bpelplanHandler, plan, InstanceDataAPIUrlKeyword);
     }
 
     public Collection<String> findServiceInstanceURLVarName(final BPELPlanHandler bpelplanHandler,

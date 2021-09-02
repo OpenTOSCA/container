@@ -62,7 +62,7 @@ public class BPELMosquittoSelectionPlugin extends MosquittoSelectionPlugin<BPELP
         try {
             Node getRelationInstance =
                 new BPELProcessFragments().generateBPEL4RESTLightGETonURLAsNode(relationTemplateInstnaceVar,
-                    responseVarName);
+                    responseVarName, null);
             getRelationInstance = context.importNode(getRelationInstance);
             context.getPrePhaseElement().appendChild(getRelationInstance);
 
