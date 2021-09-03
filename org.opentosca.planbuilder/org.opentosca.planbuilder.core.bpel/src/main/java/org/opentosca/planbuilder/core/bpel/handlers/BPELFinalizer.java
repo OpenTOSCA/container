@@ -141,7 +141,8 @@ public class BPELFinalizer {
             buildPlan.setBpelExtensionsElement(null);
         }
 
-        makeSequential(buildPlan);
+        // TODO: let's speed up the whole thing
+        //makeSequential(buildPlan);
 
         for (final BPELScope templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
             this.finalizeBPELScope(buildPlan, templateBuildPlan);
