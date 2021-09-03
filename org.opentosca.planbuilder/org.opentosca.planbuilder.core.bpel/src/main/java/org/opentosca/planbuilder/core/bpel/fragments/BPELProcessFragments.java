@@ -405,7 +405,6 @@ public class BPELProcessFragments {
             throwElement.setAttribute("faultVariable", faultVariableName);
         }
 
-
         ifElement.appendChild(throwElement);
 
         return ifElement;

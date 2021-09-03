@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +35,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -68,7 +66,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private final BPELPluginHandler bpelPluginHandler;
     private final EmptyPropertyToInputHandler emptyPropInit;
     private final ChoreographyBuilder choreoBuilder = new ChoreographyBuilder();
-    private OpenTOSCARuntimeHandler runtimeHandler;
     private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
     private CorrelationIDInitializer correlationHandler;
     private SituationTriggerRegistration sitRegistrationPlugin;
@@ -86,7 +83,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
         this.scopeBuilder = new BPELScopeBuilder(pluginRegistry);
         this.emptyPropInit = new EmptyPropertyToInputHandler(scopeBuilder);
         try {
-            this.runtimeHandler = new OpenTOSCARuntimeHandler();
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
             this.nodeRelationInstanceHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
@@ -94,7 +90,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             this.correlationHandler = new CorrelationIDInitializer();
         } catch (final ParserConfigurationException e) {
             LOG.error("Error while initializing BuildPlanHandler", e);
-            throw new RuntimeException(e);
+            throw new PlanbuilderRuntimeException( "Error while initializing BuildPlanHandler", e);
         }
         // TODO seems ugly
         this.propertyInitializer = new PropertyVariableHandler(this.planHandler);

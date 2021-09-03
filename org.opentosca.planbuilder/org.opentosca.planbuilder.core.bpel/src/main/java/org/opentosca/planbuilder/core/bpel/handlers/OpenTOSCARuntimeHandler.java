@@ -22,6 +22,7 @@ public class OpenTOSCARuntimeHandler {
         this.planHandler = new BPELPlanHandler();
     }
 
+    // TODO: This is a snippet which should check whether the runtime is available, however, the runtime starts to ghost the whole process isntance and I still don't know why...
     /**
      * Generate bpel code which checks whether the runtime is available
      * @param plan the plan to add the check to
@@ -40,7 +41,6 @@ public class OpenTOSCARuntimeHandler {
         Node assignInputToURL = this.fragments.generateAssignFromInputMessageToStringVariableAsNode("instanceDataAPIUrl",runtimeResourceURLVariable.getVariableName());
         assignInputToURL = plan.getBpelDocument().importNode(assignInputToURL, true);
         sequenceNode.appendChild(assignInputToURL);
-
 
         Node httpGET = this.fragments.generateBPEL4RESTLightGETonURLAsNode(runtimeResourceURLVariable.getVariableName(), runtimeResourceResponse.getVariableName(), runtimeResourceStatusCode.getVariableName());
 
