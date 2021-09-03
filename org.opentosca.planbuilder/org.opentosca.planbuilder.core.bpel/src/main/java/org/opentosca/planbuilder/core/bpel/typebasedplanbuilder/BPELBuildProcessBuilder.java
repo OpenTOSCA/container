@@ -14,12 +14,12 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.EmptyPropertyToInputHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.SituationTriggerRegistration;
+import org.opentosca.planbuilder.core.bpel.handlers.EmptyPropertyToInputHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.PropertyVariableHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.SituationTriggerRegistration;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
@@ -89,6 +89,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             this.correlationHandler = new CorrelationIDInitializer();
         } catch (final ParserConfigurationException e) {
             LOG.error("Error while initializing BuildPlanHandler", e);
+            throw new PlanbuilderRuntimeException( "Error while initializing BuildPlanHandler", e);
         }
         // TODO seems ugly
         this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
@@ -179,6 +180,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 newBuildPlan.getBpelMainSequenceOutputAssignElement(),
                 "CREATED", serviceInstanceUrl);
 
+
             this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "ERROR", serviceInstanceUrl);
             this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "FAILED", this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan));
 
@@ -192,6 +194,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 "FINISHED", planInstanceUrlVarName);
 
             this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
+
+
 
             this.finalizer.finalize(newBuildPlan);
             return newBuildPlan;

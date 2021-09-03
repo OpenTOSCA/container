@@ -25,7 +25,7 @@ import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBui
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
@@ -294,14 +294,7 @@ public class BPELPlanContext extends PlanContext {
      */
     public Variable createGlobalStringVariable(final String variableName, final String initVal) {
         final String varName = variableName + "_" + getIdForNames();
-        boolean check = this.buildPlanHandler.addStringVariable(varName, this.templateBuildPlan.getBuildPlan());
-        check &= this.buildPlanHandler.assignInitValueToVariable(varName, initVal == null ? "" : initVal,
-            this.templateBuildPlan.getBuildPlan());
-        if (check) {
-            return new Variable(varName);
-        } else {
-            return null;
-        }
+        return this.buildPlanHandler.createGlobalStringVariable(varName,initVal,this.templateBuildPlan.getBuildPlan());
     }
 
     /**

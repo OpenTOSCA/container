@@ -419,6 +419,25 @@ public class BPELPlanHandler {
         return buildPlan.getWsdl().addPartnerLinkType(partnerLinkTypeName, roleName1, portType1, roleName2, portType2);
     }
 
+    /**
+     * Generates a bpel string variable with the given name + "_" + randomPositiveInt.
+     *
+     * @param variableName String containing a name
+     * @param initVal      the value for the variable, if null the value will be empty
+     * @param plan the plan to add the variable to
+     * @return a TemplatePropWrapper containing the generated Id for the variable
+     */
+    public Variable createGlobalStringVariable(final String variableName, final String initVal, BPELPlan plan) {
+        boolean check = this.addStringVariable(variableName, plan);
+        check &= this.assignInitValueToVariable(variableName, initVal == null ? "" : initVal,
+            plan);
+        if (check) {
+            return new Variable(variableName);
+        } else {
+            return null;
+        }
+    }
+
     public boolean addStringVariable(final String name, final BPELPlan plan) {
         return addVariable(name, BPELPlan.VariableType.TYPE,
             new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"), plan);
@@ -1291,8 +1310,8 @@ public class BPELPlanHandler {
     /**
      * Imports the given QName Namespace into the BuildPlan
      *
-     * @param bpelPlanContext TODO
      * @param qname           a QName to import
+     * @param plan the plan to import namespace in
      * @return the QName with set prefix
      */
     public QName importNamespace(final QName qname, final BPELPlan plan) {

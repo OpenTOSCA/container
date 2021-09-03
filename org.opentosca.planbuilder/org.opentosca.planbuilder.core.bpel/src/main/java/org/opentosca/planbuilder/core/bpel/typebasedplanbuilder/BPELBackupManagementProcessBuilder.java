@@ -20,9 +20,9 @@ import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.NodeRelationInstanceVariablesHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.PropertyVariableHandler;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.SimplePlanBuilderServiceInstanceHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.PropertyVariableHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
@@ -283,7 +283,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                 LOG.debug("No backup interface defined in ServiceTemplate {}", serviceTemplate.getName());
             }
         }
-        
+
         if (!plans.isEmpty()) {
         	LOG.info("Created {} backup plans for CSAR {}", String.valueOf(plans.size()), csarName);
         }

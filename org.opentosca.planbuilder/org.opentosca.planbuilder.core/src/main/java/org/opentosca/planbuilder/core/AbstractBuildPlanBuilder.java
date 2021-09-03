@@ -29,6 +29,21 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder {
 
+    public class PlanbuilderRuntimeException extends RuntimeException {
+
+        public PlanbuilderRuntimeException (Exception e) {
+            super(e);
+        }
+
+        public PlanbuilderRuntimeException (String s) {
+            super(s);
+        }
+
+        public PlanbuilderRuntimeException (String s, Exception e) {
+            super(s,e);
+        }
+    }
+
     private final static Logger LOG = LoggerFactory.getLogger(AbstractBuildPlanBuilder.class);
 
     public AbstractBuildPlanBuilder(PluginRegistry pluginRegistry) {

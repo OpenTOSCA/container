@@ -180,6 +180,12 @@ public abstract class AbstractPlan {
         this.internalCounterId = id;
     }
 
+    public int getIdForNamesAndIncrement() {
+        final int idToReturn = this.getInternalCounterId();
+        this.setInternalCounterId(idToReturn + 1);
+        return idToReturn;
+    }
+
     @Override
     public String toString() {
         String toString =

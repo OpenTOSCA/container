@@ -21,7 +21,6 @@ import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.engine.ToscaEngine;
-import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
@@ -39,11 +38,9 @@ import org.springframework.stereotype.Service;
 public class ParameterHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(ParameterHandler.class);
-    private final IXMLSerializer xmlSerializer;
 
     @Inject
-    public ParameterHandler(IXMLSerializer xmlSerializer) {
-        this.xmlSerializer = xmlSerializer;
+    public ParameterHandler() {
     }
 
     /**

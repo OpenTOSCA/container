@@ -54,3 +54,21 @@ You are solely responsible for determining the appropriateness of using or redis
 
 Dies ist ein Forschungsprototyp.
 Die Haftung für entgangenen Gewinn, Produktionsausfall, Betriebsunterbrechung, entgangene Nutzungen, Verlust von Daten und Informationen, Finanzierungsaufwendungen sowie sonstige Vermögens- und Folgeschäden ist, außer in Fällen von grober Fahrlässigkeit, Vorsatz und Personenschäden, ausgeschlossen.
+
+## Acknowledgements
+
+The initial code contribution has been supported by the [Federal Ministry for Economic Affairs and Energy] as part of the [CloudCycle] project (01MD11023).
+Current development is supported by the Federal Ministry for Economic Affairs and Energy as part of the the [PlanQK] project (01MK20005N), and the DFG’s Excellence Initiative project [SimTech] (EXC 2075 - 390740016).
+Additional development has been funded by the Federal Ministry for Economic Affairs and Energy projects [SmartOrchestra] (01MD16001F) and [SePiA.Pro] (01MD16013F), as well as by the [DFG] (Deutsche Forschungsgemeinschaft) projects [SustainLife] (641730) and [ADDCompliance] (636503).
+Further development is also funded by the European Union’s Horizon 2020 project [RADON] (825040).
+
+ [CloudCycle]: http://www.cloudcycle.org/en
+  [Federal Ministry for Economic Affairs and Energy]: http://www.bmwi.de/EN  
+  [SmartOrchestra]: http://smartorchestra.de/en
+  [SePiA.Pro]: http://projekt-sepiapro.de/en
+  [ADDCompliance]: http://addcompliance.cs.univie.ac.at
+  [SustainLife]: http://www.iaas.uni-stuttgart.de/forschung/projects/SustainLife
+  [RADON]: http://radon-h2020.eu
+  [DFG]: http://www.dfg.de/en
+  [PlanQK]: https://planqk.de
+  [SimTech]: https://www.simtech.uni-stuttgart.de/

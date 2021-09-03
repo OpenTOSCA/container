@@ -125,7 +125,8 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
 
         // If entryMode is 'abort' we exit the process if one situation is not active at this point
         if (entryMode.equals("Abort")) {
-            Node node = SituationPluginUtils.createIfXPathExprTrueThrowError(combinedQuery, nodeTemplate, this.mainFragments);
+            Variable faultMessageVar = context.createGlobalStringVariable("faultMessage" + context.getIdForNames(), "Aborting, SituationScope was reached were the situations were not met");
+            Node node = SituationPluginUtils.createIfXPathExprTrueThrowError(combinedQuery, nodeTemplate, this.mainFragments, faultMessageVar.getVariableName());
             node = context.importNode(node);
             context.getPrePhaseElement().appendChild(node);
             context.getProvisioningCompensationPhaseElement()
