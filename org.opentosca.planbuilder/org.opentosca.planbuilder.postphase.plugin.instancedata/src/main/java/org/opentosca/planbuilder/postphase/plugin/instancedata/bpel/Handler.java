@@ -1824,10 +1824,10 @@ public class Handler {
             outputParams, BPELScopePhaseType.PRE, context.getPrePhaseElement());
 
         // check result and eventually throw error
-
+        Variable faultVariable = context.createGlobalStringVariable("checkPasswordFaultVariable" + context.getIdForNames(), "Could'nt hold policy strong password");
         Node ifTrueThrowError =
             this.bpelFrags.createIfTrueThrowsError("contains($" + outputVar.getVariableName() + ",'false')",
-                new QName("http://opentosca.org/plans/faults", "PasswordWeak"));
+                new QName("http://opentosca.org/plans/faults", "PasswordWeak"), faultVariable.getVariableName());
         ifTrueThrowError = context.importNode(ifTrueThrowError);
         context.getPrePhaseElement().appendChild(ifTrueThrowError);
 

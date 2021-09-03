@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel.tosca.handlers;
+package org.opentosca.planbuilder.core.bpel.handlers;
 
 import java.io.IOException;
 import java.util.Collection;

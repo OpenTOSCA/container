@@ -14,6 +14,8 @@
         <apache.cxf.version>3.1.18</apache.cxf.version>
         <camel.version>3.8.0</camel.version>
         <commons-io.version>2.6</commons-io.version>
+        <jacoco.reportPath>${project.build.directory}/jacoco.exec</jacoco.reportPath>
+        <jacoco.append>false</jacoco.append>
         <jaxb.version>2.2.11</jaxb.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.1.11</logback.version>
@@ -59,6 +61,25 @@
     </modules>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.6</version>
+                <configuration>
+                    <append>${jacoco.append}</append>
+                    <destFile>${jacoco.reportPath}</destFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>

@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.core.bpel.tosca.handlers;
+package org.opentosca.planbuilder.core.bpel.handlers;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -26,6 +26,16 @@ import org.xml.sax.SAXException;
  */
 public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInstanceHandler {
 
+    public class ServiceInsanceHandlingException extends RuntimeException {
+        public ServiceInsanceHandlingException(Exception e) {
+            super(e);
+        }
+
+        public ServiceInsanceHandlingException(String s) {
+            super(s);
+        }
+    }
+
     public SimplePlanBuilderServiceInstanceHandler() throws ParserConfigurationException {
         super();
     }
@@ -47,30 +57,12 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         return getLowestId(findServiceInstanceURLVarName(this.bpelProcessHandler, plan), ServiceInstanceURLVarKeyword);
     }
 
-    public String findInstanceDataAPIUrlVariableName(final BPELPlan plan) {
-        return getLowestId(findInstanceDataAPIURLVarName(this.bpelProcessHandler, plan), InstanceDataAPIUrlKeyword);
-    }
-
-    public String findServiceInstancesUrlVariableName(final BPELPlan plan) {
-        return getLowestId(findServiceInstancesURLVarName(this.bpelProcessHandler, plan),
-            ServiceInstancesURLVarKeyword);
-    }
-
     public String findServiceTemplateUrlVariableName(final BPELPlan plan) {
         return getLowestId(findServiceTemplateURLVarName(this.bpelProcessHandler, plan), ServiceTemplateURLVarKeyword);
     }
 
     public String findPlanInstanceUrlVariableName(final BPELPlan plan) {
         return getLowestId(findPlanInstanceURLVarName(this.bpelProcessHandler, plan), PlanInstanceURLVarKeyword);
-    }
-
-    public String getServiceInstanceURLVariableName(final Collection<String> names) {
-        for (final String varName : names) {
-            if (varName.contains(SimplePlanBuilderServiceInstanceHandler.ServiceInstanceURLVarKeyword)) {
-                return varName;
-            }
-        }
-        return null;
     }
 
     public String getServiceTemplateURLVariableName(final BPELPlan plan) {
@@ -209,17 +201,16 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             assignRequestWithStateNode = plan.getBpelDocument().importNode(assignRequestWithStateNode, true);
             insertAsChild.appendChild(assignRequestWithStateNode);
         } catch (final IOException | SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ServiceInsanceHandlingException(e);
         }
 
         // URL Varname
         if (urlVarName == null) {
-            throw new RuntimeException("ServiceInstanceURLVar is null in plan: " + plan.getId());
+            throw new ServiceInsanceHandlingException("ServiceInstanceURLVar is null in plan: " + plan.getId());
         }
 
         if (urlVarName.isEmpty()) {
-            throw new RuntimeException("ServiceInstanceURLVar is empty in plan: " + plan.getId());
+            throw new ServiceInsanceHandlingException("ServiceInstanceURLVar is empty in plan: " + plan.getId());
         }
 
         try {
@@ -228,8 +219,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             setInstanceStateRequestNode = plan.getBpelDocument().importNode(setInstanceStateRequestNode, true);
             insertAsChild.appendChild(setInstanceStateRequestNode);
         } catch (final IOException | SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ServiceInsanceHandlingException(e);
         }
 
         return true;
@@ -271,7 +261,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             waitNode = plan.getBpelDocument().importNode(waitNode, true);
             insertBeforeElement.getParentNode().insertBefore(waitNode, insertBeforeElement);
         } catch (SAXException | IOException e) {
-            e.printStackTrace();
+            throw new ServiceInsanceHandlingException(e);
         }
 
         final String assignName = "assignServiceInstanceState" + System.currentTimeMillis();
@@ -283,15 +273,15 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             assignRequestWithStateNode = plan.getBpelDocument().importNode(assignRequestWithStateNode, true);
             insertBeforeElement.getParentNode().insertBefore(assignRequestWithStateNode, insertBeforeElement);
         } catch (final IOException | SAXException e) {
-            e.printStackTrace();
+            throw new ServiceInsanceHandlingException(e);
         }
 
         if (serviceInstanceURLVarName == null) {
-            throw new RuntimeException("ServiceInstanceURLVar is null in plan: " + plan.getId());
+            throw new ServiceInsanceHandlingException("ServiceInstanceURLVar is null in plan: " + plan.getId());
         }
 
         if (serviceInstanceURLVarName.isEmpty()) {
-            throw new RuntimeException("ServiceInstanceURLVar is empty in plan: " + plan.getId());
+            throw new ServiceInsanceHandlingException("ServiceInstanceURLVar is empty in plan: " + plan.getId());
         }
 
         try {
@@ -300,8 +290,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             setInstanceStateRequestNode = plan.getBpelDocument().importNode(setInstanceStateRequestNode, true);
             insertBeforeElement.getParentNode().insertBefore(setInstanceStateRequestNode, insertBeforeElement);
         } catch (final IOException | SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ServiceInsanceHandlingException(e);
         }
 
         return true;
@@ -351,7 +340,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         }
 
         if (serviceTemplateUrlVarName == null) {
-            throw new RuntimeException("ServiceTemplateURLVarName is null in plan: " + plan.getId());
+            throw new ServiceInsanceHandlingException("ServiceTemplateURLVarName is null in plan: " + plan.getId());
         }
 
         for (final BPELScope templatePlan : scopes) {
@@ -376,7 +365,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(nodeInstanceGETNode,
                     plan.getBpelMainFlowElement());
             } catch (final SAXException | IOException e) {
-                e.printStackTrace();
+                throw new ServiceInsanceHandlingException(e);
             }
 
             // fetch nodeInstanceID from nodeInstance query
@@ -390,7 +379,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 plan.getBpelMainFlowElement().getParentNode()
                     .insertBefore(assignNodeInstanceIDFromInstanceDataAPIQueryResponse, plan.getBpelMainFlowElement());
             } catch (final SAXException | IOException e) {
-                e.printStackTrace();
+                throw new ServiceInsanceHandlingException(e);
             }
 
             // fetch properties into temp anyType var
@@ -403,7 +392,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(nodeInstancePropertiesGETNode,
                     plan.getBpelMainFlowElement());
             } catch (final IOException | SAXException e) {
-                e.printStackTrace();
+                throw new ServiceInsanceHandlingException(e);
             }
 
             // assign bpel variables from the requested properties
@@ -429,7 +418,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(assignPropertiesToVariables,
                     plan.getBpelMainFlowElement());
             } catch (final IOException | SAXException e) {
-                e.printStackTrace();
+                throw new ServiceInsanceHandlingException(e);
             }
         }
         return true;
@@ -448,7 +437,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
 
         // create variable
         if (serviceTemplateUrlVariableName == null) {
-            throw new RuntimeException("ServiceTempalteURLVarName is null " + plan.getId());
+            throw new ServiceInsanceHandlingException("ServiceTempalteURLVarName is null " + plan.getId());
         }
 
         final String xpath2Query = "string(replace($" + serviceInstancesUrlVarName + ", '/instances', ''))";
@@ -459,18 +448,17 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             assignFragment = plan.getBpelDocument().importNode(assignFragment, true);
             appendToInitSequence(assignFragment, plan);
         } catch (final IOException | SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ServiceInsanceHandlingException(e);
         }
     }
 
     private void addAssignManagementPlanInstanceUrlVariable(final BPELPlan plan, String planInstanceUrlVarName,
                                                             String serviceTemplateInstanceUrlVarName) {
         if (planInstanceUrlVarName == null) {
-            throw new RuntimeException("PlanInstanceURLVarName is null in plan " + plan.getId());
+            throw new ServiceInsanceHandlingException("PlanInstanceURLVarName is null in plan " + plan.getId());
         }
         if (serviceTemplateInstanceUrlVarName == null) {
-            throw new RuntimeException("serviceTemplateInstanceUrlVarName is null in plan " + plan.getId());
+            throw new ServiceInsanceHandlingException("serviceTemplateInstanceUrlVarName is null in plan " + plan.getId());
         }
 
         final String xpath2Query = "string(concat($" + serviceTemplateInstanceUrlVarName + ", '/managementplans/', '"
@@ -482,8 +470,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             assignFragment = plan.getBpelDocument().importNode(assignFragment, true);
             appendToInitSequence(assignFragment, plan);
         } catch (final IOException | SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ServiceInsanceHandlingException(e);
         }
     }
 
@@ -491,7 +478,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         this.bpelProcessHandler.addStringElementToPlanResponse("instanceId", plan);
 
         if (serviceInstanceVarName == null) {
-            throw new RuntimeException("serviceInstanceVarName variable is null for plan " + plan.getId());
+            throw new ServiceInsanceHandlingException("serviceInstanceVarName variable is null for plan " + plan.getId());
         }
 
         try {
@@ -501,7 +488,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             copyNode = plan.getBpelDocument().importNode(copyNode, true);
             plan.getBpelMainSequenceOutputAssignElement().appendChild(copyNode);
         } catch (final IOException | SAXException e) {
-            e.printStackTrace();
+            throw new ServiceInsanceHandlingException(e);
         }
     }
 
@@ -536,7 +523,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 schemaFile.toAbsolutePath().toString(), "http://www.w3.org/2001/XMLSchema",
                 plan);
         } catch (final IOException e2) {
-            e2.printStackTrace();
+            throw new ServiceInsanceHandlingException(e2);
         }
 
         // and string for request
@@ -572,6 +559,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             appendToInitSequence(assignRestRequestNode, plan);
         } catch (final IOException | SAXException e1) {
             e1.printStackTrace();
+            throw new ServiceInsanceHandlingException(e1);
         }
 
         try {
@@ -582,26 +570,26 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             serviceInstancePOSTNode = plan.getBpelDocument().importNode(serviceInstancePOSTNode, true);
             appendToInitSequence(serviceInstancePOSTNode, plan);
         } catch (final IOException | SAXException e) {
-            e.printStackTrace();
+            throw new ServiceInsanceHandlingException(e);
         }
 
         // assign the serviceInstance REST POST Response into global service
         // instance variable
 
         if (serviceInstanceUrlVarName == null) {
-            throw new RuntimeException("serviceInstanceUrlVarName is null in plan: " + plan.getId());
+            throw new ServiceInsanceHandlingException("serviceInstanceUrlVarName is null in plan: " + plan.getId());
         }
 
         if (serviceInstanceIdVarName == null) {
-            throw new RuntimeException("serviceInstanceIdVarName is null in plan: " + plan.getId());
+            throw new ServiceInsanceHandlingException("serviceInstanceIdVarName is null in plan: " + plan.getId());
         }
 
         if (serviceTemplateUrlVarName == null) {
-            throw new RuntimeException("serviceTemplateUrlVarName is null in plan: " + plan.getId());
+            throw new ServiceInsanceHandlingException("serviceTemplateUrlVarName is null in plan: " + plan.getId());
         }
 
         if (planInstanceUrlVarName == null) {
-            throw new RuntimeException("planInstanceUrlVarName is null in plan: " + plan.getId());
+            throw new ServiceInsanceHandlingException("planInstanceUrlVarName is null in plan: " + plan.getId());
         }
 
         final String planName = plan.getId().substring(plan.getId().lastIndexOf("}") + 1);
@@ -641,8 +629,8 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             }
             appendToInitSequence(serviceInstanceURLAssignNode, plan);
         } catch (final IOException | SAXException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            throw new ServiceInsanceHandlingException("Can't read xml template, couldn't generate bpel code");
         }
     }
 
@@ -658,15 +646,11 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                 this.fragments.createAssignVarToVarWithXpathQueryAsNode("createTargetServiceInstancesUrl",
                     availableServiceInstanceUrlVar,
                     targetServiceInstancesUrlVar, xpathQuery1);
-            // this.fragments.createAssignVarToVarWithXpathQueriesAsNode(
-            // "createTargetServiceInstancesUrl", availableServiceInstanceUrlVar, null,
-            // targetServiceInstanceUrlVar, null, xpathQuery1, xpathQuery2,
-            // "Create ServiceInstancesURL for the target", null);
             assignServiceInstancesUrl = plan.getBpelDocument().importNode(assignServiceInstancesUrl, true);
             appendToInitSequence(assignServiceInstancesUrl, plan);
         } catch (IOException | SAXException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            throw new ServiceInsanceHandlingException("Can't read xml template, couldn't generate bpel code");
         }
     }
 }

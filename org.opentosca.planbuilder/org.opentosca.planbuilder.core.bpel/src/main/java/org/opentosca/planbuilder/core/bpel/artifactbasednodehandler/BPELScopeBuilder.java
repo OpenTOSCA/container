@@ -11,7 +11,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import com.google.common.collect.Lists;
-import org.opentosca.planbuilder.core.bpel.tosca.handlers.TOSCAManagementInfrastructureNodeTemplate;
+import org.opentosca.planbuilder.core.bpel.handlers.TOSCAManagementInfrastructureNodeTemplate;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;

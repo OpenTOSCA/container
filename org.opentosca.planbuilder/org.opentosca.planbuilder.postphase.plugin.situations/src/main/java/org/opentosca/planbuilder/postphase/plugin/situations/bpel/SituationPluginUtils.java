@@ -181,10 +181,11 @@ public class SituationPluginUtils {
 
         if (situationViolation.equals("Compensate")) {
             // throw error when situation not okay and use integrated compensation logic
+            Variable faultMessage = context.createGlobalStringVariable("faultMessage" + context.getIdForNames(), "Compensating scope");
             Node throwErrorIfEvalFalse =
                 context.importNode(SituationPluginUtils.createIfXPathExprTrueThrowError(evalDataExpr,
                     context.getNodeTemplate(),
-                    mainFragments));
+                    mainFragments, faultMessage.getVariableName()));
             sequenceElement.appendChild(throwErrorIfEvalFalse);
         }
 
@@ -282,9 +283,10 @@ public class SituationPluginUtils {
     }
 
     public static Node createIfXPathExprTrueThrowError(String xpathQuery, AbstractNodeTemplate nodeTemplate,
-                                                       BPELProcessFragments mainFragments) {
+                                                       BPELProcessFragments mainFragments, String faultMessageVariableName) {
+
         Node node = mainFragments.createIfTrueThrowsError(xpathQuery, new QName("http://opentosca.org/situations",
-            "SituationsNotActive_AbortError_" + nodeTemplate.getId()));
+            "SituationsNotActive_AbortError_" + nodeTemplate.getId()), faultMessageVariableName);
         return node;
     }
 
