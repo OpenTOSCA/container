@@ -58,6 +58,7 @@ import org.eclipse.winery.repository.export.CsarExporter;
 import org.apache.tika.mime.MediaType;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jgit.errors.LockFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
