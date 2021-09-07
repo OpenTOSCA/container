@@ -456,6 +456,7 @@
         <groupId>org.opentosca</groupId>
         <artifactId>org.opentosca.container.war</artifactId>
         <version>${project.version}</version>
+        <classifier>classes</classifier>
         <exclusions>
             <exclusion>
               <groupId>org.slf4j</groupId>
