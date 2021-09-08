@@ -29,7 +29,7 @@ jobs:
     - name: Get POM version
       run: cd container && mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev "INFO|WARNING|Download" >> ~/version.log
     - name: Set Tag Version in Environment
-      run: echo "CONTAINER_VERSION="$(cat ~/version.log)"-"$(date +'%Y-%m-%d-%H-%M-%S') >> $GITHUB_ENV
+      run: echo "CONTAINER_VERSION="v$(cat ~/version.log)"-"$(date +'%Y-%m-%d-%H-%M-%S') >> $GITHUB_ENV
     - name: Show generated version number
       run: echo ${{ env.CONTAINER_VERSION }}
     - name: Set version number for project
