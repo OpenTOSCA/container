@@ -491,6 +491,12 @@
                                 <!-- Analyze class files only to exclude shaded JAR from report -->
                                 <include>**/*.class</include>
                             </includes>
+                            <excludes>
+                              <exclude>**/*.md</exclude>
+                              <exclude>**/*.xml</exclude>
+                              <exclude>**/*Dockerfile</exclude>
+                              <exclude>**/*.sh</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
