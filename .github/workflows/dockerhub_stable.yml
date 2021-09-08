@@ -15,9 +15,12 @@ jobs:
         uses: actions/checkout@v2
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
-      - name: Set output
+      - name: Set branch name output
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      - name: Set tag version output
+        id: vars2
+        run: echo ::set-output name=tagversion::${git describe --tags `git rev-list --tags --max-count=1`}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to DockerHub
@@ -32,4 +35,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: opentosca/container:${{ steps.vars.outputs.tag }}
+          tags: opentosca/container:${{ steps.vars2.outputs.tagversion }}
