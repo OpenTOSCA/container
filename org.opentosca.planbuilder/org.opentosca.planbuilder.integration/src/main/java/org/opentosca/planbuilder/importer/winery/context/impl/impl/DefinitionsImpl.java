@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.importer.winery.context.impl.impl;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,17 +11,16 @@ import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.tosca.TArtifactTemplate;
+import org.eclipse.winery.model.tosca.TArtifactType;
+import org.eclipse.winery.model.tosca.TPolicyTemplate;
+import org.eclipse.winery.model.tosca.TPolicyType;
+import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.repository.backend.IRepository;
 
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicyType;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipType;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.slf4j.Logger;
@@ -48,12 +46,12 @@ public class DefinitionsImpl extends AbstractDefinitions {
     private final Set<AbstractServiceTemplate> serviceTemplates = new HashSet<>();
     private final Set<AbstractNodeType> nodeTypes = new HashSet<>();
     private final Set<AbstractNodeTypeImplementation> nodeTypeImpls = new HashSet<>();
-    private final Set<AbstractRelationshipType> relationshipTypes = new HashSet<>();
+    private final Set<TRelationshipType> relationshipTypes = new HashSet<>();
     private final Set<AbstractRelationshipTypeImplementation> relationshipTypeImpls = new HashSet<>();
-    private final Set<AbstractArtifactTemplate> artifactTemplates = new HashSet<>();
-    private final Set<AbstractArtifactType> artifactTypes = new HashSet<>();
-    private final Set<AbstractPolicyType> policyTypes = new HashSet<>();
-    private final Set<AbstractPolicyTemplate> policyTemlates = new HashSet<>();
+    private final Set<TArtifactTemplate> artifactTemplates = new HashSet<>();
+    private final Set<TArtifactType> artifactTypes = new HashSet<>();
+    private final Set<TPolicyType> policyTypes = new HashSet<>();
+    private final Set<TPolicyTemplate> policyTemlates = new HashSet<>();
 
     /**
      * Constructor with a Definitions file as File Object and all referenced File Artifacts as a File List
@@ -78,13 +76,13 @@ public class DefinitionsImpl extends AbstractDefinitions {
         allDefs.forEach(definitions -> {
             this.serviceTemplates.addAll(definitions.getServiceTemplates().stream().map(x -> new ServiceTemplateImpl(x, this)).collect(Collectors.toList()));
             this.nodeTypes.addAll(definitions.getNodeTypes().stream().map(x -> new NodeTypeImpl(x, this)).collect(Collectors.toList()));
-            this.relationshipTypes.addAll(definitions.getRelationshipTypes().stream().map(x -> new RelationshipTypeImpl(x, this)).collect(Collectors.toList()));
+            this.relationshipTypes.addAll(definitions.getRelationshipTypes().stream().collect(Collectors.toList()));
             this.nodeTypeImpls.addAll(definitions.getNodeTypeImplementations().stream().map(x -> new NodeTypeImplementationImpl(x, this)).collect(Collectors.toList()));
             this.relationshipTypeImpls.addAll(definitions.getRelationshipTypeImplementations().stream().map(x -> new RelationshipTypeImplementationImpl(x, this)).collect(Collectors.toList()));
-            this.artifactTemplates.addAll(definitions.getArtifactTemplates().stream().map(x -> new ArtifactTemplateImpl(x, this)).collect(Collectors.toList()));
-            this.artifactTypes.addAll(definitions.getArtifactTypes().stream().map(x -> new ArtifactTypeImpl(x, this)).collect(Collectors.toList()));
-            this.policyTypes.addAll(definitions.getPolicyTypes().stream().map(x -> new PolicyTypeImpl(x, this)).collect(Collectors.toList()));
-            this.policyTemlates.addAll(definitions.getPolicyTemplates().stream().map(x -> new PolicyTemplateImpl(x, this)).collect(Collectors.toList()));
+            this.artifactTemplates.addAll(definitions.getArtifactTemplates().stream().collect(Collectors.toList()));
+            this.artifactTypes.addAll(definitions.getArtifactTypes().stream().collect(Collectors.toList()));
+            this.policyTypes.addAll(definitions.getPolicyTypes().stream().collect(Collectors.toList()));
+            this.policyTemlates.addAll(definitions.getPolicyTemplates().stream().collect(Collectors.toList()));
         });
     }
 
@@ -117,7 +115,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public Collection<AbstractRelationshipType> getRelationshipTypes() {
+    public Collection<TRelationshipType> getRelationshipTypes() {
         return this.relationshipTypes;
     }
 
@@ -173,23 +171,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public Collection<AbstractArtifactTemplate> getArtifactTemplates() {
+    public Collection<TArtifactTemplate> getArtifactTemplates() {
         return this.artifactTemplates;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public File getAbsolutePathOfArtifactReference(final AbstractArtifactReference ref) {
-        // TODO this is just a fast hack
-        final String path = ref.getReference();
-        for (final Path file : this.filesInCsar) {
-            if (file.toString().contains(path)) {
-                return file.toFile();
-            }
-        }
-        return null;
     }
 
     /**
@@ -212,8 +195,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
      *
      * @return a List of PolicyTypes
      */
-    protected List<AbstractPolicyType> getAllPolicyTypes() {
-        final List<AbstractPolicyType> policyTypes = new ArrayList<>();
+    protected List<TPolicyType> getAllPolicyTypes() {
+        final List<TPolicyType> policyTypes = new ArrayList<>();
 
         policyTypes.addAll(this.getPolicyTypes());
         this.referencedDefinitions.forEach(x -> policyTypes.addAll(x.getPolicyTypes()));
@@ -221,14 +204,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
         return policyTypes;
     }
 
-    /**
-     * <<<<<<< HEAD ======= Returns a List of all policyTemplates in the current csar context of this definitions
-     * document
-     *
-     * @return a List of PolicyTemplates
-     */
-    protected List<AbstractPolicyTemplate> getAllPolicyTemplates() {
-        final List<AbstractPolicyTemplate> policyTemplates = new ArrayList<>();
+    protected List<TPolicyTemplate> getAllPolicyTemplates() {
+        final List<TPolicyTemplate> policyTemplates = new ArrayList<>();
 
         policyTemplates.addAll(this.getPolicyTemplates());
         this.referencedDefinitions.forEach(x -> policyTemplates.addAll(x.getPolicyTemplates()));
@@ -241,8 +218,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
      *
      * @return a List of AbstractNodeType
      */
-    protected List<AbstractRelationshipType> getAllRelationshipTypes() {
-        final List<AbstractRelationshipType> relationshipTypes = new ArrayList<>();
+    protected List<TRelationshipType> getAllRelationshipTypes() {
+        final List<TRelationshipType> relationshipTypes = new ArrayList<>();
 
         relationshipTypes.addAll(this.getRelationshipTypes());
         this.referencedDefinitions.forEach(x -> relationshipTypes.addAll(x.getRelationshipTypes()));
@@ -250,8 +227,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
         return relationshipTypes;
     }
 
-    protected List<AbstractArtifactType> getAllArtifactTypes() {
-        final List<AbstractArtifactType> artifactTypes = new ArrayList<>();
+    protected List<TArtifactType> getAllArtifactTypes() {
+        final List<TArtifactType> artifactTypes = new ArrayList<>();
 
         artifactTypes.addAll(this.getArtifactTypes());
         this.referencedDefinitions.forEach(x -> artifactTypes.addAll(x.getArtifactTypes()));
@@ -260,17 +237,17 @@ public class DefinitionsImpl extends AbstractDefinitions {
     }
 
     @Override
-    public Collection<AbstractArtifactType> getArtifactTypes() {
+    public Collection<TArtifactType> getArtifactTypes() {
         return this.artifactTypes;
     }
 
     @Override
-    public Collection<AbstractPolicyType> getPolicyTypes() {
+    public Collection<TPolicyType> getPolicyTypes() {
         return this.policyTypes;
     }
 
     @Override
-    public Collection<AbstractPolicyTemplate> getPolicyTemplates() {
+    public Collection<TPolicyTemplate> getPolicyTemplates() {
         return this.policyTemlates;
     }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
@@ -70,12 +71,12 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(Csar csar, AbstractNodeTemplate nodeTemplate) {
         if (nodeTemplate.getProperties() == null || DockerUtils.notIsDockerContainer(nodeTemplate.getType())) {
             return false;
         }
 
-        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
 
         if (!propertiesMap.containsKey("ContainerID")) {
             return false;
@@ -87,12 +88,12 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final AbstractNodeTemplate nodeTemplate) {
         return DockerUtils.canHandleDockerContainerPropertiesAndDA(nodeTemplate);
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(Csar csar, final AbstractRelationshipTemplate relationshipTemplate) {
         // we can only handle nodeTemplates
         return false;
     }

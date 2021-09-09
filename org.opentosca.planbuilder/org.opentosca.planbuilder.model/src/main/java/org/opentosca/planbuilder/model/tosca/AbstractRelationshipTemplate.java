@@ -2,6 +2,13 @@ package org.opentosca.planbuilder.model.tosca;
 
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
+import org.eclipse.winery.model.tosca.TCapability;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipType;
+import org.eclipse.winery.model.tosca.TRequirement;
+
 /**
  * <p>
  * This class represents a TOSCA RelationshipTemplate
@@ -11,7 +18,7 @@ import java.util.List;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
-public abstract class AbstractRelationshipTemplate extends AbstractEntityTemplate {
+public abstract class AbstractRelationshipTemplate {
 
     /**
      * Returns the AbstractNodeTemplate representing the NodeTemplate which is the source of this RelationshipTemplate
@@ -26,7 +33,7 @@ public abstract class AbstractRelationshipTemplate extends AbstractEntityTemplat
      * @return an AbstractRequirements object, or null if this Relationship Template references a Node Template as
      * Source instead
      */
-    public abstract AbstractRequirement getSourceRequirement();
+    public abstract TRequirement getSourceRequirement();
 
     /**
      * Returns the AbstractNodeTemplate representing the NodeTemplate which is the target of this RelationshipTemplate
@@ -41,7 +48,7 @@ public abstract class AbstractRelationshipTemplate extends AbstractEntityTemplat
      * @return an AbstractCapability object, or null if this Relationship Template references a Node Template as Target
      * instead.
      */
-    public abstract AbstractCapability getTargetCapability();
+    public abstract TCapability getTargetCapability();
 
     /**
      * Returns the name of this RelationshipTemplate
@@ -55,7 +62,7 @@ public abstract class AbstractRelationshipTemplate extends AbstractEntityTemplat
      *
      * @return an AbstractRelationshipType
      */
-    public abstract AbstractRelationshipType getRelationshipType();
+    public abstract TRelationshipType getRelationshipType();
 
     /**
      * Returns all RelationshipTypeImplementations of this RelationshipTemplate
@@ -69,7 +76,11 @@ public abstract class AbstractRelationshipTemplate extends AbstractEntityTemplat
      *
      * @return an AbstractProperties
      */
-    public abstract AbstractProperties getProperties();
+    public abstract TEntityTemplate.Properties getProperties();
+
+    public abstract String getId();
+
+    public abstract QName getType();
 
     /**
      * {@inheritDoc}
@@ -78,6 +89,7 @@ public abstract class AbstractRelationshipTemplate extends AbstractEntityTemplat
     public boolean equals(final Object o) {
         if (o instanceof AbstractRelationshipTemplate) {
             final AbstractRelationshipTemplate relation = (AbstractRelationshipTemplate) o;
+
 
             if (!relation.getId().equals(this.getId())) {
                 return false;

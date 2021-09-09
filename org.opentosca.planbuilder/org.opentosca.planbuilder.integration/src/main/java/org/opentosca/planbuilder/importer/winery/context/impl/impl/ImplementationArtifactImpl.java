@@ -1,13 +1,10 @@
 package org.opentosca.planbuilder.importer.winery.context.impl.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
+import org.eclipse.winery.model.tosca.TArtifactTemplate;
+
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 
 /**
  * <p>
@@ -22,7 +19,6 @@ public class ImplementationArtifactImpl extends AbstractImplementationArtifact {
 
     private final org.eclipse.winery.model.tosca.TImplementationArtifact artifact;
     private final DefinitionsImpl defs;
-    private final List<AbstractProperties> additionalElements;
 
     /**
      * Constructor
@@ -33,19 +29,6 @@ public class ImplementationArtifactImpl extends AbstractImplementationArtifact {
     public ImplementationArtifactImpl(final org.eclipse.winery.model.tosca.TImplementationArtifact artifact, final DefinitionsImpl definitions) {
         this.artifact = artifact;
         this.defs = definitions;
-        this.additionalElements = new ArrayList<>();
-        this.setUp();
-    }
-
-    /**
-     * Initializes the internal DOM Representation
-     */
-    private void setUp() {
-        if (this.artifact.getAny() != null) {
-            for (final Object obj : this.artifact.getAny()) {
-                this.additionalElements.add(new PropertiesImpl(obj));
-            }
-        }
     }
 
     /**
@@ -77,7 +60,7 @@ public class ImplementationArtifactImpl extends AbstractImplementationArtifact {
      * {@inheritDoc}
      */
     @Override
-    public AbstractArtifactTemplate getArtifactRef() {
+    public TArtifactTemplate getArtifactRef() {
         return this.defs.getArtifactTemplate(this.artifact.getArtifactRef());
     }
 
@@ -91,11 +74,4 @@ public class ImplementationArtifactImpl extends AbstractImplementationArtifact {
         return this.artifact.getInterfaceName() + "_" + this.artifact.getOperationName();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<AbstractProperties> getAdditionalElements() {
-        return this.additionalElements;
-    }
 }

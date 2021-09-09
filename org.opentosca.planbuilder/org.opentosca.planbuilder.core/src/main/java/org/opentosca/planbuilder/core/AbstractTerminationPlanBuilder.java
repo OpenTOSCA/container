@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -35,7 +36,7 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanB
     protected static AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
                                               final AbstractServiceTemplate serviceTemplate,
                                               Collection<AbstractNodeTemplate> nodes,
-                                              Collection<AbstractRelationshipTemplate> relations) {
+                                              Collection<AbstractRelationshipTemplate> relations, Csar csar) {
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
@@ -53,7 +54,7 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanB
                 relationshipTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, relationshipTemplate);
             activities.add(activity);
 
-            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
+            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate, csar);
             AbstractActivity sourceActivity = mapping.get(relationshipTemplate.getSource());
             AbstractActivity targetActivity = mapping.get(relationshipTemplate.getTarget());
 
@@ -85,10 +86,10 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanB
     }
 
     protected AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
-                                       final AbstractServiceTemplate serviceTemplate) {
+                                       final AbstractServiceTemplate serviceTemplate, Csar csar) {
         return AbstractTerminationPlanBuilder.generateTOG(id, definitions, serviceTemplate,
             serviceTemplate.getTopologyTemplate().getNodeTemplates(),
             serviceTemplate.getTopologyTemplate()
-                .getRelationshipTemplates());
+                .getRelationshipTemplates(), csar);
     }
 }

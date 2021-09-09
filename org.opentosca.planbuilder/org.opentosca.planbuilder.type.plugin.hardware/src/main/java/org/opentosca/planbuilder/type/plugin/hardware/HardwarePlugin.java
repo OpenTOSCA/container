@@ -6,6 +6,7 @@ import java.util.HashSet;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.convention.Utils;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -44,16 +45,16 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         // available platforms such as Clouds and Devices are not provisioned (as of yet), therefore do
         // nothing here
-        return this.canHandleCreate(nodeTemplate);
+        return this.canHandleCreate(templateContext.getCsar(), nodeTemplate);
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
-        return this.isSupportedType(nodeTemplate) & (this.getCreateDependencies(nodeTemplate) != null);
+    public boolean canHandleCreate(Csar csar, final AbstractNodeTemplate nodeTemplate) {
+        return this.isSupportedType(nodeTemplate) & (this.getCreateDependencies(nodeTemplate, csar) != null);
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(Csar csar, final AbstractRelationshipTemplate relationshipTemplate) {
         // can only handle node templates
         return false;
     }
@@ -65,7 +66,7 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate) {
+    public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
         Collection<AbstractNodeTemplate> deps = this.getDependecies(nodeTemplate);
         if (this.isSupportedType(nodeTemplate) & !deps.isEmpty()) {
             // if we can support this type we return an empty set for dependencies, because they are already
@@ -77,7 +78,7 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate) {
+    public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
         Collection<AbstractNodeTemplate> deps = this.getDependecies(nodeTemplate);
         if (this.isSupportedType(nodeTemplate) & !deps.isEmpty()) {
             // if we can support this type we return an empty set for dependencies, because they are already
@@ -91,7 +92,7 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     @Override
     public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         // handle these running components by doing nothing
-        return this.canHandleTerminate(nodeTemplate);
+        return this.canHandleTerminate(templateContext.getCsar(), nodeTemplate);
     }
 
     @Override
@@ -101,12 +102,12 @@ public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
-        return this.isSupportedType(nodeTemplate) & (this.getTerminateDependencies(nodeTemplate) != null);
+    public boolean canHandleTerminate(Csar csar, AbstractNodeTemplate nodeTemplate) {
+        return this.isSupportedType(nodeTemplate) & (this.getTerminateDependencies(nodeTemplate, csar) != null);
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(Csar csar, AbstractRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }

@@ -9,7 +9,12 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.AbstractUpdatePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -30,10 +35,7 @@ import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -78,20 +80,20 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
     }
 
     @Override
-    public BPELPlan buildPlan(String csarName, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate) {
+    public BPELPlan buildPlan(Csar csar, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate) {
         final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_updatePlan");
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_updatePlan";
 
         // we take the overall flow of an termination plan, basically with the goal of
         // saving state from the top to the bottom
         final AbstractPlan newAbstractUpdatePlan =
-            generateUOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+            generateUOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
 
         newAbstractUpdatePlan.setType(PlanType.MANAGEMENT);
         final BPELPlan newUpdatePlan =
             this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractUpdatePlan, "update");
 
-        this.planHandler.initializeBPELSkeleton(newUpdatePlan, csarName);
+        this.planHandler.initializeBPELSkeleton(newUpdatePlan, csar);
 
         newUpdatePlan.setTOSCAInterfaceName("OpenTOSCA-Stateful-Lifecycle-Interface");
         newUpdatePlan.setTOSCAOperationname("update");
@@ -136,7 +138,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
         this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newUpdatePlan, propMap,
             serviceTemplate);
 
-        runPlugins(newUpdatePlan, propMap, csarName);
+        runPlugins(newUpdatePlan, propMap, csar);
 
         final String serviceInstanceURLVarName =
             this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(newUpdatePlan);
@@ -179,14 +181,14 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(Csar csar, AbstractDefinitions definitions) {
         LOG.debug("Building the Update Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             LOG.debug("ServiceTemplate {} has no Update Plan, generating Update Plan",
                 serviceTemplate.getQName().toString());
-            final BPELPlan newUpdatePlan = buildPlan(csarName, definitions, serviceTemplate);
+            final BPELPlan newUpdatePlan = buildPlan(csar, definitions, serviceTemplate);
 
             if (newUpdatePlan != null) {
                 LOG.debug("Created Update Plan " + newUpdatePlan.getBpelProcessElement().getAttribute("name"));
@@ -194,21 +196,21 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} update plans for CSAR {}", String.valueOf(plans.size()), csarName);
+        	LOG.info("Created {} update plans for CSAR {}", String.valueOf(plans.size()), csar.id().csarName());
         }
         return plans;
     }
 
-    private AbstractInterface getSaveStateInterface(final AbstractNodeTemplate nodeTemplate) {
+    private TInterface getSaveStateInterface(final AbstractNodeTemplate nodeTemplate) {
         return nodeTemplate.getType().getInterfaces().stream()
             .filter(iface -> iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE))
             .findFirst().orElse(null);
     }
 
-    private AbstractOperation getSaveStateOperation(final AbstractNodeTemplate nodeTemplate) {
-        final AbstractInterface iface = getSaveStateInterface(nodeTemplate);
+    private TOperation getSaveStateOperation(final AbstractNodeTemplate nodeTemplate) {
+        final TInterface iface = getSaveStateInterface(nodeTemplate);
         if (iface != null) {
-            for (final AbstractOperation op : iface.getOperations()) {
+            for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE)) {
                     return op;
                 }
@@ -217,7 +219,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
         return null;
     }
 
-    private AbstractParameter getSaveStateParameter(final AbstractOperation op) {
+    private TParameter getSaveStateParameter(final TOperation op) {
         return op.getInputParameters().stream()
             .filter(param -> param.getName()
                 .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT))
@@ -230,10 +232,10 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
      *
      * @param plan     the plan to execute the plugins on
      * @param propMap  a PropertyMapping from NodeTemplate to Properties to BPELVariables
-     * @param csarName name of csar
+     * @param csar  the csar
      */
     private void runPlugins(final BPELPlan plan, final Property2VariableMapping propMap,
-                            final String csarName) {
+                            final Csar csar) {
 
         final String serviceInstanceUrl = this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(plan);
         final String serviceInstanceId = this.serviceInstanceVarsHandler.findServiceInstanceIdVarName(plan);
@@ -242,7 +244,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), plan, templatePlan, propMap, plan.getServiceTemplate(),
-                serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
+                serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
             if (templatePlan.getNodeTemplate() != null) {
 
                 // create a context for the node
@@ -272,9 +274,9 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
                     final Variable saveStateUrlVar = BPELPlanContext.getVariable(saveStateUrlVarName);
 
-                    final Map<AbstractParameter, Variable> inputs = new HashMap<>();
+                    final Map<TParameter, Variable> inputs = new HashMap<>();
 
-                    AbstractOperation saveStateOperation = getSaveStateOperation(nodeTemplate);
+                    TOperation saveStateOperation = getSaveStateOperation(nodeTemplate);
                     if (saveStateOperation != null) {
                         inputs.put(getSaveStateParameter(saveStateOperation), saveStateUrlVar);
                     } else {
@@ -290,12 +292,12 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
                 /*
                  * generic save state code
                  */
-                final AbstractOperation updateOp =
+                final TOperation updateOp =
                     ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE,
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE_RUNUPDATE);
                 if (this.isUpdatableComponent(nodeTemplate) && updateOp != null) {
 
-                    final Map<AbstractParameter, Variable> inputs = new HashMap<>();
+                    final Map<TParameter, Variable> inputs = new HashMap<>();
 
                     // retrieve input parameters from all nodes which are downwards in the same topology stack
                     final List<AbstractNodeTemplate> nodesForMatching = new ArrayList<>();
@@ -303,7 +305,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
                     LOG.debug("Update on NodeTemplate {} needs the following input parameters:",
                         nodeTemplate.getName());
-                    for (final AbstractParameter param : updateOp.getInputParameters()) {
+                    for (final TParameter param : updateOp.getInputParameters()) {
                         LOG.debug("Input param: {}", param.getName());
                         found:
                         for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {

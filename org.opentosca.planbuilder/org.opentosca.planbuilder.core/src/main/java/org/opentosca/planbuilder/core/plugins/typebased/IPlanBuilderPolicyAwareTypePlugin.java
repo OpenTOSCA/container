@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.core.plugins.typebased;
 
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 
@@ -19,5 +20,5 @@ public interface IPlanBuilderPolicyAwareTypePlugin<T extends PlanContext> extend
      * @param nodeTemplate the NodeTemplate to be handled by this plugin
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    boolean canHandlePolicyAwareCreate(AbstractNodeTemplate nodeTemplate);
+    boolean canHandlePolicyAwareCreate(Csar csar, AbstractNodeTemplate nodeTemplate);
 }

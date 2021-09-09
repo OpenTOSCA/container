@@ -17,7 +17,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.planbuilder.model.tosca.AbstractTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +35,6 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 
     private final DefinitionsImpl definitions;
     private final org.eclipse.winery.model.tosca.TNodeTypeImplementation nodeTypeImpl;
-    private final List<AbstractTag> tags;
     private final Collection<AbstractImplementationArtifact> ias;
     private final Collection<AbstractDeploymentArtifact> das;
 
@@ -50,12 +48,10 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
                                       final DefinitionsImpl definitionsImpl) {
         this.definitions = definitionsImpl;
         this.nodeTypeImpl = nodeTypeImpl;
-        this.tags = new ArrayList<>();
         this.ias = new HashSet<>();
         this.das = new HashSet<>();
         LOG.debug("Initializing NodeTypeImplementation {" + this.nodeTypeImpl.getTargetNamespace() + "}"
             + this.nodeTypeImpl.getName());
-        this.initTags();
         this.initDas();
         this.initIas();
     }
@@ -78,17 +74,6 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
         if (this.nodeTypeImpl.getDeploymentArtifacts() != null) {
             for (final TDeploymentArtifact artifact : this.nodeTypeImpl.getDeploymentArtifacts()) {
                 this.das.add(new DeploymentArtifactImpl(artifact, this.definitions));
-            }
-        }
-    }
-
-    /**
-     * Initializes the internal Tags
-     */
-    private void initTags() {
-        if (this.nodeTypeImpl.getTags() != null) {
-            for (final TTag tag : this.nodeTypeImpl.getTags()) {
-                this.tags.add(new TagImpl(tag));
             }
         }
     }
@@ -129,8 +114,8 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractTag> getTags() {
-        return this.tags;
+    public Collection<TTag> getTags() {
+        return this.nodeTypeImpl.getTags();
     }
 
     /**

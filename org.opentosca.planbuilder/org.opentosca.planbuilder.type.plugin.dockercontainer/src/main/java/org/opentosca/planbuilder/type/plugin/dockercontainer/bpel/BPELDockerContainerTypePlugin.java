@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -28,7 +29,7 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
 
         boolean check = false;
-        if (this.canHandleCreate(nodeTemplate)) {
+        if (this.canHandleCreate(templateContext.getCsar(), nodeTemplate)) {
             check = this.handler.handleCreate(templateContext);
         }
 
@@ -48,21 +49,21 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate) {
+    public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
         Collection<AbstractNodeTemplate> deps = new HashSet<AbstractNodeTemplate>();
         deps.add(getDockerEngineNode(nodeTemplate));
         return deps;
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate) {
+    public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
         return null;
     }
 
     @Override
     public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         boolean check = false;
-        if (this.canHandleTerminate(nodeTemplate)) {
+        if (this.canHandleTerminate(templateContext.getCsar(), nodeTemplate)) {
             check = this.handler.handleTerminate(templateContext);
         }
 
@@ -83,7 +84,7 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(Csar csar, AbstractRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }

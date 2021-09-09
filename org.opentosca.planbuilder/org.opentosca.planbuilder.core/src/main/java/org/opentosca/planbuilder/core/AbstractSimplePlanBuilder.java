@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core;
 
 import java.util.List;
 
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -24,13 +25,13 @@ public abstract class AbstractSimplePlanBuilder extends AbstractPlanBuilder {
      * QName denoting the ServiceTemplate inside the Definitions document
      * </p>
      *
-     * @param csarName          the file name of the CSAR as String
+     * @param csar          the CSAR
      * @param definitions       the Definitions document as AbstractDefinitions Object
      * @param serviceTemplateId a QName denoting a ServiceTemplate inside the Definitions document
      * @return a complete BuildPlan for the given ServiceTemplate, if the ServiceTemplate denoted by the given QName
      * isn't found inside the Definitions document null is returned instead
      */
-    abstract public AbstractPlan buildPlan(String csarName, AbstractDefinitions definitions,
+    abstract public AbstractPlan buildPlan(Csar csar, AbstractDefinitions definitions,
                                            AbstractServiceTemplate serviceTemplateId);
 
     /**
@@ -38,9 +39,9 @@ public abstract class AbstractSimplePlanBuilder extends AbstractPlanBuilder {
      * Returns a List of BuildPlans for the ServiceTemplates contained in the given Definitions document
      * </p>
      *
-     * @param csarName    the file name of CSAR
+     * @param csar    the CSAR
      * @param definitions a AbstractDefinitions Object denoting the Definitions document
      * @return a List of Build Plans for each ServiceTemplate contained inside the Definitions document
      */
-    abstract public List<AbstractPlan> buildPlans(String csarName, AbstractDefinitions definitions);
+    abstract public List<AbstractPlan> buildPlans(Csar csar, AbstractDefinitions definitions);
 }

@@ -1,14 +1,13 @@
 package org.opentosca.planbuilder.importer.winery.context.impl.impl;
 
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TTag;
 
-import org.opentosca.planbuilder.model.tosca.AbstractBoundaryDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.slf4j.Logger;
@@ -111,9 +110,9 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
      * {@inheritDoc}
      */
     @Override
-    public AbstractBoundaryDefinitions getBoundaryDefinitions() {
+    public TBoundaryDefinitions getBoundaryDefinitions() {
         if (this.serviceTemplate.getBoundaryDefinitions() != null) {
-            return new BoundaryDefinitionsImpl(this.serviceTemplate.getBoundaryDefinitions());
+            return this.serviceTemplate.getBoundaryDefinitions();
         } else {
             return null;
         }
@@ -157,19 +156,7 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
     }
 
     @Override
-    public Map<String, String> getTags() {
-        final Map<String, String> tags = new HashMap<>();
-
-        if (this.serviceTemplate.getTags() == null) {
-            return tags;
-        } else if (this.serviceTemplate.getTags() == null) {
-            return tags;
-        }
-
-        for (final TTag tag : this.serviceTemplate.getTags()) {
-            tags.put(tag.getName(), tag.getValue());
-        }
-
-        return tags;
+    public Collection<TTag> getTags() {
+        return this.serviceTemplate.getTags();
     }
 }

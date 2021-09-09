@@ -8,6 +8,7 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlu
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -79,10 +80,10 @@ public class BPELInstanceDataPlugin implements IPlanBuilderPostPhasePlugin<BPELP
 
     @Override
     public boolean canHandlePolicyAwareCreate(final AbstractNodeTemplate nodeTemplate, final AbstractPolicy policy) {
-        if (!policy.getType().getId().equals(this.securePasswordPolicyType)) {
+        if (!policy.getType().getQName().equals(this.securePasswordPolicyType)) {
             return false;
         }
-        return nodeTemplate.getProperties().asMap().containsKey("Password");
+        return ModelUtils.asMap(nodeTemplate.getProperties()).containsKey("Password");
     }
 
     @Override

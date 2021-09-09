@@ -26,7 +26,7 @@ public interface IPlanBuilderPrePhaseIAPlugin<T extends PlanContext> extends IPl
      * @param infrastructureNodeType a NodeType which should be a InfrastructureNodeType
      * @return true iff this plugin can deploy the given ArtifactTypes to the given InfrastructureNodeType
      */
-    boolean canHandle(AbstractImplementationArtifact ia, AbstractNodeType infrastructureNodeType);
+    boolean canHandle(T context, AbstractImplementationArtifact ia, AbstractNodeType infrastructureNodeType);
 
     /**
      * This method is used add the fragment this plugin can generate for the given IA which must be deployed unto the

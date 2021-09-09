@@ -1,9 +1,10 @@
 package org.opentosca.planbuilder.importer.winery.context.impl.impl;
 
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TPolicyTemplate;
+import org.eclipse.winery.model.tosca.TPolicyType;
+
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicyType;
-import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,15 +31,15 @@ public class PolicyImpl extends AbstractPolicy {
     }
 
     @Override
-    public AbstractPolicyType getType() {
+    public TPolicyType getType() {
         if (this.policy == null) {
             LOG.debug("Internal policy is null");
         }
         if (this.policy.getPolicyType() == null) {
             LOG.debug("Internal policyType is null");
         }
-        for (final AbstractPolicyType policyType : this.defs.getAllPolicyTypes()) {
-            if (policyType.getId().equals(this.policy.getPolicyType())) {
+        for (final TPolicyType policyType : this.defs.getAllPolicyTypes()) {
+            if (policyType.equals(this.policy.getPolicyType())) {
                 return policyType;
             }
         }
@@ -46,14 +47,14 @@ public class PolicyImpl extends AbstractPolicy {
     }
 
     @Override
-    public AbstractPolicyTemplate getTemplate() {
+    public TPolicyTemplate getTemplate() {
         if (this.policy == null) {
             LOG.debug("Internal policy is null");
         }
         if (this.policy.getPolicyRef() == null) {
             LOG.debug("Internal policyRef is null");
         }
-        for (final AbstractPolicyTemplate policyTemplate : this.defs.getAllPolicyTemplates()) {
+        for (final TPolicyTemplate policyTemplate : this.defs.getAllPolicyTemplates()) {
             if (policyTemplate.getId().equals(this.policy.getPolicyRef().getLocalPart())) {
                 return policyTemplate;
             }
@@ -62,11 +63,7 @@ public class PolicyImpl extends AbstractPolicy {
     }
 
     @Override
-    public AbstractProperties getProperties() {
-        if (this.policy.getAny() != null && !this.policy.getAny().isEmpty()) {
-            return new PropertiesImpl(this.policy.getAny().get(0));
-        } else {
-            return null;
-        }
+    public TEntityTemplate.Properties getProperties() {
+        return this.policy.getProperties();
     }
 }

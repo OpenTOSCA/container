@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.eclipse.winery.model.tosca.TInterface;
+
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -18,7 +20,6 @@ import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
@@ -103,7 +104,7 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
      */
     private boolean containsManagementInterface(final AbstractNodeTemplate nodeTemplate,
                                                 final String managementInterfaceName) {
-        final List<AbstractInterface> ifaces = nodeTemplate.getType().getInterfaces();
+        final List<TInterface> ifaces = nodeTemplate.getType().getInterfaces();
         if (Objects.nonNull(ifaces)) {
             return ifaces.stream().filter(iface -> iface.getName().equals(managementInterfaceName)).findFirst()
                 .isPresent();

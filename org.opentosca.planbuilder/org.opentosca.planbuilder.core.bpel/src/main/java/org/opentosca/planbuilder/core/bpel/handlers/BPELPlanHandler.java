@@ -21,6 +21,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -669,12 +670,6 @@ public class BPELPlanHandler {
         return true;
     }
 
-    /**
-     * Creates a Plan with an empty skeleton for the given ServiceTemplate
-     *
-     * @param serviceTemplate the ServiceTemplate to generate a Plan Skeleton for
-     * @return an empty Plan Skeleton
-     */
     public BPELPlan createEmptyBPELPlan(final String processNamespace, final String processName,
                                         final AbstractPlan abstractPlan, final String inputOperationName) {
         BPELPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}",
@@ -985,8 +980,8 @@ public class BPELPlanHandler {
         return ModelUtils.hasChildElementWithAttribute(buildPlan.getBpelProcessVariablesElement(), "name", name);
     }
 
-    public void initializeBPELSkeleton(final BPELPlan plan, final String csarName) {
-        plan.setCsarName(csarName);
+    public void initializeBPELSkeleton(final BPELPlan plan, final Csar csar) {
+        plan.setCsarName(csar.id().csarName());
 
         final Map<AbstractActivity, BPELScope> abstract2bpelMap = new HashMap<>();
 

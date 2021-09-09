@@ -31,6 +31,7 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.management.IManagementBus;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -41,6 +42,7 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.SituationRepository;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
 import org.opentosca.planbuilder.export.WineryExporter;
@@ -80,15 +82,17 @@ public class MBJavaApi implements IManagementBus {
     private final WineryExporter exporter;
     private final ICoreEndpointService endpointService;
     private final BpelPlanEnginePlugin bpelDeployPlugin;
+    private final CsarStorageService storage;
 
     @Inject
     public MBJavaApi(CamelContext camelContext, Importer importer, WineryExporter exporter,
-                     ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin) {
+                     ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin, CsarStorageService storage) {
         this.camelContext = camelContext;
         this.importer = importer;
         this.exporter = exporter;
         this.endpointService = endpointService;
         this.bpelDeployPlugin = bpelPlanEnginePlugin;
+        this.storage = storage;
         LOG.info("Starting direct Java invocation API for Management Bus");
     }
 
@@ -192,8 +196,10 @@ public class MBJavaApi implements IManagementBus {
         @SuppressWarnings("unchecked") final Map<String, Collection<Long>> nodeIds2situationIds =
             (Map<String, Collection<Long>>) eventValues.get("NODE2SITUATIONS");
 
+        Csar csar = this.storage.findById(instance.getCsarId());
+
         final AbstractTopologyTemplate topology =
-            Lists.newArrayList(this.importer.getMainDefinitions(instance.getCsarId()).getServiceTemplates()).get(0)
+            Lists.newArrayList(this.importer.getMainDefinitions(csar).getServiceTemplates()).get(0)
                 .getTopologyTemplate();
 
         final ServiceTemplateInstanceConfiguration currentConfig =
@@ -237,7 +243,7 @@ public class MBJavaApi implements IManagementBus {
             try {
                 // FIXME the QName conversion of the instance is probably a bad idea
                 final BPELPlan adaptationPlan =
-                    (BPELPlan) this.importer.generateAdaptationPlan(instance.getCsarId(),
+                    (BPELPlan) this.importer.generateAdaptationPlan(csar,
                         QName.valueOf(instance.getTemplateId()),
                         currentConfigNodeIds, currentConfigRelationIds,
                         targetConfigNodeIds, targetConfigRelationIds);
@@ -483,7 +489,7 @@ public class MBJavaApi implements IManagementBus {
     }
 
     private Collection<AbstractPolicy> getPolicies(final QName policyType, final AbstractNodeTemplate nodeTemplate) {
-        return nodeTemplate.getPolicies().stream().filter(x -> x.getType().getId().equals(policyType))
+        return nodeTemplate.getPolicies().stream().filter(x -> x.getType().getQName().equals(policyType))
             .collect(Collectors.toList());
     }
 
@@ -539,7 +545,7 @@ public class MBJavaApi implements IManagementBus {
                 map.put(para, str);
             } else if (para.equalsIgnoreCase("csarEntrypoint")) {
             	LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
-                    + Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));                                              
+                    + Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));
                 map.put(para, Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));
             } else {
                 map.put(para, value);

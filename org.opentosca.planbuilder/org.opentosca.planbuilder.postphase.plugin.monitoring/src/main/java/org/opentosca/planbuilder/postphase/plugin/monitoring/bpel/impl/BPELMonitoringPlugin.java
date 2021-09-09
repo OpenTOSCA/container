@@ -6,6 +6,9 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -13,9 +16,7 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
@@ -77,9 +78,9 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
         // <Interface name="Monitor">
         // <Operation name="deployAgent"/>
         // </Interface>
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+        for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
             if (iface.getName().equals(this.monitoringInterfaceName)) {
-                for (final AbstractOperation op : iface.getOperations()) {
+                for (final TOperation op : iface.getOperations()) {
                     if (op.getName().equals(this.monitoringOperationName)) {
                         return true;
                     }
@@ -97,7 +98,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     private void uploadConfigurationArtifact(final BPELPlanContext context, final AbstractDeploymentArtifact deplArti,
                                              final AbstractNodeTemplate nodeTemplate) {
         final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
-        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
+        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, context.getCsar());
 
         AbstractNodeTemplate infraNode = null;
         PropertyVariable sshIpVar = null;
@@ -129,7 +130,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
             }
         }
 
-        this.invokerPlugin.handleArtifactReferenceUpload(deplArti.getArtifactRef().getArtifactReferences().get(0),
+        this.invokerPlugin.handleArtifactReferenceUpload(deplArti.getArtifactRef().getArtifactReferences().stream().findFirst().get(),
             context, sshIpVar, sshUserVar, sshKeyVar, infraNode, context.getProvisioningPhaseElement());
     }
 

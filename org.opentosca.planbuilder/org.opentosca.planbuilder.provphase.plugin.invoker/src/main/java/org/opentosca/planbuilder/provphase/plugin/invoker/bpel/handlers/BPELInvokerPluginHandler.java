@@ -15,6 +15,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TArtifactReference;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
@@ -26,12 +31,8 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -153,8 +154,8 @@ public class BPELInvokerPluginHandler {
         return ref;
     }
 
-    private String findInterfaceForOperation(final BPELPlanContext context, final AbstractOperation operation) {
-        List<AbstractInterface> interfaces = null;
+    private String findInterfaceForOperation(final BPELPlanContext context, final TOperation operation) {
+        List<TInterface> interfaces = null;
         if (context.getNodeTemplate() != null) {
             interfaces = context.getNodeTemplate().getType().getInterfaces();
         } else {
@@ -163,8 +164,8 @@ public class BPELInvokerPluginHandler {
         }
 
         if (interfaces != null && interfaces.size() > 0) {
-            for (final AbstractInterface iface : interfaces) {
-                for (final AbstractOperation op : iface.getOperations()) {
+            for (final TInterface iface : interfaces) {
+                for (final TOperation op : iface.getOperations()) {
                     if (op.equals(operation)) {
                         return iface.getName();
                     }
@@ -185,7 +186,7 @@ public class BPELInvokerPluginHandler {
         return propWrapper;
     }
 
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+    public boolean handle(final BPELPlanContext context, final TOperation operation,
                           final AbstractImplementationArtifact ia) throws IOException {
 
         boolean isNodeTemplate = true;
@@ -209,7 +210,7 @@ public class BPELInvokerPluginHandler {
         final Map<String, Variable> internalExternalPropsInput = new HashMap<>();
         final Map<String, Variable> internalExternalPropsOutput = new HashMap<>();
 
-        for (final AbstractParameter para : operation.getInputParameters()) {
+        for (final TParameter para : operation.getInputParameters()) {
             Variable propWrapper = null;
             // if this param is ambigious, search for the alternatives to match against
             if (Utils.isSupportedVirtualMachineIPProperty(para.getName())) {
@@ -225,7 +226,7 @@ public class BPELInvokerPluginHandler {
             internalExternalPropsInput.put(para.getName(), propWrapper);
         }
 
-        for (final AbstractParameter para : operation.getOutputParameters()) {
+        for (final TParameter para : operation.getOutputParameters()) {
             final Variable propWrapper = findVar(context, para.getName());
             internalExternalPropsOutput.put(para.getName(), propWrapper);
         }
@@ -486,10 +487,10 @@ public class BPELInvokerPluginHandler {
     private List<String> getRunScriptParams(final AbstractNodeTemplate nodeTemplate) {
         final List<String> inputParams = new ArrayList<>();
 
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-            for (final AbstractOperation op : iface.getOperations()) {
+        for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
+            for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)) {
-                    for (final AbstractParameter param : op.getInputParameters()) {
+                    for (final TParameter param : op.getInputParameters()) {
                         inputParams.add(param.getName());
                     }
                 }
@@ -502,10 +503,10 @@ public class BPELInvokerPluginHandler {
     private List<String> getTransferFileParams(final AbstractNodeTemplate nodeTemplate) {
         final List<String> inputParams = new ArrayList<>();
 
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-            for (final AbstractOperation op : iface.getOperations()) {
+        for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
+            for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
-                    for (final AbstractParameter param : op.getInputParameters()) {
+                    for (final TParameter param : op.getInputParameters()) {
                         inputParams.add(param.getName());
                     }
                 }
@@ -515,7 +516,7 @@ public class BPELInvokerPluginHandler {
         return inputParams;
     }
 
-    public boolean handleArtifactReferenceUpload(final AbstractArtifactReference ref,
+    public boolean handleArtifactReferenceUpload(final TArtifactReference ref,
                                                  final BPELPlanContext templateContext, final PropertyVariable serverIp,
                                                  final PropertyVariable sshUser, final PropertyVariable sshKey,
                                                  final AbstractNodeTemplate infraTemplate,

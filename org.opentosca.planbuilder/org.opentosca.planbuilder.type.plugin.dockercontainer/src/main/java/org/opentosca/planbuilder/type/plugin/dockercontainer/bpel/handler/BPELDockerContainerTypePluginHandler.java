@@ -9,6 +9,8 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TArtifactReference;
+
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
@@ -16,7 +18,6 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
@@ -224,7 +225,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
     private AbstractNodeTemplate findInfrastructureTemplate(final PlanContext context,
                                                             final AbstractNodeTemplate nodeTemplate) {
         final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
-        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
+        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, context.getCsar());
 
         for (final AbstractNodeTemplate infraNode : infraNodes) {
             if (!infraNode.getId().equals(nodeTemplate.getId()) & ModelUtils.getPropertyNames(infraNode).contains("VMIP")) {
@@ -267,7 +268,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         StringBuilder remoteVolumeDataVarAssignQuery = new StringBuilder("concat(");
 
         for (final AbstractDeploymentArtifact da : das) {
-            for (final AbstractArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
+            for (final TArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
                 // $input.payload//*[local-name()='instanceDataAPIUrl']
                 remoteVolumeDataVarAssignQuery.append("$input.payload//*[local-name()='csarEntrypoint'],'/Content/").append(ref.getReference()).append(";',");
             }
@@ -408,8 +409,8 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                    final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
         context.addStringValueToPlanRequest("containerApiAddress");
         final String artifactPathQuery =
-            this.planBuilderFragments.createXPathQueryForURLRemoteFilePathViaContainerAPI(da.getArtifactRef().getArtifactReferences()
-                .get(0).getReference(), context.getCSARFileName());
+            this.planBuilderFragments.createXPathQueryForURLRemoteFilePathViaContainerAPI(da.getArtifactRef().getArtifactReferences().stream().findFirst().get()
+                .getReference(), context.getCSARFileName());
 
         final String artefactVarName = "dockerContainerFile" + System.currentTimeMillis();
 

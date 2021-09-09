@@ -6,8 +6,6 @@ import java.util.List;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TPropertyMapping;
 
-import org.opentosca.planbuilder.model.tosca.AbstractProperties;
-import org.opentosca.planbuilder.model.tosca.AbstractPropertyMapping;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplateProperties;
 
 /**
@@ -22,7 +20,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplateProperties;
 public class ServiceTemplatePropertiesImpl extends AbstractServiceTemplateProperties {
 
     private final TBoundaryDefinitions.Properties properties;
-    private final List<AbstractPropertyMapping> propMappings;
+    private final List<TPropertyMapping> propMappings;
 
     /**
      * Constructor
@@ -42,7 +40,7 @@ public class ServiceTemplatePropertiesImpl extends AbstractServiceTemplateProper
         if (this.properties.getPropertyMappings() != null
             && this.properties.getPropertyMappings() != null) {
             for (final TPropertyMapping mapping : this.properties.getPropertyMappings()) {
-                this.propMappings.add(new PropertyMappingImpl(mapping));
+                this.propMappings.add(mapping);
             }
         }
     }
@@ -51,7 +49,7 @@ public class ServiceTemplatePropertiesImpl extends AbstractServiceTemplateProper
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractPropertyMapping> getPropertyMappings() {
+    public List<TPropertyMapping> getPropertyMappings() {
         return this.propMappings;
     }
 
@@ -59,11 +57,7 @@ public class ServiceTemplatePropertiesImpl extends AbstractServiceTemplateProper
      * {@inheritDoc}
      */
     @Override
-    public AbstractProperties getProperties() {
-        if (this.properties.getAny() != null) {
-            return new PropertiesImpl(this.properties.getAny());
-        } else {
-            return null;
-        }
+    public TBoundaryDefinitions.Properties getProperties() {
+        return this.properties;
     }
 }

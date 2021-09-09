@@ -7,6 +7,9 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -14,8 +17,6 @@ import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -30,7 +31,7 @@ public class BPELInvokeOperationHandler extends PluginHandler {
         super();
     }
 
-    public boolean handleInvokeOperation(final BPELPlanContext context, final AbstractOperation operation,
+    public boolean handleInvokeOperation(final BPELPlanContext context, final TOperation operation,
                                          final AbstractImplementationArtifact ia) throws IOException {
 
         boolean isNodeTemplate = true;
@@ -54,7 +55,7 @@ public class BPELInvokeOperationHandler extends PluginHandler {
         final Map<String, Variable> internalExternalPropsInput = new HashMap<>();
         final Map<String, Variable> internalExternalPropsOutput = new HashMap<>();
 
-        for (final AbstractParameter para : operation.getInputParameters()) {
+        for (final TParameter para : operation.getInputParameters()) {
             Variable propWrapper = null;
             // if this param is ambigious, search for the alternatives to match against
             if (Utils.isSupportedVirtualMachineIPProperty(para.getName())) {
@@ -70,7 +71,7 @@ public class BPELInvokeOperationHandler extends PluginHandler {
             internalExternalPropsInput.put(para.getName(), propWrapper);
         }
 
-        for (final AbstractParameter para : operation.getOutputParameters()) {
+        for (final TParameter para : operation.getOutputParameters()) {
             final Variable propWrapper = findVar(context, para.getName());
             internalExternalPropsOutput.put(para.getName(), propWrapper);
         }

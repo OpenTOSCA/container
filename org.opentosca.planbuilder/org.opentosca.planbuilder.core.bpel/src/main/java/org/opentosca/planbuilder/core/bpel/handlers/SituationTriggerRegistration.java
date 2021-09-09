@@ -17,6 +17,8 @@ import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.springframework.ui.Model;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -321,9 +323,9 @@ public class SituationTriggerRegistration {
     private Map<String, String> getPropertiesSafely(final AbstractServiceTemplate serviceTemplate) {
         if (serviceTemplate.getBoundaryDefinitions() != null) {
             if (serviceTemplate.getBoundaryDefinitions().getProperties() != null) {
-                if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties() != null) {
-                    if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties() != null && !serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().asMap().isEmpty()) {
-                        return serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().asMap();
+                if (serviceTemplate.getBoundaryDefinitions().getProperties() != null) {
+                    if (serviceTemplate.getBoundaryDefinitions().getProperties() != null && !ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties()).isEmpty()) {
+                        return ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties());
                     }
                 }
             }

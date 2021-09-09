@@ -13,14 +13,16 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -70,11 +72,11 @@ public class SituationPluginUtils {
     }
 
     public static Collection<AbstractNodeTemplate> findUsedNodes(BPELPlanContext context) {
-        Map<AbstractOperation, AbstractOperation> ops = context.getUsedOperations();
+        Map<TOperation, TOperation> ops = context.getUsedOperations();
         Set<AbstractNodeTemplate> nodes = new HashSet<AbstractNodeTemplate>();
 
         // Temp fix
-        //          for (AbstractOperation key : ops.keySet()) {
+        //          for (TOperation key : ops.keySet()) {
         //              nodes.addAll(SituationPluginUtils.findUsedNodes(context, key));
         //            nodes.addAll(SituationPluginUtils.findUsedNodes(context, ops.get(key)));
         //
@@ -84,11 +86,11 @@ public class SituationPluginUtils {
         return nodes;
     }
 
-    public static Collection<AbstractNodeTemplate> findUsedNodes(BPELPlanContext context, AbstractOperation op) {
+    public static Collection<AbstractNodeTemplate> findUsedNodes(BPELPlanContext context, TOperation op) {
         Set<AbstractNodeTemplate> nodes = new HashSet<AbstractNodeTemplate>();
         for (AbstractNodeTemplate node : context.getNodeTemplates()) {
-            for (AbstractInterface iface : node.getType().getInterfaces()) {
-                for (AbstractOperation o : iface.getOperations()) {
+            for (TInterface iface : node.getType().getInterfaces()) {
+                for (TOperation o : iface.getOperations()) {
                     if (op != null && op.equals(o)) {
                         nodes.add(node);
                     }
@@ -101,7 +103,7 @@ public class SituationPluginUtils {
 
     public static AbstractPolicy getSituationAwareExecutionPolicy(AbstractNodeTemplate nodeTemplate) {
         for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().getLocalPart().startsWith("SituationAwareExecutionPolicy")) {
+            if (policy.getType().getQName().getLocalPart().startsWith("SituationAwareExecutionPolicy")) {
                 return policy;
             }
         }
@@ -123,7 +125,7 @@ public class SituationPluginUtils {
     public static Collection<AbstractPolicy> getSituationPolicies(AbstractNodeTemplate nodeTemplate) {
         Set<AbstractPolicy> policies = new HashSet<AbstractPolicy>();
         for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().getLocalPart().startsWith("SituationPolicy")) {
+            if (policy.getType().getQName().getLocalPart().startsWith("SituationPolicy")) {
                 policies.add(policy);
             }
         }
@@ -217,7 +219,7 @@ public class SituationPluginUtils {
                                                     Collection<AbstractNodeTemplate> usedNodes) {
 
         // at least all compensation operations must have a WCET defined to be able to work with timing
-        Map<AbstractOperation, AbstractOperation> usedOperations = context.getUsedOperations();
+        Map<TOperation, TOperation> usedOperations = context.getUsedOperations();
         int usedCompensationOperationsCount = usedOperations.values().size();
 
         Collection<AbstractPolicy> operationExecutionTimePolicies =
@@ -225,15 +227,17 @@ public class SituationPluginUtils {
 
         int defiendWcets = 0;
 
-        for (AbstractOperation op : usedOperations.values()) {
+        for (TOperation op : usedOperations.values()) {
             if (op != null) {
                 for (AbstractPolicy pol : operationExecutionTimePolicies) {
+                    // FIXME Removed this from the lower if, could be a bomb...
+                    //ModelUtils.asMap(pol.getTemplate().getProperties()).get("InterfaceName")
+                    //                        .equals(op.getInterface().getName())
+                    //                        &&
+                    //
+                    if (ModelUtils.asMap(pol.getTemplate().getProperties()).get("OperationName").equals(op.getName())) {
 
-                    if (pol.getTemplate().getProperties().asMap().get("InterfaceName")
-                        .equals(op.getInterface().getName())
-                        && pol.getTemplate().getProperties().asMap().get("OperationName").equals(op.getName())) {
-
-                        String wcetProp = pol.getTemplate().getProperties().asMap().get("WorstCaseExecutionTime");
+                        String wcetProp = ModelUtils.asMap(pol.getTemplate().getProperties()).get("WorstCaseExecutionTime");
                         if (wcetProp != null) {
                             defiendWcets++;
                         }
@@ -251,22 +255,23 @@ public class SituationPluginUtils {
         Collection<AbstractPolicy> operationExecutionTimePolicies =
             SituationPluginUtils.getOperationExecutionTimePolicies(usedNodes);
 
-        Map<AbstractOperation, AbstractOperation> usedOperations = context.getUsedOperations();
+        Map<TOperation, TOperation> usedOperations = context.getUsedOperations();
 
         // we sum up the compensation operations' wcet, as if something happens we should be able to
         // compensate in time and we assume that scope only have sequences of operations
 
         int wcet = 0;
 
-        for (AbstractOperation op : usedOperations.values()) {
+        for (TOperation op : usedOperations.values()) {
             if (op != null) {
                 for (AbstractPolicy pol : operationExecutionTimePolicies) {
+                    // FIXME Removed this from the lower if, could be a bomb, however, there is no way of finding out the interface the operation belongs with basic winery backend methods
+                    //ModelUtils.asMap(pol.getTemplate().getProperties()).get("InterfaceName")
+                    //                        .equals(op.getInterface().getName())
+                    //                        &&
+                    if (ModelUtils.asMap(pol.getTemplate().getProperties()).get("OperationName").equals(op.getName())) {
 
-                    if (pol.getTemplate().getProperties().asMap().get("InterfaceName")
-                        .equals(op.getInterface().getName())
-                        && pol.getTemplate().getProperties().asMap().get("OperationName").equals(op.getName())) {
-
-                        String wcetProp = pol.getTemplate().getProperties().asMap().get("WorstCaseExecutionTime");
+                        String wcetProp = ModelUtils.asMap(pol.getTemplate().getProperties()).get("WorstCaseExecutionTime");
                         if (wcetProp != null) {
                             wcet += Integer.valueOf(wcetProp);
                         }
@@ -320,7 +325,7 @@ public class SituationPluginUtils {
         Set<AbstractPolicy> policies = new HashSet<AbstractPolicy>();
 
         for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().getLocalPart().contains("ExecutionTimePolicy")) {
+            if (policy.getType().getQName().getLocalPart().contains("ExecutionTimePolicy")) {
                 policies.add(policy);
             }
         }

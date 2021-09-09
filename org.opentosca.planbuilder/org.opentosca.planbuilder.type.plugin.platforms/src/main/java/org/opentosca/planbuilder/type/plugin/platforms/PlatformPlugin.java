@@ -6,6 +6,7 @@ import java.util.HashSet;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.convention.Utils;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -41,18 +42,18 @@ public class PlatformPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
 
     @Override
     public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
-        return this.canHandleCreate(nodeTemplate);
+        return this.canHandleCreate(templateContext.getCsar(), nodeTemplate);
         // available platforms such as Clouds and Devices are not provisioned (as of yet), therefore do
         // nothing here
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final AbstractNodeTemplate nodeTemplate) {
         return this.isSupportedType(nodeTemplate);
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(Csar csar, final AbstractRelationshipTemplate relationshipTemplate) {
         // can only handle node templates
         return false;
     }
@@ -64,7 +65,7 @@ public class PlatformPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate) {
+    public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
         if (this.isSupportedType(nodeTemplate)) {
             // if we can support this type we return an empty set for dependencies, because they are already
             // running
@@ -75,7 +76,7 @@ public class PlatformPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate) {
+    public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
         if (this.isSupportedType(nodeTemplate)) {
             // if we can support this type we return an empty set for dependencies, because they are already
             // running
@@ -98,12 +99,12 @@ public class PlatformPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(Csar csar, AbstractNodeTemplate nodeTemplate) {
         return this.isSupportedType(nodeTemplate);
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(Csar csar, AbstractRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }

@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -43,7 +44,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
     }
 
     protected AbstractPlan generateUOG(final String id, final AbstractDefinitions definitions,
-                                       final AbstractServiceTemplate serviceTemplate) {
+                                       final AbstractServiceTemplate serviceTemplate, Csar csar) {
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
@@ -54,7 +55,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
 
         // Get all node templates which are sources only --> that don't
         for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-            if (hasUpdatableAncestor(topology.getRelationshipTemplates(), nodeTemplate)) {
+            if (hasUpdatableAncestor(topology.getRelationshipTemplates(), nodeTemplate, csar)) {
                 // node has updatable ancestors.
                 // Needs to be stopped in stopping phase and restarted in starting phase.
 
@@ -124,7 +125,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
                 relationshipTemplate.getId() + "_update_activity", ActivityType.PROVISIONING, relationshipTemplate);
             activities.add(activityStart);
 
-            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
+            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate, csar);
 
             if (baseType.equals(Types.connectsToRelationType)) {
 
@@ -175,14 +176,14 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
             .anyMatch(abstractInterface -> abstractInterface.getName().equalsIgnoreCase("UpdateManagementInterface"));
     }
 
-    protected boolean hasUpdatableAncestor(final List<AbstractRelationshipTemplate> relationshipTemplates, final AbstractNodeTemplate nodeTemplate) {
+    protected boolean hasUpdatableAncestor(final List<AbstractRelationshipTemplate> relationshipTemplates, final AbstractNodeTemplate nodeTemplate, Csar csar) {
         Queue<AbstractNodeTemplate> ancestorQueue = new LinkedList<>();
         ancestorQueue.add(nodeTemplate);
         while (!ancestorQueue.isEmpty()) {
             AbstractNodeTemplate ancestor = ancestorQueue.remove();
             if ((!ancestor.equals(nodeTemplate)) && isUpdatableComponent(ancestor)) return true;
             for (AbstractRelationshipTemplate relation : relationshipTemplates) {
-                final QName baseType = ModelUtils.getRelationshipBaseType(relation);
+                final QName baseType = ModelUtils.getRelationshipBaseType(relation, csar);
                 if ((baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
                     | baseType.equals(Types.deployedOnRelationType)) && relation.getSource().equals(ancestor)) {
                     ancestorQueue.add(relation.getTarget());
@@ -202,6 +203,6 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
 
     private boolean hasPolicy(final AbstractNodeTemplate nodeTemplate, final QName policyType) {
         return nodeTemplate.getPolicies().stream()
-            .anyMatch(policy -> policy.getType().getId().equals(policyType));
+            .anyMatch(policy -> policy.getType().getQName().equals(policyType));
     }
 }

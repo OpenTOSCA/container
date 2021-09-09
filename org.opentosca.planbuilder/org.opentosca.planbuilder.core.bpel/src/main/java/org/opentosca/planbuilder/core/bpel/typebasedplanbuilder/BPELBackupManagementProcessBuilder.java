@@ -11,7 +11,11 @@ import java.util.Objects;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.AbstractManagementFeaturePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -32,8 +36,6 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -95,7 +97,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
      * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
      */
     @Override
-    public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
+    public BPELPlan buildPlan(final Csar csar, final AbstractDefinitions definitions,
                               final AbstractServiceTemplate serviceTemplate) {
         LOG.debug("Creating Backup Management Plan...");
 
@@ -118,7 +120,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         final BPELPlan newBackupPlan =
             this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractBackupPlan, "backup");
 
-        this.planHandler.initializeBPELSkeleton(newBackupPlan, csarName);
+        this.planHandler.initializeBPELSkeleton(newBackupPlan, csar);
 
         newBackupPlan.setTOSCAInterfaceName("OpenTOSCA-Management-Feature-Interface");
         newBackupPlan.setTOSCAOperationname("backup");
@@ -156,7 +158,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
             e.printStackTrace();
         }
 
-        runPlugins(newBackupPlan, propMap, csarName);
+        runPlugins(newBackupPlan, propMap, csar);
 
         this.correlationHandler.addCorrellationID(newBackupPlan);
 
@@ -186,7 +188,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         return newBackupPlan;
     }
 
-    private void runPlugins(final BPELPlan plan, final Property2VariableMapping propMap, final String csarName) {
+    private void runPlugins(final BPELPlan plan, final Property2VariableMapping propMap, final Csar csar) {
 
         final String statefulServiceTemplateUrlVarName = findStatefulServiceTemplateUrlVar(plan);
 
@@ -197,7 +199,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
 
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), plan, templatePlan, propMap, plan.getServiceTemplate(),
-                serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
+                serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
 
             // only handle NodeTemplates of type with save state interface
             final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
@@ -225,13 +227,13 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                     e.printStackTrace();
                 }
 
-                final AbstractOperation freezeOp =
+                final TOperation freezeOp =
                     ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE);
                 if (Objects.nonNull(freezeOp)) {
                     final Variable saveStateUrlVar = BPELPlanContext.getVariable(saveStateUrlVarName);
 
-                    final Map<AbstractParameter, Variable> inputs = new HashMap<>();
+                    final Map<TParameter, Variable> inputs = new HashMap<>();
 
                     // retrieve input parameters from all nodes which are downwards in the same topology stack
                     final List<AbstractNodeTemplate> nodesForMatching = new ArrayList<>();
@@ -239,7 +241,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
 
                     LOG.debug("Backup on NodeTemplate {} needs the following input parameters:",
                         nodeTemplate.getName());
-                    for (final AbstractParameter param : freezeOp.getInputParameters()) {
+                    for (final TParameter param : freezeOp.getInputParameters()) {
                         LOG.debug("Input param: {}", param.getName());
                         found:
                         for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
@@ -265,7 +267,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final AbstractDefinitions definitions) {
         LOG.debug("Building the Backup Management Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
@@ -273,7 +275,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
             if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE)) {
                 LOG.debug("ServiceTemplate {} contains NodeTypes with defined backup interface.",
                     serviceTemplate.getName());
-                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplate);
+                final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
                 if (Objects.nonNull(newBuildPlan)) {
                     LOG.debug("Created Backup Management Plan "
                         + newBuildPlan.getBpelProcessElement().getAttribute("name"));
@@ -285,7 +287,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         }
 
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} backup plans for CSAR {}", String.valueOf(plans.size()), csarName);
+        	LOG.info("Created {} backup plans for CSAR {}", String.valueOf(plans.size()), csar.id().csarName());
         }
         return plans;
     }
@@ -355,7 +357,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
             .orElse(null);
     }
 
-    private AbstractParameter getSaveStateParameter(final AbstractOperation op) {
+    private TParameter getSaveStateParameter(final TOperation op) {
         return op.getInputParameters().stream()
             .filter(param -> param.getName()
                 .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT))

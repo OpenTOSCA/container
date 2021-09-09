@@ -1,8 +1,12 @@
 package org.opentosca.planbuilder.model.tosca;
 
+import java.util.Collection;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
+
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
+import org.eclipse.winery.model.tosca.TTag;
 
 /**
  * <p>
@@ -55,7 +59,7 @@ public abstract class AbstractServiceTemplate {
      *
      * @return an AbstractBoundaryDefinitions of this ServiceTemplate
      */
-    public abstract AbstractBoundaryDefinitions getBoundaryDefinitions();
+    public abstract TBoundaryDefinitions getBoundaryDefinitions();
 
     /**
      * Returns whether this ServiceTemplate has a BuildPlan or not
@@ -76,5 +80,5 @@ public abstract class AbstractServiceTemplate {
      *
      * @return a Map from String to Strin representing the keys and values of TOSCA tags
      */
-    public abstract Map<String, String> getTags();
+    public abstract Collection<TTag> getTags();
 }

@@ -20,7 +20,11 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
@@ -37,10 +41,7 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
@@ -70,17 +71,10 @@ public class BPELPlanContext extends PlanContext {
     private BPELPlanHandler bpelProcessHandler;
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
-    /**
-     * Constructor
-     *
-     * @param serviceTemplateName the name of the ServiceTemplate where the Template of the context originates
-     * @param templateBuildPlan   the TemplateBuildPlan of a Template
-     * @param map                 a PropertyMap containing mappings for all Template properties of the TopologyTemplate
-     */
     public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
                            final AbstractServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
-                           String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, String csarFileName) {
-        super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csarFileName);
+                           String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, Csar csar) {
+        super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
 
         this.scopeBuilder = scopeBuilder;
         this.templateBuildPlan = templateBuildPlan;
@@ -102,13 +96,13 @@ public class BPELPlanContext extends PlanContext {
         return this.templateBuildPlan.getActivity();
     }
 
-    public void addUsedOperation(AbstractOperation operation, AbstractOperation compensationOperation) {
+    public void addUsedOperation(TOperation operation, TOperation compensationOperation) {
         this.templateBuildPlan.addUsedOperation(operation, compensationOperation);
     }
 
     public boolean addUsedOperation(String interfaceName, String operationName, String compensationInterfaceName, String compensationOperationName) {
-        AbstractOperation op = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(interfaceName, operationName);
-        AbstractOperation compensationOp = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(compensationInterfaceName, compensationOperationName);
+        TOperation op = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(interfaceName, operationName);
+        TOperation compensationOp = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(compensationInterfaceName, compensationOperationName);
         if (op != null) {
             this.addUsedOperation(op, compensationOp);
             return true;
@@ -119,7 +113,7 @@ public class BPELPlanContext extends PlanContext {
 
     // TODO Refactor methods up to the BPEL specific methods
 
-    public Map<AbstractOperation, AbstractOperation> getUsedOperations() {
+    public Map<TOperation, TOperation> getUsedOperations() {
         return this.templateBuildPlan.getUsedOperations();
     }
 
@@ -279,7 +273,7 @@ public class BPELPlanContext extends PlanContext {
                 LOG.debug("Found scope of nodeTemplate");
                 return new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, scope, this.propertyMap, this.serviceTemplate,
                     this.serviceInstanceURLVarName, this.serviceInstanceIDVarName, this.serviceTemplateURLVarName, this.planInstanceUrlVarName,
-                    this.csarFileName);
+                    this.csar);
             }
         }
         return null;
@@ -307,9 +301,9 @@ public class BPELPlanContext extends PlanContext {
      */
     public boolean executeOperation(final AbstractNodeTemplate nodeTemplate, final String interfaceName,
                                     final String operationName,
-                                    final Map<AbstractParameter, Variable> param2variableMapping) {
+                                    final Map<TParameter, Variable> param2variableMapping) {
 
-        final OperationChain chain = scopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
+        final OperationChain chain = scopeBuilder.createOperationCall(this, nodeTemplate, interfaceName, operationName);
         if (chain == null) {
             return false;
         }
@@ -329,7 +323,7 @@ public class BPELPlanContext extends PlanContext {
         // the node for the scope
         final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csarFileName);
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -379,17 +373,17 @@ public class BPELPlanContext extends PlanContext {
      *
      * @return a List of AbstractRelationshipTemplate which are InfrastructureEdges of the template this context handles
      */
-    public List<AbstractRelationshipTemplate> getInfrastructureEdges() {
+    public List<AbstractRelationshipTemplate> getInfrastructureEdges(Csar csar) {
         final List<AbstractRelationshipTemplate> infraEdges = new ArrayList<>();
         if (this.templateBuildPlan.getNodeTemplate() != null) {
-            ModelUtils.getInfrastructureEdges(getNodeTemplate(), infraEdges);
+            ModelUtils.getInfrastructureEdges(getNodeTemplate(), infraEdges, csar);
         } else {
             final AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-            if (ModelUtils.getRelationshipBaseType(template).equals(Types.connectsToRelationType)) {
-                ModelUtils.getInfrastructureEdges(template, infraEdges, true);
-                ModelUtils.getInfrastructureEdges(template, infraEdges, false);
+            if (ModelUtils.getRelationshipBaseType(template,csar).equals(Types.connectsToRelationType)) {
+                ModelUtils.getInfrastructureEdges(template, infraEdges, true , csar);
+                ModelUtils.getInfrastructureEdges(template, infraEdges, false, csar);
             } else {
-                ModelUtils.getInfrastructureEdges(template, infraEdges, false);
+                ModelUtils.getInfrastructureEdges(template, infraEdges, false, csar);
             }
         }
         return infraEdges;
@@ -400,17 +394,18 @@ public class BPELPlanContext extends PlanContext {
      *
      * @return a List of AbstractNodeTemplate which are InfrastructureNodeTemplate of the template this context handles
      */
+
     public List<AbstractNodeTemplate> getInfrastructureNodes() {
         final List<AbstractNodeTemplate> infrastructureNodes = new ArrayList<>();
         if (this.templateBuildPlan.getNodeTemplate() != null) {
-            ModelUtils.getInfrastructureNodes(getNodeTemplate(), infrastructureNodes);
+            ModelUtils.getInfrastructureNodes(getNodeTemplate(), infrastructureNodes, this.getCsar());
         } else {
             final AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-            if (ModelUtils.getRelationshipBaseType(template).equals(Types.connectsToRelationType)) {
-                ModelUtils.getInfrastructureNodes(template, infrastructureNodes, true);
-                ModelUtils.getInfrastructureNodes(template, infrastructureNodes, false);
+            if (ModelUtils.getRelationshipBaseType(template, this.getCsar()).equals(Types.connectsToRelationType)) {
+                ModelUtils.getInfrastructureNodes(template, infrastructureNodes, true, this.getCsar());
+                ModelUtils.getInfrastructureNodes(template, infrastructureNodes, false, this.getCsar());
             } else {
-                ModelUtils.getInfrastructureNodes(template, infrastructureNodes, false);
+                ModelUtils.getInfrastructureNodes(template, infrastructureNodes, false, this.getCsar());
             }
         }
         return infrastructureNodes;
@@ -425,10 +420,10 @@ public class BPELPlanContext extends PlanContext {
     public List<AbstractNodeTemplate> getInfrastructureNodes(final boolean forSource) {
         final List<AbstractNodeTemplate> infrastructureNodes = new ArrayList<>();
         if (this.templateBuildPlan.getNodeTemplate() != null) {
-            ModelUtils.getInfrastructureNodes(getNodeTemplate(), infrastructureNodes);
+            ModelUtils.getInfrastructureNodes(getNodeTemplate(), infrastructureNodes, csar);
         } else {
             final AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-            ModelUtils.getInfrastructureNodes(template, infrastructureNodes, forSource);
+            ModelUtils.getInfrastructureNodes(template, infrastructureNodes, forSource, csar);
         }
         return infrastructureNodes;
     }
@@ -453,8 +448,8 @@ public class BPELPlanContext extends PlanContext {
     }
 
     public boolean executeOperation(final AbstractRelationshipTemplate relationshipTemplate, final String interfaceName,
-                                    final String operationName, Map<AbstractParameter, Variable> inputPropertyMapping,
-                                    Map<AbstractParameter, Variable> outputPropertyMapping) {
+                                    final String operationName, Map<TParameter, Variable> inputPropertyMapping,
+                                    Map<TParameter, Variable> outputPropertyMapping) {
 
         if (inputPropertyMapping == null) {
             inputPropertyMapping = new HashMap<>();
@@ -477,7 +472,7 @@ public class BPELPlanContext extends PlanContext {
 
         final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csarFileName);
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
 
         context.templateBuildPlan.setNodeTemplate(null);
         context.templateBuildPlan.setRelationshipTemplate(relationshipTemplate);
@@ -492,10 +487,10 @@ public class BPELPlanContext extends PlanContext {
 
     public boolean executeOperation(final AbstractNodeTemplate nodeTemplate, final String interfaceName,
                                     final String operationName,
-                                    final Map<AbstractParameter, Variable> param2propertyMapping,
-                                    final Map<AbstractParameter, Variable> param2propertyOutputMapping,
+                                    final Map<TParameter, Variable> param2propertyMapping,
+                                    final Map<TParameter, Variable> param2propertyOutputMapping,
                                     final BPELScopePhaseType phase, Element elementToAppendTo) {
-        final OperationChain chain = scopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
+        final OperationChain chain = scopeBuilder.createOperationCall(this, nodeTemplate, interfaceName, operationName);
         if (chain == null) {
             return false;
         }
@@ -515,7 +510,7 @@ public class BPELPlanContext extends PlanContext {
         // the node for the scope
         final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csarFileName);
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -543,10 +538,10 @@ public class BPELPlanContext extends PlanContext {
 
     public boolean executeOperation(final AbstractNodeTemplate nodeTemplate, final String interfaceName,
                                     final String operationName,
-                                    final Map<AbstractParameter, Variable> param2propertyMapping,
-                                    final Map<AbstractParameter, Variable> param2propertyOutputMapping) {
+                                    final Map<TParameter, Variable> param2propertyMapping,
+                                    final Map<TParameter, Variable> param2propertyOutputMapping) {
 
-        final OperationChain chain = scopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
+        final OperationChain chain = scopeBuilder.createOperationCall(this, nodeTemplate, interfaceName, operationName);
         if (chain == null) {
             return false;
         }
@@ -566,7 +561,7 @@ public class BPELPlanContext extends PlanContext {
         // the node for the scope
         final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csarFileName);
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
 
         context.templateBuildPlan.setNodeTemplate(nodeTemplate);
         context.templateBuildPlan.setRelationshipTemplate(null);
@@ -1067,18 +1062,6 @@ public class BPELPlanContext extends PlanContext {
     public boolean registerExtension(final String namespace, final boolean mustUnderstand) {
         return this.buildPlanHandler.registerExtension(namespace, mustUnderstand,
             this.templateBuildPlan.getBuildPlan());
-    }
-
-    /**
-     * Registers a portType which is declared inside the given AbstractArtifactReference
-     *
-     * @param portType the portType to register
-     * @param ref      ArtifactReference where the portType is declared
-     * @return a QName for the registered PortType with a set prefix
-     */
-    public QName registerPortType(final QName portType, final AbstractArtifactReference ref) {
-        return this.registerPortType(portType, this.templateBuildPlan.getBuildPlan().getDefinitions()
-            .getAbsolutePathOfArtifactReference(ref).toPath());
     }
 
     /**

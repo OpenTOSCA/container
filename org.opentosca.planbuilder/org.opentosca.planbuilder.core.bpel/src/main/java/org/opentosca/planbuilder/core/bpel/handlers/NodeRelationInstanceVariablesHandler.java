@@ -21,6 +21,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.springframework.ui.Model;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
@@ -325,7 +326,7 @@ public class NodeRelationInstanceVariablesHandler {
         boolean check = true;
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null
-                && !templatePlan.getNodeTemplate().getProperties().asMap().isEmpty()) {
+                && !ModelUtils.asMap(templatePlan.getNodeTemplate().getProperties()).isEmpty()) {
                 check &= this.addPropertyVariableUpdateBasedOnNodeInstanceID(templatePlan, propMap, serviceTemplate);
             }
         }
@@ -336,7 +337,7 @@ public class NodeRelationInstanceVariablesHandler {
         boolean check = true;
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getRelationshipTemplate() != null && templatePlan.getRelationshipTemplate().getProperties() != null
-                && !templatePlan.getRelationshipTemplate().getProperties().asMap().isEmpty()) {
+                && !ModelUtils.asMap(templatePlan.getRelationshipTemplate().getProperties()).isEmpty()) {
                 check &= this.addPropertyVariableUpdateBasedOnRelationInstanceID(templatePlan, propMap, serviceTemplate);
             }
         }
@@ -385,7 +386,7 @@ public class NodeRelationInstanceVariablesHandler {
         // create mapping from property dom nodes to bpelvariable
         final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-        Map<String, String> propertiesMap = relationshipTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = ModelUtils.asMap(relationshipTemplate.getProperties());
 
         for (PropertyVariable var : propMap.getRelationPropertyVariables(serviceTemplate, relationshipTemplate)) {
             if (propertiesMap.containsKey(var.getPropertyName())) {
@@ -396,7 +397,7 @@ public class NodeRelationInstanceVariablesHandler {
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, relationshipTemplate.getProperties().getNamespace());
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, ModelUtils.getNamespace(relationshipTemplate.getProperties()));
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException | SAXException e) {
@@ -458,7 +459,7 @@ public class NodeRelationInstanceVariablesHandler {
         // create mapping from property dom nodes to bpelvariable
         final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
 
         for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
             if (propertiesMap.containsKey(var.getPropertyName())) {
@@ -469,7 +470,7 @@ public class NodeRelationInstanceVariablesHandler {
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, nodeTemplate.getProperties().getNamespace());
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, ModelUtils.getNamespace(nodeTemplate.getProperties()));
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException | SAXException e) {
@@ -515,7 +516,7 @@ public class NodeRelationInstanceVariablesHandler {
         // create mapping from property dom nodes to bpelvariable
         final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
 
         for (String propertyName : propertiesMap.keySet()) {
             final String bpelVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
@@ -527,7 +528,7 @@ public class NodeRelationInstanceVariablesHandler {
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, nodeTemplate.getProperties().getNamespace());
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, ModelUtils.getNamespace(nodeTemplate.getProperties()));
             assignPropertiesToVariables = context.importNode(assignPropertiesToVariables);
             context.getPrePhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException | SAXException e) {

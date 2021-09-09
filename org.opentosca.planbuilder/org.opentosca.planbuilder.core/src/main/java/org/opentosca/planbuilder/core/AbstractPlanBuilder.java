@@ -8,6 +8,7 @@ import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public abstract class AbstractPlanBuilder {
 
     public boolean isRunning(final AbstractNodeTemplate nodeTemplate) {
         if (nodeTemplate.getProperties() != null) {
-            String val = nodeTemplate.getProperties().asMap().get("State");
+            String val = ModelUtils.asMap(nodeTemplate.getProperties()).get("State");
             return val != null && val.equals("Running");
         } else {
             return false;

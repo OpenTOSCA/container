@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
@@ -106,7 +107,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
      * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
      */
     @Override
-    public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
+    public BPELPlan buildPlan(final Csar csar, final AbstractDefinitions definitions,
                               final AbstractServiceTemplate serviceTemplate) {
         // create empty plan from servicetemplate and add definitions
 
@@ -135,7 +136,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             Map<AbstractPolicy, String> policy2IdMap = this.nodePolicyToId(situationPolicies);
 
             final AbstractPlan buildPlan =
-                generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+                generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
 
             LOG.debug("Generated the following abstract prov plan: ");
             LOG.debug(buildPlan.toString());
@@ -146,7 +147,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
             newBuildPlan.setTOSCAOperationname("initiate");
 
-            this.planHandler.initializeBPELSkeleton(newBuildPlan, csarName);
+            this.planHandler.initializeBPELSkeleton(newBuildPlan, csar);
 
             this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                 newBuildPlan);
@@ -205,7 +206,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
 
         BPELSituationAwareBuildProcessBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
             serviceTemplate.getQName().toString(), definitions.getId(),
-            csarName);
+            csar.id().csarName());
         return null;
     }
 
@@ -216,14 +217,14 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
      * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
      */
     @Override
-    public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final AbstractDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (!serviceTemplate.hasBuildPlan()) {
                 BPELSituationAwareBuildProcessBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
                     serviceTemplate.getQName().toString());
-                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplate);
+                final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
                 if (newBuildPlan != null) {
                     BPELSituationAwareBuildProcessBuilder.LOG.debug("Created BuildPlan "
@@ -236,7 +237,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} situation-aware build plans for CSAR {}", String.valueOf(plans.size()), csarName);
+        	LOG.info("Created {} situation-aware build plans for CSAR {}", String.valueOf(plans.size()), csar.id().csarName());
         }
         return plans;
     }
@@ -265,7 +266,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
         for (AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             Collection<AbstractPolicy> situationPolicies = new HashSet<AbstractPolicy>();
             for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-                if (policy.getType().getId().equals(new QName("http://opentosca.org/servicetemplates/policytypes",
+                if (policy.getType().getQName().equals(new QName("http://opentosca.org/servicetemplates/policytypes",
                     "SituationPolicy_w1-wip1"))) {
                     situationPolicies.add(policy);
                 }

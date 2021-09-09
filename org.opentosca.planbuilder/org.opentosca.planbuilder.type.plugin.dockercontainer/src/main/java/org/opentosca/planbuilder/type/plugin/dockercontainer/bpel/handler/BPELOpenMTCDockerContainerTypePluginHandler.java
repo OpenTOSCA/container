@@ -183,7 +183,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         final List<AbstractNodeTemplate> dataChannelNTs = new ArrayList<>();
 
         for (final AbstractRelationshipTemplate relation : protocolAdapterDerviceNodeTemplate.getIngoingRelations()) {
-            if (ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType())
+            if (ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType(), templateContext.getCsar())
                 .contains(this.pyhsicallyConnectedRelationshipType)) {
                 dataChannelNTs.add(relation.getSource());
             }
@@ -384,8 +384,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
                                    final Variable deviceMappingVar) {
         context.addStringValueToPlanRequest("csarEntrypoint");
         final String artifactPathQuery =
-            this.planBuilderFragments.createXPathQueryForURLRemoteFilePath(da.getArtifactRef().getArtifactReferences()
-                .get(0).getReference());
+            this.planBuilderFragments.createXPathQueryForURLRemoteFilePath(da.getArtifactRef().getArtifactReferences().stream().findFirst().get().getReference());
 
         final String artefactVarName = "dockerContainerFile" + System.currentTimeMillis();
 

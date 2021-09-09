@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
@@ -112,22 +113,22 @@ public class EmptyPropertyToInputHandler {
     public void initializeEmptyPropertiesAsInputParam(final BPELPlan buildPlan, final Property2VariableMapping propMap,
                                                       String serviceInstanceUrl, String serviceInstanceId,
                                                       String serviceTemplateUrl, String planInstanceUrl,
-                                                      AbstractServiceTemplate serviceTemplate, String csarName) {
+                                                      AbstractServiceTemplate serviceTemplate, Csar csar) {
         this.initializeEmptyPropertiesAsInputParam(buildPlan.getTemplateBuildPlans(), buildPlan, propMap,
             serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl,
-            serviceTemplate, planInstanceUrl, csarName);
+            serviceTemplate, planInstanceUrl, csar);
     }
 
     public void initializeEmptyPropertiesAsInputParam(final Collection<BPELScope> bpelActivities, final BPELPlan plan,
                                                       final Property2VariableMapping propMap, String serviceInstanceUrl,
                                                       String serviceInstanceId, String serviceTemplateUrl,
-                                                      AbstractServiceTemplate serviceTemplate, String planInstanceUrl, String csarName) {
+                                                      AbstractServiceTemplate serviceTemplate, String planInstanceUrl, Csar csar) {
         for (final BPELScope templatePlan : bpelActivities) {
             if (templatePlan.getNodeTemplate() != null) {
                 final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, plan, templatePlan, propMap, plan.getServiceTemplate(),
-                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
+                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
 
                 if (propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate).isEmpty()) {
                     // nodeTemplate doesn't have props defined

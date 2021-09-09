@@ -15,6 +15,8 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.springframework.ui.Model;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -400,7 +402,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
 
             final Map<String, String> propName2BpelVarNameMap = new HashMap<>();
 
-            Map<String, String> propertiesMap = templatePlan.getNodeTemplate().getProperties().asMap();
+            Map<String, String> propertiesMap = ModelUtils.asMap(templatePlan.getNodeTemplate().getProperties());
 
             for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate,
                 templatePlan.getNodeTemplate())) {
@@ -412,7 +414,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             try {
                 Node assignPropertiesToVariables =
                     this.fragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                        + System.currentTimeMillis(), restCallResponseVarName, propName2BpelVarNameMap, templatePlan.getNodeTemplate().getProperties().getNamespace());
+                        + System.currentTimeMillis(), restCallResponseVarName, propName2BpelVarNameMap, ModelUtils.getNamespace(templatePlan.getNodeTemplate().getProperties()));
                 assignPropertiesToVariables =
                     templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(assignPropertiesToVariables,

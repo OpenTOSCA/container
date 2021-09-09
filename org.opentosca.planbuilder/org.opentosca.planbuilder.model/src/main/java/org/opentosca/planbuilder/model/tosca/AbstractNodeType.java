@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TInterface;
+
 import org.w3c.dom.Node;
 
 /**
@@ -50,7 +52,7 @@ public abstract class AbstractNodeType {
      *
      * @return a List of AbstractInterfaces for this NodeType
      */
-    public abstract List<AbstractInterface> getInterfaces();
+    public abstract List<TInterface> getInterfaces();
 
     /**
      * Returns all defined DOM nodes which aren't part of the TOSCA spec but can be defined under the nodeTypes (e.g.

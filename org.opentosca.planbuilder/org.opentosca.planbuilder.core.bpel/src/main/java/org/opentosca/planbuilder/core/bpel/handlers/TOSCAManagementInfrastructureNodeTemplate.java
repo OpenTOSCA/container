@@ -9,17 +9,17 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.model.tosca.AbstractCapability;
+import org.eclipse.winery.model.tosca.TCapability;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TRequirement;
+
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
-import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRequirement;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -55,7 +55,7 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
      * @see org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate# getCapabilities()
      */
     @Override
-    public List<AbstractCapability> getCapabilities() {
+    public List<TCapability> getCapabilities() {
         return new ArrayList<>();
     }
 
@@ -65,7 +65,7 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
      * @see org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate# getRequirements()
      */
     @Override
-    public List<AbstractRequirement> getRequirements() {
+    public List<TRequirement> getRequirements() {
         return new ArrayList<>();
     }
 
@@ -124,7 +124,7 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
             }
 
             @Override
-            public List<AbstractInterface> getInterfaces() {
+            public List<TInterface> getInterfaces() {
                 return new ArrayList<>();
             }
 
@@ -146,27 +146,9 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
      * @see org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate#getProperties( )
      */
     @Override
-    public AbstractProperties getProperties() {
-        return new AbstractProperties() {
+    public TEntityTemplate.Properties getProperties() {
+        return new TEntityTemplate.Properties() {
 
-            public Element getDOMElement() {
-                return null;
-            }
-
-            @Override
-            public String getNamespace() {
-                return null;
-            }
-
-            @Override
-            public String getElementName() {
-                return null;
-            }
-
-            @Override
-            public Map<String, String> asMap() {
-                return null;
-            }
         };
     }
 

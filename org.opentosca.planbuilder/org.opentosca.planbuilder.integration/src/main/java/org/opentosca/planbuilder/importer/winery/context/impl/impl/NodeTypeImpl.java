@@ -7,7 +7,6 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TInterface;
 
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.w3c.dom.Node;
 
@@ -24,7 +23,7 @@ public class NodeTypeImpl extends AbstractNodeType {
 
     private final org.eclipse.winery.model.tosca.TNodeType nodeType;
     private final DefinitionsImpl definitions;
-    private final List<AbstractInterface> interfaces;
+    private final List<TInterface> interfaces;
 
     /**
      * Constructor
@@ -46,7 +45,7 @@ public class NodeTypeImpl extends AbstractNodeType {
         // set up interfaces
         if (this.nodeType.getInterfaces() != null) {
             for (final TInterface i : this.nodeType.getInterfaces()) {
-                this.interfaces.add(new InterfaceImpl(this.definitions, i));
+                this.interfaces.add(i);
             }
         }
     }
@@ -100,7 +99,7 @@ public class NodeTypeImpl extends AbstractNodeType {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractInterface> getInterfaces() {
+    public List<TInterface> getInterfaces() {
         return this.interfaces;
     }
 

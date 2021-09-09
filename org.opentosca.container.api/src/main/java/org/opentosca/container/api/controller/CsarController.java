@@ -386,8 +386,10 @@ public class CsarController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
         logger.debug("Invoking transform Csar");
-        final CsarId sourceCsar = new CsarId(request.getSourceCsarName());
-        final CsarId targetCsar = new CsarId(request.getTargetCsarName());
+        final CsarId sourceCsarId = new CsarId(request.getSourceCsarName());
+        Csar sourceCsar = this.storage.findById(sourceCsarId);
+        final CsarId targetCsarId = new CsarId(request.getTargetCsarName());
+        Csar targetCsar = this.storage.findById(targetCsarId);
 
         Collection<AbstractPlan> plansGenerated = this.csarService.generateTransformationPlans(sourceCsar, targetCsar);
         AbstractPlan planGenerated;
@@ -398,9 +400,9 @@ public class CsarController {
             planGenerated = plansGenerated.iterator().next();
         }
 
-        Csar storedCsar = storage.findById(sourceCsar);
+        Csar storedCsar = storage.findById(sourceCsarId);
 
-        List<TPlan> plans = this.storage.findById(sourceCsar).entryServiceTemplate().getPlans();
+        List<TPlan> plans = this.storage.findById(sourceCsarId).entryServiceTemplate().getPlans();
         TPlan plan = null;
 
         for (TPlan tPlan : plans) {
@@ -414,7 +416,7 @@ public class CsarController {
             return Response.serverError().entity("Couldn't generate transformation plan").build();
         }
 
-        this.controlService.invokePlanDeployment(sourceCsar, storedCsar.entryServiceTemplate(), plans, plan);
+        this.controlService.invokePlanDeployment(sourceCsarId, storedCsar.entryServiceTemplate(), plans, plan);
 
         PlanType[] planTypes = {PlanType.TRANSFORMATION};
         return Response.ok(this.planService.getPlanDto(storedCsar, planTypes, plan.getId())).build();

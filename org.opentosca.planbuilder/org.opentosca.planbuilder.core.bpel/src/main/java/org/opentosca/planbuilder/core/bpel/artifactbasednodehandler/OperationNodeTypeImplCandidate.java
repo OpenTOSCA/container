@@ -3,11 +3,12 @@ package org.opentosca.planbuilder.core.bpel.artifactbasednodehandler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 
 /**
@@ -25,7 +26,7 @@ class OperationNodeTypeImplCandidate {
 
     // lists which hold the various data, the mapping is enforced with the
     // positions inside the lists
-    List<AbstractOperation> ops = new ArrayList<>();
+    List<TOperation> ops = new ArrayList<>();
     List<AbstractImplementationArtifact> ias = new ArrayList<>();
     List<IPlanBuilderProvPhaseOperationPlugin> plugins = new ArrayList<>();
 
@@ -38,7 +39,7 @@ class OperationNodeTypeImplCandidate {
      * @param ia     an AbstractImplementationArtifact which implements the given operation
      * @param plugin a ProvPhasePlugin that can execute on the given Operation and ImplementationArtifact
      */
-    void add(final AbstractOperation op, final AbstractImplementationArtifact ia,
+    void add(final TOperation op, final AbstractImplementationArtifact ia,
              final IPlanBuilderProvPhaseOperationPlugin plugin) {
         this.ops.add(op);
         this.ias.add(ia);
@@ -71,9 +72,9 @@ class OperationNodeTypeImplCandidate {
                 } else {
                     // we have to find the interface and count the
                     // operations in it
-                    for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+                    for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
                         if (iface.getName().equals(ia.getInterfaceName())) {
-                            for (final AbstractOperation op : iface.getOperations()) {
+                            for (final TOperation op : iface.getOperations()) {
                                 if (op.getName().equals(operationName)) {
                                     return true;
                                 }
@@ -108,7 +109,7 @@ class OperationNodeTypeImplCandidate {
                 } else {
                     // we have to find the interface and count the
                     // operations in it
-                    for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+                    for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
                         if (iface.getName().equals(ia.getInterfaceName())) {
                             implementedOpsByIAsCount += iface.getOperations().size();
                         }
@@ -119,10 +120,10 @@ class OperationNodeTypeImplCandidate {
 
         int operationsToImplementCount = 0;
 
-        for (final AbstractOperation op : this.ops) {
+        for (final TOperation op : this.ops) {
             if (op instanceof InterfaceDummy) {
                 final String ifaceName = ((InterfaceDummy) op).getIA().getInterfaceName();
-                for (final AbstractInterface iface : ((InterfaceDummy) op).getNodeTemplate().getType()
+                for (final TInterface iface : ((InterfaceDummy) op).getNodeTemplate().getType()
                     .getInterfaces()) {
                     if (iface.getName().equals(ifaceName)) {
                         operationsToImplementCount += iface.getOperations().size();
@@ -157,15 +158,15 @@ class OperationNodeTypeImplCandidate {
         BPELScopeBuilder.LOG.debug("Checking if the selected provisioning for relationshipTemplate {}",
             relationshipTemplate.getId());
         BPELScopeBuilder.LOG.debug(" with type {} is valid whether on the source or target interface",
-            relationshipTemplate.getRelationshipType().getId().toString());
+            relationshipTemplate.getRelationshipType().getQName().toString());
         // check if any source interface matches the selected prov plugins
-        for (final AbstractInterface iface : relationshipTemplate.getRelationshipType().getSourceInterfaces()) {
+        for (final TInterface iface : relationshipTemplate.getRelationshipType().getSourceInterfaces()) {
             final int interfaceSize = iface.getOperations().size();
             if (interfaceSize == this.ops.size() && interfaceSize == this.ias.size()
                 && interfaceSize == this.plugins.size()) {
                 int counter = 0;
-                for (final AbstractOperation iFaceOp : iface.getOperations()) {
-                    for (final AbstractOperation op : this.ops) {
+                for (final TOperation iFaceOp : iface.getOperations()) {
+                    for (final TOperation op : this.ops) {
                         if (iFaceOp.equals(op)) {
                             counter++;
                         }
@@ -177,13 +178,13 @@ class OperationNodeTypeImplCandidate {
             }
         }
         // same check for target interfaces
-        for (final AbstractInterface iface : relationshipTemplate.getRelationshipType().getTargetInterfaces()) {
+        for (final TInterface iface : relationshipTemplate.getRelationshipType().getTargetInterfaces()) {
             final int interfaceSize = iface.getOperations().size();
             if (interfaceSize == this.ops.size() && interfaceSize == this.ias.size()
                 && interfaceSize == this.plugins.size()) {
                 int counter = 0;
-                for (final AbstractOperation iFaceOp : iface.getOperations()) {
-                    for (final AbstractOperation op : this.ops) {
+                for (final TOperation iFaceOp : iface.getOperations()) {
+                    for (final TOperation op : this.ops) {
                         if (iFaceOp.equals(op)) {
                             counter++;
                         }

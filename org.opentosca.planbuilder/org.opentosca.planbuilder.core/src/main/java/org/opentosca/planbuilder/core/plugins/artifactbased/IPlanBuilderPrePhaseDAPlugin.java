@@ -26,7 +26,7 @@ public interface IPlanBuilderPrePhaseDAPlugin<T extends PlanContext> extends IPl
      * @param infrastructureNodeType the NodeType of an InfrastructureNode
      * @return true iff when this plugin can deploy a DA of the given artifactType to a Node of the given nodeType
      */
-    boolean canHandle(AbstractDeploymentArtifact deploymentArtifact, AbstractNodeType infrastructureNodeType);
+    boolean canHandle(T context, AbstractDeploymentArtifact deploymentArtifact, AbstractNodeType infrastructureNodeType);
 
     /**
      * This method is used to add a fragment to a prephase of the nodeTemplate declared inside the given context. The
@@ -39,7 +39,7 @@ public interface IPlanBuilderPrePhaseDAPlugin<T extends PlanContext> extends IPl
      */
     boolean handle(T context, AbstractDeploymentArtifact da, AbstractNodeTemplate infrastructureNodeTemplate);
 
-    boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
+    boolean canHandleCreate(T context, AbstractNodeTemplate nodeTemplate);
 
     boolean handleCreate(T context, AbstractNodeTemplate nodeTemplate);
 }

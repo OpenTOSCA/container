@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TArtifactTemplate;
+
 /**
  * <p>
  * This class represents a TOSCA ImplementationArtifact
@@ -49,14 +51,8 @@ public abstract class AbstractImplementationArtifact {
      *
      * @return an AbstractArtifactTemplate representing the referenced Template of this ImplementationArtifact
      */
-    public abstract AbstractArtifactTemplate getArtifactRef();
+    public abstract TArtifactTemplate getArtifactRef();
 
-    /**
-     * Returns the additional Elements of this ImplementationArtifact
-     *
-     * @return a List of AbstractProperties of this ImplementationArtifact
-     */
-    public abstract List<AbstractProperties> getAdditionalElements();
 
     @Override
     public boolean equals(final Object obj) {

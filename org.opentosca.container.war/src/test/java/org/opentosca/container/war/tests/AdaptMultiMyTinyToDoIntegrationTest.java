@@ -73,8 +73,8 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
         targetRelationshipTemplateIds.add("con_17");
         targetRelationshipTemplateIds.add("con_HostedOn_0");
         targetRelationshipTemplateIds.add("con_HostedOn_1");
-        String buildPlanId = this.csarService.generateAdaptationPlan(csar.id(), new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), new ArrayList<String>(), new ArrayList<String>(), targetNodeTemplateIds, targetRelationshipTemplateIds).planId;
-        String terminationPlanId = this.csarService.generateAdaptationPlan(csar.id(), new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), targetNodeTemplateIds, targetRelationshipTemplateIds, new ArrayList<String>(), new ArrayList<String>()).planId;
+        String buildPlanId = this.csarService.generateAdaptationPlan(csar, new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), new ArrayList<String>(), new ArrayList<String>(), targetNodeTemplateIds, targetRelationshipTemplateIds).planId;
+        String terminationPlanId = this.csarService.generateAdaptationPlan(csar, new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), targetNodeTemplateIds, targetRelationshipTemplateIds, new ArrayList<String>(), new ArrayList<String>()).planId;
 
         serviceTemplate = this.storage.findById(csar.id()).entryServiceTemplate();
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);

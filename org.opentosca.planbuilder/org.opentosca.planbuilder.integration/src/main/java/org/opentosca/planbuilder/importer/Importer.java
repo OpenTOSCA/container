@@ -57,25 +57,25 @@ public class Importer extends AbstractImporter {
      * Generates a List of BuildPlans for the given CSARID. The BuildPlans are generated for the ServiceTemplates inside
      * the Entry-Definitions Document, that haven't got a BuildPlan yet.
      *
-     * @param csarId the CSARID for the CSAR the BuildPlans should be generated
+     * @param csar the CSARID for the CSAR the BuildPlans should be generated
      * @return a List of BuildPlan
      */
-    public List<AbstractPlan> generatePlans(final CsarId csarId) {
-        final AbstractDefinitions defs = this.createContext(csarId);
-        final List<AbstractPlan> plans = this.buildPlans(defs, csarId.csarName());
+    public List<AbstractPlan> generatePlans(final Csar csar) {
+        final AbstractDefinitions defs = this.createContext(csar);
+        final List<AbstractPlan> plans = this.buildPlans(defs, csar);
         return plans;
     }
 
-    public AbstractPlan generateAdaptationPlan(CsarId csarId, QName serviceTemplateId,
+    public AbstractPlan generateAdaptationPlan(Csar csar, QName serviceTemplateId,
                                                Collection<String> sourceNodeTemplateIds,
                                                Collection<String> sourceRelationshipTemplateIds,
                                                Collection<String> targetNodeTemplateId,
                                                Collection<String> targetRelationshipTemplateId) throws SystemException {
 
-        AbstractDefinitions defs = this.createContext(csarId);
+        AbstractDefinitions defs = this.createContext(csar);
         AbstractTopologyTemplate topology = Lists.newArrayList(defs.getServiceTemplates()).get(0).getTopologyTemplate();
 
-        return this.buildAdaptationPlan(csarId.csarName(), defs, serviceTemplateId,
+        return this.buildAdaptationPlan(csar, defs, serviceTemplateId,
             this.getNodes(topology, sourceNodeTemplateIds),
             this.getRelations(topology, sourceRelationshipTemplateIds),
             this.getNodes(topology, targetNodeTemplateId),
@@ -107,14 +107,14 @@ public class Importer extends AbstractImporter {
         return result;
     }
 
-    public List<AbstractPlan> generateTransformationPlans(final CsarId sourceCsarId, final CsarId targetCsarId) {
+    public List<AbstractPlan> generateTransformationPlans(final Csar sourceCsarId, final Csar targetCsarId) {
         final List<AbstractPlan> plans = new ArrayList<>();
         this.createContext(sourceCsarId);
         final AbstractDefinitions sourceDefs = this.createContext(sourceCsarId);
         final AbstractDefinitions targetDefs = this.createContext(targetCsarId);
 
-        plans.addAll(this.buildTransformationPlans(sourceCsarId.csarName(), sourceDefs,
-            targetCsarId.csarName(), targetDefs));
+        plans.addAll(this.buildTransformationPlans(sourceCsarId, sourceDefs,
+            targetCsarId, targetDefs));
         return plans;
     }
 
@@ -124,7 +124,7 @@ public class Importer extends AbstractImporter {
      * @param csarId an ID of a CSAR
      * @return an AbstractDefinitions object
      */
-    public AbstractDefinitions getMainDefinitions(final CsarId csarId) {
+    public AbstractDefinitions getMainDefinitions(final Csar csarId) {
         return this.createContext(csarId);
     }
 
@@ -141,8 +141,7 @@ public class Importer extends AbstractImporter {
      * csarContent.getFilesRecursively(); return new DefinitionsImpl(rootTosca, referencedFilesInCsar, true); }
      */
 
-    public AbstractDefinitions createContext(final CsarId csarId) {
-        Csar csar = this.storage.findById(csarId);
+    public AbstractDefinitions createContext(final Csar csar) {
 
         IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
         Collection<DefinitionsChildId> ids = repo.getAllDefinitionsChildIds();

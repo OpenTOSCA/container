@@ -34,7 +34,7 @@ public class PropertyVariableHandler {
      * Constructor
      *
      * @param planHandler     a BuildPlanHandler for the class
-     * @param templateHandler a TemplateBuildPlanHandler for the class
+     *
      */
     public PropertyVariableHandler(final BPELPlanHandler planHandler) {
         this.planHandler = planHandler;
@@ -98,7 +98,7 @@ public class PropertyVariableHandler {
         final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
         if (relationshipTemplate.getProperties() != null) {
 
-            Map<String, String> propMap = relationshipTemplate.getProperties().asMap();
+            Map<String, String> propMap = ModelUtils.asMap(relationshipTemplate.getProperties());
 
             for (String propName : propMap.keySet()) {
 
@@ -150,7 +150,7 @@ public class PropertyVariableHandler {
                                        final AbstractServiceTemplate serviceTemplate) {
         final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         if (nodeTemplate.getProperties() != null) {
-            Map<String, String> propMap = nodeTemplate.getProperties().asMap();
+            Map<String, String> propMap = ModelUtils.asMap(nodeTemplate.getProperties());
             for (String propName : propMap.keySet()) {
                 String propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);
 

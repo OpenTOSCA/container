@@ -5,9 +5,13 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -20,21 +24,29 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.winery.model.ids.definitions.DefinitionsChildId;
+import org.eclipse.winery.model.tosca.TArtifactTemplate;
+import org.eclipse.winery.model.tosca.TArtifactType;
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TRelationshipType;
+import org.eclipse.winery.repository.backend.IRepository;
+import org.eclipse.winery.repository.backend.RepositoryFactory;
 
+import com.google.common.collect.Sets;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
+import org.opentosca.container.core.next.xml.PropertyParser;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -152,19 +164,129 @@ public class ModelUtils {
         relationshipTemplates.addAll(list);
     }
 
-    public static List<QName> getArtifactTypeHierarchy(final AbstractArtifactTemplate artifactTemplate) {
+    public static List<QName> getArtifactTypeHierarchy(final TArtifactTemplate artifactTemplate, Csar csar) {
         final List<QName> qnames = new ArrayList<>();
+        final Collection<TArtifactType> artifactTypes = fetchAllArtifactTypes(csar);
+        qnames.add(artifactTemplate.getType());
 
-        qnames.add(artifactTemplate.getAbstractArtifactType().getId());
+        TArtifactType type = findArtifactType(artifactTemplate.getType(), artifactTypes);
 
-        AbstractArtifactType ref = artifactTemplate.getAbstractArtifactType().getTypeRef();
+        TArtifactType ref = findArtifactType(type.getDerivedFrom().getTypeRef(), artifactTypes);
 
         while (ref != null) {
-            qnames.add(ref.getId());
-            ref = ref.getTypeRef();
+            qnames.add(ref.getQName());
+            ref = findArtifactType(ref.getDerivedFrom().getTypeRef(), artifactTypes);
         }
 
         return qnames;
+    }
+
+    public static TArtifactType findArtifactType(QName id, Collection<TArtifactType> artifactTypes) {
+        return artifactTypes.stream().filter(x -> x.getQName().equals(id)).findFirst().orElse(null);
+    }
+
+    public static Collection<TArtifactType> fetchAllArtifactTypes(Csar csar) {
+
+        Set<TArtifactType> resultSet = Sets.newHashSet();
+        fetchAllDefs(csar).forEach(x -> resultSet.addAll(x.getArtifactTypes()));
+        return resultSet;
+    }
+
+    public static Collection<TDefinitions> fetchAllDefs(Csar csar) {
+        IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
+        Collection<DefinitionsChildId> ids = repo.getAllDefinitionsChildIds();
+        Set<TDefinitions> defs = Sets.newHashSet();
+        ids.forEach(x -> defs.add(repo.getDefinitions(x)));
+        return defs;
+    }
+
+    public static String getNamespace(TEntityTemplate.Properties properties) {
+        boolean isDOM = false;
+        if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
+            isDOM = true;
+        }
+        boolean isWineryKV = false;
+        if (properties.getClass().getName().equals(TEntityTemplate.WineryKVProperties.class.getName())) {
+            isWineryKV = true;
+        }
+
+        if (isDOM) {
+            return ((Element) properties).getNamespaceURI();
+        }
+
+        if (isWineryKV) {
+            return ((TEntityTemplate.WineryKVProperties) properties).getNamespace();
+        }
+
+        return null;
+    }
+
+    public static String getElementName(TEntityTemplate.Properties properties) {
+        boolean isDOM = false;
+        if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
+            isDOM = true;
+        }
+        boolean isWineryKV = false;
+        if (properties.getClass().getName().equals(TEntityTemplate.WineryKVProperties.class.getName())) {
+            isWineryKV = true;
+        }
+
+        if (isDOM) {
+            return ((Element) properties).getLocalName();
+        }
+
+        if (isWineryKV) {
+            return ((TEntityTemplate.WineryKVProperties) properties).getElementName();
+        }
+
+        return null;
+    }
+
+    public static Map<String, String> asMap(TBoundaryDefinitions.Properties properties) {
+        boolean isDOM = false;
+        if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
+            isDOM = true;
+        }
+        boolean isWineryKV = false;
+        if (properties.getClass().getName().equals(TEntityTemplate.WineryKVProperties.class.getName())) {
+            isWineryKV = true;
+        }
+
+        if (isDOM) {
+            final PropertyParser parser = new PropertyParser();
+            Map<String, String> props = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            final Element element = (Element) properties;
+            if (element != null) {
+                props = parser.parse(element);
+            }
+            return props;
+        }
+        return new HashMap<>();
+    }
+
+    public static Map<String, String> asMap(TEntityTemplate.Properties properties) {
+        boolean isDOM = false;
+        if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
+            isDOM = true;
+        }
+        boolean isWineryKV = false;
+        if (properties.getClass().getName().equals(TEntityTemplate.WineryKVProperties.class.getName())) {
+            isWineryKV = true;
+        }
+
+        if (isDOM) {
+            final PropertyParser parser = new PropertyParser();
+            Map<String, String> props = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            final Element element = (Element) properties;
+            if (element != null) {
+                props = parser.parse(element);
+            }
+            return props;
+        }
+        if (isWineryKV) {
+            return ((TEntityTemplate.WineryKVProperties) properties).getKVProperties();
+        }
+        return new HashMap<>();
     }
 
     /**
@@ -174,11 +296,11 @@ public class ModelUtils {
      * @param infrastructureEdges a List of AbstractRelationshipTemplate to add the InfrastructureEdges to
      */
     public static void getInfrastructureEdges(final AbstractNodeTemplate nodeTemplate,
-                                              final List<AbstractRelationshipTemplate> infrastructureEdges) {
+                                              final List<AbstractRelationshipTemplate> infrastructureEdges, Csar csar) {
 
         // fetch all infrastructureNodes
         final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
-        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
+        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, csar);
 
         // check all outgoing edges on those nodes, if they are infrastructure
         // edges
@@ -212,11 +334,11 @@ public class ModelUtils {
      */
     public static void getInfrastructureEdges(final AbstractRelationshipTemplate relationshipTemplate,
                                               final List<AbstractRelationshipTemplate> infraEdges,
-                                              final boolean forSource) {
+                                              final boolean forSource, Csar csar) {
         if (forSource) {
-            ModelUtils.getInfrastructureEdges(relationshipTemplate.getSource(), infraEdges);
+            ModelUtils.getInfrastructureEdges(relationshipTemplate.getSource(), infraEdges, csar);
         } else {
-            ModelUtils.getInfrastructureEdges(relationshipTemplate.getTarget(), infraEdges);
+            ModelUtils.getInfrastructureEdges(relationshipTemplate.getTarget(), infraEdges, csar);
         }
     }
 
@@ -229,7 +351,7 @@ public class ModelUtils {
      * @Info the infrastructureNodes List must be empty
      */
     public static void getInfrastructureNodes(final AbstractNodeTemplate nodeTemplate,
-                                              final Collection<AbstractNodeTemplate> infrastructureNodes) {
+                                              final Collection<AbstractNodeTemplate> infrastructureNodes, Csar csar) {
         ModelUtils.LOG.debug("BaseType of NodeTemplate " + nodeTemplate.getId() + " is "
             + ModelUtils.getNodeBaseType(nodeTemplate));
 
@@ -247,8 +369,8 @@ public class ModelUtils {
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
             ModelUtils.LOG.debug("Checking if relation is infrastructure edge, relation: " + relation.getId());
-            if (ModelUtils.getRelationshipBaseType(relation).equals(Types.hostedOnRelationType)
-                || ModelUtils.getRelationshipBaseType(relation).equals(Types.deployedOnRelationType)) {
+            if (ModelUtils.getRelationshipBaseType(relation, csar).equals(Types.hostedOnRelationType)
+                || ModelUtils.getRelationshipBaseType(relation, csar).equals(Types.deployedOnRelationType)) {
                 ModelUtils.LOG.debug("traversing edge to node: " + relation.getTarget().getId());
 
                 if (org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(ModelUtils.getNodeBaseType(relation.getTarget()))
@@ -256,7 +378,7 @@ public class ModelUtils {
                     ModelUtils.LOG.debug("Found infrastructure node: " + relation.getTarget().getId());
                     infrastructureNodes.add(relation.getTarget());
                 }
-                ModelUtils.getInfrastructureNodes(relation.getTarget(), infrastructureNodes);
+                ModelUtils.getInfrastructureNodes(relation.getTarget(), infrastructureNodes, csar);
             }
         }
         ModelUtils.cleanDuplciates(infrastructureNodes);
@@ -272,20 +394,20 @@ public class ModelUtils {
      */
     public static void getInfrastructureNodes(final AbstractRelationshipTemplate relationshipTemplate,
                                               final List<AbstractNodeTemplate> infrastructureNodes,
-                                              final boolean forSource) {
+                                              final boolean forSource, Csar csar) {
 
         if (forSource) {
-            ModelUtils.getInfrastructureNodes(relationshipTemplate.getSource(), infrastructureNodes);
+            ModelUtils.getInfrastructureNodes(relationshipTemplate.getSource(), infrastructureNodes, csar);
         } else {
-            ModelUtils.getInfrastructureNodes(relationshipTemplate.getTarget(), infrastructureNodes);
+            ModelUtils.getInfrastructureNodes(relationshipTemplate.getTarget(), infrastructureNodes, csar);
         }
     }
 
     public static List<AbstractRelationshipTemplate> getIngoingRelations(final AbstractNodeTemplate nodeTemplate,
-                                                                         final QName... relationshipTypes) {
+                                                                         final Collection<QName> relationshipTypes, Csar csar) {
         final List<AbstractRelationshipTemplate> relations = new ArrayList<>();
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
-            for (final QName relationshipTypeHierarchyMember : ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
+            for (final QName relationshipTypeHierarchyMember : ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType(), csar)) {
                 final boolean match = false;
                 for (final QName relationshipType : relationshipTypes) {
                     if (relationshipTypeHierarchyMember.equals(relationshipType)) {
@@ -366,10 +488,10 @@ public class ModelUtils {
     }
 
     public static void getNodesFromNodeToSink(final AbstractNodeTemplate nodeTemplate, final QName relationshipType,
-                                              final Collection<AbstractNodeTemplate> nodes) {
+                                              final Collection<AbstractNodeTemplate> nodes, Csar csar) {
         nodes.add(nodeTemplate);
         for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
-            if (ModelUtils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType())
+            if (ModelUtils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType(), csar)
                 .contains(relationshipType)) {
                 // we skip connectTo relations, as they are connecting stacks
                 // and
@@ -465,11 +587,11 @@ public class ModelUtils {
         return typeHierarchy;
     }
 
-    public static List<AbstractRelationshipTemplate> getOutgoingInfrastructureEdges(final AbstractNodeTemplate nodeTemplate) {
+    public static List<AbstractRelationshipTemplate> getOutgoingInfrastructureEdges(final AbstractNodeTemplate nodeTemplate, Csar csar) {
         final List<AbstractRelationshipTemplate> relations = new ArrayList<>();
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-            final List<QName> types = ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType());
+            final List<QName> types = ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType(), csar);
             if (types.contains(Types.dependsOnRelationType) | types.contains(Types.deployedOnRelationType)
                 | types.contains(Types.hostedOnRelationType)) {
                 relations.add(relation);
@@ -480,11 +602,11 @@ public class ModelUtils {
     }
 
     public static List<AbstractRelationshipTemplate> getOutgoingRelations(final AbstractNodeTemplate nodeTemplate,
-                                                                          final QName... relationshipTypes) {
+                                                                          final Collection<QName> relationshipTypes, Csar csar) {
         final List<AbstractRelationshipTemplate> relations = new ArrayList<>();
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-            for (final QName relationshipTypeHierarchyMember : ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
+            for (final QName relationshipTypeHierarchyMember : ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType(), csar)) {
                 final boolean match = false;
                 for (final QName relationshipType : relationshipTypes) {
                     if (relationshipTypeHierarchyMember.equals(relationshipType)) {
@@ -507,10 +629,10 @@ public class ModelUtils {
      * @param relationshipTemplate an AbstractRelationshipTemplate
      * @return a QName representing the baseType of the given RelationshipTemplate
      */
-    public static QName getRelationshipBaseType(final AbstractRelationshipTemplate relationshipTemplate) {
+    public static QName getRelationshipBaseType(final AbstractRelationshipTemplate relationshipTemplate, Csar csar) {
         ModelUtils.LOG.debug("Beginning search for basetype of: " + relationshipTemplate.getId());
         final List<QName> typeHierarchy =
-            ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType());
+            ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType(), csar);
         for (final QName type : typeHierarchy) {
             ModelUtils.LOG.debug("Checking Type QName: " + type.toString());
             if (type.equals(Types.connectsToRelationType)) {
@@ -536,22 +658,33 @@ public class ModelUtils {
      * @param relationshipType the RelationshipType to get the hierarchy for
      * @return a List containing an order of inheritance of RelationshipTypes of the given RelationshipType
      */
-    public static List<QName> getRelationshipTypeHierarchy(final AbstractRelationshipType relationshipType) {
+    public static List<QName> getRelationshipTypeHierarchy(final TRelationshipType relationshipType, Csar csar) {
         final List<QName> typeHierarchy = new ArrayList<>();
-        typeHierarchy.add(relationshipType.getId());
+        typeHierarchy.add(relationshipType.getQName());
 
         boolean wasNotNull = true;
-        AbstractRelationshipType lastFoundRelationshipType = relationshipType;
+        TRelationshipType lastFoundRelationshipType = relationshipType;
         while (wasNotNull) {
-            final AbstractRelationshipType referencedRelationshipType = lastFoundRelationshipType.getReferencedType();
+            final TRelationshipType referencedRelationshipType = findRelationshipType(lastFoundRelationshipType.getDerivedFrom().getType(), fetchAllRelationshipTypes(csar));
             if (referencedRelationshipType == null) {
                 wasNotNull = false;
             } else {
-                typeHierarchy.add(referencedRelationshipType.getId());
+                typeHierarchy.add(referencedRelationshipType.getQName());
                 lastFoundRelationshipType = referencedRelationshipType;
             }
         }
         return typeHierarchy;
+    }
+
+    public static TRelationshipType findRelationshipType(QName id, Collection<TRelationshipType> relTypes) {
+        return relTypes.stream().filter(x -> x.getQName().equals(id)).findFirst().orElse(null);
+    }
+
+    public static Collection<TRelationshipType> fetchAllRelationshipTypes(Csar csar) {
+
+        Set<TRelationshipType> resultSet = Sets.newHashSet();
+        fetchAllDefs(csar).forEach(x -> resultSet.addAll(x.getRelationshipTypes()));
+        return resultSet;
     }
 
     /**
@@ -590,7 +723,7 @@ public class ModelUtils {
 
     public static Collection<String> getPropertyNames(final AbstractNodeTemplate nodeTemplate) {
         if (Objects.nonNull(nodeTemplate.getProperties())) {
-            return nodeTemplate.getProperties().asMap().keySet();
+            return ModelUtils.asMap(nodeTemplate.getProperties()).keySet();
         } else {
             return new HashSet<>();
         }
@@ -622,8 +755,8 @@ public class ModelUtils {
      * @param interfaceName the name of the interface
      * @return the AbstractInterface if found, <code>null</code> otherwise
      */
-    public static AbstractInterface getInterfaceOfNode(final AbstractNodeTemplate nodeTemplate,
-                                                       final String interfaceName) {
+    public static TInterface getInterfaceOfNode(final AbstractNodeTemplate nodeTemplate,
+                                                final String interfaceName) {
         return nodeTemplate.getType().getInterfaces().stream().filter(iface -> iface.getName().equals(interfaceName))
             .findFirst().orElse(null);
     }
@@ -636,9 +769,9 @@ public class ModelUtils {
      * @param operationName the name of the operation
      * @return the AbstractOperation if found, <code>null>/code> otherwise
      */
-    public static AbstractOperation getOperationOfNode(final AbstractNodeTemplate nodeTemplate,
-                                                       final String interfaceName, final String operationName) {
-        final AbstractInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, interfaceName);
+    public static TOperation getOperationOfNode(final AbstractNodeTemplate nodeTemplate,
+                                                final String interfaceName, final String operationName) {
+        final TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, interfaceName);
         if (Objects.nonNull(iface)) {
             return iface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst()
                 .orElse(null);

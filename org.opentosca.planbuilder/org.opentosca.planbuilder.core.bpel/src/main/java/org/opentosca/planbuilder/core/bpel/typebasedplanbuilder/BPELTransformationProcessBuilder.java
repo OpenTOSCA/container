@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractTransformingPlanbuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -84,7 +85,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
      * current state of nodes and relations (sourceNodeTemplates and -RelationshipTemplates) to a target configuration
      * (targetNodeTemplates and -RelationshipTemplates).
      *
-     * @param csarName                    the csar of the service template
+     * @param csar                    the csar
      * @param definitions                 the definitions document of th service template
      * @param serviceTemplateId           the id of the serviceTemplate to adapt its service instance
      * @param sourceNodeTemplates         the nodeTemplates to adapt from
@@ -93,7 +94,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
      * @param targetRelationshipTemplates the target configuration of relations to adapt to
      * @return a BPEL Plan that is able to adapt an instance from the given current and target configurations
      */
-    public BPELPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId,
+    public BPELPlan buildPlan(Csar csar, AbstractDefinitions definitions, QName serviceTemplateId,
                               Collection<AbstractNodeTemplate> sourceNodeTemplates,
                               Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
                               Collection<AbstractNodeTemplate> targetNodeTemplates,
@@ -102,8 +103,8 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         Long id = System.currentTimeMillis();
         // generate abstract plan
         AbstractTransformationPlan adaptationPlan =
-            this.generateTFOG(csarName, definitions, serviceTemplate, sourceNodeTemplates, sourceRelationshipTemplates,
-                csarName, definitions, serviceTemplate, targetNodeTemplates, targetRelationshipTemplates, id.toString());
+            this.generateTFOG(csar, definitions, serviceTemplate, sourceNodeTemplates, sourceRelationshipTemplates,
+                csar, definitions, serviceTemplate, targetNodeTemplates, targetRelationshipTemplates, id.toString());
 
         // transform to bpel skeleton
         final String processName =
@@ -116,7 +117,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         transformationBPELPlan.setTOSCAInterfaceName("OpenTOSCA-Transformation-Interface");
         transformationBPELPlan.setTOSCAOperationname("adapt" + id);
 
-        this.planHandler.initializeBPELSkeleton(transformationBPELPlan, csarName);
+        this.planHandler.initializeBPELSkeleton(transformationBPELPlan, csar);
         // instanceDataAPI handling is done solely trough this extension
         this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
             transformationBPELPlan);
@@ -169,7 +170,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         this.emptyPropInit.initializeEmptyPropertiesAsInputParam(this.getProvisioningScopes(transformationBPELPlan),
             transformationBPELPlan, sourcesProp2VarMap,
             serviceInstanceURL, serviceInstanceID,
-            serviceTemplateURL, serviceTemplate, planInstanceURL, csarName);
+            serviceTemplateURL, serviceTemplate, planInstanceURL, csar);
 
         for (BPELScope scope : terminationScopes) {
             if (scope.getNodeTemplate() != null) {
@@ -205,8 +206,8 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             }
         }
 
-        this.runPlugins(transformationBPELPlan, sourcesProp2VarMap, sourcesProp2VarMap, csarName, serviceTemplate, serviceInstanceURL,
-            serviceInstanceID, serviceTemplateURL, csarName, serviceTemplate, serviceInstanceURL,
+        this.runPlugins(transformationBPELPlan, sourcesProp2VarMap, sourcesProp2VarMap, csar, serviceTemplate, serviceInstanceURL,
+            serviceInstanceID, serviceTemplateURL, csar, serviceTemplate, serviceInstanceURL,
             serviceInstanceID, serviceTemplateURL, planInstanceURL);
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
@@ -241,13 +242,13 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             if (scope.getNodeTemplate() != null) {
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, transformationBPELPlan, scope, sourcesProp2VarMap,
                     transformationBPELPlan.getServiceTemplate(), serviceInstanceURL, serviceInstanceID,
-                    serviceTemplateURL, planInstanceURL, csarName);
+                    serviceTemplateURL, planInstanceURL, csar);
                 this.nodeRelationInstanceHandler.appendCountInstancesLogic(context, scope.getNodeTemplate(),
                     "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
             } else {
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, transformationBPELPlan, scope, sourcesProp2VarMap,
                     transformationBPELPlan.getServiceTemplate(), serviceInstanceURL, serviceInstanceID,
-                    serviceTemplateURL, planInstanceURL, csarName);
+                    serviceTemplateURL, planInstanceURL, csar);
                 this.nodeRelationInstanceHandler.appendCountInstancesLogic(context, scope.getRelationshipTemplate(),
                     "?state=CREATED&amp;state=INITIAL");
             }
@@ -257,8 +258,8 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
     }
 
     @Override
-    public BPELPlan buildPlan(String sourceCsarName, AbstractDefinitions sourceDefinitions,
-                              QName sourceServiceTemplateId, String targetCsarName,
+    public BPELPlan buildPlan(Csar sourceCsar, AbstractDefinitions sourceDefinitions,
+                              QName sourceServiceTemplateId, Csar targetCsar,
                               AbstractDefinitions targetDefinitions, QName targetServiceTemplateId) {
 
         AbstractServiceTemplate sourceServiceTemplate = null;
@@ -269,7 +270,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         Long id = System.currentTimeMillis();
         // generate abstract plan
         AbstractTransformationPlan transformationPlan =
-            this.generateTFOG(sourceCsarName, sourceDefinitions, sourceServiceTemplate, targetCsarName,
+            this.generateTFOG(sourceCsar, sourceDefinitions, sourceServiceTemplate, targetCsar,
                 targetDefinitions, targetServiceTemplate, id.toString());
 
         // transform to bpel skeleton
@@ -283,7 +284,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         transformationBPELPlan.setTOSCAInterfaceName("OpenTOSCA-Transformation-Interface");
         transformationBPELPlan.setTOSCAOperationname("transform");
 
-        this.planHandler.initializeBPELSkeleton(transformationBPELPlan, sourceCsarName);
+        this.planHandler.initializeBPELSkeleton(transformationBPELPlan, sourceCsar);
         // instanceDataAPI handling is done solely trough this extension
         this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
             transformationBPELPlan);
@@ -346,7 +347,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         this.serviceInstanceHandler.initServiceInstancesURLVariableFromAvailableServiceInstanceUrlVar(transformationBPELPlan,
             sourceServiceInstancesURL,
             targetServiceTemplateId,
-            targetCsarName,
+            targetCsar.id().csarName(),
             targetServiceInstancesURL);
         // create service instance for target
         this.serviceInstanceHandler.appendCreateServiceInstance(transformationBPELPlan, targetServiceInstancesURL,
@@ -363,7 +364,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             transformationBPELPlan, targetPropMap,
             targetServiceInstanceURL, targetServiceInstanceID,
             targetServiceTemplateURL, targetServiceTemplate, planInstanceURL,
-            targetCsarName);
+            targetCsar);
 
         for (BPELScope scope : terminationScopes) {
             if (scope.getNodeTemplate() != null) {
@@ -401,8 +402,8 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             }
         }
 
-        this.runPlugins(transformationBPELPlan, sourcePropMap, targetPropMap, sourceCsarName, sourceServiceTemplate,
-            sourceServiceInstanceURL, sourceServiceInstanceID, sourceServiceTemplateURL, targetCsarName,
+        this.runPlugins(transformationBPELPlan, sourcePropMap, targetPropMap, sourceCsar, sourceServiceTemplate,
+            sourceServiceInstanceURL, sourceServiceInstanceID, sourceServiceTemplateURL, targetCsar,
             targetServiceTemplate, targetServiceInstanceURL, targetServiceInstanceID,
             targetServiceTemplateURL, planInstanceURL);
 
@@ -435,13 +436,13 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             if (scope.getNodeTemplate() != null) {
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, transformationBPELPlan, scope, sourcePropMap,
                     transformationBPELPlan.getServiceTemplate(), sourceServiceInstanceURL, sourceServiceInstanceID,
-                    sourceServiceTemplateURL, planInstanceURL, sourceCsarName);
+                    sourceServiceTemplateURL, planInstanceURL, sourceCsar);
                 this.nodeRelationInstanceHandler.appendCountInstancesLogic(context, scope.getNodeTemplate(),
                     "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
             } else {
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, transformationBPELPlan, scope, sourcePropMap,
                     transformationBPELPlan.getServiceTemplate(), sourceServiceInstanceURL, sourceServiceInstanceID,
-                    sourceServiceTemplateURL, planInstanceURL, sourceCsarName);
+                    sourceServiceTemplateURL, planInstanceURL, sourceCsar);
                 this.nodeRelationInstanceHandler.appendCountInstancesLogic(context, scope.getRelationshipTemplate(),
                     "?state=CREATED&amp;state=INITIAL");
             }
@@ -482,16 +483,16 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(String sourceCsarName, AbstractDefinitions sourceDefinitions,
-                                         String targetCsarName, AbstractDefinitions targetDefinitions) {
+    public List<AbstractPlan> buildPlans(Csar sourceCsar, AbstractDefinitions sourceDefinitions,
+                                         Csar targetCsar, AbstractDefinitions targetDefinitions) {
         // TODO Auto-generated method stub
         return null;
     }
 
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping sourceServiceTemplateMap,
-                            final Property2VariableMapping targetServiceTemplateMap, String sourceCsarName,
+                            final Property2VariableMapping targetServiceTemplateMap, Csar sourceCsar,
                             AbstractServiceTemplate sourceServiceTemplate, String sourceServiceInstanceUrl,
-                            String sourceServiceInstanceId, String sourceServiceTemplateUrl, String targetCsarName,
+                            String sourceServiceInstanceId, String sourceServiceTemplateUrl, Csar targetCsar,
                             AbstractServiceTemplate targetServiceTemplate, String targetServiceInstanceUrl,
                             String targetServiceInstanceId, String targetServiceTemplateUrl, String planInstanceURL) {
 
@@ -504,12 +505,12 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                 if (activity.getType().equals(ActivityType.PROVISIONING)) {
                     final BPELPlanContext context = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope, targetServiceTemplateMap,
                         targetServiceTemplate, targetServiceInstanceUrl, targetServiceInstanceId,
-                        targetServiceTemplateUrl, planInstanceURL, targetCsarName);
+                        targetServiceTemplateUrl, planInstanceURL, targetCsar);
                     this.bpelPluginHandler.handleActivity(context, bpelScope, bpelScope.getNodeTemplate());
                 } else if (activity.getType().equals(ActivityType.TERMINATION)) {
                     final BPELPlanContext context = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope, sourceServiceTemplateMap,
                         sourceServiceTemplate, sourceServiceInstanceUrl, sourceServiceInstanceId,
-                        sourceServiceTemplateUrl, planInstanceURL, sourceCsarName);
+                        sourceServiceTemplateUrl, planInstanceURL, sourceCsar);
                     this.bpelPluginHandler.handleActivity(context, bpelScope, bpelScope.getNodeTemplate());
                 } else if (activity.getType().equals(ActivityType.MIGRATION)) {
 
@@ -520,11 +521,11 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
                     final BPELPlanContext sourceContext = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope,
                         sourceServiceTemplateMap, sourceServiceTemplate, sourceServiceInstanceUrl,
-                        sourceServiceInstanceId, sourceServiceTemplateUrl, planInstanceURL, sourceCsarName);
+                        sourceServiceInstanceId, sourceServiceTemplateUrl, planInstanceURL, sourceCsar);
 
                     final BPELPlanContext targetContext = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope,
                         targetServiceTemplateMap, targetServiceTemplate, targetServiceInstanceUrl,
-                        targetServiceInstanceId, targetServiceTemplateUrl, planInstanceURL, targetCsarName);
+                        targetServiceInstanceId, targetServiceTemplateUrl, planInstanceURL, targetCsar);
 
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
                         if (postPhasePlugin.canHandleUpdate(sourceRelationshipTemplate, targetRelationshipTemplate)) {
@@ -544,12 +545,12 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                 if (activity.getType().equals(ActivityType.PROVISIONING)) {
                     final BPELPlanContext context = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope, targetServiceTemplateMap,
                         targetServiceTemplate, targetServiceInstanceUrl, targetServiceInstanceId,
-                        targetServiceTemplateUrl, planInstanceURL, targetCsarName);
+                        targetServiceTemplateUrl, planInstanceURL, targetCsar);
                     this.bpelPluginHandler.handleActivity(context, bpelScope, bpelScope.getRelationshipTemplate());
                 } else if (activity.getType().equals(ActivityType.TERMINATION)) {
                     final BPELPlanContext context = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope, sourceServiceTemplateMap,
                         sourceServiceTemplate, sourceServiceInstanceUrl, sourceServiceInstanceId,
-                        sourceServiceTemplateUrl, planInstanceURL, sourceCsarName);
+                        sourceServiceTemplateUrl, planInstanceURL, sourceCsar);
                     this.bpelPluginHandler.handleActivity(context, bpelScope, bpelScope.getRelationshipTemplate());
                 } else if (activity.getType().equals(ActivityType.MIGRATION)) {
 
@@ -561,11 +562,11 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
                     final BPELPlanContext sourceContext = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope,
                         sourceServiceTemplateMap, sourceServiceTemplate, sourceServiceInstanceUrl,
-                        sourceServiceInstanceId, sourceServiceTemplateUrl, planInstanceURL, sourceCsarName);
+                        sourceServiceInstanceId, sourceServiceTemplateUrl, planInstanceURL, sourceCsar);
 
                     final BPELPlanContext targetContext = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope,
                         targetServiceTemplateMap, targetServiceTemplate, targetServiceInstanceUrl,
-                        targetServiceInstanceId, targetServiceTemplateUrl, planInstanceURL, targetCsarName);
+                        targetServiceInstanceId, targetServiceTemplateUrl, planInstanceURL, targetCsar);
 
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
                         if (postPhasePlugin.canHandleUpdate(sourceNodeTemplate, targetNodeTemplate)) {

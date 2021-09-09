@@ -11,6 +11,11 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TTag;
+
 import com.google.common.collect.Lists;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -18,10 +23,7 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Element;
@@ -194,7 +196,12 @@ public class BPELNotifyHandler extends PluginHandler {
     }
 
     private String getMyPartnerId(final BPELPlanContext context) {
-        return context.getServiceTemplate().getTags().get("participant");
+        TTag tag = context.getServiceTemplate().getTags().stream().filter(x -> x.getName().equals("participant")).findFirst().orElse(null);
+        if (tag != null) {
+            return tag.getValue();
+        } else {
+            return null;
+        }
     }
 
     public boolean addChoreographyParameters(final BPELPlanContext context, final Map<String, Variable> params) {
@@ -470,11 +477,11 @@ public class BPELNotifyHandler extends PluginHandler {
         return true;
     }
 
-    public Collection<AbstractParameter> getAllOperationParameters(final BPELPlanContext context) {
-        final Collection<AbstractParameter> parameters = new HashSet<>();
+    public Collection<TParameter> getAllOperationParameters(final BPELPlanContext context) {
+        final Collection<TParameter> parameters = new HashSet<>();
         if (context.isNodeTemplate()) {
-            for (final AbstractInterface iface : context.getNodeTemplate().getType().getInterfaces()) {
-                for (final AbstractOperation op : iface.getOperations()) {
+            for (final TInterface iface : context.getNodeTemplate().getType().getInterfaces()) {
+                for (final TOperation op : iface.getOperations()) {
                     parameters.addAll(op.getInputParameters());
                 }
             }
@@ -512,7 +519,7 @@ public class BPELNotifyHandler extends PluginHandler {
 
         return context.getActivity().getType().equals(ActivityType.SENDNODENOTIFY);
         // for now we'll just return all parameters
-        // Collection<AbstractParameter> parameters = this.getAllOperationParameters(context);
+        // Collection<TParameter> parameters = this.getAllOperationParameters(context);
         // Map<String, PropertyVariable> paramMacthing = this.matchOperationParamertsToProperties(context);
         // return parameters.size() == paramMacthing.size();
     }
@@ -543,10 +550,10 @@ public class BPELNotifyHandler extends PluginHandler {
 
         // TODO/FIXME right now we match all operation params against the available properties and send them
         // over, maybe too much ?
-        final Collection<AbstractParameter> parameters = getAllOperationParameters(context);
+        final Collection<TParameter> parameters = getAllOperationParameters(context);
 
         // try to match param against a property and add it to the input of the notify call
-        for (final AbstractParameter param : parameters) {
+        for (final TParameter param : parameters) {
             final PropertyVariable propVar = context.getPropertyVariable(param.getName());
             if (propVar != null) {
                 params.put(propVar.getNodeTemplate().getId() + "_" + propVar.getPropertyName(), propVar);

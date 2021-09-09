@@ -1,5 +1,9 @@
 package org.opentosca.planbuilder.model.tosca;
 
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TPolicyTemplate;
+import org.eclipse.winery.model.tosca.TPolicyType;
+
 /**
  * *
  * <p>
@@ -14,11 +18,11 @@ public abstract class AbstractPolicy {
 
     public abstract String getName();
 
-    public abstract AbstractProperties getProperties();
+    public abstract TEntityTemplate.Properties getProperties();
 
-    public abstract AbstractPolicyType getType();
+    public abstract TPolicyType getType();
 
-    public abstract AbstractPolicyTemplate getTemplate();
+    public abstract TPolicyTemplate getTemplate();
 
     @Override
     public boolean equals(Object object) {

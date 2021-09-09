@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -53,16 +54,16 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
     protected static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
                                               final AbstractServiceTemplate serviceTemplate,
                                               final Collection<AbstractNodeTemplate> nodeTemplates,
-                                              final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
+                                              final Collection<AbstractRelationshipTemplate> relationshipTemplates, Csar csar) {
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
         generatePOGActivitiesAndLinks(activities, links, new HashMap<>(), nodeTemplates, new HashMap<>(),
-            relationshipTemplates);
+            relationshipTemplates, csar);
         return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) { };
     }
 
     protected static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
-                                              final AbstractServiceTemplate serviceTemplate) {
+                                              final AbstractServiceTemplate serviceTemplate, Csar csar) {
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
@@ -72,7 +73,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
         final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
         generatePOGActivitiesAndLinks(activities, links, nodeMapping, topology.getNodeTemplates(), relationMapping,
-            topology.getRelationshipTemplates());
+            topology.getRelationshipTemplates(), csar);
 
         final AbstractPlan plan =
             new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) { };
@@ -90,7 +91,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
                                                       final Map<AbstractNodeTemplate, AbstractActivity> nodeActivityMapping,
                                                       final Collection<AbstractNodeTemplate> nodeTemplates,
                                                       final Map<AbstractRelationshipTemplate, AbstractActivity> relationActivityMapping,
-                                                      final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
+                                                      final Collection<AbstractRelationshipTemplate> relationshipTemplates, Csar csar) {
         for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
             final AbstractActivity activity = new NodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity",
                 ActivityType.PROVISIONING, nodeTemplate);
@@ -104,7 +105,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
             activities.add(activity);
             relationActivityMapping.put(relationshipTemplate, activity);
 
-            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
+            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate, csar);
             AbstractActivity sourceActivity = nodeActivityMapping.get(relationshipTemplate.getSource());
             AbstractActivity targetActivity = nodeActivityMapping.get(relationshipTemplate.getTarget());
 

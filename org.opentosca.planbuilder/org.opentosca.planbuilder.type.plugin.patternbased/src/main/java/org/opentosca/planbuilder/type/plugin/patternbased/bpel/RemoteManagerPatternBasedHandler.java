@@ -4,20 +4,21 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.w3c.dom.Element;
 
 public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
 
     public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
-        final AbstractInterface iface = getRemoteManagerInterface(nodeTemplate);
-        final AbstractOperation createOperation = getRemoteManagerInstallOperation(nodeTemplate);
+        final TInterface iface = getRemoteManagerInterface(nodeTemplate);
+        final TOperation createOperation = getRemoteManagerInstallOperation(nodeTemplate);
 
         final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
 
@@ -72,10 +73,10 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    private AbstractOperation getRemoteManagerInstallOperation(AbstractNodeTemplate node) {
-        AbstractInterface iface = this.getRemoteManagerInterface(node);
+    private TOperation getRemoteManagerInstallOperation(AbstractNodeTemplate node) {
+        TInterface iface = this.getRemoteManagerInterface(node);
         if (iface != null) {
-            for (AbstractOperation op : iface.getOperations()) {
+            for (TOperation op : iface.getOperations()) {
                 if (op.getName().equals("install")) {
                     return op;
                 }
@@ -84,10 +85,10 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    private AbstractOperation getRemoteManagerResetOperation(AbstractNodeTemplate node) {
-        AbstractInterface iface = this.getRemoteManagerInterface(node);
+    private TOperation getRemoteManagerResetOperation(AbstractNodeTemplate node) {
+        TInterface iface = this.getRemoteManagerInterface(node);
         if (iface != null) {
-            for (AbstractOperation op : iface.getOperations()) {
+            for (TOperation op : iface.getOperations()) {
                 if (op.getName().equals("reset")) {
                     return op;
                 }
@@ -96,8 +97,8 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    private AbstractInterface getRemoteManagerInterface(AbstractNodeTemplate node) {
-        for (AbstractInterface iface : node.getType().getInterfaces()) {
+    private TInterface getRemoteManagerInterface(AbstractNodeTemplate node) {
+        for (TInterface iface : node.getType().getInterfaces()) {
             if (iface.getName().equals("http://opentosca.org/interfaces/pattern/remotemanager")) {
                 return iface;
             }
@@ -121,11 +122,11 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
         return false;
     }
 
-    public AbstractOperation getRemoteManagerPatternResetMethod(AbstractNodeTemplate nodeTemplate) {
+    public TOperation getRemoteManagerPatternResetMethod(AbstractNodeTemplate nodeTemplate) {
         return this.getRemoteManagerResetOperation(nodeTemplate);
     }
 
-    public AbstractOperation getRemoteManagerPatternInstallMethod(AbstractNodeTemplate nodeTemplate) {
+    public TOperation getRemoteManagerPatternInstallMethod(AbstractNodeTemplate nodeTemplate) {
         return this.getRemoteManagerInstallOperation(nodeTemplate);
     }
 }

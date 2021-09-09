@@ -2,9 +2,11 @@ package org.opentosca.planbuilder.type.plugin.connectsto.core;
 
 import java.util.List;
 
+import org.eclipse.winery.model.tosca.TInterface;
+
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 
@@ -16,14 +18,14 @@ public abstract class ConfigureRelationsPlugin<T extends PlanContext> implements
     public static final String OPERATION_POST_CONFIGURE_TARGET = "postConfigureTarget";
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final AbstractNodeTemplate nodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
-        final List<AbstractInterface> interfaces = relationshipTemplate.getRelationshipType().getInterfaces();
-        for (final AbstractInterface i : interfaces) {
+    public boolean canHandleCreate(Csar csar, final AbstractRelationshipTemplate relationshipTemplate) {
+        final List<TInterface> interfaces = relationshipTemplate.getRelationshipType().getInterfaces();
+        for (final TInterface i : interfaces) {
             if (i.getName().equalsIgnoreCase(INTERFACE_NAME)) {
                 return true;
             }
@@ -37,13 +39,13 @@ public abstract class ConfigureRelationsPlugin<T extends PlanContext> implements
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(Csar csar, AbstractNodeTemplate nodeTemplate) {
         // TODO we have to define the semantics of a disconnect first
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(Csar csar, AbstractRelationshipTemplate relationshipTemplate) {
         // TODO we have to define the semantics of a disconnect first
         return false;
     }

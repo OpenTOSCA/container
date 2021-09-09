@@ -35,7 +35,7 @@ abstract class DockerUtils {
             return false;
         }
 
-        final Map<String, String> propMap = nodeTemplate.getProperties().asMap();
+        final Map<String, String> propMap = ModelUtils.asMap(nodeTemplate.getProperties());
 
         if (!propMap.containsKey("ContainerPort") || !propMap.containsKey("Port")) {
             return false;

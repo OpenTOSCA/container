@@ -17,6 +17,7 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -57,9 +58,9 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
         Collection<AbstractNodeTemplate> usedNodes = SituationPluginUtils.findUsedNodes(context);
         // get annotated policy for the situational scope
         AbstractPolicy situationAwareExecutionPolicy = SituationPluginUtils.getSituationAwareExecutionPolicy(usedNodes);
-        String entryMode = situationAwareExecutionPolicy.getTemplate().getProperties().asMap().get("EntryMode");
+        String entryMode = ModelUtils.asMap(situationAwareExecutionPolicy.getTemplate().getProperties()).get("EntryMode");
         String situationViolation =
-            situationAwareExecutionPolicy.getTemplate().getProperties().asMap().get("SituationViolation");
+            ModelUtils.asMap(situationAwareExecutionPolicy.getTemplate().getProperties()).get("SituationViolation");
 
         // get annotated situation policies
         Collection<AbstractPolicy> situationPolicies = SituationPluginUtils.getSituationPolicies(usedNodes);

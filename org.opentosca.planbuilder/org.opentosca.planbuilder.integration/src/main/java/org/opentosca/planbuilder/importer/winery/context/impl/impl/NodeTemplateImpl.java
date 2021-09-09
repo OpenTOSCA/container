@@ -13,20 +13,18 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TCapability;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.utils.ModelUtilities;
 
-import org.opentosca.planbuilder.model.tosca.AbstractCapability;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
-import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,11 +46,11 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
     private final TopologyTemplateImpl topology;
     private final List<AbstractRelationshipTemplate> ingoingRelations;
     private final List<AbstractRelationshipTemplate> outgoingRelations;
-    private final List<AbstractRequirement> requirements;
-    private final List<AbstractCapability> capabilities;
+    private final List<TRequirement> requirements;
+    private final List<TCapability> capabilities;
     private final Set<AbstractDeploymentArtifact> das;
     private final List<AbstractPolicy> policies;
-    private AbstractProperties properties;
+    private TEntityTemplate.Properties properties;
 
     /**
      * Constructor
@@ -70,7 +68,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
         this.policies = new ArrayList<>();
 
         if (this.nodeTemplate.getProperties() != null && this.nodeTemplate.getProperties() != null) {
-            this.properties = new PropertiesImpl(this.nodeTemplate.getProperties());
+            this.properties = this.nodeTemplate.getProperties();
         }
 
         this.ingoingRelations = ModelUtilities.getIncomingRelationshipTemplates(this.topology.topologyTemplate, this.nodeTemplate).stream().map(val -> new RelationshipTemplateImpl(val, definitions, this.topology)).collect(Collectors.toList());
@@ -116,7 +114,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
     private void setUpCapabilities() {
         if (this.nodeTemplate.getCapabilities() != null) {
             for (final TCapability capability : this.nodeTemplate.getCapabilities()) {
-                this.capabilities.add(new CapabilityImpl(capability));
+                this.capabilities.add(capability);
             }
         }
     }
@@ -127,7 +125,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
     private void setUpRequirements() {
         if (this.nodeTemplate.getRequirements() != null) {
             for (final TRequirement requirement : this.nodeTemplate.getRequirements()) {
-                this.requirements.add(new RequirementImpl(requirement));
+                this.requirements.add(requirement);
             }
         }
     }
@@ -189,7 +187,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractCapability> getCapabilities() {
+    public List<TCapability> getCapabilities() {
         return this.capabilities;
     }
 
@@ -197,7 +195,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractRequirement> getRequirements() {
+    public List<TRequirement> getRequirements() {
         return this.requirements;
     }
 
@@ -266,7 +264,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
      * {@inheritDoc}
      */
     @Override
-    public AbstractProperties getProperties() {
+    public TEntityTemplate.Properties getProperties() {
         return this.properties;
     }
 

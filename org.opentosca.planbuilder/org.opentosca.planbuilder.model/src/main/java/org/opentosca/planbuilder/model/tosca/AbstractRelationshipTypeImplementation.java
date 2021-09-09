@@ -1,8 +1,12 @@
 package org.opentosca.planbuilder.model.tosca;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+
+import org.eclipse.winery.model.tosca.TRelationshipType;
+import org.eclipse.winery.model.tosca.TTag;
 
 /**
  * <p>
@@ -34,7 +38,7 @@ public abstract class AbstractRelationshipTypeImplementation {
      *
      * @return an AbstractRelationshipType
      */
-    public abstract AbstractRelationshipType getRelationshipType();
+    public abstract TRelationshipType getRelationshipType();
 
     /**
      * Returns whether this RelationshipTypeImplementation is abstract or not
@@ -76,5 +80,5 @@ public abstract class AbstractRelationshipTypeImplementation {
      *
      * @return a List of AbstractTags
      */
-    public abstract List<AbstractTag> getTags();
+    public abstract Collection<TTag> getTags();
 }

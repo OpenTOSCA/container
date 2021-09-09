@@ -207,7 +207,7 @@ public class ChoreographyBuilder {
     }
 
     private String getChoreographyTag(final AbstractServiceTemplate serviceTemplate) {
-        return serviceTemplate.getTags().get("choreography");
+        return serviceTemplate.getTags().stream().filter(x -> x.getName().equals("choreography")).findFirst().orElse(null).getValue();
     }
 
     private Collection<AbstractNodeTemplate> getManagedChoreographyNodes(final AbstractServiceTemplate serviceTemplate) {

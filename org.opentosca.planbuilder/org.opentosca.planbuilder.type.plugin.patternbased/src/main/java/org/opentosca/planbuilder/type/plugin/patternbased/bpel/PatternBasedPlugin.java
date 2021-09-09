@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.eclipse.winery.model.tosca.TOperation;
+
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,31 +51,31 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
         boolean check = true;
-        Map<AbstractOperation, AbstractOperation> usedOps = new HashMap<AbstractOperation, AbstractOperation>();
-        if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate)) {
-            AbstractOperation createOp = null;
-            AbstractOperation terminateOp = null;
+        Map<TOperation, TOperation> usedOps = new HashMap<TOperation, TOperation>();
+        if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, templateContext.getCsar())) {
+            TOperation createOp = null;
+            TOperation terminateOp = null;
             LOG.debug("Handling by container pattern");
             check &= containerPatternHandler.handleCreate(templateContext, nodeTemplate,
-                templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement(), templateContext.getCsar());
             createOp = containerPatternHandler.getContainerPatternCreateMethod(nodeTemplate);
             usedOps.put(createOp, null);
-            if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
+            if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate, templateContext.getCsar())) {
                 LOG.debug("Adding container pattern compensation logic");
                 check &=
                     containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
-                        templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement(), templateContext.getCsar());
                 terminateOp = containerPatternHandler.getContainerPatternTerminateMethod(nodeTemplate);
                 usedOps.put(createOp, terminateOp);
             }
-        } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
+        } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate, templateContext.getCsar())) {
             LOG.debug("Handling by lifecycle pattern");
 
-            AbstractOperation installOp = null;
-            AbstractOperation configureOp = null;
-            AbstractOperation startOp = null;
-            AbstractOperation uninstallOp = null;
-            AbstractOperation stopOp = null;
+            TOperation installOp = null;
+            TOperation configureOp = null;
+            TOperation startOp = null;
+            TOperation uninstallOp = null;
+            TOperation stopOp = null;
 
             check &= lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
                 templateContext.getProvisioningPhaseElement());
@@ -91,7 +93,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
                 usedOps.put(startOp, null);
             }
 
-            if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
+            if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate, templateContext.getCsar())) {
                 LOG.debug("Adding lifecycle pattern compensation logic");
                 check &=
                     lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
@@ -110,8 +112,8 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             check &= remoteMgrHandler.handleCreate(templateContext, nodeTemplate, templateContext.getProvisioningPhaseElement());
 
             if (check == true) {
-                AbstractOperation installOp = remoteMgrHandler.getRemoteManagerPatternInstallMethod(nodeTemplate);
-                AbstractOperation resetOp = remoteMgrHandler.getRemoteManagerPatternResetMethod(nodeTemplate);
+                TOperation installOp = remoteMgrHandler.getRemoteManagerPatternInstallMethod(nodeTemplate);
+                TOperation resetOp = remoteMgrHandler.getRemoteManagerPatternResetMethod(nodeTemplate);
 
                 if (installOp != null & resetOp != null) {
                     usedOps.put(installOp, resetOp);
@@ -121,7 +123,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             return false;
         }
 
-        for (AbstractOperation op : usedOps.keySet()) {
+        for (TOperation op : usedOps.keySet()) {
             templateContext.addUsedOperation(op, usedOps.get(op));
         }
 
@@ -129,12 +131,12 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final AbstractNodeTemplate nodeTemplate) {
         LOG.debug("Checking if nodeTemplate {} can be handled by container or lifecycle pattern", nodeTemplate.getId());
-        if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate)) {
+        if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by container pattern");
             return true;
-        } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
+        } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by lifecycle pattern");
             return true;
         } else if (remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
@@ -147,7 +149,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(Csar csar, final AbstractRelationshipTemplate relationshipTemplate) {
         // can only handle node templates
         return false;
     }
@@ -158,17 +160,17 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate) {
+    public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
         Collection<AbstractNodeTemplate> deps = new HashSet<AbstractNodeTemplate>();
         LOG.debug("Checking nodeTemplate {} dependencies", nodeTemplate.getId());
-        if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate)) {
+        if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by container pattern");
-            deps.add(containerPatternHandler.getHostingNode(nodeTemplate));
+            deps.add(containerPatternHandler.getHostingNode(nodeTemplate, csar));
             LOG.debug("returning hosting node {} as dependency", deps.iterator().next().getId());
             return deps;
-        } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
+        } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by lifecycle pattern");
-            deps.addAll(lifecyclePatternHandler.getMatchedNodesForProvisioning(nodeTemplate));
+            deps.addAll(lifecyclePatternHandler.getMatchedNodesForProvisioning(nodeTemplate, csar));
             LOG.debug("Adding matched nodes to handle by lifecycle pattern");
             return deps;
         } else if (remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate)) {
@@ -181,17 +183,17 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate) {
+    public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
         Collection<AbstractNodeTemplate> deps = new HashSet<AbstractNodeTemplate>();
         LOG.debug("Checking nodeTemplate {} dependencies", nodeTemplate.getId());
-        if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
+        if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by container pattern");
-            deps.add(containerPatternHandler.getHostingNode(nodeTemplate));
+            deps.add(containerPatternHandler.getHostingNode(nodeTemplate, csar));
             LOG.debug("returning hosting node {} as dependency", deps.iterator().next().getId());
             return deps;
-        } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
+        } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by lifecycle pattern");
-            deps.addAll(lifecyclePatternHandler.getMatchedNodesForDeprovisioning(nodeTemplate));
+            deps.addAll(lifecyclePatternHandler.getMatchedNodesForDeprovisioning(nodeTemplate, csar));
             LOG.debug("Adding matched nodes to handle by lifecycle pattern");
             return deps;
         } else if (remoteManagerPatternHandler.isDeprovisionableByRemoteManagerPattern(nodeTemplate)) {
@@ -209,36 +211,36 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
         boolean check = true;
-        Map<AbstractOperation, AbstractOperation> usedOps = new HashMap<AbstractOperation, AbstractOperation>();
-        if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
+        Map<TOperation, TOperation> usedOps = new HashMap<TOperation, TOperation>();
+        if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate, templateContext.getCsar())) {
             LOG.debug("Handling by container pattern");
 
-            AbstractOperation createOp = null;
-            AbstractOperation terminateOp = null;
+            TOperation createOp = null;
+            TOperation terminateOp = null;
 
             check &= containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
-                templateContext.getProvisioningPhaseElement());
+                templateContext.getProvisioningPhaseElement(), templateContext.getCsar());
             terminateOp = containerPatternHandler.getContainerPatternTerminateMethod(nodeTemplate);
             usedOps.put(terminateOp, null);
 
-            if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate)) {
+            if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, templateContext.getCsar())) {
                 LOG.debug("Adding container pattern compensation logic");
                 check &=
                     containerPatternHandler.handleCreate(templateContext, nodeTemplate,
-                        templateContext.getProvisioningCompensationPhaseElement());
+                        templateContext.getProvisioningCompensationPhaseElement(), templateContext.getCsar());
                 createOp = containerPatternHandler.getContainerPatternCreateMethod(nodeTemplate);
                 usedOps.put(terminateOp, createOp);
             }
-        } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
+        } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate, templateContext.getCsar())) {
             LOG.debug("Handling by lifecycle pattern");
             check &= lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
                 templateContext.getProvisioningPhaseElement());
 
-            AbstractOperation installOp = null;
-            AbstractOperation configureOp = null;
-            AbstractOperation startOp = null;
-            AbstractOperation uninstallOp = null;
-            AbstractOperation stopOp = null;
+            TOperation installOp = null;
+            TOperation configureOp = null;
+            TOperation startOp = null;
+            TOperation uninstallOp = null;
+            TOperation stopOp = null;
 
             stopOp = lifecyclePatternHandler.getLifecyclePatternStopMethod(nodeTemplate);
             uninstallOp = lifecyclePatternHandler.getLifecyclePatternUninstallMethod(nodeTemplate);
@@ -251,7 +253,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
                 usedOps.put(uninstallOp, null);
             }
 
-            if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate)) {
+            if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate, templateContext.getCsar())) {
                 LOG.debug("Adding lifecycle pattern compensation logic");
                 check &=
                     lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
@@ -275,8 +277,8 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             check &= remoteManagerPatternHandler.handleTerminate(templateContext, nodeTemplate,
                 templateContext.getProvisioningPhaseElement());
 
-            AbstractOperation installOp = null;
-            AbstractOperation resetOp = null;
+            TOperation installOp = null;
+            TOperation resetOp = null;
 
             resetOp = remoteManagerPatternHandler.getRemoteManagerPatternResetMethod(nodeTemplate);
             installOp = remoteManagerPatternHandler.getRemoteManagerPatternInstallMethod(nodeTemplate);
@@ -295,7 +297,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             return false;
         }
 
-        for (AbstractOperation op : usedOps.keySet()) {
+        for (TOperation op : usedOps.keySet()) {
             templateContext.addUsedOperation(op, usedOps.get(op));
         }
 
@@ -309,12 +311,12 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(Csar csar, AbstractNodeTemplate nodeTemplate) {
         LOG.debug("Checking if nodeTemplate {} can be handled by container or lifecycle pattern", nodeTemplate.getId());
-        if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate)) {
+        if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by container pattern");
             return true;
-        } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate)) {
+        } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by lifecycle pattern");
             return true;
         } else if (remoteManagerPatternHandler.isDeprovisionableByRemoteManagerPattern(nodeTemplate)) {
@@ -327,20 +329,20 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(Csar csar, AbstractRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }
 
     @Override
-    public boolean canHandleUpdate(AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleUpdate(Csar csar, AbstractNodeTemplate nodeTemplate) {
         return true;
     }
 
     @Override
     public boolean handleUpdate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
         return lifecyclePatternHandler.handleUpdate(templateContext, nodeTemplate,
-            templateContext.getProvisioningPhaseElement());
+            templateContext.getProvisioningPhaseElement(), templateContext.getCsar());
     }
 
     @Override

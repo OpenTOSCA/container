@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.ChoreographyBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -104,7 +105,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
      */
     @Override
-    public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
+    public BPELPlan buildPlan(final Csar csar, final AbstractDefinitions definitions,
                               final AbstractServiceTemplate serviceTemplate) {
         // create empty plan from servicetemplate and add definitions
         String namespace;
@@ -121,7 +122,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
 
             AbstractPlan buildPlan =
-                AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+                AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
 
             if (this.choreoBuilder.isChoreographyPartner(serviceTemplate)) {
                 LOG.debug("Transforming plan to be part of a choreography: ");
@@ -137,7 +138,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
             newBuildPlan.setTOSCAOperationname("initiate");
 
-            this.planHandler.initializeBPELSkeleton(newBuildPlan, csarName);
+            this.planHandler.initializeBPELSkeleton(newBuildPlan, csar);
 
             this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(newBuildPlan, serviceTemplate);
             this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(newBuildPlan, serviceTemplate);
@@ -167,9 +168,9 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap, serviceInstanceUrl,
                 serviceInstanceID, serviceTemplateUrl, planInstanceUrl,
-                serviceTemplate, csarName);
+                serviceTemplate, csar);
 
-            runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarName);
+            runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
 
             this.correlationHandler.addCorrellationID(newBuildPlan);
 
@@ -202,7 +203,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
         }
 
         LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-            serviceTemplate.getQName().toString(), definitions.getId(), csarName);
+            serviceTemplate.getQName().toString(), definitions.getId(), csar.id().csarName());
         return null;
     }
 
@@ -213,14 +214,14 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
      */
     @Override
-    public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final AbstractDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (!serviceTemplate.hasBuildPlan()) {
                 LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
                     serviceTemplate.getQName().toString());
-                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplate);
+                final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
                 if (newBuildPlan != null) {
                     LOG.debug("Created BuildPlan "
@@ -233,7 +234,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             }
         }
         if (!plans.isEmpty()) {
-            LOG.info("Created {} build plans for CSAR {}", plans.size(), csarName);
+            LOG.info("Created {} build plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }
@@ -250,10 +251,10 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      */
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map,
                             final String serviceInstanceUrl, final String serviceInstanceID,
-                            final String serviceTemplateUrl, final String planInstanceUrl, final String csarFileName) {
+                            final String serviceTemplateUrl, final String planInstanceUrl, final Csar csar) {
         for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope, map, buildPlan.getServiceTemplate(),
-                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarFileName);
+                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
             if (bpelScope.getNodeTemplate() != null) {
 
                 final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();

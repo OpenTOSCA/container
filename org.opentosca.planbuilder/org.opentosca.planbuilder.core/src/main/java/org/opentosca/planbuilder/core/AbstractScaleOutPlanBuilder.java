@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -42,12 +43,12 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
 
     public AbstractPlan generateSOG(final String id, final AbstractDefinitions defintions,
                                     final AbstractServiceTemplate serviceTemplate,
-                                    final ScalingPlanDefinition scalingPlanDefinition) {
+                                    final ScalingPlanDefinition scalingPlanDefinition, Csar csar) {
         final Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<>();
 
         final AbstractPlan abstractScaleOutPlan =
             AbstractBuildPlanBuilder.generatePOG(id, defintions, serviceTemplate, scalingPlanDefinition.nodeTemplates,
-                scalingPlanDefinition.relationshipTemplates);
+                scalingPlanDefinition.relationshipTemplates, csar);
         abstractScaleOutPlan.setType(PlanType.MANAGEMENT);
 
         // add instance selection activties by starting for each node strat selection
@@ -63,7 +64,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
             // here we create recursive selection activities and connect everything
             final Collection<List<AbstractRelationshipTemplate>> paths = new HashSet<>();
 
-            findOutgoingInfrastructurePaths(paths, stratNodeTemplate);
+            findOutgoingInfrastructurePaths(paths, stratNodeTemplate, csar);
 
             if (paths.isEmpty()) {
                 Collection<AbstractRelationshipTemplate> ingoingRelations = stratNodeTemplate.getIngoingRelations().stream().filter(x -> scalingPlanDefinition.relationshipTemplates.contains(x)).collect(Collectors.toList());
@@ -128,9 +129,9 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
     }
 
     private void findOutgoingInfrastructurePaths(final Collection<List<AbstractRelationshipTemplate>> paths,
-                                                 final AbstractNodeTemplate nodeTemplate) {
+                                                 final AbstractNodeTemplate nodeTemplate, Csar csar) {
         final List<AbstractRelationshipTemplate> infrastructureEdges = new ArrayList<>();
-        ModelUtils.getInfrastructureEdges(nodeTemplate, infrastructureEdges);
+        ModelUtils.getInfrastructureEdges(nodeTemplate, infrastructureEdges, csar);
 
         for (final AbstractRelationshipTemplate infrastructureEdge : infrastructureEdges) {
             List<AbstractRelationshipTemplate> pathToAdd = null;
@@ -149,7 +150,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
             }
 
             pathToAdd.add(infrastructureEdge);
-            findOutgoingInfrastructurePaths(paths, infrastructureEdge.getTarget());
+            findOutgoingInfrastructurePaths(paths, infrastructureEdge.getTarget(), csar);
         }
     }
 }

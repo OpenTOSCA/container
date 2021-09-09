@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.plugins.typebased;
 
 import java.util.Collection;
 
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -60,7 +61,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param nodeTemplate the NodeTemplate to be handled by this plugin
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
+    boolean canHandleCreate(Csar csar, AbstractNodeTemplate nodeTemplate);
 
     /**
      * This method should return true if the plugin can handle the termination of the given nodeTemplate
@@ -68,7 +69,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param nodeTemplate the NodeTemplate to be handled by this plugin
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate);
+    boolean canHandleTerminate(Csar csar, AbstractNodeTemplate nodeTemplate);
 
     /**
      * This method should return true if the plugin can handle the creation of the given relationshipTemplate
@@ -76,7 +77,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param relationshipTemplate the RelationshipTemplate to be handled by this plugin
      * @return true iff this can handle the given relationshipTemplate
      */
-    boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleCreate(Csar csar, AbstractRelationshipTemplate relationshipTemplate);
 
     /**
      * This method should return true if the plugin can handle the termination of the given relationshipTemplate
@@ -84,7 +85,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param relationshipTemplate the RelationshipTemplate to be handled by this plugin
      * @return true iff this can handle the given relationshipTemplate
      */
-    boolean canHandleTerminate(AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleTerminate(Csar csar, AbstractRelationshipTemplate relationshipTemplate);
 
     /**
      * This method should generate and add a fragment which handle the update of the Template inside the
@@ -103,7 +104,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param nodeTemplate the NodeTemplate to be handled by this plugin
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    default boolean canHandleUpdate(AbstractNodeTemplate nodeTemplate) {
+    default boolean canHandleUpdate(Csar csar, AbstractNodeTemplate nodeTemplate) {
         return false;
     }
 
@@ -124,7 +125,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
          * plugin, if null -> the given NodeTemplate cannot be created under the context of the node (e.g. the topology
          * template misses nodes)
          */
-        Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate);
+        Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar);
 
         /**
          * Returns a collection of nodeTemplates that are needed to be able to terminate an instance of the given
@@ -135,6 +136,6 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
          * plugin, if null -> the given NodeTemplate cannot be terminated under the context of the node (e.g. the
          * topology template misses nodes)
          */
-        Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate);
+        Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar);
     }
 }

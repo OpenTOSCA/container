@@ -12,6 +12,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TArtifactReference;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import org.apache.commons.io.FilenameUtils;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.convention.Interfaces;
@@ -20,12 +24,10 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core.handler.AnsibleOperationPluginHandler;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.LoggerFactory;
@@ -66,8 +68,8 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
     }
 
     private Variable appendBPELAssignOperationShScript(final BPELPlanContext templateContext,
-                                                       final AbstractOperation operation,
-                                                       final AbstractArtifactReference reference,
+                                                       final TOperation operation,
+                                                       final TArtifactReference reference,
                                                        final AbstractImplementationArtifact ia) {
 
         final String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
@@ -118,10 +120,10 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
     }
 
     private Variable appendBPELAssignOperationShScript(final PlanContext templateContext,
-                                                       final AbstractOperation operation,
-                                                       final AbstractArtifactReference reference,
+                                                       final TOperation operation,
+                                                       final TArtifactReference reference,
                                                        final AbstractImplementationArtifact ia,
-                                                       final Map<AbstractParameter, Variable> inputMappings) {
+                                                       final Map<TParameter, Variable> inputMappings) {
 
         LOG.error("Not supported!");
 
@@ -180,9 +182,9 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
      * @return a String containing a relative file path to a *.zip file, if no *.zip file inside the given IA is found
      * null
      */
-    private AbstractArtifactReference fetchAnsiblePlaybookRefFromIA(final AbstractImplementationArtifact ia) {
-        final List<AbstractArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
-        for (final AbstractArtifactReference ref : refs) {
+    private TArtifactReference fetchAnsiblePlaybookRefFromIA(final AbstractImplementationArtifact ia) {
+        final Collection<TArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
+        for (final TArtifactReference ref : refs) {
             if (ref.getReference().endsWith(".zip")) {
                 return ref;
             }
@@ -214,7 +216,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
             final Collection<AbstractImplementationArtifact> abstractIAs = abstractNodeTypeImpl.getImplementationArtifacts();
             for (final AbstractImplementationArtifact abstractIA : abstractIAs) {
                 final String value =
-                    abstractIA.getArtifactRef().getProperties().asMap().get("Playbook");
+                    ModelUtils.asMap(abstractIA.getArtifactRef().getProperties()).get("Playbook");
                 if (value != null && !value.isEmpty()) {
                     return value;
                 }
@@ -226,17 +228,17 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
     /**
      * Adds logic to the BuildPlan to call a Ansible Playbook on a remote machine
      *
-     * @param context   the BPELPlanContext where the logical provisioning operation is called
+     * @param templateContext   the BPELPlanContext where the logical provisioning operation is called
      * @param operation the operation to call
      * @param ia        the ia that implements the operation
      * @return true iff adding BPEL Fragment was successful
      */
     @Override
-    public boolean handle(final BPELPlanContext templateContext, final AbstractOperation operation,
+    public boolean handle(final BPELPlanContext templateContext, final TOperation operation,
                           final AbstractImplementationArtifact ia) {
 
         LOG.debug("Handling Ansible Playbook IA operation: " + operation.getName());
-        final AbstractArtifactReference ansibleRef = fetchAnsiblePlaybookRefFromIA(ia);
+        final TArtifactReference ansibleRef = fetchAnsiblePlaybookRefFromIA(ia);
         if (ansibleRef == null) {
             return false;
         }
@@ -382,9 +384,9 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
     }
 
     @Override
-    public boolean handle(final BPELPlanContext templateContext, final AbstractOperation operation,
+    public boolean handle(final BPELPlanContext templateContext, final TOperation operation,
                           final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping) {
+                          final Map<TParameter, Variable> param2propertyMapping) {
 
         if (operation.getInputParameters().size() != param2propertyMapping.size()) {
             return false;
@@ -397,7 +399,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         }
 
         Variable runShScriptStringVar = null;
-        final AbstractArtifactReference scriptRef = fetchAnsiblePlaybookRefFromIA(ia);
+        final TArtifactReference scriptRef = fetchAnsiblePlaybookRefFromIA(ia);
         if (scriptRef == null) {
             return false;
         }
@@ -450,7 +452,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
      * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
      *
      * @param assignName          the name of the BPEL assign
-     * @param csarEntryXpathQuery the csarEntryPoint XPath query
+     * @param xpath2Query the csarEntryPoint XPath query
      * @param stringVarName       the variable to load the queries results into
      * @return a DOM Node representing a BPEL assign element
      * @throws IOException  is thrown when loading internal bpel fragments fails

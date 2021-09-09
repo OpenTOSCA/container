@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TTag;
+
 /**
  * <p>
  * This class represents TOSCA NodeTypeImplementation.
@@ -49,7 +51,7 @@ public abstract class AbstractNodeTypeImplementation {
      *
      * @return a List of AbstractTags for this NodeTypeImplementation
      */
-    public abstract List<AbstractTag> getTags();
+    public abstract Collection<TTag> getTags();
 
     /**
      * Returns the required ContainerFeatures of this NodeTypeImplementation

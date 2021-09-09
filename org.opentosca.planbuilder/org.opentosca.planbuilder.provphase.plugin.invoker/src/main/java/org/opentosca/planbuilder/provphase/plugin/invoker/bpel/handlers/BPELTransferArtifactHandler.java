@@ -7,16 +7,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.eclipse.winery.model.tosca.TArtifactReference;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -44,10 +45,10 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
     public List<String> getRunScriptParams(final AbstractNodeTemplate nodeTemplate) {
         final List<String> inputParams = new ArrayList<>();
 
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-            for (final AbstractOperation op : iface.getOperations()) {
+        for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
+            for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)) {
-                    for (final AbstractParameter param : op.getInputParameters()) {
+                    for (final TParameter param : op.getInputParameters()) {
                         inputParams.add(param.getName());
                     }
                 }
@@ -60,10 +61,10 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
     public List<String> getTransferFileParams(final AbstractNodeTemplate nodeTemplate) {
         final List<String> inputParams = new ArrayList<>();
 
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-            for (final AbstractOperation op : iface.getOperations()) {
+        for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
+            for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
-                    for (final AbstractParameter param : op.getInputParameters()) {
+                    for (final TParameter param : op.getInputParameters()) {
                         inputParams.add(param.getName());
                     }
                 }
@@ -73,7 +74,7 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
         return inputParams;
     }
 
-    public boolean handleArtifactReferenceUpload(final AbstractArtifactReference ref,
+    public boolean handleArtifactReferenceUpload(final TArtifactReference ref,
                                                  final BPELPlanContext templateContext, final PropertyVariable serverIp,
                                                  final PropertyVariable sshUser, final PropertyVariable sshKey,
                                                  final AbstractNodeTemplate infraTemplate,

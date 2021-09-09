@@ -11,13 +11,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -176,8 +177,8 @@ public class PluginHandler {
         return logMsgReqVarName;
     }
 
-    public String findInterfaceForOperation(final BPELPlanContext context, final AbstractOperation operation) {
-        List<AbstractInterface> interfaces = null;
+    public String findInterfaceForOperation(final BPELPlanContext context, final TOperation operation) {
+        List<TInterface> interfaces = null;
         if (context.getNodeTemplate() != null) {
             interfaces = context.getNodeTemplate().getType().getInterfaces();
         } else {
@@ -186,8 +187,8 @@ public class PluginHandler {
         }
 
         if (interfaces != null && interfaces.size() > 0) {
-            for (final AbstractInterface iface : interfaces) {
-                for (final AbstractOperation op : iface.getOperations()) {
+            for (final TInterface iface : interfaces) {
+                for (final TOperation op : iface.getOperations()) {
                     if (op.equals(operation)) {
                         return iface.getName();
                     }
@@ -208,16 +209,6 @@ public class PluginHandler {
         return propWrapper;
     }
 
-    /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
-     *
-     * @param assignName          the name of the BPEL assign
-     * @param csarEntryXpathQuery the csarEntryPoint XPath query
-     * @param stringVarName       the variable to load the queries results into
-     * @return a DOM Node representing a BPEL assign element
-     * @throws IOException  is thrown when loading internal bpel fragments fails
-     * @throws SAXException is thrown when parsing internal format into DOM fails
-     */
     public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
                                                               final String stringVarName) throws IOException,
         SAXException {

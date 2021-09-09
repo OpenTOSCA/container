@@ -1,14 +1,13 @@
 package org.opentosca.planbuilder.core.plugins.context;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
@@ -21,20 +20,20 @@ public abstract class PlanContext {
     protected final String serviceInstanceIDVarName;
     protected final String serviceTemplateURLVarName;
     protected final String planInstanceUrlVarName;
-    protected final String csarFileName;
+    protected final Csar csar;
     protected final Property2VariableMapping propertyMap;
 
     public PlanContext(final AbstractPlan plan, final AbstractServiceTemplate serviceTemplate,
                        final Property2VariableMapping map, final String serviceInstanceURLVarName,
                        final String serviceInstanceIDVarName, final String serviceTemplateURLVarName, final String planInstanceUrlVarName,
-                       final String csarFileName) {
+                       final Csar csar) {
         this.plan = plan;
         this.serviceTemplate = serviceTemplate;
         this.serviceInstanceIDVarName = serviceInstanceIDVarName;
         this.serviceTemplateURLVarName = serviceTemplateURLVarName;
         this.serviceInstanceURLVarName = serviceInstanceURLVarName;
         this.planInstanceUrlVarName = planInstanceUrlVarName;
-        this.csarFileName = csarFileName;
+        this.csar = csar;
         this.propertyMap = map;
     }
 
@@ -119,17 +118,11 @@ public abstract class PlanContext {
      * @return a String with the file name of the CSAR
      */
     public String getCSARFileName() {
-        return this.csarFileName;
+        return this.csar.id().csarName();
     }
 
-    /**
-     * Returns an absolute File for the given AbstractArtifactReference
-     *
-     * @param ref an AbstractArtifactReference
-     * @return a File with an absolute path to the file
-     */
-    public File getFileFromArtifactReference(final AbstractArtifactReference ref) {
-        return this.plan.getDefinitions().getAbsolutePathOfArtifactReference(ref);
+    public Csar getCsar() {
+        return this.csar;
     }
 
     /**

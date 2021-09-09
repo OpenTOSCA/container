@@ -2,10 +2,11 @@ package org.opentosca.planbuilder.core.plugins.artifactbased;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TOperation;
+
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 
 /**
  * <p>
@@ -36,5 +37,5 @@ public interface IPlanBuilderProvPhaseOperationPlugin<T extends PlanContext> ext
      * @param ia        the IA which implements the Operation
      * @return true iff the plugin generated and added a fragment into the ProvisioningPhase in the TemplateContext
      */
-    boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia);
+    boolean handle(T context, TOperation operation, AbstractImplementationArtifact ia);
 }

@@ -2,7 +2,8 @@ package org.opentosca.planbuilder.importer.winery.context.impl.impl;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
+import org.eclipse.winery.model.tosca.TArtifactTemplate;
+
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 
 /**
@@ -43,7 +44,7 @@ public class DeploymentArtifactImpl extends AbstractDeploymentArtifact {
      * {@inheritDoc}
      */
     @Override
-    public AbstractArtifactTemplate getArtifactRef() {
+    public TArtifactTemplate getArtifactRef() {
         return this.def.getArtifactTemplate(this.artifact.getArtifactRef());
     }
 

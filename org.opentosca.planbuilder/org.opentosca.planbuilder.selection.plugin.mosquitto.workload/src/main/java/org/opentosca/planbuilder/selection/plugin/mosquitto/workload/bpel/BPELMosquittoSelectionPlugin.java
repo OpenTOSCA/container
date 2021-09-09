@@ -45,7 +45,7 @@ public class BPELMosquittoSelectionPlugin extends MosquittoSelectionPlugin<BPELP
         // TODO fetch instance variables
         final String nodeTemplateInstanceVar = this.findInstanceVar(context, nodeTemplate.getId(), true);
 
-        final List<AbstractRelationshipTemplate> relations = ModelUtils.getOutgoingInfrastructureEdges(nodeTemplate);
+        final List<AbstractRelationshipTemplate> relations = ModelUtils.getOutgoingInfrastructureEdges(nodeTemplate, context.getCsar());
 
         if (relations.isEmpty()) {
             return false;

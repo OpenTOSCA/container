@@ -28,6 +28,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.LoggerFactory;
+import org.springframework.ui.Model;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -608,11 +609,11 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // check if there is an access policy attached
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().equals(noPublicAccessPolicyType)
-                | policy.getType().getId().equals(publicAccessPolicyType)) {
+            if (policy.getType().getQName().equals(noPublicAccessPolicyType)
+                | policy.getType().getQName().equals(publicAccessPolicyType)) {
 
-                if (policy.getProperties().asMap().get("SecurityGroup") != null) {
-                    String securityGroup = policy.getProperties().asMap().get("SecurityGroup");
+                if (ModelUtils.asMap(policy.getProperties()).get("SecurityGroup") != null) {
+                    String securityGroup = ModelUtils.asMap(policy.getProperties()).get("SecurityGroup");
                     final Variable secGroupVar =
                         context.createGlobalStringVariable("policyAwareSecurityGroup", securityGroup);
 
@@ -677,7 +678,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         this.handleTerminateWithCloudProviderInterface(context, ubuntuNodeTemplate, context.getProvisioningCompensationPhaseElement());
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().equals(onlyModeledPortsPolicyType)) {
+            if (policy.getType().getQName().equals(onlyModeledPortsPolicyType)) {
                 final List<Variable> modeledPortsVariables = fetchModeledPortsOfInfrastructure(context, nodeTemplate);
                 modeledPortsVariables.add(context.createGlobalStringVariable("vmSshPort", "22"));
                 addIpTablesScriptLogic(context, modeledPortsVariables, serverIpPropWrapper, sshUserVariable,

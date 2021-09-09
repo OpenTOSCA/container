@@ -12,12 +12,12 @@ public class BPELOpenMTCDockerContainerTypePlugin extends OpenMTCDockerContainer
 
     @Override
     public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
-        if (templateContext.getNodeTemplate() != null && this.canHandleCreate(nodeTemplate)) {
+        if (templateContext.getNodeTemplate() != null && this.canHandleCreate(templateContext.getCsar(), nodeTemplate)) {
             if (this.canHandleGateway(templateContext.getNodeTemplate())) {
-                return this.handler.handleOpenMTCGateway(templateContext, findConnectedBackend(nodeTemplate));
-            } else if (this.canHandleProtocolAdapter(templateContext.getNodeTemplate())) {
+                return this.handler.handleOpenMTCGateway(templateContext, findConnectedBackend(nodeTemplate, templateContext.getCsar()));
+            } else if (this.canHandleProtocolAdapter(templateContext.getNodeTemplate(), templateContext.getCsar())) {
                 return this.handler.handleOpenMTCProtocolAdapter(templateContext,
-                    findConnectedGateway(templateContext.getNodeTemplate()),
+                    findConnectedGateway(templateContext.getNodeTemplate(), templateContext.getCsar()),
                     getAdapterForNode(templateContext.getNodeTemplate()));
             }
         }

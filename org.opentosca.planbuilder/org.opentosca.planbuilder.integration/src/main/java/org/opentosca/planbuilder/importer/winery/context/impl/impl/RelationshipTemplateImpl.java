@@ -12,17 +12,15 @@ import java.util.Stack;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TCapability;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.utils.ModelUtilities;
 
-import org.opentosca.planbuilder.model.tosca.AbstractCapability;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipType;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
-import org.opentosca.planbuilder.model.tosca.AbstractRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +41,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
     private final org.eclipse.winery.model.tosca.TRelationshipTemplate relationshipTemplate;
     private final DefinitionsImpl definitions;
     private final TopologyTemplateImpl topology;
-    private AbstractProperties properties = null;
+    private TEntityTemplate.Properties properties = null;
 
     /**
      * Constructor
@@ -57,7 +55,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
         this.definitions = definitions;
         this.topology = topology;
         if (this.relationshipTemplate.getProperties() != null && this.relationshipTemplate.getProperties() != null) {
-            this.properties = new PropertiesImpl(this.relationshipTemplate.getProperties());
+            this.properties = this.relationshipTemplate.getProperties();
         }
     }
 
@@ -78,18 +76,18 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
     }
 
     @Override
-    public AbstractRequirement getSourceRequirement() {
+    public TRequirement getSourceRequirement() {
         if (relationshipTemplate.getSourceElement().getRef() instanceof TRequirement) {
-            return new RequirementImpl((TRequirement) relationshipTemplate.getSourceElement().getRef());
+            return (TRequirement) relationshipTemplate.getSourceElement().getRef();
         } else {
             return null;
         }
     }
 
     @Override
-    public AbstractCapability getTargetCapability() {
+    public TCapability getTargetCapability() {
         if (relationshipTemplate.getTargetElement().getRef() instanceof TCapability) {
-            return new CapabilityImpl((TCapability) relationshipTemplate.getTargetElement().getRef());
+            return (TCapability) relationshipTemplate.getTargetElement().getRef();
         } else {
             return null;
         }
@@ -123,7 +121,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
      * {@inheritDoc}
      */
     @Override
-    public AbstractRelationshipType getRelationshipType() {
+    public TRelationshipType getRelationshipType() {
         return searchRelationshipType(getType());
     }
 
@@ -134,7 +132,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
      * @param type a RelationshipType as QName
      * @return an AbstractRelationshipType which is denoted by the given QName, if nothing found null
      */
-    private AbstractRelationshipType searchRelationshipType(final QName type) {
+    private TRelationshipType searchRelationshipType(final QName type) {
         final Queue<AbstractDefinitions> definitionsToLookTrough = new LinkedList<>();
         definitionsToLookTrough.add(this.definitions);
         while (!definitionsToLookTrough.isEmpty()) {
@@ -158,7 +156,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
         final List<AbstractRelationshipTypeImplementation> impls = new ArrayList<>();
 
         for (final AbstractRelationshipTypeImplementation impl : findRelationshipTypeImpls(this.definitions)) {
-            if (impl.getRelationshipType().getId().equals(this.relationshipTemplate.getType())) {
+            if (impl.getRelationshipType().getQName().equals(this.relationshipTemplate.getType())) {
                 impls.add(impl);
             }
         }
@@ -191,7 +189,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
      * {@inheritDoc}
      */
     @Override
-    public AbstractProperties getProperties() {
+    public TEntityTemplate.Properties getProperties() {
         return this.properties;
     }
 

@@ -1,18 +1,18 @@
 package org.opentosca.planbuilder.importer.winery.context.impl.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRequiredContainerFeature;
 import org.eclipse.winery.model.tosca.TTag;
 
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipType;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
-import org.opentosca.planbuilder.model.tosca.AbstractTag;
 
 /**
  * <p>
@@ -28,7 +28,6 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
     private final DefinitionsImpl defs;
     private final org.eclipse.winery.model.tosca.TRelationshipTypeImplementation relationshipTypeImpl;
     private final List<AbstractImplementationArtifact> ias;
-    private final List<AbstractTag> tags;
 
     /**
      * Constructor
@@ -41,9 +40,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
         this.defs = definitionsImpl;
         this.relationshipTypeImpl = relationshipTypeImplementation;
         this.ias = new ArrayList<>();
-        this.tags = new ArrayList<>();
         this.initIas();
-        this.initTags();
     }
 
     /**
@@ -52,17 +49,6 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
     private void initIas() {
         for (final TImplementationArtifact artifact : this.relationshipTypeImpl.getImplementationArtifacts()) {
             this.ias.add(new ImplementationArtifactImpl(artifact, this.defs));
-        }
-    }
-
-    /**
-     * Initializes the Tags of this RelationshipTypeImplementatiokn
-     */
-    private void initTags() {
-        if (this.relationshipTypeImpl.getTags() != null) {
-            for (final TTag tag : this.relationshipTypeImpl.getTags()) {
-                this.tags.add(new TagImpl(tag));
-            }
         }
     }
 
@@ -86,9 +72,9 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
      * {@inheritDoc}
      */
     @Override
-    public AbstractRelationshipType getRelationshipType() {
-        for (final AbstractRelationshipType relation : this.defs.getAllRelationshipTypes()) {
-            if (relation.getId().equals(this.relationshipTypeImpl.getRelationshipType())) {
+    public TRelationshipType getRelationshipType() {
+        for (final TRelationshipType relation : this.defs.getAllRelationshipTypes()) {
+            if (relation.getQName().equals(this.relationshipTypeImpl.getRelationshipType())) {
                 return relation;
             }
         }
@@ -144,7 +130,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractTag> getTags() {
-        return this.tags;
+    public Collection<TTag> getTags() {
+        return this.relationshipTypeImpl.getTags();
     }
 }

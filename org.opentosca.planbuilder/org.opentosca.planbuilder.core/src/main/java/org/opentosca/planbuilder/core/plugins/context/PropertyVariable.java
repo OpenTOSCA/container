@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.core.plugins.context;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public class PropertyVariable extends Variable {
 
@@ -48,7 +49,7 @@ public class PropertyVariable extends Variable {
     }
 
     public String getContent() {
-        return this.nodeTemplate.getProperties().asMap().get(this.propertyName);
+        return ModelUtils.asMap(this.nodeTemplate.getProperties()).get(this.propertyName);
     }
 
     public String toString() {

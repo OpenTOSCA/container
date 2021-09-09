@@ -2,6 +2,8 @@ package org.opentosca.planbuilder.model.tosca;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TArtifactTemplate;
+
 /**
  * <p>
  * This class represents a TOSCA DeploymentArtifact
@@ -25,7 +27,7 @@ public abstract class AbstractDeploymentArtifact {
      *
      * @return an AbstractArtifactTemplate
      */
-    public abstract AbstractArtifactTemplate getArtifactRef();
+    public abstract TArtifactTemplate getArtifactRef();
 
     /**
      * Returns the name of this DeploymentArtifact

@@ -6,6 +6,10 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TCapability;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TRequirement;
+
 /**
  * <p>
  * This class represents a TOSCA NodeTemplate.
@@ -38,14 +42,14 @@ public abstract class AbstractNodeTemplate {
      *
      * @return a List of AbstractCapabilities for this NodeTemplate
      */
-    public abstract List<AbstractCapability> getCapabilities();
+    public abstract List<TCapability> getCapabilities();
 
     /**
      * Returns the TOSCA Requirements of this NodeTemplate
      *
      * @return a List of AbstractRequirements for this NodeTemplate
      */
-    public abstract List<AbstractRequirement> getRequirements();
+    public abstract List<TRequirement> getRequirements();
 
     /**
      * Returns the Name of this NodeTemplate
@@ -80,7 +84,7 @@ public abstract class AbstractNodeTemplate {
      *
      * @return an AbstractProperties for this NodeTemplate
      */
-    public abstract AbstractProperties getProperties();
+    public abstract TEntityTemplate.Properties getProperties();
 
     /**
      * Returns the attached Policy Templates of this Node Template

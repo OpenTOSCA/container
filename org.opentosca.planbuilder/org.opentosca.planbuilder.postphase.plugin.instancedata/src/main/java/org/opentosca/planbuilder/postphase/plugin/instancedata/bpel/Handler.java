@@ -15,8 +15,14 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -25,11 +31,7 @@ import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
@@ -1167,7 +1169,7 @@ public class Handler {
         // (e.g. Raspian-hostedOn->Raspi3 => create code is added to raspbian)
         Element injectionPreElement = null;
         Element injectionPostElement = null;
-        if (ModelUtils.getRelationshipTypeHierarchy(targetRelationshipTemplate.getRelationshipType())
+        if (ModelUtils.getRelationshipTypeHierarchy(targetRelationshipTemplate.getRelationshipType(), targetContext.getCsar())
             .contains(Types.connectsToRelationType)) {
             injectionPreElement = targetContext.getPrePhaseElement();
             injectionPostElement = targetContext.getPostPhaseElement();
@@ -1360,7 +1362,7 @@ public class Handler {
         final String targetInstanceVarName =
             context.findInstanceIDVar(context.getRelationshipTemplate().getTarget().getId(), true);
 
-        if (ModelUtils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType())
+        if (ModelUtils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType(), context.getCsar())
             .contains(Types.connectsToRelationType)) {
             injectionPreElement = context.getPrePhaseElement();
             injectionPostElement = context.getPostPhaseElement();
@@ -1685,12 +1687,12 @@ public class Handler {
      */
     private Map<String, QName> buildMappingsFromVarNameToDomElement(final PlanContext context,
                                                                     AbstractNodeTemplate nodeTemplate) {
-        final Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
+        final Map<String, String> propertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
         final Map<String, QName> mapping = new HashMap<>();
 
         for (String propertyName : propertiesMap.keySet()) {
             final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
-            mapping.put(propVarName, new QName(nodeTemplate.getProperties().getNamespace(), propertyName));
+            mapping.put(propVarName, new QName(ModelUtils.getNamespace(nodeTemplate.getProperties()), propertyName));
         }
 
         return mapping;
@@ -1698,12 +1700,12 @@ public class Handler {
 
     private Map<String, QName> buildMappingsFromVarNameToDomElement(final PlanContext context,
                                                                     AbstractRelationshipTemplate relationshipTemplate) {
-        final Map<String, String> propertiesMap = relationshipTemplate.getProperties().asMap();
+        final Map<String, String> propertiesMap = ModelUtils.asMap(relationshipTemplate.getProperties());
         final Map<String, QName> mapping = new HashMap<>();
 
         for (String propertyName : propertiesMap.keySet()) {
             final String propVarName = context.getVariableNameOfProperty(relationshipTemplate, propertyName);
-            mapping.put(propVarName, new QName(relationshipTemplate.getProperties().getNamespace(), propertyName));
+            mapping.put(propVarName, new QName(ModelUtils.getNamespace(relationshipTemplate.getProperties()), propertyName));
         }
 
         return mapping;
@@ -1719,12 +1721,12 @@ public class Handler {
      * @param properties AbstractProperties of an AbstractNodeTemplate or AbstractRelationshipTemplate
      * @return true iff properties and properties.getDomElement() != null and DomElement.hasChildNodes() == true
      */
-    private boolean checkProperties(final AbstractProperties properties) {
+    private boolean checkProperties(final TEntityTemplate.Properties properties) {
         if (properties == null) {
             return false;
         }
 
-        return !properties.asMap().isEmpty();
+        return !ModelUtils.asMap(properties).isEmpty();
     }
 
     public boolean handlePasswordCheck(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
@@ -1742,13 +1744,13 @@ public class Handler {
 
         // find runScript method
 
-        final AbstractNodeTemplate node = findRunScriptNode(nodeTemplate);
+        final AbstractNodeTemplate node = findRunScriptNode(nodeTemplate, context.getCsar());
 
         if (node == null) {
             return false;
         }
 
-        final Map<AbstractParameter, Variable> inputParams = new HashMap<>();
+        final Map<TParameter, Variable> inputParams = new HashMap<>();
 
         final String cmdStringName = "checkPasswordScript_" + nodeTemplate.getId() + "_" + System.currentTimeMillis();
         final String cmdStringVal = createPlaceHolderPwCheckCmdString(pwVariables);
@@ -1770,10 +1772,10 @@ public class Handler {
             e.printStackTrace();
         }
 
-        inputParams.put(new AbstractParameter() {
+        inputParams.put(new TParameter() {
 
             @Override
-            public boolean isRequired() {
+            public boolean getRequired() {
                 // TODO Auto-generated method stub
                 return false;
             }
@@ -1791,16 +1793,16 @@ public class Handler {
             }
         }, cmdVar);
 
-        final Map<AbstractParameter, Variable> outputParams = new HashMap<>();
+        final Map<TParameter, Variable> outputParams = new HashMap<>();
 
         final String outputVarName = "pwCheckResult" + System.currentTimeMillis();
 
         final Variable outputVar = context.createGlobalStringVariable(outputVarName, "");
 
-        outputParams.put(new AbstractParameter() {
+        outputParams.put(new TParameter() {
 
             @Override
-            public boolean isRequired() {
+            public boolean getRequired() {
                 // TODO Auto-generated method stub
                 return false;
             }
@@ -1860,16 +1862,16 @@ public class Handler {
         return cmdString;
     }
 
-    protected AbstractNodeTemplate findRunScriptNode(final AbstractNodeTemplate nodeTemplate) {
+    protected AbstractNodeTemplate findRunScriptNode(final AbstractNodeTemplate nodeTemplate, Csar csar) {
         final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
 
-        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
+        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, csar);
 
         for (final AbstractNodeTemplate node : infraNodes) {
-            for (final AbstractInterface iface : node.getType().getInterfaces()) {
+            for (final TInterface iface : node.getType().getInterfaces()) {
                 if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM)
                     | iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER)) {
-                    for (final AbstractOperation op : iface.getOperations()) {
+                    for (final TOperation op : iface.getOperations()) {
                         if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
                             | op.getName()
                             .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)) {

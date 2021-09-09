@@ -11,16 +11,18 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
@@ -71,11 +73,11 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                                       final AbstractNodeTemplate sourceParameterNode,
                                       final AbstractNodeTemplate targetParameterNode) {
         // fetch the connectsTo Operation of the source node and it's parameters
-        AbstractInterface connectsToIface = null;
-        AbstractOperation connectsToOp = null;
-        Map<AbstractParameter, Variable> param2propertyMapping = null;
-        for (final AbstractInterface iface : connectToNode.getType().getInterfaces()) {
-            for (final AbstractOperation op : iface.getOperations()) {
+        TInterface connectsToIface = null;
+        TOperation connectsToOp = null;
+        Map<TParameter, Variable> param2propertyMapping = null;
+        for (final TInterface iface : connectToNode.getType().getInterfaces()) {
+            for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO)) {
                     // find properties that match the params on the target nodes' stack or prefixed
                     // properties at the source stack
@@ -125,12 +127,12 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * @param targetParameterNode the target node of the relationship
      * @return the Map which contains all found input parameters
      */
-    private Map<AbstractParameter, Variable> findInputParameters(final BPELPlanContext templateContext,
-                                                                 final AbstractOperation connectsToOp,
+    private Map<TParameter, Variable> findInputParameters(final BPELPlanContext templateContext,
+                                                                 final TOperation connectsToOp,
                                                                  final AbstractNodeTemplate connectToNode,
                                                                  final AbstractNodeTemplate sourceParameterNode,
                                                                  final AbstractNodeTemplate targetParameterNode) {
-        final Map<AbstractParameter, Variable> param2propertyMapping = new HashMap<>();
+        final Map<TParameter, Variable> param2propertyMapping = new HashMap<>();
 
         // search on the opposite side of the connectToNode NodeTemplate for default parameters
         AbstractNodeTemplate parametersRootNode;
@@ -141,7 +143,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         }
 
         // search the input parameters in the properties
-        for (final AbstractParameter param : connectsToOp.getInputParameters()) {
+        for (final TParameter param : connectsToOp.getInputParameters()) {
             // search parameter in the RelationshipTemplate properties
             final Variable var =
                 templateContext.getPropertyVariable(templateContext.getRelationshipTemplate(), param.getName());
@@ -209,7 +211,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             if (property != null) {
                 return property;
             } else {
-                currentNode = fetchNodeConnectedWithHostedOn(currentNode);
+                currentNode = fetchNodeConnectedWithHostedOn(currentNode, templateContext.getCsar());
             }
         }
         return null;
@@ -222,9 +224,9 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * @return an AbstractNodeTemplate which is a target of an hostedOn relation. Null if the given nodeTemplate isn't
      * connected to as a source to a hostedOn relation
      */
-    private AbstractNodeTemplate fetchNodeConnectedWithHostedOn(final AbstractNodeTemplate nodeTemplate) {
+    private AbstractNodeTemplate fetchNodeConnectedWithHostedOn(final AbstractNodeTemplate nodeTemplate, Csar csar) {
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-            if (ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType())
+            if (ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType(), csar)
                 .contains(Types.hostedOnRelationType)) {
                 return relation.getTarget();
             }
@@ -233,8 +235,8 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     }
 
     private String getInterface(final AbstractNodeTemplate nodeTemplate, final String operationName) {
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-            for (final AbstractOperation op : iface.getOperations()) {
+        for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
+            for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(operationName)) {
                     return iface.getName();
                 }
@@ -364,10 +366,10 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * @param param2propertyMapping mapping between inputParameters and matched properties
      * @return true, if all required input params have a matching property. Otherwise, false.
      */
-    private boolean allRequiredParamsAreMatched(final List<AbstractParameter> inputParameters,
-                                                final Map<AbstractParameter, Variable> param2propertyMapping) {
-        for (final AbstractParameter inputParam : inputParameters) {
-            if (inputParam.isRequired() && !param2propertyMapping.containsKey(inputParam)) {
+    private boolean allRequiredParamsAreMatched(final List<TParameter> inputParameters,
+                                                final Map<TParameter, Variable> param2propertyMapping) {
+        for (final TParameter inputParam : inputParameters) {
+            if (inputParam.getRequired() && !param2propertyMapping.containsKey(inputParam)) {
                 return false;
             }
         }

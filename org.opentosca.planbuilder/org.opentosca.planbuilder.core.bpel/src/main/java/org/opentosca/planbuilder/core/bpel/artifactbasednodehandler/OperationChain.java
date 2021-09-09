@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
@@ -14,10 +17,7 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.w3c.dom.Element;
 
@@ -136,7 +136,7 @@ public class OperationChain {
         if (!this.provCandidates.isEmpty()) {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
             for (int index = 0; index < provCandidate.ops.size(); index++) {
-                final AbstractOperation op = provCandidate.ops.get(index);
+                final TOperation op = provCandidate.ops.get(index);
                 final AbstractImplementationArtifact ia = provCandidate.ias.get(index);
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
                 check &= plugin.handle(context, op, ia);
@@ -165,7 +165,7 @@ public class OperationChain {
             // check for index of prov candidates
             for (final String opName : operationNames) {
                 for (Integer index = 0; index < provCandidate.ops.size(); index++) {
-                    final AbstractOperation op = provCandidate.ops.get(index);
+                    final TOperation op = provCandidate.ops.get(index);
                     if (op instanceof InterfaceDummy) {
                         if (((InterfaceDummy) op).getOperationNames().contains(opName)) {
                             order.put(opName, index);
@@ -183,7 +183,7 @@ public class OperationChain {
                 if (index == null) {
                     continue;
                 }
-                AbstractOperation op = provCandidate.ops.get(index);
+                TOperation op = provCandidate.ops.get(index);
 
                 if (op instanceof InterfaceDummy) {
                     op = ((InterfaceDummy) op).getOperation(opName);
@@ -203,7 +203,7 @@ public class OperationChain {
     }
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
-                                                final Map<AbstractParameter, Variable> param2propertyMapping) {
+                                                final Map<TParameter, Variable> param2propertyMapping) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
@@ -211,7 +211,7 @@ public class OperationChain {
             // check for index of prov candidates
             for (final String opName : operationNames) {
                 for (Integer index = 0; index < provCandidate.ops.size(); index++) {
-                    final AbstractOperation op = provCandidate.ops.get(index);
+                    final TOperation op = provCandidate.ops.get(index);
                     if (opName.equals(op.getName())) {
                         order.put(opName, index);
                     }
@@ -223,7 +223,7 @@ public class OperationChain {
                 if (index == null) {
                     continue;
                 }
-                final AbstractOperation op = provCandidate.ops.get(index);
+                final TOperation op = provCandidate.ops.get(index);
                 if (!operationNames.contains(op.getName())) {
                     // if the operation isn't mentioned in operationName
                     // list, don't execute the operation
@@ -240,7 +240,7 @@ public class OperationChain {
                             checkCount++;
                         }
                     } else {
-                        final AbstractOperation dummyOp = this.createDummyOperation(opName, op);
+                        final TOperation dummyOp = this.createDummyOperation(opName, op);
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping)) {
                             checkCount++;
                         }
@@ -252,8 +252,8 @@ public class OperationChain {
     }
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
-                                                final Map<AbstractParameter, Variable> param2propertyMapping,
-                                                final Map<AbstractParameter, Variable> param2propertyOutputMapping) {
+                                                final Map<TParameter, Variable> param2propertyMapping,
+                                                final Map<TParameter, Variable> param2propertyOutputMapping) {
 
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
@@ -262,7 +262,7 @@ public class OperationChain {
             // check for index of prov candidates
             for (final String opName : operationNames) {
                 for (Integer index = 0; index < provCandidate.ops.size(); index++) {
-                    final AbstractOperation op = provCandidate.ops.get(index);
+                    final TOperation op = provCandidate.ops.get(index);
                     if (op instanceof InterfaceDummy) {
                         if (((InterfaceDummy) op).getOperation(opName) != null) {
                             order.put(opName, index);
@@ -280,7 +280,7 @@ public class OperationChain {
                 if (index == null) {
                     continue;
                 }
-                final AbstractOperation op = provCandidate.ops.get(index);
+                final TOperation op = provCandidate.ops.get(index);
                 if (op instanceof InterfaceDummy) {
                     boolean matched = true;
                     for (final String opname : operationNames) {
@@ -310,7 +310,7 @@ public class OperationChain {
                             checkCount++;
                         }
                     } else {
-                        final AbstractOperation dummyOp = this.createDummyOperation(opName, op);
+                        final TOperation dummyOp = this.createDummyOperation(opName, op);
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping,
                             param2propertyOutputMapping)) {
                             checkCount++;
@@ -327,8 +327,8 @@ public class OperationChain {
     }
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
-                                                final Map<AbstractParameter, Variable> param2propertyMapping,
-                                                final Map<AbstractParameter, Variable> param2propertyOutputMapping,
+                                                final Map<TParameter, Variable> param2propertyMapping,
+                                                final Map<TParameter, Variable> param2propertyOutputMapping,
                                                 final Element elementToAppendTo) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
@@ -337,7 +337,7 @@ public class OperationChain {
             // check for index of prov candidates
             for (final String opName : operationNames) {
                 for (Integer index = 0; index < provCandidate.ops.size(); index++) {
-                    final AbstractOperation op = provCandidate.ops.get(index);
+                    final TOperation op = provCandidate.ops.get(index);
                     if (op instanceof InterfaceDummy) {
                         if (((InterfaceDummy) op).getOperation(opName) != null) {
                             order.put(opName, index);
@@ -355,7 +355,7 @@ public class OperationChain {
                 if (index == null) {
                     continue;
                 }
-                final AbstractOperation op = provCandidate.ops.get(index);
+                final TOperation op = provCandidate.ops.get(index);
                 if (op instanceof InterfaceDummy) {
                     boolean matched = true;
                     for (final String opname : operationNames) {
@@ -385,7 +385,7 @@ public class OperationChain {
                             checkCount++;
                         }
                     } else {
-                        final AbstractOperation dummyOp = this.createDummyOperation(opName, op);
+                        final TOperation dummyOp = this.createDummyOperation(opName, op);
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, param2propertyOutputMapping,
                             elementToAppendTo)) {
                             checkCount++;
@@ -398,7 +398,7 @@ public class OperationChain {
     }
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
-                                                final Map<AbstractParameter, Variable> param2propertyMapping,
+                                                final Map<TParameter, Variable> param2propertyMapping,
                                                 final Element elementToAppendTo) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
@@ -407,7 +407,7 @@ public class OperationChain {
             // check for index of prov candidates
             for (final String opName : operationNames) {
                 for (Integer index = 0; index < provCandidate.ops.size(); index++) {
-                    final AbstractOperation op = provCandidate.ops.get(index);
+                    final TOperation op = provCandidate.ops.get(index);
                     if (opName.equals(op.getName())) {
                         order.put(opName, index);
                     }
@@ -419,7 +419,7 @@ public class OperationChain {
                 if (index == null) {
                     continue;
                 }
-                final AbstractOperation op = provCandidate.ops.get(index);
+                final TOperation op = provCandidate.ops.get(index);
                 if (!operationNames.contains(op.getName())) {
                     // if the operation isn't mentioned in operationName
                     // list, don't execute the operation
@@ -436,7 +436,7 @@ public class OperationChain {
                             checkCount++;
                         }
                     } else {
-                        final AbstractOperation dummyOp = this.createDummyOperation(opName, op);
+                        final TOperation dummyOp = this.createDummyOperation(opName, op);
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, elementToAppendTo)) {
                             checkCount++;
                         }
@@ -447,14 +447,14 @@ public class OperationChain {
         return checkCount == operationNames.size();
     }
 
-    private AbstractOperation createDummyOperation(String opName, AbstractOperation op) {
-        return new AbstractOperation() {
+    private TOperation createDummyOperation(String opName, TOperation op) {
+        return new TOperation() {
 
             private final String operationName = opName;
             private final InterfaceDummy iface = (InterfaceDummy) op;
 
             @Override
-            public List<AbstractParameter> getOutputParameters() {
+            public List<TParameter> getOutputParameters() {
                 return this.iface.getOperation(this.operationName).getOutputParameters();
             }
 
@@ -464,14 +464,10 @@ public class OperationChain {
             }
 
             @Override
-            public List<AbstractParameter> getInputParameters() {
+            public List<TParameter> getInputParameters() {
                 return this.iface.getOperation(this.operationName).getInputParameters();
             }
 
-            @Override
-            public AbstractInterface getInterface() {
-                return iface.getInterface();
-            }
         };
     }
 }

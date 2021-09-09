@@ -4,12 +4,14 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +43,12 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
      * {@inheritDoc}
      */
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final AbstractNodeTemplate nodeTemplate) {
         return allDependenciesAreMet(nodeTemplate);
     }
 
     @Override
-    public boolean canHandleTerminate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(Csar csar, final AbstractNodeTemplate nodeTemplate) {
         return allDependenciesAreMet(nodeTemplate);
     }
 
@@ -108,18 +110,18 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
      * canHandlePolicyAware(org.opentosca.planbuilder.model.tosca. AbstractNodeTemplate)
      */
     @Override
-    public boolean canHandlePolicyAwareCreate(final AbstractNodeTemplate nodeTemplate) {
-        boolean canHandle = this.canHandleCreate(nodeTemplate);
+    public boolean canHandlePolicyAwareCreate(Csar csar, final AbstractNodeTemplate nodeTemplate) {
+        boolean canHandle = this.canHandleCreate(csar, nodeTemplate);
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
             // ALL policies must be supported
-            if (policy.getType().getId().equals(noPublicAccessPolicyType)
-                | policy.getType().getId().equals(publicAccessPolicyType)) {
+            if (policy.getType().getQName().equals(noPublicAccessPolicyType)
+                | policy.getType().getQName().equals(publicAccessPolicyType)) {
                 if (policy.getProperties() != null
-                    && policy.getProperties().asMap().containsKey("SecurityGroup")) {
+                    && ModelUtils.asMap(policy.getProperties()).containsKey("SecurityGroup")) {
                     canHandle &= true;
                 }
-            } else canHandle &= policy.getType().getId().equals(onlyModeledPortsPolicyType);
+            } else canHandle &= policy.getType().getQName().equals(onlyModeledPortsPolicyType);
         }
 
         return canHandle;
@@ -129,13 +131,13 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
      * {@inheritDoc}
      */
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(Csar csar, final AbstractRelationshipTemplate relationshipTemplate) {
         // this plugin doesn't handle relations
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(Csar csar, final AbstractRelationshipTemplate relationshipTemplate) {
         // never handles a relationship
         return false;
     }

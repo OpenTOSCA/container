@@ -67,7 +67,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
 
         // find infrastructure nodes of mosquitto
         List<AbstractNodeTemplate> infrastructureNodes = new ArrayList<>();
-        ModelUtils.getInfrastructureNodes(relationTemplate.getTarget(), infrastructureNodes);
+        ModelUtils.getInfrastructureNodes(relationTemplate.getTarget(), infrastructureNodes, templateContext.getCsar());
 
         ModelUtils.getNodesFromNodeToSink(relationTemplate.getTarget(), infrastructureNodes);
 
@@ -93,7 +93,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         String ubuntuTemplateId = null;
 
         infrastructureNodes = new ArrayList<>();
-        ModelUtils.getInfrastructureNodes(relationTemplate.getSource(), infrastructureNodes);
+        ModelUtils.getInfrastructureNodes(relationTemplate.getSource(), infrastructureNodes, templateContext.getCsar());
 
         for (final AbstractNodeTemplate infraNode : infrastructureNodes) {
 
@@ -175,16 +175,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         return true;
     }
 
-    /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
-     *
-     * @param assignName          the name of the BPEL assign
-     * @param csarEntryXpathQuery the csarEntryPoint XPath query
-     * @param stringVarName       the variable to load the queries results into
-     * @return a DOM Node representing a BPEL assign element
-     * @throws IOException  is thrown when loading internal bpel fragments fails
-     * @throws SAXException is thrown when parsing internal format into DOM fails
-     */
     public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
                                                               final String stringVarName) throws IOException,
         SAXException {
