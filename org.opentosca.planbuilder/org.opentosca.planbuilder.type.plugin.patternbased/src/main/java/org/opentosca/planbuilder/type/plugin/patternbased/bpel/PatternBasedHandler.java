@@ -141,7 +141,13 @@ public abstract class PatternBasedHandler {
         final OperationMatching matching =
             createPropertyToParameterMatching(nodesForMatching, ifaceToMatch, operationToMatch);
 
-        return matching.inputMatching.size() == operationToMatch.getInputParameters().size();
+        int inputParamSize = 0;
+
+        if(operationToMatch.getInputParameters() != null) {
+            inputParamSize = operationToMatch.getInputParameters().size();
+        }
+
+        return matching.inputMatching.size() == inputParamSize;
     }
 
     protected OperationMatching createPropertyToParameterMatching(final Collection<TNodeTemplate> nodesForMatching,
@@ -150,41 +156,46 @@ public abstract class PatternBasedHandler {
         final OperationMatching matching = new OperationMatching(ifaceToMatch, operationToMatch);
         final Set<TNodeTemplate> matchedNodes = new HashSet<>();
 
-        for (final TParameter param : operationToMatch.getInputParameters()) {
-            boolean matched = false;
+        if (operationToMatch.getInputParameters() != null) {
+            for (final TParameter param : operationToMatch.getInputParameters()) {
+                boolean matched = false;
 
-            for (final TNodeTemplate nodeForMatching : nodesForMatching) {
-                for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
-                    if (param.getName().equals(propName)) {
-                        matching.inputMatching.put(param, propName);
-                        matched = true;
-                        matchedNodes.add(nodeForMatching);
+                for (final TNodeTemplate nodeForMatching : nodesForMatching) {
+                    for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
+                        if (param.getName().equals(propName)) {
+                            matching.inputMatching.put(param, propName);
+                            matched = true;
+                            matchedNodes.add(nodeForMatching);
+                            break;
+                        }
+                    }
+                    if (matched) {
                         break;
                     }
-                }
-                if (matched) {
-                    break;
                 }
             }
         }
 
-        for (final TParameter param : operationToMatch.getOutputParameters()) {
-            boolean matched = false;
+        if (operationToMatch.getOutputParameters() != null) {
+            for (final TParameter param : operationToMatch.getOutputParameters()) {
+                boolean matched = false;
 
-            for (final TNodeTemplate nodeForMatching : nodesForMatching) {
-                for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
-                    if (param.getName().equals(propName)) {
-                        matching.outputMatching.put(param, propName);
-                        matched = true;
-                        matchedNodes.add(nodeForMatching);
+                for (final TNodeTemplate nodeForMatching : nodesForMatching) {
+                    for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
+                        if (param.getName().equals(propName)) {
+                            matching.outputMatching.put(param, propName);
+                            matched = true;
+                            matchedNodes.add(nodeForMatching);
+                            break;
+                        }
+                    }
+                    if (matched) {
                         break;
                     }
                 }
-                if (matched) {
-                    break;
-                }
             }
         }
+
 
         matching.matchedNodes = matchedNodes;
         return matching;

@@ -188,6 +188,10 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     public boolean canHandleCreate(BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         LOG.debug("Checking if DAs of node template {} can be deployed", nodeTemplate.getId());
         // Find infrastructures of this node and check if we can deploy all of its DA's
+        if (nodeTemplate.getDeploymentArtifacts() == null) {
+            // No DAs = we can work with that
+            return true;
+        }
         for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
             if (getDeployableInfrastructureNode(nodeTemplate, da, context.getCsar()) == null) {
                 LOG.debug("DAs of node template {} can't be deployed", nodeTemplate.getId());
@@ -217,6 +221,11 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     @Override
     public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         boolean handle = true;
+
+        if (nodeTemplate.getDeploymentArtifacts() == null) {
+            return handle;
+        }
+
         for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
             final TNodeTemplate infraNode = getDeployableInfrastructureNode(nodeTemplate, da, context.getCsar());
             handle &= this.handler.handle(context, da, infraNode);

@@ -26,6 +26,9 @@ public abstract class ConfigureRelationsPlugin<T extends PlanContext> implements
     @Override
     public boolean canHandleCreate(Csar csar, final TRelationshipTemplate relationshipTemplate) {
         final List<TInterface> interfaces = ModelUtils.findRelationshipType(relationshipTemplate, csar).getInterfaces();
+        if (interfaces == null) {
+            return false;
+        }
         for (final TInterface i : interfaces) {
             if (i.getName().equalsIgnoreCase(INTERFACE_NAME)) {
                 return true;

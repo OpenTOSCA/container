@@ -16,6 +16,7 @@ import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
@@ -118,7 +119,7 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
         Collection<TNodeTemplate> nodesToStart = new HashSet<>();
 
         for (TNodeTemplate node : nodes) {
-            List<TNodeTemplate> nodesToSink = new ArrayList<>();
+            Set<TNodeTemplate> nodesToSink = Sets.newHashSet();
             ModelUtils.getNodesFromNodeToSink(node, Types.hostedOnRelationType, nodesToSink, csar);
             for (TNodeTemplate nodeToSink : nodesToSink) {
                 if (!nodeToSink.equals(node) && AbstractDefrostPlanBuilder.hasFreezeableComponentPolicy(nodeToSink)) {

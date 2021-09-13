@@ -38,7 +38,7 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
             templateContext.addUsedOperation(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER);
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER, templateContext.getCsar());
         }
 
         return check;
@@ -72,7 +72,7 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
             templateContext.addUsedOperation(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
                 Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER);
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER, templateContext.getCsar());
         }
 
         return check;

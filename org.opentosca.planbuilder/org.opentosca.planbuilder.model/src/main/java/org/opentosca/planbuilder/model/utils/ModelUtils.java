@@ -77,43 +77,39 @@ public class ModelUtils {
             .replace(":", "_");
     }
 
-    public static TOperation findOperation(TDefinitions def, String interfaceName, String operationName) {
-        for (TNodeType nodeType : def.getNodeTypes()) {
-            for (TInterface iface : nodeType.getInterfaces()) {
-                if (iface.getName().equals(interfaceName)) {
-                    for (TOperation op : iface.getOperations()) {
-                        if (op.getName().equals(operationName)) {
-                            return op;
+    public static TOperation findOperation(Csar csar, String interfaceName, String operationName) {
+        for (TDefinitions defs : csar.definitions()) {
+            for (TNodeType nodeType : defs.getNodeTypes()) {
+                for (TInterface iface : nodeType.getInterfaces()) {
+                    if (iface.getName().equals(interfaceName)) {
+                        for (TOperation op : iface.getOperations()) {
+                            if (op.getName().equals(operationName)) {
+                                return op;
+                            }
                         }
                     }
                 }
             }
         }
-        for (TDefinitions defs : getAllDefinitions()) {
-            if (defs.getIdFromIdOrNameField().equals(def.getIdFromIdOrNameField())){
-                continue;
-            }
-            TOperation op = findOperation(defs, interfaceName, operationName);
-            if (op != null) {
-                return op;
-            }
-        }
         return null;
     }
 
-    public static Collection<TDefinitions> getAllDefinitions() {
-        IRepository repo = RepositoryFactory.getRepository();
-        Collection<DefinitionsChildId> ids = repo.getAllDefinitionsChildIds();
-        return ids.stream().map(x -> repo.getDefinitions(x)).collect(Collectors.toList());
-    }
 
 
     public static boolean hasBuildPlan(TServiceTemplate serviceTemplate) {
-        return !serviceTemplate.getPlans().stream().filter(x -> x.getPlanType().equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan")).collect(Collectors.toList()).isEmpty();
+        return hasPlansOfType(serviceTemplate, "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan");
     }
 
     public static boolean hasTerminationPlan(TServiceTemplate serviceTemplate) {
-        return !serviceTemplate.getPlans().stream().filter(x -> x.getPlanType().equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan")).collect(Collectors.toList()).isEmpty();
+        return hasPlansOfType(serviceTemplate, "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan");
+    }
+
+    public static boolean hasPlansOfType(TServiceTemplate serviceTemplate, String planType) {
+        if(serviceTemplate.getPlans() != null){
+            return !serviceTemplate.getPlans().stream().filter(x -> x.getPlanType().equals(planType)).collect(Collectors.toList()).isEmpty();
+        } else {
+            return false;
+        }
     }
 
     public static Collection<TRelationshipTemplate> getIngoingRelations(TNodeTemplate nodeTemplate, Csar csar) {
@@ -121,7 +117,7 @@ public class ModelUtils {
     }
 
     public static Collection<TRelationshipTemplate> getOutgoingRelations(TNodeTemplate nodeTemplate, Csar csar) {
-        return getAllRelationshipTemplates(csar).stream().filter(x -> x.getSourceElement().getRef() instanceof TNodeTemplate && x.getTargetElement().getRef().getId().equals(nodeTemplate.getId())).collect(Collectors.toList());
+        return getAllRelationshipTemplates(csar).stream().filter(x -> x.getSourceElement().getRef() instanceof TNodeTemplate && x.getSourceElement().getRef().getId().equals(nodeTemplate.getId())).collect(Collectors.toList());
     }
 
     public static Collection<TRelationshipTemplate> getAllRelationshipTemplates(Csar csar) {
@@ -151,12 +147,16 @@ public class ModelUtils {
      *
      * @param nodeTemplates a List of TNodeTemplate
      */
-    private static void cleanDuplciates(final Collection<TNodeTemplate> nodeTemplates) {
+    private static void cleanDuplicates(final Collection<TNodeTemplate> nodeTemplates) {
+        /*Set<TNodeTemplate> cleanedNodes = Sets.newHashSet();
+        cleanedNodes.addAll(nodeTemplates);
+        nodeTemplates.clear();
+        nodeTemplates.addAll(cleanedNodes);*/
         final List<TNodeTemplate> list = new ArrayList<>();
         for (final TNodeTemplate template : nodeTemplates) {
             boolean match = false;
             for (final TNodeTemplate template2 : list) {
-                if (template.getId().equals(template2.getId()) & template == template2) {
+                if (template.getId().equals(template2.getId())) {
                     match = true;
                 }
             }
@@ -207,7 +207,7 @@ public class ModelUtils {
         for (final TRelationshipTemplate template : relationshipTemplates) {
             boolean match = false;
             for (final TRelationshipTemplate template2 : list) {
-                if (template.getId().equals(template2.getId()) & template == template2) {
+                if (template.getId().equals(template2.getId())) {
                     match = true;
                 }
             }
@@ -226,7 +226,11 @@ public class ModelUtils {
 
         TArtifactType type = findArtifactType(artifactTemplate.getType(), artifactTypes);
 
-        TArtifactType ref = findArtifactType(type.getDerivedFrom().getTypeRef(), artifactTypes);
+
+        TArtifactType ref = null;
+        if (type.getDerivedFrom() != null) {
+            ref = findArtifactType(type.getDerivedFrom().getTypeRef(), artifactTypes);
+        }
 
         while (ref != null) {
             qnames.add(ref.getQName());
@@ -467,7 +471,7 @@ public class ModelUtils {
                 ModelUtils.getInfrastructureNodes(target, infrastructureNodes, csar);
             }
         }
-        ModelUtils.cleanDuplciates(infrastructureNodes);
+        ModelUtils.cleanDuplicates(infrastructureNodes);
     }
 
     /**
@@ -574,11 +578,11 @@ public class ModelUtils {
             }
             ModelUtils.getNodesFromRelationToSink(outgoingTemplate, nodes, csar);
         }
-        ModelUtils.cleanDuplciates(nodes);
+        ModelUtils.cleanDuplicates(nodes);
     }
 
     public static void getNodesFromNodeToSink(final TNodeTemplate nodeTemplate, final QName relationshipType,
-                                              final Collection<TNodeTemplate> nodes, Csar csar) {
+                                              final Set<TNodeTemplate> nodes, Csar csar) {
         nodes.add(nodeTemplate);
         for (final TRelationshipTemplate outgoingTemplate : getOutgoingRelations(nodeTemplate, csar)) {
             if (ModelUtils.getRelationshipTypeHierarchy(outgoingTemplate.getType(), csar)
@@ -589,11 +593,11 @@ public class ModelUtils {
                 ModelUtils.getNodesFromRelationToSink(outgoingTemplate, nodes, csar);
             }
         }
-        ModelUtils.cleanDuplciates(nodes);
+        ModelUtils.cleanDuplicates(nodes);
     }
 
     public static void getNodesFromNodeToSource(final TNodeTemplate nodeTemplate,
-                                                final List<TNodeTemplate> nodes, Csar csar) {
+                                                final Set<TNodeTemplate> nodes, Csar csar) {
         nodes.add(nodeTemplate);
         for (final TRelationshipTemplate ingoingTemplate : getIngoingRelations(nodeTemplate, csar)) {
             if (ingoingTemplate.getType().equals(Types.connectsToRelationType)) {
@@ -604,7 +608,7 @@ public class ModelUtils {
             }
             ModelUtils.getNodesFromRelationToSources(ingoingTemplate, nodes, csar);
         }
-        ModelUtils.cleanDuplciates(nodes);
+        ModelUtils.cleanDuplicates(nodes);
     }
 
     /**
@@ -627,11 +631,11 @@ public class ModelUtils {
             }
             ModelUtils.getNodesFromRelationToSink(outgoingTemplate, nodes, csar);
         }
-        ModelUtils.cleanDuplciates(nodes);
+        ModelUtils.cleanDuplicates(nodes);
     }
 
     private static void getNodesFromRelationToSources(final TRelationshipTemplate ingoingTemplate,
-                                                      final List<TNodeTemplate> nodes, Csar csar) {
+                                                      final Set<TNodeTemplate> nodes, Csar csar) {
         final TNodeTemplate nodeTemplate = getSource(ingoingTemplate, csar);
         nodes.add(nodeTemplate);
         for (final TRelationshipTemplate outgoingTemplate : getIngoingRelations(nodeTemplate, csar)) {
@@ -640,7 +644,7 @@ public class ModelUtils {
             }
             ModelUtils.getNodesFromRelationToSources(outgoingTemplate, nodes, csar);
         }
-        ModelUtils.cleanDuplciates(nodes);
+        ModelUtils.cleanDuplicates(nodes);
     }
 
     /**
@@ -664,7 +668,11 @@ public class ModelUtils {
         while (wasNotNull) {
 
 
-            final TNodeType referencedNodeType = findNodeType(lastFoundNodeType.getDerivedFrom().getTypeRef(), fetchAllNodeTypes(csar));
+            TNodeType referencedNodeType = null;
+
+            if (lastFoundNodeType.getDerivedFrom() != null) {
+                referencedNodeType = findNodeType(lastFoundNodeType.getDerivedFrom().getTypeRef(), fetchAllNodeTypes(csar));
+            }
 
             if (referencedNodeType == null) {
                 wasNotNull = false;
@@ -779,7 +787,10 @@ public class ModelUtils {
         boolean wasNotNull = true;
         TRelationshipType lastFoundRelationshipType = relationshipType;
         while (wasNotNull) {
-            final TRelationshipType referencedRelationshipType = findRelationshipType(lastFoundRelationshipType.getDerivedFrom().getType(), fetchAllRelationshipTypes(csar));
+            TRelationshipType referencedRelationshipType = null;
+            if(lastFoundRelationshipType.getDerivedFrom() != null) {
+                referencedRelationshipType = findRelationshipType(lastFoundRelationshipType.getDerivedFrom().getType(), fetchAllRelationshipTypes(csar));
+            }
             if (referencedRelationshipType == null) {
                 wasNotNull = false;
             } else {

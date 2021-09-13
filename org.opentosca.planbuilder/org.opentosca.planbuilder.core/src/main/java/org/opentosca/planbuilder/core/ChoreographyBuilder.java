@@ -212,7 +212,10 @@ public class ChoreographyBuilder {
     }
 
     private String getChoreographyTag(final TServiceTemplate serviceTemplate) {
-        return serviceTemplate.getTags().stream().filter(x -> x.getName().equals("choreography")).findFirst().orElse(null).getValue();
+        if(serviceTemplate.getTags() == null){
+            return null;
+        }
+        return serviceTemplate.getTags().stream().filter(x -> x.getName().equals("choreography")).map(x -> x.getValue()).findFirst().orElse(null);
     }
 
     private Collection<TNodeTemplate> getManagedChoreographyNodes(final TServiceTemplate serviceTemplate) {

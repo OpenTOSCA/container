@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -26,6 +27,7 @@ import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -100,9 +102,9 @@ public class BPELPlanContext extends PlanContext {
         this.templateBuildPlan.addUsedOperation(operation, compensationOperation);
     }
 
-    public boolean addUsedOperation(String interfaceName, String operationName, String compensationInterfaceName, String compensationOperationName) {
-        TOperation op = ModelUtils.findOperation(this.templateBuildPlan.getBuildPlan().getDefinitions(), interfaceName, operationName);
-        TOperation compensationOp = ModelUtils.findOperation(this.templateBuildPlan.getBuildPlan().getDefinitions(), compensationInterfaceName, compensationOperationName);
+    public boolean addUsedOperation(String interfaceName, String operationName, String compensationInterfaceName, String compensationOperationName, Csar csar) {
+        TOperation op = ModelUtils.findOperation(csar, interfaceName, operationName);
+        TOperation compensationOp = ModelUtils.findOperation(csar, compensationInterfaceName, compensationOperationName);
         if (op != null) {
             this.addUsedOperation(op, compensationOp);
             return true;
@@ -128,7 +130,7 @@ public class BPELPlanContext extends PlanContext {
      * specified localName
      */
     public PropertyVariable getPropertyVariable(final String propertyName, final boolean directionSink) {
-        final List<TNodeTemplate> infraNodes = new ArrayList<>();
+        final Set<TNodeTemplate> infraNodes = Sets.newHashSet();
 
         if (isNodeTemplate()) {
             if (directionSink) {

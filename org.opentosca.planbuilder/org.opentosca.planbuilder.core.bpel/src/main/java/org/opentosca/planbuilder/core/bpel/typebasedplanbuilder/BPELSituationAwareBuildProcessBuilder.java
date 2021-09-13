@@ -266,10 +266,12 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
 
         for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             Collection<TPolicy> situationPolicies = new HashSet<TPolicy>();
-            for (TPolicy policy : nodeTemplate.getPolicies()) {
-                if (policy.getPolicyType().equals(new QName("http://opentosca.org/servicetemplates/policytypes",
-                    "SituationPolicy_w1-wip1"))) {
-                    situationPolicies.add(policy);
+            if(nodeTemplate.getPolicies() != null) {
+                for (TPolicy policy : nodeTemplate.getPolicies()) {
+                    if (policy.getPolicyType().equals(new QName("http://opentosca.org/servicetemplates/policytypes",
+                        "SituationPolicy_w1-wip1"))) {
+                        situationPolicies.add(policy);
+                    }
                 }
             }
             if (!situationPolicies.isEmpty()) {

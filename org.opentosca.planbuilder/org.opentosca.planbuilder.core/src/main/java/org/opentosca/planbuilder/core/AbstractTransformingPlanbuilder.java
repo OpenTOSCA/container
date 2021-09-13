@@ -18,6 +18,8 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
@@ -109,7 +111,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
         // determine steps which have to be deleted from the original topology
         Set<TNodeTemplate> nodesToTerminate = new HashSet<>(sourceNodeTemplates);
-        nodesToTerminate.removeAll(deployableMaxCommonSubgraph);
+        nodesToTerminate = this.removeNodesFromList(nodesToTerminate, deployableMaxCommonSubgraph);
         Collection<TRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate, sourceCsar);
 
         AbstractPlan termPlan = AbstractTerminationPlanBuilder.generateTOG("transformTerminate"
@@ -126,13 +128,14 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
         // determine steps which have to be start within the new topology
         Set<TNodeTemplate> nodesToStart = new HashSet<>(targetNodeTemplates);
-        nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph, targetNodeTemplates));
+        nodesToStart = this.removeNodesFromList(nodesToStart, this.getCorrespondingNodes(deployableMaxCommonSubgraph, targetNodeTemplates));
+        //nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph, targetNodeTemplates));
 
-        Collection<TRelationshipTemplate> relationsToStart = this.getDeployableSubgraph(targetNodeTemplates, this.getOutgoingRelations(nodesToStart,targetCsar), sourceCsar);
+        Collection<TRelationshipTemplate> relationsToStart = this.getDeployableSubgraph(targetNodeTemplates, this.getOutgoingRelations(nodesToStart,targetCsar), targetCsar);
 
         AbstractPlan startPlan =
             AbstractBuildPlanBuilder.generatePOG("transformStart" + sourceDefinitions.getId() + "_to_"
-                + targetDefinitions.getId(), targetDefinitions, targetServiceTemplate, nodesToStart, relationsToStart, sourceCsar);
+                + targetDefinitions.getId(), targetDefinitions, targetServiceTemplate, nodesToStart, relationsToStart, targetCsar);
 
         AbstractTransformationPlan transPlan =
             this.mergePlans("transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
@@ -144,6 +147,22 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             PlanType.TRANSFORMATION, transPlan, startPlan);
 
         return transPlan;
+    }
+
+    private Set<TNodeTemplate> removeNodesFromList(Collection<TNodeTemplate> list, Collection<TNodeTemplate> toRemove) {
+        Set<TNodeTemplate> result = Sets.newHashSet();
+        for (TNodeTemplate node1 : list) {
+            boolean matched = false;
+            for (TNodeTemplate node2: toRemove) {
+                if (this.mappingEquals(node1, node2)) {
+                    matched = true;
+                }
+            }
+            if(!matched) {
+                result.add(node1);
+            }
+        }
+        return result;
     }
 
     public Collection<TRelationshipTemplate> getDeployableSubgraph(Collection<TNodeTemplate> nodes, Collection<TRelationshipTemplate> relations, Csar csar) {
@@ -201,8 +220,9 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         // determine steps which have to be deleted from the original topology
         Set<TNodeTemplate> nodesToTerminate =
             new HashSet<>(sourceTopology.getNodeTemplates());
-        nodesToTerminate.removeAll(deployableMaxCommonSubgraph);
-        Collection<TRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate, targetCsarName);
+        //nodesToTerminate.removeAll(deployableMaxCommonSubgraph);
+        nodesToTerminate = this.removeNodesFromList(nodesToTerminate, deployableMaxCommonSubgraph);
+        Collection<TRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate, sourceCsarName);
 
         AbstractPlan termPlan = AbstractTerminationPlanBuilder.generateTOG("transformTerminate"
                 + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId(), sourceDefinitions, sourceServiceTemplate,
@@ -218,13 +238,15 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
         // determine steps which have to be start within the new topology
         Set<TNodeTemplate> nodesToStart = new HashSet<>(targetTopology.getNodeTemplates());
-        nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph,
+        nodesToStart = this.removeNodesFromList(nodesToStart, this.getCorrespondingNodes(deployableMaxCommonSubgraph,
             targetTopology.getNodeTemplates()));
+        //nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph,
+        //    targetTopology.getNodeTemplates()));
         Collection<TRelationshipTemplate> relationsToStart = this.getOutgoingRelations(nodesToStart, targetCsarName);
 
         AbstractPlan startPlan =
             AbstractBuildPlanBuilder.generatePOG("transformStart" + sourceDefinitions.getId() + "_to_"
-                + targetDefinitions.getId(), targetDefinitions, targetServiceTemplate, nodesToStart, relationsToStart, sourceCsarName);
+                + targetDefinitions.getId(), targetDefinitions, targetServiceTemplate, nodesToStart, relationsToStart, targetCsarName);
 
         AbstractTransformationPlan transPlan =
             this.mergePlans("transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
@@ -319,9 +341,9 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     public TRelationshipTemplate getCorrespondingEdge(TRelationshipTemplate subEdge,
-                                                             Collection<TRelationshipTemplate> graphEdges, Csar csar) {
+                                                             Collection<TRelationshipTemplate> graphEdges, Csar sourceCsar, Csar targetCsar) {
         for (TRelationshipTemplate graphEdge : graphEdges) {
-            if (this.mappingEquals(subEdge, graphEdge, csar)) {
+            if (this.mappingEquals(subEdge, graphEdge, sourceCsar, targetCsar)) {
                 return graphEdge;
             }
         }
@@ -538,14 +560,22 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return true;
     }
 
-    private boolean mappingEquals(TRelationshipTemplate rel1, TRelationshipTemplate rel2, Csar csar) {
+    /**
+     *
+     * @param rel1 a relation from sourceCsa
+     * @param rel2 a relation from targetCsar
+     * @param sourceCsar a source csar model
+     * @param targetCsar a target csar model
+     * @return true iff the type of rel1 and rel2 are equals, as well as, their sources and targets
+     */
+    private boolean mappingEquals(TRelationshipTemplate rel1, TRelationshipTemplate rel2, Csar sourceCsar, Csar targetCsar) {
         if (!rel1.getType().equals(rel2.getType())) {
             return false;
         }
 
         // really weak and messy check incoming!
-        return this.mappingEquals(ModelUtils.getSource(rel1, csar), ModelUtils.getSource(rel2, csar))
-            && this.mappingEquals(ModelUtils.getTarget(rel1, csar), ModelUtils.getTarget(rel2, csar));
+        return this.mappingEquals(ModelUtils.getSource(rel1, sourceCsar), ModelUtils.getSource(rel2, targetCsar))
+            && this.mappingEquals(ModelUtils.getTarget(rel1, sourceCsar), ModelUtils.getTarget(rel2, targetCsar));
     }
 
     private boolean mappingEquals(TNodeTemplate node1, TNodeTemplate node2) {
@@ -554,23 +584,38 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             return false;
         }
 
-        if (node1.getDeploymentArtifacts().size() != node2.getDeploymentArtifacts().size()) {
+        int node1DaSize = 0;
+        int node2DaSize = 0;
+
+        if (node1.getDeploymentArtifacts() != null) {
+            node1DaSize = node1.getDeploymentArtifacts().size();
+        }
+
+        if (node2.getDeploymentArtifacts() != null) {
+            node2DaSize = node2.getDeploymentArtifacts().size();
+        }
+
+        if (node1DaSize != node2DaSize) {
             return false;
         } else {
-            for (TDeploymentArtifact da : node1.getDeploymentArtifacts()) {
-                boolean matched = false;
-                for (TDeploymentArtifact da2 : node2.getDeploymentArtifacts()) {
-                    if (da.getArtifactType().equals(da.getArtifactType())) {
-                        if (da.getArtifactRef().equals(da2.getArtifactRef())) {
-                            // up to this point only the type and id of the artifact template match, a deeper mathcing
-                            // would really look at the references and stuff, but we assume that artifact template id's
-                            // are unique across multiple service templates
-                            matched = true;
+            if (node1.getDeploymentArtifacts() != null) {
+                for (TDeploymentArtifact da : node1.getDeploymentArtifacts()) {
+                    boolean matched = false;
+                    if (node2.getDeploymentArtifacts() != null) {
+                        for (TDeploymentArtifact da2 : node2.getDeploymentArtifacts()) {
+                            if (da.getArtifactType().equals(da.getArtifactType())) {
+                                if (da.getArtifactRef().equals(da2.getArtifactRef())) {
+                                    // up to this point only the type and id of the artifact template match, a deeper mathcing
+                                    // would really look at the references and stuff, but we assume that artifact template id's
+                                    // are unique across multiple service templates
+                                    matched = true;
+                                }
+                            }
                         }
                     }
-                }
-                if (!matched) {
-                    return false;
+                    if (!matched) {
+                        return false;
+                    }
                 }
             }
         }
@@ -584,13 +629,14 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             return false;
         }
 
+        /* This check here is probably necessary, but pretty constraining as well
         if (!ModelUtils.getElementName(node1.getProperties()).equals(ModelUtils.getElementName(node2.getProperties()))) {
             return false;
         }
 
         if (!ModelUtils.getNamespace(node1.getProperties()).equals(ModelUtils.getNamespace(node2.getProperties()))) {
             return false;
-        }
+        }*/
 
         LOG.debug("Matched node {} with node {} ", node1.getId(), node2.getId());
 

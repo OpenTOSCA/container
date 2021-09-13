@@ -108,7 +108,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
 
             final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate, csar);
             AbstractActivity sourceActivity = nodeActivityMapping.get(ModelUtils.getSource(relationshipTemplate, csar));
-            AbstractActivity targetActivity = nodeActivityMapping.get(ModelUtils.getSource(relationshipTemplate, csar));
+            AbstractActivity targetActivity = nodeActivityMapping.get(ModelUtils.getTarget(relationshipTemplate, csar));
 
             if (baseType.equals(Types.connectsToRelationType)) {
                 if (sourceActivity != null) {

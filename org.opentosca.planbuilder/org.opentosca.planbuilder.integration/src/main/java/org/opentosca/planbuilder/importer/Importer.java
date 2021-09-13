@@ -106,7 +106,6 @@ public class Importer extends AbstractImporter {
 
     public List<AbstractPlan> generateTransformationPlans(final Csar sourceCsarId, final Csar targetCsarId) {
         final List<AbstractPlan> plans = new ArrayList<>();
-        this.createContext(sourceCsarId);
         final TDefinitions sourceDefs = this.createContext(sourceCsarId);
         final TDefinitions targetDefs = this.createContext(targetCsarId);
 
@@ -139,19 +138,8 @@ public class Importer extends AbstractImporter {
      */
 
     public TDefinitions createContext(final Csar csar) {
-
         IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
-        Collection<DefinitionsChildId> ids = repo.getAllDefinitionsChildIds();
-        Collection<RepositoryFileReference> allRefs = new HashSet<RepositoryFileReference>();
         Collection<RepositoryFileReference> entryDefRefs = new HashSet<RepositoryFileReference>();
-        Collection<Path> allPaths = new HashSet<Path>();
-        for (DefinitionsChildId id : ids) {
-            allRefs.addAll(repo.getContainedFiles(id));
-        }
-
-        for (RepositoryFileReference ref : allRefs) {
-            allPaths.add(repo.ref2AbsolutePath(ref));
-        }
 
         entryDefRefs.addAll(repo.getContainedFiles(new ServiceTemplateId(new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()))));
         TDefinitions entryDef = null;
@@ -159,6 +147,7 @@ public class Importer extends AbstractImporter {
             if (ref.getFileName().endsWith(".tosca")) {
                 try {
                     entryDef = repo.definitionsFromRef(ref);
+                    break;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

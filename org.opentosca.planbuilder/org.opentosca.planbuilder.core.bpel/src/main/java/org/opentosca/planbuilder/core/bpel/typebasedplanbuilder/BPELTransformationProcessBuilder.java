@@ -515,8 +515,8 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                     this.bpelPluginHandler.handleActivity(context, bpelScope, bpelScope.getNodeTemplate());
                 } else if (activity.getType().equals(ActivityType.MIGRATION)) {
 
-                    TNodeTemplate sourceRelationshipTemplate = bpelScope.getNodeTemplate();
-                    TNodeTemplate targetRelationshipTemplate =
+                    TNodeTemplate sourceNodeTemplate = bpelScope.getNodeTemplate();
+                    TNodeTemplate targetNodeTemplate =
                         this.getCorrespondingNode(bpelScope.getNodeTemplate(),
                             targetServiceTemplate.getTopologyTemplate().getNodeTemplates());
 
@@ -529,9 +529,9 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                         targetServiceInstanceId, targetServiceTemplateUrl, planInstanceURL, targetCsar);
 
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandleUpdate(sourceRelationshipTemplate, targetRelationshipTemplate)) {
-                            postPhasePlugin.handleUpdate(sourceContext, targetContext, sourceRelationshipTemplate,
-                                targetRelationshipTemplate);
+                        if (postPhasePlugin.canHandleUpdate(sourceNodeTemplate, targetNodeTemplate)) {
+                            postPhasePlugin.handleUpdate(sourceContext, targetContext, sourceNodeTemplate,
+                                targetNodeTemplate);
                         }
                     }
                 }
@@ -555,11 +555,11 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                     this.bpelPluginHandler.handleActivity(context, bpelScope, bpelScope.getRelationshipTemplate());
                 } else if (activity.getType().equals(ActivityType.MIGRATION)) {
 
-                    TRelationshipTemplate sourceNodeTemplate = bpelScope.getRelationshipTemplate();
-                    TRelationshipTemplate targetNodeTemplate =
+                    TRelationshipTemplate sourceRelationshipTemplate = bpelScope.getRelationshipTemplate();
+                    TRelationshipTemplate targetRelationshipTemplate =
                         this.getCorrespondingEdge(bpelScope.getRelationshipTemplate(),
                             targetServiceTemplate.getTopologyTemplate()
-                                .getRelationshipTemplates(), sourceCsar);
+                                .getRelationshipTemplates(), sourceCsar, targetCsar);
 
                     final BPELPlanContext sourceContext = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope,
                         sourceServiceTemplateMap, sourceServiceTemplate, sourceServiceInstanceUrl,
@@ -570,9 +570,9 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                         targetServiceInstanceId, targetServiceTemplateUrl, planInstanceURL, targetCsar);
 
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandleUpdate(sourceNodeTemplate, targetNodeTemplate)) {
-                            postPhasePlugin.handleUpdate(sourceContext, targetContext, sourceNodeTemplate,
-                                targetNodeTemplate);
+                        if (postPhasePlugin.canHandleUpdate(sourceRelationshipTemplate, targetRelationshipTemplate)) {
+                            postPhasePlugin.handleUpdate(sourceContext, targetContext, sourceRelationshipTemplate,
+                                targetRelationshipTemplate);
                         }
                     }
                 }

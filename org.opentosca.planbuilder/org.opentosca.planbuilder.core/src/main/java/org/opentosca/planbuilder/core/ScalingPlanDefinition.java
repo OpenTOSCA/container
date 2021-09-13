@@ -19,6 +19,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
+import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
@@ -67,7 +68,7 @@ public class ScalingPlanDefinition {
 
         // calculate recursive nodes
         for (final TNodeTemplate nodeTemplate : this.selectionStrategy2BorderNodes) {
-            final List<TNodeTemplate> sinkNodes = new ArrayList<>();
+            final Set<TNodeTemplate> sinkNodes = Sets.newHashSet();
 
             ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.hostedOnRelationType, sinkNodes, csar);
             ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, sinkNodes, csar);
@@ -75,7 +76,7 @@ public class ScalingPlanDefinition {
 
             sinkNodes.remove(nodeTemplate);
 
-            Collection<QName> types = Collections.emptyList();
+            Collection<QName> types = Sets.newHashSet();
             types.add(Types.hostedOnRelationType);
             types.add(Types.dependsOnRelationType);
             types.add(Types.deployedOnRelationType);

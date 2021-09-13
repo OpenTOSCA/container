@@ -48,12 +48,12 @@ public class Property2VariableMapping {
                                                              String templateId) {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
         for (PropertyVariable var : this.propertyVariables) {
-            if (var.getServiceTemplate().equals(serviceTemplate) && var.isNodeTemplatePropertyVariable()
+            if (var.getServiceTemplate().getId().equals(serviceTemplate.getId()) && var.isNodeTemplatePropertyVariable()
                 && var.getNodeTemplate().getId().equals(templateId)) {
                 toReturn.add(var);
             }
 
-            if (var.getServiceTemplate().equals(serviceTemplate) && !var.isNodeTemplatePropertyVariable()
+            if (var.getServiceTemplate().getId().equals(serviceTemplate.getId()) && !var.isNodeTemplatePropertyVariable()
                 && var.getRelationshipTemplate().getId().equals(templateId)) {
                 toReturn.add(var);
             }
@@ -66,8 +66,8 @@ public class Property2VariableMapping {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
 
         for (PropertyVariable variable : this.propertyVariables) {
-            if (variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().equals(serviceTemplate)
-                && variable.getNodeTemplate().equals(nodeTemplate)) {
+            if (variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().getId().equals(serviceTemplate.getId())
+                && variable.getNodeTemplate().getId().equals(nodeTemplate.getId())) {
                 toReturn.add(variable);
             }
         }
@@ -80,8 +80,8 @@ public class Property2VariableMapping {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
 
         for (PropertyVariable variable : this.propertyVariables) {
-            if (!variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().equals(serviceTemplate)
-                && variable.getRelationshipTemplate().equals(relationshipTemplate)) {
+            if (!variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().getId().equals(serviceTemplate.getId())
+                && variable.getRelationshipTemplate().getId().equals(relationshipTemplate.getId())) {
                 toReturn.add(variable);
             }
         }

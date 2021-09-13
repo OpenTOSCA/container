@@ -184,7 +184,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
 
         final List<TPropertyMapping> propertyMappings = serviceTemplateProps.getPropertyMappings();
 
-        final Element propElement = (Element) serviceTemplateProperties;
+        final Element propElement = (Element) serviceTemplateProperties.getAny();
 
         if (propElement == null) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("ServiceTemplate has no Properties defined");

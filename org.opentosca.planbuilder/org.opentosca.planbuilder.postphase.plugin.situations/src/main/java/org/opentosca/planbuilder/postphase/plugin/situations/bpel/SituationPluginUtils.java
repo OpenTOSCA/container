@@ -102,6 +102,9 @@ public class SituationPluginUtils {
     }
 
     public static TPolicy getSituationAwareExecutionPolicy(TNodeTemplate nodeTemplate) {
+        if (nodeTemplate.getPolicies() == null) {
+            return null;
+        }
         for (TPolicy policy : nodeTemplate.getPolicies()) {
             if (policy.getPolicyType().getLocalPart().startsWith("SituationAwareExecutionPolicy")) {
                 return policy;
@@ -124,6 +127,11 @@ public class SituationPluginUtils {
 
     public static Collection<TPolicy> getSituationPolicies(TNodeTemplate nodeTemplate) {
         Set<TPolicy> policies = new HashSet<TPolicy>();
+
+        if(nodeTemplate.getPolicies() == null) {
+            return policies;
+        }
+
         for (TPolicy policy : nodeTemplate.getPolicies()) {
             if (policy.getPolicyType().getLocalPart().startsWith("SituationPolicy")) {
                 policies.add(policy);

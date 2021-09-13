@@ -457,20 +457,20 @@ public class NodeRelationInstanceVariablesHandler {
 
         // assign bpel variables from the requested properties
         // create mapping from property dom nodes to bpelvariable
-        final Map<String, String> string2BpelVarNameMap = new HashMap<>();
+        final Map<String, String> sourceString2BpelVarNameMap = new HashMap<>();
 
-        Map<String, String> propertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
+        Map<String, String> sourcePropertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
 
         for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
-            if (propertiesMap.containsKey(var.getPropertyName())) {
-                string2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
+            if (sourcePropertiesMap.containsKey(var.getPropertyName())) {
+                sourceString2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
             }
         }
 
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, ModelUtils.getNamespace(nodeTemplate.getProperties()));
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, sourceString2BpelVarNameMap, ModelUtils.getNamespace(nodeTemplate.getProperties()));
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException | SAXException e) {
