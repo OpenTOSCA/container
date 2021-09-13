@@ -5,8 +5,8 @@ import java.util.HashSet;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
  * <p>
@@ -28,7 +28,7 @@ public class Property2VariableMapping {
         this.propertyVariables = new HashSet<PropertyVariable>();
     }
 
-    public boolean addPropertyMapping(final AbstractServiceTemplate serviceTemplate,
+    public boolean addPropertyMapping(final TServiceTemplate serviceTemplate,
                                       final TNodeTemplate nodeTemplate, final String propertyName,
                                       final String propertyVariableName) {
 
@@ -36,7 +36,7 @@ public class Property2VariableMapping {
             propertyName));
     }
 
-    public boolean addPropertyMapping(final AbstractServiceTemplate serviceTemplate,
+    public boolean addPropertyMapping(final TServiceTemplate serviceTemplate,
                                       final TRelationshipTemplate relationshipTemplate,
                                       final String propertyName, final String propertyVariableName) {
 
@@ -44,7 +44,7 @@ public class Property2VariableMapping {
             propertyVariableName, propertyName));
     }
 
-    public Collection<PropertyVariable> getPropertyVariables(AbstractServiceTemplate serviceTemplate,
+    public Collection<PropertyVariable> getPropertyVariables(TServiceTemplate serviceTemplate,
                                                              String templateId) {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
         for (PropertyVariable var : this.propertyVariables) {
@@ -61,7 +61,7 @@ public class Property2VariableMapping {
         return toReturn;
     }
 
-    public Collection<PropertyVariable> getNodePropertyVariables(AbstractServiceTemplate serviceTemplate,
+    public Collection<PropertyVariable> getNodePropertyVariables(TServiceTemplate serviceTemplate,
                                                                  TNodeTemplate nodeTemplate) {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
 
@@ -75,7 +75,7 @@ public class Property2VariableMapping {
         return toReturn;
     }
 
-    public Collection<PropertyVariable> getRelationPropertyVariables(AbstractServiceTemplate serviceTemplate,
+    public Collection<PropertyVariable> getRelationPropertyVariables(TServiceTemplate serviceTemplate,
                                                                      TRelationshipTemplate relationshipTemplate) {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
 

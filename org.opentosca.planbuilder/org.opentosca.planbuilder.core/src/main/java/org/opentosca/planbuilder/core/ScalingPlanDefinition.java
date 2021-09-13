@@ -19,19 +19,19 @@ import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRequirement;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import com.google.common.collect.Lists;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public class ScalingPlanDefinition {
 
     // topology
     public String name;
-    public AbstractTopologyTemplate topology;
+    public TTopologyTemplate topology;
     private Csar csar;
 
     // region
@@ -46,7 +46,7 @@ public class ScalingPlanDefinition {
     // border crossing relations
     public Set<TRelationshipTemplate> borderCrossingRelations;
 
-    public ScalingPlanDefinition(final String name, final AbstractTopologyTemplate topology,
+    public ScalingPlanDefinition(final String name, final TTopologyTemplate topology,
                                  final List<TNodeTemplate> nodeTemplates,
                                  final List<TRelationshipTemplate> relationshipTemplate,
                                  final Collection<AnnotatedTNodeTemplate> selectionStrategy2BorderNodes, Csar csar) {

@@ -673,7 +673,7 @@ public class BPELPlanHandler {
     public BPELPlan createEmptyBPELPlan(final String processNamespace, final String processName,
                                         final AbstractPlan abstractPlan, final String inputOperationName) {
         BPELPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}",
-            abstractPlan.getServiceTemplate().getQName().toString());
+            abstractPlan.getServiceTemplate().getId().toString());
 
         final BPELPlan buildPlan =
             new BPELPlan(abstractPlan.getId(), abstractPlan.getType(), abstractPlan.getDefinitions(),

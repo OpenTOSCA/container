@@ -2,11 +2,12 @@ package org.opentosca.planbuilder.core;
 
 import java.util.List;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +27,13 @@ public abstract class AbstractSimplePlanBuilder extends AbstractPlanBuilder {
      * </p>
      *
      * @param csar          the CSAR
-     * @param definitions       the Definitions document as AbstractDefinitions Object
+     * @param definitions       the Definitions document as TDefinitions Object
      * @param serviceTemplateId a QName denoting a ServiceTemplate inside the Definitions document
      * @return a complete BuildPlan for the given ServiceTemplate, if the ServiceTemplate denoted by the given QName
      * isn't found inside the Definitions document null is returned instead
      */
-    abstract public AbstractPlan buildPlan(Csar csar, AbstractDefinitions definitions,
-                                           AbstractServiceTemplate serviceTemplateId);
+    abstract public AbstractPlan buildPlan(Csar csar, TDefinitions definitions,
+                                           TServiceTemplate serviceTemplateId);
 
     /**
      * <p>
@@ -40,8 +41,8 @@ public abstract class AbstractSimplePlanBuilder extends AbstractPlanBuilder {
      * </p>
      *
      * @param csar    the CSAR
-     * @param definitions a AbstractDefinitions Object denoting the Definitions document
+     * @param definitions a TDefinitions Object denoting the Definitions document
      * @return a List of Build Plans for each ServiceTemplate contained inside the Definitions document
      */
-    abstract public List<AbstractPlan> buildPlans(Csar csar, AbstractDefinitions definitions);
+    abstract public List<AbstractPlan> buildPlans(Csar csar, TDefinitions definitions);
 }

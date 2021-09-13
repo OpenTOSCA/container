@@ -6,6 +6,7 @@ import java.util.Collection;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -15,7 +16,6 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -114,7 +114,7 @@ public class EmptyPropertyToInputHandler {
     public void initializeEmptyPropertiesAsInputParam(final BPELPlan buildPlan, final Property2VariableMapping propMap,
                                                       String serviceInstanceUrl, String serviceInstanceId,
                                                       String serviceTemplateUrl, String planInstanceUrl,
-                                                      AbstractServiceTemplate serviceTemplate, Csar csar) {
+                                                      TServiceTemplate serviceTemplate, Csar csar) {
         this.initializeEmptyPropertiesAsInputParam(buildPlan.getTemplateBuildPlans(), buildPlan, propMap,
             serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl,
             serviceTemplate, planInstanceUrl, csar);
@@ -123,7 +123,7 @@ public class EmptyPropertyToInputHandler {
     public void initializeEmptyPropertiesAsInputParam(final Collection<BPELScope> bpelActivities, final BPELPlan plan,
                                                       final Property2VariableMapping propMap, String serviceInstanceUrl,
                                                       String serviceInstanceId, String serviceTemplateUrl,
-                                                      AbstractServiceTemplate serviceTemplate, String planInstanceUrl, Csar csar) {
+                                                      TServiceTemplate serviceTemplate, String planInstanceUrl, Csar csar) {
         for (final BPELScope templatePlan : bpelActivities) {
             if (templatePlan.getNodeTemplate() != null) {
                 final TNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();

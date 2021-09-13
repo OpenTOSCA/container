@@ -10,9 +10,11 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
@@ -24,8 +26,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuilder {
@@ -36,8 +36,8 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
         super(pluginRegistry);
     }
 
-    public static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
-                                           final AbstractServiceTemplate serviceTemplate,
+    public static AbstractPlan generatePOG(final String id, final TDefinitions definitions,
+                                           final TServiceTemplate serviceTemplate,
                                            final Collection<TNodeTemplate> nodeTemplates,
                                            final Collection<TRelationshipTemplate> relationshipTemplates, Csar csar) {
         final Collection<AbstractActivity> activities = new ArrayList<>();
@@ -50,8 +50,8 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
         };
     }
 
-    public static AbstractPlan generateDOG(final String id, final AbstractDefinitions definitions,
-                                           final AbstractServiceTemplate serviceTemplate, Csar csar) {
+    public static AbstractPlan generateDOG(final String id, final TDefinitions definitions,
+                                           final TServiceTemplate serviceTemplate, Csar csar) {
         return generatePOG(id, definitions, serviceTemplate,
             serviceTemplate.getTopologyTemplate().getNodeTemplates(),
             serviceTemplate.getTopologyTemplate().getRelationshipTemplates(), csar

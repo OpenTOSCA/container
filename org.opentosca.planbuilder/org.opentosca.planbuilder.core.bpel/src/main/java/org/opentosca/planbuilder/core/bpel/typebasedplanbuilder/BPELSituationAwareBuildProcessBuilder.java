@@ -12,8 +12,10 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPolicy;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
@@ -33,8 +35,6 @@ import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,11 +105,11 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
     @Override
-    public BPELPlan buildPlan(final Csar csar, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                              final TServiceTemplate serviceTemplate) {
         // create empty plan from servicetemplate and add definitions
 
         String namespace;
@@ -119,8 +119,8 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             namespace = definitions.getTargetNamespace();
         }
 
-        if (namespace.equals(serviceTemplate.getQName().getNamespaceURI())
-            && serviceTemplate.getId().equals(serviceTemplate.getQName().getLocalPart())) {
+        if (namespace.equals(serviceTemplate.getTargetNamespace())
+            && serviceTemplate.getId().equals(serviceTemplate.getId())) {
 
             final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_sitAwareBuildPlan");
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_sitAwareBuildPlan";
@@ -206,7 +206,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
         }
 
         BPELSituationAwareBuildProcessBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-            serviceTemplate.getQName().toString(), definitions.getId(),
+            serviceTemplate.getId(), definitions.getId(),
             csar.id().csarName());
         return null;
     }
@@ -215,16 +215,16 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlans(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions)
      */
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (!serviceTemplate.hasBuildPlan()) {
+            if (!ModelUtils.hasBuildPlan(serviceTemplate)) {
                 BPELSituationAwareBuildProcessBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
-                    serviceTemplate.getQName().toString());
+                    serviceTemplate.getId());
                 final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
                 if (newBuildPlan != null) {
@@ -234,7 +234,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
                 }
             } else {
                 BPELSituationAwareBuildProcessBuilder.LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed",
-                    serviceTemplate.getQName().toString());
+                    serviceTemplate.getId());
             }
         }
         if (!plans.isEmpty()) {
@@ -256,7 +256,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
         return nodePolicyToIdMap;
     }
 
-    private Map<TNodeTemplate, Collection<TPolicy>> getSituationPolicies(AbstractServiceTemplate serviceTemplate) {
+    private Map<TNodeTemplate, Collection<TPolicy>> getSituationPolicies(TServiceTemplate serviceTemplate) {
         Map<TNodeTemplate, Collection<TPolicy>> nodeToPolicies =
             new HashMap<TNodeTemplate, Collection<TPolicy>>();
 

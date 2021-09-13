@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -79,8 +79,8 @@ public class BPELPlan extends AbstractPlan {
     private String toscaInterfaceName = null;
     private String toscaOperationName = null;
 
-    public BPELPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
-                    final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
+    public BPELPlan(final String id, final PlanType type, final TDefinitions definitions,
+                    final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
                     final Collection<Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
     }

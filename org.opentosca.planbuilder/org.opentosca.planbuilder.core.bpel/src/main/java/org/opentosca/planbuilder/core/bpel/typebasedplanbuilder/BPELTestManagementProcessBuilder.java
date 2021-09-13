@@ -10,11 +10,13 @@ import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
@@ -37,8 +39,6 @@ import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,8 +92,8 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
     }
 
     @Override
-    public BPELPlan buildPlan(final Csar csar, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                              final TServiceTemplate serviceTemplate) {
 
         LOG.debug("Creating Test Management Plan...");
 
@@ -179,10 +179,10 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         LOG.debug("Building the Test Management Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, csar)) {
                 LOG.debug("ServiceTemplate {} contains NodeTypes with defined test interface.",

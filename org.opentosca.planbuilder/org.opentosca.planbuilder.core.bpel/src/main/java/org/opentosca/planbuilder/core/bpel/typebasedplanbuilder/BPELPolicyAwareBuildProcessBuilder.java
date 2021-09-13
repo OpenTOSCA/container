@@ -15,9 +15,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
@@ -43,8 +45,7 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,11 +116,11 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
     @Override
-    public BPELPlan buildPlan(final Csar csar, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                              final TServiceTemplate serviceTemplate) {
         // create empty plan from servicetemplate and add definitions
 
         final String processName = serviceTemplate.getId() + "_buildPlan";
@@ -216,14 +217,14 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlans(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions)
      */
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (!serviceTemplate.hasBuildPlan()) {
+            if (!ModelUtils.hasBuildPlan(serviceTemplate)) {
                 LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
                     serviceTemplate.toString());
                 final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
@@ -235,7 +236,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                 }
             } else {
                 LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed",
-                    serviceTemplate.getQName().toString());
+                    serviceTemplate.getId());
             }
         }
         if (!plans.isEmpty()) {

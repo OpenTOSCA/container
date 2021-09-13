@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import com.google.common.collect.Lists;
 import org.apache.camel.CamelContext;
@@ -52,7 +53,6 @@ import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
 import org.opentosca.planbuilder.export.WineryExporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,7 +200,7 @@ public class MBJavaApi implements IManagementBus {
 
         Csar csar = this.storage.findById(instance.getCsarId());
 
-        final AbstractTopologyTemplate topology =
+        final TTopologyTemplate topology =
             Lists.newArrayList(this.importer.getMainDefinitions(csar).getServiceTemplates()).get(0)
                 .getTopologyTemplate();
 
@@ -375,7 +375,7 @@ public class MBJavaApi implements IManagementBus {
         return result;
     }
 
-    private ServiceTemplateInstanceConfiguration getCurrentServiceTemplateInstanceConfiguration(final AbstractTopologyTemplate topology,
+    private ServiceTemplateInstanceConfiguration getCurrentServiceTemplateInstanceConfiguration(final TTopologyTemplate topology,
                                                                                                 final ServiceTemplateInstance instance) {
 
         final Collection<TNodeTemplate> currentlyRunningNodes = new HashSet<>();
@@ -408,7 +408,7 @@ public class MBJavaApi implements IManagementBus {
         return new ServiceTemplateInstanceConfiguration(currentlyRunningNodes, currentlyRunningRelations);
     }
 
-    private ServiceTemplateInstanceConfiguration getValidServiceTemplateInstanceConfiguration(final AbstractTopologyTemplate topology,
+    private ServiceTemplateInstanceConfiguration getValidServiceTemplateInstanceConfiguration(final TTopologyTemplate topology,
                                                                                               final Map<String, Collection<Long>> nodeIds2situationIds, Csar csar) {
 
         final Collection<TNodeTemplate> validNodes = new ArrayList<>();

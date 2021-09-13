@@ -3,33 +3,33 @@ package org.opentosca.planbuilder.model.plan;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.next.model.PlanType;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 public class AbstractTransformationPlan extends AbstractPlan {
 
-    private final AbstractDefinitions targetDefinitions;
-    private final AbstractServiceTemplate targetServiceTemplate;
+    private final TDefinitions targetDefinitions;
+    private final TServiceTemplate targetServiceTemplate;
 
-    public AbstractTransformationPlan(String id, PlanType type, AbstractDefinitions sourceDefinitions,
-                                      AbstractServiceTemplate sourceServiceTemplate,
-                                      AbstractDefinitions targetDefinitions,
-                                      AbstractServiceTemplate targetServiceTemplate,
+    public AbstractTransformationPlan(String id, PlanType type, TDefinitions sourceDefinitions,
+                                      TServiceTemplate sourceServiceTemplate,
+                                      TDefinitions targetDefinitions,
+                                      TServiceTemplate targetServiceTemplate,
                                       Collection<AbstractActivity> activities, Collection<Link> links) {
         super(id, type, sourceDefinitions, sourceServiceTemplate, activities, links);
         this.targetDefinitions = targetDefinitions;
         this.targetServiceTemplate = targetServiceTemplate;
     }
 
-    public AbstractDefinitions getTargetDefinitions() {
+    public TDefinitions getTargetDefinitions() {
         return this.targetDefinitions;
     }
 
-    public AbstractServiceTemplate getTargetServiceTemplate() {
+    public TServiceTemplate getTargetServiceTemplate() {
         return this.targetServiceTemplate;
     }
 
@@ -49,7 +49,7 @@ public class AbstractTransformationPlan extends AbstractPlan {
         return this.getHandledServiceTemplateRelations(this.targetServiceTemplate);
     }
 
-    private Collection<TRelationshipTemplate> getHandledServiceTemplateRelations(AbstractServiceTemplate serviceTemplate) {
+    private Collection<TRelationshipTemplate> getHandledServiceTemplateRelations(TServiceTemplate serviceTemplate) {
         Collection<TRelationshipTemplate> handledServiceTemplateRelations = new HashSet<TRelationshipTemplate>();
         for (TRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
             if (!this.findRelationshipTemplateActivities(relation).isEmpty()) {
@@ -59,7 +59,7 @@ public class AbstractTransformationPlan extends AbstractPlan {
         return handledServiceTemplateRelations;
     }
 
-    private Collection<TNodeTemplate> getHandledServiceTemplateNodes(AbstractServiceTemplate serviceTemplate) {
+    private Collection<TNodeTemplate> getHandledServiceTemplateNodes(TServiceTemplate serviceTemplate) {
         Collection<TNodeTemplate> handledServiceTemplateNodes = new HashSet<TNodeTemplate>();
         for (TNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             if (!this.findNodeTemplateActivities(node).isEmpty()) {

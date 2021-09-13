@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.common.collect.Lists;
 import org.opentosca.container.core.model.csar.Csar;
@@ -14,7 +15,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class ChoreographyBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(ChoreographyBuilder.class);
 
     public AbstractPlan transformToChoreography(final AbstractPlan plan, Csar csar) {
-        final AbstractServiceTemplate serviceTemplate = plan.getServiceTemplate();
+        final TServiceTemplate serviceTemplate = plan.getServiceTemplate();
 
         if (!isChoreographyPartner(serviceTemplate)) {
             return plan;
@@ -137,7 +137,7 @@ public class ChoreographyBuilder {
         return newChoregraphyPlan;
     }
 
-    private Collection<TRelationshipTemplate> getUnmanagedRelation(final AbstractServiceTemplate serviceTemplate, Csar csar) {
+    private Collection<TRelationshipTemplate> getUnmanagedRelation(final TServiceTemplate serviceTemplate, Csar csar) {
         final Collection<TRelationshipTemplate> unmanagedRelations = new HashSet<>();
 
         final Collection<TNodeTemplate> unmanTNodeTemplates =
@@ -155,7 +155,7 @@ public class ChoreographyBuilder {
         return unmanagedRelations;
     }
 
-    private Collection<TRelationshipTemplate> getConnectingChoreographyRelations(final AbstractServiceTemplate serviceTemplate, Csar csar) {
+    private Collection<TRelationshipTemplate> getConnectingChoreographyRelations(final TServiceTemplate serviceTemplate, Csar csar) {
         final Collection<TRelationshipTemplate> connectingRelations = new HashSet<>();
 
         final Collection<TNodeTemplate> connectingNodes = new HashSet<>();
@@ -184,7 +184,7 @@ public class ChoreographyBuilder {
         return connectingRelations;
     }
 
-    private Collection<TNodeTemplate> getConnectingChoreographyNodes(final AbstractServiceTemplate serviceTemplate,
+    private Collection<TNodeTemplate> getConnectingChoreographyNodes(final TServiceTemplate serviceTemplate,
                                                                             final Collection<TNodeTemplate> nodes, Csar csar) {
         final Collection<TNodeTemplate> connectingChoregraphyNodes = new HashSet<>();
 
@@ -204,24 +204,24 @@ public class ChoreographyBuilder {
         return connectingChoregraphyNodes;
     }
 
-    private Collection<TNodeTemplate> getManagedConnectingChoreographyNodes(final AbstractServiceTemplate serviceTemplate, Csar csar) {
+    private Collection<TNodeTemplate> getManagedConnectingChoreographyNodes(final TServiceTemplate serviceTemplate, Csar csar) {
         return getConnectingChoreographyNodes(serviceTemplate, this.getManagedChoreographyNodes(serviceTemplate), csar);
     }
 
-    public boolean isChoreographyPartner(final AbstractServiceTemplate serviceTemplate) {
+    public boolean isChoreographyPartner(final TServiceTemplate serviceTemplate) {
         return getChoreographyTag(serviceTemplate) != null;
     }
 
-    private String getChoreographyTag(final AbstractServiceTemplate serviceTemplate) {
+    private String getChoreographyTag(final TServiceTemplate serviceTemplate) {
         return serviceTemplate.getTags().stream().filter(x -> x.getName().equals("choreography")).findFirst().orElse(null).getValue();
     }
 
-    private Collection<TNodeTemplate> getManagedChoreographyNodes(final AbstractServiceTemplate serviceTemplate) {
+    private Collection<TNodeTemplate> getManagedChoreographyNodes(final TServiceTemplate serviceTemplate) {
         return this.getManagedChoreographyNodes(getChoreographyTag(serviceTemplate),
             serviceTemplate.getTopologyTemplate().getNodeTemplates());
     }
 
-    private Collection<TNodeTemplate> getUnmanagedChoreographyNodes(final AbstractServiceTemplate serviceTemplate) {
+    private Collection<TNodeTemplate> getUnmanagedChoreographyNodes(final TServiceTemplate serviceTemplate) {
         final Collection<TNodeTemplate> unmanagedNodes = new HashSet<>();
         final Collection<TNodeTemplate> nodes = serviceTemplate.getTopologyTemplate().getNodeTemplates();
         final Collection<TNodeTemplate> managedNodes = this.getManagedChoreographyNodes(serviceTemplate);

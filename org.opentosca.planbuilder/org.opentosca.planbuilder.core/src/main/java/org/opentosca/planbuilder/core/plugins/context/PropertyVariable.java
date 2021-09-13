@@ -2,18 +2,18 @@ package org.opentosca.planbuilder.core.plugins.context;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public class PropertyVariable extends Variable {
 
-    private final AbstractServiceTemplate serviceTemplate;
+    private final TServiceTemplate serviceTemplate;
     private final String propertyName;
     private TNodeTemplate nodeTemplate;
     private TRelationshipTemplate relationshipTemplate;
 
-    public PropertyVariable(AbstractServiceTemplate serviceTemplate, TNodeTemplate templateId,
+    public PropertyVariable(TServiceTemplate serviceTemplate, TNodeTemplate templateId,
                             String variableName, String propertyName) {
         super(variableName);
         this.serviceTemplate = serviceTemplate;
@@ -21,7 +21,7 @@ public class PropertyVariable extends Variable {
         this.propertyName = propertyName;
     }
 
-    public PropertyVariable(AbstractServiceTemplate serviceTemplate, TRelationshipTemplate templateId,
+    public PropertyVariable(TServiceTemplate serviceTemplate, TRelationshipTemplate templateId,
                             String variableName, String propertyName) {
         super(variableName);
         this.serviceTemplate = serviceTemplate;
@@ -29,7 +29,7 @@ public class PropertyVariable extends Variable {
         this.propertyName = propertyName;
     }
 
-    public AbstractServiceTemplate getServiceTemplate() {
+    public TServiceTemplate getServiceTemplate() {
         return this.serviceTemplate;
     }
 

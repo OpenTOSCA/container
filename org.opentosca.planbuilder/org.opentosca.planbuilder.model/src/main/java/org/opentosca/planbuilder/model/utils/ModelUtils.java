@@ -41,6 +41,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TRequirement;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 
@@ -76,6 +77,44 @@ public class ModelUtils {
             .replace(":", "_");
     }
 
+    public static TOperation findOperation(TDefinitions def, String interfaceName, String operationName) {
+        for (TNodeType nodeType : def.getNodeTypes()) {
+            for (TInterface iface : nodeType.getInterfaces()) {
+                if (iface.getName().equals(interfaceName)) {
+                    for (TOperation op : iface.getOperations()) {
+                        if (op.getName().equals(operationName)) {
+                            return op;
+                        }
+                    }
+                }
+            }
+        }
+        for (TDefinitions defs : getAllDefinitions()) {
+            if (defs.getIdFromIdOrNameField().equals(def.getIdFromIdOrNameField())){
+                continue;
+            }
+            TOperation op = findOperation(defs, interfaceName, operationName);
+            if (op != null) {
+                return op;
+            }
+        }
+        return null;
+    }
+
+    public static Collection<TDefinitions> getAllDefinitions() {
+        IRepository repo = RepositoryFactory.getRepository();
+        Collection<DefinitionsChildId> ids = repo.getAllDefinitionsChildIds();
+        return ids.stream().map(x -> repo.getDefinitions(x)).collect(Collectors.toList());
+    }
+
+
+    public static boolean hasBuildPlan(TServiceTemplate serviceTemplate) {
+        return !serviceTemplate.getPlans().stream().filter(x -> x.getPlanType().equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan")).collect(Collectors.toList()).isEmpty();
+    }
+
+    public static boolean hasTerminationPlan(TServiceTemplate serviceTemplate) {
+        return !serviceTemplate.getPlans().stream().filter(x -> x.getPlanType().equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan")).collect(Collectors.toList()).isEmpty();
+    }
 
     public static Collection<TRelationshipTemplate> getIngoingRelations(TNodeTemplate nodeTemplate, Csar csar) {
         return getAllRelationshipTemplates(csar).stream().filter(x -> x.getTargetElement().getRef() instanceof TNodeTemplate && x.getTargetElement().getRef().getId().equals(nodeTemplate.getId())).collect(Collectors.toList());

@@ -7,10 +7,12 @@ import java.util.Objects;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
@@ -33,8 +35,6 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlu
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,13 +75,13 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
     }
 
     @Override
-    public BPELPlan buildPlan(final Csar csar, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                              final TServiceTemplate serviceTemplate) {
         BPELDefrostProcessBuilder.LOG.info("Making Concrete Plans");
 
         if (!this.isDefrostable(serviceTemplate, csar)) {
             BPELDefrostProcessBuilder.LOG.warn("Couldn't create DeFreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-                serviceTemplate.getQName().toString(), definitions.getId(), csar.id().csarName());
+                serviceTemplate.getId(), definitions.getId(), csar.id().csarName());
             return null;
         }
 
@@ -159,7 +159,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         return newDefreezePlan;
     }
 
-    private boolean isDefrostable(final AbstractServiceTemplate serviceTemplate, Csar csar) {
+    private boolean isDefrostable(final TServiceTemplate serviceTemplate, Csar csar) {
 
         for (final TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             if (this.isDefrostable(nodeTemplate, csar)) {
@@ -232,17 +232,17 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         BPELDefrostProcessBuilder.LOG.debug("Building the Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (!this.isDefrostable(serviceTemplate, csar)) {
                 continue;
             }
 
             BPELDefrostProcessBuilder.LOG.debug("ServiceTemplate {} has no DefreezePlan, generating a new plan",
-                serviceTemplate.getQName().toString());
+                serviceTemplate.getId());
             final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
             if (newBuildPlan != null) {

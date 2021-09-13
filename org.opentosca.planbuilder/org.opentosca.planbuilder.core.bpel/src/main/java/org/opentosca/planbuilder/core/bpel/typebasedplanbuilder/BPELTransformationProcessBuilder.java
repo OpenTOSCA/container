@@ -8,8 +8,10 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractTransformingPlanbuilder;
@@ -33,8 +35,6 @@ import org.opentosca.planbuilder.model.plan.AbstractTransformationPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,12 +95,12 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
      * @param targetRelationshipTemplates the target configuration of relations to adapt to
      * @return a BPEL Plan that is able to adapt an instance from the given current and target configurations
      */
-    public BPELPlan buildPlan(Csar csar, AbstractDefinitions definitions, QName serviceTemplateId,
+    public BPELPlan buildPlan(Csar csar, TDefinitions definitions, QName serviceTemplateId,
                               Collection<TNodeTemplate> sourceNodeTemplates,
                               Collection<TRelationshipTemplate> sourceRelationshipTemplates,
                               Collection<TNodeTemplate> targetNodeTemplates,
                               Collection<TRelationshipTemplate> targetRelationshipTemplates) {
-        AbstractServiceTemplate serviceTemplate = this.getServiceTemplate(definitions, serviceTemplateId);
+        TServiceTemplate serviceTemplate = this.getServiceTemplate(definitions, serviceTemplateId);
         Long id = System.currentTimeMillis();
         // generate abstract plan
         AbstractTransformationPlan adaptationPlan =
@@ -259,12 +259,12 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
     }
 
     @Override
-    public BPELPlan buildPlan(Csar sourceCsar, AbstractDefinitions sourceDefinitions,
+    public BPELPlan buildPlan(Csar sourceCsar, TDefinitions sourceDefinitions,
                               QName sourceServiceTemplateId, Csar targetCsar,
-                              AbstractDefinitions targetDefinitions, QName targetServiceTemplateId) {
+                              TDefinitions targetDefinitions, QName targetServiceTemplateId) {
 
-        AbstractServiceTemplate sourceServiceTemplate = null;
-        AbstractServiceTemplate targetServiceTemplate = null;
+        TServiceTemplate sourceServiceTemplate = null;
+        TServiceTemplate targetServiceTemplate = null;
         sourceServiceTemplate = this.getServiceTemplate(sourceDefinitions, sourceServiceTemplateId);
         targetServiceTemplate = this.getServiceTemplate(targetDefinitions, targetServiceTemplateId);
 
@@ -474,8 +474,8 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         return this.getScopesByType(plan, ActivityType.PROVISIONING);
     }
 
-    private void addNodeRelationInstanceVariables(BPELPlan plan, AbstractServiceTemplate sourceServiceTemplate,
-                                                  AbstractServiceTemplate targetServiceTemplate) {
+    private void addNodeRelationInstanceVariables(BPELPlan plan, TServiceTemplate sourceServiceTemplate,
+                                                  TServiceTemplate targetServiceTemplate) {
         this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(plan, sourceServiceTemplate);
         this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(plan, targetServiceTemplate);
 
@@ -484,17 +484,17 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(Csar sourceCsar, AbstractDefinitions sourceDefinitions,
-                                         Csar targetCsar, AbstractDefinitions targetDefinitions) {
+    public List<AbstractPlan> buildPlans(Csar sourceCsar, TDefinitions sourceDefinitions,
+                                         Csar targetCsar, TDefinitions targetDefinitions) {
         // TODO Auto-generated method stub
         return null;
     }
 
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping sourceServiceTemplateMap,
                             final Property2VariableMapping targetServiceTemplateMap, Csar sourceCsar,
-                            AbstractServiceTemplate sourceServiceTemplate, String sourceServiceInstanceUrl,
+                            TServiceTemplate sourceServiceTemplate, String sourceServiceInstanceUrl,
                             String sourceServiceInstanceId, String sourceServiceTemplateUrl, Csar targetCsar,
-                            AbstractServiceTemplate targetServiceTemplate, String targetServiceInstanceUrl,
+                            TServiceTemplate targetServiceTemplate, String targetServiceInstanceUrl,
                             String targetServiceInstanceId, String targetServiceTemplateUrl, String planInstanceURL) {
 
         for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {

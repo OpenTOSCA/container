@@ -9,8 +9,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
@@ -21,8 +23,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 /**
@@ -42,8 +42,8 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
         return PlanType.MANAGEMENT;
     }
 
-    public AbstractPlan generateSOG(final String id, final AbstractDefinitions defintions,
-                                    final AbstractServiceTemplate serviceTemplate,
+    public AbstractPlan generateSOG(final String id, final TDefinitions defintions,
+                                    final TServiceTemplate serviceTemplate,
                                     final ScalingPlanDefinition scalingPlanDefinition, Csar csar) {
         final Map<TNodeTemplate, AbstractActivity> mapping = new HashMap<>();
 

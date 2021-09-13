@@ -9,8 +9,11 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
@@ -22,9 +25,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.springframework.ui.Model;
 
@@ -42,14 +42,14 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
         return PlanType.TERMINATION;
     }
 
-    protected AbstractPlan generateFOG(final String id, final AbstractDefinitions definitions,
-                                       final AbstractServiceTemplate serviceTemplate, Csar csar) {
+    protected AbstractPlan generateFOG(final String id, final TDefinitions definitions,
+                                       final TServiceTemplate serviceTemplate, Csar csar) {
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
         final Map<TNodeTemplate, AbstractActivity> mapping = new HashMap<>();
 
-        final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
+        final TTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
         // Get all node templates which are sources only --> that don't
         for (final TNodeTemplate nodeTemplate : topology.getNodeTemplates()) {

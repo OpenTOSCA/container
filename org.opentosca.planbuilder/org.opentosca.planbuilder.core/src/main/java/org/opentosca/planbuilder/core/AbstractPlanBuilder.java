@@ -3,12 +3,12 @@ package org.opentosca.planbuilder.core;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +46,9 @@ public abstract class AbstractPlanBuilder {
             + this.pluginRegistry.getProvPlugins().size();
     }
 
-    public AbstractServiceTemplate getServiceTemplate(AbstractDefinitions defs, QName serviceTemplateId) {
-        for (AbstractServiceTemplate servTemplate : defs.getServiceTemplates()) {
-            if (servTemplate.getQName().getLocalPart().equals(serviceTemplateId.getLocalPart())) {
+    public TServiceTemplate getServiceTemplate(TDefinitions defs, QName serviceTemplateId) {
+        for (TServiceTemplate servTemplate : defs.getServiceTemplates()) {
+            if (servTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
                 return servTemplate;
             }
         }

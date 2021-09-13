@@ -11,9 +11,12 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
@@ -27,9 +30,6 @@ import org.opentosca.planbuilder.model.plan.AbstractTransformationPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,9 +69,9 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
      * @return a single AbstractPlan with a concrete implementation of a transformation function from the source to the
      * target topology
      */
-    abstract public AbstractPlan buildPlan(Csar sourceCsar, AbstractDefinitions sourceDefinitions,
+    abstract public AbstractPlan buildPlan(Csar sourceCsar, TDefinitions sourceDefinitions,
                                            QName sourceServiceTemplateId, Csar targetCsar,
-                                           AbstractDefinitions targetDefinitions, QName targetServiceTemplateId);
+                                           TDefinitions targetDefinitions, QName targetServiceTemplateId);
 
     /**
      * Generates a Set of Plans that is generated based on the given source and target definitions. This generation is
@@ -84,15 +84,15 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
      * @param targetDefinitions the id of the target definitions inside the referenced target csar
      * @return a List of AbstractPlans
      */
-    abstract public List<AbstractPlan> buildPlans(Csar sourceCsar, AbstractDefinitions sourceDefinitions,
-                                                  Csar targetCsar, AbstractDefinitions targetDefinitions);
+    abstract public List<AbstractPlan> buildPlans(Csar sourceCsar, TDefinitions sourceDefinitions,
+                                                  Csar targetCsar, TDefinitions targetDefinitions);
 
-    public AbstractTransformationPlan generateTFOG(Csar sourceCsar, AbstractDefinitions sourceDefinitions,
-                                                   AbstractServiceTemplate sourceServiceTemplate,
+    public AbstractTransformationPlan generateTFOG(Csar sourceCsar, TDefinitions sourceDefinitions,
+                                                   TServiceTemplate sourceServiceTemplate,
                                                    Collection<TNodeTemplate> sourceNodeTemplates,
                                                    Collection<TRelationshipTemplate> sourceRelationshipTemplates,
-                                                   Csar targetCsar, AbstractDefinitions targetDefinitions,
-                                                   AbstractServiceTemplate targetServiceTemplate,
+                                                   Csar targetCsar, TDefinitions targetDefinitions,
+                                                   TServiceTemplate targetServiceTemplate,
                                                    Collection<TNodeTemplate> targetNodeTemplates,
                                                    Collection<TRelationshipTemplate> targetRelationshipTemplates, String idSuffix) {
 
@@ -157,10 +157,10 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return result;
     }
 
-    public AbstractTransformationPlan generateTFOG(Csar sourceCsar, AbstractDefinitions sourceDefinitions,
-                                                   AbstractServiceTemplate sourceServiceTemplate, Csar targetCsar,
-                                                   AbstractDefinitions targetDefinitions,
-                                                   AbstractServiceTemplate targetServiceTemplate, String idSuffix) {
+    public AbstractTransformationPlan generateTFOG(Csar sourceCsar, TDefinitions sourceDefinitions,
+                                                   TServiceTemplate sourceServiceTemplate, Csar targetCsar,
+                                                   TDefinitions targetDefinitions,
+                                                   TServiceTemplate targetServiceTemplate, String idSuffix) {
         return this.generateTFOG(sourceCsar, sourceDefinitions, sourceServiceTemplate,
             sourceServiceTemplate.getTopologyTemplate().getNodeTemplates(),
             sourceServiceTemplate.getTopologyTemplate().getRelationshipTemplates(), targetCsar,
@@ -180,12 +180,12 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
      * @return a single AbstractPlan containing abstract activities for a transformation function from the source to the
      * target topology
      */
-    public AbstractTransformationPlan _generateTFOG(Csar sourceCsarName, AbstractDefinitions sourceDefinitions,
-                                                    AbstractServiceTemplate sourceServiceTemplate,
-                                                    Csar targetCsarName, AbstractDefinitions targetDefinitions,
-                                                    AbstractServiceTemplate targetServiceTemplate) {
-        AbstractTopologyTemplate sourceTopology = sourceServiceTemplate.getTopologyTemplate();
-        AbstractTopologyTemplate targetTopology = targetServiceTemplate.getTopologyTemplate();
+    public AbstractTransformationPlan _generateTFOG(Csar sourceCsarName, TDefinitions sourceDefinitions,
+                                                    TServiceTemplate sourceServiceTemplate,
+                                                    Csar targetCsarName, TDefinitions targetDefinitions,
+                                                    TServiceTemplate targetServiceTemplate) {
+        TTopologyTemplate sourceTopology = sourceServiceTemplate.getTopologyTemplate();
+        TTopologyTemplate targetTopology = targetServiceTemplate.getTopologyTemplate();
 
         Set<TNodeTemplate> maxCommonSubgraph =
             this.getMaxCommonSubgraph(new HashSet<>(sourceTopology.getNodeTemplates()),
@@ -241,10 +241,10 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
     private AbstractTransformationPlan generateInstanceMigrationPlan(Collection<TNodeTemplate> nodeTemplates,
                                                                      Collection<TRelationshipTemplate> relationshipTemplates,
-                                                                     AbstractDefinitions sourceDefinitions,
-                                                                     AbstractDefinitions targetDefinitions,
-                                                                     AbstractServiceTemplate sourceServiceTemplate,
-                                                                     AbstractServiceTemplate targetServiceTemplate, Csar sourceCsar) {
+                                                                     TDefinitions sourceDefinitions,
+                                                                     TDefinitions targetDefinitions,
+                                                                     TServiceTemplate sourceServiceTemplate,
+                                                                     TServiceTemplate targetServiceTemplate, Csar sourceCsar) {
         // General flow is as within a build plan
 
         final Collection<AbstractActivity> activities = new ArrayList<>();

@@ -11,9 +11,11 @@ import java.util.Objects;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
@@ -35,8 +37,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,11 +94,11 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
     @Override
-    public BPELPlan buildPlan(final Csar csar, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                              final TServiceTemplate serviceTemplate) {
         LOG.debug("Creating Backup Management Plan...");
 
         if (Objects.isNull(serviceTemplate)) {
@@ -267,10 +267,10 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         LOG.debug("Building the Backup Management Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, csar)) {
                 LOG.debug("ServiceTemplate {} contains NodeTypes with defined backup interface.",
@@ -293,7 +293,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
     }
 
     private void appendGenerateStatefulServiceTemplateLogic(final BPELPlan plan) throws IOException, SAXException {
-        final QName serviceTemplateId = plan.getServiceTemplate().getQName();
+        final QName serviceTemplateId = new QName(plan.getServiceTemplate().getTargetNamespace(), plan.getServiceTemplate().getId());
 
         this.planHandler.addStringElementToPlanRequest(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT,
             plan);

@@ -9,12 +9,13 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.springframework.ui.Model;
 import org.w3c.dom.Element;
@@ -302,7 +303,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                                                                       Property2VariableMapping propMap,
                                                                       String serviceTemplateUrlVarName,
                                                                       Collection<BPELScope> scopes,
-                                                                      AbstractServiceTemplate serviceTemplate, String query) {
+                                                                      TServiceTemplate serviceTemplate, String query) {
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
@@ -429,7 +430,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
     public boolean appendInitPropertyVariablesFromServiceInstanceData(final BPELPlan plan,
                                                                       final Property2VariableMapping propMap,
                                                                       String serviceTemplateUrlVarName,
-                                                                      AbstractServiceTemplate serviceTemplate, String query) {
+                                                                      TServiceTemplate serviceTemplate, String query) {
         return this.appendInitPropertyVariablesFromServiceInstanceData(plan, propMap, serviceTemplateUrlVarName,
             plan.getTemplateBuildPlans(), serviceTemplate, query);
     }

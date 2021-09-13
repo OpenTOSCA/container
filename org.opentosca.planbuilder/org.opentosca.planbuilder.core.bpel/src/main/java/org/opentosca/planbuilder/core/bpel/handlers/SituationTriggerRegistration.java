@@ -13,10 +13,11 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.springframework.ui.Model;
 import org.w3c.dom.Element;
@@ -39,7 +40,7 @@ public class SituationTriggerRegistration {
         this.serviceInstanceHandler = new SimplePlanBuilderServiceInstanceHandler();
     }
 
-    public boolean handle(final AbstractServiceTemplate serviceTemplate, final BPELPlan plan) {
+    public boolean handle(final TServiceTemplate serviceTemplate, final BPELPlan plan) {
 
         try {
             // parse triggers
@@ -277,7 +278,7 @@ public class SituationTriggerRegistration {
         return strB.toString();
     }
 
-    public boolean canHandle(final AbstractServiceTemplate serviceTemplate, final BPELPlan plan) {
+    public boolean canHandle(final TServiceTemplate serviceTemplate, final BPELPlan plan) {
 
         List<SituationTrigger> triggers = new ArrayList<>();
         try {
@@ -296,7 +297,7 @@ public class SituationTriggerRegistration {
         return list;
     }
 
-    private List<SituationTrigger> parseSituationTriggers(final AbstractServiceTemplate serviceTemplate) throws XPathExpressionException {
+    private List<SituationTrigger> parseSituationTriggers(final TServiceTemplate serviceTemplate) throws XPathExpressionException {
         final List<SituationTrigger> situationTriggers = new ArrayList<>();
         final Map<String, String> properties = getPropertiesSafely(serviceTemplate);
 
@@ -320,7 +321,7 @@ public class SituationTriggerRegistration {
         return situationTriggers;*/
     }
 
-    private Map<String, String> getPropertiesSafely(final AbstractServiceTemplate serviceTemplate) {
+    private Map<String, String> getPropertiesSafely(final TServiceTemplate serviceTemplate) {
         if (serviceTemplate.getBoundaryDefinitions() != null) {
             if (serviceTemplate.getBoundaryDefinitions().getProperties() != null) {
                 if (serviceTemplate.getBoundaryDefinitions().getProperties() != null) {

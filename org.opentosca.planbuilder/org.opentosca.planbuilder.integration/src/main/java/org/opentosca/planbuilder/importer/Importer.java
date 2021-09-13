@@ -16,6 +16,7 @@ import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.common.RepositoryFileReference;
@@ -28,8 +29,6 @@ import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.integration.layer.AbstractImporter;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -61,7 +60,7 @@ public class Importer extends AbstractImporter {
      * @return a List of BuildPlan
      */
     public List<AbstractPlan> generatePlans(final Csar csar) {
-        final AbstractDefinitions defs = this.createContext(csar);
+        final TDefinitions defs = this.createContext(csar);
         final List<AbstractPlan> plans = this.buildPlans(defs, csar);
         return plans;
     }
@@ -72,8 +71,8 @@ public class Importer extends AbstractImporter {
                                                Collection<String> targetNodeTemplateId,
                                                Collection<String> targetRelationshipTemplateId) throws SystemException {
 
-        AbstractDefinitions defs = this.createContext(csar);
-        AbstractTopologyTemplate topology = Lists.newArrayList(defs.getServiceTemplates()).get(0).getTopologyTemplate();
+        TDefinitions defs = this.createContext(csar);
+        TTopologyTemplate topology = Lists.newArrayList(defs.getServiceTemplates()).get(0).getTopologyTemplate();
 
         return this.buildAdaptationPlan(csar, defs, serviceTemplateId,
             this.getNodes(topology, sourceNodeTemplateIds),
@@ -82,7 +81,7 @@ public class Importer extends AbstractImporter {
             this.getRelations(topology, targetRelationshipTemplateId));
     }
 
-    private Collection<TNodeTemplate> getNodes(AbstractTopologyTemplate topology, Collection<String> nodeIds) {
+    private Collection<TNodeTemplate> getNodes(TTopologyTemplate topology, Collection<String> nodeIds) {
         Collection<TNodeTemplate> result = new ArrayList<>();
 
         for (TNodeTemplate node : topology.getNodeTemplates()) {
@@ -94,7 +93,7 @@ public class Importer extends AbstractImporter {
         return result;
     }
 
-    private Collection<TRelationshipTemplate> getRelations(AbstractTopologyTemplate topology,
+    private Collection<TRelationshipTemplate> getRelations(TTopologyTemplate topology,
                                                            Collection<String> relationIds) {
         Collection<TRelationshipTemplate> result = new ArrayList<>();
 
@@ -110,8 +109,8 @@ public class Importer extends AbstractImporter {
     public List<AbstractPlan> generateTransformationPlans(final Csar sourceCsarId, final Csar targetCsarId) {
         final List<AbstractPlan> plans = new ArrayList<>();
         this.createContext(sourceCsarId);
-        final AbstractDefinitions sourceDefs = this.createContext(sourceCsarId);
-        final AbstractDefinitions targetDefs = this.createContext(targetCsarId);
+        final TDefinitions sourceDefs = this.createContext(sourceCsarId);
+        final TDefinitions targetDefs = this.createContext(targetCsarId);
 
         plans.addAll(this.buildTransformationPlans(sourceCsarId, sourceDefs,
             targetCsarId, targetDefs));
@@ -122,26 +121,26 @@ public class Importer extends AbstractImporter {
      * Returns a TOSCA Definitions object which contains the Entry-ServiceTemplate
      *
      * @param csarId an ID of a CSAR
-     * @return an AbstractDefinitions object
+     * @return an TDefinitions object
      */
-    public AbstractDefinitions getMainDefinitions(final Csar csarId) {
+    public TDefinitions getMainDefinitions(final Csar csarId) {
         return this.createContext(csarId);
     }
 
     /**
-     * Creates an AbstractDefinitions Object of the given CSARContent
+     * Creates an TDefinitions Object of the given CSARContent
      *
-     * @param csarContent the CSARContent to generate an AbstractDefinitions for
-     * @return an AbstractDefinitions which is the Entry-Definitions of the given CSAR
+     * @param csarContent the CSARContent to generate an TDefinitions for
+     * @return an TDefinitions which is the Entry-Definitions of the given CSAR
      * @throws SystemException is thrown if accessing data inside the OpenTOSCA Core fails
      */
     /**
-     * public AbstractDefinitions createContext(final CSARContent csarContent) throws SystemException { final
+     * public TDefinitions createContext(final CSARContent csarContent) throws SystemException { final
      * AbstractFile rootTosca = csarContent.getRootTOSCA(); final Set<AbstractFile> referencedFilesInCsar =
      * csarContent.getFilesRecursively(); return new DefinitionsImpl(rootTosca, referencedFilesInCsar, true); }
      */
 
-    public AbstractDefinitions createContext(final Csar csar) {
+    public TDefinitions createContext(final Csar csar) {
 
         IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
         Collection<DefinitionsChildId> ids = repo.getAllDefinitionsChildIds();
@@ -168,6 +167,6 @@ public class Importer extends AbstractImporter {
             }
         }
 
-        return new org.opentosca.planbuilder.importer.winery.context.impl.impl.DefinitionsImpl(entryDef, ids.stream().map(x -> repo.getDefinitions(x)).collect(Collectors.toList()), allPaths, repo);
+        return entryDef;
     }
 }

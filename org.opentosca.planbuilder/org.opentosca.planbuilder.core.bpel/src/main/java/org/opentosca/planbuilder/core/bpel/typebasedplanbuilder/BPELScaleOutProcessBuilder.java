@@ -14,9 +14,12 @@ import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTag;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
@@ -46,9 +49,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +102,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         this.opNames.add("start");
     }
 
-    private boolean addInstanceIdToOutput(final BPELScope activ, AbstractServiceTemplate serviceTemplate) {
+    private boolean addInstanceIdToOutput(final BPELScope activ, TServiceTemplate serviceTemplate) {
         String outputName;
         if (activ.getNodeTemplate() != null) {
             outputName = "CreatedInstance_" + activ.getNodeTemplate().getId();
@@ -120,7 +120,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
     private void addRecursiveInstanceSelection(final BPELPlan plan, final Property2VariableMapping map,
                                                final TNodeTemplate nodeTemplate,
-                                               AbstractServiceTemplate serviceTemplate, Csar csar) {
+                                               TServiceTemplate serviceTemplate, Csar csar) {
         // fetch nodeInstance Variable to store the result at the end
         final BPELPlanContext nodeContext = this.createContext(nodeTemplate, plan, map, csar);
 
@@ -183,7 +183,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
     private void addRecursiveInstanceSelection(final BPELPlan plan, final Property2VariableMapping map,
                                                final TRelationshipTemplate relationshipTemplate,
-                                               AbstractServiceTemplate serviceTemplate, Csar csar) {
+                                               TServiceTemplate serviceTemplate, Csar csar) {
         // fetch relationInstance variable of relationship template
         final BPELPlanContext relationContext = this.createContext(relationshipTemplate, plan, map, csar);
         final String relationshipTemplateInstanceVarName =
@@ -240,17 +240,17 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     @Override
-    public BPELPlan buildPlan(final Csar csar, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                              final TServiceTemplate serviceTemplate) {
         throw new RuntimeException("A service Template can have multiple scaling plans, this method is not supported");
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
 
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-            plans.addAll(buildScalingPlans(csar, definitions, serviceTemplate.getQName()));
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+            plans.addAll(buildScalingPlans(csar, definitions, new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId())));
         }
 
         if (!plans.isEmpty()) {
@@ -259,11 +259,11 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         return plans;
     }
 
-    public List<BPELPlan> buildScalingPlans(final Csar csar, final AbstractDefinitions definitions,
+    public List<BPELPlan> buildScalingPlans(final Csar csar, final TDefinitions definitions,
                                             final QName serviceTemplateId) {
         final List<BPELPlan> scalingPlans = new ArrayList<>();
 
-        final AbstractServiceTemplate serviceTemplate = getServiceTemplate(definitions, serviceTemplateId);
+        final TServiceTemplate serviceTemplate = getServiceTemplate(definitions, serviceTemplateId);
 
         if (serviceTemplate == null) {
             return scalingPlans;
@@ -425,7 +425,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             plan.getServiceTemplate(), serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
     }
 
-    private TNodeTemplate fetchNodeTemplate(final AbstractTopologyTemplate topologyTemplate,
+    private TNodeTemplate fetchNodeTemplate(final TTopologyTemplate topologyTemplate,
                                                    final String nodeTemplateId) {
         for (final TNodeTemplate nodeTemplate : topologyTemplate.getNodeTemplates()) {
             if (nodeTemplate.getId().equals(nodeTemplateId)) {
@@ -435,7 +435,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         return null;
     }
 
-    private List<TNodeTemplate> fetchNodeTemplates(final AbstractTopologyTemplate topology,
+    private List<TNodeTemplate> fetchNodeTemplates(final TTopologyTemplate topology,
                                                           String scalingPlanNodesRawValue) {
         final List<TNodeTemplate> nodeTemplates = new ArrayList<>();
 
@@ -459,7 +459,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         }
     }
 
-    private List<TRelationshipTemplate> fetchRelationshipTemplates(final AbstractTopologyTemplate topology,
+    private List<TRelationshipTemplate> fetchRelationshipTemplates(final TTopologyTemplate topology,
                                                                           String scalingPlanRelationsRawValue) {
         final List<TRelationshipTemplate> relationshipTemplates = new ArrayList<>();
 
@@ -483,7 +483,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         }
     }
 
-    private List<ScalingPlanDefinition> fetchScalingPlansDefinitions(final AbstractTopologyTemplate topology,
+    private List<ScalingPlanDefinition> fetchScalingPlansDefinitions(final TTopologyTemplate topology,
                                                                      final Map<String, String> tags, Csar csar) {
         final List<ScalingPlanDefinition> scalingPlanDefinitions = new ArrayList<>();
 
@@ -534,7 +534,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         return scalingPlanDefinitions;
     }
 
-    private List<AnnotatedTNodeTemplate> fetchSelectionStrategy2BorderNodes(final AbstractTopologyTemplate topologyTemplate,
+    private List<AnnotatedTNodeTemplate> fetchSelectionStrategy2BorderNodes(final TTopologyTemplate topologyTemplate,
                                                                                    String selectionStrategyBorderNodesCSV, Csar csar) {
 
         selectionStrategyBorderNodesCSV = cleanCSVString(selectionStrategyBorderNodesCSV);

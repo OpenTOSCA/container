@@ -24,6 +24,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
@@ -43,10 +44,10 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ui.Model;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -72,7 +73,7 @@ public class BPELPlanContext extends PlanContext {
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
-                           final AbstractServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
+                           final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
                            String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, Csar csar) {
         super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
 
@@ -101,8 +102,8 @@ public class BPELPlanContext extends PlanContext {
     }
 
     public boolean addUsedOperation(String interfaceName, String operationName, String compensationInterfaceName, String compensationOperationName) {
-        TOperation op = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(interfaceName, operationName);
-        TOperation compensationOp = this.templateBuildPlan.getBuildPlan().getDefinitions().findOperation(compensationInterfaceName, compensationOperationName);
+        TOperation op = ModelUtils.findOperation(this.templateBuildPlan.getBuildPlan().getDefinitions(), interfaceName, operationName);
+        TOperation compensationOp = ModelUtils.findOperation(this.templateBuildPlan.getBuildPlan().getDefinitions(), compensationInterfaceName, compensationOperationName);
         if (op != null) {
             this.addUsedOperation(op, compensationOp);
             return true;

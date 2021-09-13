@@ -7,16 +7,16 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 public abstract class PlanContext {
 
     protected final AbstractPlan plan;
-    protected final AbstractServiceTemplate serviceTemplate;
+    protected final TServiceTemplate serviceTemplate;
     protected final String serviceInstanceURLVarName;
     protected final String serviceInstanceIDVarName;
     protected final String serviceTemplateURLVarName;
@@ -24,7 +24,7 @@ public abstract class PlanContext {
     protected final Csar csar;
     protected final Property2VariableMapping propertyMap;
 
-    public PlanContext(final AbstractPlan plan, final AbstractServiceTemplate serviceTemplate,
+    public PlanContext(final AbstractPlan plan, final TServiceTemplate serviceTemplate,
                        final Property2VariableMapping map, final String serviceInstanceURLVarName,
                        final String serviceInstanceIDVarName, final String serviceTemplateURLVarName, final String planInstanceUrlVarName,
                        final Csar csar) {
@@ -42,7 +42,7 @@ public abstract class PlanContext {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate);
     }
 
-    public AbstractServiceTemplate getServiceTemplate() {
+    public TServiceTemplate getServiceTemplate() {
         return this.serviceTemplate;
     }
 
@@ -160,7 +160,7 @@ public abstract class PlanContext {
     }
 
     public QName getServiceTemplateId() {
-        return this.serviceTemplate.getQName();
+        return new QName(this.serviceTemplate.getTargetNamespace(), this.serviceTemplate.getId());
     }
 
     /**

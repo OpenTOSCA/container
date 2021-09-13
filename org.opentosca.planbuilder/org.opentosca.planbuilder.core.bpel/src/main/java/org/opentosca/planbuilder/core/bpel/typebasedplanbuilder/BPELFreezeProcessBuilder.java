@@ -11,10 +11,12 @@ import java.util.Objects;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
@@ -36,8 +38,6 @@ import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,16 +92,16 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
     @Override
-    public BPELPlan buildPlan(final Csar csar, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                              final TServiceTemplate serviceTemplate) {
         LOG.info("Creating Freeze Plan...");
 
         if (!this.isStateful(serviceTemplate, csar)) {
             LOG.warn("Couldn't create FreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-                serviceTemplate.getQName().toString(), definitions.getId(), csar.id().csarName());
+                serviceTemplate.getId(), definitions.getId(), csar.id().csarName());
             return null;
         }
 
@@ -201,16 +201,16 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         LOG.debug("Building the Freeze Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
             if (!this.isStateful(serviceTemplate, csar)) {
                 continue;
             }
 
             LOG.debug("ServiceTemplate {} has no Freeze Plan, generating Freeze Plan",
-                serviceTemplate.getQName().toString());
+                serviceTemplate.getId());
             final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
             if (newBuildPlan != null) {
@@ -224,7 +224,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         return plans;
     }
 
-    private boolean isStateful(final AbstractServiceTemplate serviceTemplate, Csar csar) {
+    private boolean isStateful(final TServiceTemplate serviceTemplate, Csar csar) {
         return serviceTemplate.getTopologyTemplate().getNodeTemplates().stream()
             .filter(node -> isStateful(node, csar)).findFirst().isPresent();
     }
@@ -270,7 +270,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     }
 
     private void appendGenerateStatefulServiceTemplateLogic(final BPELPlan plan) throws IOException, SAXException {
-        final QName serviceTemplateId = plan.getServiceTemplate().getQName();
+        final QName serviceTemplateId = new QName(plan.getServiceTemplate().getTargetNamespace(), plan.getServiceTemplate().getId());
 
         this.planHandler.addStringElementToPlanRequest(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT,
             plan);

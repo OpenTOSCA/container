@@ -9,9 +9,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
@@ -22,9 +25,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimplePlanBuilder {
@@ -51,8 +51,8 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
      *                                to be executed bottom-up
      * @return the AbstractPlan containing the activities
      */
-    protected AbstractPlan generateMOG(final String id, final AbstractDefinitions definitions,
-                                       final AbstractServiceTemplate serviceTemplate,
+    protected AbstractPlan generateMOG(final String id, final TDefinitions definitions,
+                                       final TServiceTemplate serviceTemplate,
                                        final String managementInterfaceName, final ActivityType activityType,
                                        final boolean topDown, Csar csar) {
 
@@ -60,7 +60,7 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
         final Set<Link> links = new HashSet<>();
         final Map<TNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
 
-        final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
+        final TTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
         // check all NodeTypes if they contain the given Management Interface
         for (final TNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
@@ -120,7 +120,7 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
     /**
      * Checks if the ServiceTemplate contains a NodeType which defines the given Interface.
      */
-    protected boolean containsManagementInterface(final AbstractServiceTemplate serviceTemplate,
+    protected boolean containsManagementInterface(final TServiceTemplate serviceTemplate,
                                                   final String managementInterfaceName, Csar csar) {
         return serviceTemplate.getTopologyTemplate().getNodeTemplates().stream()
             .filter(node -> containsManagementInterface(node, managementInterfaceName, csar)).findFirst()

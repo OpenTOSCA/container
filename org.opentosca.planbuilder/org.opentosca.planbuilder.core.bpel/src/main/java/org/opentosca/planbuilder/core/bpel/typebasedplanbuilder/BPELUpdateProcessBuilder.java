@@ -9,10 +9,12 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
@@ -35,8 +37,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +80,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
     }
 
     @Override
-    public BPELPlan buildPlan(Csar csar, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate) {
+    public BPELPlan buildPlan(Csar csar, TDefinitions definitions, TServiceTemplate serviceTemplate) {
         final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_updatePlan");
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_updatePlan";
 
@@ -181,13 +181,13 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(Csar csar, AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(Csar csar, TDefinitions definitions) {
         LOG.debug("Building the Update Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             LOG.debug("ServiceTemplate {} has no Update Plan, generating Update Plan",
-                serviceTemplate.getQName().toString());
+                serviceTemplate.getId());
             final BPELPlan newUpdatePlan = buildPlan(csar, definitions, serviceTemplate);
 
             if (newUpdatePlan != null) {
